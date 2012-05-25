@@ -1,4 +1,6 @@
 #include "davix_stat.h"
+#include <iostream>
+#include <string>
 #include <cstring>
 #include <xmlpp/webdavpropparser.h>
 

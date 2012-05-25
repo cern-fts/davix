@@ -8,7 +8,7 @@
 using namespace Davix;
 
 
-#define MY_BUFFER_SIZE 4
+#define MY_BUFFER_SIZE 6565100
 
  Auth_code mycred_auth_callback(Auth_type t, char * data,  void * userdata, GError ** err){
      if(t == DAVIX_FULL_PEM){

@@ -97,7 +97,7 @@ protected:
     std::string _content_body;
     std::string _request_type;
     NEONSessionFactory* _f;
-    bool req_started;
+    bool req_started, req_running;
 
     std::vector< std::pair<std::string, std::string > > _headers_field;
 
@@ -106,8 +106,7 @@ protected:
 
     /** temporary field used for login/password authentification
      */
-    std::string _passwd;
-    std::string _login;
+    std::string _passwd, _login;
 
 
     void create_req();

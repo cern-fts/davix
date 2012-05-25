@@ -16,6 +16,7 @@ static GOnce neon_once = G_ONCE_INIT;
 
 static gpointer init_neon(gpointer useless){
     ne_sock_init();
+    return NULL;
 }
 
 NEONSessionFactory::NEONSessionFactory()

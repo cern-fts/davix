@@ -44,7 +44,7 @@ const size_t len_list=2;
 void test_url_parsing(){
     g_logger_set_globalfilter(G_LOG_LEVEL_MASK);
     std::string url, host, path, proto;
-    unsigned int port;
+    unsigned long port;
     for(int i=0; i < len_list; ++i){
         if(failure[i] == false){
             parse_http_neon_url(std::string(list_urls[i]), proto, host, path, &port);

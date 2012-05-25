@@ -49,7 +49,7 @@ private:
 };
 
 void parse_http_neon_url(const std::string & url, std::string & protocol,
-                         std::string & host, std::string & path, unsigned int *port);
+                         std::string & host, std::string & path, unsigned long *port);
 
 std::string create_map_keys_from_URL(const std::string & protocol, const std::string &host, unsigned int port);
 

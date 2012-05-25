@@ -41,7 +41,7 @@ NEONSessionFactory::~NEONSessionFactory(){
 
 Request* NEONSessionFactory::take_request(RequestType typ, const std::string &url){
     std::string host, protocol, path;
-    unsigned int port;
+    unsigned long port;
     parse_http_neon_url(url, protocol, host, path, &port);
     ne_session* sess = create_recycled_session(protocol, host, port);
     NEONRequest* req = new NEONRequest(this, sess, typ, path, _user_auth_callback_data, _call);
@@ -101,7 +101,7 @@ void NEONSessionFactory::internal_release_session_handle(ne_session* sess){
     _sess_map.insert(std::pair<std::string, ne_session*>(protocol + hostport, sess));
 }
 
-void parse_http_neon_url(const std::string &url, std::string &protocol, std::string &host, std::string &path, unsigned int * port){
+void parse_http_neon_url(const std::string &url, std::string &protocol, std::string &host, std::string &path, unsigned long * port){
     char * c_url = (char*) url.c_str();
     char * comma;
     if( (comma = strchr(c_url,':')) != NULL){ // determine protocol

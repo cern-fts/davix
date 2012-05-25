@@ -130,8 +130,9 @@ NEONRequest::~NEONRequest(){
 
     free_request();
     //ne_forget_auth(_sess);
-
+#ifndef _DISABLE_SESSION_REUSE
     _f->internal_release_session_handle(_sess);
+#endif
 }
 
 void NEONRequest::create_req(){

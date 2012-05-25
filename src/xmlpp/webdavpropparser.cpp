@@ -3,10 +3,6 @@
 #include "webdavpropparser.h"
 #include "davixxmlparserexception.h"
 
-
-
-#include <glibmm/quark.h>
-#include <glibmm/datetime.h>
 #include <glibmm.h>
 #include <cstring>
 

@@ -69,7 +69,7 @@ void WebdavPropParser::on_start_document(){
     prop_section = propname_section = false;
     response_section = lastmod_section = false;
     creatdate_section = contentlength_section= false;
-    mode_ext_section = false;
+    mode_ext_section = href_section = false;
 }
 
 void WebdavPropParser::on_end_document(){
@@ -86,13 +86,14 @@ void WebdavPropParser::on_start_element(const Glib::ustring& name, const Attribu
     add_scope(&creatdate_section, name, "creationdate");
     add_scope(&contentlength_section, name, "getcontentlength");
     add_scope(&mode_ext_section, name, "mode"); // lcgdm extension for mode_t support
+    add_scope(&href_section, name, "href");
     // collect information
     if(new_prop)
         compute_new_elem();
 }
 
 void WebdavPropParser::on_end_element(const Glib::ustring& name){
-   // std::cout << "name : " << name << std::endl;
+    // std::cout << "name : " << name << std::endl;
     // compute the current scope
     bool end_prop = remove_scope(&prop_section, name, "prop");
     remove_scope(&propname_section, name, "propstat");
@@ -101,6 +102,7 @@ void WebdavPropParser::on_end_element(const Glib::ustring& name){
     remove_scope(&creatdate_section, name, "creationdate");
     remove_scope(&contentlength_section, name, "getcontentlength");
     remove_scope(&mode_ext_section, name, "mode"); // lcgdm extension for mode_t support
+    remove_scope(&href_section, name, "href");
 
     if(end_prop)
         store_new_elem();
@@ -113,10 +115,24 @@ const std::vector<FileProperties> & WebdavPropParser::parser_properties_from_mem
     return _props;
 }
 
+const std::vector<FileProperties> & WebdavPropParser::parser_properties_from_chunk(const Glib::ustring& str){
+    parse_chunk(str);
+    return _props;
+}
+
+void WebdavPropParser::clean(){
+    _props.clear();
+}
+
+const std::vector<FileProperties> & WebdavPropParser::get_current_properties(){
+    return _props;
+}
+
 void WebdavPropParser::compute_new_elem(){
     if(prop_section && propname_section && response_section){
         davix_log_debug(" properties detected ");
         _current_props.clear();
+        _current_props.filename = last_filename; // setup the current filename
     }
 }
 
@@ -186,12 +202,31 @@ void WebdavPropParser::check_mode_ext(const Glib::ustring& chars){
     }
 }
 
+void WebdavPropParser::check_href(const Glib::ustring &name){
+    if(response_section &&
+            href_section){
+        davix_log_debug(" href/filename found -> parse it");
+       last_filename = name;
+       size_t s = last_filename.size();
+       while(s != 0 && last_filename[s-1] == '/' ){
+            last_filename.erase(s-1);
+            s= last_filename.size();
+       }
+       if( (s = last_filename.rfind('/')) != Glib::ustring::npos)
+           last_filename = last_filename.substr(s+1);
+
+
+       davix_log_debug(" href/filename found -> %s ", last_filename.c_str() );
+    }
+}
+
 void WebdavPropParser::on_characters(const Glib::ustring& characters){
     //std::cout << "chars ..." << characters<< std::endl;
     check_last_modified(characters);
     check_creation_date(characters);
     check_content_length(characters);
     check_mode_ext(characters);
+    check_href(characters);
 }
 
 

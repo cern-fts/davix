@@ -23,8 +23,8 @@ int davix_stat(davix_sess_t sess, const char* url, struct stat * st, GError** er
 
     try{
         Davix::Composition* comp = static_cast<Davix::Composition*>(sess);
-        Glib::RefPtr<Davix::Stat> stat_ops = comp->getStat();
-        stat_ops->stat(url, st);
+
+        comp->stat(url, st);
         return 0;
     }catch(Glib::Error & e){
         if(err)

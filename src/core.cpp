@@ -7,19 +7,23 @@ using namespace Glib;
 
 Core::Core(AbstractSessionFactory* fsess) : _fsess(fsess)
 {
+    _s_buff = 65536;
+    _timeout = 10;
 }
 
 RefPtr<Core> Core::create(AbstractSessionFactory* fsess){
     return Glib::RefPtr<Core>(new Core(fsess));
 }
 
-Glib::RefPtr<Stat> Core::getStat(){
-    return Glib::RefPtr<Stat>(new Stat(this, _fsess.get()));
-}
+
 
 
 AbstractSessionFactory* Core::getSessionFactory(){
     return _fsess.get();
+}
+
+void Core::set_buffer_size(const size_t value){
+    _s_buff = value;
 }
 
 
@@ -31,6 +35,7 @@ extern "C"{
 // glibmm initialization
 __attribute__((constructor))
 void core_init(){
+    g_thread_init(NULL);
     Glib::init();
 }
 

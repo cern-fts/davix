@@ -2,13 +2,14 @@
 #define DAVIX_FILEPROPERTIES_H
 
 #include "global_def.h"
+#include <glibmm.h>
 
 namespace Davix {
 
 struct FileProperties
 {
 
-    std::string filename;
+    Glib::ustring  filename;
     long      req_status; /* status code of the request associated ( ex: http 200) */
 
     nlink_t   nlink;

@@ -8,7 +8,7 @@ time_t parse_http_date(const char* http_date, GError** err){
     static const char rfc1123[] = "%a, %d %b %Y %H:%M:%S GMT";
     struct tm tm;
     time_t mtime;
-    memset(&tm,0, sizeof(tm));
+    memset(&tm,0, sizeof(struct tm));
 
     const char * p = strptime(http_date, rfc1123, &tm);
     if ( p == NULL || *p != '\0'){

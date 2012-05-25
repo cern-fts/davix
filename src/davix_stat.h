@@ -8,32 +8,12 @@
 #include <sys/stat.h>
 
 
-#include "composition.h"
+#include "core.h"
 #include "abstractsessionfactory.h"
 #include "httprequest.h"
 
 namespace Davix{
 
-class Composition;
-
-class Stat : public Object
-{
-public:
-    Stat(Composition* obj, AbstractSessionFactory* fsess);
-
-    /**
-      @brief stat call
-      classical POSIX stat call
-      @param str: string url
-      @param stat : stat struct to fill
-     **/
-    void stat(const std::string & str, struct stat *);
-protected:
-    Composition* _core;
-    AbstractSessionFactory* _fsess;
-
-
-};
 
 /**
   retrieve a webdav propfind stat request to the given url

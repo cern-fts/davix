@@ -12,8 +12,20 @@ class WebdavPropParser : public xmlpp::SaxParser
 public:
     WebdavPropParser();
     virtual ~WebdavPropParser();
+    /**
+      Parse a webdav request to a list of file properties
+    */
     const std::vector<FileProperties> & parser_properties_from_memory(const Glib::ustring& name);
+    /**
+      parse a webdav request in chunk mode
+    */
+    const std::vector<FileProperties> & parser_properties_from_chunk(const Glib::ustring& str);
 
+    /**
+      return the current parsed properties, same that the last call to parser_properties_from_*
+    */
+    const std::vector<FileProperties> & get_current_properties();
+    void clean();
 private:
     bool prop_section;
     bool propname_section;
@@ -22,7 +34,9 @@ private:
     bool creatdate_section;
     bool contentlength_section;
     bool mode_ext_section;
+    bool href_section;
 
+    Glib::ustring last_filename; // last filename section
     std::vector<FileProperties> _props;
 
     FileProperties _current_props;
@@ -37,6 +51,7 @@ private:
     void check_creation_date(const Glib::ustring& name);
     void check_content_length(const Glib::ustring& name);
     void check_mode_ext(const Glib::ustring& name);
+    void check_href(const Glib::ustring & name);
 protected:
     virtual void on_start_document();
     virtual void on_end_document();

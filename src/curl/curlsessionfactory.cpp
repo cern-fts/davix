@@ -31,7 +31,8 @@ Request* CURLSessionFactory::take_request(RequestType typ, const std::string & u
 
 
 void CURLSessionFactory::release_request(Request *req){
-    delete req;
+    CURLRequest* my_req = static_cast<CURLRequest*>(req);
+    delete my_req;
 }
 
 

@@ -10,6 +10,7 @@ class Object : public Glib::Object
 {
 public:
     Object();
+    virtual ~Object(){}
 
 
 };

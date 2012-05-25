@@ -3,12 +3,10 @@
 #include <xmlpp/webdavpropparser.h>
 
 
-Davix::Stat::Stat(Composition* obj, AbstractSessionFactory* fsess) : _core(obj), _fsess(fsess)
-{
-}
 
 
-void Davix::Stat::stat(const std::string & url, struct stat* st){
+
+void Davix::Core::stat(const std::string & url, struct stat* st){
     davix_log_debug(" -> davix_stat");
 
     try{

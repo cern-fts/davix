@@ -1,4 +1,5 @@
-#include "test_stat.h"
+#include "test_opendir.h"
+
 
 #include <core.h>
 #include <curl/curlsessionfactory.h>
@@ -6,6 +7,8 @@
 
 using namespace Davix;
 
+
+#define MY_BUFFER_SIZE 4
 
  Auth_code mycred_auth_callback(Auth_type t, char * data,  void * userdata, GError ** err){
      if(t == DAVIX_FULL_PEM){
@@ -33,20 +36,23 @@ int main(int argc, char** argv){
 
     try{
         Glib::RefPtr<Core> c= Core::create(new CURLSessionFactory());
+        c->set_buffer_size(MY_BUFFER_SIZE);
         if(argc > 2){
             configure_grid_env(argv[2], c);
         }
 
 
-        struct stat st;
-        c->stat(argv[1], &st);
 
-        std::cout << "stat success" << std::endl;
-        std::cout << " atime : " << st.st_atime << std::endl;
-        std::cout << " mtime : " << st.st_mtime << std::endl;
-        std::cout << " ctime : " << st.st_ctime << std::endl;
-        std::cout << " mode : 0" << std::oct << st.st_mode << std::endl;
-        std::cout << " len : " << st.st_size << std::endl;
+        DAVIX_DIR* d = c->opendir(argv[1]);
+
+        struct dirent * dir = NULL;
+        do{
+            dir= c->readdir(d);
+            if(dir)
+                std::cout << "N° " << dir->d_off <<" file : " << dir->d_name << std::endl;
+        }while(dir!= NULL);
+
+        c->closedir(d);
     }catch(Glib::Error & e){
         std::cout << " error occures : N°" << e.code() << "  " << e.what() << std::endl;
         return -1;

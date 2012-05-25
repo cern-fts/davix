@@ -2,6 +2,7 @@
 
 
 #include <core.h>
+#include <davix_stat.h>
 #include <curl/curlsessionfactory.h>
 
 using namespace Davix;

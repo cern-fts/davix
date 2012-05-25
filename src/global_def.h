@@ -11,6 +11,8 @@
 
 namespace Davix{
 
+typedef void DAVIX_DIR;
+
 inline void davix_log_debug(const gchar *format,
                             ...){
     va_list va;
@@ -32,6 +34,7 @@ inline void davix_log_warning(const gchar *format,
 typedef enum _REQUEST_TYPE{
     HTTP,
     HTTPS,
+    DAVIX_FILE
 } RequestType;
 
 

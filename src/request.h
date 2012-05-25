@@ -6,9 +6,12 @@
 
 namespace Davix {
 
+#define BUFFER_SIZE 16000
+
 class Request {
 public:
     Request();
+    virtual ~Request(){}
 
     /**
       Execute the given request and return result to the buffer result
@@ -18,15 +21,27 @@ public:
      */
     virtual int execute_sync()  =0; // throw(Glib::Error)
 
+
+    virtual void execute_block(size_t buff_size = BUFFER_SIZE)=0;
     /**
-      Execute the given request to a maximum of max_size byte in the response
-      If this limit is reached, other calls to thus function will continue to process the request
-      @return 0 on success, 1 if not finished
+      read a block of a maximum size bytes in the request
+      @param buffer : buffer to fill
+      @param max_size : maximum number of bytes to set
+      @throw Glib::Error
+    */
+    virtual void read_block(std::vector<char> & buffer, size_t max_size)=0;
+    /**
+      finish an already started request
      */
-    virtual int execute_chunk(off_t max_size)=0;  // throw(Glib::Error)
-
-
+    virtual void finish_block()=0;
+    /**
+      get a reference to the current result
+     */
     virtual const std::vector<char> & get_result()=0;
+    /**
+      clear the current result
+    */
+    virtual void clear_result()=0;
 
 
 

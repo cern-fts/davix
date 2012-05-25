@@ -42,7 +42,7 @@ inline bool add_scope(bool *scope_bool, const Glib::ustring& origin, const Glib:
     if(match_element(origin, pattern)){
         if(*scope_bool==true){
             throw DavixXmlParserException(Glib::Quark("WebdavPropParser::add_scope"), EINVAL,
-                       Glib::ustring::compose(" parsing error in the webdav request result, <%1> duplicated ", origin));
+                                          " parsing error in the webdav request result," + origin + " duplicated " );
         }
         //std::cout << " in scope " << origin << " while parsing " << std::endl;
         *scope_bool = true;
@@ -58,7 +58,7 @@ inline bool remove_scope(bool *scope_bool, const Glib::ustring& origin, const Gl
     if(match_element(origin, pattern)){
         if(*scope_bool==false){
            throw DavixXmlParserException(Glib::Quark("WebdavPropParser::remove_scope"), EINVAL,
-                       Glib::ustring::compose(" parsing error in the webdav request result, </%1> not open before ", origin));
+                                         " parsing error in the webdav request result, " + origin+ " not open before ");
         }
         //std::cout << " out scope " << origin << " while parsing " << std::endl;
         *scope_bool = false;

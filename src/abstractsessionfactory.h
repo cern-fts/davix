@@ -23,6 +23,15 @@ public:
      */
     virtual void release_request(Request * ref)=0;
 
+    /**
+      disable the certificate authority validity check for the https request
+    */
+    virtual void set_ssl_ca_check(bool chk) =0;
+
+    /**
+      authentification callback for right management
+    */
+    virtual void set_authentification_controller(void * userdata, davix_auth_callback call)=0;
 };
 
 }

@@ -7,7 +7,6 @@ using namespace Glib;
 
 Core::Core(AbstractSessionFactory* fsess) : _fsess(fsess)
 {
-    _grid_mode = false;
 }
 
 RefPtr<Core> Core::create(AbstractSessionFactory* fsess){
@@ -19,12 +18,8 @@ Glib::RefPtr<Stat> Core::getStat(){
 }
 
 
-void Core::set_grid_mode(const int state){
-    _grid_mode = state;
-}
-
-bool Core::get_grid_mode(){
-    return _grid_mode;
+AbstractSessionFactory* Core::getSessionFactory(){
+    return _fsess.get();
 }
 
 

@@ -5,12 +5,13 @@
 
 
 time_t parse_http_date(const char* http_date, GError** err){
-    static const char rfc1123[] = "%a, %d %b %Y %H:%M:%S %Z GMT";
+    static const char rfc1123[] = "%a, %d %b %Y %H:%M:%S GMT";
     struct tm tm;
     time_t mtime;
     memset(&tm,0, sizeof(tm));
 
-    if ( *strptime(http_date, rfc1123, &tm) != '\0'){
+    const char * p = strptime(http_date, rfc1123, &tm);
+    if ( p == NULL || *p != '\0'){
         g_set_error(err, g_quark_from_string("parse_http_date"), DATETIME_UTILS_PARSE_ERROR, "HTTP time value parsing error %s", http_date);
         return -1;
     }

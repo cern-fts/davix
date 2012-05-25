@@ -31,7 +31,7 @@ set(VERSION_STRING ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 # libs checks
 pkg_check_modules(GLIBMM_PKG REQUIRED glibmm-2.4)
 pkg_check_modules(LIBCURL_PKG REQUIRED libcurl)
-pkg_check_modules(LIBXMLPP_PKG REQUIRED libxml++-1.0)
+pkg_check_modules(LIBXMLPP_PKG REQUIRED libxml++-2.6)
 
 
 include_directories(${GLIBMM_PKG_INCLUDE_DIRS} ${LIBCURL_PKG_INCLUDE_DIRS})

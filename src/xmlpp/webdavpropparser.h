@@ -20,17 +20,22 @@ private:
     bool lastmod_section;
     bool creatdate_section;
     bool contentlength_section;
+    bool mode_ext_section;
 
     std::vector<FileProperties> _props;
+
+    FileProperties _current_props;
 
      /**
       add a new properties to the properties queue if scope is ok
     */
-    virtual void compute_new_elem();
+    void compute_new_elem();
+    void store_new_elem();
 
     void check_last_modified(const std::string & chars);
     void check_creation_date(const std::string & chars);
     void check_content_length(const std::string & chars);
+    void check_mode_ext(const std::string & chars);
 protected:
     virtual void on_start_document();
     virtual void on_end_document();

@@ -21,6 +21,11 @@ struct FileProperties
     time_t    mtime;   /* time of last modification */
     time_t    ctime;   /* time of last status change */
 
+    inline void clear(){
+        nlink = req_status =  gid = uid = size =0;
+        mode = atime = mtime = ctime = 0;
+    }
+
 };
 
 } // namespace Davix

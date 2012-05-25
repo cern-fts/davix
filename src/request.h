@@ -18,6 +18,14 @@ public:
      */
     virtual int execute_sync()  =0; // throw(Glib::Error)
 
+    /**
+      Execute the given request to a maximum of max_size byte in the response
+      If this limit is reached, other calls to thus function will continue to process the request
+      @return 0 on success, 1 if not finished
+     */
+    virtual int execute_chunk(off_t max_size)=0;  // throw(Glib::Error)
+
+
     virtual const std::vector<char> & get_result()=0;
 
 

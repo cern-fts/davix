@@ -5,7 +5,9 @@
 
 #include "davix.h"
 #include "global_def.h"
+#include "gridutils.h"
 #include "libdavix_object.h"
+#include "abstractsessionfactory.h"
 #include "davix_stat.h"
 
 
@@ -20,26 +22,16 @@ class Composition: public Object
 public:
     Composition();
 
-    /**
-      @brief enable or disable grid mode
 
-      grid mode enable or disable a list of functionalities related
-      to the grid environment :
-      - gsi certificate auto-recognition ( globus )
-      - ssl ca verify
-      - credential delegation
-
-      @param state : enable or disable grid mode
-
-    */
-    virtual void set_grid_mode(const int state)=0;
-
-
-    virtual bool get_grid_mode()=0;
     /**
       return an accessor to the stat module
      */
     virtual Glib::RefPtr<Stat> getStat()=0;
+
+    /**
+      get the current registered session factory
+    */
+    virtual AbstractSessionFactory* getSessionFactory()=0;
 
     /**
       enable or disable the tls credential checking

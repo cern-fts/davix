@@ -31,9 +31,9 @@ int httpcode_to_errno(int code)
         case 504:           /* Gateway Timeout */
             return EAGAIN;
         case 423:           /* Locked */
+        case 403:           /* Forbidden */
             return EACCES;
         case 400:           /* Bad Request */
-        case 403:           /* Forbidden */
         case 405:           /* Method Not Allowed */
         case 409:           /* Conflict */
         case 411:           /* Length Required */

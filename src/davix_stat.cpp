@@ -29,12 +29,12 @@ void Davix::Stat::stat(const std::string & url, struct stat* st){
 
 
         davix_log_debug(" davix_stat <-");
-    }catch(Glib::Exception & e){
-        throw;
+    }catch(Glib::Error & e){
+        throw e;
     }catch(xmlpp::exception & e){
-        Glib::Error(Glib::Quark("Davix::Stat"), EINVAL, std::string("Parsing Error :").append(e.what()));
+        throw Glib::Error(Glib::Quark("Davix::Stat"), EINVAL, std::string("Parsing Error :").append(e.what()));
     }catch(std::exception & e){
-        Glib::Error(Glib::Quark("Davix::Stat"), EINVAL, std::string("Unexcepted Error :").append(e.what()));
+        throw Glib::Error(Glib::Quark("Davix::Stat"), EINVAL, std::string("Unexcepted Error :").append(e.what()));
     }
 
 }
@@ -51,7 +51,9 @@ const std::vector<char> & Davix::req_webdav_propfind(HttpRequest* req){
     (void) req->execute_sync();
      error = req->get_request_code();
     if( (errno_err = httpcode_to_errno(error)) != 0){
-        throw Glib::Error(Glib::Quark("Davix::Stat"), errno_err, std::string(" Error while Webdav_stat : ") + std::string(strerror(errno_err)));
+        std::ostringstream os;
+        os << " Error Webdav propfind : " << strerror(errno_err) << ", http errcode " << error << std::endl;
+        throw Glib::Error(Glib::Quark("Davix::Stat"), errno_err, os.str());
     }
     return req->get_result();
 }

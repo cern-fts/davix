@@ -7,7 +7,7 @@
 
 #include "composition.h"
 #include "global_def.h"
-#include "abstractsessionfactory.h"
+
 
 
 namespace Davix {
@@ -27,15 +27,12 @@ public:
     virtual Glib::RefPtr<Stat> getStat();
 
     /**
-      implementation of grid_mode
+      implementation of getSessionFactory
     */
-    virtual void set_grid_mode(const int state);
-
-    virtual bool get_grid_mode();
+    virtual AbstractSessionFactory* getSessionFactory();
 
 protected:
     std::auto_ptr<AbstractSessionFactory>  _fsess;
-    bool _grid_mode;
 };
 
 } // namespace Davix

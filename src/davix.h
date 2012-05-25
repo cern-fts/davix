@@ -61,6 +61,19 @@ int davix_stat(davix_sess_t sess, const char* url, struct stat * st, GError** er
 */
 int davix_set_pkcs12_auth(davix_auth_t token, const char* filename_pkcs12,const char* passwd, GError** err);
 
+
+/**
+  C API, specifie the callback for client authentification
+*/
+int davix_set_auth_callback(davix_sess_t sess, davix_auth_callback call, void* userdata, GError** err);
+
+/**
+  C API, enable or disable the CA check for X509 credential while the authentification
+  Passing false to this function is similar to the -k or --insecure option of curl
+  true by default
+*/
+int davix_set_ssl_check(davix_sess_t sess, gboolean ssl_check, GError** err);
+
 #ifdef __cplusplus
 }
 #endif

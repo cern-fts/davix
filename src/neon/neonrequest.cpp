@@ -126,7 +126,7 @@ NEONRequest::NEONRequest(NEONSessionFactory* f, ne_session * sess, RequestType t
 
 NEONRequest::~NEONRequest(){
     // safe destruction of the request
-    if(req_running) ne_end_request(_req);
+    if(req_running) finish_block();
 
     free_request();
     //ne_forget_auth(_sess);

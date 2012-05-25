@@ -33,6 +33,7 @@ SET(HTTP_LIB "NEON") # http bacend can be NEON or CURL
 
 # libs checks
 pkg_check_modules(GLIBMM_PKG REQUIRED glibmm-2.4)
+pkg_check_modules(GTHREAD_PKG REQUIRED gthread-2.0)
 
 if ( ${HTTP_LIB} STREQUAL "CURL")
 pkg_check_modules(HTTPLIB_PKG REQUIRED libcurl)

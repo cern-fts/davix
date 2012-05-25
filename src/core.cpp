@@ -37,6 +37,7 @@ extern "C"{
 // glibmm initialization
 __attribute__((constructor))
 void core_init(){
+    g_thread_init(NULL);
     Glib::init();
 }
 

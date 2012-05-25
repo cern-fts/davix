@@ -118,7 +118,7 @@ NEONRequest::NEONRequest(NEONSessionFactory* f, ne_session * sess, RequestType t
     _req=NULL;
     _call = call;
     _f = f;
-    req_started     = false;
+    req_started= req_running =false;
     _user_auth_callback_data = user_auth_callback_data;
     ne_ssl_provide_clicert(sess, &NEONRequest::provide_clicert_fn, this);
     ne_set_server_auth(sess, &NEONRequest::provide_login_passwd_fn, this);
@@ -126,6 +126,8 @@ NEONRequest::NEONRequest(NEONSessionFactory* f, ne_session * sess, RequestType t
 
 NEONRequest::~NEONRequest(){
     // safe destruction of the request
+    if(req_running) ne_end_request(_req);
+
     free_request();
     //ne_forget_auth(_sess);
 
@@ -153,7 +155,7 @@ void NEONRequest::negotiate_request(){
     if(req_started)
         throw Glib::Error(Glib::Quark("NEONRequest::negotiate_request"), err_code, "request already started errors ....");
 
-    req_started = true;
+    req_started = req_running= true;
 
     while(end_status == NE_RETRY && n < n_limit){
         davix_log_debug(" ->   NEON start internal request ... ");
@@ -169,8 +171,7 @@ void NEONRequest::negotiate_request(){
                 ne_discard_response(_req);
                 end_status = ne_end_request(_req);
                 if( end_status != NE_RETRY){
-                    ne_request_destroy(_req);
-                    _req=NULL;
+                    req_running = false;
                     std::string err_str = translate_neon_status(status, _sess, &err_code);
                     throw Glib::Error(Glib::Quark("NEONRequest::negotiate_request"), err_code, std::string("End Request error : ").append(err_str));
                 }
@@ -250,14 +251,15 @@ void NEONRequest::finish_block(){
     int status;
     int err_code;
 
-    if(_req == NULL)
+
+    if(_req == NULL || req_running == false)
             throw Glib::Error(Glib::Quark("NEONRequest::read_block"), EINVAL, "No request started");
 
-  if( (status = ne_end_request(_req)) != NE_OK){
+    req_running = false;
+    if( (status = ne_end_request(_req)) != NE_OK){
         std::string err_str = translate_neon_status(status, _sess,&err_code);
         davix_log_debug("NEONRequest::finish_block -> error %d Error closing request -> %s ", err_code, err_str.c_str());
     }
-
 }
 
 void NEONRequest::clear_result(){

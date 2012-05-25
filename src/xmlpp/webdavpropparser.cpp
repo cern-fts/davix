@@ -245,7 +245,7 @@ void WebdavPropParser::check_href(const Glib::ustring &name){
            *p_end = '\0';
             p_end--;
        }
-       if( (p_end = strrchr((char*)c_name, '/')) != NULL){
+       if( (p_end = strrchr((char*)buff_name, '/')) != NULL){
            last_filename = p_end+1;
        }else{
            last_filename = buff_name;

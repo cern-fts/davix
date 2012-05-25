@@ -19,7 +19,6 @@ __attribute__((constructor))
 void core_init(){
     g_thread_init(NULL);
     Glib::init();
-    ne_sock_init();
 }
 
 

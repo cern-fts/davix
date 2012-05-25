@@ -6,6 +6,11 @@ HttpRequest::HttpRequest()
 {
 }
 
+HttpRequest::~HttpRequest()
+{
+}
+
+
 int httpcode_to_errno(int code)
 {
     switch (code) {

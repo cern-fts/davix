@@ -10,6 +10,7 @@ class HttpRequest : public Davix::Request
 {
 public:
     HttpRequest();
+    virtual ~HttpRequest();
 
     /**
       add a personalized header to the header request

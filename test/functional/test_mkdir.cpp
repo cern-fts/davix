@@ -24,7 +24,7 @@ int mycred_auth_callback(davix_auth_t token, const davix_auth_info_t* t, void* u
         login_password_auth_type = true;
 
     if(login_password_auth_type ){
-        strncpy(login, auth_string, p-auth_string);
+        *((char*) mempcpy(login, auth_string, p-auth_string)) = '\0';
         strcpy(passwd, p+1 );
         ret = davix_set_login_passwd_auth(token, login, passwd, &tmp_err);
 

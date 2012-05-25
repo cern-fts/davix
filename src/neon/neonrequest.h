@@ -97,7 +97,7 @@ protected:
     std::string _content_body;
     std::string _request_type;
     NEONSessionFactory* _f;
-    bool req_block_started;
+    bool req_started;
 
     std::vector< std::pair<std::string, std::string > > _headers_field;
 
@@ -113,6 +113,8 @@ protected:
     void create_req();
 
     void negotiate_request();
+
+    void free_request();
     /**
       internal, try to authentification with pkcs12 credential
     */

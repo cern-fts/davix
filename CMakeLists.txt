@@ -51,9 +51,18 @@ pkg_check_modules(CRYPTO_PKG REQUIRED libcrypto)
 
 if ( ${HTTP_LIB} STREQUAL "NEON" )
     add_definitions( -DNEON_BACKEND)
+
+    if("${HTTPLIB_PKG_VERSION}" VERSION_LESS "0.27.0")
+        message(" .... neon version < 0.27 detected : disable session re-use, risk of bug important")
+        add_definitions( -D_DISABLE_SESSION_REUSE)
+
+    endif("${HTTPLIB_PKG_VERSION}" VERSION_LESS "0.27.0")
+
 else ( ${HTTP_LIB} STREQUAL "NEON" )
     add_definitions( -DCURL_BACKEND)
 endif ( ${HTTP_LIB} STREQUAL "NEON" )
+
+
 
 
 include_directories(${GLIBMM_PKG_INCLUDE_DIRS} ${HTTPLIB_PKG_INCLUDE_DIRS})

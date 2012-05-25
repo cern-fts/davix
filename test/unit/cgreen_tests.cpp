@@ -30,6 +30,7 @@
 #include <datetime/test_datetime.h>
 #include <session/test_session.h>
 #include <request/test_request.h>
+#include <credential/test_credential.h>
 
 
 
@@ -41,12 +42,13 @@ int main (int argc, char** argv)
         add_suite(global, datetime_suite());
         add_suite(global, session_suite());
         add_suite(global, neon_suite());
+        add_suite(global, credential_suite());
       //  add_suite(global, request_suite()); disable with neon
 
     if (argc > 1){
         return run_single_test(global, argv[1], create_text_reporter());
     }
-        return run_test_suite(global, create_text_reporter());
+    return run_test_suite(global, create_text_reporter());
 }
 
 

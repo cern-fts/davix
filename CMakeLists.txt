@@ -20,9 +20,10 @@ find_package(PkgConfig REQUIRED)
 INCLUDE(CTest)
 
 
-set(VERSION_MAJOR 1)
+set(OUTPUT_NAME_DAVIX "davix")
+set(VERSION_MAJOR 0)
 set(VERSION_MINOR 0)
-set(VERSION_PATCH 0)
+set(VERSION_PATCH 9)
 set(VERSION_STRING ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 
@@ -43,6 +44,7 @@ endif ( ${HTTP_LIB} STREQUAL "NEON" )
 
 pkg_check_modules(LIBXMLPP_PKG REQUIRED libxml++-2.6)
 
+pkg_check_modules(CRYPTO_PKG REQUIRED libcrypto)
 
 if ( ${HTTP_LIB} STREQUAL "NEON" )
     add_definitions( -DNEON_BACKEND)

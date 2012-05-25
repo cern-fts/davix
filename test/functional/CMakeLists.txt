@@ -12,6 +12,7 @@ FILE(GLOB src_test_stat "test_stat.cpp")
 FILE(GLOB src_test_mkdir "test_mkdir.cpp")
 FILE(GLOB src_test_stat_session "test_stat_session.cpp")
 FILE(GLOB src_test_opendir "test_opendir.cpp")
+FILE(GLOB src_test_opendir_partial "test_opendir_partial.cpp")
 FILE(GLOB src_test_opendirpp "test_opendirpp.cpp")
 FILE(GLOB src_test_stat_c "test_stat_c.c")
 
@@ -34,6 +35,9 @@ target_link_libraries(test_stat_session davix)
 
 add_executable(test_opendir ${src_test_opendir} )
 target_link_libraries(test_opendir davix)
+
+add_executable(test_opendir_partial ${src_test_opendir_partial} )
+target_link_libraries(test_opendir_partial davix)
 
 add_executable(test_opendirpp ${src_test_opendirpp} )
 target_link_libraries(test_opendirpp davix)
@@ -62,6 +66,9 @@ function(test_dav_endpoint_rw name cred)
     add_test(test_mkdir_${name} test_mkdir ${name} ${cred})
 endfunction(test_dav_endpoint_rw name cred)
 
+function(listdir_partial name size cred)
+    add_test(test_opendir_partial_${name}  test_opendir_partial ${name} ${size} ${cred})
+endfunction(listdir_partial name size cred)
 
 include(ctest_functional.cmake)
 

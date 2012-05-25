@@ -10,7 +10,7 @@ struct FileProperties
 {
 
     Glib::ustring  filename;
-    long      req_status; /* status code of the request associated ( ex: http 200) */
+    unsigned int  req_status; /* status code of the request associated ( ex: http 200) */
 
     nlink_t   nlink;
     uid_t     uid;    /* unix user id */

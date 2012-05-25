@@ -37,6 +37,7 @@ private:
     bool mode_ext_section;
     bool href_section;
     bool resource_type;
+    bool status_section;
 
     Glib::ustring last_filename; // last filename section
     std::vector<FileProperties> _props;
@@ -55,6 +56,7 @@ private:
     void check_content_length(const Glib::ustring& name);
     void check_mode_ext(const Glib::ustring& name);
     void check_href(const Glib::ustring & name);
+    void check_status(const Glib::ustring & name);
 protected:
     virtual void on_start_document();
     virtual void on_end_document();

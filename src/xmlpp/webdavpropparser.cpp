@@ -22,7 +22,7 @@ const Glib::ustring mode_pattern("mode");
 const Glib::ustring href_pattern("href");
 const Glib::ustring resource_type_patern("resourcetype");
 const Glib::ustring collection_patern("collection");
-
+const Glib::ustring status_pattern("status");
 
 
 /**
@@ -78,7 +78,7 @@ void WebdavPropParser::on_start_document(){
     response_section = lastmod_section = false;
     creatdate_section = contentlength_section= false;
     mode_ext_section = href_section = false;
-    resource_type = false;
+    resource_type = status_section= false;
 }
 
 void WebdavPropParser::on_end_document(){
@@ -88,8 +88,9 @@ void WebdavPropParser::on_end_document(){
 void WebdavPropParser::on_start_element(const Glib::ustring& name, const AttributeList& attributes){
     //std::cout << " name : " << name << std::endl;
     // compute the current scope
-    const bool new_prop= add_scope(&prop_section, name, prop_pattern, response_section && propname_section , false);
     add_scope(&propname_section, name, propstat_pattern,  response_section, false);
+    const bool new_prop= add_scope(&prop_section, name, prop_pattern, response_section && propname_section , false);
+    add_scope(&status_section, name, status_pattern, propname_section && response_section, false);
     add_scope(&response_section, name, response_pattern, true, prop_section && propname_section);
     add_scope(&lastmod_section, name, getlastmodified_pattern, propname_section, false);
     add_scope(&creatdate_section, name, creationdate_pattern, propname_section, false);
@@ -107,8 +108,9 @@ void WebdavPropParser::on_start_element(const Glib::ustring& name, const Attribu
 void WebdavPropParser::on_end_element(const Glib::ustring& name){
     // std::cout << "name : " << name << std::endl;
     // compute the current scope
-    const bool end_prop = remove_scope(&prop_section, name, prop_pattern,  response_section && propname_section, false);
-    remove_scope(&propname_section, name, propstat_pattern, response_section, false);
+    const bool end_prop =  remove_scope(&propname_section, name, propstat_pattern, response_section, false);
+    remove_scope(&prop_section, name, prop_pattern,  response_section && propname_section, false);
+    remove_scope(&status_section, name, status_pattern, propname_section && response_section, false);
     remove_scope(&response_section, name, response_pattern, true, prop_section && propname_section);
     remove_scope(&lastmod_section, name, getlastmodified_pattern, propname_section, false);
     remove_scope(&creatdate_section, name, creationdate_pattern, propname_section, false);
@@ -153,9 +155,13 @@ void WebdavPropParser::compute_new_elem(){
 }
 
 void WebdavPropParser::store_new_elem(){
-    if(propname_section && response_section){
+    if(response_section){
         davix_log_debug(" end of properties... ");
-        _props.push_back(_current_props);
+        if( _current_props.req_status > 100
+            && _current_props.req_status < 400){
+            _props.push_back(_current_props);
+        }else
+           davix_log_debug(" Bad status code ! properties dropped ");
     }
 }
 
@@ -254,6 +260,36 @@ void WebdavPropParser::check_href(const Glib::ustring &name){
     }
 }
 
+void WebdavPropParser::check_status(const Glib::ustring &name){
+    if(response_section &&
+            propname_section && status_section){
+        davix_log_debug(" status found -> parse it");
+        char * p1, *p2 = (char*) name.c_str();
+        while(*p2 == ' ')
+            ++p2;
+        p1 = strchr(p2,' ');
+        if(p1){ // find number field
+           p1++;
+           p2=p1;
+           while(*p2 != ' ' && *p2 != '\0')
+               ++p2;
+           char buff[p2-p1+1];
+
+           *((char*) mempcpy(buff, p1, p2-p1)) = '\0';
+           unsigned long res = strtoul(buff, NULL, 10);
+           if(res != ULONG_MAX){
+              davix_log_debug(" status value : %ld", res);
+              _current_props.req_status = res;
+              return;
+           }
+
+
+        }
+        throw DavixXmlParserException(Glib::Quark("WebdavPropParser::check_status"), ECOMM, " Invalid xml dav status field ");
+
+    }
+}
+
 void WebdavPropParser::on_characters(const Glib::ustring& characters){
     //std::cout << "chars ..." << characters<< std::endl;
     check_last_modified(characters);
@@ -261,6 +297,7 @@ void WebdavPropParser::on_characters(const Glib::ustring& characters){
     check_content_length(characters);
     check_mode_ext(characters);
     check_href(characters);
+    check_status(characters);
 }
 
 

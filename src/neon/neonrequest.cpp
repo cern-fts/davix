@@ -92,6 +92,7 @@ NEONRequest::NEONRequest(NEONSessionFactory* f, ne_session * sess, RequestType t
     _req=NULL;
     _call = call;
     _f = f;
+    req_block_started     = false;
     _user_auth_callback_data = user_auth_callback_data;
     ne_ssl_provide_clicert(sess, &NEONRequest::provide_clicert_fn, this);
 }
@@ -162,6 +163,7 @@ void NEONRequest::execute_block(){
         std::string err_str = translate_neon_status(status, _sess,&err_code);
         throw Glib::Error(Glib::Quark("NEONRequest::Execute_sync"), err_code, err_str);
     }
+    req_block_started = true;
 }
 
 ssize_t NEONRequest::read_block(char* buffer, size_t max_size){
@@ -183,10 +185,13 @@ void NEONRequest::finish_block(){
     int err_code;
 
     if(_req != NULL){
+       /* if(req_block_started) // if incomplete request -> finish it
+            ne_discard_response(_req);*/
         if( (status = ne_end_request(_req)) != NE_OK){
             std::string err_str = translate_neon_status(status, _sess,&err_code);
             throw Glib::Error(Glib::Quark("NEONRequest::finish_block"), err_code, std::string("Error closing request ->").append(err_str));
         }
+        req_block_started = false;
         ne_request_destroy(_req);
         _req=NULL;
     }

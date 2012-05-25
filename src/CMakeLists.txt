@@ -7,6 +7,9 @@ FILE(GLOB src_neon "neon/*.cpp")
 FILE(GLOB src_logger "logging/*.c")
 FILE(GLOB src_curl "curl/*.cpp")
 
+include_directories("libs")
+
+add_subdirectory(libs)
 add_subdirectory(datetime)
 add_subdirectory(logging)
 add_subdirectory(xmlpp)

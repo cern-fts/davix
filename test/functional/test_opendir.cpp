@@ -8,7 +8,7 @@
 using namespace Davix;
 
 
-#define MY_BUFFER_SIZE 6565100
+#define MY_BUFFER_SIZE 656510000
 
  Auth_code mycred_auth_callback(Auth_type t, char * data,  void * userdata, GError ** err){
      if(t == DAVIX_FULL_PEM){
@@ -32,7 +32,7 @@ int main(int argc, char** argv){
         return 0;
     }
 
-    g_logger_set_globalfilter(G_LOG_LEVEL_MASK);
+    g_logger_set_globalfilter(G_LOG_LEVEL_WARNING);
 
     try{
         Glib::RefPtr<Core> c= Core::create(new CURLSessionFactory());

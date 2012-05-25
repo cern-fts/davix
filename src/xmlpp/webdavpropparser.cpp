@@ -1,22 +1,38 @@
+#define _GNU_SOURCE
+
 #include "webdavpropparser.h"
 #include "davixxmlparserexception.h"
 
-#define _GNU_SOURCE
+
 
 #include <glibmm/quark.h>
 #include <glibmm/datetime.h>
 #include <glibmm.h>
+#include <cstring>
 
 
 #include <datetime/datetime_utils.h>
 
 namespace Davix {
 
-inline bool match_element(const Glib::ustring & origin, const Glib::ustring& pattern){
+// static string initialization to skip heavy stupid copy
+const Glib::ustring prop_pattern("prop");
+const Glib::ustring propstat_pattern("propstat");
+const Glib::ustring response_pattern("response");
+const Glib::ustring getlastmodified_pattern("getlastmodified");
+const Glib::ustring creationdate_pattern("creationdate");
+const Glib::ustring getcontentlength_pattern("getcontentlength");
+const Glib::ustring mode_pattern("mode");
+const Glib::ustring href_pattern("href");
+
+
+inline bool match_element(const Glib::ustring & origin, const Glib::ustring& pattern){ // C style optimized, critical function
     bool res = false;
-    size_t pos = origin.rfind(":");
-    if(pos != std::string::npos){
-        res=(origin.compare(pos+1, origin.length()- pos-1, pattern)==0)?true:false;
+    const char* c_origin = (char*) origin.c_str();
+    const char* c_pattern = (char*) pattern.c_str();
+    const char* pos = strrchr(c_origin, ':');
+    if(pos != NULL){
+        res = (strcmp(pos+1, c_pattern) ==0)?true:false;
     }
     return res;
 }
@@ -79,14 +95,14 @@ void WebdavPropParser::on_end_document(){
 void WebdavPropParser::on_start_element(const Glib::ustring& name, const AttributeList& attributes){
     //std::cout << " name : " << name << std::endl;
     // compute the current scope
-    bool new_prop= add_scope(&prop_section, name, "prop");
-    add_scope(&propname_section, name, "propstat");
-    add_scope(&response_section, name, "response");
-    add_scope(&lastmod_section, name, "getlastmodified");
-    add_scope(&creatdate_section, name, "creationdate");
-    add_scope(&contentlength_section, name, "getcontentlength");
-    add_scope(&mode_ext_section, name, "mode"); // lcgdm extension for mode_t support
-    add_scope(&href_section, name, "href");
+    bool new_prop= add_scope(&prop_section, name, prop_pattern);
+    add_scope(&propname_section, name, propstat_pattern);
+    add_scope(&response_section, name, response_pattern);
+    add_scope(&lastmod_section, name, getlastmodified_pattern);
+    add_scope(&creatdate_section, name, creationdate_pattern);
+    add_scope(&contentlength_section, name, getcontentlength_pattern);
+    add_scope(&mode_ext_section, name, mode_pattern); // lcgdm extension for mode_t support
+    add_scope(&href_section, name, href_pattern);
     // collect information
     if(new_prop)
         compute_new_elem();
@@ -95,14 +111,14 @@ void WebdavPropParser::on_start_element(const Glib::ustring& name, const Attribu
 void WebdavPropParser::on_end_element(const Glib::ustring& name){
     // std::cout << "name : " << name << std::endl;
     // compute the current scope
-    bool end_prop = remove_scope(&prop_section, name, "prop");
-    remove_scope(&propname_section, name, "propstat");
-    remove_scope(&response_section, name, "response");
-    remove_scope(&lastmod_section, name, "getlastmodified");
-    remove_scope(&creatdate_section, name, "creationdate");
-    remove_scope(&contentlength_section, name, "getcontentlength");
-    remove_scope(&mode_ext_section, name, "mode"); // lcgdm extension for mode_t support
-    remove_scope(&href_section, name, "href");
+    bool end_prop = remove_scope(&prop_section, name, prop_pattern);
+    remove_scope(&propname_section, name, propstat_pattern);
+    remove_scope(&response_section, name, response_pattern);
+    remove_scope(&lastmod_section, name, getlastmodified_pattern);
+    remove_scope(&creatdate_section, name, creationdate_pattern);
+    remove_scope(&contentlength_section, name, getcontentlength_pattern);
+    remove_scope(&mode_ext_section, name, mode_pattern); // lcgdm extension for mode_t support
+    remove_scope(&href_section, name, href_pattern);
 
     if(end_prop)
         store_new_elem();

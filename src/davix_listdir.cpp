@@ -32,12 +32,17 @@ static void fill_dirent_from_filestat(struct dirent * d, const FileProperties & 
 }
 
 int incremental_propfind_listdir_parsing(HttpRequest* req, WebdavPropParser * parser, size_t s_buff, const char* scope){
+  //  std::cout << "time 1 pre-fecth" << time(NULL) << std::endl;
    std::vector<char>  buffer;
+   buffer.reserve(s_buff+1);
    req->read_block(buffer, s_buff);
    const size_t ret_s_buff = buffer.size();
    buffer.push_back('\0');
+   //std::cout << "content "<< &(buffer.at(0)) << std::endl;
+   //std::cout << "time 2 pre-parse" << time(NULL) << std::endl;
    davix_log_debug("chunk parse : result content : %s",&(buffer[0]));
    (void) parser->parser_properties_from_chunk( Glib::ustring(&(buffer.front())));
+   //std::cout << "time 3 post-parse" << time(NULL) << std::endl;
    return ret_s_buff;
 }
 

@@ -12,7 +12,7 @@
 
 namespace Davix {
 
-inline bool match_element(const std::string & origin, const std::string &pattern){
+inline bool match_element(const Glib::ustring & origin, const Glib::ustring& pattern){
     bool res = false;
     size_t pos = origin.rfind(":");
     if(pos != std::string::npos){
@@ -26,7 +26,7 @@ inline bool match_element(const std::string & origin, const std::string &pattern
   if it is the case, force the scope_bool -> TRUE, if already to TRUE -> error
   in a case of a change, return true, else false
 */
-inline bool add_scope(bool *scope_bool, const std::string & origin, const std::string &pattern){
+inline bool add_scope(bool *scope_bool, const Glib::ustring& origin, const Glib::ustring&pattern){
     if(match_element(origin, pattern)){
         if(*scope_bool==true){
             throw DavixXmlParserException(Glib::Quark("WebdavPropParser::add_scope"), EINVAL,
@@ -42,7 +42,7 @@ inline bool add_scope(bool *scope_bool, const std::string & origin, const std::s
 /**
   act like add_scope but in the opposite way
 */
-inline bool remove_scope(bool *scope_bool, const std::string & origin, const std::string &pattern){
+inline bool remove_scope(bool *scope_bool, const Glib::ustring& origin, const Glib::ustring& pattern){
     if(match_element(origin, pattern)){
         if(*scope_bool==false){
            throw DavixXmlParserException(Glib::Quark("WebdavPropParser::remove_scope"), EINVAL,
@@ -76,8 +76,8 @@ void WebdavPropParser::on_end_document(){
     davix_log_debug(" -> end of parse request for properties ");
 }
 
-void WebdavPropParser::on_start_element(const std::string &name, const AttributeList &attributes){
-    //std::cout << " name : " << name << std::endl;
+void WebdavPropParser::on_start_element(const Glib::ustring& name, const AttributeList& attributes){
+    std::cout << " name : " << name << std::endl;
     // compute the current scope
     bool new_prop= add_scope(&prop_section, name, "prop");
     add_scope(&propname_section, name, "propstat");
@@ -91,8 +91,8 @@ void WebdavPropParser::on_start_element(const std::string &name, const Attribute
         compute_new_elem();
 }
 
-void WebdavPropParser::on_end_element(const std::string &name){
-    //std::cout << "name : " << name << std::endl;
+void WebdavPropParser::on_end_element(const Glib::ustring& name){
+    std::cout << "name : " << name << std::endl;
     // compute the current scope
     bool end_prop = remove_scope(&prop_section, name, "prop");
     remove_scope(&propname_section, name, "propstat");
@@ -107,7 +107,7 @@ void WebdavPropParser::on_end_element(const std::string &name){
 
 }
 
-const std::vector<FileProperties> & WebdavPropParser::parser_properties_from_memory(const std::string &str){
+const std::vector<FileProperties> & WebdavPropParser::parser_properties_from_memory(const Glib::ustring& str){
     _props.clear();
     parse_memory(str);
     return _props;
@@ -127,7 +127,7 @@ void WebdavPropParser::store_new_elem(){
     }
 }
 
-void WebdavPropParser::check_last_modified(const std::string & chars){
+void WebdavPropParser::check_last_modified(const Glib::ustring& chars){
     if(response_section && prop_section && propname_section
           && lastmod_section){ // parse rfc1123 date format
         davix_log_debug(" getlastmodified found -> parse it ");
@@ -143,7 +143,7 @@ void WebdavPropParser::check_last_modified(const std::string & chars){
     }
 }
 
-void WebdavPropParser::check_creation_date(const std::string & chars){
+void WebdavPropParser::check_creation_date(const Glib::ustring& chars){
     if(response_section && prop_section && propname_section
             && creatdate_section){
         davix_log_debug("creationdate found -> parse it");
@@ -159,7 +159,7 @@ void WebdavPropParser::check_creation_date(const std::string & chars){
     }
 }
 
-void WebdavPropParser::check_content_length(const std::string &chars){
+void WebdavPropParser::check_content_length(const Glib::ustring& chars){
     if(response_section && prop_section && propname_section
              && contentlength_section){
         davix_log_debug(" content length found -> parse it");
@@ -173,7 +173,7 @@ void WebdavPropParser::check_content_length(const std::string &chars){
     }
 }
 
-void WebdavPropParser::check_mode_ext(const std::string &chars){
+void WebdavPropParser::check_mode_ext(const Glib::ustring& chars){
     if(response_section && prop_section && propname_section &&
             mode_ext_section){
         davix_log_debug(" mode_t extension for LCGDM found -> parse it");
@@ -186,7 +186,7 @@ void WebdavPropParser::check_mode_ext(const std::string &chars){
     }
 }
 
-void WebdavPropParser::on_characters(const std::string &characters){
+void WebdavPropParser::on_characters(const Glib::ustring& characters){
     //std::cout << "chars ..." << characters<< std::endl;
     check_last_modified(characters);
     check_creation_date(characters);

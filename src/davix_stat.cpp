@@ -16,7 +16,7 @@ void Davix::Stat::stat(const std::string & url, struct stat* st){
 
         const std::vector<char> & res = req_webdav_propfind(req.get());
         WebdavPropParser parser;
-        const std::vector<FileProperties> & props = parser.parser_properties_from_memory(std::string(((char*) & res.at(0)), res.size()));
+        const std::vector<FileProperties> & props = parser.parser_properties_from_memory(Glib::ustring(((char*) & res.at(0)), res.size()));
 
         if( props.size() < 1)
             throw Glib::Error(Glib::Quark("Davix::Stat::stat"), EINVAL, " Invalid Webdav response" );

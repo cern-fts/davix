@@ -3,6 +3,7 @@
 
 #include <libxml++/parsers/saxparser.h>
 #include <fileproperties.h>
+#include <glibmm/ustring.h>
 
 namespace Davix {
 
@@ -11,7 +12,7 @@ class WebdavPropParser : public xmlpp::SaxParser
 public:
     WebdavPropParser();
     virtual ~WebdavPropParser();
-    const std::vector<FileProperties> & parser_properties_from_memory(const std::string & str);
+    const std::vector<FileProperties> & parser_properties_from_memory(const Glib::ustring& name);
 
 private:
     bool prop_section;
@@ -32,16 +33,16 @@ private:
     void compute_new_elem();
     void store_new_elem();
 
-    void check_last_modified(const std::string & chars);
-    void check_creation_date(const std::string & chars);
-    void check_content_length(const std::string & chars);
-    void check_mode_ext(const std::string & chars);
+    void check_last_modified(const Glib::ustring& name);
+    void check_creation_date(const Glib::ustring& name);
+    void check_content_length(const Glib::ustring& name);
+    void check_mode_ext(const Glib::ustring& name);
 protected:
     virtual void on_start_document();
     virtual void on_end_document();
-    virtual void on_start_element(const std::string &name, const AttributeList &attributes);
-    virtual void on_end_element(const std::string &name);
-    virtual void on_characters(const std::string &characters);
+    virtual void on_start_element(const Glib::ustring& name, const AttributeList& attributes);
+    virtual void on_end_element(const Glib::ustring& name);
+    virtual void on_characters(const Glib::ustring& name);
 
 
 

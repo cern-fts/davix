@@ -4,7 +4,14 @@
 #include <xmlpp/webdavpropparser.h>
 
 
-
+void Davix::fill_stat_from_fileproperties(struct stat* st, const  FileProperties & prop){
+    memset(st, 0, sizeof(struct stat));
+    st->st_mtime = prop.mtime;
+    st->st_atime = prop.atime;
+    st->st_ctime = prop.ctime;
+    st->st_size = prop.size;
+    st->st_mode = prop.mode;
+}
 
 
 void Davix::Core::stat(const std::string & url, struct stat* st){
@@ -19,12 +26,7 @@ void Davix::Core::stat(const std::string & url, struct stat* st){
 
         if( props.size() < 1)
             throw Glib::Error(Glib::Quark("Davix::Stat::stat"), EINVAL, " Invalid Webdav response" );
-        memset(st, 0, sizeof(struct stat));
-        st->st_mtime = props.front().mtime;
-        st->st_atime = props.front().atime;
-        st->st_ctime = props.front().ctime;
-        st->st_size = props.front().size;
-        st->st_mode = props.front().mode;
+        fill_stat_from_fileproperties(st, props.front());
 
         davix_log_debug(" davix_stat <-");
     }catch(Glib::Error & e){

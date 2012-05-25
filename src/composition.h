@@ -47,13 +47,38 @@ public:
 
     /**
       @brief execute a readdir function with Webdav
-      @param FileObject
+      @param DAVIX_DIR
     */
     virtual struct dirent* readdir(DAVIX_DIR* )=0;
+
     /**
       @brief close an existing file handle
     */
     virtual void closedir(DAVIX_DIR* )=0;
+
+    /**
+      @brief execute an opendirpp function with Webdav
+           opendirpp/readdirpp/closedirpp function read a directory content with stat information for each directory entry
+      @return DAVIX_DIR : davix readdir handle
+      @throw : Glib::Error, with a errno code value
+      @return
+    */
+    virtual DAVIX_DIR* opendirpp(const std::string & url)=0;
+
+
+
+    /**
+      @brief execute a readdirpp function with Webdav
+           opendirpp and readdirpp function read a directory content with stat information for each directory entry
+      @param DAVIX_DIR
+      @param stat struct to fill
+    */
+    virtual struct dirent* readdirpp(DAVIX_DIR*, struct stat * st )=0;
+
+    /**
+      @brief close an existing file handle
+    */
+    virtual void closedirpp(DAVIX_DIR* )=0;
 
     /**
       @brief same behavior than the POSIX mkdir, use MKCOL in background

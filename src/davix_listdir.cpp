@@ -1,9 +1,12 @@
 #include "davix_listdir.h"
 #include <global_def.h>
 #include <core.h>
+#include <davix_stat.h>
 #include <xmlpp/webdavpropparser.h>
 
 static const std::string simple_listing("<propfind xmlns=\"DAV:\"><prop></prop></propfind>");
+
+static const std::string stat_listing("<propfind xmlns=\"DAV:\"><prop><getcontentlength/><resourcetype><collection/></resourcetype><mode/><getlastmodified/></prop></propfind>");
 
 namespace Davix {
 
@@ -51,11 +54,9 @@ void configure_req_for_listdir(HttpRequest* req){
     req->set_requestcustom("PROPFIND");
 }
 
-
-DAVIX_DIR* Core::opendir(const std::string &url){
+DAVIX_DIR* Core::internal_opendirpp(const char * scope, const std::string & body, const std::string & url  ){
     size_t s_resu;
     int errno_err, error;
-    davix_log_debug(" -> davix_opendir");
     DAVIX_DIR* r = NULL;
     try{
 
@@ -69,7 +70,7 @@ DAVIX_DIR* Core::opendir(const std::string &url){
         HttpRequest *req = res->request;
         WebdavPropParser* parser = res->parser;
         // setup the handle for simple listing only
-        req->add_full_request_content(simple_listing);
+        req->add_full_request_content(body);
 
         req->execute_block(); // start req
 
@@ -77,19 +78,19 @@ DAVIX_DIR* Core::opendir(const std::string &url){
        if( (errno_err = httpcode_to_errno(error)) != 0){
            std::ostringstream os;
            os << " Error Webdav propfind : " << strerror(errno_err) << ", http errcode " << error << std::endl;
-           throw Glib::Error(Glib::Quark("Core::opendir"), errno_err, os.str());
+           throw Glib::Error(Glib::Quark(scope), errno_err, os.str());
        }
 
         size_t prop_size = 0;
         do{ // parse the begining of the request until the first property -> directory property
-           s_resu = incremental_propfind_listdir_parsing(req, parser, this->_s_buff, "Davix::opendir");
+           s_resu = incremental_propfind_listdir_parsing(req, parser, this->_s_buff, scope);
            prop_size = parser->get_current_properties().size();
 
            if(s_resu < _s_buff && prop_size <1) // verify request status : if req done + no data -> error
-               throw Glib::Error(Glib::Quark("Davix::Opendir"), ECOMM, "Invalid Webdav result : invalid response content, maybe not a webdav server");
+               throw Glib::Error(Glib::Quark(scope), ECOMM, "Invalid Webdav result : invalid response content, maybe not a webdav server");
 
            if(timestamp_timeout < time(NULL))
-         throw Glib::Error(Glib::Quark("Davix::Opendir"), ECOMM, "Timeout on the request, Webdav content flow too slow");
+         throw Glib::Error(Glib::Quark(scope), ECOMM, "Timeout on the request, Webdav content flow too slow");
 
         }while( prop_size < 1); // leave is end of req & no data
 
@@ -98,11 +99,29 @@ DAVIX_DIR* Core::opendir(const std::string &url){
     }catch(Glib::Error & e){
         throw e;
     }catch(xmlpp::exception & e){
-        throw Glib::Error(Glib::Quark("Davix::Opendir"), EINVAL, std::string("Parsing Error :").append(e.what()));
+        throw Glib::Error(Glib::Quark(scope), EINVAL, std::string("Parsing Error :").append(e.what()));
     }catch(std::exception & e){
-        throw Glib::Error(Glib::Quark("Davix::Opendir"), EINVAL, std::string("Unexcepted Error :").append(e.what()));
+        throw Glib::Error(Glib::Quark(scope), EINVAL, std::string("Unexcepted Error :").append(e.what()));
     }
+    return (DAVIX_DIR*) r;
+}
+
+
+DAVIX_DIR* Core::opendir(const std::string &url){
+
+    davix_log_debug(" -> davix_opendir");
+    DAVIX_DIR* r = internal_opendirpp("Core::opendir",simple_listing, url);
+
     davix_log_debug(" <- davix_opendir");
+    return (DAVIX_DIR*) r;
+}
+
+DAVIX_DIR* Core::opendirpp(const std::string &url){
+
+    davix_log_debug(" -> davix_opendirpp");
+    DAVIX_DIR* r = internal_opendirpp("Core::opendir",stat_listing, url);
+
+    davix_log_debug(" <- davix_opendirpp");
     return (DAVIX_DIR*) r;
 }
 
@@ -134,18 +153,57 @@ struct dirent* Core::readdir(DAVIX_DIR * d){
     }catch(Glib::Error & e){
         throw e;
     }catch(xmlpp::exception & e){
-        throw Glib::Error(Glib::Quark("Davix::Opendir"), EINVAL, std::string("Parsing Error :").append(e.what()));
+        throw Glib::Error(Glib::Quark("Davix::readdir"), EINVAL, std::string("Parsing Error :").append(e.what()));
     }catch(std::exception & e){
-        throw Glib::Error(Glib::Quark("Davix::Opendir"), EINVAL, std::string("Unexcepted Error :").append(e.what()));
+        throw Glib::Error(Glib::Quark("Davix::readdir"), EINVAL, std::string("Unexcepted Error :").append(e.what()));
+    }
+    return NULL;
+}
+
+struct dirent* Core::readdirpp(DAVIX_DIR * d, struct stat *st){
+    davix_log_debug(" -> davix_readdirpp");
+    if( d==NULL)
+        throw Glib::Error(Glib::Quark("Core::readdirpp"), EBADF, "Invalid file descriptor for DAVIX_DIR*");
+    DIR_handle* handle = static_cast<DIR_handle*>(d);
+
+    try{
+        HttpRequest *req = handle->request; // setup env again
+        WebdavPropParser* parser = handle->parser;
+        off_t read_offset = handle->dir_info->d_off+1;
+        size_t prop_size = parser->get_current_properties().size();
+        size_t s_resu = _s_buff;
+
+        while(read_offset > ((off_t)prop_size)-1 && s_resu > 0){ // request not complete and current data too smalls
+            // continue the parsing until one more result
+           s_resu = incremental_propfind_listdir_parsing(req, parser, this->_s_buff, "Davix::readdirpp");
+           prop_size = parser->get_current_properties().size();
+        }
+        if(read_offset > ((off_t)prop_size)-1) // end of the request, end of the story
+            return NULL;
+        fill_dirent_from_filestat(handle->dir_info, parser->get_current_properties().at(read_offset), read_offset);
+        fill_stat_from_fileproperties(st, parser->get_current_properties().at(read_offset));
+        davix_log_debug(" <- davix_readdirpp");
+        return handle->dir_info;
+
+    }catch(Glib::Error & e){
+        throw e;
+    }catch(xmlpp::exception & e){
+        throw Glib::Error(Glib::Quark("Davix::readdirpp"), EINVAL, std::string("Parsing Error :").append(e.what()));
+    }catch(std::exception & e){
+        throw Glib::Error(Glib::Quark("Davix::readdirpp"), EINVAL, std::string("Unexcepted Error :").append(e.what()));
     }
     return NULL;
 }
 
 
-void Core::closedir(DAVIX_DIR * d){
+void Core::closedirpp(DAVIX_DIR * d){
     if( d==NULL)
         throw Glib::Error(Glib::Quark("Davix::Closedir"), EBADF, "Invalid file descriptor for DAVIX_DIR*");
     delete (static_cast<DIR_handle*>(d));
+}
+
+void Core::closedir(DAVIX_DIR * d){
+    return closedirpp(d);
 }
 
 } // namespace Davix

@@ -11,6 +11,7 @@
 #include "core.h"
 #include "abstractsessionfactory.h"
 #include "httprequest.h"
+#include <xmlpp/webdavpropparser.h>
 
 namespace Davix{
 
@@ -22,6 +23,8 @@ namespace Davix{
     @throw GLib::Error
   */
 const std::vector<char> & req_webdav_propfind(HttpRequest* req); // throw Glib::Error
+
+void fill_stat_from_fileproperties(struct stat* st, const  FileProperties & prop);
 
 }
 

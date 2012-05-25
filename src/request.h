@@ -27,7 +27,8 @@ public:
     /**
       read a block of a maximum size bytes in the request
       @param buffer : buffer to fill
-      @param max_size : maximum number of bytes to set
+      @param max_size : maximum number of byte to read
+      @return number of bytes readed
       @throw Glib::Error
     */
     virtual ssize_t read_block(char* buffer, size_t max_size)=0;

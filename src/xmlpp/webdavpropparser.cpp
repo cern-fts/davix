@@ -23,13 +23,13 @@ const Glib::ustring href_pattern("href");
 const Glib::ustring resource_type_patern("resourcetype");
 const Glib::ustring collection_patern("collection");
 
-inline bool match_element(const Glib::ustring & origin, const Glib::ustring& pattern){ // C style optimized, critical function
+static inline bool match_element(const Glib::ustring & origin, const Glib::ustring& pattern){ // C style optimized, critical function
     bool res = false;
-    const char* c_origin = (char*) origin.c_str();
-    const char* c_pattern = (char*) pattern.c_str();
+    const char* c_origin =  origin.c_str();
+    const char* c_pattern = pattern.c_str();
     const char* pos = strrchr(c_origin, ':');
     if(pos != NULL){
-        res = (strcmp(pos+1, c_pattern) ==0)?true:false;
+        res = (*(pos+1) == *(c_pattern) && strcmp(pos+1, c_pattern) ==0)?true:false;
     }
     return res;
 }
@@ -199,7 +199,7 @@ void WebdavPropParser::check_creation_date(const Glib::ustring& chars){
 void WebdavPropParser::check_is_directory(const Glib::ustring &name){
     if(response_section && prop_section && propname_section
             && resource_type){
-        bool is_dir;
+        bool is_dir=false;
         add_scope(&is_dir,name, collection_patern);
         if(is_dir){
            davix_log_debug(" directory pattern found -> set flag IS_DIR");

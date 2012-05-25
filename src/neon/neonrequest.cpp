@@ -178,7 +178,7 @@ void NEONRequest::finish_block(){
     if(_req != NULL){
         if( (status = ne_end_request(_req)) != NE_OK){
             std::string err_str = translate_neon_status(status, _sess,&err_code);
-            throw Glib::Error(Glib::Quark("NEONRequest::finish_block"), err_code, std::string("Error closing request").append(err_str));
+            throw Glib::Error(Glib::Quark("NEONRequest::finish_block"), err_code, std::string("Error closing request ->").append(err_str));
         }
         ne_request_destroy(_req);
         _req=NULL;

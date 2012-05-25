@@ -115,7 +115,7 @@ struct dirent* Core::readdir(DAVIX_DIR * d){
         size_t prop_size = parser->get_current_properties().size();
         size_t s_resu = _s_buff;
 
-        while(read_offset > ((off_t)prop_size)-1 && s_resu == _s_buff){ // request not complete and current data too smalls
+        while(read_offset > ((off_t)prop_size)-1 && s_resu > 0){ // request not complete and current data too smalls
             // continue the parsing until one more result
            s_resu = incremental_propfind_listdir_parsing(req, parser, this->_s_buff, "Davix::readdir");
            prop_size = parser->get_current_properties().size();

@@ -77,7 +77,7 @@ void WebdavPropParser::on_end_document(){
 }
 
 void WebdavPropParser::on_start_element(const Glib::ustring& name, const AttributeList& attributes){
-    std::cout << " name : " << name << std::endl;
+    //std::cout << " name : " << name << std::endl;
     // compute the current scope
     bool new_prop= add_scope(&prop_section, name, "prop");
     add_scope(&propname_section, name, "propstat");
@@ -92,7 +92,7 @@ void WebdavPropParser::on_start_element(const Glib::ustring& name, const Attribu
 }
 
 void WebdavPropParser::on_end_element(const Glib::ustring& name){
-    std::cout << "name : " << name << std::endl;
+   // std::cout << "name : " << name << std::endl;
     // compute the current scope
     bool end_prop = remove_scope(&prop_section, name, "prop");
     remove_scope(&propname_section, name, "propstat");

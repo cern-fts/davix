@@ -90,7 +90,7 @@ void WebdavPropParser::on_start_element(const Glib::ustring& name, const Attribu
     // compute the current scope
     add_scope(&propname_section, name, propstat_pattern,  response_section, false);
     const bool new_prop= add_scope(&prop_section, name, prop_pattern, response_section && propname_section , false);
-    add_scope(&status_section, name, status_pattern, propname_section && response_section, false);
+    add_scope(&status_section, name, status_pattern, propname_section && response_section, prop_section);
     add_scope(&response_section, name, response_pattern, true, prop_section && propname_section);
     add_scope(&lastmod_section, name, getlastmodified_pattern, propname_section, false);
     add_scope(&creatdate_section, name, creationdate_pattern, propname_section, false);
@@ -110,7 +110,7 @@ void WebdavPropParser::on_end_element(const Glib::ustring& name){
     // compute the current scope
     const bool end_prop =  remove_scope(&propname_section, name, propstat_pattern, response_section, false);
     remove_scope(&prop_section, name, prop_pattern,  response_section && propname_section, false);
-    remove_scope(&status_section, name, status_pattern, propname_section && response_section, false);
+    remove_scope(&status_section, name, status_pattern, propname_section && response_section, prop_section);
     remove_scope(&response_section, name, response_pattern, true, prop_section && propname_section);
     remove_scope(&lastmod_section, name, getlastmodified_pattern, propname_section, false);
     remove_scope(&creatdate_section, name, creationdate_pattern, propname_section, false);
@@ -262,7 +262,7 @@ void WebdavPropParser::check_href(const Glib::ustring &name){
 
 void WebdavPropParser::check_status(const Glib::ustring &name){
     if(response_section &&
-            propname_section && status_section){
+            propname_section && status_section ){
         davix_log_debug(" status found -> parse it");
         char * p1, *p2 = (char*) name.c_str();
         while(*p2 == ' ')

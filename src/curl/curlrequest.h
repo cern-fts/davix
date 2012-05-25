@@ -2,6 +2,7 @@
 #define DAVIX_CURLREQUEST_H
 
 #include <vector>
+#include <queue>
 #include <curl/curl.h>
 
 #include <containers/vector_chunk.h>

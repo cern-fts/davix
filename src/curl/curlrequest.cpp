@@ -65,14 +65,10 @@ size_t CURLRequest::write_data_curl_chunk_new(char *ptr, size_t size, size_t nme
         return CURL_WRITEFUNC_PAUSE;
     }
 
-    const size_t current_size = req->internal_buffer.size();
-    req->internal_buffer.resize( current_size+ n_bytes);
-    std::deque<char>::iterator it;
-    for(it = req->internal_buffer.begin() + current_size ;
-        it < req->internal_buffer.end();
-        ++it,++ptr){
-        *it = *ptr;
+    for(size_t i2=0; i2 < n_bytes;i2++){
+        req->internal_buffer.push_back(ptr[i2]);
     }
+
     req->_pause = false;
     return n_bytes;
 }
@@ -138,15 +134,14 @@ void CURLRequest::read_block(std::vector<char> &buffer, size_t max_size){
 
     const size_t r_size = std::min<size_t>(max_size, state.internal_buffer.size());
     const size_t buffer_old_size = buffer.size();
-    std::deque<char>::iterator it1, it_end;
     buffer.reserve(buffer_old_size + r_size);
-    it1 = state.internal_buffer.begin();
-    it_end = it1 + r_size;
-    for(; it1 < it_end ;
-        ++it1)
-        buffer.push_back( *it1);
 
-    state.internal_buffer.erase(state.internal_buffer.begin(), it1);
+    for(size_t i=0; i < r_size ;
+        ++i){
+        buffer.push_back(state.internal_buffer.front());
+        state.internal_buffer.pop_front();
+    }
+
 }
 
 void CURLRequest::finish_block(){

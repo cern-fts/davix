@@ -38,15 +38,23 @@ private:
     bool _ca_check;
     void * _user_auth_callback_data;
     davix_auth_callback _call;
+    std::multimap<std::string, ne_session*> _sess_map;
+    Glib::Mutex _sess_mut;
 
     void internal_release_session_handle(ne_session* sess);
 
     ne_session* create_session(const std::string & protocol, const std::string &host, unsigned int port);
+
+    ne_session* create_recycled_session(const std::string & protocol, const std::string &host, unsigned int port);
 };
 
 void parse_http_neon_url(const std::string & url, std::string & protocol,
                          std::string & host, std::string & path, unsigned int *port);
 
+std::string create_map_keys_from_URL(const std::string & protocol, const std::string &host, unsigned int port);
+
 } // namespace Davix
+
+
 
 #endif // DAVIX_NEONSESSIONFACTORY_H

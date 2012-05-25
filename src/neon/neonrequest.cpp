@@ -106,7 +106,7 @@ void NEONRequest::create_req(){
       finish_block();
     _req= ne_request_create(_sess, _request_type.c_str(), _path.c_str());
 
-    for(int i=0; i< _headers_field.size(); ++i){
+    for(size_t i=0; i< _headers_field.size(); ++i){
         ne_add_request_header(_req, _headers_field[i].first.c_str(),  _headers_field[i].second.c_str());
     }
     if(_content_body.size() > 0)

@@ -29,6 +29,8 @@ set(VERSION_STRING ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 #compilation mode
 SET(HTTP_LIB "NEON") # http bacend can be NEON or CURL
+SET(UNIT_TESTS FALSE
+    CACHE STRING "enable or disable unit test compilation")
 
 
 # libs checks

@@ -20,7 +20,8 @@ const Glib::ustring creationdate_pattern("creationdate");
 const Glib::ustring getcontentlength_pattern("getcontentlength");
 const Glib::ustring mode_pattern("mode");
 const Glib::ustring href_pattern("href");
-
+const Glib::ustring resource_type_patern("resourcetype");
+const Glib::ustring collection_patern("collection");
 
 inline bool match_element(const Glib::ustring & origin, const Glib::ustring& pattern){ // C style optimized, critical function
     bool res = false;
@@ -82,6 +83,7 @@ void WebdavPropParser::on_start_document(){
     response_section = lastmod_section = false;
     creatdate_section = contentlength_section= false;
     mode_ext_section = href_section = false;
+    resource_type = false;
 }
 
 void WebdavPropParser::on_end_document(){
@@ -99,6 +101,9 @@ void WebdavPropParser::on_start_element(const Glib::ustring& name, const Attribu
     add_scope(&contentlength_section, name, getcontentlength_pattern);
     add_scope(&mode_ext_section, name, mode_pattern); // lcgdm extension for mode_t support
     add_scope(&href_section, name, href_pattern);
+    add_scope(&resource_type, name, resource_type_patern);
+    // mono-balise check
+    check_is_directory(name);
     // collect information
     if(new_prop)
         compute_new_elem();
@@ -115,9 +120,12 @@ void WebdavPropParser::on_end_element(const Glib::ustring& name){
     remove_scope(&contentlength_section, name, getcontentlength_pattern);
     remove_scope(&mode_ext_section, name, mode_pattern); // lcgdm extension for mode_t support
     remove_scope(&href_section, name, href_pattern);
+    remove_scope(&resource_type, name, resource_type_patern);
 
     if(end_prop)
         store_new_elem();
+
+
 
 }
 
@@ -145,6 +153,7 @@ void WebdavPropParser::compute_new_elem(){
         davix_log_debug(" properties detected ");
         _current_props.clear();
         _current_props.filename = last_filename; // setup the current filename
+        _current_props.mode = 0777; // default : fake access to everything
     }
 }
 
@@ -184,6 +193,18 @@ void WebdavPropParser::check_creation_date(const Glib::ustring& chars){
         }
         davix_log_debug(" creationdate found -> value %ld ", t);
         _current_props.ctime = t;
+    }
+}
+
+void WebdavPropParser::check_is_directory(const Glib::ustring &name){
+    if(response_section && prop_section && propname_section
+            && resource_type){
+        bool is_dir;
+        add_scope(&is_dir,name, collection_patern);
+        if(is_dir){
+           davix_log_debug(" directory pattern found -> set flag IS_DIR");
+           _current_props.mode |=  S_IFDIR;
+        }
     }
 }
 

@@ -3,7 +3,7 @@
 include_directories(${PROJECT_SOURCE_DIR}/src ".")
 
 
-
+if(UNIT_TESTS)
 
 add_subdirectory(datetime)
 add_subdirectory(session)
@@ -18,3 +18,6 @@ target_link_libraries(test_unit_davix davix cgreen)
 
 
 add_test(test_davix_all test_unit_davix)
+
+
+endif(UNIT_TESTS)

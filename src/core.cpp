@@ -8,7 +8,7 @@ using namespace Glib;
 Core::Core(AbstractSessionFactory* fsess) : _fsess(fsess)
 {
     _s_buff = 65536;
-    _timeout = 10;
+    _timeout = 300;
 }
 
 RefPtr<Core> Core::create(AbstractSessionFactory* fsess){

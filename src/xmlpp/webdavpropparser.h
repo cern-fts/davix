@@ -35,6 +35,7 @@ private:
     bool contentlength_section;
     bool mode_ext_section;
     bool href_section;
+    bool resource_type;
 
     Glib::ustring last_filename; // last filename section
     std::vector<FileProperties> _props;
@@ -47,6 +48,7 @@ private:
     void compute_new_elem();
     void store_new_elem();
 
+    void check_is_directory(const Glib::ustring & name);
     void check_last_modified(const Glib::ustring& name);
     void check_creation_date(const Glib::ustring& name);
     void check_content_length(const Glib::ustring& name);

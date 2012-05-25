@@ -186,7 +186,6 @@ void WebdavPropParser::check_creation_date(const Glib::ustring& chars){
             && creatdate_section){
         davix_log_debug("creationdate found -> parse it");
         GError * tmp_err1=NULL;
-        GError* tmp_err2=NULL;
         time_t t = parse_standard_date(chars.c_str(), &tmp_err1);
         if(t == -1){
 

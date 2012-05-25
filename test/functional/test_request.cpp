@@ -1,7 +1,7 @@
 #include "test_request.h"
 
 #include <core.h>
-#include <neon/neonsessionfactory.h>.h>
+#include <neon/neonsessionfactory.h>
 
 using namespace Davix;
 

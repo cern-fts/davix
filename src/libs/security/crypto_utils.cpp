@@ -1,5 +1,6 @@
 #include "crypto_utils.h"
 #include <glibmm.h>
+#include <sstream>
 
 #include <openssl/pem.h>
 #include <openssl/pkcs12.h>

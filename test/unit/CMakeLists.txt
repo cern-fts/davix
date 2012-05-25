@@ -8,8 +8,6 @@ if(UNIT_TESTS)
 include_directories(${PROJECT_SOURCE_DIR}/src ".")
 
 
-if(UNIT_TESTS)
-
 add_subdirectory(datetime)
 add_subdirectory(session)
 add_subdirectory(request)

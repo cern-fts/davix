@@ -42,12 +42,15 @@ std::string  translate_neon_status(int ne_status, ne_session* sess, int* errno_c
 }
 
 
-NEONRequest::NEONRequest(ne_session * sess, RequestType typ, const std::string & path) : _request_type("GET")
+NEONRequest::NEONRequest(ne_session * sess, RequestType typ, const std::string & path,
+                         void * user_auth_callback_data,
+                         davix_auth_callback call) : _request_type("GET")
 {
     _sess=sess;
     _path = path;
     _req=NULL;
-
+    _call = call;
+    _user_auth_callback_data = user_auth_callback_data;
 }
 
 NEONRequest::~NEONRequest(){

@@ -27,7 +27,7 @@ Request* NEONSessionFactory::take_request(RequestType typ, const std::string &ur
     unsigned int port;
     parse_http_neon_url(url, protocol, host, path, &port);
     ne_session* sess = create_session(protocol, host, port);
-    NEONRequest* req = new NEONRequest(sess, typ, path);
+    NEONRequest* req = new NEONRequest(sess, typ, path, _user_auth_callback_data, _call);
     return static_cast<Request*>(req);
 }
 

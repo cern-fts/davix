@@ -32,7 +32,7 @@ SET(HTTP_LIB "NEON") # http bacend can be NEON or CURL
 
 
 # libs checks
-pkg_check_modules(GLIBMM_PKG REQUIRED glibmm-2.4)
+pkg_search_module(GLIBMM_PKG REQUIRED glibmm glibmm-2.6 glibmm-2.4)
 pkg_check_modules(GTHREAD_PKG REQUIRED gthread-2.0)
 
 if ( ${HTTP_LIB} STREQUAL "CURL")
@@ -43,7 +43,7 @@ if ( ${HTTP_LIB} STREQUAL "NEON" )
 pkg_check_modules(HTTPLIB_PKG REQUIRED neon)
 endif ( ${HTTP_LIB} STREQUAL "NEON" )
 
-pkg_check_modules(LIBXMLPP_PKG REQUIRED libxml++-2.6)
+pkg_search_module(LIBXMLPP_PKG REQUIRED libxml++ libxml++-2.6 libxml++-2.4)
 
 pkg_check_modules(CRYPTO_PKG REQUIRED libcrypto)
 

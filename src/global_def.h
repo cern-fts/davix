@@ -50,6 +50,7 @@ typedef enum _Auth_code{
   Authentification information required
 */
 typedef enum _Auth_type{
+    DAVIX_CRED_PKCS12,      // full credential in pkcs12 format
     DAVIX_PROXY_FULL_PEM,   // PEM proxy certificate like described in http://dev.globus.org/wiki/Security/ProxyFileFormat
     DAVIX_CERT_PEM,         // CERT PEM
     DAVIX_KEY_PEM,          // Private KEY PEM

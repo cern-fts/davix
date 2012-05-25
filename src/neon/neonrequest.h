@@ -16,7 +16,9 @@ namespace Davix {
 class NEONRequest : public HttpRequest
 {
 public:
-    NEONRequest(ne_session * sess, RequestType typ, const std::string & path);
+    NEONRequest(ne_session * sess, RequestType typ, const std::string & path,
+                void * user_auth_callback_data,
+                davix_auth_callback call);
     virtual ~NEONRequest();
 
     /**
@@ -84,6 +86,9 @@ protected:
     std::string _request_type;
 
     std::vector< std::pair<std::string, std::string > > _headers_field;
+
+    void * _user_auth_callback_data;
+    davix_auth_callback _call;
 
     void create_req();
 };

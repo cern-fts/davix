@@ -9,7 +9,7 @@ namespace Davix {
 
 class NEONSessionFactory : public AbstractSessionFactory
 {
-public:
+    friend class NEONRequest;
 public:
     NEONSessionFactory();
     virtual ~NEONSessionFactory();
@@ -39,7 +39,7 @@ private:
     void * _user_auth_callback_data;
     davix_auth_callback _call;
 
-
+    void internal_release_session_handle(ne_session* sess);
 
     ne_session* create_session(const std::string & protocol, const std::string &host, unsigned int port);
 };

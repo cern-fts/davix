@@ -5,6 +5,7 @@
 #include <utility>
 #include <queue>
 #include <neon/ne_request.h>
+#include <neon/neonsessionfactory.h>
 
 #include <global_def.h>
 #include <httprequest.h>
@@ -13,10 +14,12 @@ namespace Davix {
 
 #define NEON_BUFFER_SIZE 65000
 
+class NEONSessionFactory;
+
 class NEONRequest : public HttpRequest
 {
 public:
-    NEONRequest(ne_session * sess, RequestType typ, const std::string & path,
+    NEONRequest(NEONSessionFactory* f, ne_session * sess, RequestType typ, const std::string & path,
                 void * user_auth_callback_data,
                 davix_auth_callback call);
     virtual ~NEONRequest();
@@ -90,6 +93,7 @@ protected:
     std::vector<char> _vec;
     std::string _content_body;
     std::string _request_type;
+    NEONSessionFactory* _f;
 
     std::vector< std::pair<std::string, std::string > > _headers_field;
 

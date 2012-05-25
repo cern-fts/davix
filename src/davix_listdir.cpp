@@ -94,7 +94,7 @@ DAVIX_DIR* Core::opendir(const std::string &url){
         }while( prop_size < 1); // leave is end of req & no data
 
         r = res.release(); // success : take ownership of the pointer
-        davix_log_debug(" <- davix_opendir");
+
     }catch(Glib::Error & e){
         throw e;
     }catch(xmlpp::exception & e){
@@ -102,6 +102,7 @@ DAVIX_DIR* Core::opendir(const std::string &url){
     }catch(std::exception & e){
         throw Glib::Error(Glib::Quark("Davix::Opendir"), EINVAL, std::string("Unexcepted Error :").append(e.what()));
     }
+    davix_log_debug(" <- davix_opendir");
     return (DAVIX_DIR*) r;
 }
 

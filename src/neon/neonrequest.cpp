@@ -83,7 +83,7 @@ void NEONRequest::provide_clicert_fn(void *userdata, ne_session *sess,
 }
 
 
-NEONRequest::NEONRequest(ne_session * sess, RequestType typ, const std::string & path,
+NEONRequest::NEONRequest(NEONSessionFactory* f, ne_session * sess, RequestType typ, const std::string & path,
                          void * user_auth_callback_data,
                          davix_auth_callback call) : _request_type("GET")
 {
@@ -91,14 +91,14 @@ NEONRequest::NEONRequest(ne_session * sess, RequestType typ, const std::string &
     _path = path;
     _req=NULL;
     _call = call;
+    _f = f;
     _user_auth_callback_data = user_auth_callback_data;
     ne_ssl_provide_clicert(sess, &NEONRequest::provide_clicert_fn, this);
 }
 
 NEONRequest::~NEONRequest(){
     finish_block();
-    ne_session_destroy(_sess);
-
+    _f->internal_release_session_handle(_sess);
 }
 
 void NEONRequest::create_req(){

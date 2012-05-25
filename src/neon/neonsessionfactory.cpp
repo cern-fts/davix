@@ -27,7 +27,7 @@ Request* NEONSessionFactory::take_request(RequestType typ, const std::string &ur
     unsigned int port;
     parse_http_neon_url(url, protocol, host, path, &port);
     ne_session* sess = create_session(protocol, host, port);
-    NEONRequest* req = new NEONRequest(sess, typ, path, _user_auth_callback_data, _call);
+    NEONRequest* req = new NEONRequest(this, sess, typ, path, _user_auth_callback_data, _call);
     if(_ca_check == false)
         req->disable_ssl_ca_check();
     return static_cast<Request*>(req);
@@ -53,6 +53,10 @@ ne_session* NEONSessionFactory::create_session(const std::string & protocol, con
 
     se = ne_session_create(protocol.c_str(), host.c_str(), (int) port);
     return se;
+}
+
+void NEONSessionFactory::internal_release_session_handle(ne_session* sess){
+    ne_session_destroy(sess);
 }
 
 void parse_http_neon_url(const std::string &url, std::string &protocol, std::string &host, std::string &path, unsigned int * port){

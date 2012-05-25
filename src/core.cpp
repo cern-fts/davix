@@ -42,10 +42,10 @@ void core_init(){
 }
 
 
-int davix_set_pkcs12_auth(davix_auth_t token, const char* filename_pkcs12,const char* passwd, GError** err){
+int davix_set_pkcs12_auth(davix_auth_t token, const char* filename_pkcs, const char* passwd, GError** err){
     Davix::Request* req = static_cast<Davix::Request*>(token);
     try{
-        req->try_set_pkcs12_cert(filename_pkcs12, passwd);
+        req->try_set_pkcs12_cert(filename_pkcs, passwd);
     }catch(Glib::Error & e){
             g_set_error(err, e.domain(), e.code(), e.what().c_str());
             return -1;

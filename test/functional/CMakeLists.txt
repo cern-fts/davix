@@ -30,6 +30,15 @@ add_executable(test_stat_c ${src_test_stat_c} )
 target_link_libraries(test_stat_c davix)
 
 
+function(test_dav_endpoint name cred)
+    add_test(test_stat_${name} test_stat ${name} ${cred})
+    add_test(test_opendir_${name} test_opendir ${name} ${cred})
+    add_test(test_stat_c_${name} test_stat_c ${name} ${cred})
+endfunction(test_dav_endpoint name cred)
+
+
+include(ctest_functional.cmake)
+
 endif(FUNCTIONAL_TESTS)
 
 

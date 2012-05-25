@@ -54,7 +54,9 @@ int main(int argc, char** argv){
             struct stat st;
             dir= c->readdirpp(d, &st);
             if(dir)
-                std::cout << "N° " << dir->d_off <<" file : " << dir->d_name <<" len : " << st.st_size << " atime: "<< st.st_atime << " mode : "<< std::oct << st.st_mode << std::endl;
+                std::cout << "N° " << dir->d_off <<" file : " << dir->d_name <<" len : " << st.st_size << " atime: "<< st.st_atime << " mode : "<< std::oct << st.st_mode;
+                std::cout << " mtime : " << st.st_mtime ;
+                std::cout << " ctime : " << st.st_ctime << std::endl;
         }while(dir!= NULL);
 
         c->closedirpp(d);

@@ -6,7 +6,7 @@
 
 static const std::string simple_listing("<propfind xmlns=\"DAV:\"><prop></prop></propfind>");
 
-static const std::string stat_listing("<propfind xmlns=\"DAV:\"><prop><getcontentlength/><resourcetype><collection/></resourcetype><mode/><getlastmodified/></prop></propfind>");
+static const std::string stat_listing("<propfind xmlns=\"DAV:\"><prop><getlastmodified/><creationdate/><getcontentlength/><resourcetype><collection/></resourcetype><mode/></prop></propfind>");
 
 namespace Davix {
 

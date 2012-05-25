@@ -4,5 +4,8 @@
 message (" Setup tests parameters... ")
 
 
-test_dav_endpoint( "http://sligo.desy.de:2880/" "")
-test_dav_endpoint( "https://lxfsra04a04.cern.ch/dpm/" "${CMAKE_SOURCE_DIR}/test.p12")
+test_dav_endpoint_ronly( "http://sligo.desy.de:2880/pnfs/desy.de/data/dteam/" "")
+test_dav_endpoint_rw( "https://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam" "${CMAKE_SOURCE_DIR}/test.p12")
+
+# localhost generic server, ex : "davserver -n -D /tmp"
+test_dav_endpoint_rw("http://localhost:8008" " ")

@@ -2,6 +2,8 @@
 
 #include <glibmm/error.h>
 #include <glibmm/quark.h>
+#include <string>
+#include <sstream>
 
 #include <cstring>
 

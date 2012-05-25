@@ -4,6 +4,8 @@
 #include <utility>
 #include <iostream>
 #include <exception>
+#include <string>
+#include <sstream>
 
 #include <composition.h>
 #include <global_def.h>

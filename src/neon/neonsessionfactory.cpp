@@ -67,7 +67,7 @@ void NEONSessionFactory::set_ssl_ca_check(bool chk){
 ne_session* NEONSessionFactory::create_session(const std::string & protocol, const std::string &host, unsigned int port){
     ne_session *se;
     se = ne_session_create(protocol.c_str(), host.c_str(), (int) port);
-    ne_ssl_trust_default_ca(se);
+    //ne_ssl_trust_default_ca(se); not stable in neon
     return se;
 }
 

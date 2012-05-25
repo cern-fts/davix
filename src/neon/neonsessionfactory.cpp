@@ -126,8 +126,6 @@ void parse_http_neon_url(const std::string &url, std::string &protocol, std::str
                    path = std::string("/");
                    host_port = std::string(first_slash_next);
                }else{
-                   while(*(second_slash+1) == '/')  // skip sequentials slash in path
-                       second_slash++;
                    path = std::string(second_slash);
                    host_port = std::string(first_slash_next, second_slash- first_slash_next);
                }

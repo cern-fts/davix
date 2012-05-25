@@ -1,6 +1,8 @@
 #ifndef GLOBAL_DEF_H
 #define GLOBAL_DEF_H
 
+#include <glibmm.h>
+
 #include <iostream>
 #include <memory>
 #include <errno.h>

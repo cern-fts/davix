@@ -2,6 +2,16 @@
 #include <http_backend.h>
 #include <glibmm/init.h>
 
+namespace Davix{
+//
+// Main entry point
+//
+Composition* session_create(){
+    return static_cast<Composition*>(new Core(new NEONSessionFactory() ));
+}
+
+}
+
 extern "C"{
 
 davix_sess_t davix_session_new(GError ** err){

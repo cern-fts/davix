@@ -1,5 +1,6 @@
 #include "davix_listdir.h"
 #include <global_def.h>
+#include <core.h>
 #include <xmlpp/webdavpropparser.h>
 
 

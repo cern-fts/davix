@@ -7,7 +7,10 @@ FILE(GLOB src_neon "neon/*.cpp")
 FILE(GLOB src_logger "logging/*.c")
 FILE(GLOB src_curl "curl/*.cpp")
 
-LIST(APPEND davix_headers "davix.h" "davix_types.h")
+LIST(APPEND davix_headers "davix.h" "davix_types.h" "composition.h" "global_def.h"
+            "libdavix_object.h" "abstractsessionfactory.h" "request.h" "httprequest.h" "davix_cpp.hpp")
+
+LIST(APPEND davix_logger_header "logging/logger.h")
 
 include_directories("libs")
 
@@ -59,3 +62,6 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/davix.pc
 # install headers
 install( FILES ${davix_headers}
          DESTINATION ${INCLUDE_INSTALL_DIR}/davix)
+
+install( FILES ${davix_logger_header}
+         DESTINATION ${INCLUDE_INSTALL_DIR}/davix/logging)

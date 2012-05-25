@@ -6,11 +6,12 @@
 #include <sys/types.h>
 #include <dirent.h>
 
-#include <glibmm/error.h>
 
-#include <davix.h>
+
 #include <global_def.h>
-#include <gridutils.h>
+#include <davix.h>
+#include <httprequest.h>
+
 #include <libdavix_object.h>
 #include <abstractsessionfactory.h>
 

@@ -14,6 +14,21 @@ Composition* session_create(){
 
 extern "C"{
 
+// initialization
+__attribute__((constructor))
+void core_init(){
+    g_thread_init(NULL);
+    Glib::init();
+    ne_sock_init();
+}
+
+__attribute__((destructor))
+void core_deinit(){
+    g_thread_init(NULL);
+    Glib::init();
+}
+
+
 davix_sess_t davix_session_new(GError ** err){
     try{
         Davix::Composition* comp = static_cast<Davix::Composition*>(new Davix::Core(new Davix::NEONSessionFactory() ));

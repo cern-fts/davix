@@ -12,12 +12,18 @@ namespace Davix {
 const char* proto_support[] = { "http", "https", NULL };
 const unsigned int ports[] = { 80 ,443 , 0};
 
+static GOnce neon_once = G_ONCE_INIT;
+
+static gpointer init_neon(gpointer useless){
+    ne_sock_init();
+}
+
 NEONSessionFactory::NEONSessionFactory()
 {
-    ne_sock_init();
     _ca_check=true;
     _user_auth_callback_data = NULL;
     _call = NULL;
+    g_once (&neon_once, init_neon, NULL);
 }
 
 NEONSessionFactory::~NEONSessionFactory(){
@@ -25,7 +31,6 @@ NEONSessionFactory::~NEONSessionFactory(){
     for(std::multimap<std::string, ne_session*>::iterator it = _sess_map.begin(); it != _sess_map.end(); ++it){
         ne_session_destroy(it->second);
     }
-    ne_sock_exit();
 }
 
 Request* NEONSessionFactory::take_request(RequestType typ, const std::string &url){

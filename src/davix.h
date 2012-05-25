@@ -55,6 +55,12 @@ void davix_session_free(davix_sess_t sess);
 */
 int davix_stat(davix_sess_t sess, const char* url, struct stat * st, GError** err);
 
+/**
+  to use from authentification call_back
+  allow to authentificate with a clicert pkcs12
+*/
+int davix_set_pkcs12_auth(davix_auth_t token, const char* filename_pkcs12,const char* passwd, GError** err);
+
 #ifdef __cplusplus
 }
 #endif

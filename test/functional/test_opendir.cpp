@@ -10,13 +10,17 @@ using namespace Davix;
 
 #define MY_BUFFER_SIZE 65000
 
- Auth_code mycred_auth_callback(Auth_type t, char * data,  void * userdata, GError ** err){
-     if(t == DAVIX_PROXY_FULL_PEM){
-         g_strlcpy(data, (char*) userdata, DAVIX_BUFFER_SIZE);
-         return DAVIX_AUTH_SUCCESS;
-     }
-     return DAVIX_AUTH_SKIP;
- }
+int mycred_auth_callback(davix_auth_t token, const davix_auth_info_t* t, void* userdata, GError** err){
+    GError * tmp_err=NULL;
+    int ret = davix_set_pkcs12_auth(token, (const char*)userdata, (const char*)NULL, &tmp_err);
+    if(ret != 0){
+        fprintf(stderr, " FATAL authentification Error : %s", tmp_err->message);
+        g_propagate_error(err, tmp_err);
+    }
+
+    return ret;
+}
+
 
 static void configure_grid_env(char * cert_path, const Glib::RefPtr<Core>  & core){
     AbstractSessionFactory* f = core->getSessionFactory();

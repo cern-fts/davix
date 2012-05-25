@@ -11,9 +11,13 @@
 #include <unistd.h>
 #include <logging/logger.h>
 
+#include <davix.h>
+
 namespace Davix{
 
-typedef void DAVIX_DIR;
+
+
+
 
 inline void davix_log_debug(const gchar *format,
                             ...){
@@ -40,36 +44,6 @@ typedef enum _REQUEST_TYPE{
 } RequestType;
 
 
-typedef enum _Auth_code{
-    DAVIX_AUTH_SUCCESS,
-    DAVIX_AUTH_FAILURE,
-    DAVIX_AUTH_SKIP
-} Auth_code;
-
-/**
-  Authentification information required
-*/
-typedef enum _Auth_type{
-    DAVIX_CRED_PKCS12,      // full credential in pkcs12 format
-    DAVIX_PROXY_FULL_PEM,   // PEM proxy certificate like described in http://dev.globus.org/wiki/Security/ProxyFileFormat
-    DAVIX_CERT_PEM,         // CERT PEM
-    DAVIX_KEY_PEM,          // Private KEY PEM
-    DAVIX_KEY_PASSWD,       //  Private key password
-    DAVIX_LOGIN,
-    DAVIX_PASSWD
-} Auth_type;
-
-/**
-  This callback is called when a given information is needed
-  FULL_PEM : a path to a full PEM credential
-  CERT_PEM : a path to a public key pem
-  KEY_PEM : a path to a private key pem
-  KEY_PASSWD : the password requried for the pem decryption ( can be "" if it does not exist )
-  LOGIN : login in classical login/auth
-  PASSWD : passwd in a classical login/auth
-  @return this callback should return 0 on success, 1 if this access is not managed,
-*/
-typedef  Auth_code (*davix_auth_callback)(Auth_type t, char * data,  void * userdata, GError ** err);
 
 
 #define DAVIX_GRID_NONE 0x00

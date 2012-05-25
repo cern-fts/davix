@@ -78,6 +78,10 @@ public:
      */
     virtual int get_request_code();
 
+    /**
+      reimplement authentification
+    */
+    virtual void try_set_pkcs12_cert(const char * filename_pkcs12, const char* passwd);
 protected:
     ne_session *    _sess;
     ne_request * _req;
@@ -90,7 +94,19 @@ protected:
     void * _user_auth_callback_data;
     davix_auth_callback _call;
 
+
     void create_req();
+    /**
+      internal, try to authentification with pkcs12 credential
+    */
+    int try_pkcs12_authentification(ne_session *sess, const ne_ssl_dname *const *dnames);
+    /**
+      main libneon callback for clicert
+     */
+    static void provide_clicert_fn(void *userdata, ne_session *sess,
+                              const ne_ssl_dname *const *dnames,
+                              int dncount);
+
 };
 
 /**

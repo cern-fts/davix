@@ -2,6 +2,7 @@
 #define DAVIX_REQUEST_H
 
 #include <vector>
+#include <global_def.h>
 #include "libdavix_object.h"
 
 namespace Davix {
@@ -50,6 +51,15 @@ public:
        ex : HTTP 200
      */
     virtual int get_request_code() =0;
+
+
+    /**
+      need to be reimplemented for client credential management
+      must throw Glib::Error if error occures while authenficiation submission, see global_def.h for codes
+      */
+    virtual void try_set_pkcs12_cert(const char * filename_pkcs12, const char* passwd);
+protected:
+
 
 };
 

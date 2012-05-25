@@ -8,14 +8,16 @@
 using namespace Davix;
 
 
-Auth_code mycred_auth_callback(Auth_type t, char * data,  void * userdata, GError ** err){
-    if(t == DAVIX_PROXY_FULL_PEM){
-        g_strlcpy(data, (char*) userdata, DAVIX_BUFFER_SIZE);
-        return DAVIX_AUTH_SUCCESS;
+int mycred_auth_callback(davix_auth_t token, const davix_auth_info_t* t, void* userdata, GError** err){
+    GError * tmp_err=NULL;
+    int ret = davix_set_pkcs12_auth(token, (const char*)userdata, (const char*)NULL, &tmp_err);
+    if(ret != 0){
+        fprintf(stderr, " FATAL authentification Error : %s", tmp_err->message);
+        g_propagate_error(err, tmp_err);
     }
-    return DAVIX_AUTH_SKIP;
-}
 
+    return ret;
+}
 
 
 

@@ -37,3 +37,11 @@ time_t parse_iso8601date(const char* iso_date, GError** err){
     return res;
 
 }
+
+time_t parse_standard_date(const char* http_date, GError** err){
+    if(strchr(http_date, ',') != NULL){ // detect if rfc date or iso8601 date
+        return parse_http_date(http_date, err);
+    }else{
+         return parse_iso8601date(http_date, err);
+    }
+}

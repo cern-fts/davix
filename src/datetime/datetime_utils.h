@@ -29,6 +29,13 @@ time_t parse_http_date(const char* http_date, GError** err);
 */
 time_t parse_iso8601date(const char* http_date, GError** err);
 
+/**
+  parse both of iso 8601 and http standard date to a posix time
+  @param http or iso8601 date
+  @param err : GError report system
+  @return posix time
+*/
+time_t parse_standard_date(const char* http_date, GError** err);
 
 #ifdef __cplusplus
 }

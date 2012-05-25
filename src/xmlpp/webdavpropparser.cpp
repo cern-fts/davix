@@ -170,7 +170,7 @@ void WebdavPropParser::check_last_modified(const Glib::ustring& chars){
           && lastmod_section){ // parse rfc1123 date format
         davix_log_debug(" getlastmodified found -> parse it ");
         GError * tmp_err=NULL;
-        time_t t = parse_http_date(chars.c_str(), &tmp_err);
+        time_t t = parse_standard_date(chars.c_str(), &tmp_err);
         if(t == -1){
             DavixXmlParserException ex(g_quark_to_string(tmp_err->domain), ECOMM, tmp_err->message);
             g_clear_error(&tmp_err);
@@ -185,11 +185,13 @@ void WebdavPropParser::check_creation_date(const Glib::ustring& chars){
     if(response_section && prop_section && propname_section
             && creatdate_section){
         davix_log_debug("creationdate found -> parse it");
-        GError * tmp_err=NULL;
-        time_t t = parse_iso8601date(chars.c_str(), &tmp_err);
+        GError * tmp_err1=NULL;
+        GError* tmp_err2=NULL;
+        time_t t = parse_standard_date(chars.c_str(), &tmp_err1);
         if(t == -1){
-            DavixXmlParserException ex(g_quark_to_string(tmp_err->domain), ECOMM, tmp_err->message);
-            g_clear_error(&tmp_err);
+
+            DavixXmlParserException ex(g_quark_to_string(tmp_err1->domain), ECOMM, tmp_err1->message);
+            g_clear_error(&tmp_err1);
             throw ex;
         }
         davix_log_debug(" creationdate found -> value %ld ", t);

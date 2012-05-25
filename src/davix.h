@@ -10,12 +10,12 @@
 /**
   @file davix.h
   @author Devresse Adrien
-  POSIX and file oriented API for Webdav/HTTP file management
-  davix support :
-  - redirection
-  - SSL credentials
+  @brief POSIX-like API for Webdav/HTTP file access
+
+  Davix support :
+  - redirection on every calls ( cluster support )
+  - SSL client side credentials
   - Login/password authentification
-  - Grid-style configuration ( GSI, delegation )
   - Third party transfer
  */
 
@@ -60,6 +60,12 @@ int davix_stat(davix_sess_t sess, const char* url, struct stat * st, GError** er
   allow to authentificate with a clicert pkcs12
 */
 int davix_set_pkcs12_auth(davix_auth_t token, const char* filename_pkcs12,const char* passwd, GError** err);
+
+/**
+  to use from authentification call_back
+  allow to authentificate with a login/password
+*/
+int davix_set_login_passwd_auth(davix_auth_t token, const char* login, const char* passwd, GError** err);
 
 
 /**

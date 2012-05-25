@@ -37,6 +37,10 @@ inline void davix_log_warning(const gchar *format,
     va_end(va);
 }
 
+inline int davix_get_log_filter(){
+    return g_logger_get_globalfilter();
+}
+
 typedef enum _REQUEST_TYPE{
     HTTP,
     HTTPS,

@@ -6,6 +6,9 @@
 
 namespace Davix {
 
+/*
+  authentification handle for neon
+ */
 
 std::string  translate_neon_status(int ne_status, ne_session* sess, int* errno_code){
     switch(ne_status){
@@ -63,6 +66,8 @@ int NEONRequest::try_pkcs12_authentification(ne_session *sess, const ne_ssl_dnam
     return 0;
 }
 
+
+
 void NEONRequest::add_full_request_content(const std::string & body){
     davix_log_debug("NEONRequest : add request content of size %s ", body.c_str());
     _content_body = std::string(body);
@@ -83,12 +88,52 @@ void NEONRequest::provide_clicert_fn(void *userdata, ne_session *sess,
     }
 }
 
+int NEONRequest::provide_login_passwd_fn(void *userdata, const char *realm, int attempt,
+                                char *username, char *password){
+    NEONRequest * req = static_cast<NEONRequest*>(userdata);
+
+     davix_log_debug("NEONRequest > Try to get auth/password authentification ");
+     davix_auth_info_t auth_info;
+     memset(&auth_info,0,sizeof(davix_auth_info_t));
+     auth_info.auth = DAVIX_LOGIN_PASSWORD;
+     GError* tmp_err=NULL;
+
+     if( req->_call == NULL){
+         davix_log_debug("NEONRequest : No credential specified, cancel login/password authentification");
+         return -1;
+     }
+
+     davix_log_debug("NEONRequest > call authentification callback ");
+     int ret = req->_call(req, &auth_info, req->_user_auth_callback_data, &tmp_err); // try to get authentification
+     davix_log_debug("NEONRequest > return from authentification callback ");
+     if(ret != 0){
+             throw Glib::Error(tmp_err);
+     }
+
+     if( req->_passwd.empty()
+        || req->_login.empty() ){
+        davix_log_debug("NEONRequest > Login/Password missings ....");
+        return -1;
+    }
+    davix_log_debug("NEONRequest > setup authentification pwd/login....");
+    g_strlcpy(username, req->_login.c_str(), NE_ABUFSIZ);
+    g_strlcpy(password, req->_passwd.c_str(), NE_ABUFSIZ);
+    req->_login.clear();
+    req->_passwd.clear();
+    return 0;
+
+}
+
+
+
 
 NEONRequest::NEONRequest(NEONSessionFactory* f, ne_session * sess, RequestType typ, const std::string & path,
                          void * user_auth_callback_data,
                          davix_auth_callback call) : _request_type("GET")
 {
     _sess=sess;
+    _login.clear();
+    _passwd.clear();
     _path = path;
     _req=NULL;
     _call = call;
@@ -96,10 +141,14 @@ NEONRequest::NEONRequest(NEONSessionFactory* f, ne_session * sess, RequestType t
     req_block_started     = false;
     _user_auth_callback_data = user_auth_callback_data;
     ne_ssl_provide_clicert(sess, &NEONRequest::provide_clicert_fn, this);
+    ne_set_server_auth(sess, &NEONRequest::provide_login_passwd_fn, this);
 }
 
 NEONRequest::~NEONRequest(){
+    // safe destruction of the request
     finish_block();
+
+
     _f->internal_release_session_handle(_sess);
 }
 
@@ -115,6 +164,42 @@ void NEONRequest::create_req(){
         ne_set_request_body_buffer(_req, _content_body.c_str(), _content_body.size());
 }
 
+void NEONRequest::negotiate_request(){
+
+    const int n_limit = 10;
+    int code, err_code, status, end_status = NE_RETRY;
+    int n =0;
+    while(end_status == NE_RETRY && n < n_limit){
+        davix_log_debug(" ->   NEON start internal request ... ");
+        if( (status = ne_begin_request(_req)) != NE_OK){
+            std::string err_str = translate_neon_status(status, _sess, &err_code);
+            throw Glib::Error(Glib::Quark("NEONRequest::negotiate_request"), err_code, std::string("Request error : ").append(err_str));
+        }
+
+        code = get_request_code();
+        switch(code){
+            case 401: // authentification requested, do retry
+                ne_discard_response(_req);
+                end_status = ne_end_request(_req);
+                if( end_status != NE_RETRY){
+                    std::string err_str = translate_neon_status(status, _sess, &err_code);
+                    throw Glib::Error(Glib::Quark("NEONRequest::negotiate_request"), err_code, std::string("End Request error : ").append(err_str));
+                }
+                davix_log_debug(" ->   NEON receive %d code, %d .... request again ... ", code, end_status);
+                break;
+            default:
+                end_status = 0;
+                break;
+
+        }
+        n++;
+    }
+
+    if(n >= n_limit)
+       throw Glib::Error(Glib::Quark("NEONRequest::negotiate_request"), err_code, std::string("too much retry, end of negociate_request"));
+    davix_log_debug(" ->   NEON end internal request ... ");
+}
+
 void NEONRequest::set_requestcustom(const std::string &request_str){
     _request_type = request_str;
 }
@@ -124,16 +209,12 @@ void NEONRequest::add_header_field(const std::string &field, const std::string &
 }
 
 int NEONRequest::execute_sync(){
-    int status;
     int err_code;
     ssize_t read_status=1;
 
     create_req();
     davix_log_debug(" -> NEON start synchronous  request... ");
-    if( (status = ne_begin_request(_req)) != NE_OK){
-        std::string err_str = translate_neon_status(status, _sess,&err_code);
-        throw Glib::Error(Glib::Quark("NEONRequest::Execute_sync"), err_code, std::string("begin start : ").append(err_str));
-    }
+    negotiate_request();
 
     while(read_status > 0){
         davix_log_debug(" -> NEON Read data flow... ");
@@ -155,15 +236,8 @@ int NEONRequest::execute_sync(){
 }
 
 void NEONRequest::execute_block(){
-    int status;
-    int err_code;
-
     create_req();
-
-    if( (status = ne_begin_request(_req)) != NE_OK){
-        std::string err_str = translate_neon_status(status, _sess,&err_code);
-        throw Glib::Error(Glib::Quark("NEONRequest::Execute_sync"), err_code, err_str);
-    }
+    negotiate_request();
     req_block_started = true;
 }
 
@@ -190,7 +264,7 @@ void NEONRequest::finish_block(){
             ne_discard_response(_req);*/
         if( (status = ne_end_request(_req)) != NE_OK){
             std::string err_str = translate_neon_status(status, _sess,&err_code);
-            throw Glib::Error(Glib::Quark("NEONRequest::finish_block"), err_code, std::string("Error closing request ->").append(err_str));
+            davix_log_debug("NEONRequest::finish_block -> error %d Error closing request -> %s ", err_code, err_str.c_str());
         }
         req_block_started = false;
         ne_request_destroy(_req);
@@ -238,6 +312,11 @@ void NEONRequest::try_set_pkcs12_cert(const char *filename_pkcs12, const char *p
     ne_ssl_clicert_free(cert);
     davix_log_debug("NEONRequest : associate credential to the current session");
 
+}
+
+void NEONRequest::try_set_login_passwd(const char *login, const char *passwd){
+   this->_login = (char*) login;
+   this->_passwd = (char*)  passwd;
 }
 
 } // namespace Davix

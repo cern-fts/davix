@@ -48,4 +48,15 @@ int davix_set_pkcs12_auth(davix_auth_t token, const char* filename_pkcs, const c
     return 0;
 }
 
+int davix_set_login_passwd_auth(davix_auth_t token, const char* login, const char* passwd, GError** err){
+    Davix::Request* req = static_cast<Davix::Request*>(token);
+    try{
+        req->try_set_login_passwd(login, passwd);
+    }catch(Glib::Error & e){
+            g_set_error(err, e.domain(), e.code(), "%s", e.what().c_str());
+            return -1;
+    }
+    return 0;
+}
+
 }

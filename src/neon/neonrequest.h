@@ -5,6 +5,7 @@
 #include <utility>
 #include <queue>
 #include <neon/ne_request.h>
+#include <neon/ne_auth.h>
 #include <neon/neonsessionfactory.h>
 
 #include <global_def.h>
@@ -86,6 +87,8 @@ public:
       reimplement authentification
     */
     virtual void try_set_pkcs12_cert(const char * filename_pkcs12, const char* passwd);
+    virtual void try_set_login_passwd(const char *login, const char *passwd);
+
 protected:
     ne_session *    _sess;
     ne_request * _req;
@@ -101,18 +104,29 @@ protected:
     void * _user_auth_callback_data;
     davix_auth_callback _call;
 
+    /** temporary field used for login/password authentification
+     */
+    std::string _passwd;
+    std::string _login;
+
 
     void create_req();
+
+    void negotiate_request();
     /**
       internal, try to authentification with pkcs12 credential
     */
     int try_pkcs12_authentification(ne_session *sess, const ne_ssl_dname *const *dnames);
+
+
     /**
       main libneon callback for clicert
      */
     static void provide_clicert_fn(void *userdata, ne_session *sess,
                               const ne_ssl_dname *const *dnames,
                               int dncount);
+    static int provide_login_passwd_fn(void *userdata, const char *realm, int attempt,
+                                char *username, char *password);
 
 };
 

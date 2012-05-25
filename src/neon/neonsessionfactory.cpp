@@ -25,6 +25,11 @@ NEONSessionFactory::NEONSessionFactory()
     _user_auth_callback_data = NULL;
     _call = NULL;
     g_once (&neon_once, init_neon, NULL);
+
+    if(davix_get_log_filter() & G_LOG_LEVEL_DEBUG){
+        davix_log_debug("Enable Debug mode in NEON ...");
+        ne_debug_init(stderr, NE_DBG_HTTP | NE_DBG_HTTPAUTH | NE_DBG_HTTPPLAIN | NE_DBG_HTTPBODY);
+    }
 }
 
 NEONSessionFactory::~NEONSessionFactory(){
@@ -84,6 +89,9 @@ ne_session* NEONSessionFactory::create_recycled_session(const std::string &proto
 }
 
 void NEONSessionFactory::internal_release_session_handle(ne_session* sess){
+    // clear sensitive data
+    // none
+    //
     Glib::Mutex::Lock lock(_sess_mut);
     std::multimap<std::string, ne_session*>::iterator it;
     const std::string protocol(ne_get_scheme(sess));
@@ -118,6 +126,8 @@ void parse_http_neon_url(const std::string &url, std::string &protocol, std::str
                    path = std::string("/");
                    host_port = std::string(first_slash_next);
                }else{
+                   while(*(second_slash+1) == '/')  // skip sequentials slash in path
+                       second_slash++;
                    path = std::string(second_slash);
                    host_port = std::string(first_slash_next, second_slash- first_slash_next);
                }

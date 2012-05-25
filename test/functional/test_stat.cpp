@@ -7,14 +7,32 @@
 using namespace Davix;
 
 
+
 int mycred_auth_callback(davix_auth_t token, const davix_auth_info_t* t, void* userdata, GError** err){
     GError * tmp_err=NULL;
-    int ret = davix_set_pkcs12_auth(token, (const char*)userdata, (const char*)NULL, &tmp_err);
+    char login[2048];
+    char passwd[2048];
+    char *p,*auth_string =(char*) userdata;
+    int ret ;
+    bool login_password_auth_type = false;
+    memset(login,'\0', sizeof(char)*2048);
+
+    if( (p = strchr(auth_string,':')) != NULL)
+        login_password_auth_type = true;
+
+    if(login_password_auth_type ){
+        strncpy(login, auth_string, p-auth_string);
+        strcpy(passwd, p+1 );
+        ret = davix_set_login_passwd_auth(token, login, passwd, &tmp_err);
+
+    }else{
+        ret = davix_set_pkcs12_auth(token, (const char*)userdata, (const char*)NULL, &tmp_err);
+    }
+
     if(ret != 0){
         fprintf(stderr, " FATAL authentification Error : %s", tmp_err->message);
         g_propagate_error(err, tmp_err);
     }
-
     return ret;
 }
 

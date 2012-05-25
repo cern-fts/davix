@@ -3,21 +3,30 @@
 
 
 /**
+  Davix Error system
+
+  if Glib::Error-> code < 1000
+        -> errno value
+  else
+        -> internal Davix value
+
   Common Error code associated with code field in Glib::Error or GError
 */
 #define DAVIX_ERROR_ENOTSUPPORT EPROTONOSUPPORT /*< functionality not supported */
-#define DAVIX_ERROR_NOPASSWD 1000                /*< password required but not provided*/
-#define DAVIX_ERROR_BADPASSWD 1001                /*< Bad password, failure */
+#define DAVIX_ERROR_NOPASSWD 1000                /*< password required but not provided in the authentification callback */
+#define DAVIX_ERROR_BADPASSWD 1001                /*< Bad login/password, failure */
 
 typedef void* davix_sess_t;
 typedef void DAVIX_DIR;
 typedef void* davix_auth_t;
 
+/**
+  @brief authentification type requested
+*/
 typedef enum _AUTH_TYPE{
-    DAVIX_LOGIN_PASSWORD,
-    DAVIX_CLI_CERT_PKCS12,
-    DAVIX_INVALID_AUTH_TYPE
-
+    DAVIX_LOGIN_PASSWORD,       /* login / password */
+    DAVIX_CLI_CERT_PKCS12,      /* PKCS12 client credential */
+    DAVIX_INVALID_AUTH_TYPE     /* limit type */
 } AUTH_TYPE;
 
 typedef struct{

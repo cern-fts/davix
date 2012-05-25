@@ -62,6 +62,11 @@ int NEONRequest::try_pkcs12_authentification(ne_session *sess, const ne_ssl_dnam
     return 0;
 }
 
+void NEONRequest::add_full_request_content(const std::string & body){
+    davix_log_debug("NEONRequest : add request content of size %s ", body.c_str());
+    _content_body = std::string(body);
+}
+
 void NEONRequest::provide_clicert_fn(void *userdata, ne_session *sess,
                                          const ne_ssl_dname *const *dnames,
                                          int dncount){
@@ -104,6 +109,8 @@ void NEONRequest::create_req(){
     for(int i=0; i< _headers_field.size(); ++i){
         ne_add_request_header(_req, _headers_field[i].first.c_str(),  _headers_field[i].second.c_str());
     }
+    if(_content_body.size() > 0)
+        ne_set_request_body_buffer(_req, _content_body.c_str(), _content_body.size());
 }
 
 void NEONRequest::set_requestcustom(const std::string &request_str){

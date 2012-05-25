@@ -51,6 +51,12 @@ public:
       @brief close an existing file handle
     */
     virtual void closedir(DAVIX_DIR* );
+    /**
+      @brief same behavior than the POSIX mkdir, use MKCOL in background
+      @warning dependening of the server, implementation, mode_t parameter can be ignored
+
+    */
+    virtual void mkdir(const std::string & url, mode_t right);
 
     /**
       implementation of getSessionFactory

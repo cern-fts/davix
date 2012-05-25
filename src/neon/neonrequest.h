@@ -48,6 +48,7 @@ public:
      */
     virtual int execute_sync() ; // throw(Glib::Error)
 
+    virtual void add_full_request_content(const std::string & body);
 
     virtual void execute_block();
     /**
@@ -87,6 +88,7 @@ protected:
     ne_request * _req;
     std::string  _path;
     std::vector<char> _vec;
+    std::string _content_body;
     std::string _request_type;
 
     std::vector< std::pair<std::string, std::string > > _headers_field;

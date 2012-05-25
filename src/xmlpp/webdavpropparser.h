@@ -4,6 +4,7 @@
 #include <libxml++/parsers/saxparser.h>
 #include <fileproperties.h>
 #include <glibmm/ustring.h>
+#include <cstring>
 
 namespace Davix {
 
@@ -65,7 +66,16 @@ protected:
 
 };
 
-
+inline bool match_element(const Glib::ustring & origin, const Glib::ustring& pattern){ // C style optimized, critical function
+    bool res = false;
+    const char* c_origin =  origin.c_str();
+    const char* c_pattern = pattern.c_str();
+    const char* pos = strrchr(c_origin, ':');
+    if(pos != NULL){
+        res = (*(pos+1) == *(c_pattern) && strcmp(pos+1, c_pattern) ==0)?true:false;
+    }
+    return res;
+}
 
 } // namespace DAvix
 

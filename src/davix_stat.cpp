@@ -26,7 +26,6 @@ void Davix::Core::stat(const std::string & url, struct stat* st){
         st->st_size = props.front().size;
         st->st_mode = props.front().mode;
 
-
         davix_log_debug(" davix_stat <-");
     }catch(Glib::Error & e){
         throw e;

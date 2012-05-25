@@ -3,7 +3,7 @@
 #include <core.h>
 #include <xmlpp/webdavpropparser.h>
 
-
+static const std::string simple_listing("<propfind xmlns=\"DAV:\"><prop></prop></propfind>");
 
 namespace Davix {
 
@@ -58,6 +58,8 @@ DAVIX_DIR* Core::opendir(const std::string &url){
     davix_log_debug(" -> davix_opendir");
     DAVIX_DIR* r = NULL;
     try{
+
+
         // create a new connexion + parser for this opendir
         HttpRequest* http_req = static_cast<HttpRequest*>(_fsess->take_request(HTTP, url));
         configure_req_for_listdir(http_req);
@@ -66,6 +68,8 @@ DAVIX_DIR* Core::opendir(const std::string &url){
 
         HttpRequest *req = res->request;
         WebdavPropParser* parser = res->parser;
+        // setup the handle for simple listing only
+        req->add_full_request_content(simple_listing);
 
         req->execute_block(); // start req
 

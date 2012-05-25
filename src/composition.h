@@ -56,6 +56,13 @@ public:
     virtual void closedir(DAVIX_DIR* )=0;
 
     /**
+      @brief same behavior than the POSIX mkdir, use MKCOL in background
+      @warning dependening of the server, implementation, mode_t parameter can be ignored
+
+    */
+    virtual void mkdir(const std::string & url, mode_t right)=0;
+
+    /**
       get the current registered session factory
     */
     virtual AbstractSessionFactory* getSessionFactory()=0;

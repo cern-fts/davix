@@ -4,7 +4,7 @@
 #include "davixxmlparserexception.h"
 
 #include <glibmm.h>
-#include <cstring>
+
 
 
 #include <datetime/datetime_utils.h>
@@ -23,24 +23,17 @@ const Glib::ustring href_pattern("href");
 const Glib::ustring resource_type_patern("resourcetype");
 const Glib::ustring collection_patern("collection");
 
-static inline bool match_element(const Glib::ustring & origin, const Glib::ustring& pattern){ // C style optimized, critical function
-    bool res = false;
-    const char* c_origin =  origin.c_str();
-    const char* c_pattern = pattern.c_str();
-    const char* pos = strrchr(c_origin, ':');
-    if(pos != NULL){
-        res = (*(pos+1) == *(c_pattern) && strcmp(pos+1, c_pattern) ==0)?true:false;
-    }
-    return res;
-}
+
 
 /**
   check if the current element origin match the pattern
   if it is the case, force the scope_bool -> TRUE, if already to TRUE -> error
   in a case of a change, return true, else false
 */
-inline bool add_scope(bool *scope_bool, const Glib::ustring& origin, const Glib::ustring&pattern){
-    if(match_element(origin, pattern)){
+inline bool add_scope(bool *scope_bool, const Glib::ustring& origin, const Glib::ustring &pattern,
+                      const bool enter_condition,
+                      const bool skip_condition){
+    if(enter_condition && !skip_condition && match_element(origin, pattern)){
         if(*scope_bool==true){
             throw DavixXmlParserException(Glib::Quark("WebdavPropParser::add_scope"), EINVAL,
                                           " parsing error in the webdav request result," + origin + " duplicated " );
@@ -55,8 +48,10 @@ inline bool add_scope(bool *scope_bool, const Glib::ustring& origin, const Glib:
 /**
   act like add_scope but in the opposite way
 */
-inline bool remove_scope(bool *scope_bool, const Glib::ustring& origin, const Glib::ustring& pattern){
-    if(match_element(origin, pattern)){
+inline bool remove_scope(bool *scope_bool, const Glib::ustring& origin, const Glib::ustring& pattern,
+                        const bool enter_condition,
+                        const bool skip_condition){
+    if(enter_condition && !skip_condition && match_element(origin, pattern)){
         if(*scope_bool==false){
            throw DavixXmlParserException(Glib::Quark("WebdavPropParser::remove_scope"), EINVAL,
                                          " parsing error in the webdav request result, " + origin+ " not open before ");
@@ -93,15 +88,15 @@ void WebdavPropParser::on_end_document(){
 void WebdavPropParser::on_start_element(const Glib::ustring& name, const AttributeList& attributes){
     //std::cout << " name : " << name << std::endl;
     // compute the current scope
-    bool new_prop= add_scope(&prop_section, name, prop_pattern);
-    add_scope(&propname_section, name, propstat_pattern);
-    add_scope(&response_section, name, response_pattern);
-    add_scope(&lastmod_section, name, getlastmodified_pattern);
-    add_scope(&creatdate_section, name, creationdate_pattern);
-    add_scope(&contentlength_section, name, getcontentlength_pattern);
-    add_scope(&mode_ext_section, name, mode_pattern); // lcgdm extension for mode_t support
-    add_scope(&href_section, name, href_pattern);
-    add_scope(&resource_type, name, resource_type_patern);
+    const bool new_prop= add_scope(&prop_section, name, prop_pattern, response_section && propname_section , false);
+    add_scope(&propname_section, name, propstat_pattern,  response_section, false);
+    add_scope(&response_section, name, response_pattern, true, prop_section && propname_section);
+    add_scope(&lastmod_section, name, getlastmodified_pattern, propname_section, false);
+    add_scope(&creatdate_section, name, creationdate_pattern, propname_section, false);
+    add_scope(&contentlength_section, name, getcontentlength_pattern,propname_section, false);
+    add_scope(&mode_ext_section, name, mode_pattern,propname_section, false); // lcgdm extension for mode_t support
+    add_scope(&href_section, name, href_pattern, response_section, prop_section);
+    add_scope(&resource_type, name, resource_type_patern, propname_section, false);
     // mono-balise check
     check_is_directory(name);
     // collect information
@@ -112,15 +107,15 @@ void WebdavPropParser::on_start_element(const Glib::ustring& name, const Attribu
 void WebdavPropParser::on_end_element(const Glib::ustring& name){
     // std::cout << "name : " << name << std::endl;
     // compute the current scope
-    bool end_prop = remove_scope(&prop_section, name, prop_pattern);
-    remove_scope(&propname_section, name, propstat_pattern);
-    remove_scope(&response_section, name, response_pattern);
-    remove_scope(&lastmod_section, name, getlastmodified_pattern);
-    remove_scope(&creatdate_section, name, creationdate_pattern);
-    remove_scope(&contentlength_section, name, getcontentlength_pattern);
-    remove_scope(&mode_ext_section, name, mode_pattern); // lcgdm extension for mode_t support
-    remove_scope(&href_section, name, href_pattern);
-    remove_scope(&resource_type, name, resource_type_patern);
+    const bool end_prop = remove_scope(&prop_section, name, prop_pattern,  response_section && propname_section, false);
+    remove_scope(&propname_section, name, propstat_pattern, response_section, false);
+    remove_scope(&response_section, name, response_pattern, true, prop_section && propname_section);
+    remove_scope(&lastmod_section, name, getlastmodified_pattern, propname_section, false);
+    remove_scope(&creatdate_section, name, creationdate_pattern, propname_section, false);
+    remove_scope(&contentlength_section, name, getcontentlength_pattern, propname_section, false);
+    remove_scope(&mode_ext_section, name, mode_pattern, propname_section, false); // lcgdm extension for mode_t support
+    remove_scope(&href_section, name, href_pattern, response_section, prop_section);
+    remove_scope(&resource_type, name, resource_type_patern, propname_section, false);
 
     if(end_prop)
         store_new_elem();
@@ -200,7 +195,7 @@ void WebdavPropParser::check_is_directory(const Glib::ustring &name){
     if(response_section && prop_section && propname_section
             && resource_type){
         bool is_dir=false;
-        add_scope(&is_dir,name, collection_patern);
+        add_scope(&is_dir,name, collection_patern, propname_section && resource_type, false);
         if(is_dir){
            davix_log_debug(" directory pattern found -> set flag IS_DIR");
            _current_props.mode |=  S_IFDIR;
@@ -239,16 +234,22 @@ void WebdavPropParser::check_href(const Glib::ustring &name){
     if(response_section &&
             href_section){
         davix_log_debug(" href/filename found -> parse it");
-       last_filename = name;
-       size_t s = last_filename.size();
-       while(s != 0 && last_filename[s-1] == '/' ){
-            last_filename.erase(s-1);
-            s= last_filename.size();
+        const char * c_name = name.c_str();
+        size_t s_name = strlen(c_name);
+        char buff_name[s_name+1];
+        char * p_end= (char*)mempcpy(buff_name, c_name, s_name);
+        *p_end = '\0';
+         p_end--;
+
+       while(p_end >  buff_name && *p_end == '/' ){
+           *p_end = '\0';
+            p_end--;
        }
-       if( (s = last_filename.rfind('/')) != Glib::ustring::npos)
-           last_filename = last_filename.substr(s+1);
-
-
+       if( (p_end = strrchr((char*)c_name, '/')) != NULL){
+           last_filename = p_end+1;
+       }else{
+           last_filename = buff_name;
+        }
        davix_log_debug(" href/filename found -> %s ", last_filename.c_str() );
     }
 }

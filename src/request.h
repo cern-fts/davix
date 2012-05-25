@@ -22,6 +22,10 @@ public:
      */
     virtual int execute_sync()=0; // throw(Glib::Error)
 
+    /**
+        Define a buffer for the full request body content
+     */
+    virtual void add_full_request_content(const std::string & body)=0;
 
     virtual void execute_block()=0;
     /**

@@ -52,8 +52,9 @@ int NEONRequest::try_pkcs12_authentification(ne_session *sess, const ne_ssl_dnam
     davix_log_debug("NEONRequest : Try to decrypt credential ");
     davix_auth_info_t auth_info;
     memset(&auth_info,0,sizeof(davix_auth_info_t));
+    auth_info.auth = DAVIX_CLI_CERT_PKCS12;
     GError* tmp_err=NULL;
-   davix_log_debug("NEONRequest > call authentification callback ");
+    davix_log_debug("NEONRequest > call authentification callback ");
 
     int ret = _call(this, &auth_info, _user_auth_callback_data, &tmp_err); // try to get authentification
     davix_log_debug("NEONRequest > return from authentification callback ");

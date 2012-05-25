@@ -13,8 +13,16 @@ typedef void* davix_sess_t;
 typedef void DAVIX_DIR;
 typedef void* davix_auth_t;
 
+typedef enum _AUTH_TYPE{
+    DAVIX_LOGIN_PASSWORD,
+    DAVIX_CLI_CERT_PKCS12,
+    DAVIX_INVALID_AUTH_TYPE
+
+} AUTH_TYPE;
+
 typedef struct{
-    char * dnames;
+    char * dnames;              /**< Optional : DN of the allowed authorities */
+    AUTH_TYPE auth;             /**< required authentification ( login/password / credential, etc ... ) */
 } davix_auth_info_t;
 
 /**

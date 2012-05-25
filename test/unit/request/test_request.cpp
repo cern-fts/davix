@@ -2,7 +2,7 @@
 
 #include <core.h>
 #include <abstractsessionfactory.h>
-#include <curl/curlsessionfactory.h>
+#include <neon/neonsessionfactory.h>
 #include <cstring>
 #include "test_request.h"
 
@@ -28,26 +28,26 @@ void test_request_chunk(){
         char buffer[6000]; // original data
         const size_t s_read=20;
 
-        std::auto_ptr<AbstractSessionFactory> s( new CURLSessionFactory());
+        std::auto_ptr<AbstractSessionFactory> s( new NEONSessionFactory());
         std::string tmp_file_url("file:///"); tmp_file_url.append(tmp_file);
         std::cout << " file url :" << tmp_file_url << std::endl;
         Request* r(s->take_request(DAVIX_FILE, tmp_file_url));
-        std::vector<char> v;
-        r->execute_block(s_read);
-        r->read_block(v,s_read);
-        v.push_back('\0');
+        char v[6000];
+        r->execute_block();
+        ssize_t n = r->read_block(v,s_read);
+        v[n] = '\0';
         fread(buffer,1,s_read, f);
         buffer[s_read] = '\0';
-        assert_true_with_message(strncmp(buffer, &(v.at(0)), s_read) ==0 , "must be the same content %s | %s", buffer, &(v.at(0)));
+        assert_true_with_message(strncmp(buffer, v, s_read) ==0 , "must be the same content %s | %s", buffer,v);
 
 
         const size_t s_read2 = 60;
-        v.clear();
-        r->read_block(v, s_read2);
-        v.push_back('\0');
+        memset(v, 0, 6000);
+        n= r->read_block(v, s_read2);
+        v[n] = '\0';
         fread(buffer,1,s_read2, f);
         buffer[s_read2] = '\0';
-        assert_true_with_message(strncmp(buffer, &(v.at(0)), s_read2) ==0 , "must be the same content %s %s 2 ", buffer, &(v.at(0)));
+        assert_true_with_message(strncmp(buffer, v, s_read2) ==0 , "must be the same content %s %s 2 ", buffer, v);
         s->release_request(r);
     }catch(Glib::Error & e){
         assert_true_with_message(FALSE, " error occures : N° %d %s", e.code(), e.what().c_str());

@@ -48,10 +48,10 @@ typedef enum _Auth_code{
   Authentification information required
 */
 typedef enum _Auth_type{
-    DAVIX_FULL_PEM,
-    DAVIX_CERT_PEM,
-    DAVIX_KEY_PEM,
-    DAVIX_KEY_PASSWD,
+    DAVIX_PROXY_FULL_PEM,   // PEM proxy certificate like described in http://dev.globus.org/wiki/Security/ProxyFileFormat
+    DAVIX_CERT_PEM,         // CERT PEM
+    DAVIX_KEY_PEM,          // Private KEY PEM
+    DAVIX_KEY_PASSWD,       //  Private key password
     DAVIX_LOGIN,
     DAVIX_PASSWD
 } Auth_type;

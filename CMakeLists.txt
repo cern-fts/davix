@@ -26,15 +26,32 @@ set(VERSION_PATCH 0)
 set(VERSION_STRING ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 
+#compilation mode
+SET(HTTP_LIB "NEON") # http bacend can be NEON or CURL
 
 
 # libs checks
 pkg_check_modules(GLIBMM_PKG REQUIRED glibmm-2.4)
-pkg_check_modules(LIBCURL_PKG REQUIRED libcurl)
+
+if ( ${HTTP_LIB} STREQUAL "CURL")
+pkg_check_modules(HTTPLIB_PKG REQUIRED libcurl)
+endif ( ${HTTP_LIB} STREQUAL "CURL")
+
+if ( ${HTTP_LIB} STREQUAL "NEON" )
+pkg_check_modules(HTTPLIB_PKG REQUIRED neon)
+endif ( ${HTTP_LIB} STREQUAL "NEON" )
+
 pkg_check_modules(LIBXMLPP_PKG REQUIRED libxml++-2.6)
 
 
-include_directories(${GLIBMM_PKG_INCLUDE_DIRS} ${LIBCURL_PKG_INCLUDE_DIRS})
+if ( ${HTTP_LIB} STREQUAL "NEON" )
+    add_definitions( -DNEON_BACKEND)
+else ( ${HTTP_LIB} STREQUAL "NEON" )
+    add_definitions( -DCURL_BACKEND)
+endif ( ${HTTP_LIB} STREQUAL "NEON" )
+
+
+include_directories(${GLIBMM_PKG_INCLUDE_DIRS} ${HTTPLIB_PKG_INCLUDE_DIRS})
 include_directories(${LIBXMLPP_PKG_INCLUDE_DIRS})
 
 

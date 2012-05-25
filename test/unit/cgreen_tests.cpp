@@ -26,9 +26,11 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include <neon/test_neon.h>
 #include <datetime/test_datetime.h>
 #include <session/test_session.h>
 #include <request/test_request.h>
+
 
 
 
@@ -38,7 +40,8 @@ int main (int argc, char** argv)
         TestSuite *global = create_test_suite();
         add_suite(global, datetime_suite());
         add_suite(global, session_suite());
-        add_suite(global, request_suite());
+        add_suite(global, neon_suite());
+      //  add_suite(global, request_suite()); disable with neon
 
     if (argc > 1){
         return run_single_test(global, argv[1], create_text_reporter());

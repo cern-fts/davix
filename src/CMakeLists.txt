@@ -13,16 +13,24 @@ add_subdirectory(libs)
 add_subdirectory(datetime)
 add_subdirectory(logging)
 add_subdirectory(xmlpp)
-add_subdirectory(neon)
-add_subdirectory(curl)
+if ( ${HTTP_LIB} STREQUAL "NEON" )
 
+    add_subdirectory(neon)
+    SET(SRC_HTTP ${src_neon})
+
+else ( ${HTTP_LIB} STREQUAL "NEON" )
+
+    add_subdirectory(curl)
+    SET(SRC_HTTP ${src_curl})
+
+endif ( ${HTTP_LIB} STREQUAL "NEON" )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-add_definitions(${GLIBMM_PKG_CFLAGS} ${LIBCURL_PKG_CFLAGS} ${LIBXMLPP_PKG_CFLAGS})
-add_library(davix  SHARED ${src_davix} ${src_neon} ${src_curl} ${src_xmlparser} ${src_logger} ${src_datetime})
+add_definitions(${GLIBMM_PKG_CFLAGS} ${HTTPLIB_PKG_CFLAGS} ${LIBXMLPP_PKG_CFLAGS})
+add_library(davix  SHARED ${src_davix} ${SRC_HTTP}  ${src_xmlparser} ${src_logger} ${src_datetime})
 
 
-target_link_libraries(davix ${GLIBMM_PKG_LIBRARIES} ${LIBCURL_PKG_LIBRARIES})
+target_link_libraries(davix ${GLIBMM_PKG_LIBRARIES} ${HTTPLIB_PKG_LIBRARIES})
 
 target_link_libraries(davix  ${LIBXMLPP_PKG_LIBRARIES})
 

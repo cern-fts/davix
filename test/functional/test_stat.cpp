@@ -1,14 +1,14 @@
 #include "test_stat.h"
 
 #include <core.h>
-#include <curl/curlsessionfactory.h>
+#include <http_backend.h>
 #include <glibmm/init.h>
 
 using namespace Davix;
 
 
  Auth_code mycred_auth_callback(Auth_type t, char * data,  void * userdata, GError ** err){
-     if(t == DAVIX_FULL_PEM){
+     if(t == DAVIX_PROXY_FULL_PEM){
          g_strlcpy(data, (char*) userdata, DAVIX_BUFFER_SIZE);
          return DAVIX_AUTH_SUCCESS;
      }
@@ -32,7 +32,7 @@ int main(int argc, char** argv){
     g_logger_set_globalfilter(G_LOG_LEVEL_MASK);
 
     try{
-        Glib::RefPtr<Core> c= Core::create(new CURLSessionFactory());
+        Glib::RefPtr<Core> c= Core::create(new NEONSessionFactory());
         if(argc > 2){
             configure_grid_env(argv[2], c);
         }

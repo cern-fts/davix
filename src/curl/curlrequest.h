@@ -5,7 +5,6 @@
 #include <queue>
 #include <curl/curl.h>
 
-#include <containers/vector_chunk.h>
 #include <global_def.h>
 #include <httprequest.h>
 

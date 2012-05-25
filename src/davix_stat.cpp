@@ -11,11 +11,11 @@ void Davix::Core::stat(const std::string & url, struct stat* st){
     davix_log_debug(" -> davix_stat");
 
     try{
+        WebdavPropParser parser;
         std::auto_ptr<HttpRequest> req( static_cast<HttpRequest*>(_fsess->take_request(HTTP, url)));
 
         const std::vector<char> & res = req_webdav_propfind(req.get());
-        WebdavPropParser parser;
-        const std::vector<FileProperties> & props = parser.parser_properties_from_memory(Glib::ustring(((char*) & res.at(0)), res.size()));
+        const std::vector<FileProperties> & props = parser.parser_properties_from_memory(std::string(((char*) & res.at(0)), res.size()));
 
         if( props.size() < 1)
             throw Glib::Error(Glib::Quark("Davix::Stat::stat"), EINVAL, " Invalid Webdav response" );

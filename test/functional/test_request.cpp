@@ -1,7 +1,7 @@
 #include "test_request.h"
 
 #include <core.h>
-#include <curl/curlsessionfactory.h>
+#include <neon/neonsessionfactory.h>.h>
 
 using namespace Davix;
 
@@ -13,7 +13,7 @@ int main(int argc, char** argv){
 
 
     try{
-        std::auto_ptr<AbstractSessionFactory> s( new CURLSessionFactory());
+        std::auto_ptr<AbstractSessionFactory> s( new NEONSessionFactory());
 
         std::auto_ptr<Request> r(s->take_request(HTTP,argv[1]));
         r->execute_sync();

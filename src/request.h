@@ -19,17 +19,17 @@ public:
       @return 0 on success
       @throw Glib::Error : error string and protocol error code
      */
-    virtual int execute_sync()  =0; // throw(Glib::Error)
+    virtual int execute_sync()=0; // throw(Glib::Error)
 
 
-    virtual void execute_block(size_t buff_size = BUFFER_SIZE)=0;
+    virtual void execute_block()=0;
     /**
       read a block of a maximum size bytes in the request
       @param buffer : buffer to fill
       @param max_size : maximum number of bytes to set
       @throw Glib::Error
     */
-    virtual void read_block(std::vector<char> & buffer, size_t max_size)=0;
+    virtual ssize_t read_block(char* buffer, size_t max_size)=0;
     /**
       finish an already started request
      */

@@ -1,13 +1,12 @@
 #include "core.h"
-#include <curl/curlrequest.h>
-#include <curl/curlsessionfactory.h>
+#include <http_backend.h>
 #include <glibmm/init.h>
 
 extern "C"{
 
 davix_sess_t davix_session_new(GError ** err){
     try{
-        Davix::Composition* comp = static_cast<Davix::Composition*>(new Davix::Core(new Davix::CURLSessionFactory() ));
+        Davix::Composition* comp = static_cast<Davix::Composition*>(new Davix::Core(new Davix::NEONSessionFactory() ));
         return (davix_sess_t) comp;
     }catch(Glib::Error & e){
         if(err)

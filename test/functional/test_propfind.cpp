@@ -3,13 +3,13 @@
 
 #include <core.h>
 #include <davix_stat.h>
-#include <curl/curlsessionfactory.h>
+#include <http_backend.h>
 
 using namespace Davix;
 
 
 Auth_code mycred_auth_callback(Auth_type t, char * data,  void * userdata, GError ** err){
-    if(t == DAVIX_FULL_PEM){
+    if(t == DAVIX_PROXY_FULL_PEM){
         g_strlcpy(data, (char*) userdata, DAVIX_BUFFER_SIZE);
         return DAVIX_AUTH_SUCCESS;
     }
@@ -27,7 +27,7 @@ int main(int argc, char** argv){
 
     g_logger_set_globalfilter(G_LOG_LEVEL_MASK);
     try{
-        std::auto_ptr<AbstractSessionFactory> s( new CURLSessionFactory());
+        std::auto_ptr<AbstractSessionFactory> s( new NEONSessionFactory());
         if(argc >2 ){ // setup ops if credential is found
             s->set_ssl_ca_check(false);            // disable ssl ca check
             s->set_authentification_controller(argv[2], &mycred_auth_callback);

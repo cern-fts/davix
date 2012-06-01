@@ -71,4 +71,5 @@ include_directories(${LIBXMLPP_PKG_INCLUDE_DIRS})
 
 
 add_subdirectory (src)
+add_subdirectory (doc)
 add_subdirectory (test)

@@ -17,6 +17,7 @@ BuildRequires:		doxygen
 BuildRequires:		glib2-devel
 BuildRequires:		glibmm24-devel
 BuildRequires:		neon-devel
+BuildRequires:		libxml++-devel
 
 %description
 Davix provides an High level API for file operations in Grid and Cloud environments.

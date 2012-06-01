@@ -52,6 +52,7 @@ make clean
 %build
 %cmake -DDOC_INSTALL_DIR=%{_docdir}/%{name}-%{version} .
 make %{?_smp_mflags}
+make doc
 
 %install
 rm -rf %{buildroot}

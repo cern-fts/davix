@@ -1,5 +1,5 @@
 ## cmake build script for srm-ifce
-project (libdavix)
+project (davix)
 cmake_minimum_required (VERSION 2.6)
 
 # build type
@@ -23,12 +23,12 @@ INCLUDE(CTest)
 set(OUTPUT_NAME_DAVIX "davix")
 set(VERSION_MAJOR 0)
 set(VERSION_MINOR 0)
-set(VERSION_PATCH 9)
+set(VERSION_PATCH 2)
 set(VERSION_STRING ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 
 #compilation mode
-SET(HTTP_LIB "NEON") # http bacend can be NEON or CURL
+SET(HTTP_LIB "NEON") # http backend can be NEON or CURL
 SET(UNIT_TESTS FALSE
     CACHE STRING "enable or disable unit test compilation")
 
@@ -63,12 +63,11 @@ else ( ${HTTP_LIB} STREQUAL "NEON" )
 endif ( ${HTTP_LIB} STREQUAL "NEON" )
 
 
-
-
 include_directories(${GLIBMM_PKG_INCLUDE_DIRS} ${HTTPLIB_PKG_INCLUDE_DIRS})
 include_directories(${LIBXMLPP_PKG_INCLUDE_DIRS})
 
-
+install(FILES RELEASE-NOTES
+		DESTINATION ${DOC_INSTALL_DIR}/) # install release notes
 
 add_subdirectory (src)
 add_subdirectory (doc)

@@ -26,7 +26,7 @@ Davix provides an High level API for file operations in Grid and Cloud environme
 %package devel
 Summary:			Development files for %{name}
 Group:				Applications/Internet
-Requires:			%{name}-core%{?_isa} = %{version}-%{release} 
+Requires:			%{name}%{?_isa} = %{version}-%{release} 
 Requires:			glib2-devel%{?_isa}
 Requires:			glibmm24-devel%{?_isa}
 Requires:			neon-devel%{?_isa}
@@ -38,7 +38,7 @@ development files for %{name}
 %package doc
 Summary:			Documentation for %{name}
 Group:				Applications/Internet
-Requires:			%{name}-core%{?_isa} = %{version}-%{release} 
+Requires:			%{name}%{?_isa} = %{version}-%{release} 
 
 %description doc
 documentation, Doxygen and examples of %{name} .

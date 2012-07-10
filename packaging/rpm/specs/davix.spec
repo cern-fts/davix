@@ -3,7 +3,7 @@
 Name:				davix
 Version:			0.0.2
 Release:			0.1.%{checkout_tag}%{?dist}
-Summary:			High level library for HTTP/WebDav file operations
+Summary:			High level library for HTTP/WebDav, support for file operations
 Group:				Applications/Internet
 License:			ASL 2.0
 URL:				https://svnweb.cern.ch/trac/lcgdm/wiki
@@ -21,7 +21,10 @@ BuildRequires:		libxml++-devel
 BuildRequires:		openssl-devel
 
 %description
-Davix provides an High level API for file operations in Grid and Cloud environments.
+Davix is a High level and high performances library for Webdav/Http.
+Davix supports a file-operiented API ( POSIX-like ) designed for Grid computing usage
+and Cloud Usage.
+
 
 %package devel
 Summary:			Development files for %{name}

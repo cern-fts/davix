@@ -10,7 +10,7 @@
 /**
   @file davix.h
   @author Devresse Adrien
-  @brief POSIX-like API for Webdav/HTTP file access
+  @brief High level Http/Webdav interface, with file operations
 
   Davix support :
   - redirection on every calls ( cluster support )
@@ -43,17 +43,12 @@ davix_sess_t davix_session_new(GError ** err);
 */
 void davix_session_free(davix_sess_t sess);
 
-/**
-  @brief execute a POSIX stat query on a given url, required webdav endpoint
 
-  Try to do a POSIX stat request on a given webdav endpoint
-  @param sess : davix session handle
-  @param url: url of the webdav point
-  @param st : stat structure
-  @param err : GError error handling system
-  @return 0 if success else -1
-*/
-int davix_stat(davix_sess_t sess, const char* url, struct stat * st, GError** err);
+
+
+//
+// Authentification management functions
+//
 
 /**
   to use from authentification call_back
@@ -72,6 +67,34 @@ int davix_set_login_passwd_auth(davix_auth_t token, const char* login, const cha
   C API, specifie the callback for client authentification
 */
 int davix_set_auth_callback(davix_sess_t sess, davix_auth_callback call, void* userdata, GError** err);
+
+
+//
+// POSIX like API
+// Need Webdav support
+//
+
+
+/**
+  @brief execute a POSIX stat query on a given url, required webdav endpoint
+
+  POSIX-like operation,
+
+  POSIX stat request on a given webdav endpoint
+  @param sess : davix session handle
+  @param url: url of the webdav point
+  @param st : stat structure
+  @param err : GError error handling system
+  @return 0 if success else -1
+*/
+int davix_stat(davix_sess_t sess, const char* url, struct stat * st, GError** err);
+
+
+
+//
+// Settings management API
+//
+//
 
 /**
   C API, enable or disable the CA check for X509 credential while the authentification

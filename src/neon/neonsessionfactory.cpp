@@ -85,7 +85,7 @@ ne_session* NEONSessionFactory::create_recycled_session(const std::string &proto
         }
 
     }
-    davix_log_debug(" no cached ne_session, create a new one ");
+    davix_log_debug("no cached ne_session, create a new one ");
     return create_session(protocol, host, port);
 }
 

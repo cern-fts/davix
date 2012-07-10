@@ -11,9 +11,6 @@ namespace Davix{
 */
 Composition* session_create();
 
-
-
-
 }
 
 

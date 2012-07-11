@@ -53,7 +53,7 @@ LIST(APPEND CMAKE_PKGCONFIG_TEMPLATE_BASE_PATTERN "@PREFIX@" "@LIBDIR_VAR@"
 
 function(add_PkgConfigFile_for_Library)
 	PARSE_ARGUMENTS(PKGCONFIGFILE
-		"HEADER_DIRS;DESCRIPTION;REQUIRES"
+                "HEADER_DIRS;DESCRIPTION;REQUIRES;CFLAGS"
 		""
 		${ARGN}
     )
@@ -61,6 +61,7 @@ function(add_PkgConfigFile_for_Library)
 	LIST(GET  PKGCONFIGFILE_DEFAULT_ARGS 0 pkgconfig_filename)
 	LIST(GET  PKGCONFIGFILE_DEFAULT_ARGS 1 lib_target)
 	LIST(GET  PKGCONFIGFILE_DESCRIPTION 0 description)
+        LIST(GET  PKGCONFIGFILE_CFLAGS 0 pkgconfig_generic_cflags)
 
 	get_target_property(library_name ${lib_target} OUTPUT_NAME)
 	get_target_property(library_version ${lib_target} VERSION)
@@ -74,6 +75,7 @@ function(add_PkgConfigFile_for_Library)
 	set(pkgconfig_version "${library_version}")
 	set(pkgconfig_description "pkgconfig file for ${library_name}")
 	set(pkgconfig_requires " ")
+        set(pkgconfig_cflags " ")
 
 	IF(PKGCONFIGFILE_REQUIRES)
 		FOREACH(req ${PKGCONFIGFILE_REQUIRES})
@@ -93,8 +95,12 @@ function(add_PkgConfigFile_for_Library)
 		set(pkgconfig_description "${description}")	
 	
 	ENDIF(description)
+
+        IF(pkgconfig_generic_cflags)
+            set(pkgconfig_cflags "${pkgconfig_generic_cflags}")
+        ENDIF(pkgconfig_generic_cflags)
 	
-	set(pkgconfig_cflags " ${pkgconfig_includedir} ")
+        set(pkgconfig_cflags "${pkgconfig_cflags} ${pkgconfig_includedir} ")
 	
 	LIST(APPEND pkgconfig_list_var ${pkgconfig_prefix} ${pkgconfig_libdir_var} 
 								${pkgconfig_include_var} ${pkgconfig_name} ${pkgconfig_description}

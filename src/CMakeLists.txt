@@ -5,7 +5,6 @@ FILE(GLOB src_davix "*.cpp")
 
 FILE(GLOB src_neon "neon/*.cpp")
 FILE(GLOB src_logger "logging/*.c")
-FILE(GLOB src_curl "curl/*.cpp")
 
 LIST(APPEND davix_headers "davix.h" "davix_types.h" "composition.h" "global_def.h"
             "libdavix_object.h" "abstractsessionfactory.h" "request.h" "httprequest.h" "davix_cpp.hpp")
@@ -48,6 +47,7 @@ set_target_properties(davix PROPERTIES
 
 add_PkgConfigFile_for_Library("davix.pc" davix
                                HEADER_DIRS "davix"
+                               CFLAGS " -D_FILE_OFFSET_BITS=64 "
                                DESCRIPTION "Davix, POSIX-like access for Webdav"
                                REQUIRES "glib-2.0" "glibmm-2.4")
 

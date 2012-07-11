@@ -28,7 +28,7 @@ set(VERSION_STRING ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 
 #compilation mode
-SET(HTTP_LIB "NEON") # http backend can be NEON or CURL
+SET(HTTP_LIB "NEON") # http backend can be NEON
 SET(UNIT_TESTS FALSE
     CACHE STRING "enable or disable unit test compilation")
 
@@ -37,9 +37,6 @@ SET(UNIT_TESTS FALSE
 pkg_search_module(GLIBMM_PKG REQUIRED glibmm glibmm-2.6 glibmm-2.4)
 pkg_check_modules(GTHREAD_PKG REQUIRED gthread-2.0)
 
-if ( ${HTTP_LIB} STREQUAL "CURL")
-pkg_check_modules(HTTPLIB_PKG REQUIRED libcurl)
-endif ( ${HTTP_LIB} STREQUAL "CURL")
 
 if ( ${HTTP_LIB} STREQUAL "NEON" )
 pkg_check_modules(HTTPLIB_PKG REQUIRED neon)

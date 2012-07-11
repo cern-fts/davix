@@ -11,12 +11,6 @@ Core::Core(AbstractSessionFactory* fsess) : _fsess(fsess)
     _timeout = 300;
 }
 
-RefPtr<Core> Core::create(AbstractSessionFactory* fsess){
-    return Glib::RefPtr<Core>(new Core(fsess));
-}
-
-
-
 
 AbstractSessionFactory* Core::getSessionFactory(){
     return _fsess.get();

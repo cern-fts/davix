@@ -6,7 +6,7 @@
 
 namespace Davix{
 
-class Object : public Glib::Object
+class Object
 {
 public:
     Object();

@@ -1,7 +1,7 @@
 #ifndef DAVIX_CPP_HPP
 #define DAVIX_CPP_HPP
 
-#include <composition.h>
+#include <composition.hpp>
 
 namespace Davix{
 

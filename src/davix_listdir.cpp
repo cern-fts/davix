@@ -1,8 +1,8 @@
-#include "davix_listdir.h"
-#include <global_def.h>
-#include <core.h>
-#include <davix_stat.h>
-#include <xmlpp/webdavpropparser.h>
+#include "davix_listdir.hpp"
+#include <global_def.hpp>
+#include <core.hpp>
+#include <davix_stat.hpp>
+#include <xmlpp/webdavpropparser.hpp>
 
 static const std::string simple_listing("<propfind xmlns=\"DAV:\"><prop></prop></propfind>");
 

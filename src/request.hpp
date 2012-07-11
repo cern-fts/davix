@@ -2,8 +2,8 @@
 #define DAVIX_REQUEST_H
 
 #include <vector>
-#include <global_def.h>
-#include "libdavix_object.h"
+#include <global_def.hpp>
+#include "libdavix_object.hpp"
 
 namespace Davix {
 

@@ -1,7 +1,7 @@
-#include "davix_mkdir.h"
-#include <global_def.h>
-#include <core.h>
-#include <xmlpp/webdavpropparser.h>
+#include "davix_mkdir.hpp"
+#include <global_def.hpp>
+#include <core.hpp>
+#include <xmlpp/webdavpropparser.hpp>
 
 
 namespace Davix{

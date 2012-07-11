@@ -1,9 +1,9 @@
 #include "test_propfind.h"
 
 
-#include <core.h>
-#include <davix_stat.h>
-#include <http_backend.h>
+#include <core.hpp>
+#include <davix_stat.hpp>
+#include <http_backend.hpp>
 
 using namespace Davix;
 

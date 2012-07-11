@@ -1,6 +1,6 @@
-#include "core.h"
-#include <http_backend.h>
-#include <glibmm/init.h>
+#include "core.hpp"
+#include <http_backend.hpp>
+#include <glibmm.h>
 
 namespace Davix{
 //

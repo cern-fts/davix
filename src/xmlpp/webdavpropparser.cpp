@@ -1,7 +1,7 @@
 #define _GNU_SOURCE
 
-#include "webdavpropparser.h"
-#include "davixxmlparserexception.h"
+#include "webdavpropparser.hpp"
+#include "davixxmlparserexception.hpp"
 
 #include <glibmm.h>
 

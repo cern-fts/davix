@@ -1,9 +1,9 @@
 #ifndef DAVIX_NEONSESSIONFACTORY_H
 #define DAVIX_NEONSESSIONFACTORY_H
 
-#include <abstractsessionfactory.h>
-#include <global_def.h>
-#include <neon/neonrequest.h>
+#include <abstractsessionfactory.hpp>
+#include <global_def.hpp>
+#include <neon/neonrequest.hpp>
 
 namespace Davix {
 

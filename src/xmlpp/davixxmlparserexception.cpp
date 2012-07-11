@@ -1,4 +1,4 @@
-#include "davixxmlparserexception.h"
+#include "davixxmlparserexception.hpp"
 
 namespace Davix {
 

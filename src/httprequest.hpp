@@ -2,7 +2,7 @@
 #define DAVIX_HTTPREQUEST_H
 
 #include <errno.h>
-#include "request.h"
+#include "request.hpp"
 
 namespace Davix {
 

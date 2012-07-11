@@ -2,8 +2,8 @@
 #define DAVIX_WEBDAVPROPPARSER_H
 
 #include <libxml++/parsers/saxparser.h>
-#include <fileproperties.h>
 #include <glibmm/ustring.h>
+#include <fileproperties.hpp>
 #include <cstring>
 
 namespace Davix {

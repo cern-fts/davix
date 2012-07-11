@@ -1,5 +1,5 @@
-#include "core.h"
-#include <glibmm/init.h>
+#include "core.hpp"
+#include <glibmm.h>
 
 namespace Davix {
 

@@ -1,4 +1,4 @@
-#include "neonrequest.h"
+#include "neonrequest.hpp"
 
 #include <glibmm/error.h>
 #include <glibmm/quark.h>

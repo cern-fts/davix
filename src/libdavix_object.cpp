@@ -1,4 +1,4 @@
-#include "libdavix_object.h"
+#include "libdavix_object.hpp"
 
 Davix::Object::Object()
 {

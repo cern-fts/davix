@@ -1,7 +1,7 @@
-#include "davix_stat.h"
+#include "davix_stat.hpp"
 #include <string>
 #include <cstring>
-#include <xmlpp/webdavpropparser.h>
+#include <xmlpp/webdavpropparser.hpp>
 
 
 void Davix::fill_stat_from_fileproperties(struct stat* st, const  FileProperties & prop){

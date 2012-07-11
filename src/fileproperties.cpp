@@ -1,4 +1,4 @@
-#include "fileproperties.h"
+#include "fileproperties.hpp"
 
 namespace Davix {
 

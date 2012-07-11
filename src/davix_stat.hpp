@@ -8,10 +8,10 @@
 #include <sys/stat.h>
 
 
-#include "core.h"
-#include "abstractsessionfactory.h"
-#include "httprequest.h"
-#include <xmlpp/webdavpropparser.h>
+#include "core.hpp"
+#include "abstractsessionfactory.hpp"
+#include "httprequest.hpp"
+#include <xmlpp/webdavpropparser.hpp>
 
 namespace Davix{
 

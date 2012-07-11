@@ -1,9 +1,9 @@
 #ifndef ABSTRACTSESSIONFACTORY_H
 #define ABSTRACTSESSIONFACTORY_H
 
-#include "global_def.h"
-#include "request.h"
-#include "libdavix_object.h"
+#include "global_def.hpp"
+#include "request.hpp"
+#include "libdavix_object.hpp"
 
 namespace Davix{
 

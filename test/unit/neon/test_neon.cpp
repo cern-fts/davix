@@ -1,8 +1,8 @@
 
 
-#include <core.h>
-#include <abstractsessionfactory.h>
-#include <neon/neonsessionfactory.h>
+#include <core.hpp>
+#include <abstractsessionfactory.hpp>
+#include <neon/neonsessionfactory.hpp>
 #include <string>
 #include <cstring>
 #include "test_neon.h"

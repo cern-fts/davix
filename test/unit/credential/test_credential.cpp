@@ -1,7 +1,7 @@
 #include <cstring>
 #include <iostream>
 #include "test_credential.h"
-#include <libs/security/crypto_utils.h>
+#include <libs/security/crypto_utils.hpp>
 #include <glibmm.h>
 #include <glib.h>
 

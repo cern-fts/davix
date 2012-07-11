@@ -1,4 +1,4 @@
-#include "neonsessionfactory.h"
+#include "neonsessionfactory.hpp"
 
 #include <glibmm/error.h>
 #include <glibmm/quark.h>

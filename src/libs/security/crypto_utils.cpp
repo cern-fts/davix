@@ -1,4 +1,4 @@
-#include "crypto_utils.h"
+#include "crypto_utils.hpp"
 #include <glibmm.h>
 #include <sstream>
 
@@ -7,7 +7,7 @@
 #include <openssl/err.h>
 
 
-#include <global_def.h>
+#include <global_def.hpp>
 
 #define UTIL_SECURITY_BUFFER_SIZE 2048
 

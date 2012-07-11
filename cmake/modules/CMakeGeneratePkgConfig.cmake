@@ -100,7 +100,7 @@ function(add_PkgConfigFile_for_Library)
             set(pkgconfig_cflags "${pkgconfig_generic_cflags}")
         ENDIF(pkgconfig_generic_cflags)
 	
-        set(pkgconfig_cflags "${pkgconfig_cflags} ${pkgconfig_includedir} ")
+        set(pkgconfig_cflags "${pkgconfig_cflags} ${pkgconfig_includedir}")
 	
 	LIST(APPEND pkgconfig_list_var ${pkgconfig_prefix} ${pkgconfig_libdir_var} 
 								${pkgconfig_include_var} ${pkgconfig_name} ${pkgconfig_description}

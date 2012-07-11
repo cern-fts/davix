@@ -1,8 +1,8 @@
 #include "test_opendir_partial.h"
 
 
-#include <core.h>
-#include <http_backend.h>
+#include <core.hpp>
+#include <http_backend.hpp>
 #include <glibmm/init.h>
 
 
@@ -27,7 +27,7 @@ int mycred_auth_callback(davix_auth_t token, const davix_auth_info_t* t, void* u
 }
 
 
-static void configure_grid_env(char * cert_path, const Glib::RefPtr<Core>  & core){
+static void configure_grid_env(char * cert_path, Core* core){
     AbstractSessionFactory* f = core->getSessionFactory();
     f->set_ssl_ca_check(false);            // disable ssl ca check
     f->set_authentification_controller(cert_path, &mycred_auth_callback);
@@ -46,10 +46,10 @@ int main(int argc, char** argv){
     std::cout << " end of the dir number " << max_read << std::endl;
 
     try{
-        Glib::RefPtr<Core> c= Core::create(new NEONSessionFactory());
+        std::auto_ptr<Core> c( new Core(new NEONSessionFactory()));
         c->set_buffer_size(MY_BUFFER_SIZE);
         if(argc > 3){
-            configure_grid_env(argv[3], c);
+            configure_grid_env(argv[3], c.get());
         }
 
 

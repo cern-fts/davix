@@ -6,10 +6,10 @@
 #include <queue>
 #include <neon/ne_request.h>
 #include <neon/ne_auth.h>
-#include <neon/neonsessionfactory.h>
+#include <neon/neonsessionfactory.hpp>
 
-#include <global_def.h>
-#include <httprequest.h>
+#include <global_def.hpp>
+#include <httprequest.hpp>
 
 namespace Davix {
 

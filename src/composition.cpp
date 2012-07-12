@@ -2,7 +2,7 @@
 
 namespace Davix {
 
-Composition::Composition()
+CoreInterface::CoreInterface()
 {
 }
 

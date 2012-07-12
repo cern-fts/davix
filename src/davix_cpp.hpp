@@ -9,7 +9,7 @@ namespace Davix{
     Create a Davix session, the main entry point of the Davix Library
 
 */
-Composition* session_create();
+CoreInterface* session_create();
 
 }
 

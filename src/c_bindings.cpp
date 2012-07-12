@@ -6,8 +6,8 @@ namespace Davix{
 //
 // Main entry point
 //
-Composition* session_create(){
-    return static_cast<Composition*>(new Core(new NEONSessionFactory() ));
+CoreInterface* session_create(){
+    return static_cast<CoreInterface*>(new Core(new NEONSessionFactory() ));
 }
 
 }
@@ -25,7 +25,7 @@ void core_init(){
 
 davix_sess_t davix_session_new(GError ** err){
     try{
-        Davix::Composition* comp = static_cast<Davix::Composition*>(new Davix::Core(new Davix::NEONSessionFactory() ));
+        Davix::CoreInterface* comp = static_cast<Davix::CoreInterface*>(new Davix::Core(new Davix::NEONSessionFactory() ));
         return (davix_sess_t) comp;
     }catch(Glib::Error & e){
         if(err)
@@ -40,7 +40,7 @@ int davix_stat(davix_sess_t sess, const char* url, struct stat * st, GError** er
     g_return_val_if_fail(sess != NULL,-1);
 
     try{
-        Davix::Composition* comp = static_cast<Davix::Composition*>(sess);
+        Davix::CoreInterface* comp = static_cast<Davix::CoreInterface*>(sess);
 
         comp->stat(url, st);
         return 0;
@@ -59,7 +59,7 @@ int davix_set_auth_callback(davix_sess_t sess, davix_auth_callback call, void* u
     g_return_val_if_fail(sess != NULL, -1);
     int ret = -1;
     try{
-        Davix::Composition* comp = static_cast<Davix::Composition*>(sess);
+        Davix::CoreInterface* comp = static_cast<Davix::CoreInterface*>(sess);
         comp->getSessionFactory()->set_authentification_controller(userdata, call);
         ret = 0;
     }catch(Glib::Error & e){
@@ -75,7 +75,7 @@ int davix_set_ssl_check(davix_sess_t sess, gboolean ssl_check, GError** err){
     g_return_val_if_fail(sess != NULL, -1);
     int ret = -1;
     try{
-        Davix::Composition* comp = static_cast<Davix::Composition*>(sess);
+        Davix::CoreInterface* comp = static_cast<Davix::CoreInterface*>(sess);
         comp->getSessionFactory()->set_ssl_ca_check(ssl_check);
         ret = 0;
     }catch(Glib::Error & e){
@@ -91,7 +91,7 @@ int davix_set_ssl_check(davix_sess_t sess, gboolean ssl_check, GError** err){
 
 void davix_session_free(davix_sess_t sess){
     if(sess != NULL)
-        delete static_cast<Davix::Composition*>(sess);
+        delete static_cast<Davix::CoreInterface*>(sess);
 }
 
 

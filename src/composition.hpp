@@ -21,11 +21,11 @@ namespace Davix {
 
 
 
-class Composition: public Object
+class CoreInterface: public Object
 {
 public:
-    Composition();
-    virtual ~Composition(){}
+    CoreInterface();
+    virtual ~CoreInterface(){}
 
 
     /**
@@ -99,6 +99,9 @@ public:
     virtual void set_buffer_size(const size_t value)=0;
 
 };
+
+
+typedef CoreInterface Composition;
 
 } // namespace Davix
 

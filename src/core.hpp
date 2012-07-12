@@ -17,7 +17,7 @@ namespace Davix {
 /**
   composition of the differents HTTP operations
  */
-class Core : public Composition
+class Core : public CoreInterface
 {
 public:
     Core(AbstractSessionFactory * fsess);

@@ -7,7 +7,7 @@
 #include <string>
 #include <sstream>
 
-#include <composition.hpp>
+#include <coreinterface.hpp>
 #include <global_def.hpp>
 
 
@@ -15,7 +15,7 @@
 namespace Davix {
 
 /**
-  composition of the differents HTTP operations
+   Implementation f the core logic in davix
  */
 class Core : public CoreInterface
 {

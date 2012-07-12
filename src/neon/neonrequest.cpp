@@ -107,7 +107,7 @@ int NEONRequest::provide_login_passwd_fn(void *userdata, const char *realm, int 
 
 
 
-NEONRequest::NEONRequest(NEONSessionFactory* f, ne_session * sess, RequestType typ, const std::string & path,
+NEONRequest::NEONRequest(NEONSessionFactory* f, ne_session * sess, const std::string & path,
                          void * user_auth_callback_data,
                          davix_auth_callback call) : _request_type("GET")
 {

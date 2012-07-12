@@ -20,7 +20,7 @@ class NEONSessionFactory;
 class NEONRequest : public HttpRequest
 {
 public:
-    NEONRequest(NEONSessionFactory* f, ne_session * sess, RequestType typ, const std::string & path,
+    NEONRequest(NEONSessionFactory* f, ne_session * sess,  const std::string & path,
                 void * user_auth_callback_data,
                 davix_auth_callback call);
     virtual ~NEONRequest();

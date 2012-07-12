@@ -62,7 +62,7 @@ DAVIX_DIR* Core::internal_opendirpp(const char * scope, const std::string & body
 
 
         // create a new connexion + parser for this opendir
-        HttpRequest* http_req = static_cast<HttpRequest*>(_fsess->take_request(HTTP, url));
+        HttpRequest* http_req = static_cast<HttpRequest*>(_fsess->create_request( url));
         configure_req_for_listdir(http_req);
         std::auto_ptr<DIR_handle> res(  new DIR_handle(http_req, new WebdavPropParser()));
         time_t timestamp_timeout = time(NULL) + _timeout;

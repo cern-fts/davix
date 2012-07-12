@@ -12,7 +12,7 @@ void Core::mkdir(const std::string &url, mode_t right){
 
     try{
         WebdavPropParser parser;
-        std::auto_ptr<HttpRequest> req( static_cast<HttpRequest*>(_fsess->take_request(HTTP, url)));
+        std::auto_ptr<HttpRequest> req( static_cast<HttpRequest*>(_fsess->create_request(url)));
 
         req->set_requestcustom("MKCOL");
 

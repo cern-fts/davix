@@ -15,7 +15,7 @@ int main(int argc, char** argv){
     try{
         std::auto_ptr<AbstractSessionFactory> s( new NEONSessionFactory());
 
-        std::auto_ptr<Request> r(s->take_request(HTTP,argv[1]));
+        std::auto_ptr<Request> r(s->create_request(argv[1]));
         r->execute_sync();
         std::vector<char> v = r->get_result();
         v.push_back('\0');

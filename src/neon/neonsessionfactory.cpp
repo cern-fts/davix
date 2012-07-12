@@ -39,12 +39,12 @@ NEONSessionFactory::~NEONSessionFactory(){
     }
 }
 
-Request* NEONSessionFactory::take_request(RequestType typ, const std::string &url){
+Request* NEONSessionFactory::create_request(const std::string &url){
     std::string host, protocol, path;
     unsigned long port;
     parse_http_neon_url(url, protocol, host, path, &port);
     ne_session* sess = create_recycled_session(protocol, host, port);
-    NEONRequest* req = new NEONRequest(this, sess, typ, path, _user_auth_callback_data, _call);
+    NEONRequest* req = new NEONRequest(this, sess, path, _user_auth_callback_data, _call);
     if(_ca_check == false)
         req->disable_ssl_ca_check();
     return static_cast<Request*>(req);
@@ -55,7 +55,7 @@ void NEONSessionFactory::set_authentification_controller(void *userdata, davix_a
     _user_auth_callback_data = userdata;
 }
 
-void NEONSessionFactory::release_request(Request *req){
+void NEONSessionFactory::delete_request(Request *req){
     delete req;
 }
 

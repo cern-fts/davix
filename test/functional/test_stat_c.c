@@ -1,3 +1,5 @@
+#define _GNU_SOURCE
+
 #include "test_stat_c.h"
 
 #include <stdio.h>

@@ -20,12 +20,12 @@ public:
       @param url : path of the request
       @return Request object
     */
-    virtual Request* take_request(RequestType typ, const std::string & url) ;
+    virtual Request* create_request(const std::string & url) ;
 
     /**
         release the ownership on a request object
      */
-    virtual void release_request(Request * req);
+    virtual void delete_request(Request * req);
 
     /**
       \ref ssl session check

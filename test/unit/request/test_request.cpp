@@ -31,7 +31,7 @@ void test_request_chunk(){
         std::auto_ptr<AbstractSessionFactory> s( new NEONSessionFactory());
         std::string tmp_file_url("file:///"); tmp_file_url.append(tmp_file);
         std::cout << " file url :" << tmp_file_url << std::endl;
-        Request* r(s->take_request(DAVIX_FILE, tmp_file_url));
+        Request* r(s->create_request(tmp_file_url));
         char v[6000];
         r->execute_block();
         ssize_t n = r->read_block(v,s_read);
@@ -48,7 +48,7 @@ void test_request_chunk(){
         fread(buffer,1,s_read2, f);
         buffer[s_read2] = '\0';
         assert_true_with_message(strncmp(buffer, v, s_read2) ==0 , "must be the same content %s %s 2 ", buffer, v);
-        s->release_request(r);
+        s->delete_request(r);
     }catch(Glib::Error & e){
         assert_true_with_message(FALSE, " error occures : N° %d %s", e.code(), e.what().c_str());
     }catch(std::exception & e){

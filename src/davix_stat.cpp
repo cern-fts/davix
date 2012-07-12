@@ -19,7 +19,7 @@ void Davix::Core::stat(const std::string & url, struct stat* st){
 
     try{
         WebdavPropParser parser;
-        std::auto_ptr<HttpRequest> req( static_cast<HttpRequest*>(_fsess->take_request(HTTP, url)));
+        std::auto_ptr<HttpRequest> req( static_cast<HttpRequest*>(_fsess->create_request(url)));
 
         const std::vector<char> & res = req_webdav_propfind(req.get());
         const std::vector<FileProperties> & props = parser.parser_properties_from_memory(std::string(((char*) & res.at(0)), res.size()));

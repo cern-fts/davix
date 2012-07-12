@@ -14,6 +14,7 @@ namespace Davix{
      - can be use to contact several servers at the same time
      - can create low level request
 
+     dynamically allocated, should be deleted after use
 */
 CoreInterface* davix_context_create();
 

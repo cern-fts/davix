@@ -16,12 +16,12 @@ public:
       @param url : path of the request
       @return Request object
     */
-    virtual Request* take_request(RequestType typ, const std::string & url) =0;
+    virtual Request* create_request(const std::string & url) =0;
 
     /**
-        release the ownership on a request object
+        delete the request object
      */
-    virtual void release_request(Request * ref)=0;
+    virtual void delete_request(Request * ref)=0;
 
     /**
       disable the certificate authority validity check for the https request

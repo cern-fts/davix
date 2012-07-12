@@ -6,7 +6,7 @@ namespace Davix{
 //
 // Main entry point
 //
-CoreInterface* session_create(){
+CoreInterface* davix_context_create(){
     return static_cast<CoreInterface*>(new Core(new NEONSessionFactory() ));
 }
 

@@ -1,5 +1,5 @@
-#ifndef DAVIX_COMPOSITION_H
-#define DAVIX_COMPOSITION_H
+#ifndef COREINTERFACE_HPP
+#define COREINTERFACE_HPP
 
 #include <ctime>
 #include <cstring>
@@ -105,4 +105,4 @@ typedef CoreInterface Composition;
 
 } // namespace Davix
 
-#endif // DAVIX_COMPOSITION_H
+#endif // COREINTERFACE_HPP

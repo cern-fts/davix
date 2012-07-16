@@ -52,7 +52,7 @@ if ( ${HTTP_LIB} STREQUAL "NEON" )
     if("${HTTPLIB_PKG_VERSION}" VERSION_LESS "0.27.0")
         message(" .... neon version < 0.27 detected : disable session re-use, risk of bug important")
         add_definitions( -D_DISABLE_SESSION_REUSE)
-
+        add_definitions( -D_NEON_VERSION_0_25)
     endif("${HTTPLIB_PKG_VERSION}" VERSION_LESS "0.27.0")
 
 else ( ${HTTP_LIB} STREQUAL "NEON" )

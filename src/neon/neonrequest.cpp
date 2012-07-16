@@ -158,7 +158,9 @@ void NEONRequest::configure_sess(){
     }
     if(params.connexion_timeout){
         davix_log_debug("NEONRequest : define connexion timeout to %d", params.connexion_timeout);
+#ifndef _NEON_VERSION_0_25
         ne_set_connect_timeout(_sess, (int) params.connexion_timeout);
+#endif
     }
 }
 

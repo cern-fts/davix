@@ -30,6 +30,7 @@ public:
       disable the certificate authority validity check for the https request
     */
     virtual void disable_ssl_ca_check() = 0;
+
 };
 
 

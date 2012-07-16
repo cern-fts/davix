@@ -9,7 +9,7 @@
 
 #include <coreinterface.hpp>
 #include <global_def.hpp>
-
+#include <requestparams.hpp>
 
 
 namespace Davix {

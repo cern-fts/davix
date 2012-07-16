@@ -187,7 +187,7 @@ void NEONRequest::negotiate_request(){
     }
 
     if(n >= n_limit)
-       throw Glib::Error(Glib::Quark("NEONRequest::negotiate_request"), err_code, std::string("too much retry, end of negociate_request"));
+       throw Glib::Error(Glib::Quark("NEONRequest::negotiate_request"), err_code, std::string("too much authentification try, cancel"));
     davix_log_debug(" ->   NEON end internal request ... ");
 }
 

@@ -4,12 +4,19 @@
 #include "global_def.hpp"
 #include "request.hpp"
 #include "libdavix_object.hpp"
+#include "requestparams.hpp"
 
 namespace Davix{
+
 
 class AbstractSessionFactory : public Davix::Object
 {
 public:
+
+    AbstractSessionFactory(){}
+
+    virtual ~AbstractSessionFactory(){}
+
     /**
       Take the ownership on a request object in order to execute a query
       @param typ : type of the request
@@ -21,17 +28,28 @@ public:
     /**
         delete the request object
      */
-    virtual void delete_request(Request * ref)=0;
+    virtual void delete_request(Request * ref)=0;  // throw nothing
 
     /**
       disable the certificate authority validity check for the https request
     */
-    virtual void set_ssl_ca_check(bool chk) =0;
+    virtual void set_ssl_ca_check(bool chk) =0;  // throw nothing
 
     /**
       authentification callback for right management
     */
     virtual void set_authentification_controller(void * userdata, davix_auth_callback call)=0;
+
+    /**
+      define a new default set of parameters for all the request issued from this factory
+      This set of parameters can be overriten at the request level
+    */
+    virtual void set_parameters(const RequestParams &p ){
+        params = p;
+    }
+
+protected:
+    RequestParams params;
 };
 
 }

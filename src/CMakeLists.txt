@@ -7,7 +7,7 @@ FILE(GLOB src_neon "neon/*.cpp")
 FILE(GLOB src_logger "logging/*.c")
 
 LIST(APPEND davix_headers "davix.h" "davix_types.h" "coreinterface.hpp" "global_def.hpp"
-            "libdavix_object.hpp" "abstractsessionfactory.hpp" "request.hpp" "httprequest.hpp" "davix_cpp.hpp")
+            "libdavix_object.hpp" "abstractsessionfactory.hpp" "requestparams.hpp" "request.hpp" "httprequest.hpp" "davix_cpp.hpp")
 
 LIST(APPEND davix_logger_header "logging/logger.h")
 

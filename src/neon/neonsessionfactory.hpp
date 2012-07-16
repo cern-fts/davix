@@ -34,6 +34,7 @@ public:
 
     virtual void set_authentification_controller(void * userdata, davix_auth_callback call);
 
+
 private:
     bool _ca_check;
     void * _user_auth_callback_data;

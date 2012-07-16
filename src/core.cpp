@@ -32,7 +32,7 @@ extern "C"{
 
 
 int davix_set_pkcs12_auth(davix_auth_t token, const char* filename_pkcs, const char* passwd, GError** err){
-    Davix::Request* req = static_cast<Davix::Request*>(token);
+    Davix::Request* req = (Davix::Request*)(token);
     try{
         req->try_set_pkcs12_cert(filename_pkcs, passwd);
     }catch(Glib::Error & e){
@@ -43,7 +43,7 @@ int davix_set_pkcs12_auth(davix_auth_t token, const char* filename_pkcs, const c
 }
 
 int davix_set_login_passwd_auth(davix_auth_t token, const char* login, const char* passwd, GError** err){
-    Davix::Request* req = static_cast<Davix::Request*>(token);
+    Davix::Request* req = (Davix::Request*)(token);
     try{
         req->try_set_login_passwd(login, passwd);
     }catch(Glib::Error & e){

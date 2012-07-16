@@ -2,6 +2,7 @@
 #define DAVIX_HTTPREQUEST_H
 
 #include <errno.h>
+#include <requestparams.hpp>
 #include "request.hpp"
 
 namespace Davix {
@@ -26,11 +27,12 @@ public:
      */
     virtual void set_requestcustom(const std::string & request_str) =0;
 
-    /**
-      disable the certificate authority validity check for the https request
-    */
-    virtual void disable_ssl_ca_check() = 0;
+    virtual void set_parameters(const RequestParams &p ){
+        params = p;
+    }
 
+protected:
+    RequestParams params;
 };
 
 

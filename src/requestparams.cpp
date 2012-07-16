@@ -6,6 +6,8 @@ RequestParams::RequestParams()
 {
     connexion_timeout = DAVIX_DEFAULT_CONN_TIMEOUT;
     ops_timeout = DAVIX_DEFAULT_OPS_TIMEOUT;
+    call =NULL;
+    userdata = NULL;
 }
 
 RequestParams::RequestParams(const RequestParams& params){

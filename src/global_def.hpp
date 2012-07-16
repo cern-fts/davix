@@ -58,10 +58,10 @@ typedef enum _REQUEST_TYPE{
 
 #define DAVIX_BUFFER_SIZE 2048
 
-/// default connexion timeout for HTTP/Dav connexion
-#define DAVIX_DEFAULT_CONN_TIMEOUT 60
-/// default timeout on operations for HTTP/Webdav
-#define DAVIX_DEFAULT_OPS_TIMEOUT 60
+/// default connexion timeout for HTTP/Dav connexion ( 0 : def value of the library )
+#define DAVIX_DEFAULT_CONN_TIMEOUT 0
+/// default timeout on operations for HTTP/Webdav ( 0 : def value of the library )
+#define DAVIX_DEFAULT_OPS_TIMEOUT 0
 
 
 }

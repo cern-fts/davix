@@ -31,16 +31,6 @@ public:
     virtual void delete_request(Request * ref)=0;  // throw nothing
 
     /**
-      disable the certificate authority validity check for the https request
-    */
-    virtual void set_ssl_ca_check(bool chk) =0;  // throw nothing
-
-    /**
-      authentification callback for right management
-    */
-    virtual void set_authentification_controller(void * userdata, davix_auth_callback call)=0;
-
-    /**
       define a new default set of parameters for all the request issued from this factory
       This set of parameters can be overriten at the request level
     */

@@ -7,7 +7,7 @@
 namespace Davix {
 
 
-class RequestParams
+struct RequestParams
 {
 public:
     RequestParams();
@@ -32,7 +32,6 @@ public:
     */
     virtual void set_operation_timeout(unsigned long timeout);
 
-protected:
     unsigned long ops_timeout;
     unsigned long connexion_timeout;
     bool ssl_check;
@@ -40,9 +39,8 @@ protected:
     // auth callback
     davix_auth_callback call;
     void* userdata;
-
-    friend class NeonRequest;
 };
+
 
 } // namespace Davix
 

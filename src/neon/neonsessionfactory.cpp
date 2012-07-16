@@ -21,9 +21,6 @@ static gpointer init_neon(gpointer useless){
 
 NEONSessionFactory::NEONSessionFactory()
 {
-    _ca_check=true;
-    _user_auth_callback_data = NULL;
-    _call = NULL;
     g_once (&neon_once, init_neon, NULL);
 
     if(davix_get_log_filter() & G_LOG_LEVEL_DEBUG){
@@ -44,24 +41,17 @@ Request* NEONSessionFactory::create_request(const std::string &url){
     unsigned long port;
     parse_http_neon_url(url, protocol, host, path, &port);
     ne_session* sess = create_recycled_session(protocol, host, port);
-    NEONRequest* req = new NEONRequest(this, sess, path, _user_auth_callback_data, _call);
-    if(_ca_check == false)
-        req->disable_ssl_ca_check();
+    NEONRequest* req = new NEONRequest(this, sess, path);
+    req->set_parameters(params);
     return static_cast<Request*>(req);
 }
 
-void NEONSessionFactory::set_authentification_controller(void *userdata, davix_auth_callback call){
-    _call = call;
-    _user_auth_callback_data = userdata;
-}
 
 void NEONSessionFactory::delete_request(Request *req){
     delete req;
 }
 
-void NEONSessionFactory::set_ssl_ca_check(bool chk){
-    _ca_check = chk;
-}
+
 
 
 ne_session* NEONSessionFactory::create_session(const std::string & protocol, const std::string &host, unsigned int port){

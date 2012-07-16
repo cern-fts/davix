@@ -20,9 +20,7 @@ class NEONSessionFactory;
 class NEONRequest : public HttpRequest
 {
 public:
-    NEONRequest(NEONSessionFactory* f, ne_session * sess,  const std::string & path,
-                void * user_auth_callback_data,
-                davix_auth_callback call);
+    NEONRequest(NEONSessionFactory* f, ne_session * sess,  const std::string & path);
     virtual ~NEONRequest();
 
     /**
@@ -38,11 +36,6 @@ public:
      * set the request command to execute ( GET, POST, PUT, PROPFIND )
      */
     virtual void set_requestcustom(const std::string & request_str);
-
-    /**
-      disable the certificate authority validity check for the https request
-    */
-    virtual void disable_ssl_ca_check();
 
     /**
       Execute the given request and return result to the buffer result
@@ -101,13 +94,12 @@ protected:
 
     std::vector< std::pair<std::string, std::string > > _headers_field;
 
-    void * _user_auth_callback_data;
-    davix_auth_callback _call;
-
     /** temporary field used for login/password authentification
      */
     std::string _passwd, _login;
 
+    void configure_sess();
+    void configure_req();
 
     void create_req();
 

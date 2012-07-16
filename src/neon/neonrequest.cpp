@@ -59,7 +59,7 @@ void NEONRequest::provide_clicert_fn(void *userdata, ne_session *sess,
 
     NEONRequest* req = (NEONRequest*) userdata;
     davix_log_debug("NEONRequest > clicert callback ");
-    if( req->_call == NULL){
+    if( req->params.call == NULL){
         davix_log_debug("NEONRequest : No credential specified, cancel authentification");
         return;
     }else{
@@ -78,13 +78,13 @@ int NEONRequest::provide_login_passwd_fn(void *userdata, const char *realm, int 
      auth_info.auth = DAVIX_LOGIN_PASSWORD;
      GError* tmp_err=NULL;
 
-     if( req->_call == NULL){
+     if( req->params.call == NULL){
          davix_log_debug("NEONRequest : No credential specified, cancel login/password authentification");
          return -1;
      }
 
      davix_log_debug("NEONRequest > call authentification callback ");
-     int ret = req->_call(static_cast<Request*>(req), &auth_info, req->_user_auth_callback_data, &tmp_err); // try to get authentification
+     int ret = req->params.call((davix_auth_t) static_cast<Request*>(req), &auth_info, req->params.userdata, &tmp_err); // try to get authentification
      davix_log_debug("NEONRequest > return from authentification callback ");
      if(ret != 0){
              throw Glib::Error(tmp_err);
@@ -107,19 +107,15 @@ int NEONRequest::provide_login_passwd_fn(void *userdata, const char *realm, int 
 
 
 
-NEONRequest::NEONRequest(NEONSessionFactory* f, ne_session * sess, const std::string & path,
-                         void * user_auth_callback_data,
-                         davix_auth_callback call) : _request_type("GET")
+NEONRequest::NEONRequest(NEONSessionFactory* f, ne_session * sess, const std::string & path) : _request_type("GET")
 {
     _sess=sess;
     _login.clear();
     _passwd.clear();
     _path = path;
     _req=NULL;
-    _call = call;
     _f = f;
     req_started= req_running =false;
-    _user_auth_callback_data = user_auth_callback_data;
     ne_ssl_provide_clicert(sess, &NEONRequest::provide_clicert_fn, this);
     ne_set_server_auth(sess, &NEONRequest::provide_login_passwd_fn, this);
 }
@@ -139,13 +135,35 @@ void NEONRequest::create_req(){
     if(_req != NULL || req_started)
         throw Glib::Error(Glib::Quark("NEONRequest::create_req"), EINVAL, "Request already started, impossible to create");
 
+    configure_sess();
     _req= ne_request_create(_sess, _request_type.c_str(), _path.c_str());
+    configure_req();
 
     for(size_t i=0; i< _headers_field.size(); ++i){
         ne_add_request_header(_req, _headers_field[i].first.c_str(),  _headers_field[i].second.c_str());
     }
     if(_content_body.size() > 0)
         ne_set_request_body_buffer(_req, _content_body.c_str(), _content_body.size());
+}
+
+void NEONRequest::configure_sess(){
+    if(params.ssl_check == false){ // configure ssl check
+        davix_log_debug("NEONRequest : disable ssl verification");
+        ne_ssl_set_verify(_sess, validate_all_certificate, NULL);
+    }
+
+    if(params.ops_timeout != 0){
+        davix_log_debug("NEONRequest : define operation timeout to %d", params.ops_timeout);
+        ne_set_read_timeout(_sess, (int) params.ops_timeout);
+    }
+    if(params.connexion_timeout){
+        davix_log_debug("NEONRequest : define connexion timeout to %d", params.connexion_timeout);
+        ne_set_connect_timeout(_sess, (int) params.connexion_timeout);
+    }
+}
+
+void NEONRequest::configure_req(){
+
 }
 
 void NEONRequest::negotiate_request(){
@@ -267,10 +285,7 @@ void NEONRequest::clear_result(){
     _vec.clear();
 }
 
-void NEONRequest::disable_ssl_ca_check(){
-     davix_log_debug("NEONRequest : disable ssl verification");
-     ne_ssl_set_verify(_sess, validate_all_certificate, NULL);
-}
+
 
 int NEONRequest::get_request_code(){
     if(_req == NULL)
@@ -318,7 +333,7 @@ int NEONRequest::try_pkcs12_authentification(ne_session *sess, const ne_ssl_dnam
     GError* tmp_err=NULL;
     davix_log_debug("NEONRequest > call authentification callback ");
 
-    int ret = _call(static_cast<Request*>(this), &auth_info, _user_auth_callback_data, &tmp_err); // try to get authentification
+    int ret = params.call((davix_auth_t) static_cast<Request*>(this), &auth_info, params.userdata, &tmp_err); // try to get authentification
     davix_log_debug("NEONRequest > return from authentification callback ");
     if(ret != 0)
             throw Glib::Error(tmp_err);

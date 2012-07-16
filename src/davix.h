@@ -47,26 +47,49 @@ void davix_session_free(davix_sess_t sess);
 
 
 //
-// Authentification management functions
+// Params management functions
 //
 
 /**
-  to use from authentification call_back
-  allow to authentificate with a clicert pkcs12
-*/
-int davix_set_pkcs12_auth(davix_auth_t token, const char* filename_pkcs12,const char* passwd, GError** err);
+ * create a new parameter container with default parameter values
+ * this parameter container needs to be free with @ref davix_params_free
+ */
+davix_params_t davix_params_new();
 
 /**
-  to use from authentification call_back
-  allow to authentificate with a login/password
+ * copy the davix parameters from src to a new allocated one
+ * this copy needs to be free with @ref davix_params_free
+ */
+davix_params_t davix_params_copy(davix_params_t src);
+
+/**
+  free and destruct a parameter container
 */
+void davix_params_free(davix_params_t p);
+
+/**
+  setup the authorization callback for the current parameter handle
+  This authorisation callback will be called each time that the associated request will need an authentification
+*/
+int davix_params_set_auth_callback(davix_params_t params, davix_auth_callback call, void* userdata, GError** err);
+
+/**
+  disable or enable the validity check of the serveur side credential
+*/
+int davix_params_set_ssl_check(davix_params_t params, gboolean ssl_check, GError** err);
+
+
+/**
+  set the default parameter container to use for the current session
+*/
+int davix_set_default_session_params(davix_sess_t sess, davix_params_t params, GError ** err);
+
+//
+// Authenficiation callback specific parameters
+//
+int davix_set_pkcs12_auth(davix_auth_t token, const char* filename_pkcs, const char* passwd, GError** err);
+
 int davix_set_login_passwd_auth(davix_auth_t token, const char* login, const char* passwd, GError** err);
-
-
-/**
-  C API, specifie the callback for client authentification
-*/
-int davix_set_auth_callback(davix_sess_t sess, davix_auth_callback call, void* userdata, GError** err);
 
 
 //
@@ -101,7 +124,7 @@ int davix_stat(davix_sess_t sess, const char* url, struct stat * st, GError** er
   Passing false to this function is similar to the -k or --insecure option of curl
   true by default
 */
-int davix_set_ssl_check(davix_sess_t sess, gboolean ssl_check, GError** err);
+//int davix_set_ssl_check(davix_sess_t sess, gboolean ssl_check, GError** err);
 
 #ifdef __cplusplus
 }

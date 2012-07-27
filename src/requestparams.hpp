@@ -13,6 +13,8 @@ public:
     RequestParams();
     RequestParams(const RequestParams & params);
 
+    virtual ~RequestParams();
+
     /**
       disable the certificate authority validity check for the https request
     */

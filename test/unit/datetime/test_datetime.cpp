@@ -12,10 +12,10 @@ void test_datetime_iso8601(){
     strftime(buff, 2048, "%Y-%m-%dT%H:%M:%S%z", tmp);
     printf("new iso8601 time %s  \n",buff);
     res= parse_iso8601date(buff, &tmp_err);
-    assert_true_with_message(res == t && tmp_err==NULL, " must be the same instant %ld %ld, ctime : %s %s \n",res,t, ctime_r(&res,buff2), ctime_r(&t,buff3));
+    assert_true_with_message(res == t && tmp_err==NULL, "must be the same instant %ld %ld, ctime : %s %s \n",res,t, ctime_r(&res,buff2), ctime_r(&t,buff3));
 
-    res = parse_iso8601date("unknow invaldi time", &tmp_err);
-    assert_true_with_message(res == -1 && tmp_err != NULL, " must be an error report \n");
+    res = parse_iso8601date("unknow invalid time", &tmp_err);
+    assert_true_with_message(res == -1 && tmp_err != NULL, "must be an error report \n");
     if(tmp_err){
         printf(" error : %s \n", tmp_err->message);
         g_clear_error(&tmp_err);

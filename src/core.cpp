@@ -29,8 +29,6 @@ void Core::set_buffer_size(const size_t value){
 extern "C"{
 
 
-
-
 int davix_set_pkcs12_auth(davix_auth_t token, const char* filename_pkcs, const char* passwd, GError** err){
     Davix::Request* req = (Davix::Request*)(token);
     try{

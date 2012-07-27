@@ -18,6 +18,10 @@ RequestParams::RequestParams(const RequestParams& params){
 
 }
 
+RequestParams::~RequestParams(){
+
+}
+
 //
 void RequestParams::set_ssl_ca_check(bool chk){
     ssl_check = chk;

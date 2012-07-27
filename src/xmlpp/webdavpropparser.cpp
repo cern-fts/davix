@@ -228,12 +228,12 @@ void WebdavPropParser::check_mode_ext(const Glib::ustring& chars){
     if(response_section && prop_section && propname_section &&
             mode_ext_section){
         davix_log_debug(" mode_t extension for LCGDM found -> parse it");
-        const mode_t mymode = strtoul(chars.c_str(), NULL, 8);
+        const unsigned long mymode = strtoul(chars.c_str(), NULL, 8);
         if(mymode == ULONG_MAX){
               throw DavixXmlParserException(Glib::Quark("WebdavPropParser::check_mode_ext"), ECOMM, " Invalid mode_t value for the LCGDM extension");
         }
-        davix_log_debug(" mode_t extension found -> 0%o", mymode);
-        _current_props.mode = mymode;
+        davix_log_debug(" mode_t extension found -> 0%o", (mode_t) mymode);
+        _current_props.mode = (mode_t) mymode;
     }
 }
 

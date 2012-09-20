@@ -1,6 +1,7 @@
 #ifndef DAVIX_TYPES_H
 #define DAVIX_TYPES_H
 
+#include <glib.h>
 
 /**
   Davix Error system

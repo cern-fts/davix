@@ -1,0 +1,15 @@
+window_sizes 1600 844 675 919 650 120
+diagrams
+  active  classdiagram_ref 128170 // class diagram davix
+    919 650 100 4 0 0
+end
+show_stereotypes
+selected operation_ref 128810 // closedir
+open
+  class_ref 128042 // DavixContext
+  class_ref 128554 // DavixHttpGate
+  class_ref 128682 // DavixWebdavGate
+  class_ref 129194 // DavixRequest
+  class_ref 129834 // DavixDavFileGate
+end
+end

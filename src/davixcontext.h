@@ -1,10 +1,14 @@
 #ifndef DAVIXCONTEXT_H
 #define DAVIXCONTEXT_H
 
+#include <tr1/memory>
+
 
 namespace Davix{
 
 class PosixGate;
+class HttpGate;
+class ContextInternal;
 
 /// @brief Main Entry point for Davix
 /// a Davix context is a independant instance of Davix
@@ -26,7 +30,14 @@ public:
     /// provide the File POSIX-oriented operations
     /// this gate need to be before the destruction of its context
     PosixGate* posixGate();
+
+
+    /// standard plain Http request Gate
+    /// provide the Http
+    HttpGate* httpGate();
 protected:
+    // internal context
+    std::tr1::shared_ptr<ContextInternal> _intern;
 
 };
 

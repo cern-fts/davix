@@ -22,9 +22,9 @@ public:
 
     */
     virtual void add_header_field(const std::string & field, const std::string & value) =0;
-    /**
-     * set the request command to execute ( GET, POST, PUT, PROPFIND )
-     */
+    ///
+    /// set the request command to execute ( GET, POST, PUT, PROPFIND )
+    /// DEFAULT : GET
     virtual void set_requestcustom(const std::string & request_str) =0;
 
     virtual void set_parameters(const RequestParams &p ){

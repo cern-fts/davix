@@ -1,6 +1,6 @@
 #include <cstring>
 #include <iostream>
-#include "test_credential.h"
+#include <gtest/gtest.h>
 #include <libs/security/crypto_utils.hpp>
 #include <glibmm.h>
 #include <glib.h>
@@ -192,68 +192,50 @@ const char* proxy_cert ="-----BEGIN CERTIFICATE-----\n"
 
 
 
-void test_credential(){
+TEST(CredentialTest, testCredconvert){
     char buffer[6000]= {0};
 
-    try{
+
+    ASSERT_NO_THROW({
         ssize_t ret = convert_x509_to_p12(private_key, cert_key, NULL, buffer, 6000);
-        assert_true_with_message(ret >0, " convert credential failure ");
+        ASSERT_TRUE(ret >0);
         FILE * f= fopen("/tmp/test_cert.p12","w+");
         fwrite(buffer, sizeof(char), ret, f);
         fclose(f);
         printf("p12 credential : %s",buffer);
-    }catch(Glib::Error & e){
-        assert_true_with_message(FALSE, " Glib::Error throw %s %d %s", g_quark_to_string(e.domain()), e.code(), e.what().c_str());
-
-    }catch(std::exception & e){
-        assert_true_with_message(FALSE, " std::exception throw %s", e.what());
-    }
+    });
 
 }
 
 
-void test_false_cert(){
+TEST(CredentialTest, falseCert){
     char buffer[6000]= {0};
 
     try{
         ssize_t ret = convert_x509_to_p12(private_key, false_cert_key, NULL, buffer, 6000);
-        assert_true_with_message(FALSE, " Must fail, incorrect cert");
+        FAIL();
     }catch(Glib::Error & e){
-        assert_true_with_message( e.code()== UTILS_SECURITY_ERROR_CERT, " Glib::Error throw %s %d %s", g_quark_to_string(e.domain()), e.code(), e.what().c_str());
+        ASSERT_TRUE( e.code()== UTILS_SECURITY_ERROR_CERT);
 
     }catch(std::exception & e){
-        assert_true_with_message(FALSE, " std::exception throw %s", e.what());
+        FAIL();
     }
 
 }
 
-void proxy_cert_test(){
+TEST(CredentialTest, proxyCertFalse){
     char buffer[6000]= {0};
 
-    try{
+    ASSERT_NO_THROW({
         ssize_t ret = convert_x509_to_p12(proxy_cert, proxy_cert, NULL, buffer, 6000);
-        assert_true_with_message(ret >0, " convert credential failure ");
+        ASSERT_TRUE(ret >0);
         FILE * f= fopen("/tmp/test_cert.p12","w+");
         fwrite(buffer, sizeof(char), ret, f);
         fclose(f);
         printf("p12 credential : %s",buffer);
-    }catch(Glib::Error & e){
-        assert_true_with_message(FALSE, " Glib::Error throw %s %d %s", g_quark_to_string(e.domain()), e.code(), e.what().c_str());
-
-    }catch(std::exception & e){
-        assert_true_with_message(FALSE, " std::exception throw %s", e.what());
-    }
+    });
 
 }
 
-TestSuite * credential_suite (void)
-{
-        TestSuite *s2 = create_test_suite();
-        // verbose test case /
-        add_test(s2, test_credential);
-        add_test(s2, test_false_cert);
-        add_test(s2, proxy_cert_test);
 
-        return s2;
- }
 

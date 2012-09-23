@@ -8,19 +8,15 @@ if(UNIT_TESTS)
 include_directories(${PROJECT_SOURCE_DIR}/src ".")
 
 
-add_subdirectory(datetime)
-add_subdirectory(session)
-add_subdirectory(request)
-add_subdirectory(neon)
-add_subdirectory(credential)
-
-FILE(GLOB src_cgreen "*.cpp")
-
-add_executable(test_unit_davix ${src_cgreen} ${src_test_datetime} ${src_test_session} ${src_test_req} ${src_test_neon} ${src_credential})
-target_link_libraries(test_unit_davix davix cgreen)
+file(GLOB src_neon neon/*.cpp)
+file(GLOB src_datetime datetime/*.cpp)
+file(GLOB src_credential credential/*.cpp)
+file(GLOB src_context context/*.cpp)
+file(GLOB src_session session/*.cpp)
+add_executable(g_test_unit_davix_exe ${src_context} ${src_session} ${src_credential} ${src_datetime} ${src_neon})
+target_link_libraries(g_test_unit_davix_exe davix gtest gtest_main)
 
 
-add_test(test_davix_all test_unit_davix)
-
+add_test(g_test_unit_davix g_test_unit_davix_exe )
 
 endif(UNIT_TESTS)

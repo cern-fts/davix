@@ -5,7 +5,7 @@
 #include <neon/neonsessionfactory.hpp>
 #include <string>
 #include <cstring>
-#include "test_neon.h"
+#include <gtest/gtest.h>
 
 using namespace Davix;
 
@@ -41,34 +41,24 @@ static bool failure[]={
 
 const size_t len_list=2;
 
-void test_url_parsing(){
+
+TEST(testNeon, testParsing){
     g_logger_set_globalfilter(G_LOG_LEVEL_MASK);
     std::string url, host, path, proto;
     unsigned long port;
     for(int i=0; i < len_list; ++i){
         if(failure[i] == false){
             parse_http_neon_url(std::string(list_urls[i]), proto, host, path, &port);
-            assert_true_with_message( proto.compare(std::string(list_proto[i]))==0, " proto FAIL");
-            assert_true_with_message( host.compare(list_host[i])==0, " list FAIL");
-            assert_true_with_message( path.compare(list_path[i])==0, " path FAIL");
-            assert_true_with_message( port == list_port[i], " port FAIL %d %d", port, list_port[i]);
+            ASSERT_EQ(0, proto.compare(std::string(list_proto[i])));
+            ASSERT_EQ(0, host.compare(list_host[i]));
+            ASSERT_EQ(0,path.compare(list_path[i]));
+            ASSERT_EQ(list_port[i], port);
         }else{
-            try{
+            ASSERT_THROW({
               parse_http_neon_url(std::string(list_urls[i]), proto, host, path, &port);
-              assert_true_with_message(FALSE, "must not reach this, exception ! ");
-            }catch(Glib::Error & e){
-
-            }
+            }, Glib::Error);
         }
     }
 }
 
 
-TestSuite * neon_suite (void)
-{
-        TestSuite *s2 = create_test_suite();
-        // verbose test case /
-        add_test(s2, test_url_parsing);
-
-        return s2;
- }

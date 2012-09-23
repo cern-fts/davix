@@ -1,6 +1,6 @@
 format 74
 "davix"
-  revision 1
+  revision 2
   modified_by 42 "didi"
 
 
@@ -45,7 +45,6 @@ format 74
       draw_component_as_icon default show_component_req_prov default show_component_rea default show_stereotype_properties default
       size A4
     end
-
   end
 
   classview 128042 "davix"

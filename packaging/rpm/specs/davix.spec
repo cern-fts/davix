@@ -1,7 +1,7 @@
-%define checkout_tag 2012052812snap
+%define checkout_tag 2012092409svn
 
 Name:				davix
-Version:			0.0.2
+Version:			0.0.3
 Release:			0.1.%{checkout_tag}%{?dist}
 Summary:			High level library for HTTP/WebDav, support for file operations
 Group:				Applications/Internet
@@ -54,9 +54,15 @@ make clean
 %setup -q
 
 %build
-%cmake -DDOC_INSTALL_DIR=%{_docdir}/%{name}-%{version} .
+%cmake \
+-DDOC_INSTALL_DIR=%{_docdir}/%{name}-%{version} \
+-D UNIT_TESTS=TRUE .
 make %{?_smp_mflags}
 make doc
+
+%check
+ctest -V
+
 
 %install
 rm -rf %{buildroot}

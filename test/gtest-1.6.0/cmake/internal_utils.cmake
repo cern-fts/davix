@@ -120,11 +120,11 @@ function(cxx_library_with_type name type cxx_flags)
   set_target_properties(${name}
     PROPERTIES
     COMPILE_FLAGS "${cxx_flags}")
-  if (BUILD_SHARED_LIBS OR type STREQUAL "SHARED")
-    set_target_properties(${name}
-      PROPERTIES
-      COMPILE_DEFINITIONS "GTEST_CREATE_SHARED_LIBRARY=1")
-  endif()
+#  if (BUILD_SHARED_LIBS OR type STREQUAL "SHARED")
+#    set_target_properties(${name}
+#      PROPERTIES
+#      COMPILE_DEFINITIONS "GTEST_CREATE_SHARED_LIBRARY=1")
+#  endif()
   if (CMAKE_USE_PTHREADS_INIT)
     target_link_libraries(${name} ${CMAKE_THREAD_LIBS_INIT})
   endif()

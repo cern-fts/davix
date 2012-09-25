@@ -4,6 +4,7 @@
 #include <string>
 #include <davixrequest.h>
 #include <davix_types.h>
+#include <davixuri.h>
 
 namespace Davix {
 
@@ -13,7 +14,7 @@ class Context;
 class NGQHttpRequest : public NGQRequest
 {
 public:
-    NGQHttpRequest(Context* context);
+    NGQHttpRequest(Context* context, const Uri & my_uri);
     virtual ~NGQHttpRequest(){};
 
    ///
@@ -26,37 +27,22 @@ public:
 
 
     /// set the request command to execute ( GET, POST, PUT, PROPFIND )
-    /// DEFAULT : GET
+    /// Default : GET
     inline void setRequestOperation(const std::string & request_str){
         this->ops = request_str;
     }
 
-
-   ///   disable the certificate authority validity check for the https request
-    inline void set_ssl_ca_check(bool chk){
-           this->ssl_check = chk;
+    inline const Uri & getUri(){
+        return _uri;
     }
 
-
-    ///  authentification callback for right management
-    inline void set_authentification_controller(void * userdata, davix_auth_callback call){
-        this->userdata = userdata;
-        this->call = call;
+    inline void setUri(const Uri & uri){
+        _uri = uri;
     }
-
-    ///  define the connexion timeout in seconds
-    void set_connexion_timeout(const struct timespec * conn_timeout);
-
-    ///  define the operation timeout in seconds
-    void set_operation_timeout(const struct timespec * ops_timeout);
 
 protected:
     std::string ops; // operation
-    struct timespec conn_timeout; // timeouts
-    struct timespec ops_timeout;
-    void * userdata;  // authentification datas
-    davix_auth_callback call;
-    bool ssl_check;
+    Uri _uri;
 
 };
 

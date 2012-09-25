@@ -10,6 +10,7 @@ ContextConfig::ContextConfig()
     connexion_timeout.tv_sec = DAVIX_DEFAULT_CONN_TIMEOUT;
     ops_timeout.tv_sec = DAVIX_DEFAULT_OPS_TIMEOUT;
     call =NULL;
+    this->ssl_check = true;
     userdata = NULL;
 }
 

@@ -6,6 +6,7 @@
 
 #include <davix_types.h>
 #include <davixgate.h>
+#include <davixuri.h>
 
 
 namespace Davix {
@@ -23,7 +24,7 @@ public:
     ///  @param str: string url
     ///  @param stat : stat struct to fill
     ///
-    void stat(const std::string & uri, struct stat *);
+    void stat(const Uri & uri, struct stat *);
 
     /**
       @brief execute an opendir function with Webdav

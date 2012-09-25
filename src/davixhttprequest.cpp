@@ -5,17 +5,11 @@
 
 namespace Davix {
 
-NGQHttpRequest::NGQHttpRequest(Context * context) : NGQRequest(context)
+NGQHttpRequest::NGQHttpRequest(Context* context, const Uri & my_uri) : NGQRequest(context)
 {
+    this->_uri =my_uri;
 }
 
 
-void NGQHttpRequest::set_connexion_timeout(const timespec *conn_timeout){
-    memcpy(&(this->conn_timeout), conn_timeout, sizeof(struct timespec));
-}
-
-void NGQHttpRequest::set_operation_timeout(const timespec *ops_timeout){
-    memcpy(&(this->ops_timeout), ops_timeout, sizeof(struct timespec));
-}
 
 } // namespace Davix

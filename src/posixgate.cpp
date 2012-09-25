@@ -1,4 +1,5 @@
 #include "posixgate.h"
+#include <sys/stat.h>
 
 namespace Davix {
 
@@ -45,6 +46,10 @@ void PosixGate::closedirpp(DAVIX_DIR* ){
 
 ///
 void PosixGate::mkdir(const std::string & url, mode_t right){
+
+}
+
+void PosixGate::stat(const Uri &uri, struct stat * st){
 
 }
 

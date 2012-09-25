@@ -34,7 +34,7 @@ classcanvas 133674 class_ref 129194 // DavixRequest
 end
 classcanvas 133802 class_ref 129322 // DavixHttpRequest
   draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
-  xyz 36 226 2005
+  xyz 24 231 2005
 end
 classcanvas 133930 class_ref 129450 // DavixWebdavRequest
   draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
@@ -54,11 +54,11 @@ classcanvas 137002 class_ref 129834 // DavixDavFileGate
 end
 classcanvas 138154 class_ref 129962 // DavixRequestStatus
   draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
-  xyz 33 392 2000
+  xyz 30 404 2000
 end
 classcanvas 138282 class_ref 130090 // DavixRequestSeqStatus
   draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
-  xyz 21 470 2000
+  xyz 19 499 2000
 end
 classcanvas 138538 class_ref 130218 // XMLparser
   draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
@@ -68,9 +68,9 @@ classcanvas 138922 class_ref 130346 // DavixParameters
   draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
   xyz 630 105 2000
 end
-classcanvas 139562 class_ref 130474 // DavixWebdavRequestStatus
+classcanvas 139562 class_ref 130474 // DavixDavRequestStatus
   draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
-  xyz 24 554 2005
+  xyz 18 562 2005
 end
 relationcanvas 129962 relation_ref 128682 // <generalisation>
   from ref 129834 z 2001 to ref 128938
@@ -146,10 +146,10 @@ relationcanvas 136362 relation_ref 130858 // <generalisation>
   no_multiplicity_a no_multiplicity_b
 end
 relationcanvas 136618 relation_ref 130986 // <aggregation>
-  from ref 129834 z 2006 to point 81 220
+  from ref 129834 z 2006 to point 93 220
   line 136746 z 2006 to ref 133802
   no_role_a no_role_b
-  multiplicity_a_pos 67 204 3000 multiplicity_b_pos 189 230 3000
+  multiplicity_a_pos 80 209 3000 multiplicity_b_pos 189 230 3000
 end
 relationcanvas 137386 relation_ref 131242 // <composition>
   decenter_end 478
@@ -163,11 +163,6 @@ relationcanvas 137642 relation_ref 131370 // <generalisation>
   decenter_begin 208
   from ref 137002 z 2001 to point 382 88
   line 137770 z 2001 to ref 128938
-  no_role_a no_role_b
-  no_multiplicity_a no_multiplicity_b
-end
-relationcanvas 138410 relation_ref 131498 // <generalisation>
-  from ref 138282 z 2001 to ref 138154
   no_role_a no_role_b
   no_multiplicity_a no_multiplicity_b
 end
@@ -186,6 +181,16 @@ relationcanvas 139690 relation_ref 132010 // <aggregation>
   from ref 133930 z 2006 to point 3 353
   line 139818 z 2006 to point 4 568
   line 139946 z 2006 to ref 139562
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 140202 relation_ref 138538 // <generalisation>
+  from ref 138282 z 2001 to ref 138154
+  no_role_a no_role_b
+  no_multiplicity_a no_multiplicity_b
+end
+relationcanvas 140330 relation_ref 138666 // <generalisation>
+  from ref 139562 z 2006 to ref 138282
   no_role_a no_role_b
   no_multiplicity_a no_multiplicity_b
 end

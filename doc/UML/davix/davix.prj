@@ -1,6 +1,6 @@
 format 74
 "davix"
-  revision 2
+  revision 3
   modified_by 42 "didi"
 
 
@@ -522,6 +522,36 @@ ${inlines}
 "
 	    classrelation_ref 133418 // <aggregation>
       end
+
+      operation 135338 "executeRequestHttp"
+	public explicit_return_type ""
+	nparams 1
+	  param out name "" explicit_type "DavixRequestHttpStatus"
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${t0} & ${p0}${v0}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "${comment}${inline}${type} ${class}::${name}${(}${t0} & ${p0}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 135594 "executeRequestHttpSeq"
+	public explicit_return_type ""
+	nparams 1
+	  param out name "" explicit_type "StatusRequestHttpSeq"
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${t0} & ${p0}${v0}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "${comment}${inline}${type} ${class}::${name}${(}${t0} & ${p0}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
     end
 
     class 129450 "DavixWebdavRequest"
@@ -554,6 +584,36 @@ ${inlines}
 	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
 "
 	    classrelation_ref 133674 // <aggregation>
+      end
+
+      operation 135466 "executeRequestDav"
+	public explicit_return_type ""
+	nparams 1
+	  param out name "" explicit_type "RequestDavStatus"
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${t0} & ${p0}${v0}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "${comment}${inline}${type} ${class}::${name}${(}${t0} & ${p0}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 135722 "executeRequestDavSeq"
+	public explicit_return_type ""
+	nparams 1
+	  param out name "" explicit_type "ExecuteRequestDavSeq"
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${t0} & ${p0}${v0}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "${comment}${inline}${type} ${class}::${name}${(}${t0} & ${p0}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
       end
     end
 
@@ -718,11 +778,11 @@ ${inlines}
       idl_decl ""
       explicit_switch_type ""
       
-      classrelation 132650 // <generalisation>
-	relation 131498 ---|>
+      classrelation 140202 // <generalisation>
+	relation 138538 ---|>
 	  a public
 	    cpp default "${type}"
-	    classrelation_ref 132650 // <generalisation>
+	    classrelation_ref 140202 // <generalisation>
 	  b parent class_ref 129962 // DavixRequestStatus
       end
     end
@@ -769,7 +829,7 @@ ${inlines}
       end
     end
 
-    class 130474 "DavixWebdavRequestStatus"
+    class 130474 "DavixDavRequestStatus"
       visibility package 
       cpp_decl "${comment}${template}class ${name}${inherit} {
 ${members}};
@@ -783,6 +843,14 @@ ${inlines}
       
       classrelation 133674 // <aggregation>
 	relation_ref 132010 // <aggregation>
+      end
+
+      classrelation 140330 // <generalisation>
+	relation 138666 ---|>
+	  a public
+	    cpp default "${type}"
+	    classrelation_ref 140330 // <generalisation>
+	  b parent class_ref 130090 // DavixRequestSeqStatus
       end
     end
   end

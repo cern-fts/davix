@@ -30,12 +30,20 @@ void ContextConfig::setAuthCallback(void *userdata, davix_auth_callback call){
 }
 
 
-void ContextConfig::setConnexionTimeout(struct timespec *conn_timeout){
-    timespec_copy(&(this->connexion_timeout),conn_timeout);
+void ContextConfig::setConnexionTimeout(struct timespec *conn_timeout1){
+    timespec_copy(&(this->connexion_timeout),conn_timeout1);
 }
 
-void ContextConfig::setOperationTimeout(struct timespec *ops_timeout){
-    timespec_copy(&(this->connexion_timeout), ops_timeout);
+void ContextConfig::setOperationTimeout(struct timespec *ops_timeout1){
+    timespec_copy(&(this->ops_timeout), ops_timeout1);
+}
+
+const struct timespec* ContextConfig::getConnexionTimeout(){
+    return &connexion_timeout;
+}
+
+const struct timespec* ContextConfig::getOperationTimeout(){
+    return &ops_timeout;
 }
 
 }

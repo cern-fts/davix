@@ -40,8 +40,8 @@
 
 #define timespec_copy(a,b)                                                    \
     do {                                                                      \
-    (a)->tv_sec =  (a)->tv_sec ;                                              \
-    (a)->tv_nsec =  (b)->tv_nsec ;                                            \
+    (a)->tv_sec =  (b)->tv_sec;                                              \
+    (a)->tv_nsec =  (b)->tv_nsec;                                            \
     } while (0)
 
 #endif

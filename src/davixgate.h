@@ -11,12 +11,14 @@ class Context;
 class Gate
 {
 public:
-    Gate(Context* context);
     virtual ~Gate(){};
 
 
 protected:
     Context* context;
+    Gate(Context* context);
+
+    friend class Context;
 };
 
 

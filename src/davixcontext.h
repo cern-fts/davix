@@ -18,6 +18,7 @@ class Context
 public:
     /// create a new context for Davix
     Context();
+    Context(const Context & c);
 
     virtual ~Context();
 

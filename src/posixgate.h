@@ -16,8 +16,7 @@ class Gate;
 class PosixGate : public Gate
 {
 public:
-    PosixGate(Context* context);
-
+    virtual ~PosixGate(){}
 
     ///  @brief POSIX-like stat call
     ///  retrive minimaliste stat information about the URI
@@ -76,6 +75,10 @@ public:
 
     */
     void mkdir(const std::string & url, mode_t right);
+protected:
+    PosixGate(Context* context);
+    friend class Context;
+
 };
 
 } // namespace Davix

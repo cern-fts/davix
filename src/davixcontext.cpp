@@ -10,7 +10,7 @@ Context::Context() : _intern(new ContextInternal())
 {
 }
 
-Context::Context(const Context &c){
+Context::Context(const Context &c) : ContextConfig(c){
     this->_intern = c._intern;
 }
 

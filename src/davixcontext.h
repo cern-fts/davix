@@ -2,6 +2,7 @@
 #define DAVIXCONTEXT_H
 
 #include <tr1/memory>
+#include <contextconfig.h>
 
 
 namespace Davix{
@@ -13,7 +14,7 @@ class ContextInternal;
 /// @brief Main Entry point for Davix
 /// a Davix context is a independant instance of Davix
 /// Each instance of Davix has its own session-reuse pool and parameters
-class Context
+class Context : public ContextConfig
 {
 public:
     /// create a new context for Davix

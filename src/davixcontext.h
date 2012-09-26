@@ -31,15 +31,19 @@ public:
     /// POSIX-like gate
     /// provide the File POSIX-oriented operations
     /// this gate need to be before the destruction of its context
-    PosixGate* posixGate();
+    PosixGate & posixGate();
 
 
     /// standard plain Http request Gate
     /// provide the Http
-    HttpGate* httpGate();
+    HttpGate& httpGate();
+
 protected:
     // internal context
     std::tr1::shared_ptr<ContextInternal> _intern;
+    std::auto_ptr<PosixGate> p_gate;
+    std::auto_ptr<HttpGate> h_gate;
+    Glib::Mutex mux_gate;
     friend class PosixGate;
     friend class httpGate;
 

@@ -12,15 +12,10 @@ TEST(ContextTest, CreateDelete){
     Davix::Context* c2 = c1.clone();
     ASSERT_TRUE(c2 != NULL);
 
-    Davix::PosixGate* p1 = c1.posixGate();
-    ASSERT_TRUE(p1 != NULL);
+    Davix::PosixGate p1 = c1.posixGate();
 
-    Davix::PosixGate* p2 = c2->posixGate();
-    ASSERT_TRUE(p2 != NULL);
-    delete p2;
-    delete p1;
+    Davix::PosixGate p2 = c2->posixGate();
     p2 = c1.posixGate();
-    ASSERT_TRUE(p2 != NULL);
 
     delete c2;
 

@@ -10,7 +10,7 @@ namespace Davix {
 class DavStatusRequest : public HttpStatusRequest
 {
 public:
-    DavStatusRequest();
+    DavStatusRequest(Context * context, NGQHttpRequest* request);
 };
 
 } // namespace Davix

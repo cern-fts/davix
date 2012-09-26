@@ -2,9 +2,10 @@
 
 namespace Davix {
 
-StatusRequest::StatusRequest(Context* context)
+StatusRequest::StatusRequest(Context* context, NGQRequest* req)
 {
     this->context= context;
+    this->parent_request = req;
 }
 
 } // namespace Davix

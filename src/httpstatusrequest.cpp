@@ -1,8 +1,9 @@
 #include "httpstatusrequest.h"
+#include <davixhttprequest.h>
 
 namespace Davix {
 
-HttpStatusRequest::HttpStatusRequest()
+HttpStatusRequest::HttpStatusRequest(Context * context, NGQHttpRequest* request) : StatusRequest(context, request)
 {
 }
 

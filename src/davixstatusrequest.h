@@ -27,7 +27,7 @@ enum Code{
 class StatusRequest
 {
 public:
-    StatusRequest(Context* context);
+    StatusRequest(Context* context, NGQRequest* request);
 
     inline StatusCode::Code getStatus() const{
         return code;

@@ -3,12 +3,16 @@
 
 #include <davixstatusrequest.h>
 
+
 namespace Davix {
+
+class Context;
+class NGQHttpRequest;
 
 class HttpStatusRequest : public StatusRequest
 {
 public:
-    HttpStatusRequest();
+    HttpStatusRequest(Context * context, NGQHttpRequest* request);
 };
 
 } // namespace Davix

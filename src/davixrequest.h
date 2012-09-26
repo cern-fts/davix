@@ -5,6 +5,7 @@
 namespace Davix {
 
 class Context;
+class StatusRequest;
 
 class NGQRequest
 {
@@ -12,6 +13,8 @@ public:
     NGQRequest(Context* context);
 
     virtual ~NGQRequest(){};
+
+    virtual StatusRequest* executeRequest()=0;
 
 protected:
     Context* context;

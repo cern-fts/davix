@@ -3,6 +3,7 @@
 
 #include <string>
 #include <davixrequest.h>
+#include <httpstatusrequest.h>
 #include <davix_types.h>
 #include <davixuri.h>
 
@@ -10,6 +11,7 @@ namespace Davix {
 
 class NGQRequest;
 class Context;
+class HttpStatusRequest;
 
 class NGQHttpRequest : public NGQRequest
 {
@@ -39,6 +41,10 @@ public:
     inline void setUri(const Uri & uri){
         _uri = uri;
     }
+
+    virtual HttpStatusRequest* executeRequest();
+
+
 
 protected:
     std::string ops; // operation

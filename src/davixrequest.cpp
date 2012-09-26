@@ -1,4 +1,5 @@
 #include "davixrequest.h"
+#include <davixstatusrequest.h>
 
 namespace Davix {
 

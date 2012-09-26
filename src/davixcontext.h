@@ -46,6 +46,7 @@ protected:
     Glib::Mutex mux_gate;
     friend class PosixGate;
     friend class httpGate;
+    friend class NeonGenericRequest;
 
 };
 

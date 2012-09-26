@@ -2,6 +2,10 @@
 #define DAVIX_NEONGENERICREQUEST_H
 
 #include <davixhttprequest.h>
+#include <neon/davixneonrequeststatus.h>
+#include <neon/ne_session.h>
+#include <neon/ne_redirect.h>
+#include <neon/ne_request.h>
 #include <vector>
 #include <string>
 
@@ -19,9 +23,12 @@ public:
 
     virtual void addHeaderField(const std::string &field, const std::string &value);
 
+    virtual NeonRequestStatus* executeRequest();
 
 protected:
     HeaderFieldVec _headers;
+
+    void configure_sess(ne_session* sess);
 
 };
 

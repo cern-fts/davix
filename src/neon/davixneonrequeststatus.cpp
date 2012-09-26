@@ -3,8 +3,9 @@
 
 namespace Davix {
 
-NeonRequestStatus::NeonRequestStatus(Context *context, NeonGenericRequest *request) : DavStatusRequest(context, request)
+NeonRequestStatus::NeonRequestStatus(Context* context, NeonGenericRequest* request) : DavStatusRequest(context, request)
 {
+
 }
 
 } // namespace Davix

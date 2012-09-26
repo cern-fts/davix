@@ -1,19 +1,72 @@
 #include "davixuri.h"
+#include <ne_uri.h>
+#
 
 namespace Davix {
 
-Uri::Uri(){
+static std::string void_str;
 
+struct UriPrivate{
+    UriPrivate(){
+
+    }
+
+    ne_uri my_uri;
+    std::string proto;
+    std::string path;
+    std::string host;
+};
+
+Uri::Uri(){
+    _init();
+}
+
+void Uri::_init(){
+    d_ptr = new UriPrivate();
+    code = StatusCode::UriParsingError;
 }
 
 Uri::Uri(const std::string & uri)
 {
     this->uri_string = uri;
-    this->d_ptr = NULL;
+    _init();
+   if(ne_uri_parse(uri_string.c_str(), &(d_ptr->my_uri)) == 0){
+       code = StatusCode::OK;
+       d_ptr->proto = d_ptr->my_uri.path;
+       d_ptr->path = d_ptr->my_uri.path;
+       d_ptr->host = d_ptr->my_uri.host;
+   }
 }
 
 Uri::~Uri(){
+    ne_uri_free(&(d_ptr->my_uri));
+    delete d_ptr;
+}
 
+int Uri::getPort() const{
+    if(code != StatusCode::OK)
+        return -1;
+    return d_ptr->my_uri.port;
+}
+
+const std::string & Uri::getHost() const{
+    if(code != StatusCode::OK)
+        return void_str;
+    return d_ptr->host;
+}
+
+const std::string & Uri::getString() const{
+    return uri_string;
+}
+
+const std::string & Uri::getProtocol() const {
+    if(code != StatusCode::OK)
+        return void_str;
+    return d_ptr->proto;
+}
+
+StatusCode::Code Uri::getStatus() const{
+    return code;
 }
 
 } // namespace Davix

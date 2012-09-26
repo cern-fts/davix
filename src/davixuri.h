@@ -3,11 +3,13 @@
 #define DAVIX_DAVIXURI_H
 
 #include <string>
+#include <davixstatusrequest.h>
 
 namespace Davix {
 
-class UriPrivate;
+struct UriPrivate;
 
+// convenience class for uri parsing
 class Uri
 {
 public:
@@ -15,13 +17,23 @@ public:
     Uri(const std::string & uri_string);
     virtual ~Uri();
 
-    inline const std::string & getString(){
-        return uri_string;
-    }
+    /// get a string representation of the uri
+    const std::string & getString() const;
+
+    /// return the port number
+    int getPort() const;
+
+    const std::string & getProtocol() const;
+
+    const std::string & getHost() const;
+
+    StatusCode::Code getStatus() const;
 
 protected:
     std::string uri_string;
     UriPrivate* d_ptr;
+    StatusCode::Code code;
+    void _init();
 };
 
 } // namespace Davix

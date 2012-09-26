@@ -7,7 +7,7 @@ ContextInternal::ContextInternal() : _fsess(new NEONSessionFactory())
 {
 }
 
-AbstractSessionFactory* ContextInternal::getSessionFactory(){
+NEONSessionFactory* ContextInternal::getSessionFactory(){
     return _fsess.get();
 }
 

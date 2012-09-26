@@ -2,6 +2,7 @@
 #define DAVIX_NEONSESSIONFACTORY_H
 
 #include <abstractsessionfactory.hpp>
+#include <davixuri.h>
 #include <global_def.hpp>
 #include <neon/neonrequest.hpp>
 
@@ -23,6 +24,16 @@ public:
     virtual Request* create_request(const std::string & url) ;
 
     /**
+      Create a session object or create a recycled  one ( session reuse )
+    */
+    int createNeonSession(const Uri & uri, ne_session** sess);
+
+    /**
+      store a Neon session object for session reuse purpose
+    */
+    int storeNeonSession(const Uri & uri, ne_session *sess);
+
+    /**
         release the ownership on a request object
      */
     virtual void delete_request(Request * req);
@@ -33,6 +44,8 @@ private:
     Glib::Mutex _sess_mut;
 
     void internal_release_session_handle(ne_session* sess);
+
+
 
     ne_session* create_session(const std::string & protocol, const std::string &host, unsigned int port);
 

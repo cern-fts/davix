@@ -2,7 +2,7 @@
 #define DAVIX_CONTEXTINTERNAL_H
 
 #include <tr1/memory>
-#include <abstractsessionfactory.hpp>
+#include <neon/neonsessionfactory.hpp>
 
 namespace Davix {
 
@@ -11,11 +11,11 @@ class ContextInternal
 public:
     ContextInternal();
 
-    AbstractSessionFactory* getSessionFactory();
+    NEONSessionFactory* getSessionFactory();
 
 protected:
 
-    std::auto_ptr<AbstractSessionFactory>  _fsess;
+    std::auto_ptr<NEONSessionFactory>  _fsess;
 };
 
 } // namespace Davix

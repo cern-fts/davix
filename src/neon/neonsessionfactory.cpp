@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 
+
 #include <cstring>
 
 namespace Davix {
@@ -44,6 +45,18 @@ Request* NEONSessionFactory::create_request(const std::string &url){
     NEONRequest* req = new NEONRequest(this, sess, path);
     req->set_parameters(params);
     return static_cast<Request*>(req);
+}
+
+int NEONSessionFactory::createNeonSession(const Uri & uri, ne_session** sess){
+    if(sess != NULL){
+        *sess = create_recycled_session(uri.getProtocol(), uri.getHost(),uri.getPort());
+        return 0;
+    }
+    return -1;
+}
+
+int NEONSessionFactory::storeNeonSession(const Uri & uri, ne_session* sess){
+    internal_release_session_handle(sess);
 }
 
 

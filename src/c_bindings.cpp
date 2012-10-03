@@ -2,6 +2,7 @@
 #include <http_backend.hpp>
 #include <requestparams.hpp>
 #include <glibmm.h>
+#include <glib.h>
 
 namespace Davix{
 //
@@ -18,7 +19,7 @@ extern "C"{
 // initialization
 __attribute__((constructor))
 void core_init(){
-    if (!g_thread_get_initialized())
+    if (!g_thread_supported())
       g_thread_init(NULL);
     Glib::init();
 }

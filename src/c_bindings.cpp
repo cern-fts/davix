@@ -18,7 +18,8 @@ extern "C"{
 // initialization
 __attribute__((constructor))
 void core_init(){
-    g_thread_init(NULL);
+    if (!g_thread_get_initialized())
+      g_thread_init(NULL);
     Glib::init();
 }
 

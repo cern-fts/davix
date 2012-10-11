@@ -13,13 +13,15 @@ enum Code{
     PartialDone,
     WebDavPropertiesParsingError,
     UriParsingError,
+    SessionCreationError,
     NameResolutionFailure,
     ConnexionProblem,
     RedirectionNeeded,
     ConnexionTimeout,
     OperationTimeout,
     OperationNonSupported,
-    UnknowError
+    UnknowError,
+    isNotADirectory
 };
 
 }

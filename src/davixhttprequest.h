@@ -1,6 +1,7 @@
 #ifndef DAVIX_DAVIXHTTPREQUEST_H
 #define DAVIX_DAVIXHTTPREQUEST_H
 
+#include <stdint.h>
 #include <string>
 #include <davixrequest.h>
 #include <httpstatusrequest.h>
@@ -42,13 +43,16 @@ public:
         _uri = uri;
     }
 
-    virtual HttpStatusRequest* executeRequest();
+    virtual HttpStatusRequest* executeRequest()=0;
 
-
+    /// define the content of the Http Request
+    virtual void setRequestContent(uint8_t* body_content, size_t size_body);
 
 protected:
     std::string ops; // operation
     Uri _uri;
+    size_t _body_size;
+    uint8_t* _body;
 
 };
 

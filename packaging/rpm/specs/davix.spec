@@ -1,14 +1,14 @@
-%define checkout_tag 2012092409svn
+
 
 Name:				davix
-Version:			0.0.3
-Release:			0.1.%{checkout_tag}%{?dist}
+Version:			0.0.5
+Release:			0.1%{?dist}
 Summary:			High level library for HTTP/WebDav, support for file operations
 Group:				Applications/Internet
 License:			ASL 2.0
 URL:				https://svnweb.cern.ch/trac/lcgdm/wiki
 # svn export http://svn.cern.ch/guest/lcgdm/davix/trunk davix
-Source0:			http://grid-deployment.web.cern.ch/grid-deployment/dms/lcgutil/tar/%{name}/%{name}-%{version}-%{checkout_tag}.tar.gz 
+Source0:			http://grid-deployment.web.cern.ch/grid-deployment/dms/lcgutil/tar/%{name}/%{name}-%{version}.tar.gz
 BuildRoot:			%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 #main lib dependencies

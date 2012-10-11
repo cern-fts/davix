@@ -1,6 +1,6 @@
 format 74
 "davix"
-  revision 3
+  revision 5
   modified_by 42 "didi"
 
 
@@ -36,17 +36,6 @@ format 74
 
   mark_for_import
   
-  componentview 128042 "davix core"
-    //component diagram settings
-    package_name_in_tab default show_context default auto_label_position default draw_all_relations default shadow default
-    draw_component_as_icon default show_component_req_prov default show_component_rea default show_stereotype_properties default
-    componentdiagram 128042 "davix"
-      package_name_in_tab default show_context default auto_label_position default draw_all_relations default shadow default
-      draw_component_as_icon default show_component_req_prov default show_component_rea default show_stereotype_properties default
-      size A4
-    end
-  end
-
   classview 128042 "davix"
     //class diagram settings
     draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
@@ -197,16 +186,6 @@ ${inlines}
 	    classrelation_ref 130602 // <association>
       end
 
-      attribute 128170 "params"
-	private explicit_type ""
-	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
-"
-	java_decl ""
-	php_decl ""
-	python_decl ""
-	idl_decl ""
-      end
-
       classrelation 132266 // <composition>
 	relation 131242 *---
 	  a role_name "" private
@@ -221,6 +200,33 @@ ${inlines}
 
       classrelation 133162 // <association>
 	relation_ref 131754 // <association>
+      end
+
+      operation 142250 "CreateFileObject"
+	public explicit_return_type ""
+	nparams 1
+	  param in name "Uri" explicit_type "DavixUri"
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}const ${t0} & ${p0}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "${comment}${inline}${type} ${class}::${name}${(}const ${t0} & ${p0}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      classrelation 146858 // <aggregation>
+	relation 145194 o---
+	  a role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 146858 // <aggregation>
+	  b role_name "" private
+	    cpp default "    ${comment}${static}${mutable}${volatile}${const}${type} * ${name}${value};
+"
+	    classrelation_ref 146986 // <aggregation>
       end
     end
 
@@ -856,4 +862,319 @@ ${inlines}
   end
 
   package_ref 128170 // davix_core
+
+  classview 134826 "DavixFileAPI"
+    //class diagram settings
+    draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+    //collaboration diagram settings
+    show_full_operations_definition default show_hierarchical_rank default write_horizontally default drawing_language default package_name_in_tab default show_context default show_msg_context default draw_all_relations default shadow default show_stereotype_properties default
+    //object diagram settings
+     write_horizontally default package_name_in_tab default show_context default auto_label_position default draw_all_relations default shadow default show_stereotype_properties default
+    //sequence diagram settings
+    show_full_operations_definition default write_horizontally default class_drawing_mode default drawing_language default draw_all_relations default shadow default show_stereotype_properties default show_class_context_mode default show_msg_context_mode default
+    //state diagram settings
+    package_name_in_tab default show_context default auto_label_position default write_trans_label_horizontally default show_trans_definition default draw_all_relations default shadow default
+    show_activities default region_horizontally default drawing_language default show_stereotype_properties default
+    //class settings
+    //activity diagram settings
+    package_name_in_tab default show_context default show_opaque_action_definition default auto_label_position default write_flow_label_horizontally default draw_all_relations default shadow default
+    show_infonote default drawing_language default show_stereotype_properties default
+    classdiagram 134698 "DavixFileAPI"
+      draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+      size A4
+    end
+
+    class 137002 "DavixFileObject"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+      operation 142378 "open"
+	public explicit_return_type ""
+	nparams 3
+	  param in name "mode" explicit_type "Mode_t"
+	  param in name "parameters" explicit_type "DavixRequestParams*"
+	    defaultvalue "NULL"
+	  param in name "status" explicit_type "DavixOperationStatus*"
+	    defaultvalue "NULL"
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}const ${t0} & ${p0}, const ${t1} & ${p1}, const ${t2} & ${p2}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "${comment}${inline}${type} ${class}::${name}${(}const ${t0} & ${p0}, const ${t1} & ${p1}, const ${t2} & ${p2}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 142506 "read"
+	public explicit_return_type ""
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "${comment}${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 142634 "write"
+	public explicit_return_type ""
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "${comment}${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 142762 "close"
+	public explicit_return_type ""
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "${comment}${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 143146 "stat"
+	public explicit_return_type ""
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "${comment}${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 143274 "isOpen"
+	public explicit_return_type ""
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "${comment}${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      classrelation 146986 // <aggregation>
+	relation_ref 145194 // <aggregation>
+      end
+
+      operation 143530 "pread"
+	public explicit_return_type ""
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "${comment}${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 143658 "pwrite"
+	public explicit_return_type ""
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "${comment}${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 143786 "clone"
+	public explicit_return_type ""
+	nparams 1
+	  param out name "clone" type class_ref 137002 // DavixFileObject
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${t0} & ${p0}${v0}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "${comment}${inline}${type} ${class}::${name}${(}${t0} & ${p0}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      attribute 134826 "uri"
+	private explicit_type ""
+	cpp_decl "    ${comment}${static}${mutable}${volatile}${const}${type} ${name}${value};
+"
+	java_decl ""
+	php_decl ""
+	python_decl ""
+	idl_decl ""
+      end
+
+      operation 143914 "exist"
+	public explicit_return_type ""
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "${comment}${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 144042 "copy"
+	public explicit_return_type ""
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "${comment}${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 144170 "delete"
+	public explicit_return_type ""
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "${comment}${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 144298 "setProperties"
+	public explicit_return_type ""
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "${comment}${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 144426 "getProperties"
+	public explicit_return_type ""
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "${comment}${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 144554 "vread"
+	public explicit_return_type ""
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "${comment}${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+
+      operation 144682 "vwrite"
+	public explicit_return_type ""
+	nparams 0
+	cpp_decl "    ${comment}${friend}${static}${inline}${virtual}${type} ${name}${(}${)}${const}${volatile}${throw}${abstract};
+"
+	cpp_def "${comment}${inline}${type} ${class}::${name}${(}${)}${const}${volatile}${throw}${staticnl}{
+  ${body}}
+"
+	
+	
+	
+	
+      end
+    end
+  end
+
+  classview 134954 "DavixRequestParameters"
+    //class diagram settings
+    draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+    //collaboration diagram settings
+    show_full_operations_definition default show_hierarchical_rank default write_horizontally default drawing_language default package_name_in_tab default show_context default show_msg_context default draw_all_relations default shadow default show_stereotype_properties default
+    //object diagram settings
+     write_horizontally default package_name_in_tab default show_context default auto_label_position default draw_all_relations default shadow default show_stereotype_properties default
+    //sequence diagram settings
+    show_full_operations_definition default write_horizontally default class_drawing_mode default drawing_language default draw_all_relations default shadow default show_stereotype_properties default show_class_context_mode default show_msg_context_mode default
+    //state diagram settings
+    package_name_in_tab default show_context default auto_label_position default write_trans_label_horizontally default show_trans_definition default draw_all_relations default shadow default
+    show_activities default region_horizontally default drawing_language default show_stereotype_properties default
+    //class settings
+    //activity diagram settings
+    package_name_in_tab default show_context default show_opaque_action_definition default auto_label_position default write_flow_label_horizontally default draw_all_relations default shadow default
+    show_infonote default drawing_language default show_stereotype_properties default
+    classdiagram 134826 "RequestParameters"
+      draw_all_relations default hide_attributes default hide_operations default hide_getset_operations default show_members_full_definition default show_members_visibility default show_members_stereotype default show_members_context default show_members_multiplicity default show_members_initialization default show_attribute_modifiers default member_max_width 0 show_parameter_dir default show_parameter_name default package_name_in_tab default class_drawing_mode default drawing_language default show_context_mode default auto_label_position default show_relation_modifiers default show_relation_visibility default show_infonote default shadow default show_stereotype_properties default
+      size A4
+    end
+
+    class 137130 "RequestParameters"
+      visibility package 
+      cpp_decl "${comment}${template}class ${name}${inherit} {
+${members}};
+${inlines}
+"
+      java_decl ""
+      php_decl ""
+      python_2_2 python_decl ""
+      idl_decl ""
+      explicit_switch_type ""
+      
+    end
+  end
 end

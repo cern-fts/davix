@@ -1,7 +1,7 @@
-window_sizes 1600 844 675 919 650 120
+window_sizes 1307 641 675 626 471 96
 diagrams
   active  classdiagram_ref 128170 // class diagram davix
-    919 650 100 4 48 0
+    919 650 100 4 12 0
 end
 show_stereotypes
 selected operation_ref 135722 // executeRequestDavSeq

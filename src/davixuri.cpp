@@ -65,6 +65,12 @@ const std::string & Uri::getProtocol() const {
     return d_ptr->proto;
 }
 
+const std::string & Uri::getPath() const {
+    if(code != StatusCode::OK)
+        return void_str;
+    return d_ptr->path;
+}
+
 StatusCode::Code Uri::getStatus() const{
     return code;
 }

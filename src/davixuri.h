@@ -27,6 +27,8 @@ public:
 
     const std::string & getHost() const;
 
+    const std::string & getPath()const;
+
     StatusCode::Code getStatus() const;
 
 protected:

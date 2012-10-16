@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <global_def.hpp>
-#include "libdavix_object.hpp"
+
 
 namespace Davix {
 
@@ -55,7 +55,7 @@ public:
       return the current request code error
        ex : HTTP 200
      */
-    virtual int get_request_code() =0;
+    virtual int getRequestCode() =0;
 
 
     /*

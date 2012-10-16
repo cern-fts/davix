@@ -1,18 +1,14 @@
-#include "test_stat.h"
+#include "test_opendir_c.h"
 
-#include <davixcontext.hpp>
-#include <http_backend.hpp>
-#include <posix/davposix.hpp>
-#include <glibmm/init.h>
 
-#include <string>
-#include <sstream>
-#include <cmath>
+#include <davix.h>
 #include <string.h>
+#include <cstdio>
+#include <glibmm.h>
+#include <iostream>
+#include <logging/logger.h>
 
-
-using namespace Davix;
-
+#define MY_BUFFER_SIZE 65000
 
 int mycred_auth_callback(davix_auth_t token, const davix_auth_info_t* t, void* userdata, GError** err){
     GError * tmp_err=NULL;
@@ -27,7 +23,7 @@ int mycred_auth_callback(davix_auth_t token, const davix_auth_info_t* t, void* u
         login_password_auth_type = true;
 
     if(login_password_auth_type ){
-        *((char*) mempcpy(login, auth_string, p-auth_string)) = '\0';
+        *((char*)mempcpy(login, auth_string, p-auth_string)) ='\0';
         strcpy(passwd, p+1 );
         ret = davix_set_login_passwd_auth(token, login, passwd, &tmp_err);
 
@@ -43,12 +39,12 @@ int mycred_auth_callback(davix_auth_t token, const davix_auth_info_t* t, void* u
 }
 
 
-static void configure_grid_env(char * cert_path, RequestParams&  p){
-    p.setSSLCAcheck(false);
-    p.setAuthentificationCallback(cert_path, &mycred_auth_callback);
-}
 
 int main(int argc, char** argv){
+
+    davix_params_t params = NULL;
+    davix_sess_t sess = NULL;
+    GError* tmp_err=NULL;
     if( argc < 2){
         std::cout << "Usage  : " << std::endl;
         std::cout <<"\t" << argv[0] << " [url]" << std::endl;
@@ -56,26 +52,34 @@ int main(int argc, char** argv){
         return 0;
     }
 
-    srand(time(NULL));
     g_logger_set_globalfilter(G_LOG_LEVEL_MASK);
 
     try{
-        RequestParams  p;
-        std::auto_ptr<Context> c( new Context());
-        DavPosix pos(c.get());
-
+        sess = davix_context_new(&tmp_err);
         if(argc > 2){
-            configure_grid_env(argv[2], p);
+            params = davix_params_new();
+            davix_params_set_auth_callback(params, mycred_auth_callback, argv[2], &tmp_err);
+            davix_params_set_ssl_check(params, FALSE, &tmp_err);
+          //  davix_set_default_session_params(ctxt, p, NULL);
         }
 
-        std::ostringstream oss;
-        oss << argv[1] << "/"<< (rand()%20000);
-        std::string a = oss.str();
 
-        pos.mkdir(&p, a.c_str(), 0777);
 
-        std::cout << "mkdir  success !" << std::endl;
 
+        DAVIX_DIR* d = davix_posix_opendir(sess, params, argv[1], &tmp_err);
+        if(tmp_err){
+            std::cout << "davix_opendir_error" << tmp_err->message << std::endl;
+            return -1;
+        }
+
+        struct dirent * dir = NULL;
+        do{
+            dir= davix_posix_readdir(sess,d, &tmp_err);
+            if(dir)
+                std::cout << "N° " << dir->d_off <<" file : " << dir->d_name << std::endl;
+        }while(dir!= NULL);
+
+        davix_posix_closedir(sess,d, &tmp_err);
     }catch(Glib::Error & e){
         std::cout << " error occures : N°" << e.code() << "  " << e.what() << std::endl;
         return -1;

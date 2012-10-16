@@ -5,7 +5,10 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+
 #include <davix_types.h>
+
+
 
 /**
   @file davix.h
@@ -19,29 +22,29 @@
   - Third party transfer
  */
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+
+//
+// Davix POSIX-like API
+//
+#include <posix/davix_posix.h>
+
+DAVIX_C_DECL_BEGIN
 
 /**
   @brief create a new davix session handle
 
   create a davix sessions handle, session handle can be used to configure and execute davix request
   @param err : Gerror error report system, in case of failure
-  @return davix_sess_t : session handle or NULL poitner if error
+  @return davix_sess_t : session handle or NULL pointer if error
   */
-davix_sess_t davix_session_new(GError ** err);
+davix_sess_t davix_context_new(GError ** err);
 
-/**
-  enable/disable grid mode, grid mode enable GSI/voms usage and credential delegation
 
-*/
 
 /**
   release a davix session handle
 */
-void davix_session_free(davix_sess_t sess);
+void davix_context_free(davix_sess_t sess);
 
 
 
@@ -92,26 +95,6 @@ int davix_set_pkcs12_auth(davix_auth_t token, const char* filename_pkcs, const c
 int davix_set_login_passwd_auth(davix_auth_t token, const char* login, const char* passwd, GError** err);
 
 
-//
-// POSIX like API
-// Need Webdav support
-//
-
-
-/**
-  @brief execute a POSIX stat query on a given url, required webdav endpoint
-
-  POSIX-like operation,
-
-  POSIX stat request on a given webdav endpoint
-  @param sess : davix session handle
-  @param url: url of the webdav point
-  @param st : stat structure
-  @param err : GError error handling system
-  @return 0 if success else -1
-*/
-int davix_stat(davix_sess_t sess, const char* url, struct stat * st, GError** err);
-
 
 
 //
@@ -126,8 +109,6 @@ int davix_stat(davix_sess_t sess, const char* url, struct stat * st, GError** er
 */
 //int davix_set_ssl_check(davix_sess_t sess, gboolean ssl_check, GError** err);
 
-#ifdef __cplusplus
-}
-#endif
+DAVIX_C_DECL_END
 
 #endif // DAVIX_H

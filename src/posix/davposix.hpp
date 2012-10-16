@@ -1,31 +1,19 @@
-#ifndef COREINTERFACE_HPP
-#define COREINTERFACE_HPP
+#ifndef DAVIX_DAVPOSIX_HPP
+#define DAVIX_DAVPOSIX_HPP
 
-#include <ctime>
-#include <cstring>
-#include <sys/types.h>
+#include <davixcontext.hpp>
+#include <sys/stat.h>
 #include <dirent.h>
-
-
-
-#include <global_def.hpp>
-#include <davix.h>
-#include <httprequest.hpp>
-
-#include <libdavix_object.hpp>
-#include <abstractsessionfactory.hpp>
-
-
+#include <unistd.h>
 
 namespace Davix {
 
+class DavPosixInternal;
 
-
-class CoreInterface: public Object
+class DavPosix
 {
 public:
-    CoreInterface();
-    virtual ~CoreInterface(){}
+    DavPosix(Context* handle);
 
 
     /**
@@ -34,7 +22,7 @@ public:
       @param str: string url
       @param stat : stat struct to fill
      **/
-    virtual void stat(const std::string & str, struct stat *)=0;
+    void stat(const RequestParams* params, const std::string & str, struct stat *);
 
     /**
       @brief execute an opendir function with Webdav
@@ -43,18 +31,17 @@ public:
       @throw : Glib::Error, with a errno code value
       @return
     */
-    virtual DAVIX_DIR* opendir(const std::string & url)=0;
+    DAVIX_DIR* opendir(const RequestParams* params, const std::string & url);
 
     /**
       @brief execute a readdir function with Webdav
-      @param DAVIX_DIR
+      @param FileObject
     */
-    virtual struct dirent* readdir(DAVIX_DIR* )=0;
-
+    struct dirent* readdir(DAVIX_DIR* );
     /**
       @brief close an existing file handle
     */
-    virtual void closedir(DAVIX_DIR* )=0;
+    void closedir(DAVIX_DIR* );
 
     /**
       @brief execute an opendirpp function with Webdav
@@ -63,7 +50,7 @@ public:
       @throw : Glib::Error, with a errno code value
       @return
     */
-    virtual DAVIX_DIR* opendirpp(const std::string & url)=0;
+    DAVIX_DIR* opendirpp(const RequestParams* params, const std::string & url);
 
 
 
@@ -73,36 +60,32 @@ public:
       @param DAVIX_DIR
       @param stat struct to fill
     */
-    virtual struct dirent* readdirpp(DAVIX_DIR*, struct stat * st )=0;
+    struct dirent* readdirpp(DAVIX_DIR*, struct stat * st );
 
     /**
       @brief close an existing file handle
     */
-    virtual void closedirpp(DAVIX_DIR* )=0;
+    void closedirpp(DAVIX_DIR* );
 
     /**
       @brief same behavior than the POSIX mkdir, use MKCOL in background
       @warning dependening of the server, implementation, mode_t parameter can be ignored
 
     */
-    virtual void mkdir(const std::string & url, mode_t right)=0;
+    void mkdir(const RequestParams * _params, const std::string & url, mode_t right);
+protected:
+    DAVIX_DIR* internal_opendirpp(const RequestParams* params,  const char * scope, const std::string & body, const std::string & url  );
 
-    /**
-      get the current registered session factory
-    */
-    virtual AbstractSessionFactory* getSessionFactory()=0;
+    Context* context;
+    long _timeout;
+    long _s_buff;
 
 
-    /**
-      configure the default buffer size for internal transfer
-    */
-    virtual void set_buffer_size(const size_t value)=0;
+private:
+    DavPosixInternal* d_ptr;
 
 };
 
-
-typedef CoreInterface Composition;
-
 } // namespace Davix
 
-#endif // COREINTERFACE_HPP
+#endif // DAVIX_DAVPOSIX_HPP

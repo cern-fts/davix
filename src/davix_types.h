@@ -44,6 +44,19 @@ typedef struct{
 typedef int (*davix_auth_callback)(davix_auth_t token, const davix_auth_info_t* t, void* userdata, GError** err);
 
 
+#undef DAVIX_C_DECL_BEGIN
+#undef DAVIX_C_DECL_END
 
+#ifdef __cplusplus
+#define DAVIX_C_DECL_BEGIN \
+        extern "C" {
+#define DAVIX_C_DECL_END }
+
+#else
+
+#define DAVIX_C_DECL_BEGIN  // void
+#define DAVIX_C_DECL_END    // void
+
+#endif
 
 #endif // DAVIX_TYPES_H

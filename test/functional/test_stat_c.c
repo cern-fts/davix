@@ -47,20 +47,21 @@ int main(int argc, char** argv){
     GError * tmp_err=NULL;
     int res =-1;
     struct stat st;
+    davix_params_t p = NULL;
 
-    davix_sess_t ctxt = davix_session_new(&tmp_err);
+    davix_sess_t ctxt = davix_context_new(&tmp_err);
 
     if(!tmp_err && argc >=3){
-        davix_params_t p = davix_params_new();
+        p = davix_params_new();
         davix_params_set_auth_callback(p, mycred_auth_callback, argv[2], &tmp_err);
         davix_params_set_ssl_check(p, FALSE, &tmp_err);
-        davix_set_default_session_params(ctxt, p, NULL);
-        davix_params_free(p);
+      //  davix_set_default_session_params(ctxt, p, NULL);
+
     }
 
 
     if(!tmp_err)
-        res = davix_stat(ctxt, argv[1], &st, &tmp_err);
+        res = davix_posix_stat(ctxt, p, argv[1], &st, &tmp_err);
 
 
     if(res == 0){
@@ -73,7 +74,8 @@ int main(int argc, char** argv){
     }else{
         printf(" error N°%d : %s \n", tmp_err->code, tmp_err->message);
     }
-    davix_session_free(ctxt);
+    davix_context_free(ctxt);
+    davix_params_free(p);
     return res;
 }
 

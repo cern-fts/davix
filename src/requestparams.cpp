@@ -1,46 +1,87 @@
-#include "requestparams.hpp"
+#include <davixrequestparams.hpp>
+#include <libs/time_utils.h>
+
 
 namespace Davix {
 
 RequestParams::RequestParams()
 {
-    connexion_timeout = DAVIX_DEFAULT_CONN_TIMEOUT;
-    ops_timeout = DAVIX_DEFAULT_OPS_TIMEOUT;
-    call =NULL;
-    userdata = NULL;
+    _init();
 }
 
 RequestParams::RequestParams(const RequestParams& params){
     call = params.call;
     userdata = params.userdata;
-    connexion_timeout = params.connexion_timeout;
-    ops_timeout = params.ops_timeout;
-
+    timespec_copy(&(connexion_timeout), &(params.connexion_timeout));
+    timespec_copy(&(ops_timeout), &(params.ops_timeout));
+    _redirection = params._redirection;
 }
 
 RequestParams::~RequestParams(){
 
 }
 
-//
-void RequestParams::set_ssl_ca_check(bool chk){
-    ssl_check = chk;
+RequestParams::RequestParams(const RequestParams* params){
+    if(params){
+        *this = *params;
+    }else{
+        _init();
+    }
 }
 
+
+
+
+void RequestParams::_init(){
+    timespec_clear(&connexion_timeout);
+    timespec_clear(&ops_timeout);
+    connexion_timeout.tv_sec = DAVIX_DEFAULT_CONN_TIMEOUT;
+    ops_timeout.tv_sec = DAVIX_DEFAULT_OPS_TIMEOUT;
+    call =NULL;
+    userdata = NULL;
+    _redirection = true;
+}
+
+
 //
-void RequestParams::set_authentification_controller(void * _userdata, davix_auth_callback _call){
+void RequestParams::setAuthentificationCallback(void * _userdata, davix_auth_callback _call){
     call = _call;
     userdata = _userdata;
 }
 
-//
-void RequestParams::set_connexion_timeout(unsigned long timeout){ // throw nothing
-    connexion_timeout = timeout;
+
+davix_auth_callback RequestParams::getAuthentificationCallbackFunction(){
+    return call;
 }
 
-//
-void RequestParams::set_operation_timeout(unsigned long timeout){ // throw nothing
-    ops_timeout = timeout;
+void* RequestParams::getAuthentificationCallbackData(){
+    return userdata;
+}
+
+
+void RequestParams::setConnexionTimeout(struct timespec *conn_timeout1){
+    timespec_copy(&(this->connexion_timeout),conn_timeout1);
+}
+
+void RequestParams::setOperationTimeout(struct timespec *ops_timeout1){
+    timespec_copy(&(this->ops_timeout), ops_timeout1);
+}
+
+const struct timespec* RequestParams::getConnexionTimeout() const {
+    return &connexion_timeout;
+}
+
+const struct timespec* RequestParams::getOperationTimeout() const {
+    return &ops_timeout;
+}
+
+void RequestParams::setTransparentRedirectionSupport(bool redirection){
+    this->_redirection = redirection;
+}
+
+
+bool RequestParams::getTransparentRedirectionSupport() const{
+    return this->_redirection;
 }
 
 

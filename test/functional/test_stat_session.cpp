@@ -1,8 +1,10 @@
 #include "test_stat_session.h"
 
-#include <core.hpp>
+#include <davixcontext.hpp>
 #include <http_backend.hpp>
 #include <glibmm/init.h>
+#include <posix/davposix.hpp>
+#include <string.h>
 
 using namespace Davix;
 
@@ -38,12 +40,9 @@ int mycred_auth_callback(davix_auth_t token, const davix_auth_info_t* t, void* u
 }
 
 
-static void configure_grid_env(char * cert_path, Core  * core){
-    AbstractSessionFactory* f = core->getSessionFactory();
-    RequestParams params;
-    params.set_ssl_ca_check(false);
-    params.set_authentification_controller(cert_path, &mycred_auth_callback);
-    f->set_parameters(params);
+static void configure_grid_env(char * cert_path, RequestParams&  p){
+    p.setSSLCAcheck(false);
+    p.setAuthentificationCallback(cert_path, &mycred_auth_callback);
 }
 
 int main(int argc, char** argv){
@@ -56,15 +55,17 @@ int main(int argc, char** argv){
     g_logger_set_globalfilter(G_LOG_LEVEL_MASK);
 
     try{
-        std::auto_ptr<Core> c( new Core(new NEONSessionFactory()));
+        RequestParams  p;
+        std::auto_ptr<Context> c( new Context());
+        DavPosix pos(c.get());
         if(argc > 2){
-            configure_grid_env(argv[1], c.get());
+            configure_grid_env(argv[1], p);
         }
 
 
         for(int i =2 ; i< argc; ++i){
             struct stat st;
-            c->stat(argv[i], &st);
+            pos.stat(&p,argv[i], &st);
 
             std::cout << "stat success" << std::endl;
             std::cout << " atime : " << st.st_atime << std::endl;

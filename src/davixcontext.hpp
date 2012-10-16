@@ -2,8 +2,7 @@
 #define DAVIXCONTEXT_H
 
 #include <tr1/memory>
-#include <contextconfig.h>
-
+#include <contextinternal.h>
 
 namespace Davix{
 
@@ -14,7 +13,7 @@ class ContextInternal;
 /// @brief Main Entry point for Davix
 /// a Davix context is a independant instance of Davix
 /// Each instance of Davix has its own session-reuse pool and parameters
-class Context : public ContextConfig
+class Context
 {
 public:
     /// create a new context for Davix
@@ -28,25 +27,12 @@ public:
     /// this context need to be destroyed after usage
     Context* clone();
 
-    /// POSIX-like gate
-    /// provide the File POSIX-oriented operations
-    /// this gate need to be before the destruction of its context
-    PosixGate & posixGate();
 
-
-    /// standard plain Http request Gate
-    /// provide the Http
-    HttpGate& httpGate();
-
-protected:
+private:
     // internal context
     std::tr1::shared_ptr<ContextInternal> _intern;
-    std::auto_ptr<PosixGate> p_gate;
-    std::auto_ptr<HttpGate> h_gate;
-    Glib::Mutex mux_gate;
-    friend class PosixGate;
-    friend class httpGate;
-    friend class NeonGenericRequest;
+
+    friend class DavPosix;
 
 };
 

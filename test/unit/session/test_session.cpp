@@ -6,9 +6,9 @@
 
 TEST(SessionTest, create_session){
     GError * tmp_err=NULL;
-    davix_sess_t ctxt = davix_session_new(&tmp_err);
+    davix_sess_t ctxt = davix_context_new(&tmp_err);
     ASSERT_TRUE(ctxt != NULL);
     ASSERT_TRUE(tmp_err==NULL);
-    davix_session_free(ctxt);
+    davix_context_free(ctxt);
 }
 

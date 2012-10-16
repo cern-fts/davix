@@ -1,6 +1,6 @@
 
 
-#include <core.hpp>
+#include <davixcontext.hpp>
 #include <abstractsessionfactory.hpp>
 #include <neon/neonsessionfactory.hpp>
 #include <string>

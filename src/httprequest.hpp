@@ -2,7 +2,7 @@
 #define DAVIX_HTTPREQUEST_H
 
 #include <errno.h>
-#include <requestparams.hpp>
+#include <davixrequestparams.hpp>
 #include "request.hpp"
 
 namespace Davix {
@@ -21,11 +21,11 @@ public:
       @param value : value of the field to set
 
     */
-    virtual void add_header_field(const std::string & field, const std::string & value) =0;
+    virtual void addHeaderField(const std::string & field, const std::string & value) =0;
     ///
     /// set the request command to execute ( GET, POST, PUT, PROPFIND )
     /// DEFAULT : GET
-    virtual void set_requestcustom(const std::string & request_str) =0;
+    virtual void setRequestMethod(const std::string & request_str) =0;
 
     virtual void set_parameters(const RequestParams &p ){
         params = p;
@@ -38,7 +38,6 @@ protected:
 
 /**
 Translate  http code error to errno code
-same than in GNU davfs
  */
 int httpcode_to_errno(int code);
 

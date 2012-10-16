@@ -3,13 +3,12 @@
 
 #include "global_def.hpp"
 #include "request.hpp"
-#include "libdavix_object.hpp"
-#include "requestparams.hpp"
+#include <davixrequestparams.hpp>
 
 namespace Davix{
 
 
-class AbstractSessionFactory : public Davix::Object
+class AbstractSessionFactory
 {
 public:
 
@@ -30,16 +29,7 @@ public:
      */
     virtual void delete_request(Request * ref)=0;  // throw nothing
 
-    /**
-      define a new default set of parameters for all the request issued from this factory
-      This set of parameters can be overriten at the request level
-    */
-    virtual void set_parameters(const RequestParams &p ){
-        params = p;
-    }
 
-protected:
-    RequestParams params;
 };
 
 }

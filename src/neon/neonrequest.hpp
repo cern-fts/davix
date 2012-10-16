@@ -31,11 +31,11 @@ public:
       @param value : value of the field to set
 
     */
-    virtual void add_header_field(const std::string & field, const std::string & value);
+    virtual void addHeaderField(const std::string & field, const std::string & value);
     /**
      * set the request command to execute ( GET, POST, PUT, PROPFIND )
      */
-    virtual void set_requestcustom(const std::string & request_str);
+    virtual void setRequestMethod(const std::string & request_str);
 
     /**
       Execute the given request and return result to the buffer result
@@ -74,7 +74,7 @@ public:
       return the current request code error
        ex : HTTP 200
      */
-    virtual int get_request_code();
+    virtual int getRequestCode();
 
     /**
       reimplement authentification

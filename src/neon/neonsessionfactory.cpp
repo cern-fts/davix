@@ -43,7 +43,6 @@ Request* NEONSessionFactory::create_request(const std::string &url){
     parse_http_neon_url(url, protocol, host, path, &port);
     ne_session* sess = create_recycled_session(protocol, host, port);
     NEONRequest* req = new NEONRequest(this, sess, path);
-    req->set_parameters(params);
     return static_cast<Request*>(req);
 }
 
@@ -57,6 +56,7 @@ int NEONSessionFactory::createNeonSession(const Uri & uri, ne_session** sess){
 
 int NEONSessionFactory::storeNeonSession(const Uri & uri, ne_session* sess){
     internal_release_session_handle(sess);
+    return 0;
 }
 
 

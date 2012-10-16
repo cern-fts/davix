@@ -1,17 +1,16 @@
-#include "davixcontext.h"
+#include <davixcontext.hpp>
 
-#include <posixgate.h>
-#include <httpgate.h>
+
 #include <contextinternal.h>
 #include <glibmm.h>
 
 namespace Davix{
 
-Context::Context() : _intern(new ContextInternal())
+Context::Context() : _intern(new ContextInternal(new NEONSessionFactory()))
 {
 }
 
-Context::Context(const Context &c) : ContextConfig(c){
+Context::Context(const Context &c){
     this->_intern = c._intern;
 }
 
@@ -25,24 +24,32 @@ Context* Context::clone(){
 }
 
 
-PosixGate& Context::posixGate(){
-    if(p_gate.get() == NULL){
-        Glib::Mutex::Lock l(mux_gate);
-        if(p_gate.get() == NULL){
-            p_gate.reset(new PosixGate(this));
-        }
-    }
-    return *(p_gate);
 }
 
-HttpGate& Context::httpGate(){
-    if(h_gate.get() == NULL){
-        Glib::Mutex::Lock l(mux_gate);
-        if(h_gate.get() == NULL){
-            h_gate.reset(new HttpGate(this));
-        }
+
+DAVIX_C_DECL_BEGIN
+
+
+int davix_set_pkcs12_auth(davix_auth_t token, const char* filename_pkcs, const char* passwd, GError** err){
+    Davix::Request* req = (Davix::Request*)(token);
+    try{
+        req->try_set_pkcs12_cert(filename_pkcs, passwd);
+    }catch(Glib::Error & e){
+            g_set_error(err, e.domain(), e.code(), "%s", e.what().c_str());
+            return -1;
     }
-    return *(h_gate);
+    return 0;
 }
 
+int davix_set_login_passwd_auth(davix_auth_t token, const char* login, const char* passwd, GError** err){
+    Davix::Request* req = (Davix::Request*)(token);
+    try{
+        req->try_set_login_passwd(login, passwd);
+    }catch(Glib::Error & e){
+            g_set_error(err, e.domain(), e.code(), "%s", e.what().c_str());
+            return -1;
+    }
+    return 0;
 }
+
+DAVIX_C_DECL_END

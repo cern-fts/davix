@@ -1,6 +1,6 @@
 #pragma once
-#ifndef DAVIX_DAVIXURI_H
-#define DAVIX_DAVIXURI_H
+#ifndef DAVIX_DAVIXURI_HPP
+#define DAVIX_DAVIXURI_HPP
 
 #include <string>
 #include <davixstatusrequest.h>
@@ -40,4 +40,4 @@ protected:
 
 } // namespace Davix
 
-#endif // DAVIX_DAVIXURI_H
+#endif // DAVIX_DAVIXURI_HPP

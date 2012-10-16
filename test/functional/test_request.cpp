@@ -1,6 +1,6 @@
 #include "test_request.h"
 
-#include <core.hpp>
+#include <davixcontext.hpp>
 #include <neon/neonsessionfactory.hpp>
 
 using namespace Davix;

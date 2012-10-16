@@ -5,11 +5,14 @@ FILE(GLOB src_davix "*.cpp")
 
 FILE(GLOB src_neon "neon/*.cpp")
 FILE(GLOB src_logger "logging/*.c")
+FILE(GLOB src_davix_posix "posix/*.cpp")
 
-LIST(APPEND davix_headers "davix.h" "davix_types.h" "coreinterface.hpp" "global_def.hpp"
-            "libdavix_object.hpp" "abstractsessionfactory.hpp" "requestparams.hpp" "request.hpp" "httprequest.hpp" "davix_cpp.hpp")
+LIST(APPEND davix_headers "davix.h" "davix_types.h" "davixcontext.hpp" "global_def.hpp"
+            "abstractsessionfactory.hpp" "davixrequestparams.hpp" "request.hpp" "httprequest.hpp" "davix_cpp.hpp")
 
 LIST(APPEND davix_logger_header "logging/logger.h")
+
+LIST(APPEND davix_posix_header "posix/davix_posix.h" "posix/davposix.hpp")
 
 include_directories("libs")
 
@@ -31,7 +34,7 @@ endif ( ${HTTP_LIB} STREQUAL "NEON" )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(${GLIBMM_PKG_CFLAGS} ${HTTPLIB_PKG_CFLAGS} ${LIBXMLPP_PKG_CFLAGS})
-add_library(davix  SHARED ${src_davix} ${SRC_HTTP}  ${src_xmlparser} ${src_logger} ${src_datetime} ${src_crypto})
+add_library(davix  SHARED ${src_davix} ${SRC_HTTP}  ${src_xmlparser} ${src_logger} ${src_datetime} ${src_crypto} ${src_davix_posix})
 
 
 target_link_libraries(davix ${GLIBMM_PKG_LIBRARIES} ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES} ${GTHREAD_PKG_LIBRARIES})
@@ -65,3 +68,6 @@ install( FILES ${davix_headers}
 
 install( FILES ${davix_logger_header}
          DESTINATION ${INCLUDE_INSTALL_DIR}/davix/logging)
+
+install( FILES ${davix_posix_header}
+         DESTINATION ${INCLUDE_INSTALL_DIR}/davix/posix)

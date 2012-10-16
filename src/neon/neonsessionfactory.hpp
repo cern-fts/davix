@@ -2,7 +2,7 @@
 #define DAVIX_NEONSESSIONFACTORY_H
 
 #include <abstractsessionfactory.hpp>
-#include <davixuri.h>
+#include <davixuri.hpp>
 #include <global_def.hpp>
 #include <neon/neonrequest.hpp>
 

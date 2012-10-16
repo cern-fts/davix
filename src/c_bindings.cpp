@@ -1,20 +1,11 @@
-#include "core.hpp"
+#include "davixcontext.hpp"
 #include <http_backend.hpp>
-#include <requestparams.hpp>
+#include <davixrequestparams.hpp>
 #include <glibmm.h>
 #include <glib.h>
 
-namespace Davix{
-//
-// Main entry point
-//
-CoreInterface* davix_context_create(){
-    return static_cast<CoreInterface*>(new Core(new NEONSessionFactory() ));
-}
 
-}
-
-extern "C"{
+DAVIX_C_DECL_BEGIN
 
 // initialization
 __attribute__((constructor))
@@ -26,35 +17,20 @@ void core_init(){
 
 
 
-davix_sess_t davix_session_new(GError ** err){
+davix_sess_t davix_context_new(GError ** err){
     try{
-        Davix::CoreInterface* comp = static_cast<Davix::CoreInterface*>(new Davix::Core(new Davix::NEONSessionFactory() ));
+        Davix::Context* comp = new Davix::Context();
         return (davix_sess_t) comp;
     }catch(Glib::Error & e){
         if(err)
             g_error_copy(e.gobj());
     }catch(...){
-        g_set_error(err, g_quark_from_string("davix_session_new"), ENOSYS, "unexpected error");
+        g_set_error(err, g_quark_from_string("davix_context_new"), ENOSYS, "unexpected error");
     }
     return NULL;
 }
 
-int davix_stat(davix_sess_t sess, const char* url, struct stat * st, GError** err){
-    g_return_val_if_fail(sess != NULL,-1);
 
-    try{
-        Davix::CoreInterface* comp = static_cast<Davix::CoreInterface*>(sess);
-
-        comp->stat(url, st);
-        return 0;
-    }catch(Glib::Error & e){
-        if(err)
-            *err= g_error_copy(e.gobj());
-    }catch(std::exception & e){
-        g_set_error(err, g_quark_from_string("davix_stat"), EINVAL, "unexcepted error %s", e.what());
-    }
-    return -1;
-}
 
 
 
@@ -63,7 +39,7 @@ int davix_params_set_auth_callback(davix_params_t params, davix_auth_callback ca
     int ret = -1;
     try{
         Davix::RequestParams* p = (Davix::RequestParams*)(params);
-        p->set_authentification_controller(userdata, call);
+        p->setAuthentificationCallback(userdata, call);
         ret = 0;
     }catch(Glib::Error & e){
         if(err)
@@ -80,7 +56,7 @@ int davix_params_set_ssl_check(davix_params_t params, gboolean ssl_check, GError
     int ret = -1;
     try{
         Davix::RequestParams* p = (Davix::RequestParams*)(params);
-        p->set_ssl_ca_check(ssl_check);
+        p->setSSLCAcheck(ssl_check);
         ret = 0;
     }catch(Glib::Error & e){
         if(err)
@@ -90,6 +66,8 @@ int davix_params_set_ssl_check(davix_params_t params, gboolean ssl_check, GError
     }
     return ret;
 }
+
+/*
 
 int davix_set_default_session_params(davix_sess_t sess, davix_params_t params, GError ** err){
     g_return_val_if_fail(params != NULL && sess != NULL , -1);
@@ -106,13 +84,13 @@ int davix_set_default_session_params(davix_sess_t sess, davix_params_t params, G
         g_set_error(err, g_quark_from_string("davix_set_auth_callback"), EINVAL, "unexpected error");
     }
     return ret;
-}
+}*/
 
 
 
-void davix_session_free(davix_sess_t sess){
+void davix_context_free(davix_sess_t sess){
     if(sess != NULL)
-        delete static_cast<Davix::CoreInterface*>(sess);
+        delete (static_cast<Davix::Context*>(sess));
 }
 
 davix_params_t davix_params_new(){
@@ -125,11 +103,11 @@ davix_params_t davix_params_copy(davix_params_t p){
 
 void davix_params_free(davix_params_t p){
     if(p){
-        delete (Davix::RequestParams*) p;
+        delete ((Davix::RequestParams*) p);
     }
 }
 
 
-}
+DAVIX_C_DECL_END
 
 

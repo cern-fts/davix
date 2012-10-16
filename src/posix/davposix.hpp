@@ -17,6 +17,7 @@ class DavPosix
 {
 public:
     DavPosix(Context* handle);
+    virtual ~DavPosix();
 
 
     /**

@@ -9,4 +9,9 @@ DavPosix::DavPosix(Context* context)
     _timeout =180;
 }
 
+
+DavPosix::~DavPosix(){
+
+}
+
 } // namespace Davix

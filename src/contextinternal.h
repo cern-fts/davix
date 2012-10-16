@@ -37,6 +37,9 @@ public:
             delete me;
     }
 
+
+    HttpRequest* createRequest(const std::string & uri);
+
 protected:
 
     DAVIX_DIR* internal_opendirpp(const char * scope, const std::string & body, const std::string & url  );

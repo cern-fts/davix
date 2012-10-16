@@ -1,13 +1,12 @@
 #ifndef DAVIXCONTEXT_H
 #define DAVIXCONTEXT_H
 
-
+#include <string>
 
 namespace Davix{
 
-class PosixGate;
-class HttpGate;
 class ContextInternal;
+class HttpRequest;
 
 /// @brief Main Entry point for Davix
 /// a Davix context is a independant instance of Davix
@@ -25,6 +24,11 @@ public:
     /// the new context inherit of a copy of all the parent context parameters
     /// this context need to be destroyed after usage
     Context* clone();
+
+
+    /// create a new Http request for direct HTTP low level feature usage
+    /// this Http request object should be destroyed after usage
+    HttpRequest* createRequest(const std::string & uri);
 
 
 private:

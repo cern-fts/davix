@@ -26,6 +26,11 @@ Context* Context::clone(){
 }
 
 
+HttpRequest* Context::createRequest(const std::string & uri){
+    return _intern->createRequest(uri);
+}
+
+
 }
 
 

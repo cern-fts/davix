@@ -23,5 +23,9 @@ void ContextInternal::set_buffer_size(const size_t value){
 
 
 
+HttpRequest* ContextInternal::createRequest(const std::string & uri){
+    return static_cast<HttpRequest*>(getSessionFactory()->create_request(uri));
+}
+
 
 } // namespace Davix

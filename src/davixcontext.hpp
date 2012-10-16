@@ -1,8 +1,7 @@
 #ifndef DAVIXCONTEXT_H
 #define DAVIXCONTEXT_H
 
-#include <tr1/memory>
-#include <contextinternal.h>
+
 
 namespace Davix{
 
@@ -30,7 +29,7 @@ public:
 
 private:
     // internal context
-    std::tr1::shared_ptr<ContextInternal> _intern;
+    ContextInternal* _intern;
 
     friend class DavPosix;
 

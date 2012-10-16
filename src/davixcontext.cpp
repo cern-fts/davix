@@ -6,15 +6,17 @@
 
 namespace Davix{
 
-Context::Context() : _intern(new ContextInternal(new NEONSessionFactory()))
+Context::Context()
 {
+    _intern= new ContextInternal(new NEONSessionFactory());
 }
 
 Context::Context(const Context &c){
-    this->_intern = c._intern;
+    this->_intern = ContextInternal::takeRef(c._intern);
 }
 
 Context::~Context(){
+    ContextInternal::releaseRef(_intern);
 
 }
 

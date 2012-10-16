@@ -8,7 +8,7 @@ FILE(GLOB src_logger "logging/*.c")
 FILE(GLOB src_davix_posix "posix/*.cpp")
 
 LIST(APPEND davix_headers "davix.h" "davix_types.h" "davixcontext.hpp" "global_def.hpp"
-            "abstractsessionfactory.hpp" "davixrequestparams.hpp" "request.hpp" "httprequest.hpp" "davix_cpp.hpp")
+            "abstractsessionfactory.hpp" "davixrequestparams.hpp" "request.hpp" "httprequest.hpp" "davix_cpp.hpp" "davixuri.hpp" "davixstatusrequest.hpp")
 
 LIST(APPEND davix_logger_header "logging/logger.h")
 

@@ -6,6 +6,7 @@
 #include <cstring>
 #include <xmlpp/webdavpropparser.hpp>
 
+#include <contextinternal.h>
 
 namespace Davix{
 

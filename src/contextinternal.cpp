@@ -9,6 +9,7 @@ ContextInternal::ContextInternal(AbstractSessionFactory* fsess) : _fsess(fsess)
 {
     _s_buff = 65536;
     _timeout = 300;
+    count_instance =1;
 }
 
 

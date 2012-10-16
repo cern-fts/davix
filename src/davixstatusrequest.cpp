@@ -1,4 +1,4 @@
-#include "davixstatusrequest.h"
+#include "davixstatusrequest.hpp"
 
 namespace Davix {
 

@@ -5,6 +5,7 @@
 
 #include "davix_listdir.hpp"
 #include <posix/davposix.hpp>
+#include <contextinternal.h>
 
 #include <posix/davix_stat.hpp>
 #include <xmlpp/webdavpropparser.hpp>

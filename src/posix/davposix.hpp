@@ -1,10 +1,13 @@
 #ifndef DAVIX_DAVPOSIX_HPP
 #define DAVIX_DAVPOSIX_HPP
 
-#include <davixcontext.hpp>
+
 #include <sys/stat.h>
 #include <dirent.h>
 #include <unistd.h>
+
+#include <davixcontext.hpp>
+#include <davixrequestparams.hpp>
 
 namespace Davix {
 

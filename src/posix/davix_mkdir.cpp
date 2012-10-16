@@ -5,6 +5,7 @@
 
 #include <global_def.hpp>
 #include <davixcontext.hpp>
+#include <contextinternal.h>
 #include <xmlpp/webdavpropparser.hpp>
 
 

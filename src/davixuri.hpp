@@ -3,7 +3,7 @@
 #define DAVIX_DAVIXURI_HPP
 
 #include <string>
-#include <davixstatusrequest.h>
+#include <davixstatusrequest.hpp>
 
 namespace Davix {
 

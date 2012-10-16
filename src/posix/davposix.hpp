@@ -9,6 +9,16 @@
 #include <davixcontext.hpp>
 #include <davixrequestparams.hpp>
 
+
+/**
+  @file davposix.hpp
+  @author Devresse Adrien
+
+  @brief C++ POSIX like API of davix
+*/
+
+
+
 namespace Davix {
 
 class DavPosixInternal;

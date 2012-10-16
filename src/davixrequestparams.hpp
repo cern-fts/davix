@@ -4,6 +4,16 @@
 
 #include "global_def.hpp"
 
+
+
+/**
+  @file davixrequestparams.hpp
+  @author Devresse Adrien
+
+  @brief C++ Davix configuration API
+*/
+
+
 namespace Davix {
 
 
@@ -39,15 +49,20 @@ public:
     davix_auth_callback getAuthentificationCallbackFunction();
     void* getAuthentificationCallbackData();
 
-    /// define the connexion established timeout
+    /// define the connexion timeout
+    /// DEFAULT : 180s
     void setConnexionTimeout(struct timespec* conn_timeout);
 
+    /// get the current connexion timeout
     const struct timespec * getConnexionTimeout()  const;
 
 
-    /// define the maximum timeout for an operation
+    /// define the maximum execution time for a davix request
+    /// DEFAULT : infinite
     void setOperationTimeout(struct timespec* cops_timeout);
 
+    /// get the maximum execution time for a davix request
+    /// DEFAULT : infinite
     const struct timespec * getOperationTimeout()const;
 
 

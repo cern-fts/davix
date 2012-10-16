@@ -12,6 +12,7 @@ RequestParams::RequestParams()
 RequestParams::RequestParams(const RequestParams& params){
     call = params.call;
     userdata = params.userdata;
+    ssl_check = params.ssl_check;
     timespec_copy(&(connexion_timeout), &(params.connexion_timeout));
     timespec_copy(&(ops_timeout), &(params.ops_timeout));
     _redirection = params._redirection;
@@ -38,6 +39,7 @@ void RequestParams::_init(){
     connexion_timeout.tv_sec = DAVIX_DEFAULT_CONN_TIMEOUT;
     ops_timeout.tv_sec = DAVIX_DEFAULT_OPS_TIMEOUT;
     call =NULL;
+    ssl_check = true;
     userdata = NULL;
     _redirection = true;
 }

@@ -13,13 +13,17 @@
 /**
   @file davix.h
   @author Devresse Adrien
-  @brief High level Http/Webdav interface, with file operations
 
-  Davix support :
-  - redirection on every calls ( cluster support )
+
+  @brief C API of Davix
+
+  Davix is a file access and file management library on top of HTTP/Webdav
+
+  Non exhaustive list of features :
+  - all commons POSIX file operations : open/read/write/close, opendir, readdir, mkdir
   - SSL client side credentials
-  - Login/password authentification
-  - Third party transfer
+  - Third party copy file
+  - session reuse
  */
 
 

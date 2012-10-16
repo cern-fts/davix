@@ -5,6 +5,16 @@
 #include <davixrequestparams.hpp>
 #include "request.hpp"
 
+
+
+/**
+  @file httprequest.hpp
+  @author Devresse Adrien
+
+  @brief Http low level request interface
+ */
+
+
 namespace Davix {
 
 class HttpRequest : public Davix::Request

@@ -5,6 +5,15 @@
 #include <string>
 #include <davixstatusrequest.hpp>
 
+
+/**
+  @file davixuri.hpp
+  @author Devresse Adrien
+
+  @brief C++ URI utilities functions for davix
+ */
+
+
 namespace Davix {
 
 struct UriPrivate;

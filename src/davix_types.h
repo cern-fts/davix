@@ -19,6 +19,7 @@
 
 typedef void* davix_sess_t;
 typedef void DAVIX_DIR;
+typedef struct davix_file_desc_s* davix_file_desc_t;
 typedef struct davix_auth_st* davix_auth_t;
 typedef struct davix_request_params* davix_params_t;
 

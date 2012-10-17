@@ -44,6 +44,8 @@ DAVIX_C_DECL_BEGIN
 davix_sess_t davix_context_new(GError ** err);
 
 
+davix_sess_t davix_context_copy(davix_sess_t sess);
+
 
 /**
   release a davix session handle

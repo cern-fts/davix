@@ -8,6 +8,7 @@ namespace Davix {
 
 class Context;
 class NGQRequest;
+struct DavixErrorInternal;
 
 namespace StatusCode{
 
@@ -32,36 +33,38 @@ enum Code{
 
 }
 
-
-class StatusOperation{
+/**
+  @brief Davix Error Handler
+*/
+class DavixError{
 public:
+    DavixError(const std::string & scope, StatusCode::Code errCode, const std::string & errMsg);
+    virtual ~DavixError();
 
-    inline StatusCode::Code getStatus() const{
-        return code;
+
+
+    StatusCode::Code getStatus() const;
+
+    void setStatus(const StatusCode::Code);
+
+    const std::string & getErrMsg() const;
+
+    void setErrMsg(const std::string & msg);
+
+    static void setupError(DavixError** err, const std::string & scope, StatusCode::Code errCode, const std::string & errMsg);
+
+    static void clearError(DavixError** err){
+        if(err && *err){
+            delete *err;
+            *err = NULL;
+        }
     }
 
-    inline const std::string & getErrMsg() const{
-        return err_msg;
-    }
-
-protected:
-    StatusCode::Code code;
-    std::string err_msg;
+private:
+   DavixErrorInternal * d_ptr;
 };
 
-class StatusRequest : public StatusOperation
-{
-public:
-    StatusRequest(Context* context, NGQRequest* request);
-    virtual ~StatusRequest(){}
 
-
-
-protected:
-    Context* context;
-    NGQRequest* parent_request;
-
-};
 
 } // namespace Davix
 

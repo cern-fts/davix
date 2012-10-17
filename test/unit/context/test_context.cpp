@@ -1,5 +1,5 @@
 
-
+#include <davix_cpp.hpp>
 #include <davixcontext.hpp>
 #include <davixrequestparams.hpp>
 #include <gtest/gtest.h>
@@ -22,7 +22,7 @@ TEST(ContextTest, CreateDelete){
 
 
 
-TEST(RequestParametersTest, CreateDelte){
+TEST(RequestParametersTest, CreateDelete){
     Davix::RequestParams params;
 
     ASSERT_EQ(params.getSSLCACheck(), true);
@@ -55,5 +55,20 @@ TEST(RequestParametersTest, CreateDelte){
 
 }
 
+
+TEST(DavixErrorTest, CreateDelete){
+    Davix::DavixError err("test_dav_scope", Davix::StatusCode::isNotADirectory, " problem");
+    ASSERT_EQ(err.getErrMsg(), " problem");
+    ASSERT_EQ(err.getStatus(), Davix::StatusCode::isNotADirectory);
+    ASSERT_EQ(err.getStatus(), DAVIX_STATUS_IS_NOT_A_DIRECTORY);
+
+    Davix::DavixError * err2=NULL;
+    Davix::DavixError::setupError(&err2,"test_dav_scope2", Davix::StatusCode::ConnexionProblem, "connexion problem");
+    ASSERT_EQ(err2->getErrMsg(), "connexion problem");
+    ASSERT_EQ(err2->getStatus(), Davix::StatusCode::ConnexionProblem);
+
+    Davix::DavixError::clearError(&err2);
+    Davix::DavixError::clearError(&err2);
+}
 
 

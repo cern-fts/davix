@@ -71,8 +71,7 @@ public:
 
 
     /**
-      return the current request code error
-       ex : HTTP 200
+      @brief current HTTP answer code
      */
     virtual int getRequestCode();
 

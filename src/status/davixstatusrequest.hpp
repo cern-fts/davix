@@ -4,6 +4,14 @@
 #include <string>
 #include <davix_types.h>
 
+/**
+  @file davixstatusrequest.hpp
+  @author Devresse Adrien
+
+  @brief C++ Error report system of davix
+*/
+
+
 namespace Davix {
 
 class Context;

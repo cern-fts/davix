@@ -22,8 +22,10 @@
 struct Davix_fd;
 struct Davix_dir_handle;
 struct Davix_context;
+struct Davix_error;
 
 typedef struct Davix_context* davix_sess_t;
+typedef struct Davix_error* davix_error_t;
 typedef struct Davix_dir_handle DAVIX_DIR;
 typedef struct Davix_fd DAVIX_FD;
 typedef struct davix_file_desc_s* davix_file_desc_t;

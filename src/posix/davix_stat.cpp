@@ -76,7 +76,7 @@ int davix_posix_stat(davix_sess_t sess, davix_params_t _params, const char* url,
     g_return_val_if_fail(sess != NULL,-1);
 
     try{
-        Davix::DavPosix p(static_cast<Davix::Context*>(sess));
+        Davix::DavPosix p((Davix::Context*)(sess));
         Davix::RequestParams * params = (Davix::RequestParams*) (_params);
 
         p.stat(params,url, st);

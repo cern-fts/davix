@@ -17,18 +17,6 @@ void core_init(){
 
 
 
-davix_sess_t davix_context_new(GError ** err){
-    try{
-        Davix::Context* comp = new Davix::Context();
-        return (davix_sess_t) comp;
-    }catch(Glib::Error & e){
-        if(err)
-            g_error_copy(e.gobj());
-    }catch(...){
-        g_set_error(err, g_quark_from_string("davix_context_new"), ENOSYS, "unexpected error");
-    }
-    return NULL;
-}
 
 
 
@@ -88,10 +76,7 @@ int davix_set_default_session_params(davix_sess_t sess, davix_params_t params, G
 
 
 
-void davix_context_free(davix_sess_t sess){
-    if(sess != NULL)
-        delete (static_cast<Davix::Context*>(sess));
-}
+
 
 davix_params_t davix_params_new(){
     return (struct davix_request_params*) new Davix::RequestParams();

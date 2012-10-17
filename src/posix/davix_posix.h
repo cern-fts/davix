@@ -111,9 +111,7 @@ int davix_posix_closedir(davix_sess_t sess, DAVIX_DIR* dirp, GError** err);
 
 
 /**
-  @brief execute a POSIX open query on a given WebDav URI
-
-  POSIX-like operation
+  @brief open  a file in a POSIX-like approach with HTTP(S)
 
   open a file for reading or/and writing
 
@@ -126,10 +124,44 @@ int davix_posix_closedir(davix_sess_t sess, DAVIX_DIR* dirp, GError** err);
 DAVIX_FD* davix_posix_open(davix_sess_t sess, davix_params_t params, const char* url, int flags, GError** err);
 
 
-ssize_t davix_posix_read(davix_sess_t sess, DAVIX_FD* fd, char* buffer, size_t read_size, GError* err);
+/**
+  @brief read a file in a POSIX-like approach with HTTP(S)
+  behavior similar to the POSIX read function
+
+  @param sess : davix session handle
+  @param fd : davix file descriptor
+  @param buf : buffer to fill
+  @param count : maximum number of bytes to read
+  @param err: GError error handling system
+  @return the size of data or a negative value if an error occured
+ */
+ssize_t davix_posix_read(davix_sess_t sess, DAVIX_FD* fd, void* buffer, size_t read_size, GError* err);
 
 
-ssize_t davix_posix_write(davix_sess_t sess, DAVIX_FD* fd, const char* buffer, size_t write_size, GError* err);
+/**
+  @brief write a file in a POSIX-like approach with HTTP(S)
+  behavior similar to the POSIX write function
+
+  @param sess : davix session handle
+  @param fd : davix file descriptor
+  @param buf : buffer with the write content
+  @param count : number of bytes to write
+  @return the size of the written data or a negative value if an error occured
+ */
+ssize_t davix_posix_write(davix_sess_t sess, DAVIX_FD* fd, const void* buffer, size_t write_size, GError* err);
+
+
+/**
+  @brief move the cursor a davix file with HTTP(S)
+  behavior similar to the POSIX lseek function
+
+  @param sess : davix session handle
+  @param fd : davix file descriptor
+  @param offset : offset in byte inside the file
+  @param flags : lseek flags, similar to the lseek function
+  @return the offset position or a negative value if an error occures
+ */
+off_t davix_posix_lseek(davix_sess_t sess, DAVIX_FD* fd, off_t offset, int flags, GError* err);
 
 
 int davix_posix_close(davix_sess_t sess, DAVIX_FD* fd, GError** err);

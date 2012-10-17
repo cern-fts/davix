@@ -14,27 +14,32 @@ static const std::string simple_listing("<propfind xmlns=\"DAV:\"><prop></prop><
 
 static const std::string stat_listing("<propfind xmlns=\"DAV:\"><prop><getlastmodified/><creationdate/><getcontentlength/><resourcetype><collection/></resourcetype><mode/></prop></propfind>");
 
-namespace Davix {
 
-struct DIR_handle{
-    DIR_handle(HttpRequest* _req, WebdavPropParser * _parser){
+struct Davix_dir_handle{
+
+    Davix_dir_handle(Davix::HttpRequest* _req, Davix::WebdavPropParser * _parser){
         request = _req;
         parser = _parser;
         size_t s_dirent = sizeof(struct dirent) + NAME_MAX +1;
         dir_info = (struct dirent*) calloc(1, s_dirent);
     }
 
-   ~DIR_handle(){
+   ~Davix_dir_handle(){
     delete request;
     delete parser;
     free(dir_info);
     }
 
-   HttpRequest* request;
-   WebdavPropParser * parser;
+   Davix::HttpRequest* request;
+   Davix::WebdavPropParser * parser;
    struct dirent* dir_info;
 
 };
+
+
+namespace Davix{
+
+typedef Davix_dir_handle DIR_handle;
 
 static void fill_dirent_from_filestat(struct dirent * d, const FileProperties & f, const off_t offset){
     d->d_off = offset;
@@ -228,7 +233,6 @@ void DavPosix::closedir(DAVIX_DIR * d){
 
 
 
-
 DAVIX_C_DECL_BEGIN
 
 DAVIX_DIR* davix_posix_opendir(davix_sess_t sess, davix_params_t _params, const char* url, GError** err){
@@ -287,6 +291,7 @@ struct dirent* davix_posix_readdir(davix_sess_t sess, DAVIX_DIR* d, GError** err
     }
     return NULL;
 }
+
 
 DAVIX_C_DECL_END
 

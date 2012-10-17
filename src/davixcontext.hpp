@@ -2,6 +2,7 @@
 #define DAVIXCONTEXT_H
 
 #include <string>
+#include <davix_types.h>
 
 namespace Davix{
 

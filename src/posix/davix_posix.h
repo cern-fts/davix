@@ -123,13 +123,16 @@ int davix_posix_closedir(davix_sess_t sess, DAVIX_DIR* dirp, GError** err);
   @param err : GError error handling system
   @return directory stream pointer or NULL if error
 */
-int davix_posix_open(davix_sess_t sess, davix_params_t params, const char* url, int flags, GError** err);
+DAVIX_FD* davix_posix_open(davix_sess_t sess, davix_params_t params, const char* url, int flags, GError** err);
 
 
-ssize_t davix_posix_read(davix_sess_t sess, char* buffer, size_t read_size, GError* err);
+ssize_t davix_posix_read(davix_sess_t sess, DAVIX_FD* fd, char* buffer, size_t read_size, GError* err);
 
 
-ssize_t davix_posix_write(davix_sess_t sess, const char* buffer, size_t write_size, GError* err);
+ssize_t davix_posix_write(davix_sess_t sess, DAVIX_FD* fd, const char* buffer, size_t write_size, GError* err);
+
+
+int davix_posix_close(davix_sess_t sess, DAVIX_FD* fd, GError** err);
 
 DAVIX_C_DECL_END
 

@@ -41,7 +41,7 @@ DAVIX_C_DECL_BEGIN
   @param err : Gerror error report system, in case of failure
   @return davix_sess_t : session handle or NULL pointer if error
   */
-davix_sess_t davix_context_new(GError ** err);
+davix_sess_t davix_context_new(davix_error_t* err);
 
 
 davix_sess_t davix_context_copy(davix_sess_t sess);
@@ -96,9 +96,9 @@ int davix_set_default_session_params(davix_sess_t sess, davix_params_t params, G
 //
 // Authenficiation callback specific parameters
 //
-int davix_set_pkcs12_auth(davix_auth_t token, const char* filename_pkcs, const char* passwd, GError** err);
+int davix_set_pkcs12_auth(davix_auth_t token, const char* filename_pkcs, const char* passwd, davix_error_t* err);
 
-int davix_set_login_passwd_auth(davix_auth_t token, const char* login, const char* passwd, GError** err);
+int davix_set_login_passwd_auth(davix_auth_t token, const char* login, const char* passwd, davix_error_t* err);
 
 
 

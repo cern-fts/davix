@@ -48,6 +48,13 @@ typedef struct davix_request_params* davix_params_t;
 #define DAVIX_STATUS_OPERATION_NOT_SUPPORTED                0x0A
 #define DAVIX_STATUS_IS_NOT_A_DIRECTORY                     0x0B
 #define DAVIX_STATUS_UNKNOW_ERROR                           0x0C
+#define DAVIX_STATUS_INVALID_FILE_HANDLE                    0x0D
+#define DAVIX_STATUS_ALREADY_RUNNING                        0x0E
+#define DAVIX_STATUS_AUTHENTIFICATION_ERROR                 0x0F
+#define DAVIX_STATUS_LOGIN_PASSWORD_ERROR                   0x10
+#define DAVIX_STATUS_CREDENTIAL_NOT_FOUND                   0x11
+#define DAVIX_STATUS_PERMISSION_REFUSED                     0x12
+#define DAVIX_STATUS_FILE_NOT_FOUND                         0x13
 
 
 
@@ -70,7 +77,7 @@ typedef struct{
   It allows to call the authentification function with the given token
   @return this callback should return 0 on success, -1 and err is set if major problem occures
 */
-typedef int (*davix_auth_callback)(davix_auth_t token, const davix_auth_info_t* t, void* userdata, GError** err);
+typedef int (*davix_auth_callback)(davix_auth_t token, const davix_auth_info_t* t, void* userdata, davix_error_t* err);
 
 
 

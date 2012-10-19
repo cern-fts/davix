@@ -17,6 +17,7 @@ namespace Davix {
 
 class NEONSessionFactory;
 
+
 class NEONRequest : public HttpRequest
 {
 public:
@@ -43,22 +44,22 @@ public:
       @return 0 on success
       @throw Glib::Error : error string and protocol error code
      */
-    virtual int execute_sync() ; // throw(Glib::Error)
+    virtual int execute_sync(DavixError** err) ; // throw(Glib::Error)
 
     virtual void add_full_request_content(const std::string & body);
 
-    virtual void execute_block();
+    virtual int execute_block(DavixError** err);
     /**
       read a block of a maximum size bytes in the request
       @param buffer : buffer to fill
       @param max_size : maximum number of bytes to set
       @throw Glib::Error
     */
-    virtual ssize_t read_block(char* buffer, size_t max_size);
+    virtual ssize_t read_block(char* buffer, size_t max_size,DavixError** err);
     /**
       finish an already started request
      */
-    virtual void finish_block();
+    virtual int finish_block(DavixError** err);
     /**
       get a reference to the current result for synchronous full request
      */
@@ -78,8 +79,8 @@ public:
     /**
       reimplement authentification
     */
-    virtual void try_set_pkcs12_cert(const char * filename_pkcs12, const char* passwd);
-    virtual void try_set_login_passwd(const char *login, const char *passwd);
+    virtual int try_set_pkcs12_cert(const char * filename_pkcs12, const char* passwd, DavixError** err);
+    virtual int try_set_login_passwd(const char *login, const char *passwd, DavixError** err);
 
 protected:
     ne_session *    _sess;
@@ -90,6 +91,7 @@ protected:
     std::string _request_type;
     NEONSessionFactory* _f;
     bool req_started, req_running;
+    DavixError* last_error;
 
     std::vector< std::pair<std::string, std::string > > _headers_field;
 
@@ -100,15 +102,15 @@ protected:
     void configure_sess();
     void configure_req();
 
-    void create_req();
+    int create_req(DavixError** err);
 
-    void negotiate_request();
+    int negotiate_request(DavixError** err);
 
     void free_request();
     /**
       internal, try to authentification with pkcs12 credential
     */
-    int try_pkcs12_authentification(ne_session *sess, const ne_ssl_dname *const *dnames);
+    int try_pkcs12_authentification(ne_session *sess, const ne_ssl_dname *const *dnames, DavixError** err);
 
 
     /**
@@ -120,12 +122,16 @@ protected:
     static int provide_login_passwd_fn(void *userdata, const char *realm, int attempt,
                                 char *username, char *password);
 
+    friend int davix_set_login_passwd_auth(davix_auth_t token, const char* login, const char* passwd, GError** err);
+
 };
 
 /**
   translate a neon function status to a string and a errno code
  */
 std::string  translate_neon_status(int ne_status, ne_session* sess, int* errno_code);
+
+void neon_to_davix_code(int ne_status,ne_session* sess, const std::string & scope, DavixError** err);
 
 
 } // namespace Davix

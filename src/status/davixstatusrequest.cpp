@@ -53,8 +53,21 @@ void DavixError::setupError(DavixError **err, const std::string &scope, StatusCo
     }
 }
 
+std::string davix_scope_stat_str(){
+    return "[davix_stat]";
+}
 
+std::string davix_scope_mkdir_str(){
+    return "[davix_mkdir]";
+}
 
+std::string davix_scope_directory_listing_str(){
+    return "[davix_directory_listing]";
+}
+
+std::string davix_scope_http_request(){
+    return "[davix_http_request]";
+}
 
 DAVIX_C_DECL_BEGIN
 

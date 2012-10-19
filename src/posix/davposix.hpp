@@ -36,7 +36,7 @@ public:
       @param str: string url
       @param stat : stat struct to fill
      **/
-    void stat(const RequestParams* params, const std::string & str, struct stat *);
+    int stat(const RequestParams* params, const std::string & str, struct stat *, DavixError** err);
 
     /**
       @brief execute an opendir function with Webdav
@@ -45,21 +45,20 @@ public:
       @param params : request options, can be NULL
       @param url : url of the directory to list
       @return DAVIX_DIR : davix readdir handle
-      @throw : Glib::Error, with a errno code value
       @return
     */
-    DAVIX_DIR* opendir(const RequestParams* params, const std::string & url);
+    DAVIX_DIR* opendir(const RequestParams* params, const std::string & url, DavixError** err);
 
     /**
       @brief execute a readdir function with Webdav
       behavior similar to the POSIX readdir function
       @param FileObject
     */
-    struct dirent* readdir(DAVIX_DIR* );
+    struct dirent* readdir(DAVIX_DIR*, DavixError** err);
     /**
       @brief close an existing file handle
     */
-    void closedir(DAVIX_DIR* );
+    int closedir(DAVIX_DIR*, DavixError** err);
 
     /**
       @brief execute an opendirpp function with Webdav
@@ -67,10 +66,9 @@ public:
 
       @param params : request options, can be NULL
       @return DAVIX_DIR : davix readdir handle
-      @throw : Glib::Error, with a errno code value
       @return
     */
-    DAVIX_DIR* opendirpp(const RequestParams* params, const std::string & url);
+    DAVIX_DIR* opendirpp(const RequestParams* params, const std::string & url, DavixError** err);
 
 
 
@@ -82,12 +80,12 @@ public:
       @param DAVIX_DIR
       @param stat struct to fill
     */
-    struct dirent* readdirpp(DAVIX_DIR*, struct stat * st );
+    struct dirent* readdirpp(DAVIX_DIR*, struct stat * st, DavixError** err );
 
     /**
       @brief close an existing file handle
     */
-    void closedirpp(DAVIX_DIR* );
+    int closedirpp(DAVIX_DIR*, DavixError** err );
 
     /**
       @brief execute a mkdir function with Webdav
@@ -99,7 +97,7 @@ public:
       @param right : default mode of the directory ( ignored for now )
 
     */
-    void mkdir(const RequestParams * _params, const std::string & url, mode_t right);
+    int mkdir(const RequestParams * _params, const std::string & url, mode_t right, DavixError** err);
 
 
     /**
@@ -112,7 +110,7 @@ public:
       @param flags : open flags, similar to the POSIX function open
       @return Davix file descriptor in case of success, or NULL if an error occures.
      */
-    DAVIX_FD* open(const RequestParams * _params, const std::string & url, int flags);
+    DAVIX_FD* open(const RequestParams * _params, const std::string & url, int flags, DavixError** err);
 
 
     /**
@@ -123,7 +121,7 @@ public:
       @param count : maximum number of bytes to read
       @return the size of data or a negative value if an error occured
      */
-    ssize_t read(DAVIX_FD* fd, void* buf, size_t count);
+    ssize_t read(DAVIX_FD* fd, void* buf, size_t count, DavixError** err);
 
     /**
       @brief write a file in a POSIX-like approach with HTTP(S)
@@ -133,7 +131,7 @@ public:
       @param count : number of bytes to write
       @return the size of the written data or a negative value if an error occured
      */
-    ssize_t write(DAVIX_FD* fd, const void* buf, size_t count);
+    ssize_t write(DAVIX_FD* fd, const void* buf, size_t count, DavixError** err);
 
 
     /**
@@ -144,7 +142,7 @@ public:
       @param flags : lseek flags, similar to the lseek function
       @return the offset position or a negative value if an error occures
      */
-    off_t lseek(DAVIX_FD* fd, off_t offset, int flags);
+    off_t lseek(DAVIX_FD* fd, off_t offset, int flags, DavixError** err);
 
     /**
       @brief close a existing file descriptor
@@ -155,10 +153,10 @@ public:
       @param count : number of bytes to write
       @return 0 if success, negative value if error
      */
-    int close(DAVIX_FD* fd);
+    int close(DAVIX_FD* fd, DavixError** err);
 
 protected:
-    DAVIX_DIR* internal_opendirpp(const RequestParams* params,  const char * scope, const std::string & body, const std::string & url  );
+    DAVIX_DIR* internal_opendirpp(const RequestParams* params,  const char * scope, const std::string & body, const std::string & url, DavixError** err);
 
     Context* context;
     long _timeout;

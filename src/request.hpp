@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <global_def.hpp>
+#include <status/davixstatusrequest.hpp>
 
 
 namespace Davix {
@@ -20,14 +21,14 @@ public:
       @return 0 on success
       @throw Glib::Error : error string and protocol error code
      */
-    virtual int execute_sync()=0; // throw(Glib::Error)
+    virtual int execute_sync(DavixError** err)=0; // throw(Glib::Error)
 
     /**
         Define a buffer for the full request body content
      */
     virtual void add_full_request_content(const std::string & body)=0;
 
-    virtual void execute_block()=0;
+    virtual int execute_block(DavixError** err)=0;
     /**
       read a block of a maximum size bytes in the request
       @param buffer : buffer to fill
@@ -35,11 +36,11 @@ public:
       @return number of bytes readed
       @throw Glib::Error
     */
-    virtual ssize_t read_block(char* buffer, size_t max_size)=0;
+    virtual ssize_t read_block(char* buffer, size_t max_size, DavixError** err)=0;
     /**
       finish an already started request
      */
-    virtual void finish_block()=0;
+    virtual int finish_block(DavixError** err)=0;
     /**
       get a reference to the current result
      */
@@ -63,13 +64,13 @@ public:
 
       throw Glib::Error if error occures while authenficiation submission, see global_def.h for codes
     */
-    virtual void try_set_pkcs12_cert(const char * filename_pkcs12, const char* passwd);
+    virtual int try_set_pkcs12_cert(const char * filename_pkcs12, const char* passwd, DavixError** err);
     /*
       need to be  overwritten for login / password authentification mode
 
       throw Glib::Error if error occres while authentification
      */
-    virtual void try_set_login_passwd(const char* login, const char* passwd);
+    virtual int try_set_login_passwd(const char* login, const char* passwd, DavixError** err);
 protected:
 
 

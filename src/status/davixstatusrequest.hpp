@@ -3,6 +3,7 @@
 
 #include <string>
 #include <davix_types.h>
+#include <status/davix_error.h>
 
 /**
   @file davixstatusrequest.hpp
@@ -36,7 +37,14 @@ enum Code{
     OperationTimeout= DAVIX_STATUS_OPERATION_TIMEOUT,
     OperationNonSupported= DAVIX_STATUS_OPERATION_NOT_SUPPORTED,
     UnknowError= DAVIX_STATUS_UNKNOW_ERROR,
-    isNotADirectory = DAVIX_STATUS_IS_NOT_A_DIRECTORY
+    isNotADirectory = DAVIX_STATUS_IS_NOT_A_DIRECTORY,
+    invalidFileHandle = DAVIX_STATUS_INVALID_FILE_HANDLE,
+    alreadyRunning = DAVIX_STATUS_ALREADY_RUNNING,
+    authentificationError = DAVIX_STATUS_AUTHENTIFICATION_ERROR,
+    loginPasswordError = DAVIX_STATUS_LOGIN_PASSWORD_ERROR,
+    credentialNotFound = DAVIX_STATUS_CREDENTIAL_NOT_FOUND,
+    permissionRefused = DAVIX_STATUS_PERMISSION_REFUSED,
+    fileNotFound = DAVIX_STATUS_FILE_NOT_FOUND
 };
 
 }
@@ -68,10 +76,28 @@ public:
         }
     }
 
+    static void propagateError(DavixError** newErr, DavixError* oldErr){
+        if(newErr){
+            if(*newErr != NULL){
+                // TODO
+            }else{
+                *newErr = oldErr;
+            }
+        }
+    }
+
 private:
    DavixErrorInternal * d_ptr;
 };
 
+
+///
+/// scope of the davix stat part
+//
+std::string davix_scope_stat_str();
+std::string davix_scope_mkdir_str();
+std::string davix_scope_directory_listing_str();
+std::string davix_scope_http_request();
 
 
 } // namespace Davix

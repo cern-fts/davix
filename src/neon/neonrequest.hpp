@@ -40,11 +40,9 @@ public:
 
     /**
       Execute the given request and return result to the buffer result
-      Execute the constructed query, throw an exception if an error occures
       @return 0 on success
-      @throw Glib::Error : error string and protocol error code
      */
-    virtual int execute_sync(DavixError** err) ; // throw(Glib::Error)
+    virtual int execute_sync(DavixError** err) ;
 
     virtual void add_full_request_content(const std::string & body);
 
@@ -53,7 +51,6 @@ public:
       read a block of a maximum size bytes in the request
       @param buffer : buffer to fill
       @param max_size : maximum number of bytes to set
-      @throw Glib::Error
     */
     virtual ssize_t read_block(char* buffer, size_t max_size,DavixError** err);
     /**

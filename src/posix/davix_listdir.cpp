@@ -55,7 +55,7 @@ int incremental_propfind_listdir_parsing(HttpRequest* req, WebdavPropParser * pa
 
     char buffer[s_buff+1];
     const ssize_t ret_s_buff= req->read_block(buffer, s_buff, &tmp_err);
-    if(ret_s_buff == 0){
+    if(ret_s_buff > 0){
         buffer[ret_s_buff]= '\0';
         davix_log_debug("chunk parse : result content : %s", buffer);
         (void) parser->parser_properties_from_chunk( Glib::ustring(buffer));
@@ -89,30 +89,29 @@ DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char
     std::auto_ptr<DIR_handle> res(  new DIR_handle(http_req, new WebdavPropParser()));
     time_t timestamp_timeout = time(NULL) + _timeout;
 
-    HttpRequest *req = res->request;
-    req->set_parameters(params);
+    http_req->set_parameters(params);
     WebdavPropParser* parser = res->parser;
     // setup the handle for simple listing only
-    req->add_full_request_content(body);
+    http_req->add_full_request_content(body);
 
 
-    if( (ret = req->execute_block(&tmp_err)) == 0){ // start req
+    if( (ret = http_req->execute_block(&tmp_err)) == 0){ // start req
 
 
-            if( httpcodeIsValid(req->getRequestCode())){
+            if( httpcodeIsValid(http_req->getRequestCode())){
 
                 size_t prop_size = 0;
                 do{ // parse the begining of the request until the first property -> directory property
-                   if( (s_resu = incremental_propfind_listdir_parsing(req, parser, this->_s_buff, scope, &tmp_err)) <0)
+                   if( (s_resu = incremental_propfind_listdir_parsing(http_req, parser, this->_s_buff, scope, &tmp_err)) <0)
                        break;
 
                    prop_size = parser->get_current_properties().size();
                    if(s_resu < _s_buff && prop_size <1){ // verify request status : if req done + no data -> error
-                       DavixError::setupError(&tmp_err, davix_scope_directory_listing_str(), StatusCode::WebDavPropertiesParsingError, " request answer incorrect, not a valid webdav request");
+                       DavixError::setupError(&tmp_err, davix_scope_directory_listing_str(), StatusCode::WebDavPropertiesParsingError, "request answer incorrect, not a valid webdav request");
                        break;
                    }
                    if(timestamp_timeout < time(NULL)){
-                       DavixError::setupError(&tmp_err, davix_scope_directory_listing_str(), StatusCode::OperationTimeout, " operation timeout triggered while directory listing");
+                       DavixError::setupError(&tmp_err, davix_scope_directory_listing_str(), StatusCode::OperationTimeout, "operation timeout triggered while directory listing");
                        break;
                    }
 
@@ -122,7 +121,7 @@ DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char
                     r = res.release(); // success : take ownership of the pointer
 
         }else{
-            httpcodeToDavixCode(req->getRequestCode(),davix_scope_directory_listing_str()," ", &tmp_err);
+            httpcodeToDavixCode(http_req->getRequestCode(),davix_scope_directory_listing_str()," ", &tmp_err);
         }
     }
 

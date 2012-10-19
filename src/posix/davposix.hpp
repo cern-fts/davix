@@ -8,6 +8,7 @@
 
 #include <davixcontext.hpp>
 #include <davixrequestparams.hpp>
+#include <status/davixstatusrequest.hpp>
 
 
 /**

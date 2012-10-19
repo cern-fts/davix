@@ -12,8 +12,8 @@ using namespace Davix;
 
 #define MY_BUFFER_SIZE 65000
 
-int mycred_auth_callback(davix_auth_t token, const davix_auth_info_t* t, void* userdata, GError** err){
-    GError * tmp_err=NULL;
+int mycred_auth_callback(davix_auth_t token, const davix_auth_info_t* t, void* userdata, davix_error_t* err){
+    davix_error_t tmp_err=NULL;
     char login[2048];
     char passwd[2048];
     char *p,*auth_string =(char*) userdata;
@@ -34,8 +34,8 @@ int mycred_auth_callback(davix_auth_t token, const davix_auth_info_t* t, void* u
     }
 
     if(ret != 0){
-        fprintf(stderr, " FATAL authentification Error : %s", tmp_err->message);
-        g_propagate_error(err, tmp_err);
+        fprintf(stderr, " FATAL authentification Error : %s", davix_error_msg(tmp_err));
+        davix_error_propagate(err, tmp_err);
     }
     return ret;
 }
@@ -57,31 +57,31 @@ int main(int argc, char** argv){
 
     g_logger_set_globalfilter(G_LOG_LEVEL_WARNING);
 
-    try{
-        RequestParams  p;
-        std::auto_ptr<Context> c( new Context());
-        DavPosix pos(c.get());
-        if(argc > 2){
-            configure_grid_env(argv[2], p);
-        }
+
+    DavixError* tmp_err=NULL;
+    RequestParams  p;
+    std::auto_ptr<Context> c( new Context());
+    DavPosix pos(c.get());
+    if(argc > 2){
+        configure_grid_env(argv[2], p);
+    }
 
 
 
-        DAVIX_DIR* d = pos.opendir(&p, argv[1]);
+    DAVIX_DIR* d = pos.opendir(&p, argv[1], &tmp_err);
 
+    if(d != NULL){
         struct dirent * dir = NULL;
         do{
-            dir= pos.readdir(d);
+            dir= pos.readdir(d, &tmp_err);
             if(dir)
                 std::cout << "N° " << dir->d_off <<" file : " << dir->d_name << std::endl;
         }while(dir!= NULL);
 
-        pos.closedir(d);
-    }catch(Glib::Error & e){
-        std::cout << " error occures : N°" << e.code() << "  " << e.what() << std::endl;
-        return -1;
-    }catch(std::exception & e){
-        std::cout << " error occures :" << e.what() << std::endl;
+        pos.closedir(d, NULL);
+    }
+    if(tmp_err){
+        std::cout << " listing directory error "<< tmp_err->getErrMsg() << std::endl;
         return -1;
     }
     return 0;

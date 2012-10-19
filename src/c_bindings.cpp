@@ -22,37 +22,19 @@ void core_init(){
 
 
 
-int davix_params_set_auth_callback(davix_params_t params, davix_auth_callback call, void* userdata, GError** err){
+int davix_params_set_auth_callback(davix_params_t params, davix_auth_callback call, void* userdata, davix_error_t* err){
     g_return_val_if_fail(params != NULL, -1);
-    int ret = -1;
-    try{
-        Davix::RequestParams* p = (Davix::RequestParams*)(params);
-        p->setAuthentificationCallback(userdata, call);
-        ret = 0;
-    }catch(Glib::Error & e){
-        if(err)
-            g_error_copy(e.gobj());
-    }catch(...){
-        g_set_error(err, g_quark_from_string("davix_params_set_auth_callback"), EINVAL, "unexpected error");
-    }
-    return ret;
+    Davix::RequestParams* p = (Davix::RequestParams*)(params);
+    p->setAuthentificationCallback(userdata, call);
+    return 0;
 }
 
 
-int davix_params_set_ssl_check(davix_params_t params, gboolean ssl_check, GError** err){
+int davix_params_set_ssl_check(davix_params_t params, gboolean ssl_check, davix_error_t* err){
     g_return_val_if_fail(params != NULL, -1);
-    int ret = -1;
-    try{
-        Davix::RequestParams* p = (Davix::RequestParams*)(params);
-        p->setSSLCAcheck(ssl_check);
-        ret = 0;
-    }catch(Glib::Error & e){
-        if(err)
-            g_error_copy(e.gobj());
-    }catch(...){
-        g_set_error(err, g_quark_from_string("davix_set_auth_callback"), EINVAL, "unexpected error");
-    }
-    return ret;
+    Davix::RequestParams* p = (Davix::RequestParams*)(params);
+    p->setSSLCAcheck(ssl_check);
+    return 0;
 }
 
 /*

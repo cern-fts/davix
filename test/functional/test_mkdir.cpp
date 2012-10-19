@@ -14,8 +14,8 @@
 using namespace Davix;
 
 
-int mycred_auth_callback(davix_auth_t token, const davix_auth_info_t* t, void* userdata, GError** err){
-    GError * tmp_err=NULL;
+int mycred_auth_callback(davix_auth_t token, const davix_auth_info_t* t, void* userdata, davix_error_t* err){
+    davix_error_t tmp_err=NULL;
     char login[2048];
     char passwd[2048];
     char *p,*auth_string =(char*) userdata;
@@ -36,8 +36,8 @@ int mycred_auth_callback(davix_auth_t token, const davix_auth_info_t* t, void* u
     }
 
     if(ret != 0){
-        fprintf(stderr, " FATAL authentification Error : %s", tmp_err->message);
-        g_propagate_error(err, tmp_err);
+        fprintf(stderr, " FATAL authentification Error : %s", davix_error_msg(tmp_err));
+        davix_error_propagate(err, tmp_err);
     }
     return ret;
 }
@@ -59,30 +59,28 @@ int main(int argc, char** argv){
     srand(time(NULL));
     g_logger_set_globalfilter(G_LOG_LEVEL_MASK);
 
-    try{
-        RequestParams  p;
-        std::auto_ptr<Context> c( new Context());
-        DavPosix pos(c.get());
 
-        if(argc > 2){
-            configure_grid_env(argv[2], p);
-        }
+    RequestParams  p;
+    DavixError* tmp_err;
+    std::auto_ptr<Context> c( new Context());
+    DavPosix pos(c.get());
 
-        std::ostringstream oss;
-        oss << argv[1] << "/"<< (rand()%20000);
-        std::string a = oss.str();
-
-        pos.mkdir(&p, a.c_str(), 0777);
-
-        std::cout << "mkdir  success !" << std::endl;
-
-    }catch(Glib::Error & e){
-        std::cout << " error occures : N°" << e.code() << "  " << e.what() << std::endl;
-        return -1;
-    }catch(std::exception & e){
-        std::cout << " error occures :" << e.what() << std::endl;
-        return -1;
+    if(argc > 2){
+        configure_grid_env(argv[2], p);
     }
+
+    std::ostringstream oss;
+    oss << argv[1] << "/"<< (rand()%20000);
+    std::string a = oss.str();
+
+    int ret = pos.mkdir(&p, a.c_str(), 0777, &tmp_err);
+
+
+    if(ret ==0)
+        std::cout << "mkdir  success !" << std::endl;
+    else
+        std::cout << "mkdir error "<< tmp_err->getErrMsg() << std::endl;
+
     return 0;
 }
 

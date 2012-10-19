@@ -29,7 +29,7 @@ TEST(RequestParametersTest, CreateDelete){
     ASSERT_EQ(params.getOperationTimeout()->tv_sec, DAVIX_DEFAULT_OPS_TIMEOUT);
     ASSERT_EQ(params.getConnexionTimeout()->tv_sec, DAVIX_DEFAULT_CONN_TIMEOUT);
     ASSERT_EQ(params.getAuthentificationCallbackData(), (void*) NULL);
-    ASSERT_EQ(params.getAuthentificationCallbackFunction(), (int (*)(davix_auth_st*, const davix_auth_info_t*, void*, _GError**)) NULL);
+    ASSERT_EQ(params.getAuthentificationCallbackFunction(), (int (*)(davix_auth_st*, const davix_auth_info_t*, void*, Davix_error**)) NULL);
 
     params.setSSLCAcheck(false);
     struct timespec timeout_co, timeout_ops;

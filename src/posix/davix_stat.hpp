@@ -22,7 +22,7 @@ namespace Davix{
     @param req : http request where to executethe query
     @return vector of characters of the query content
   */
-const std::vector<char> & req_webdav_propfind(HttpRequest* req, DavixError** err); // throw Glib::Error
+const std::vector<char> & req_webdav_propfind(HttpRequest* req, DavixError** err);
 
 void fill_stat_from_fileproperties(struct stat* st, const  FileProperties & prop);
 

@@ -14,7 +14,7 @@ static const char* list_urls[] = {
     "http://localhost:rrrrrrr/path" /* error*/
 };
 
-static const int list_port[]={
+static const size_t list_port[]={
     80,
     8080
 };
@@ -46,7 +46,7 @@ TEST(testNeon, testParsing){
     g_logger_set_globalfilter(G_LOG_LEVEL_MASK);
     std::string url, host, path, proto;
     unsigned long port;
-    for(int i=0; i < len_list; ++i){
+    for(size_t i=0; i < len_list; ++i){
         if(failure[i] == false){
             parse_http_neon_url(std::string(list_urls[i]), proto, host, path, &port);
             ASSERT_EQ(0, proto.compare(std::string(list_proto[i])));

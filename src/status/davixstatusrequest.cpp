@@ -69,6 +69,9 @@ std::string davix_scope_http_request(){
     return "[davix_http_request]";
 }
 
+
+} // namespace Davix
+
 DAVIX_C_DECL_BEGIN
 
 using namespace Davix;
@@ -98,7 +101,11 @@ const char* davix_error_scope(davix_error_t err){
     return NULL; // TODO
 }
 
+void davix_error_propagate(davix_error_t* newErr, davix_error_t oldErr ){
+    DavixError::propagateError((DavixError**)newErr, (DavixError*) oldErr);
+}
+
 
 DAVIX_C_DECL_END
 
-} // namespace Davix
+

@@ -6,44 +6,46 @@ SET(FUNCTIONAL_TESTS FALSE
 
 if(FUNCTIONAL_TESTS)
 
-FILE(GLOB src_test_req "test_request.cpp")
-FILE(GLOB src_test_prop "test_propfind.cpp")
-FILE(GLOB src_test_stat "test_stat.cpp")
-FILE(GLOB src_test_mkdir "test_mkdir.cpp")
-FILE(GLOB src_test_stat_session "test_stat_session.cpp")
-FILE(GLOB src_test_opendir "test_opendir.cpp")
-FILE(GLOB src_test_opendir_c "test_opendir_c.cpp")
-FILE(GLOB src_test_opendir_partial "test_opendir_partial.cpp")
-FILE(GLOB src_test_opendirpp "test_opendirpp.cpp")
-FILE(GLOB src_test_stat_c "test_stat_c.c")
+set(src_davix_test_lib "davix_test_lib.c")
+
+set( src_test_req "test_request.cpp")
+set( src_test_prop "test_propfind.cpp")
+set( src_test_stat "test_stat.cpp" )
+set( src_test_mkdir "test_mkdir.cpp")
+set( src_test_stat_session "test_stat_session.cpp")
+set( src_test_opendir "test_opendir.cpp")
+set( src_test_opendir_c "test_opendir_c.cpp")
+set( src_test_opendir_partial "test_opendir_partial.cpp")
+set( src_test_opendirpp "test_opendirpp.cpp")
+set( src_test_stat_c "test_stat_c.c")
 
 add_executable(test_request ${src_test_req} )
 target_link_libraries(test_request davix)
 
 
-add_executable(test_prop ${src_test_prop} )
+add_executable(test_prop ${src_test_prop} ${src_davix_test_lib} )
 target_link_libraries(test_prop davix)
 
-add_executable(test_stat ${src_test_stat} )
+add_executable(test_stat ${src_test_stat} ${src_davix_test_lib})
 target_link_libraries(test_stat davix)
 
 add_executable(test_mkdir ${src_test_mkdir} )
 target_link_libraries(test_mkdir davix)
 
-add_executable(test_stat_session ${src_test_stat_session} )
+add_executable(test_stat_session ${src_test_stat_session} ${src_davix_test_lib})
 target_link_libraries(test_stat_session davix)
 
 
 add_executable(test_opendir ${src_test_opendir} )
 target_link_libraries(test_opendir davix)
 
-add_executable(test_opendir_c ${src_test_opendir_c} )
+add_executable(test_opendir_c ${src_test_opendir_c} ${src_davix_test_lib})
 target_link_libraries(test_opendir_c davix)
 
-add_executable(test_opendir_partial ${src_test_opendir_partial} )
+add_executable(test_opendir_partial ${src_test_opendir_partial} ${src_davix_test_lib})
 target_link_libraries(test_opendir_partial davix)
 
-add_executable(test_opendirpp ${src_test_opendirpp} )
+add_executable(test_opendirpp ${src_test_opendirpp} ${src_davix_test_lib})
 target_link_libraries(test_opendirpp davix)
 
 add_executable(test_stat_c ${src_test_stat_c} )

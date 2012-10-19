@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include <status/davix_error.h>
 #include <davix_types.h>
 
 
@@ -80,18 +81,18 @@ void davix_params_free(davix_params_t p);
   setup the authorization callback for the current parameter handle
   This authorisation callback will be called each time that the associated request will need an authentification
 */
-int davix_params_set_auth_callback(davix_params_t params, davix_auth_callback call, void* userdata, GError** err);
+int davix_params_set_auth_callback(davix_params_t params, davix_auth_callback call, void* userdata, davix_error_t* err);
 
 /**
   disable or enable the validity check of the serveur side credential
 */
-int davix_params_set_ssl_check(davix_params_t params, gboolean ssl_check, GError** err);
+int davix_params_set_ssl_check(davix_params_t params, gboolean ssl_check, davix_error_t* err);
 
 
 /**
   set the default parameter container to use for the current session
 */
-int davix_set_default_session_params(davix_sess_t sess, davix_params_t params, GError ** err);
+int davix_set_default_session_params(davix_sess_t sess, davix_params_t params, davix_error_t* err);
 
 //
 // Authenficiation callback specific parameters
@@ -100,20 +101,6 @@ int davix_set_pkcs12_auth(davix_auth_t token, const char* filename_pkcs, const c
 
 int davix_set_login_passwd_auth(davix_auth_t token, const char* login, const char* passwd, davix_error_t* err);
 
-
-
-
-//
-// Settings management API
-//
-//
-
-/**
-  C API, enable or disable the CA check for X509 credential while the authentification
-  Passing false to this function is similar to the -k or --insecure option of curl
-  true by default
-*/
-//int davix_set_ssl_check(davix_sess_t sess, gboolean ssl_check, GError** err);
 
 DAVIX_C_DECL_END
 

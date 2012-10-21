@@ -26,8 +26,8 @@ Context* Context::clone(){
 }
 
 
-HttpRequest* Context::createRequest(const std::string & uri){
-    return _intern->createRequest(uri);
+HttpRequest* Context::createRequest(const std::string & uri, DavixError** err){
+    return _intern->createRequest(uri, err);
 }
 
 

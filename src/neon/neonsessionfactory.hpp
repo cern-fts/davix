@@ -21,7 +21,7 @@ public:
       @param url : path of the request
       @return Request object
     */
-    virtual Request* create_request(const std::string & url) ;
+    virtual Request* create_request(const std::string & url, DavixError** err) ;
 
     /**
       Create a session object or create a recycled  one ( session reuse )

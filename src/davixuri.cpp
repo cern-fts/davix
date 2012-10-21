@@ -1,6 +1,6 @@
 #include "davixuri.hpp"
 #include <ne_uri.h>
-#
+#include <cstring>
 
 namespace Davix {
 
@@ -31,8 +31,19 @@ Uri::Uri(const std::string & uri)
     this->uri_string = uri;
     _init();
    if(ne_uri_parse(uri_string.c_str(), &(d_ptr->my_uri)) == 0){
+
+       // fix a neon parser bug when port != number
+       if(d_ptr->my_uri.port == 0 && strcasecmp(d_ptr->my_uri.scheme, "http") ==0)
+           d_ptr->my_uri.port = 80;
+
+       if(d_ptr->my_uri.port == 0 && strcasecmp(d_ptr->my_uri.scheme, "https") ==0)
+           d_ptr->my_uri.port = 443;
+
+       if(d_ptr->my_uri.port == 0)
+           return;
+
        code = StatusCode::OK;
-       d_ptr->proto = d_ptr->my_uri.path;
+       d_ptr->proto = d_ptr->my_uri.scheme;
        d_ptr->path = d_ptr->my_uri.path;
        d_ptr->host = d_ptr->my_uri.host;
    }

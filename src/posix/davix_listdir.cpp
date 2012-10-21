@@ -84,44 +84,46 @@ DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char
 
 
     // create a new connexion + parser for this opendir
-    HttpRequest* http_req = static_cast<HttpRequest*>(context->_intern->getSessionFactory()->create_request( url));
-    configure_req_for_listdir(http_req);
-    std::auto_ptr<DIR_handle> res(  new DIR_handle(http_req, new WebdavPropParser()));
-    time_t timestamp_timeout = time(NULL) + _timeout;
+    HttpRequest* http_req = static_cast<HttpRequest*>(context->_intern->getSessionFactory()->create_request(url, &tmp_err));
+    if(http_req){
+        configure_req_for_listdir(http_req);
+        std::auto_ptr<DIR_handle> res(  new DIR_handle(http_req, new WebdavPropParser()));
+        time_t timestamp_timeout = time(NULL) + _timeout;
 
-    http_req->set_parameters(params);
-    WebdavPropParser* parser = res->parser;
-    // setup the handle for simple listing only
-    http_req->add_full_request_content(body);
-
-
-    if( (ret = http_req->execute_block(&tmp_err)) == 0){ // start req
+        http_req->set_parameters(params);
+        WebdavPropParser* parser = res->parser;
+        // setup the handle for simple listing only
+        http_req->add_full_request_content(body);
 
 
-            if( httpcodeIsValid(http_req->getRequestCode())){
+        if( (ret = http_req->execute_block(&tmp_err)) == 0){ // start req
 
-                size_t prop_size = 0;
-                do{ // parse the begining of the request until the first property -> directory property
-                   if( (s_resu = incremental_propfind_listdir_parsing(http_req, parser, this->_s_buff, scope, &tmp_err)) <0)
-                       break;
 
-                   prop_size = parser->get_current_properties().size();
-                   if(s_resu < _s_buff && prop_size <1){ // verify request status : if req done + no data -> error
-                       DavixError::setupError(&tmp_err, davix_scope_directory_listing_str(), StatusCode::WebDavPropertiesParsingError, "request answer incorrect, not a valid webdav request");
-                       break;
-                   }
-                   if(timestamp_timeout < time(NULL)){
-                       DavixError::setupError(&tmp_err, davix_scope_directory_listing_str(), StatusCode::OperationTimeout, "operation timeout triggered while directory listing");
-                       break;
-                   }
+                if( httpcodeIsValid(http_req->getRequestCode())){
 
-                }while( prop_size < 1); // leave is end of req & no data
+                    size_t prop_size = 0;
+                    do{ // parse the begining of the request until the first property -> directory property
+                       if( (s_resu = incremental_propfind_listdir_parsing(http_req, parser, this->_s_buff, scope, &tmp_err)) <0)
+                           break;
 
-                if(!tmp_err)
-                    r = res.release(); // success : take ownership of the pointer
+                       prop_size = parser->get_current_properties().size();
+                       if(s_resu < _s_buff && prop_size <1){ // verify request status : if req done + no data -> error
+                           DavixError::setupError(&tmp_err, davix_scope_directory_listing_str(), StatusCode::WebDavPropertiesParsingError, "request answer incorrect, not a valid webdav request");
+                           break;
+                       }
+                       if(timestamp_timeout < time(NULL)){
+                           DavixError::setupError(&tmp_err, davix_scope_directory_listing_str(), StatusCode::OperationTimeout, "operation timeout triggered while directory listing");
+                           break;
+                       }
 
-        }else{
-            httpcodeToDavixCode(http_req->getRequestCode(),davix_scope_directory_listing_str()," ", &tmp_err);
+                    }while( prop_size < 1); // leave is end of req & no data
+
+                    if(!tmp_err)
+                        r = res.release(); // success : take ownership of the pointer
+
+            }else{
+                httpcodeToDavixCode(http_req->getRequestCode(),davix_scope_directory_listing_str()," ", &tmp_err);
+            }
         }
     }
 

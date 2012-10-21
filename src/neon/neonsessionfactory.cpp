@@ -37,12 +37,17 @@ NEONSessionFactory::~NEONSessionFactory(){
     }
 }
 
-Request* NEONSessionFactory::create_request(const std::string &url){
-    std::string host, protocol, path;
-    unsigned long port;
-    parse_http_neon_url(url, protocol, host, path, &port);
-    ne_session* sess = create_recycled_session(protocol, host, port);
-    NEONRequest* req = new NEONRequest(this, sess, path);
+Request* NEONSessionFactory::create_request(const std::string &url, DavixError** err){;
+    NEONRequest* req = NULL;
+
+    Uri uri(url);
+    if(uri.getStatus() == StatusCode::OK){
+        ne_session* sess = create_recycled_session(uri.getProtocol(), uri.getHost(), uri.getPort());
+        req = new NEONRequest(this, sess, uri.getPath() );
+    }else{
+        DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, "impossible to parse " + url + " ,not a valid HTTP or Webdav URL");
+    }
+
     return static_cast<Request*>(req);
 }
 
@@ -105,57 +110,6 @@ void NEONSessionFactory::internal_release_session_handle(ne_session* sess){
     _sess_map.insert(std::pair<std::string, ne_session*>(protocol + hostport, sess));
 }
 
-void parse_http_neon_url(const std::string &url, std::string &protocol, std::string &host, std::string &path, unsigned long * port){
-    char * c_url = (char*) url.c_str();
-    char * comma;
-    if( (comma = strchr(c_url,':')) != NULL){ // determine protocol
-        char ** proto;
-        for(proto= (char**) proto_support;
-            *proto != NULL;
-            ++proto){
-            if(strncmp(c_url, *proto, comma - c_url) == 0){
-                protocol = std::string(c_url, comma-c_url);
-                break;
-            }
-        }
-        // verify if end of list -> failure
-        if(*proto != NULL){
-           char * second_slash, *first_slash_next = comma +1;
-           while(*first_slash_next == '/') // finish prefix
-               first_slash_next ++;
-           if(*first_slash_next != '\0'){ // if not end, find the path
-               second_slash = strchr(first_slash_next, '/');
-               std::string host_port;
-               if(second_slash == NULL){
-                   path = std::string("/");
-                   host_port = std::string(first_slash_next);
-               }else{
-                   path = std::string(second_slash);
-                   host_port = std::string(first_slash_next, second_slash- first_slash_next);
-               }
-               const char * p_host = host_port.c_str();
-               const char * comma_port = strchr(p_host, ':');
-               *port=0;
-               if(comma_port != NULL){
-                   *port = (unsigned int) strtoul(comma_port+1,NULL,10);
-                    if( *port != ULONG_MAX && *port != 0){
-                        host = std::string(p_host, comma_port- p_host);
-                        davix_log_debug(" host: %s path: %s protocol: %s port: %d", host.c_str(), path.c_str(), protocol.c_str(), *port);
-                        return;
-                    }
-               }else{
-                   *port = (*proto  == (proto_support[0]))?ports[0]:ports[1];
-                   host = std::string(p_host);
-                   davix_log_debug(" host: %s path: %s protocol: %s port: %d", host.c_str(), path.c_str(), protocol.c_str(), *port);
-                   return;
-               }
-
-           }
-
-        }
-    }
-   throw Glib::Error(Glib::Quark("NEONSessionFactory::parse_http_neon_url"), EINVAL, std::string("Invalid url format : ").append(url));
-}
 
 std::string create_map_keys_from_URL(const std::string & protocol, const std::string &host, unsigned int port){
     std::ostringstream oss;

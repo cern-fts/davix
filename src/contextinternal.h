@@ -38,7 +38,7 @@ public:
     }
 
 
-    HttpRequest* createRequest(const std::string & uri);
+    HttpRequest* createRequest(const std::string & uri, DavixError** err);
 
 protected:
 

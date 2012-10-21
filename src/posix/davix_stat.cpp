@@ -27,21 +27,24 @@ int DavPosix::stat(const RequestParams * _params, const std::string & url, struc
 
     int ret =-1;
     WebdavPropParser parser;
-    std::auto_ptr<HttpRequest> req( static_cast<HttpRequest*>(context->_intern->getSessionFactory()->create_request(url)));
-    req->set_parameters(params);
+    std::auto_ptr<HttpRequest> req( static_cast<HttpRequest*>(context->_intern->getSessionFactory()->create_request(url, &tmp_err)));
+    if( req.get() != NULL){
+        req->set_parameters(params);
 
-    const std::vector<char> & res = req_webdav_propfind(req.get(), &tmp_err);
-    if(!tmp_err){
-        const std::vector<FileProperties> & props = parser.parser_properties_from_memory(std::string(((char*) & res.at(0)), res.size()));
+        const std::vector<char> & res = req_webdav_propfind(req.get(), &tmp_err);
+        if(!tmp_err){
+            const std::vector<FileProperties> & props = parser.parser_properties_from_memory(std::string(((char*) & res.at(0)), res.size()));
 
-        if( props.size() < 1){
-            DavixError::setupError(&tmp_err, davix_scope_stat_str(), Davix::StatusCode::WebDavPropertiesParsingError, "Parsing Error : properties number < 1");
-        }else{
-            fill_stat_from_fileproperties(st, props.front());
-            ret =0;
+            if( props.size() < 1){
+                DavixError::setupError(&tmp_err, davix_scope_stat_str(), Davix::StatusCode::WebDavPropertiesParsingError, "Parsing Error : properties number < 1");
+            }else{
+                fill_stat_from_fileproperties(st, props.front());
+                ret =0;
+        }
+        }
+        davix_log_debug(" davix_stat <-");
     }
-    }
-    davix_log_debug(" davix_stat <-");
+
     if(tmp_err)
         DavixError::propagateError(err, tmp_err);
     return ret;

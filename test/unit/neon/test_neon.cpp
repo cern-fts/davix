@@ -11,52 +11,55 @@ using namespace Davix;
 
 static const char* list_urls[] = {
     "http://localhost:80/",
-    "http://localhost:rrrrrrr/path" /* error*/
+    "sfdfsdfdsfds://localhost:rrrrrrr/path",
+    "http://monurlrandom/"
 };
 
 static const size_t list_port[]={
     80,
-    8080
+    0,
+    80
 };
 
 static const char* list_host[] ={
     "localhost",
-    "localhost"
+    "localhost",
+    "monurlrandom"
 };
 
 static const char* list_path[] ={
     "/",
-    "/path"
+    "/path",
+    "/"
 };
 
 static const char* list_proto[] ={
+    "http",
     "http",
     "http"
 };
 
 static bool failure[]={
     false,
-    true
+    true,
+    false
 };
 
-const size_t len_list=2;
+const size_t len_list=3;
 
 
 TEST(testNeon, testParsing){
     g_logger_set_globalfilter(G_LOG_LEVEL_MASK);
-    std::string url, host, path, proto;
-    unsigned long port;
     for(size_t i=0; i < len_list; ++i){
+        Uri uri(list_urls[i]);
         if(failure[i] == false){
-            parse_http_neon_url(std::string(list_urls[i]), proto, host, path, &port);
-            ASSERT_EQ(0, proto.compare(std::string(list_proto[i])));
-            ASSERT_EQ(0, host.compare(list_host[i]));
-            ASSERT_EQ(0,path.compare(list_path[i]));
-            ASSERT_EQ(list_port[i], port);
+            ASSERT_EQ(StatusCode::OK, uri.getStatus());
+            ASSERT_STREQ(list_proto[i], uri.getProtocol().c_str() );
+            ASSERT_STREQ(list_host[i], uri.getHost().c_str());
+            ASSERT_STREQ(list_path[i], uri.getPath().c_str());
+            ASSERT_EQ(list_port[i], uri.getPort());
         }else{
-            ASSERT_THROW({
-              parse_http_neon_url(std::string(list_urls[i]), proto, host, path, &port);
-            }, Glib::Error);
+            ASSERT_EQ(StatusCode::UriParsingError, uri.getStatus());
         }
     }
 }

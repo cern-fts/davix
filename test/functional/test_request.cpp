@@ -14,7 +14,8 @@ int main(int argc, char** argv){
     DavixError* tmp_err=NULL;
     std::auto_ptr<AbstractSessionFactory> s( new NEONSessionFactory());
 
-    std::auto_ptr<Request> r(s->create_request(argv[1]));
+    std::auto_ptr<Request> r(s->create_request(argv[1], &tmp_err));
+    if(r.get() != NULL)
     r->execute_sync(&tmp_err);
     if(tmp_err){
         std::cerr << " error in request : " << tmp_err->getErrMsg() << std::endl;

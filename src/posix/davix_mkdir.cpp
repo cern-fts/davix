@@ -19,22 +19,24 @@ int DavPosix::mkdir(const RequestParams * _params, const std::string &url, mode_
 
 
     WebdavPropParser parser;
-    std::auto_ptr<HttpRequest> req( static_cast<HttpRequest*>(context->_intern->getSessionFactory()->create_request(url)));
-    req->set_parameters(params);
+    std::auto_ptr<HttpRequest> req( static_cast<HttpRequest*>(context->_intern->getSessionFactory()->create_request(url, &tmp_err)));
+    if(req.get() != NULL){
 
-    req->setRequestMethod("MKCOL");
+        req->set_parameters(params);
+        req->setRequestMethod("MKCOL");
 
-    if( (ret = req->execute_sync(&tmp_err)) == 0){
+        if( (ret = req->execute_sync(&tmp_err)) == 0){
 
-        if(httpcodeIsValid(req->getRequestCode())){
-           ret =0;
-        }else{
-            httpcodeToDavixCode(req->getRequestCode(), davix_scope_mkdir_str(),"", &tmp_err);
-            ret = -1;
+            if(httpcodeIsValid(req->getRequestCode())){
+               ret =0;
+            }else{
+                httpcodeToDavixCode(req->getRequestCode(), davix_scope_mkdir_str(),"", &tmp_err);
+                ret = -1;
+            }
         }
-    }
 
-    davix_log_debug(" davix_mkdir <-");
+        davix_log_debug(" davix_mkdir <-");
+    }
     if(tmp_err)
         DavixError::propagateError(err, tmp_err);
     return ret;

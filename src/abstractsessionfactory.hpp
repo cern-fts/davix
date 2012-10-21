@@ -22,7 +22,7 @@ public:
       @param url : path of the request
       @return Request object
     */
-    virtual Request* create_request(const std::string & url) =0;
+    virtual Request* create_request(const std::string & url, DavixError** err) =0;
 
     /**
         delete the request object

@@ -98,6 +98,7 @@ std::string davix_scope_stat_str();
 std::string davix_scope_mkdir_str();
 std::string davix_scope_directory_listing_str();
 std::string davix_scope_http_request();
+std::string davix_scope_xml_parser();
 
 
 } // namespace Davix

@@ -44,7 +44,7 @@ DavXMLParser::~DavXMLParser(){
 
 
 int DavXMLParser::parseChuck(const char *partial_string, size_t length){
-    return -1;
+    return ne_xml_parse(_ne_parser,partial_string,length);
 }
 
 

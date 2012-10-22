@@ -61,12 +61,7 @@ private:
 
 
 inline bool match_element(const char* c_origin, const char* c_pattern){ // C style, critical function
-    bool res = false;
-    const char* pos = strrchr(c_origin, ':'); // isolate XML namespace
-    if(pos != NULL){
-        res = (*(pos+1) == *(c_pattern) && strcmp(pos+1, c_pattern) ==0);
-    }
-    return res;
+    return strcmp(c_origin,c_pattern) ==0;
 }
 
 } // namespace Davix

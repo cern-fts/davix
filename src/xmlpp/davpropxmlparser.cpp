@@ -252,7 +252,7 @@ int DavPropXMLParser::check_status(const char* name){
 
 
 int DavPropXMLParser::parserStartElemCb(int parent, const char *nspace, const char *name, const char **atts){
-    //std::cout << " name : " << name << std::endl;
+    std::cout << " name : " << name << std::endl;
     // compute the current scope
     bool new_prop;
     int ret=-1;
@@ -272,11 +272,11 @@ int DavPropXMLParser::parserStartElemCb(int parent, const char *nspace, const ch
     // collect information
     if(new_prop)
         ret= compute_new_elem();
-    return ret;
+    return (ret==0)?1:-1;
 }
 
 int DavPropXMLParser::parserCdataCb(int state, const char *cdata, size_t len){
-    //std::cout << "chars ..." << characters<< std::endl;
+    std::cout << "chars ..." << std::string(cdata, len)<< std::endl;
     char buff[len+1];
     *((char*) mempcpy(buff, cdata, len)) ='\0';
 
@@ -290,9 +290,9 @@ int DavPropXMLParser::parserCdataCb(int state, const char *cdata, size_t len){
 }
 
 int DavPropXMLParser::parserEndElemCb(int state, const char *nspace, const char *name){
-    // std::cout << "name : " << name << std::endl;
+     std::cout << "end name : " << name << std::endl;
     // compute the current scope
-    int ret =-1;
+    int ret =0;
     bool end_prop;
 
     DAVIX_XML_REPORT_ERROR( end_prop=  remove_scope(&propname_section, name, propstat_pattern, response_section, false, &err) );

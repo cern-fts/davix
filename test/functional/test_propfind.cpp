@@ -29,6 +29,7 @@ int main(int argc, char** argv){
     std::auto_ptr<HttpRequest> r (static_cast<HttpRequest*>(s->create_request(argv[1], &tmp_err)));
     if(r.get() != NULL){
         r->set_parameters(params);
+        r->addHeaderField("Depth", "1");
 
         std::vector<char> v = req_webdav_propfind(r.get(), &tmp_err);
         v.push_back('\0');

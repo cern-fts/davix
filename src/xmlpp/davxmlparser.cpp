@@ -44,7 +44,18 @@ DavXMLParser::~DavXMLParser(){
 
 
 int DavXMLParser::parseChuck(const char *partial_string, size_t length){
-    return ne_xml_parse(_ne_parser,partial_string,length);
+    int ret = ne_xml_parse(_ne_parser,partial_string,length);
+    if(ret != 0){
+        if(ret > 0){
+            ret =-1;
+            const char* ne_parser_err = ne_xml_get_error(_ne_parser);
+            DavixError::setupError(&err, davix_scope_xml_parser(), StatusCode::WebDavPropertiesParsingError, "XML Parsing Error: " + std::string((ne_parser_err)?ne_parser_err:"Unknow ne error"));
+        }
+        if(!err){
+             DavixError::setupError(&err, davix_scope_xml_parser(), StatusCode::WebDavPropertiesParsingError, "Unknow XML parsing error ");
+        }
+    }
+    return ret;
 }
 
 

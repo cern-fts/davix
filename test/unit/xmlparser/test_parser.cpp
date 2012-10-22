@@ -2,7 +2,7 @@
 #include <ctime>
 #include <datetime/datetime_utils.h>
 #include <davix.h>
-#include <xmlpp/davxmlparser.h>
+#include <xmlpp/davxmlparser.hpp>
 #include <gtest/gtest.h>
 
 TEST(XmlParserInstance, createParser){

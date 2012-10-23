@@ -7,6 +7,7 @@ FILE(GLOB src_neon "neon/*.cpp")
 FILE(GLOB src_logger "logging/*.c")
 FILE(GLOB src_davix_posix "posix/*.cpp")
 FILE(GLOB src_davix_status "status/*.cpp")
+FILE(GLOB src_davix_fileops "fileops/*.cpp")
 
 LIST(APPEND davix_headers "davix.h" "davix_types.h" "davixcontext.hpp" "global_def.hpp"
             "abstractsessionfactory.hpp" "davixrequestparams.hpp" "request.hpp" "httprequest.hpp" "davix_cpp.hpp" "davixuri.hpp" )
@@ -39,7 +40,7 @@ endif ( ${HTTP_LIB} STREQUAL "NEON" )
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(${HTTPLIB_PKG_CFLAGS} )
 add_library(davix  SHARED ${src_davix} ${SRC_HTTP}  ${src_xmlparser} ${src_logger} ${src_datetime}
-                           ${src_lockers} ${src_davix_posix} ${src_davix_status})
+                           ${src_lockers} ${src_davix_posix} ${src_davix_status} ${src_davix_fileops})
 
 
 target_link_libraries(davix  ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES} ${GTHREAD_PKG_LIBRARIES})

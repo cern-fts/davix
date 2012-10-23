@@ -5,6 +5,7 @@
 #include <string>
 #include <cstring>
 #include <status/davixstatusrequest.hpp>
+#include <fileops/fileutils.hpp>
 
 #include <contextinternal.h>
 
@@ -62,12 +63,17 @@ int DavPosix::stat(const RequestParams * _params, const std::string & url, struc
 */
 const std::vector<char> & req_webdav_propfind(HttpRequest* req, DavixError** err){
     DavixError* tmp_err=NULL;
+    int ret =-1;
 
     req->addHeaderField("Depth","0");
     req->setRequestMethod("PROPFIND");
-    int ret = req->execute_sync(&tmp_err);
+    if( (ret = req->execute_sync(&tmp_err)) ==0){
+        ret = davixRequestToFileStatus(req, davix_scope_stat_str(), &tmp_err);
+    }
+
     if(ret != 0)
         DavixError::propagateError(err, tmp_err);
+
     return req->get_result();
 }
 

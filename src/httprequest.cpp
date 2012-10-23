@@ -147,7 +147,7 @@ void httpcodeToDavixCode(int code, const std::string & scope, const std::string 
 
     std::ostringstream ss;
     ss << "HTTP Error "<< code << " " << str_msg << std::endl;
-    DavixError(scope, dav_code, ss.str());
+    DavixError::setupError(err, scope, dav_code, ss.str());
 }
 
 bool httpcodeIsValid(int code)

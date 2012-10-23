@@ -1,7 +1,7 @@
 
 
 Name:				davix
-Version:			0.0.6
+Version:			0.0.7
 Release:			0.1%{?dist}
 Summary:			Webdav File access and file management Library
 Group:				Applications/Internet
@@ -17,7 +17,6 @@ BuildRequires:		doxygen
 BuildRequires:		glib2-devel
 BuildRequires:		glibmm24-devel
 BuildRequires:		neon-devel
-BuildRequires:		libxml++-devel
 BuildRequires:		openssl-devel
 
 %description

@@ -23,7 +23,7 @@ include_directories("libs")
 add_subdirectory(libs)
 add_subdirectory(datetime)
 add_subdirectory(logging)
-add_subdirectory(xmlpp)
+add_subdirectory(xml)
 if ( ${HTTP_LIB} STREQUAL "NEON" )
 
     add_subdirectory(neon)

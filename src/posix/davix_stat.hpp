@@ -11,7 +11,7 @@
 #include "davixcontext.hpp"
 #include "abstractsessionfactory.hpp"
 #include "httprequest.hpp"
-#include <xmlpp/davpropxmlparser.hpp>
+#include <xml/davpropxmlparser.hpp>
 #include <posix/davposix.hpp>
 
 namespace Davix{

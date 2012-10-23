@@ -2,8 +2,8 @@
 #include <ctime>
 #include <datetime/datetime_utils.h>
 #include <davix.h>
-#include <xmlpp/davxmlparser.hpp>
-#include <xmlpp/davpropxmlparser.hpp>
+#include <xml/davxmlparser.hpp>
+#include <xml/davpropxmlparser.hpp>
 #include <gtest/gtest.h>
 #include <string.h>
 

@@ -3,7 +3,7 @@
 
 
 #include <deque>
-#include <xmlpp/davxmlparser.hpp>
+#include <xml/davxmlparser.hpp>
 #include <fileproperties.hpp>
 #include <string.h>
 

@@ -7,13 +7,14 @@
 #include <davixcontext.hpp>
 #include <contextinternal.h>
 #include <status/davixstatusrequest.hpp>
+#include <fileops/fileutils.hpp>
 
 
 namespace Davix{
 
 int DavPosix::mkdir(const RequestParams * _params, const std::string &url, mode_t right, DavixError** err){
     davix_log_debug(" -> davix_mkdir");
-    int ret;
+    int ret=-1;
     DavixError* tmp_err=NULL;
     RequestParams params(_params);
 
@@ -25,13 +26,7 @@ int DavPosix::mkdir(const RequestParams * _params, const std::string &url, mode_
         req->setRequestMethod("MKCOL");
 
         if( (ret = req->execute_sync(&tmp_err)) == 0){
-
-            if(httpcodeIsValid(req->getRequestCode())){
-               ret =0;
-            }else{
-                httpcodeToDavixCode(req->getRequestCode(), davix_scope_mkdir_str(),"", &tmp_err);
-                ret = -1;
-            }
+            ret = davixRequestToFileStatus(req.get(), davix_scope_mkdir_str(), &tmp_err);
         }
 
         davix_log_debug(" davix_mkdir <-");

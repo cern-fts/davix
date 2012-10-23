@@ -11,7 +11,7 @@
 #include <httprequest.hpp>
 #include <posix/davix_stat.hpp>
 #include <status/davixstatusrequest.hpp>
-#include <status/davixstatusrequest.hpp>
+#include <fileops/fileutils.hpp>
 
 static const std::string simple_listing("<propfind xmlns=\"DAV:\"><prop></prop></propfind>");
 
@@ -102,7 +102,7 @@ DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char
         if( (ret = http_req->execute_block(&tmp_err)) == 0){ // start req
 
 
-                if( httpcodeIsValid(http_req->getRequestCode())){
+            if( ( ret = davixRequestToFileStatus(http_req,davix_scope_directory_listing_str(), &tmp_err)) == 0){
 
                     size_t prop_size = 0;
                     do{ // parse the begining of the request until the first property -> directory property
@@ -125,8 +125,6 @@ DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char
                         parser->getProperties().pop_front(); // suppress the parent directory infos...
                         r = res.release(); // success : take ownership of the pointer
                     }
-            }else{
-                httpcodeToDavixCode(http_req->getRequestCode(),davix_scope_directory_listing_str()," ", &tmp_err);
             }
         }
     }

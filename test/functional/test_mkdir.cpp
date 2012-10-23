@@ -60,7 +60,7 @@ int main(int argc, char** argv){
 
 
     RequestParams  p;
-    DavixError* tmp_err;
+    DavixError* tmp_err=NULL;
     std::auto_ptr<Context> c( new Context());
     DavPosix pos(c.get());
 

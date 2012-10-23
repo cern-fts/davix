@@ -4,10 +4,11 @@
 #include <string>
 #include <davix_types.h>
 #include <status/davix_error.h>
+#include <iostream>
 
 /**
   @file davixstatusrequest.hpp
-  @author Devresse Adrien
+  @author Devresse Adrien, CERN
 
   @brief C++ Error report system of davix
 */
@@ -81,7 +82,8 @@ public:
     static void propagateError(DavixError** newErr, DavixError* oldErr){
         if(newErr){
             if(*newErr != NULL){
-                // TODO
+                std::cerr << "***ERROR*** in propagateError, *newErr is not NULL impossible to overwrite ... "
+                         " old error wass" << ((oldErr)?(oldErr->getErrMsg()):"<NULL>") << std::endl;
             }else{
                 *newErr = oldErr;
             }

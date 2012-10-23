@@ -17,30 +17,37 @@ void neon_to_davix_code(int ne_status, ne_session* sess, const std::string & sco
         case NE_OK:
             code = StatusCode::OK;
             str= "Elvis is back !";
+            break;
         case NE_ERROR:
              str = ne_get_error(sess);
              code = StatusCode::ConnexionProblem;
+             break;
         case NE_LOOKUP:
              code = StatusCode::NameResolutionFailure;
              str= "Domain Name resolution failed";
+             break;
         case NE_AUTH:
             code = StatusCode::authentificationError;
             str=  "Authentification Failed on server";
+            break;
         case NE_PROXYAUTH:
             code = StatusCode::authentificationError;
             str=  "Authentification Failed on proxy";
         case NE_CONNECT:
             code = StatusCode::ConnexionProblem;
             str= "Could not connect to server";
+            break;
         case NE_TIMEOUT:
             code = StatusCode::ConnexionTimeout;
             str= "Connection timed out";
         case NE_FAILED:
             code = StatusCode::SessionCreationError;
             str=  "The precondition failed";
+            break;
         case NE_RETRY:
             code = StatusCode::RedirectionNeeded;
             str= "Retry Request";
+            break;
         default:
             code= StatusCode::UnknowError;
             str= "Unknow Error from libneon";
@@ -225,7 +232,7 @@ int NEONRequest::negotiate_request(DavixError** err){
     }
 
     if(n >= n_limit){
-        DavixError::setupError(err,davix_scope_http_request(),StatusCode::authentificationError, "overpass the maximum limit of authentification try, cancel");
+        DavixError::setupError(err,davix_scope_http_request(),StatusCode::authentificationError, "overpass the maximum number of authentification try, cancel");
         return -2;
     }
     davix_log_debug(" ->   NEON end internal request ... ");

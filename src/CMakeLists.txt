@@ -37,12 +37,12 @@ else ( ${HTTP_LIB} STREQUAL "NEON" )
 endif ( ${HTTP_LIB} STREQUAL "NEON" )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-add_definitions(${GLIBMM_PKG_CFLAGS} ${HTTPLIB_PKG_CFLAGS} )
+add_definitions(${HTTPLIB_PKG_CFLAGS} )
 add_library(davix  SHARED ${src_davix} ${SRC_HTTP}  ${src_xmlparser} ${src_logger} ${src_datetime}
-                           ${src_crypto} ${src_davix_posix} ${src_davix_status})
+                           ${src_lockers} ${src_davix_posix} ${src_davix_status})
 
 
-target_link_libraries(davix ${GLIBMM_PKG_LIBRARIES} ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES} ${GTHREAD_PKG_LIBRARIES})
+target_link_libraries(davix  ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES} ${GTHREAD_PKG_LIBRARIES})
 
 
 
@@ -56,7 +56,7 @@ add_PkgConfigFile_for_Library("davix.pc" davix
                                HEADER_DIRS "davix"
                                CFLAGS " -D_FILE_OFFSET_BITS=64 "
                                DESCRIPTION "Davix, POSIX-like access for Webdav"
-                               REQUIRES "glib-2.0" "glibmm-2.4")
+                               REQUIRES "glib-2.0")
 
 # install lib
 install(TARGETS davix

@@ -1,7 +1,5 @@
 #include "neonsessionfactory.hpp"
 
-#include <glibmm/error.h>
-#include <glibmm/quark.h>
 #include <string>
 #include <sstream>
 
@@ -31,7 +29,7 @@ NEONSessionFactory::NEONSessionFactory()
 }
 
 NEONSessionFactory::~NEONSessionFactory(){
-    Glib::Mutex::Lock lock(_sess_mut);
+    DppLocker lock(_sess_mut);
     for(std::multimap<std::string, ne_session*>::iterator it = _sess_map.begin(); it != _sess_map.end(); ++it){
         ne_session_destroy(it->second);
     }
@@ -83,7 +81,7 @@ ne_session* NEONSessionFactory::create_recycled_session(const std::string &proto
 
     ne_session* se= NULL;
     {
-        Glib::Mutex::Lock lock(_sess_mut);
+        DppLocker lock(_sess_mut);
         std::multimap<std::string, ne_session*>::iterator it;
         if( (it = _sess_map.find(create_map_keys_from_URL(protocol, host, port))) != _sess_map.end()){
             davix_log_debug("cached ne_session found ! taken from cache ");
@@ -101,7 +99,7 @@ void NEONSessionFactory::internal_release_session_handle(ne_session* sess){
     // clear sensitive data
     // none
     //
-    Glib::Mutex::Lock lock(_sess_mut);
+    DppLocker lock(_sess_mut);
     std::multimap<std::string, ne_session*>::iterator it;
     const std::string protocol(ne_get_scheme(sess));
     const std::string hostport(ne_get_server_hostport(sess));

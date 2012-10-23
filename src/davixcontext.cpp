@@ -2,7 +2,6 @@
 
 
 #include <contextinternal.h>
-#include <glibmm.h>
 
 namespace Davix{
 

@@ -2,7 +2,6 @@
 #define DAVIX_FILEPROPERTIES_H
 
 #include "global_def.hpp"
-#include <glibmm.h>
 
 namespace Davix {
 

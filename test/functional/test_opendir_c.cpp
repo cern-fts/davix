@@ -4,7 +4,6 @@
 #include <davix.h>
 #include <string.h>
 #include <cstdio>
-#include <glibmm.h>
 #include <iostream>
 #include <logging/logger.h>
 

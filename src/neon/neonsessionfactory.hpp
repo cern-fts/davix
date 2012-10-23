@@ -1,10 +1,12 @@
 #ifndef DAVIX_NEONSESSIONFACTORY_H
 #define DAVIX_NEONSESSIONFACTORY_H
 
+#include <map>
 #include <abstractsessionfactory.hpp>
 #include <davixuri.hpp>
 #include <global_def.hpp>
 #include <neon/neonrequest.hpp>
+#include <libs/lockers/dpplocker.hpp>
 
 namespace Davix {
 
@@ -41,7 +43,7 @@ public:
 
 private:
     std::multimap<std::string, ne_session*> _sess_map;
-    Glib::Mutex _sess_mut;
+     DppLock _sess_mut;
 
     void internal_release_session_handle(ne_session* sess);
 

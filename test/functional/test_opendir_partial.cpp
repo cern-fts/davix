@@ -3,7 +3,6 @@
 
 #include <davixcontext.hpp>
 #include <http_backend.hpp>
-#include <glibmm/init.h>
 #include <posix/davposix.hpp>
 
 #include "davix_test_lib.h"

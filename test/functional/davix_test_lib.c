@@ -1,4 +1,3 @@
-#define _GNU_SOURCE
 
 #include "davix_test_lib.h"
 

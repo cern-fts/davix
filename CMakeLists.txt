@@ -34,8 +34,8 @@ SET(UNIT_TESTS FALSE
 
 
 # libs checks
-pkg_search_module(GLIBMM_PKG REQUIRED glibmm glibmm-2.6 glibmm-2.4)
 pkg_check_modules(GTHREAD_PKG REQUIRED gthread-2.0)
+pkg_check_modules(GLIB2_PKG REQUIRED glib-2.0)
 
 
 if ( ${HTTP_LIB} STREQUAL "NEON" )
@@ -44,6 +44,8 @@ endif ( ${HTTP_LIB} STREQUAL "NEON" )
 
 
 pkg_check_modules(CRYPTO_PKG REQUIRED libcrypto)
+
+add_definitions( -D_GNU_SOURCE)
 
 if ( ${HTTP_LIB} STREQUAL "NEON" )
     add_definitions( -DNEON_BACKEND)
@@ -59,7 +61,7 @@ else ( ${HTTP_LIB} STREQUAL "NEON" )
 endif ( ${HTTP_LIB} STREQUAL "NEON" )
 
 
-include_directories(${GLIBMM_PKG_INCLUDE_DIRS} ${HTTPLIB_PKG_INCLUDE_DIRS})
+include_directories( ${HTTPLIB_PKG_INCLUDE_DIRS} ${GLIB2_PKG_INCLUDE_DIRS})
 
 install(FILES RELEASE-NOTES
 		DESTINATION ${DOC_INSTALL_DIR}/) # install release notes

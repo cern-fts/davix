@@ -1,7 +1,5 @@
 #include "neonrequest.hpp"
 
-#include <glibmm/error.h>
-#include <glibmm/quark.h>
 #include <cstring>
 #include <libs/time_utils.h>
 

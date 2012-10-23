@@ -1,7 +1,10 @@
 #include "davpropxmlparser.hpp"
 
-#include <datetime/datetime_utils.h>
 #include <status/davixstatusrequest.hpp>
+
+#include <cstdlib>
+#include <datetime/datetime_utils.h>
+
 
 
 const char * prop_pattern = "prop";

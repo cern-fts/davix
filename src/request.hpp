@@ -19,9 +19,8 @@ public:
       Execute the given request and return result to the buffer result
       Execute the constructed query, throw an exception if an error occures
       @return 0 on success
-      @throw Glib::Error : error string and protocol error code
      */
-    virtual int execute_sync(DavixError** err)=0; // throw(Glib::Error)
+    virtual int execute_sync(DavixError** err)=0;
 
     /**
         Define a buffer for the full request body content
@@ -34,7 +33,6 @@ public:
       @param buffer : buffer to fill
       @param max_size : maximum number of byte to read
       @return number of bytes readed
-      @throw Glib::Error
     */
     virtual ssize_t read_block(char* buffer, size_t max_size, DavixError** err)=0;
     /**
@@ -61,14 +59,11 @@ public:
 
     /*
       need to be overwritten for client credential management
-
-      throw Glib::Error if error occures while authenficiation submission, see global_def.h for codes
     */
     virtual int try_set_pkcs12_cert(const char * filename_pkcs12, const char* passwd, DavixError** err);
     /*
       need to be  overwritten for login / password authentification mode
 
-      throw Glib::Error if error occres while authentification
      */
     virtual int try_set_login_passwd(const char* login, const char* passwd, DavixError** err);
 protected:

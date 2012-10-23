@@ -88,3 +88,39 @@ bool RequestParams::getTransparentRedirectionSupport() const{
 
 
 } // namespace Davix
+
+
+
+DAVIX_C_DECL_BEGIN
+
+int davix_params_set_auth_callback(davix_params_t params, davix_auth_callback call, void* userdata, davix_error_t* err){
+    g_return_val_if_fail(params != NULL, -1);
+    Davix::RequestParams* p = (Davix::RequestParams*)(params);
+    p->setAuthentificationCallback(userdata, call);
+    return 0;
+}
+
+
+int davix_params_set_ssl_check(davix_params_t params, gboolean ssl_check, davix_error_t* err){
+    g_return_val_if_fail(params != NULL, -1);
+    Davix::RequestParams* p = (Davix::RequestParams*)(params);
+    p->setSSLCAcheck(ssl_check);
+    return 0;
+}
+
+
+davix_params_t davix_params_new(){
+    return (struct davix_request_params*) new Davix::RequestParams();
+}
+
+davix_params_t davix_params_copy(davix_params_t p){
+    return (struct davix_request_params*) new Davix::RequestParams(*(Davix::RequestParams*) p);
+}
+
+void davix_params_free(davix_params_t p){
+    if(p){
+        delete ((Davix::RequestParams*) p);
+    }
+}
+
+DAVIX_C_DECL_END

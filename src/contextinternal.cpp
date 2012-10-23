@@ -5,6 +5,19 @@ namespace Davix {
 
 using namespace Glib;
 
+
+// initialization
+__attribute__((constructor))
+void core_init(){
+    if (!g_thread_supported())
+      g_thread_init(NULL);
+    Glib::init();
+}
+
+
+
+
+
 ContextInternal::ContextInternal(AbstractSessionFactory* fsess) : _fsess(fsess)
 {
     _s_buff = 65536;

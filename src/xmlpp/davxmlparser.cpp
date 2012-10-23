@@ -60,7 +60,9 @@ int DavXMLParser::parseChuck(const char *partial_string, size_t length){
 
 
 Davix::DavixError* DavXMLParser::getLastErr(){
-    return err;
+    if(err)
+        return err->clone();
+    return new Davix::DavixError(davix_scope_xml_parser(), StatusCode::OK, "Success");
 }
 
 int DavXMLParser::parserStartElemCb(int parent, const char *nspace, const char *name, const char **atts){

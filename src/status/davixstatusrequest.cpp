@@ -11,6 +11,12 @@ struct DavixErrorInternal{
         this->code = errCode;
     }
 
+    DavixErrorInternal(const DavixErrorInternal & e){
+        this->scope = e.scope;
+        this->errMsg = e.errMsg;
+        this->code = e.code;
+    }
+
     std::string scope;
     StatusCode::Code code;
     std::string errMsg;
@@ -21,9 +27,17 @@ DavixError::DavixError(const std::string &scope, StatusCode::Code errCode, const
     d_ptr = new DavixErrorInternal(scope, errCode, errMsg);
 }
 
+DavixError::DavixError(const DavixError & e){
+    d_ptr = new DavixErrorInternal(*(e.d_ptr));
+}
+
 
 DavixError::~DavixError(){
     delete d_ptr;
+}
+
+DavixError* DavixError::clone(){
+    return new DavixError(*this);
 }
 
 

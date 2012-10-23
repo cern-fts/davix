@@ -10,7 +10,7 @@
 
 #include <httprequest.hpp>
 #include <posix/davix_stat.hpp>
-#include <xmlpp/webdavpropparser.hpp>
+#include <status/davixstatusrequest.hpp>
 #include <status/davixstatusrequest.hpp>
 
 static const std::string simple_listing("<propfind xmlns=\"DAV:\"><prop></prop></propfind>");
@@ -20,7 +20,7 @@ static const std::string stat_listing("<propfind xmlns=\"DAV:\"><prop><getlastmo
 
 struct Davix_dir_handle{
 
-    Davix_dir_handle(Davix::HttpRequest* _req, Davix::WebdavPropParser * _parser){
+    Davix_dir_handle(Davix::HttpRequest* _req, Davix::DavPropXMLParser * _parser){
         request = _req;
         parser = _parser;
         size_t s_dirent = sizeof(struct dirent) + NAME_MAX +1;
@@ -34,7 +34,7 @@ struct Davix_dir_handle{
     }
 
    Davix::HttpRequest* request;
-   Davix::WebdavPropParser * parser;
+   Davix::DavPropXMLParser * parser;
    struct dirent* dir_info;
 
 };
@@ -49,16 +49,19 @@ static void fill_dirent_from_filestat(struct dirent * d, const FileProperties & 
     g_strlcpy(d->d_name, f.filename.c_str(), NAME_MAX);
 }
 
-int incremental_propfind_listdir_parsing(HttpRequest* req, WebdavPropParser * parser, size_t s_buff, const char* scope, DavixError** err){
+int incremental_propfind_listdir_parsing(HttpRequest* req, DavPropXMLParser * parser, size_t s_buff, const char* scope, DavixError** err){
   //  std::cout << "time 1 pre-fecth" << time(NULL) << std::endl;
     DavixError* tmp_err=NULL;
 
     char buffer[s_buff+1];
     const ssize_t ret_s_buff= req->read_block(buffer, s_buff, &tmp_err);
-    if(ret_s_buff > 0){
+    if(ret_s_buff >= 0){
         buffer[ret_s_buff]= '\0';
         davix_log_debug("chunk parse : result content : %s", buffer);
-        (void) parser->parser_properties_from_chunk( Glib::ustring(buffer));
+        if( parser->parseChuck(buffer, ret_s_buff) < 0){
+            DavixError::propagateError(err, parser->getLastErr());
+            return -1;
+        }
     }
 
     //std::cout << "time 3 post-parse" << time(NULL) << std::endl;
@@ -87,11 +90,11 @@ DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char
     HttpRequest* http_req = static_cast<HttpRequest*>(context->_intern->getSessionFactory()->create_request(url, &tmp_err));
     if(http_req){
         configure_req_for_listdir(http_req);
-        std::auto_ptr<DIR_handle> res(  new DIR_handle(http_req, new WebdavPropParser()));
+        std::auto_ptr<DIR_handle> res(  new DIR_handle(http_req, new DavPropXMLParser()));
         time_t timestamp_timeout = time(NULL) + _timeout;
 
         http_req->set_parameters(params);
-        WebdavPropParser* parser = res->parser;
+        DavPropXMLParser* parser = res->parser;
         // setup the handle for simple listing only
         http_req->add_full_request_content(body);
 
@@ -106,7 +109,7 @@ DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char
                        if( (s_resu = incremental_propfind_listdir_parsing(http_req, parser, this->_s_buff, scope, &tmp_err)) <0)
                            break;
 
-                       prop_size = parser->get_current_properties().size();
+                       prop_size = parser->getProperties().size();
                        if(s_resu < _s_buff && prop_size <1){ // verify request status : if req done + no data -> error
                            DavixError::setupError(&tmp_err, davix_scope_directory_listing_str(), StatusCode::WebDavPropertiesParsingError, "request answer incorrect, not a valid webdav request");
                            break;
@@ -118,9 +121,10 @@ DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char
 
                     }while( prop_size < 1); // leave is end of req & no data
 
-                    if(!tmp_err)
+                    if(!tmp_err){
+                        parser->getProperties().pop_front(); // suppress the parent directory infos...
                         r = res.release(); // success : take ownership of the pointer
-
+                    }
             }else{
                 httpcodeToDavixCode(http_req->getRequestCode(),davix_scope_directory_listing_str()," ", &tmp_err);
             }
@@ -164,22 +168,24 @@ struct dirent* DavPosix::readdir(DAVIX_DIR * d, DavixError** err){
 
 
     HttpRequest *req = handle->request; // setup env again
-    WebdavPropParser* parser = handle->parser;
+    DavPropXMLParser* parser = handle->parser;
     off_t read_offset = handle->dir_info->d_off+1;
-    size_t prop_size = parser->get_current_properties().size();
+    size_t prop_size = parser->getProperties().size();
     size_t s_resu = _s_buff;
 
-    while(read_offset > ((off_t)prop_size)-1 && s_resu > 0){ // request not complete and current data too smalls
+    while( prop_size == 0
+          && s_resu > 0){ // request not complete and current data too smalls
         // continue the parsing until one more result
        if( (s_resu = incremental_propfind_listdir_parsing(req, parser, this->_s_buff, "Davix::readdir", &tmp_err)) <0)
            break;
 
-       prop_size = parser->get_current_properties().size();
+       prop_size = parser->getProperties().size();
     }
     if(!tmp_err){
-        if(read_offset > ((off_t)prop_size)-1) // end of the request, end of the story
+        if(prop_size == 0) // end of the request, end of the story
             return NULL;
-        fill_dirent_from_filestat(handle->dir_info, parser->get_current_properties().at(read_offset), read_offset);
+        fill_dirent_from_filestat(handle->dir_info, parser->getProperties().front(), read_offset);
+        parser->getProperties().pop_front(); // clean the current element
         davix_log_debug(" <- davix_readdir");
         return handle->dir_info;
     }
@@ -203,21 +209,27 @@ struct dirent* DavPosix::readdirpp(DAVIX_DIR * d, struct stat *st, DavixError** 
     DavixError* tmp_err=NULL;
 
     HttpRequest* req = handle->request; // setup env again
-    WebdavPropParser* parser = handle->parser;
+    DavPropXMLParser* parser = handle->parser;
     off_t read_offset = handle->dir_info->d_off+1;
-    size_t prop_size = parser->get_current_properties().size();
+    size_t prop_size = parser->getProperties().size();
     size_t s_resu = _s_buff;
 
-    while(read_offset > ((off_t)prop_size)-1 && s_resu > 0){ // request not complete and current data too small
+    while( prop_size == 0
+          && s_resu > 0){ // request not complete and current data too smalls
         // continue the parsing until one more result
        if( (s_resu = incremental_propfind_listdir_parsing(req, parser, this->_s_buff, "Davix::readdirpp", &tmp_err)) <0)
            break;
-       prop_size = parser->get_current_properties().size();
+
+       prop_size = parser->getProperties().size();
     }
+
     if(!tmp_err){
-        if(read_offset <= ((off_t)prop_size)-1){ // end of the request, end of the story
-            fill_dirent_from_filestat(handle->dir_info, parser->get_current_properties().at(read_offset), read_offset);
-            fill_stat_from_fileproperties(st, parser->get_current_properties().at(read_offset));
+        if(prop_size == 0){
+            ret= NULL; // end of the request, end of the story
+        }else{
+            fill_dirent_from_filestat(handle->dir_info, parser->getProperties().front(), read_offset);
+            fill_stat_from_fileproperties(st, parser->getProperties().front());
+            parser->getProperties().pop_front(); // clean the current element
             ret= handle->dir_info;
         }
         davix_log_debug(" <- davix_readdirpp");

@@ -8,8 +8,11 @@ namespace Davix {
 
 struct FileProperties
 {
+    FileProperties(){
+        clear();
+    }
 
-    Glib::ustring  filename;
+    std::string filename;
     unsigned int  req_status; /* status code of the request associated ( ex: http 200) */
 
     nlink_t   nlink;
@@ -25,6 +28,7 @@ struct FileProperties
     inline void clear(){
         nlink = req_status =  gid = uid = size =0;
         mode = atime = mtime = ctime = 0;
+        filename=std::string();
     }
 
 };

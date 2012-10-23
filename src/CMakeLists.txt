@@ -37,14 +37,13 @@ else ( ${HTTP_LIB} STREQUAL "NEON" )
 endif ( ${HTTP_LIB} STREQUAL "NEON" )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-add_definitions(${GLIBMM_PKG_CFLAGS} ${HTTPLIB_PKG_CFLAGS} ${LIBXMLPP_PKG_CFLAGS})
+add_definitions(${GLIBMM_PKG_CFLAGS} ${HTTPLIB_PKG_CFLAGS} )
 add_library(davix  SHARED ${src_davix} ${SRC_HTTP}  ${src_xmlparser} ${src_logger} ${src_datetime}
                            ${src_crypto} ${src_davix_posix} ${src_davix_status})
 
 
 target_link_libraries(davix ${GLIBMM_PKG_LIBRARIES} ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES} ${GTHREAD_PKG_LIBRARIES})
 
-target_link_libraries(davix  ${LIBXMLPP_PKG_LIBRARIES})
 
 
 set_target_properties(davix PROPERTIES

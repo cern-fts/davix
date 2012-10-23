@@ -19,6 +19,7 @@ public:
     virtual int parseChuck(const char * partial_string, size_t len);
 
 
+    // return last error, dnamically allocated, need to be free
     Davix::DavixError* getLastErr();
 
 protected:

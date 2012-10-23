@@ -38,7 +38,10 @@ int main(int argc, char** argv){
 
 
     struct stat st;
-    pos.stat(&p, argv[1], &st, &tmp_err);
+    if( pos.stat(&p, argv[1], &st, &tmp_err) < 0){
+        std::cerr << " error on stat req " << tmp_err->getErrMsg() << std::endl;
+        return -1;
+    }
 
     std::cout << "stat success" << std::endl;
     std::cout << " atime : " << st.st_atime << std::endl;

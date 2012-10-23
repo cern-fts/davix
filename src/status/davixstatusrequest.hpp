@@ -55,9 +55,11 @@ enum Code{
 class DavixError{
 public:
     DavixError(const std::string & scope, StatusCode::Code errCode, const std::string & errMsg);
+    DavixError(const DavixError & e);
     virtual ~DavixError();
 
 
+    DavixError* clone();
 
     StatusCode::Code getStatus() const;
 

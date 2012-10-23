@@ -295,11 +295,13 @@ int NEONRequest::execute_sync(DavixError** err){
         size_t s = _vec.size();
         _vec.resize(s + NEON_BUFFER_SIZE);
         read_status= ne_read_response_block(_req, &(_vec[s]), NEON_BUFFER_SIZE );
-        if( read_status > 0 && read_status != NEON_BUFFER_SIZE){
+        if( read_status >= 0 && read_status != NEON_BUFFER_SIZE){
            _vec.resize(s +  read_status);
         }
 
     }
+    // push a last NULL char for safety
+    _vec.push_back('\0');
 
     if(read_status < 0){
         neon_to_davix_code(read_status, _sess, davix_scope_http_request(), &tmp_err);
@@ -332,7 +334,7 @@ int NEONRequest::execute_block(DavixError** err){
 }
 
 ssize_t NEONRequest::read_block(char* buffer, size_t max_size, DavixError** err){
-    ssize_t read_status=1;
+    ssize_t read_status=-1;
 
     if(_req == NULL){
         DavixError::setupError(err, davix_scope_http_request(), StatusCode::alreadyRunning, "No request started");

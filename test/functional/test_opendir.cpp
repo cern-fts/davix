@@ -55,7 +55,7 @@ int main(int argc, char** argv){
         return 0;
     }
 
-    g_logger_set_globalfilter(G_LOG_LEVEL_WARNING);
+    g_logger_set_globalfilter(G_LOG_LEVEL_MASK);
 
 
     DavixError* tmp_err=NULL;

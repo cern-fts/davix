@@ -42,7 +42,6 @@ if ( ${HTTP_LIB} STREQUAL "NEON" )
 pkg_check_modules(HTTPLIB_PKG REQUIRED neon)
 endif ( ${HTTP_LIB} STREQUAL "NEON" )
 
-pkg_search_module(LIBXMLPP_PKG REQUIRED libxml++ libxml++-2.6 libxml++-2.4)
 
 pkg_check_modules(CRYPTO_PKG REQUIRED libcrypto)
 
@@ -61,7 +60,6 @@ endif ( ${HTTP_LIB} STREQUAL "NEON" )
 
 
 include_directories(${GLIBMM_PKG_INCLUDE_DIRS} ${HTTPLIB_PKG_INCLUDE_DIRS})
-include_directories(${LIBXMLPP_PKG_INCLUDE_DIRS})
 
 install(FILES RELEASE-NOTES
 		DESTINATION ${DOC_INSTALL_DIR}/) # install release notes

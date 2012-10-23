@@ -4,7 +4,7 @@
 #include <sstream>
 #include <string>
 #include <cstring>
-#include <xmlpp/webdavpropparser.hpp>
+#include <status/davixstatusrequest.hpp>
 
 #include <contextinternal.h>
 
@@ -26,17 +26,22 @@ int DavPosix::stat(const RequestParams * _params, const std::string & url, struc
     DavixError* tmp_err=NULL;
 
     int ret =-1;
-    WebdavPropParser parser;
+    DavPropXMLParser parser;
     std::auto_ptr<HttpRequest> req( static_cast<HttpRequest*>(context->_intern->getSessionFactory()->create_request(url, &tmp_err)));
     if( req.get() != NULL){
         req->set_parameters(params);
 
         const std::vector<char> & res = req_webdav_propfind(req.get(), &tmp_err);
         if(!tmp_err){
-            const std::vector<FileProperties> & props = parser.parser_properties_from_memory(std::string(((char*) & res.at(0)), res.size()));
+            if( (ret = parser.parseChuck((const char*) & res.at(0), res.size()) ) < 0){
+                DavixError::propagateError(err, parser.getLastErr());
+                return -1;
+            }
 
+            std::deque<FileProperties> & props = parser.getProperties();
             if( props.size() < 1){
                 DavixError::setupError(&tmp_err, davix_scope_stat_str(), Davix::StatusCode::WebDavPropertiesParsingError, "Parsing Error : properties number < 1");
+                ret =-1;
             }else{
                 fill_stat_from_fileproperties(st, props.front());
                 ret =0;

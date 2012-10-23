@@ -282,7 +282,7 @@ const char* list_item[] = { "g2", "generated", "test", "speed_test2", "speed_tes
 
 TEST(XmlParserInstance, createParser){
     Davix::DavXMLParser * parser = new Davix::DavXMLParser();
-    ASSERT_EQ(NULL,parser->getLastErr());
+    ASSERT_EQ(Davix::StatusCode::OK,parser->getLastErr()->getStatus());
     delete parser;
 }
 

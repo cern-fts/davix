@@ -3,6 +3,13 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <pthread.h>
 
 int mycred_auth_callback(davix_auth_t token, const davix_auth_info_t* t, void* userdata, davix_error_t* err){
     davix_error_t tmp_err=NULL;
@@ -32,3 +39,23 @@ int mycred_auth_callback(davix_auth_t token, const davix_auth_info_t* t, void* u
     return ret;
 }
 
+
+
+
+
+
+
+char* generate_random_uri(const char* uri_dir, const char* prefix, char* buff, size_t s_buff){
+    snprintf(buff, s_buff, "%s/%s_%d%ld%ld",uri_dir, prefix, (int)getpid() ,(long) time(NULL), (long) rand());
+    return buff;
+}
+
+char * generate_random_string_content(size_t size){
+    char * res = malloc(size * sizeof(char));
+    size_t i =0;
+    while(i < size){
+        res[i]= (char) (((rand()%2)?65:97)+(rand()%26));
+        i++;
+    }
+    return res;
+}

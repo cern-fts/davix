@@ -18,6 +18,7 @@ set( src_test_opendir_c "test_opendir_c.cpp")
 set( src_test_opendir_partial "test_opendir_partial.cpp")
 set( src_test_opendirpp "test_opendirpp.cpp")
 set( src_test_stat_c "test_stat_c.c")
+set( src_test_auto_stat_mkdir_check "test_auto_stat_mkdir_check.cpp")
 
 add_executable(test_request ${src_test_req} )
 target_link_libraries(test_request davix)
@@ -28,6 +29,9 @@ target_link_libraries(test_prop davix)
 
 add_executable(test_stat ${src_test_stat} ${src_davix_test_lib})
 target_link_libraries(test_stat davix)
+
+add_executable(test_stat_auto_check ${src_test_auto_stat_mkdir_check} ${src_davix_test_lib})
+target_link_libraries(test_stat_auto_check davix)
 
 add_executable(test_mkdir ${src_test_mkdir} )
 target_link_libraries(test_mkdir davix)
@@ -71,6 +75,7 @@ function(test_dav_endpoint_rw name cred)
     add_test(test_opendirpp_${name} test_opendirpp ${name} ${cred})
     add_test(test_stat_c_${name} test_stat_c ${name} ${cred})
     add_test(test_mkdir_${name} test_mkdir ${name} ${cred})
+    add_test(test_stat_auto_check_${name} test_stat_auto_check ${name} ${cred})
 endfunction(test_dav_endpoint_rw name cred)
 
 function(listdir_partial name size cred)

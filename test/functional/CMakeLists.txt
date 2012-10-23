@@ -48,7 +48,7 @@ target_link_libraries(test_opendir_partial davix)
 add_executable(test_opendirpp ${src_test_opendirpp} ${src_davix_test_lib})
 target_link_libraries(test_opendirpp davix)
 
-add_executable(test_stat_c ${src_test_stat_c} )
+add_executable(test_stat_c ${src_test_stat_c} ${src_davix_test_lib})
 target_link_libraries(test_stat_c davix)
 
 

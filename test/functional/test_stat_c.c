@@ -6,35 +6,8 @@
 #include <davix.h>
 #include <glib.h>
 #include <string.h>
+#include "davix_test_lib.h"
 
-
-int mycred_auth_callback(davix_auth_t token, const davix_auth_info_t* t, void* userdata, GError** err){
-    GError * tmp_err=NULL;
-    char login[2048];
-    char passwd[2048];
-    char *p,*auth_string =(char*) userdata;
-    int ret ;
-    gboolean login_password_auth_type = FALSE;
-    memset(login,'\0', sizeof(char)*2048);
-
-    if( (p = strchr(auth_string,':')) != NULL)
-        login_password_auth_type = TRUE;
-
-    if(login_password_auth_type ){
-        *((char*) mempcpy(login, auth_string, p-auth_string)) = '\0';
-        strcpy(passwd, p+1 );
-        ret = davix_set_login_passwd_auth(token, login, passwd, &tmp_err);
-
-    }else{
-        ret = davix_set_pkcs12_auth(token, (const char*)userdata, (const char*)NULL, &tmp_err);
-    }
-
-    if(ret != 0){
-        fprintf(stderr, " FATAL authentification Error : %s", tmp_err->message);
-        g_propagate_error(err, tmp_err);
-    }
-    return ret;
-}
 
 
 int main(int argc, char** argv){
@@ -44,7 +17,7 @@ int main(int argc, char** argv){
     }
 
 
-    GError * tmp_err=NULL;
+    davix_error_t tmp_err=NULL;
     int res =-1;
     struct stat st;
     davix_params_t p = NULL;
@@ -72,7 +45,7 @@ int main(int argc, char** argv){
        printf(" mode : %d \n", st.st_mode );
        printf(" len : %ld \n", st.st_size );
     }else{
-        printf(" error N°%d : %s \n", tmp_err->code, tmp_err->message);
+        printf(" error N°%d : %s \n", davix_error_code(tmp_err), davix_error_msg(tmp_err));
     }
     davix_context_free(ctxt);
     davix_params_free(p);

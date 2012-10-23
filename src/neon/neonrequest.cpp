@@ -11,40 +11,6 @@ namespace Davix {
   authentification handle for neon
  */
 
-std::string  translate_neon_status(int ne_status, ne_session* sess, int* errno_code){
-    switch(ne_status){
-        case NE_OK:
-            *errno_code =0;
-            return "Success, no Error";
-        case NE_ERROR:
-             *errno_code = ECOMM;
-             return ne_get_error(sess);
-        case NE_LOOKUP:
-             *errno_code = ENOSYS;
-             return "Domain Name resolution failed";
-        case NE_AUTH:
-            *errno_code = EPERM;
-            return "Authentification Failed on server";
-        case NE_PROXYAUTH:
-            *errno_code = EPERM;
-            return "Authentification Failed on proxy";
-        case NE_CONNECT:
-            *errno_code = ECOMM;
-            return "Could not connect to server";
-        case NE_TIMEOUT:
-            *errno_code = ETIME;
-            return "Connection timed out";
-        case NE_FAILED:
-            *errno_code = EINVAL;
-            return "The precondition failed";
-        case NE_RETRY:
-            *errno_code = EAGAIN;
-            return "Retry Request";
-        default:
-            *errno_code = ECOMM;
-            return "Unknow Error from libneon";
-    }
-}
 
 void neon_to_davix_code(int ne_status, ne_session* sess, const std::string & scope, DavixError** err){
     StatusCode::Code code;
@@ -362,8 +328,11 @@ int NEONRequest::finish_block(DavixError** err){
 
     req_running = false;
     if( (status = ne_end_request(_req)) != NE_OK){
-        std::string err_str = translate_neon_status(status, _sess,&err_code);
-        davix_log_debug("NEONRequest::finish_block -> error %d Error closing request -> %s ", err_code, err_str.c_str());
+        DavixError* tmp_err=NULL;
+        neon_to_davix_code(status, _sess, davix_scope_http_request(), &tmp_err);
+        if(tmp_err)
+            davix_log_debug("NEONRequest::finish_block -> error %d Error closing request -> %s ", tmp_err->getStatus(), tmp_err->getErrMsg().c_str());
+        DavixError::clearError(&tmp_err);
     }
     return 0;
 }

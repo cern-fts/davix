@@ -123,11 +123,10 @@ protected:
 
 };
 
-/**
-  translate a neon function status to a string and a errno code
- */
-std::string  translate_neon_status(int ne_status, ne_session* sess, int* errno_code);
 
+//
+// translate a neon error code to a davix one
+//
 void neon_to_davix_code(int ne_status,ne_session* sess, const std::string & scope, DavixError** err);
 
 

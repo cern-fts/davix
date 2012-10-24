@@ -2,14 +2,65 @@
 #include <sstream>
 #include <ostream>
 
+#include <neon/neonrequest.hpp>
+
 namespace Davix {
 
-HttpRequest::HttpRequest()
+HttpRequest::HttpRequest(NEONRequest* req)
 {
+    d_ptr = req;
 }
 
 HttpRequest::~HttpRequest()
 {
+    delete d_ptr;
+}
+
+
+void HttpRequest::setRequestMethod(const std::string &request_str){
+    d_ptr->setRequestMethod(request_str);
+}
+
+
+void HttpRequest::addHeaderField(const std::string &field, const std::string &value){
+    d_ptr->addHeaderField(field, value);
+}
+
+void HttpRequest::set_parameters(const RequestParams &p){
+    d_ptr->set_parameters(p);
+}
+
+void HttpRequest::add_full_request_content(const std::string &body){
+    d_ptr->add_full_request_content(body);
+}
+
+int HttpRequest::getRequestCode(){
+    return d_ptr->getRequestCode();
+}
+
+int HttpRequest::execute_sync(DavixError **err){
+    return d_ptr->execute_sync(err);
+}
+
+int HttpRequest::execute_block(DavixError **err){
+    return d_ptr->execute_block(err);
+}
+
+ssize_t HttpRequest::read_block(char *buffer, size_t max_size, DavixError **err){
+    return d_ptr->read_block(buffer, max_size, err);
+}
+
+int HttpRequest::finish_block(DavixError **err){
+    return d_ptr->finish_block(err);
+}
+
+
+void HttpRequest::clear_result(){
+    d_ptr->clear_result();
+}
+
+const std::vector<char> & HttpRequest::get_result(){
+    return d_ptr->get_result();
 }
 
 

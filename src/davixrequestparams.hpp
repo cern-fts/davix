@@ -16,7 +16,7 @@
 
 namespace Davix {
 
-
+class RequestParamsInternal;
 
 class RequestParams
 {
@@ -28,9 +28,8 @@ public:
 
     virtual ~RequestParams();
 
-    /**
-      disable the certificate authority validity check for the https request
-    */
+
+    ///  disable the certificate authority validity check for the https request
     inline void setSSLCAcheck(bool chk){
         ssl_check = chk;
     }
@@ -41,12 +40,18 @@ public:
 
 
 
-    /**
-      authentification callback for right management
-    */
+    /// set the authentification callback for the associated Request or set of request
+    /// userdata will be passed as argument inside the callback
+    /// @param userdata : user data handler
+    /// @param auth_cb : authentification function
     void setAuthentificationCallback(void * userdata, davix_auth_callback call);
 
+    /// return the current authentification callback
+    /// DEFAULT : NULL
     davix_auth_callback getAuthentificationCallbackFunction();
+
+    /// return the current user data
+    /// DEFAULT : NULL
     void* getAuthentificationCallbackData();
 
     /// define the connexion timeout
@@ -78,13 +83,16 @@ private:
     bool ssl_check;
     bool _redirection;
 
-    // auth callback
-    davix_auth_callback call;
+    // auth info
     void* userdata;
-
+    davix_auth_callback call;
     //
     void _init();
     // dptr
+    RequestParamsInternal* d_ptr;
+
+
+    static void copy(RequestParams & dest, const RequestParams & params);
 };
 
 

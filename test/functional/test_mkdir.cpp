@@ -28,10 +28,10 @@ int mycred_auth_callback(davix_auth_t token, const davix_auth_info_t* t, void* u
     if(login_password_auth_type ){
         *((char*) mempcpy(login, auth_string, p-auth_string)) = '\0';
         strcpy(passwd, p+1 );
-        ret = davix_set_login_passwd_auth(token, login, passwd, &tmp_err);
+        ret = davix_auth_set_login_passwd(token, login, passwd, &tmp_err);
 
     }else{
-        ret = davix_set_pkcs12_auth(token, (const char*)userdata, (const char*)NULL, &tmp_err);
+        ret = davix_auth_set_pkcs12_cli_cert(token, (const char*)userdata, (const char*)NULL, &tmp_err);
     }
 
     if(ret != 0){

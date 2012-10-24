@@ -2,11 +2,12 @@
 #define ABSTRACTSESSIONFACTORY_H
 
 #include "global_def.hpp"
-#include "request.hpp"
+#include "httprequest.hpp"
 #include <davixrequestparams.hpp>
 
 namespace Davix{
 
+class HttpRequest;
 
 class AbstractSessionFactory
 {
@@ -22,12 +23,8 @@ public:
       @param url : path of the request
       @return Request object
     */
-    virtual Request* create_request(const std::string & url, DavixError** err) =0;
+    virtual HttpRequest* create_request(const std::string & url, DavixError** err) =0;
 
-    /**
-        delete the request object
-     */
-    virtual void delete_request(Request * ref)=0;  // throw nothing
 
 
 };

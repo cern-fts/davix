@@ -97,9 +97,9 @@ int davix_set_default_session_params(davix_sess_t sess, davix_params_t params, d
 //
 // Authenficiation callback specific parameters
 //
-int davix_set_pkcs12_auth(davix_auth_t token, const char* filename_pkcs, const char* passwd, davix_error_t* err);
+int davix_auth_set_pkcs12_cli_cert(davix_auth_t token, const char* filename_pkcs, const char* passwd, davix_error_t* err);
 
-int davix_set_login_passwd_auth(davix_auth_t token, const char* login, const char* passwd, davix_error_t* err);
+int davix_auth_set_login_passwd(davix_auth_t token, const char* login, const char* passwd, davix_error_t* err);
 
 
 DAVIX_C_DECL_END

@@ -4,33 +4,51 @@
 
 namespace Davix {
 
+
+struct RequestParamsInternal{
+    RequestParamsInternal(){}
+    virtual ~RequestParamsInternal(){}
+    RequestParamsInternal(const RequestParamsInternal & param_private){
+        a = param_private.a;
+    }
+    int a;
+};
+
+
 RequestParams::RequestParams()
 {
+    d_ptr= NULL;
     _init();
 }
 
 RequestParams::RequestParams(const RequestParams& params){
-    call = params.call;
-    userdata = params.userdata;
-    ssl_check = params.ssl_check;
-    timespec_copy(&(connexion_timeout), &(params.connexion_timeout));
-    timespec_copy(&(ops_timeout), &(params.ops_timeout));
-    _redirection = params._redirection;
+    copy(*this, params);
 }
 
-RequestParams::~RequestParams(){
 
+
+
+RequestParams::~RequestParams(){
+   // delete d_ptr;
 }
 
 RequestParams::RequestParams(const RequestParams* params){
     if(params){
-        *this = *params;
+        copy(*this, *params);
     }else{
         _init();
     }
 }
 
-
+void RequestParams::copy(RequestParams &dest, const RequestParams &params){
+    dest.call = params.call;
+    dest.userdata = params.userdata;
+    dest.ssl_check = params.ssl_check;
+    timespec_copy(&(dest.connexion_timeout), &(params.connexion_timeout));
+    timespec_copy(&(dest.ops_timeout), &(params.ops_timeout));
+    dest._redirection = params._redirection;
+    dest.d_ptr = new RequestParamsInternal(*(params.d_ptr));
+}
 
 
 void RequestParams::_init(){
@@ -42,6 +60,7 @@ void RequestParams::_init(){
     ssl_check = true;
     userdata = NULL;
     _redirection = true;
+    d_ptr = new RequestParamsInternal();
 }
 
 

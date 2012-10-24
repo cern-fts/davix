@@ -67,25 +67,34 @@ void NEONRequest::provide_clicert_fn(void *userdata, ne_session *sess,
                                          const ne_ssl_dname *const *dnames,
                                          int dncount){
 
-    NEONRequest* req = (NEONRequest*) userdata;
+    NEONRequest* req = static_cast<NEONRequest*>(userdata);
     DavixError* tmp_err=NULL;
+    davix_auth_info_t auth_info;
+    auth_info.auth = DAVIX_CLI_CERT_PKCS12;
+    davix_auth_callback auth_call = req->params.getAuthentificationCallbackFunction();
+
     davix_log_debug("NEONRequest > clicert callback ");
-    if( req->params.getAuthentificationCallbackFunction() == NULL){
-        davix_log_debug("NEONRequest : No credential specified, cancel authentification");
+    if( auth_call == NULL){
+        davix_log_debug("NEONRequest : No callback specified, cancel authentification");
         return;
     }else{
-        req->try_pkcs12_authentification(sess, dnames, &tmp_err);
+        davix_log_debug("NEONRequest > call authentification callback ");
+        int ret = auth_call((davix_auth_t) req, &auth_info, req->params.getAuthentificationCallbackData(), (davix_error_t*) &tmp_err); // try to get authentification
+        davix_log_debug("NEONRequest > return from authentification callback ");
+        if(ret !=0 && tmp_err == NULL){
+            DavixError::setupError(&tmp_err, davix_scope_http_request(), StatusCode::authentificationError, "Authentification callback returned with CANCEL without DavixError object");
+        }
     }
     if(tmp_err){
-        req->last_error = tmp_err;
-        // TODO : error mangement
+       DavixError::propagateError(&(req->auth_last_error), tmp_err);
     }
     return;
 }
 
 int NEONRequest::provide_login_passwd_fn(void *userdata, const char *realm, int attempt,
                                 char *username, char *password){
-    NEONRequest * req = static_cast<NEONRequest*>(userdata);
+    HttpRequest* http_req = static_cast<HttpRequest*>(userdata);
+    NEONRequest * req = http_req->d_ptr;
 
      davix_log_debug("NEONRequest > Try to get auth/password authentification ");
      davix_auth_info_t auth_info;
@@ -100,10 +109,10 @@ int NEONRequest::provide_login_passwd_fn(void *userdata, const char *realm, int 
      }
 
      davix_log_debug("NEONRequest > call authentification callback ");
-     int ret = auth_call((davix_auth_t) static_cast<Request*>(req), &auth_info, req->params.getAuthentificationCallbackData(), (davix_error_t*) &tmp_err); // try to get authentification
+     int ret = auth_call((davix_auth_t) http_req, &auth_info, req->params.getAuthentificationCallbackData(), (davix_error_t*) &tmp_err); // try to get authentification
      davix_log_debug("NEONRequest > return from authentification callback ");
      if(ret != 0){
-            DavixError::propagateError(&(req->last_error), tmp_err);
+            DavixError::propagateError(&(req->auth_last_error), tmp_err);
             return -2;
      }
 
@@ -133,9 +142,7 @@ NEONRequest::NEONRequest(NEONSessionFactory* f, ne_session * sess, const std::st
     _req=NULL;
     _f = f;
     req_started= req_running =false;
-    last_error = NULL;
-    ne_ssl_provide_clicert(sess, &NEONRequest::provide_clicert_fn, this);
-    ne_set_server_auth(sess, &NEONRequest::provide_login_passwd_fn, this);
+    auth_last_error = NULL;
 }
 
 NEONRequest::~NEONRequest(){
@@ -172,6 +179,14 @@ void NEONRequest::configure_sess(){
         davix_log_debug("NEONRequest : disable ssl verification");
         ne_ssl_set_verify(_sess, validate_all_certificate, NULL);
     }
+
+    // if authentification callback defined, enable the wrapper
+    if( params.getAuthentificationCallbackFunction() != NULL){
+        ne_ssl_provide_clicert(_sess, &NEONRequest::provide_clicert_fn, this);
+        ne_set_server_auth(_sess, &NEONRequest::provide_login_passwd_fn, this);
+    }
+
+
 
     if( timespec_isset(params.getOperationTimeout())){
         davix_log_debug("NEONRequest : define operation timeout to %d", params.getOperationTimeout());
@@ -239,13 +254,6 @@ int NEONRequest::negotiate_request(DavixError** err){
     return 0;
 }
 
-void NEONRequest::setRequestMethod(const std::string &request_str){
-    _request_type = request_str;
-}
-
-void NEONRequest::addHeaderField(const std::string &field, const std::string &value){
-    _headers_field.push_back(std::pair<std::string, std::string> (field, value));
-}
 
 int NEONRequest::execute_sync(DavixError** err){
     ssize_t read_status=1;
@@ -323,8 +331,6 @@ ssize_t NEONRequest::read_block(char* buffer, size_t max_size, DavixError** err)
 
 int NEONRequest::finish_block(DavixError** err){
     int status;
-    int err_code;
-
 
     if(_req == NULL || req_running == false){
         DavixError::setupError(err, davix_scope_http_request(), StatusCode::alreadyRunning, "Http request already started, Error");
@@ -356,29 +362,28 @@ const std::vector<char> & NEONRequest::get_result(){
     return _vec;
 }
 
-int NEONRequest::try_set_pkcs12_cert(const char *filename_pkcs12, const char *passwd, DavixError** err){
+int NEONRequest::do_pkcs12_cert_authentification(const char *filename_pkcs12, const char *passwd, DavixError** err){
     int ret;
-    DavixError* tmp_err=NULL;
     ne_ssl_client_cert * cert = ne_ssl_clicert_read(filename_pkcs12);
     if(cert == NULL){
-        DavixError::setupError(&tmp_err, davix_scope_http_request(), StatusCode::credentialNotFound, "impossible to load credential pkcs12");
+        DavixError::setupError(err, davix_scope_http_request(), StatusCode::credentialNotFound, "impossible to load credential pkcs12");
         return -1;
     }
 
     // try to decrypt
     int crypt_state = ne_ssl_clicert_encrypted(cert);
     if(crypt_state ==0 ){
-        davix_log_debug("NEONRequest : Credential unencrypted, use it directly");
+        davix_log_debug("NEONRequest : Credential unencrypted, try to use it directly");
     }else{
         davix_log_debug("NEONRequest : Credential is encrypted, try to decrypt credential");
 
         if(passwd == NULL){
-            DavixError::setupError(&tmp_err, davix_scope_http_request(), StatusCode::loginPasswordError, "no password provided and credential encrypted");
+            DavixError::setupError(err, davix_scope_http_request(), StatusCode::loginPasswordError, "no password provided and credential encrypted");
             return -1;
         }
 
         if ((ret= ne_ssl_clicert_decrypt(cert, passwd)) != 0){
-            DavixError::setupError(&tmp_err, davix_scope_http_request(), StatusCode::loginPasswordError, "Unable to decrypt credential, bad password");
+            DavixError::setupError(err, davix_scope_http_request(), StatusCode::loginPasswordError, "Unable to decrypt credential, bad password");
             return -1;
         }
     }
@@ -388,31 +393,11 @@ int NEONRequest::try_set_pkcs12_cert(const char *filename_pkcs12, const char *pa
     return 0;
 }
 
-int NEONRequest::try_set_login_passwd(const char *login, const char *passwd, DavixError** err){
+int NEONRequest::do_login_passwd_authentification(const char *login, const char *passwd, DavixError** err){
    this->_login = (char*) login;
    this->_passwd = (char*)  passwd;
    return 0;
 }
-
-int NEONRequest::try_pkcs12_authentification(ne_session *sess, const ne_ssl_dname *const *dnames, DavixError** err){
-    davix_log_debug("NEONRequest : Try to decrypt credential ");
-    davix_auth_info_t auth_info;
-    memset(&auth_info,0,sizeof(davix_auth_info_t));
-    auth_info.auth = DAVIX_CLI_CERT_PKCS12;
-    davix_auth_callback call = params.getAuthentificationCallbackFunction();
-    DavixError* tmp_err=NULL;
-
-    davix_log_debug("NEONRequest > call authentification callback ");
-
-    int ret = call((davix_auth_t) static_cast<Request*>(this), &auth_info, params.getAuthentificationCallbackData(), (davix_error_t*) &tmp_err); // try to get authentification
-    davix_log_debug("NEONRequest > return from authentification callback ");
-    if(tmp_err){
-        DavixError::propagateError(err, tmp_err);
-        return 0;
-    }
-    return ret;
-}
-
 
 
 void NEONRequest::add_full_request_content(const std::string & body){

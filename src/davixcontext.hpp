@@ -11,8 +11,7 @@ class ContextInternal;
 class HttpRequest;
 
 /// @brief Main Entry point for Davix
-/// a Davix context is a independant instance of Davix
-/// Each instance of Davix has its own session-reuse pool and parameters
+/// Each new davix context has its own session-reuse pool and parameters
 class Context
 {
 public:

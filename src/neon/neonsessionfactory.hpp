@@ -10,6 +10,8 @@
 
 namespace Davix {
 
+class HttpRequest;
+
 class NEONSessionFactory : public AbstractSessionFactory
 {
     friend class NEONRequest;
@@ -23,7 +25,7 @@ public:
       @param url : path of the request
       @return Request object
     */
-    virtual Request* create_request(const std::string & url, DavixError** err) ;
+    virtual HttpRequest* create_request(const std::string & url, DavixError** err) ;
 
     /**
       Create a session object or create a recycled  one ( session reuse )
@@ -34,12 +36,6 @@ public:
       store a Neon session object for session reuse purpose
     */
     int storeNeonSession(const Uri & uri, ne_session *sess);
-
-    /**
-        release the ownership on a request object
-     */
-    virtual void delete_request(Request * req);
-
 
 private:
     std::multimap<std::string, ne_session*> _sess_map;

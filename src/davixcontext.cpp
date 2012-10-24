@@ -36,24 +36,23 @@ HttpRequest* Context::createRequest(const std::string & uri, DavixError** err){
 DAVIX_C_DECL_BEGIN
 
 
-int davix_set_pkcs12_auth(davix_auth_t token, const char* filename_pkcs, const char* passwd, davix_error_t* err){
-    Davix::Request* req = (Davix::Request*)(token);
+int davix_auth_set_pkcs12_cli_cert(davix_auth_t token, const char* filename_pkcs, const char* passwd, davix_error_t* err){
+    Davix::NEONRequest* req = (Davix::NEONRequest*)(token);
     Davix::DavixError* tmp_err=NULL;
 
-    if( req->try_set_pkcs12_cert(filename_pkcs, passwd, &tmp_err) <0){
+    if( req->do_pkcs12_cert_authentification(filename_pkcs, passwd, &tmp_err) <0){
         Davix::DavixError::propagateError((Davix::DavixError**) err, tmp_err);
         return -1;
     }
 
-
     return 0;
 }
 
-int davix_set_login_passwd_auth(davix_auth_t token, const char* login, const char* passwd, davix_error_t* err){
-    Davix::Request* req = (Davix::Request*)(token);
+int davix_auth_set_login_passwd(davix_auth_t token, const char* login, const char* passwd, davix_error_t* err){
+    Davix::NEONRequest* req = (Davix::NEONRequest*)(token);
     Davix::DavixError* tmp_err=NULL;
 
-    if(req->try_set_login_passwd(login, passwd, &tmp_err) <0){
+    if(req->do_login_passwd_authentification(login, passwd, &tmp_err) <0){
         Davix::DavixError::propagateError((Davix::DavixError**) err, tmp_err);
         return -1;
     }

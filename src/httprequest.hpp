@@ -50,7 +50,7 @@ public:
       Execute the constructed query, throw an exception if an error occures
       @return 0 on success
      */
-    int execute_sync(DavixError** err);
+    int executeRequest(DavixError** err);
 
     /**
         Define a buffer for the full request body content

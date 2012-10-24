@@ -25,7 +25,7 @@ int DavPosix::mkdir(const RequestParams * _params, const std::string &url, mode_
         req->set_parameters(params);
         req->setRequestMethod("MKCOL");
 
-        if( (ret = req->execute_sync(&tmp_err)) == 0){
+        if( (ret = req->executeRequest(&tmp_err)) == 0){
             ret = davixRequestToFileStatus(req.get(), davix_scope_mkdir_str(), &tmp_err);
         }
 

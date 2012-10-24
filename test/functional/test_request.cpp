@@ -16,7 +16,7 @@ int main(int argc, char** argv){
 
     std::auto_ptr<HttpRequest> r(s->create_request(argv[1], &tmp_err));
     if(r.get() != NULL)
-    r->execute_sync(&tmp_err);
+    r->executeRequest(&tmp_err);
     if(tmp_err){
         std::cerr << " error in request : " << tmp_err->getErrMsg() << std::endl;
     }else{

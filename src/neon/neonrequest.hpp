@@ -50,7 +50,7 @@ public:
 
     //  Execute the given request and return result to the buffer result
     //  @return 0 on success
-    int execute_sync(DavixError** err) ;
+    int executeRequest(DavixError** err) ;
 
     void add_full_request_content(const std::string & body);
 

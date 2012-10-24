@@ -67,7 +67,7 @@ const std::vector<char> & req_webdav_propfind(HttpRequest* req, DavixError** err
 
     req->addHeaderField("Depth","0");
     req->setRequestMethod("PROPFIND");
-    if( (ret = req->execute_sync(&tmp_err)) ==0){
+    if( (ret = req->executeRequest(&tmp_err)) ==0){
         ret = davixRequestToFileStatus(req, davix_scope_stat_str(), &tmp_err);
     }
 

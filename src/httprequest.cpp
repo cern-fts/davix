@@ -38,8 +38,8 @@ int HttpRequest::getRequestCode(){
     return d_ptr->getRequestCode();
 }
 
-int HttpRequest::execute_sync(DavixError **err){
-    return d_ptr->execute_sync(err);
+int HttpRequest::executeRequest(DavixError **err){
+    return d_ptr->executeRequest(err);
 }
 
 int HttpRequest::execute_block(DavixError **err){

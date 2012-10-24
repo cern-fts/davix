@@ -255,7 +255,7 @@ int NEONRequest::negotiate_request(DavixError** err){
 }
 
 
-int NEONRequest::execute_sync(DavixError** err){
+int NEONRequest::executeRequest(DavixError** err){
     ssize_t read_status=1;
     DavixError* tmp_err=NULL;
 

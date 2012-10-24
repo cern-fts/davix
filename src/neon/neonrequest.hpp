@@ -52,23 +52,23 @@ public:
     //  @return 0 on success
     int executeRequest(DavixError** err) ;
 
-    void add_full_request_content(const std::string & body);
+    void setRequestBodyString(const std::string & body);
 
-    int execute_block(DavixError** err);
+    int beginRequest(DavixError** err);
     /**
       read a block of a maximum size bytes in the request
       @param buffer : buffer to fill
       @param max_size : maximum number of bytes to set
     */
-    ssize_t read_block(char* buffer, size_t max_size,DavixError** err);
+    ssize_t readBlock(char* buffer, size_t max_size,DavixError** err);
     /**
       finish an already started request
      */
-    int finish_block(DavixError** err);
+    int EndRequest(DavixError** err);
     /**
       get a reference to the current result for synchronous full request
      */
-    const std::vector<char> & get_result();
+    const std::vector<char> & getAnswerContent();
     /**
       clear the current result
     */

@@ -45,34 +45,35 @@ public:
     void setRequestMethod(const std::string & request_str);
 
     void set_parameters(const RequestParams &p );
-    /**
-      Execute the given request and return result to the buffer result
-      Execute the constructed query, throw an exception if an error occures
-      @return 0 on success
-     */
+
+    ///   @brief execute this request completely
+    ///
+    ///   the answer is accessible with \ref Davix::HttpRequest::getAnswerContent
+    ///   @param err : davix error report
+    ///   @return 0 on success
     int executeRequest(DavixError** err);
 
     /**
         Define a buffer for the full request body content
      */
-    void add_full_request_content(const std::string & body);
+    void setRequestBodyString(const std::string & body);
 
-    int execute_block(DavixError** err);
+    int beginRequest(DavixError** err);
     /**
       read a block of a maximum size bytes in the request
       @param buffer : buffer to fill
       @param max_size : maximum number of byte to read
       @return number of bytes readed
     */
-    ssize_t read_block(char* buffer, size_t max_size, DavixError** err);
+    ssize_t readBlock(char* buffer, size_t max_size, DavixError** err);
     /**
       finish an already started request
      */
-    int finish_block(DavixError** err);
+    int EndRequest(DavixError** err);
     /**
       get a reference to the current result
      */
-    const std::vector<char> & get_result();
+    const std::vector<char> & getAnswerContent();
     /**
       clear the current result
     */

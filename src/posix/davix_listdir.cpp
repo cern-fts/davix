@@ -54,7 +54,7 @@ int incremental_propfind_listdir_parsing(HttpRequest* req, DavPropXMLParser * pa
     DavixError* tmp_err=NULL;
 
     char buffer[s_buff+1];
-    const ssize_t ret_s_buff= req->read_block(buffer, s_buff, &tmp_err);
+    const ssize_t ret_s_buff= req->readBlock(buffer, s_buff, &tmp_err);
     if(ret_s_buff >= 0){
         buffer[ret_s_buff]= '\0';
         davix_log_debug("chunk parse : result content : %s", buffer);
@@ -96,10 +96,10 @@ DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char
         http_req->set_parameters(params);
         DavPropXMLParser* parser = res->parser;
         // setup the handle for simple listing only
-        http_req->add_full_request_content(body);
+        http_req->setRequestBodyString(body);
 
 
-        if( (ret = http_req->execute_block(&tmp_err)) == 0){ // start req
+        if( (ret = http_req->beginRequest(&tmp_err)) == 0){ // start req
 
 
             if( ( ret = davixRequestToFileStatus(http_req,davix_scope_directory_listing_str(), &tmp_err)) == 0){

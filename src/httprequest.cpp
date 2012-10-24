@@ -30,8 +30,8 @@ void HttpRequest::set_parameters(const RequestParams &p){
     d_ptr->set_parameters(p);
 }
 
-void HttpRequest::add_full_request_content(const std::string &body){
-    d_ptr->add_full_request_content(body);
+void HttpRequest::setRequestBodyString(const std::string &body){
+    d_ptr->setRequestBodyString(body);
 }
 
 int HttpRequest::getRequestCode(){
@@ -42,16 +42,16 @@ int HttpRequest::executeRequest(DavixError **err){
     return d_ptr->executeRequest(err);
 }
 
-int HttpRequest::execute_block(DavixError **err){
-    return d_ptr->execute_block(err);
+int HttpRequest::beginRequest(DavixError **err){
+    return d_ptr->beginRequest(err);
 }
 
-ssize_t HttpRequest::read_block(char *buffer, size_t max_size, DavixError **err){
-    return d_ptr->read_block(buffer, max_size, err);
+ssize_t HttpRequest::readBlock(char *buffer, size_t max_size, DavixError **err){
+    return d_ptr->readBlock(buffer, max_size, err);
 }
 
-int HttpRequest::finish_block(DavixError **err){
-    return d_ptr->finish_block(err);
+int HttpRequest::EndRequest(DavixError **err){
+    return d_ptr->EndRequest(err);
 }
 
 
@@ -59,8 +59,8 @@ void HttpRequest::clear_result(){
     d_ptr->clear_result();
 }
 
-const std::vector<char> & HttpRequest::get_result(){
-    return d_ptr->get_result();
+const std::vector<char> & HttpRequest::getAnswerContent(){
+    return d_ptr->getAnswerContent();
 }
 
 

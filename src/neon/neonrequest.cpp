@@ -147,7 +147,7 @@ NEONRequest::NEONRequest(NEONSessionFactory* f, ne_session * sess, const std::st
 
 NEONRequest::~NEONRequest(){
     // safe destruction of the request
-    if(req_running) finish_block(NULL);
+    if(req_running) EndRequest(NULL);
 
     free_request();
     //ne_forget_auth(_sess);
@@ -288,7 +288,7 @@ int NEONRequest::executeRequest(DavixError** err){
         return -1;
     }
 
-   if( finish_block(&tmp_err) < 0){
+   if( EndRequest(&tmp_err) < 0){
        DavixError::propagateError(err, tmp_err);
        return -1;
    }
@@ -297,7 +297,7 @@ int NEONRequest::executeRequest(DavixError** err){
     return 0;
 }
 
-int NEONRequest::execute_block(DavixError** err){
+int NEONRequest::beginRequest(DavixError** err){
     DavixError* tmp_err=NULL;
     int ret = -1;
     ret= create_req(&tmp_err);
@@ -312,7 +312,7 @@ int NEONRequest::execute_block(DavixError** err){
     return 0;
 }
 
-ssize_t NEONRequest::read_block(char* buffer, size_t max_size, DavixError** err){
+ssize_t NEONRequest::readBlock(char* buffer, size_t max_size, DavixError** err){
     ssize_t read_status=-1;
 
     if(_req == NULL){
@@ -329,7 +329,7 @@ ssize_t NEONRequest::read_block(char* buffer, size_t max_size, DavixError** err)
     return read_status;
 }
 
-int NEONRequest::finish_block(DavixError** err){
+int NEONRequest::EndRequest(DavixError** err){
     int status;
 
     if(_req == NULL || req_running == false){
@@ -342,7 +342,7 @@ int NEONRequest::finish_block(DavixError** err){
         DavixError* tmp_err=NULL;
         neon_to_davix_code(status, _sess, davix_scope_http_request(), &tmp_err);
         if(tmp_err)
-            davix_log_debug("NEONRequest::finish_block -> error %d Error closing request -> %s ", tmp_err->getStatus(), tmp_err->getErrMsg().c_str());
+            davix_log_debug("NEONRequest::EndRequest -> error %d Error closing request -> %s ", tmp_err->getStatus(), tmp_err->getErrMsg().c_str());
         DavixError::clearError(&tmp_err);
     }
     return 0;
@@ -358,7 +358,7 @@ int NEONRequest::getRequestCode(){
     return ne_get_status(_req)->code;
 }
 
-const std::vector<char> & NEONRequest::get_result(){
+const std::vector<char> & NEONRequest::getAnswerContent(){
     return _vec;
 }
 
@@ -400,7 +400,7 @@ int NEONRequest::do_login_passwd_authentification(const char *login, const char 
 }
 
 
-void NEONRequest::add_full_request_content(const std::string & body){
+void NEONRequest::setRequestBodyString(const std::string & body){
     davix_log_debug("NEONRequest : add request content of size %s ", body.c_str());
     _content_body = std::string(body);
 }

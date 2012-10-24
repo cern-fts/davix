@@ -20,7 +20,7 @@ int main(int argc, char** argv){
     if(tmp_err){
         std::cerr << " error in request : " << tmp_err->getErrMsg() << std::endl;
     }else{
-        std::vector<char> v = r->get_result();
+        std::vector<char> v = r->getAnswerContent();
         v.push_back('\0');
         std::cout << "content "<< (char*) &(v.at(0)) << std::endl;
     }

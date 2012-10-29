@@ -258,6 +258,8 @@ int DavPropXMLParser::parserStartElemCb(int parent, const char *nspace, const ch
     // compute the current scope
     bool new_prop;
     int ret=-1;
+    char_buffer.clear();
+
     DAVIX_XML_REPORT_ERROR( add_scope(&propname_section, name, propstat_pattern,  response_section, false, &err) );
     DAVIX_XML_REPORT_ERROR( new_prop = add_scope(&prop_section, name, prop_pattern, response_section && propname_section , false, &err) );
     DAVIX_XML_REPORT_ERROR( add_scope(&status_section, name, status_pattern, propname_section && response_section, prop_section, &err) );
@@ -278,15 +280,24 @@ int DavPropXMLParser::parserStartElemCb(int parent, const char *nspace, const ch
 }
 
 int DavPropXMLParser::parserCdataCb(int state, const char *cdata, size_t len){
-    char buff[len+1];
-    *((char*) mempcpy(buff, cdata, len)) ='\0';
+    appendChars(cdata, len);
+    return 0;
+}
 
+int DavPropXMLParser::triggerCdataCbparsing(){
+    const char * buff = char_buffer.c_str();
     DAVIX_XML_REPORT_ERROR( check_last_modified(buff) );
     DAVIX_XML_REPORT_ERROR( check_creation_date(buff) );
     DAVIX_XML_REPORT_ERROR( check_content_length(buff) );
     DAVIX_XML_REPORT_ERROR( check_mode_ext(buff) );
     DAVIX_XML_REPORT_ERROR( check_href(buff) );
     DAVIX_XML_REPORT_ERROR( check_status(buff) );
+    char_buffer.clear();
+    return 0;
+}
+
+int DavPropXMLParser::appendChars(const char *buff, size_t len){
+    char_buffer.append(std::string(buff, len));
     return 0;
 }
 
@@ -294,6 +305,7 @@ int DavPropXMLParser::parserEndElemCb(int state, const char *nspace, const char 
     // compute the current scope
     int ret =0;
     bool end_prop;
+    DAVIX_XML_REPORT_ERROR(triggerCdataCbparsing());
 
     DAVIX_XML_REPORT_ERROR( end_prop=  remove_scope(&propname_section, name, propstat_pattern, response_section, false, &err) );
     DAVIX_XML_REPORT_ERROR( remove_scope(&prop_section, name, prop_pattern,  response_section && propname_section, false, &err) );

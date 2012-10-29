@@ -25,6 +25,10 @@ protected:
     virtual int parserCdataCb(int state, const char *cdata, size_t len);
     virtual int parserEndElemCb(int state, const char *nspace, const char *name);
 
+    // executed when cdata is complete
+    int triggerCdataCbparsing();
+    // append current chars to the internal buffer
+    int appendChars(const char * buff, size_t len);
 private:
     // result store
     std::deque<FileProperties> _props;
@@ -43,6 +47,7 @@ private:
     bool status_section;
 
     std::string last_filename; // last filename section
+    std::string char_buffer;
 
     // ordered list of properties
 

@@ -94,8 +94,7 @@ void NEONRequest::provide_clicert_fn(void *userdata, ne_session *sess,
 
 int NEONRequest::provide_login_passwd_fn(void *userdata, const char *realm, int attempt,
                                 char *username, char *password){
-    HttpRequest* http_req = static_cast<HttpRequest*>(userdata);
-    NEONRequest * req = http_req->d_ptr;
+    NEONRequest * req = static_cast<NEONRequest*>(userdata);
 
      davix_log_debug("NEONRequest > Try to get auth/password authentification ");
      davix_auth_info_t auth_info;
@@ -110,7 +109,7 @@ int NEONRequest::provide_login_passwd_fn(void *userdata, const char *realm, int 
      }
 
      davix_log_debug("NEONRequest > call authentification callback ");
-     int ret = auth_call((davix_auth_t) http_req, &auth_info, req->params.getAuthentificationCallbackData(), (davix_error_t*) &tmp_err); // try to get authentification
+     int ret = auth_call((davix_auth_t) req, &auth_info, req->params.getAuthentificationCallbackData(), (davix_error_t*) &tmp_err); // try to get authentification
      davix_log_debug("NEONRequest > return from authentification callback ");
      if(ret != 0){
             DavixError::propagateError(&(req->auth_last_error), tmp_err);

@@ -145,7 +145,6 @@ void httpcodeToDavixCode(int code, const std::string & scope, const std::string 
             dav_code = StatusCode::authentificationError;
             str_msg = "HTTP Authentification Error";
             break;
-        case 301:           /* Moved Permanently */
         case 303:           /* See Other */
         case 404:           /* Not Found */
         case 410:           /* Gone */
@@ -177,6 +176,7 @@ void httpcodeToDavixCode(int code, const std::string & scope, const std::string 
             dav_code = StatusCode::ConnexionProblem;
             str_msg = "HTTP Server Error";
             break;
+        case 301:           /* Moved Permanently */
         case 206:           /* Partial Content */
         case 300:           /* Multiple Choices */
         case 302:           /* Found */

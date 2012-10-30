@@ -82,6 +82,8 @@ public:
     int getRequestCode();
 
 
+
+
     // auth method support
     int do_pkcs12_cert_authentification(const char * filename_pkcs12, const char* passwd, DavixError** err);
     int do_login_passwd_authentification(const char *login, const char *passwd, DavixError** err);
@@ -92,7 +94,7 @@ protected:
     // neon internal field
     ne_session *    _sess;
     ne_request * _req;
-    std::string  _path;
+    std::string  _path,_orig_path;
     std::vector<char> _vec;
     std::string _content_body;
     std::string _request_type;
@@ -111,7 +113,11 @@ protected:
 
     int create_req(DavixError** err);
 
+    void clean_req();
+
     int negotiate_request(DavixError** err);
+
+    int redirect_request(DavixError** err);
 
     void free_request();
     /**

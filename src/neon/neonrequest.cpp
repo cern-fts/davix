@@ -2,6 +2,7 @@
 
 #include <cstring>
 #include <libs/time_utils.h>
+#include <ne_redirect.h>
 
 namespace Davix {
 
@@ -138,7 +139,7 @@ NEONRequest::NEONRequest(NEONSessionFactory* f, ne_session * sess, const std::st
     _sess=sess;
     _login.clear();
     _passwd.clear();
-    _path = path;
+    _orig_path= _path = path;
     _req=NULL;
     _f = f;
     req_started= req_running =false;
@@ -175,6 +176,8 @@ int NEONRequest::create_req(DavixError** err){
 }
 
 void NEONRequest::configure_sess(){
+    ne_redirect_register(_sess);
+
     if(params.getSSLCACheck() == false){ // configure ssl check
         davix_log_debug("NEONRequest : disable ssl verification");
         ne_ssl_set_verify(_sess, validate_all_certificate, NULL);
@@ -228,6 +231,22 @@ int NEONRequest::negotiate_request(DavixError** err){
 
         code = getRequestCode();
         switch(code){
+            case 301:
+            case 302:
+                if( end_status != NE_OK
+                        && end_status != NE_RETRY
+                        && end_status != NE_REDIRECT){
+                    req_started= req_running = false;
+                    neon_to_davix_code(status, _sess, davix_scope_http_request(),err);
+                    return -1;
+                }
+                ne_discard_response(_req);              // Get a valid redirection, drop request content
+                end_status = ne_end_request(_req);      // submit the redirection
+                if(redirect_request(err) <0){           // accept redirection
+                    return -1;
+                }
+                end_status = NE_RETRY;
+                break;
             case 401: // authentification requested, do retry
                 ne_discard_response(_req);
                 end_status = ne_end_request(_req);
@@ -254,6 +273,36 @@ int NEONRequest::negotiate_request(DavixError** err){
     return 0;
 }
 
+int NEONRequest::redirect_request(DavixError **err){
+    const ne_uri * new_uri = ne_redirect_location(_sess);
+    if(!new_uri){
+        DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, "Impossible to get the new redirected destination");
+        return -1;
+    }
+
+
+    davix_log_debug("redirection from %s://%s/%s to %s", ne_get_scheme(_sess),
+                      ne_get_server_hostport(_sess), _path.c_str(), ne_uri_unparse(new_uri));
+    _path = std::string(new_uri->path);
+    ne_fill_server_uri(_sess, (ne_uri*) new_uri);
+
+    // clean all request
+    clean_req();
+    // create new one
+    if( create_req(err) < 0){
+        return -1;
+    }
+    req_started= true;
+    return 0;
+}
+
+void NEONRequest::clean_req(){
+    req_started = false;
+    if(_req){
+        ne_request_destroy(_req);
+        _req = NULL;
+    }
+}
 
 int NEONRequest::executeRequest(DavixError** err){
     ssize_t read_status=1;

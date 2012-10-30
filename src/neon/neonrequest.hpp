@@ -111,10 +111,13 @@ protected:
     void configure_sess();
     void configure_req();
 
+    // create initial neon request object
     int create_req(DavixError** err);
 
+    // negociate the request : authentification, redirection, name resolution
     int negotiate_request(DavixError** err);
 
+    // redirection logic
     int redirect_request(DavixError** err);
 
     void free_request();

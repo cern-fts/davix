@@ -16,7 +16,7 @@ LIST(APPEND davix_logger_header "logging/logger.h")
 
 LIST(APPEND davix_posix_header "posix/davix_posix.h" "posix/davposix.hpp")
 
-LIST(APPEND davix_status_header "status/davixstatusrequest.hpp")
+LIST(APPEND davix_status_header "status/davixstatusrequest.hpp" "status/davix_error.h")
 
 
 include_directories("libs")

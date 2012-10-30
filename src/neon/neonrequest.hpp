@@ -113,8 +113,6 @@ protected:
 
     int create_req(DavixError** err);
 
-    void clean_req();
-
     int negotiate_request(DavixError** err);
 
     int redirect_request(DavixError** err);

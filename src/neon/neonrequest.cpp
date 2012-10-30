@@ -283,25 +283,19 @@ int NEONRequest::redirect_request(DavixError **err){
 
     davix_log_debug("redirection from %s://%s/%s to %s", ne_get_scheme(_sess),
                       ne_get_server_hostport(_sess), _path.c_str(), ne_uri_unparse(new_uri));
+
+    // setup new path & session target
     _path = std::string(new_uri->path);
     ne_fill_server_uri(_sess, (ne_uri*) new_uri);
 
-    // clean all request
-    clean_req();
-    // create new one
+    // renew request
+    req_started = false;
+    free_request();
     if( create_req(err) < 0){
         return -1;
     }
     req_started= true;
     return 0;
-}
-
-void NEONRequest::clean_req(){
-    req_started = false;
-    if(_req){
-        ne_request_destroy(_req);
-        _req = NULL;
-    }
 }
 
 int NEONRequest::executeRequest(DavixError** err){

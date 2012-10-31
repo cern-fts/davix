@@ -34,7 +34,7 @@ int DavPosix::stat(const RequestParams * _params, const std::string & url, struc
 
         const std::vector<char> & res = req_webdav_propfind(req.get(), &tmp_err);
         if(!tmp_err){
-            if( (ret = parser.parseChuck((const char*) & res.at(0), res.size()) ) < 0){
+            if( (ret = parser.parseChuck((const char*) & res.at(0), res.size() -1) ) < 0){
                 DavixError::propagateError(err, parser.getLastErr());
                 return -1;
             }

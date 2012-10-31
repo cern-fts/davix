@@ -27,7 +27,6 @@ Summary:			Development files for %{name}
 Group:				Applications/Internet
 Requires:			%{name}%{?_isa} = %{version}-%{release} 
 Requires:			glib2-devel%{?_isa}
-Requires:			glibmm24-devel%{?_isa}
 Requires:			neon-devel%{?_isa}
 Requires:			pkgconfig
 

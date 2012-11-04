@@ -17,6 +17,13 @@ namespace Davix {
 
 class RequestParamsInternal;
 
+///
+/// @class RequestParams
+/// @brief Main container for HTTP/WebDAV request options
+///
+/// RequestParams hold the davix request options :
+/// authentification parameters, timeouts, user-agents,...
+/// A Requestparams object can be shared between several Request
 class RequestParams
 {
 public:
@@ -68,9 +75,12 @@ public:
 
 
     /// enable or disable transparent redirection support
+    /// In the transparent redirection mode,
+    /// davix follows the HTTP redirection automatically
     /// DEFAULT : enabled
     void setTransparentRedirectionSupport(bool redirection);
 
+    /// return true if the transparent redirection mode is enabled
     bool getTransparentRedirectionSupport() const;
 
     RequestParams & operator=(const RequestParams & _p);

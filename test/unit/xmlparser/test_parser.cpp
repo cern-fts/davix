@@ -282,8 +282,10 @@ const char* list_item[] = { "g2", "generated", "test", "speed_test2", "speed_tes
 
 TEST(XmlParserInstance, createParser){
     Davix::DavXMLParser * parser = new Davix::DavXMLParser();
-    ASSERT_EQ(Davix::StatusCode::OK,parser->getLastErr()->getStatus());
+    Davix::DavixError* last_error = parser->getLastErr();
+    ASSERT_EQ(Davix::StatusCode::OK,last_error->getStatus());
     delete parser;
+    Davix::DavixError::clearError(&last_error);
 }
 
 
@@ -345,11 +347,12 @@ TEST(XmlParserInstance,parserNonWebdav){
     parser.parseChuck(NULL, 0);
 
     ASSERT_EQ(-1, ret);
-    std::cerr << "error : " << parser.getLastErr()->getErrMsg();
+    Davix::DavixError * last_error = parser.getLastErr();
+    std::cerr << "error : " << last_error->getErrMsg();
     ASSERT_EQ(0u, parser.getProperties().size());
-    ASSERT_TRUE(NULL != parser.getLastErr());
-    ASSERT_EQ(Davix::StatusCode::WebDavPropertiesParsingError, parser.getLastErr()->getStatus());
-
+    ASSERT_TRUE(NULL != last_error);
+    ASSERT_EQ(Davix::StatusCode::WebDavPropertiesParsingError, last_error->getStatus());
+    Davix::DavixError::clearError(&last_error);
 }
 
 

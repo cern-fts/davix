@@ -28,7 +28,7 @@ int DavPosix::stat(const RequestParams * _params, const std::string & url, struc
 
     int ret =-1;
     DavPropXMLParser parser;
-    std::auto_ptr<HttpRequest> req( static_cast<HttpRequest*>(context->_intern->getSessionFactory()->create_request(url, &tmp_err)));
+    std::auto_ptr<HttpRequest> req( context->_intern->getSessionFactory()->create_request(url, &tmp_err));
     if( req.get() != NULL){
         req->set_parameters(params);
 

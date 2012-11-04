@@ -5,7 +5,6 @@
 #include "global_def.hpp"
 
 
-
 /**
   @file davixrequestparams.hpp
   @author Devresse Adrien
@@ -25,18 +24,15 @@ public:
     RequestParams(const RequestParams & params);
     RequestParams(const RequestParams* params);
 
-
     virtual ~RequestParams();
 
 
     ///  disable the certificate authority validity check for the https request
-    inline void setSSLCAcheck(bool chk){
-        ssl_check = chk;
-    }
+    void setSSLCAcheck(bool chk);
 
-    inline bool getSSLCACheck() const{
-        return ssl_check;
-    }
+    /// return the SSL Certificate authority validity check
+    bool getSSLCACheck() const;
+
 
 
 
@@ -77,6 +73,7 @@ public:
 
     bool getTransparentRedirectionSupport() const;
 
+    RequestParams & operator=(const RequestParams & _p);
 private:
     struct timespec ops_timeout;
     struct timespec connexion_timeout;
@@ -92,7 +89,7 @@ private:
     RequestParamsInternal* d_ptr;
 
 
-    static void copy(RequestParams & dest, const RequestParams & params);
+    static void copy(RequestParams* dest, const RequestParams* params);
 };
 
 

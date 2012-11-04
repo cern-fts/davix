@@ -53,7 +53,51 @@ TEST(RequestParametersTest, CreateDelete){
     ASSERT_EQ(p2.getConnexionTimeout()->tv_sec, 20);
     ASSERT_EQ(p3.getConnexionTimeout()->tv_sec, 20);
 
-}
+    Davix::RequestParams p4 = p3; // test deep copy
+
+    ASSERT_EQ(p2.getOperationTimeout()->tv_sec, 10);
+    ASSERT_EQ(p3.getOperationTimeout()->tv_sec, 10);
+
+    ASSERT_EQ(p4.getConnexionTimeout()->tv_sec, 20);
+ }
+
+TEST(RequestParametersTest, CreateDeleteDyn){
+    Davix::RequestParams* params = new Davix::RequestParams();
+
+    ASSERT_EQ(params->getSSLCACheck(), true);
+    ASSERT_EQ(params->getOperationTimeout()->tv_sec, DAVIX_DEFAULT_OPS_TIMEOUT);
+    ASSERT_EQ(params->getConnexionTimeout()->tv_sec, DAVIX_DEFAULT_CONN_TIMEOUT);
+    ASSERT_EQ(params->getAuthentificationCallbackData(), (void*) NULL);
+    ASSERT_EQ(params->getAuthentificationCallbackFunction(), (int (*)(davix_auth_st*, const davix_auth_info_t*, void*, Davix_error**)) NULL);
+
+    params->setSSLCAcheck(false);
+    struct timespec timeout_co, timeout_ops;
+    timeout_co.tv_sec =10;
+    timeout_co.tv_nsec=99;
+    timeout_ops.tv_sec=20;
+    timeout_ops.tv_nsec=0xFF;
+
+    ASSERT_EQ(params->getSSLCACheck(), false);
+    params->setOperationTimeout(&timeout_co);
+    ASSERT_EQ(params->getOperationTimeout()->tv_sec, 10);
+    params->setConnexionTimeout(&timeout_ops);
+    ASSERT_EQ(params->getConnexionTimeout()->tv_sec, 20);
+
+    Davix::RequestParams *p2 = new Davix::RequestParams(params);
+    Davix::RequestParams *p3 = new Davix::RequestParams(*p2);
+    Davix::RequestParams p4(params);
+    Davix::RequestParams p5(*p3);
+
+    ASSERT_EQ(p2->getOperationTimeout()->tv_sec, 10);
+    ASSERT_EQ(p3->getOperationTimeout()->tv_sec, 10);
+
+    ASSERT_EQ(p2->getConnexionTimeout()->tv_sec, 20);
+    ASSERT_EQ(p3->getConnexionTimeout()->tv_sec, 20);
+
+    delete params;
+    delete p2;
+    delete p3;
+ }
 
 
 TEST(DavixErrorTest, CreateDelete){

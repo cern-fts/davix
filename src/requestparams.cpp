@@ -6,12 +6,18 @@ namespace Davix {
 
 
 struct RequestParamsInternal{
-    RequestParamsInternal(){}
-    virtual ~RequestParamsInternal(){}
+    RequestParamsInternal(){
+     _ssl_check = true;
+    }
+    virtual ~RequestParamsInternal(){
+
+    }
     RequestParamsInternal(const RequestParamsInternal & param_private){
         a = param_private.a;
+        _ssl_check = param_private._ssl_check;
     }
     int a;
+    bool _ssl_check;
 };
 
 
@@ -22,32 +28,32 @@ RequestParams::RequestParams()
 }
 
 RequestParams::RequestParams(const RequestParams& params){
-    copy(*this, params);
+    copy(this, &params);
 }
 
 
 
 
 RequestParams::~RequestParams(){
-   // delete d_ptr;
+   delete d_ptr;
 }
 
 RequestParams::RequestParams(const RequestParams* params){
     if(params){
-        copy(*this, *params);
+        copy(this, params);
     }else{
         _init();
     }
 }
 
-void RequestParams::copy(RequestParams &dest, const RequestParams &params){
-    dest.call = params.call;
-    dest.userdata = params.userdata;
-    dest.ssl_check = params.ssl_check;
-    timespec_copy(&(dest.connexion_timeout), &(params.connexion_timeout));
-    timespec_copy(&(dest.ops_timeout), &(params.ops_timeout));
-    dest._redirection = params._redirection;
-    dest.d_ptr = new RequestParamsInternal(*(params.d_ptr));
+void RequestParams::copy(RequestParams *dest, const RequestParams *params){
+    dest->call = params->call;
+    dest->userdata = params->userdata;
+    dest->ssl_check = params->ssl_check;
+    timespec_copy(&(dest->connexion_timeout), &(params->connexion_timeout));
+    timespec_copy(&(dest->ops_timeout), &(params->ops_timeout));
+    dest->_redirection = params->_redirection;
+    dest->d_ptr = new RequestParamsInternal(*(params->d_ptr));
 }
 
 
@@ -63,6 +69,19 @@ void RequestParams::_init(){
     d_ptr = new RequestParamsInternal();
 }
 
+RequestParams & RequestParams::operator=(const RequestParams & orig){
+    copy(this, &orig);
+    return *this;
+}
+
+
+bool RequestParams::getSSLCACheck() const{
+    return d_ptr->_ssl_check;
+}
+
+void RequestParams::setSSLCAcheck(bool chk){
+    d_ptr->_ssl_check = chk;
+}
 
 //
 void RequestParams::setAuthentificationCallback(void * _userdata, davix_auth_callback _call){

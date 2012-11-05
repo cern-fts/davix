@@ -147,7 +147,7 @@ NEONRequest::NEONRequest(NEONSessionFactory* f, ne_session * sess, const std::st
 
 NEONRequest::~NEONRequest(){
     // safe destruction of the request
-    if(req_running) EndRequest(NULL);
+    if(req_running) endRequest(NULL);
 
     free_request();
     //ne_forget_auth(_sess);
@@ -330,7 +330,7 @@ int NEONRequest::executeRequest(DavixError** err){
         return -1;
     }
 
-   if( EndRequest(&tmp_err) < 0){
+   if( endRequest(&tmp_err) < 0){
        DavixError::propagateError(err, tmp_err);
        return -1;
    }
@@ -371,7 +371,7 @@ ssize_t NEONRequest::readBlock(char* buffer, size_t max_size, DavixError** err){
     return read_status;
 }
 
-int NEONRequest::EndRequest(DavixError** err){
+int NEONRequest::endRequest(DavixError** err){
     int status;
 
     if(_req == NULL || req_running == false){
@@ -384,7 +384,7 @@ int NEONRequest::EndRequest(DavixError** err){
         DavixError* tmp_err=NULL;
         neon_to_davix_code(status, _sess, davix_scope_http_request(), &tmp_err);
         if(tmp_err)
-            davix_log_debug("NEONRequest::EndRequest -> error %d Error closing request -> %s ", tmp_err->getStatus(), tmp_err->getErrMsg().c_str());
+            davix_log_debug("NEONRequest::endRequest -> error %d Error closing request -> %s ", tmp_err->getStatus(), tmp_err->getErrMsg().c_str());
         DavixError::clearError(&tmp_err);
     }
     return 0;

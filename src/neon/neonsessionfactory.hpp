@@ -26,6 +26,7 @@ public:
       @return Request object
     */
     virtual HttpRequest* create_request(const std::string & url, DavixError** err) ;
+     virtual HttpRequest* create_request(const Uri & uri, DavixError** err) ;
 
     /**
       Create a session object or create a recycled  one ( session reuse )

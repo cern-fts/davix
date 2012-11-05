@@ -4,6 +4,7 @@
 #include "global_def.hpp"
 #include "httprequest.hpp"
 #include <params/davixrequestparams.hpp>
+#include <davixuri.hpp>
 
 namespace Davix{
 
@@ -24,6 +25,7 @@ public:
       @return Request object
     */
     virtual HttpRequest* create_request(const std::string & url, DavixError** err) =0;
+    virtual HttpRequest* create_request(const Uri & uri, DavixError** err)=0;
 
 
 

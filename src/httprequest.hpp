@@ -73,7 +73,7 @@ public:
     ///   do{
     ///        ret= readBlock(buffer, size_read, &tmp_err);
     ///   } while(ret > 0);
-    ///   EndRequest(&tmp_err);
+    ///   endRequest(&tmp_err);
     ///
     /// @param err : DavixError error report system
     /// @return return 0 if success, or a negative value if an error occures
@@ -91,7 +91,7 @@ public:
 
     ///
     /// finish a request stated with beginRequest
-    int EndRequest(DavixError** err);
+    int endRequest(DavixError** err);
 
     /// get a reference to the internal anwser content buffer
     const std::vector<char> & getAnswerContent();

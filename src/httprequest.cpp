@@ -50,8 +50,8 @@ ssize_t HttpRequest::readBlock(char *buffer, size_t max_size, DavixError **err){
     return d_ptr->readBlock(buffer, max_size, err);
 }
 
-int HttpRequest::EndRequest(DavixError **err){
-    return d_ptr->EndRequest(err);
+int HttpRequest::endRequest(DavixError **err){
+    return d_ptr->endRequest(err);
 }
 
 

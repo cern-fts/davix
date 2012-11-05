@@ -36,14 +36,18 @@ NEONSessionFactory::~NEONSessionFactory(){
 }
 
 HttpRequest* NEONSessionFactory::create_request(const std::string &url, DavixError** err){;
+    Uri uri(url);
+    return create_request(uri, err);
+}
+
+HttpRequest* NEONSessionFactory::create_request(const Uri &uri, DavixError **err){
     HttpRequest* req = NULL;
 
-    Uri uri(url);
     if(uri.getStatus() == StatusCode::OK){
         ne_session* sess = create_recycled_session(uri.getProtocol(), uri.getHost(), uri.getPort());
         req = new HttpRequest(new NEONRequest(this, sess, uri.getPath() ));
     }else{
-        DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, "impossible to parse " + url + " ,not a valid HTTP or Webdav URL");
+        DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, "impossible to parse " + uri.getString() + " ,not a valid HTTP or Webdav URL");
     }
     return req;
 }

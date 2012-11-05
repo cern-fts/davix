@@ -18,6 +18,7 @@ class IOBuffMap
 {
 public:
     IOBuffMap(Context & c, const Uri & uri, const RequestParams & params);
+    virtual ~IOBuffMap();
 
     // open the file associated with the davix IOBuffMap
     // do a simple check if the file exist and try to anticipate the next ops
@@ -41,14 +42,18 @@ public:
     // similar to pwrite do not need open() before
     ssize_t putOps(const void* buf, size_t count, off_t offset, DavixError** err);
 
+
 private:
     Context & _c;
     Uri _uri;
     RequestParams _params;
-    off_t pos;
-    HttpRequest * req;
-    DppLock rwlock;
+    off_t _pos;
+    size_t _file_size;
+    HttpRequest * _req;
+    DppLock _rwlock;
 
+
+    bool checkIsOpen(DavixError** err);
 };
 
 } // namespace Davix

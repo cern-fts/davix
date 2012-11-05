@@ -4,6 +4,7 @@
 #include <string>
 #include <davix_types.h>
 #include <status/davixstatusrequest.hpp>
+#include <davixuri.hpp>
 
 namespace Davix{
 
@@ -29,7 +30,8 @@ public:
 
     /// create a new Http request for direct HTTP low level feature usage
     /// this Http request object should be destroyed after usage
-    HttpRequest* createRequest(const std::string & uri, DavixError** err);
+    HttpRequest* createRequest(const std::string & url, DavixError** err);
+    HttpRequest* createRequest(const Uri & uri, DavixError** err);
 
 
 private:

@@ -38,5 +38,10 @@ HttpRequest* ContextInternal::createRequest(const std::string & uri, DavixError*
     return getSessionFactory()->create_request(uri, err);
 }
 
+HttpRequest* ContextInternal::createRequest(const Uri & uri, DavixError** err){
+    return getSessionFactory()->create_request(uri, err);
+}
+
+
 
 } // namespace Davix

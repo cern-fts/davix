@@ -25,10 +25,14 @@ Context* Context::clone(){
 }
 
 
-HttpRequest* Context::createRequest(const std::string & uri, DavixError** err){
-    return _intern->createRequest(uri, err);
+HttpRequest* Context::createRequest(const std::string & url, DavixError** err){
+    return _intern->createRequest(url, err);
 }
 
+
+HttpRequest* Context::createRequest(const Uri &uri, DavixError **err){
+    return _intern->createRequest(uri, err);
+}
 
 }
 

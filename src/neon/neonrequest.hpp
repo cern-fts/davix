@@ -64,7 +64,7 @@ public:
     /**
       finish an already started request
      */
-    int EndRequest(DavixError** err);
+    int endRequest(DavixError** err);
     /**
       get a reference to the current result for synchronous full request
      */

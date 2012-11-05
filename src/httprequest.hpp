@@ -53,38 +53,59 @@ public:
     ///   @return 0 on success
     int executeRequest(DavixError** err);
 
-    /**
-        Define a buffer for the full request body content
-     */
+    ///
+    ///  set the content of the request from a string
+    ///  an empty string set no request content
+    ///  @warning this string is not duplicated internally for performance reasons
+    ///
     void setRequestBodyString(const std::string & body);
 
+    ///
+    /// @brief start a multi-part HTTP Request
+    ///
+    ///  the multi-part HTTP Request of davix
+    ///  should be used for request with a large answer
+    ///
+    ///
+    ///  example :
+    ///   DavixError* tmp_err=NULL;
+    ///   beginRequest(&tmp_err) //
+    ///   do{
+    ///        ret= readBlock(buffer, size_read, &tmp_err);
+    ///   } while(ret > 0);
+    ///   EndRequest(&tmp_err);
+    ///
+    /// @param err : DavixError error report system
+    /// @return return 0 if success, or a negative value if an error occures
+    ///
     int beginRequest(DavixError** err);
-    /**
-      read a block of a maximum size bytes in the request
-      @param buffer : buffer to fill
-      @param max_size : maximum number of byte to read
-      @return number of bytes readed
-    */
+
+    ///
+    /// read a block of a maximum size bytes in the request
+    /// @param buffer : buffer to fill
+    ///  @param max_size : maximum number of byte to read
+    ///  @return number of bytes readed
+    ///
     ssize_t readBlock(char* buffer, size_t max_size, DavixError** err);
-    /**
-      finish an already started request
-     */
+
+
+    ///
+    /// finish a request stated with beginRequest
     int EndRequest(DavixError** err);
-    /**
-      get a reference to the current result
-     */
+
+    /// get a reference to the internal anwser content buffer
     const std::vector<char> & getAnswerContent();
-    /**
-      clear the current result
-    */
+
+    ///
+    ///  clear the current result
+    ///
     void clear_result();
 
 
 
-    /**
-      return the current request code error
-       ex : HTTP 200
-     */
+    ///
+    /// @return current request code error
+    /// undefined if executeRequest or beginRequest has not be called before
     virtual int getRequestCode();
 
 

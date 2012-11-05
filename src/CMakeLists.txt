@@ -8,15 +8,18 @@ FILE(GLOB src_logger "logging/*.c")
 FILE(GLOB src_davix_posix "posix/*.cpp")
 FILE(GLOB src_davix_status "status/*.cpp")
 FILE(GLOB src_davix_fileops "fileops/*.cpp")
+FILE(GLOB src_davix_params "params/*.cpp")
 
 LIST(APPEND davix_headers "davix.h" "davix_types.h" "davixcontext.hpp" "global_def.hpp"
-            "abstractsessionfactory.hpp" "davixrequestparams.hpp" "httprequest.hpp" "davix_cpp.hpp" "davixuri.hpp" )
+            "abstractsessionfactory.hpp" "httprequest.hpp" "davix_cpp.hpp" "davixuri.hpp" )
 
 LIST(APPEND davix_logger_header "logging/logger.h")
 
 LIST(APPEND davix_posix_header "posix/davix_posix.h" "posix/davposix.hpp")
 
 LIST(APPEND davix_status_header "status/davixstatusrequest.hpp" "status/davix_error.h")
+
+LIST(APPEND davix_params_header "status/davixrequestparams.hpp")
 
 
 include_directories("libs")
@@ -40,7 +43,8 @@ endif ( ${HTTP_LIB} STREQUAL "NEON" )
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(${HTTPLIB_PKG_CFLAGS} )
 add_library(davix  SHARED ${src_davix} ${SRC_HTTP}  ${src_xmlparser} ${src_logger} ${src_datetime}
-                           ${src_lockers} ${src_davix_posix} ${src_davix_status} ${src_davix_fileops})
+                           ${src_lockers} ${src_davix_posix} ${src_davix_status} ${src_davix_fileops}
+                           ${src_davix_params})
 
 
 target_link_libraries(davix  ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES} ${GTHREAD_PKG_LIBRARIES})
@@ -56,7 +60,7 @@ set_target_properties(davix PROPERTIES
 add_PkgConfigFile_for_Library("davix.pc" davix
                                HEADER_DIRS "davix"
                                CFLAGS " -D_FILE_OFFSET_BITS=64 "
-                               DESCRIPTION "Davix, POSIX-like access for Webdav"
+                               DESCRIPTION "Davix, High level WebDav/HTTP library"
                                REQUIRES "glib-2.0")
 
 # install lib
@@ -80,3 +84,6 @@ install( FILES ${davix_posix_header}
 
 install( FILES ${davix_status_header}
          DESTINATION ${INCLUDE_INSTALL_DIR}/davix/status)
+
+install( FILES ${davix_params_header}
+         DESTINATION ${INCLUDE_INSTALL_DIR}/davix/params)

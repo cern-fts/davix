@@ -3,7 +3,7 @@
 
 #include "global_def.hpp"
 #include "httprequest.hpp"
-#include <davixrequestparams.hpp>
+#include <params/davixrequestparams.hpp>
 
 namespace Davix{
 

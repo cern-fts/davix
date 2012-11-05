@@ -4,7 +4,7 @@
 #include <vector>
 
 #include <status/davixstatusrequest.hpp>
-#include <davixrequestparams.hpp>
+#include <params/davixrequestparams.hpp>
 
 
 
@@ -97,10 +97,7 @@ private:
 };
 
 
-/**
-Translate  http code error to errno code
- */
-int httpcode_to_errno(int code);
+
 
 ///
 /// return true if this http code is a success

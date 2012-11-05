@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 #include <davixcontext.hpp>
-#include <davixrequestparams.hpp>
+#include <params/davixrequestparams.hpp>
 #include <status/davixstatusrequest.hpp>
 
 

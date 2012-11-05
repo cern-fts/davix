@@ -1,7 +1,7 @@
 
 #include <davix_cpp.hpp>
 #include <davixcontext.hpp>
-#include <davixrequestparams.hpp>
+#include <params/davixrequestparams.hpp>
 #include <gtest/gtest.h>
 
 

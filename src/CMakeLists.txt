@@ -19,7 +19,7 @@ LIST(APPEND davix_posix_header "posix/davix_posix.h" "posix/davposix.hpp")
 
 LIST(APPEND davix_status_header "status/davixstatusrequest.hpp" "status/davix_error.h")
 
-LIST(APPEND davix_params_header "status/davixrequestparams.hpp")
+LIST(APPEND davix_params_header "params/davixrequestparams.hpp")
 
 
 include_directories("libs")

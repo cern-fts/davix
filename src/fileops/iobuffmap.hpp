@@ -17,7 +17,7 @@ namespace Davix {
 class IOBuffMap
 {
 public:
-    IOBuffMap(Context & c, const Uri & uri, const RequestParams & params);
+    IOBuffMap(Context & c, const Uri & uri, const RequestParams * params);
     virtual ~IOBuffMap();
 
     // open the file associated with the davix IOBuffMap

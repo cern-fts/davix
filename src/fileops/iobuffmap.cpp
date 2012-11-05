@@ -17,7 +17,7 @@ void setup_offset_request(HttpRequest* req, off_t start_len, size_t size_read);
 ssize_t read_segment_request(HttpRequest* req, void* buffer, size_t size_read,  off_t off_set, DavixError**err);
 
 
-IOBuffMap::IOBuffMap(Context & c, const Uri & uri, const RequestParams & params) : _c(c), _uri(uri), _params(params)
+IOBuffMap::IOBuffMap(Context & c, const Uri & uri, const RequestParams * params) : _c(c), _uri(uri), _params(params)
 {
     _req=NULL;
     _pos =0;

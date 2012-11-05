@@ -8,16 +8,35 @@ namespace Davix {
 struct RequestParamsInternal{
     RequestParamsInternal(){
      _ssl_check = true;
+     _redirection = true;
+     _call = NULL;
+     _userdata = NULL;
+     timespec_clear(&connexion_timeout);
+     timespec_clear(&ops_timeout);
+     connexion_timeout.tv_sec = DAVIX_DEFAULT_CONN_TIMEOUT;
+     ops_timeout.tv_sec = DAVIX_DEFAULT_OPS_TIMEOUT;
     }
     virtual ~RequestParamsInternal(){
 
     }
     RequestParamsInternal(const RequestParamsInternal & param_private){
-        a = param_private.a;
         _ssl_check = param_private._ssl_check;
+        _redirection = param_private._redirection;
+        _userdata = param_private._userdata;
+        _call = param_private._call;
+        timespec_copy(&(connexion_timeout), &(param_private.connexion_timeout));
+        timespec_copy(&(ops_timeout), &(param_private.ops_timeout));
     }
-    int a;
-    bool _ssl_check;
+    bool _ssl_check; // ssl CA check
+    bool _redirection; // redirection support
+
+    // auth info
+    void* _userdata;
+    davix_auth_callback _call;
+
+    // timeout management
+    struct timespec ops_timeout;
+    struct timespec connexion_timeout;
 };
 
 
@@ -47,29 +66,19 @@ RequestParams::RequestParams(const RequestParams* params){
 }
 
 void RequestParams::copy(RequestParams *dest, const RequestParams *params){
-    dest->call = params->call;
-    dest->userdata = params->userdata;
-    dest->ssl_check = params->ssl_check;
-    timespec_copy(&(dest->connexion_timeout), &(params->connexion_timeout));
-    timespec_copy(&(dest->ops_timeout), &(params->ops_timeout));
-    dest->_redirection = params->_redirection;
+
     dest->d_ptr = new RequestParamsInternal(*(params->d_ptr));
 }
 
 
 void RequestParams::_init(){
-    timespec_clear(&connexion_timeout);
-    timespec_clear(&ops_timeout);
-    connexion_timeout.tv_sec = DAVIX_DEFAULT_CONN_TIMEOUT;
-    ops_timeout.tv_sec = DAVIX_DEFAULT_OPS_TIMEOUT;
-    call =NULL;
-    ssl_check = true;
-    userdata = NULL;
-    _redirection = true;
+
     d_ptr = new RequestParamsInternal();
 }
 
 RequestParams & RequestParams::operator=(const RequestParams & orig){
+    if(d_ptr != orig.d_ptr)
+        delete d_ptr;
     copy(this, &orig);
     return *this;
 }
@@ -85,43 +94,43 @@ void RequestParams::setSSLCAcheck(bool chk){
 
 //
 void RequestParams::setAuthentificationCallback(void * _userdata, davix_auth_callback _call){
-    call = _call;
-    userdata = _userdata;
+    d_ptr->_call = _call;
+    d_ptr->_userdata = _userdata;
 }
 
 
 davix_auth_callback RequestParams::getAuthentificationCallbackFunction(){
-    return call;
+    return d_ptr->_call;
 }
 
 void* RequestParams::getAuthentificationCallbackData(){
-    return userdata;
+    return d_ptr->_userdata;
 }
 
 
 void RequestParams::setConnexionTimeout(struct timespec *conn_timeout1){
-    timespec_copy(&(this->connexion_timeout),conn_timeout1);
+    timespec_copy(&(d_ptr->connexion_timeout),conn_timeout1);
 }
 
 void RequestParams::setOperationTimeout(struct timespec *ops_timeout1){
-    timespec_copy(&(this->ops_timeout), ops_timeout1);
+    timespec_copy(&(d_ptr->ops_timeout), ops_timeout1);
 }
 
 const struct timespec* RequestParams::getConnexionTimeout() const {
-    return &connexion_timeout;
+    return &d_ptr->connexion_timeout;
 }
 
 const struct timespec* RequestParams::getOperationTimeout() const {
-    return &ops_timeout;
+    return &d_ptr->ops_timeout;
 }
 
 void RequestParams::setTransparentRedirectionSupport(bool redirection){
-    this->_redirection = redirection;
+    d_ptr->_redirection = redirection;
 }
 
 
 bool RequestParams::getTransparentRedirectionSupport() const{
-    return this->_redirection;
+    return d_ptr->_redirection;
 }
 
 

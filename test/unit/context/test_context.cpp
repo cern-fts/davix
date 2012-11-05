@@ -30,6 +30,7 @@ TEST(RequestParametersTest, CreateDelete){
     ASSERT_EQ(params.getConnexionTimeout()->tv_sec, DAVIX_DEFAULT_CONN_TIMEOUT);
     ASSERT_EQ(params.getAuthentificationCallbackData(), (void*) NULL);
     ASSERT_EQ(params.getAuthentificationCallbackFunction(), (int (*)(davix_auth_st*, const davix_auth_info_t*, void*, Davix_error**)) NULL);
+    ASSERT_TRUE( params.getTransparentRedirectionSupport());
 
     params.setSSLCAcheck(false);
     struct timespec timeout_co, timeout_ops;
@@ -44,6 +45,9 @@ TEST(RequestParametersTest, CreateDelete){
     params.setConnexionTimeout(&timeout_ops);
     ASSERT_EQ(params.getConnexionTimeout()->tv_sec, 20);
 
+    params.setTransparentRedirectionSupport(false);
+    ASSERT_FALSE( params.getTransparentRedirectionSupport());
+
     Davix::RequestParams p2(&params);
     Davix::RequestParams p3(p2);
 
@@ -52,6 +56,8 @@ TEST(RequestParametersTest, CreateDelete){
 
     ASSERT_EQ(p2.getConnexionTimeout()->tv_sec, 20);
     ASSERT_EQ(p3.getConnexionTimeout()->tv_sec, 20);
+
+    ASSERT_FALSE( p2.getTransparentRedirectionSupport());
 
     Davix::RequestParams p4 = p3; // test deep copy
 

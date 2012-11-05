@@ -85,14 +85,8 @@ public:
 
     RequestParams & operator=(const RequestParams & _p);
 private:
-    struct timespec ops_timeout;
-    struct timespec connexion_timeout;
-    bool ssl_check;
-    bool _redirection;
 
-    // auth info
-    void* userdata;
-    davix_auth_callback call;
+
     //
     void _init();
     // dptr

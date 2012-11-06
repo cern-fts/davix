@@ -104,9 +104,18 @@ ssize_t IOBuffMap::getOps(void *buf, size_t count, off_t offset, DavixError **er
         req->set_parameters(_params);
         setup_offset_request(req.get(), offset, offset+count);
         if(req->beginRequest(&tmp_err) ==0){
-            ret = read_segment_request(req.get(), buf, count, offset, &tmp_err);
-            if(offset != 0 && req->getRequestCode() != 206){
-                davix_log_debug(" WARNING : server does not support Request with range ! : %s ",_uri.getString().c_str());
+            if(req->getRequestCode() == 416 ){ // out of file, end of file
+                ret = 0; // end of file
+            }else{
+                if(req->getRequestCode() == 206 || req->getRequestCode() == 200 ){
+
+                    if(offset != 0 && req->getRequestCode() == 200){
+                        davix_log_debug(" WARNING : server does not support Request with range ! : %s ",_uri.getString().c_str());
+                    }
+                    ret = read_segment_request(req.get(), buf, count, offset, &tmp_err);
+                }else{
+                    httpcodeToDavixCode(req->getRequestCode(),davix_scope_http_request(),", while  readding", &tmp_err);
+                }
             }
         }
         req->endRequest(NULL);

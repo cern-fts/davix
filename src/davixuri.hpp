@@ -24,6 +24,7 @@ class Uri
 public:
     Uri();
     Uri(const std::string & uri_string);
+    Uri(const Uri & uri);
     virtual ~Uri();
 
     /// get a string representation of the uri
@@ -43,7 +44,6 @@ public:
 protected:
     std::string uri_string;
     UriPrivate* d_ptr;
-    StatusCode::Code code;
     void _init();
 };
 

@@ -6,13 +6,18 @@
 #include <status/davixstatusrequest.hpp>
 #include <davixuri.hpp>
 
+///
+/// @file davixcontext.hpp
+///
+
 namespace Davix{
 
 class ContextInternal;
 class HttpRequest;
 
-/// @brief Main Entry point for Davix
-/// Each new davix context has its own session-reuse pool and parameters
+/// @brief Main entry point for Davix
+/// Each new davix context has its own session-reuse pool and set of parameters
+/// Thread-safe
 class Context
 {
 public:
@@ -29,7 +34,7 @@ public:
 
 
     /// create a new Http request for direct HTTP low level feature usage
-    /// this Http request object should be destroyed after usage
+    /// this HTTP request object should be destroyed after usage
     HttpRequest* createRequest(const std::string & url, DavixError** err);
     HttpRequest* createRequest(const Uri & uri, DavixError** err);
 

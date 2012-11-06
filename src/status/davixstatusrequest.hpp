@@ -23,7 +23,9 @@ struct DavixErrorInternal;
 namespace StatusCode{
 
 ///
-/// Davix status codes
+/// @brief Davix status codes
+///
+/// List of Davix Status code used by \ref Davix::DavixError
 ///
 enum Code{
     OK = DAVIX_STATUS_OK,
@@ -50,35 +52,76 @@ enum Code{
 
 }
 
-/**
-  @brief Davix Error Handler
-*/
+///
+///  @brief Davix Error Handler
+///
+/// Error report system of Davix
+/// DavixError has a similar behavior to the glib Error system GError
+///
+/// Each function which takes a DavixError** as argument can take the value NULL
+///
+/// Example :
+///
+///     DavixError *tmp_err = NULL;
+///     do_operation(arg1,arg2, &tmp_err)
+///     if(tmp_err){ /* test if error occures*/
+///         std::cout << tmp_err->getErrMsg() << std::endl;
+///         clearError(&tmp_err); // clean error
+///     }
+///
 class DavixError{
 public:
+
+    ///
+    /// Construct a DavixError object
+    ///
+    /// @param scope : string parameter representing the scope of the error
+    /// @param errCode : Davix Error code, see \ref Davix::StatusCode::Code
+    /// @param errMsg : String representation of the error
     DavixError(const std::string & scope, StatusCode::Code errCode, const std::string & errMsg);
     DavixError(const DavixError & e);
     virtual ~DavixError();
 
 
+    ///
+    /// clone this error in a new dynamically allocated one
+    /// need to be delete
     DavixError* clone();
 
+    ///
+    /// @return Davix status code of the error
     StatusCode::Code getStatus() const;
 
+    ///
+    /// set the status code for this error
     void setStatus(const StatusCode::Code);
 
+    ///
+    /// get the string representation of this error
     const std::string & getErrMsg() const;
 
+    ///
+    /// set the string representation of this error
     void setErrMsg(const std::string & msg);
 
+    ///
+    /// create a new dynamically allocated DavixError Object
+    /// if err is NULL, do nothing
+    ///
+    /// @param scope : string parameter representing the scope of the error
+    /// @param errCode : Davix Error code, see \ref Davix::StatusCode::Code
+    /// @param errMsg : String representation of the error
     static void setupError(DavixError** err, const std::string & scope, StatusCode::Code errCode, const std::string & errMsg);
 
-    static void clearError(DavixError** err){
-        if(err && *err){
-            delete *err;
-            *err = NULL;
-        }
-    }
+    ///
+    /// clear the content of the current error and set err to NULL
+    static void clearError(DavixError** err);
 
+    ///
+    /// propagate the Davix Error Object from oldErr to newErr
+    /// OldErr can be consider as free after this operation
+    /// erase the error message if newErr is NULL
+    ///
     static void propagateError(DavixError** newErr, DavixError* oldErr){
         if(newErr){
             if(*newErr != NULL){

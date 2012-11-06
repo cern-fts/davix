@@ -55,7 +55,17 @@ bool IOBuffMap::open(int flags, DavixError **err){
 
 ssize_t IOBuffMap::read(void *buf, size_t count, DavixError **err){
     DppLocker l(_rwlock);
-    return -1;
+    DavixError* tmp_err = NULL;
+    ssize_t ret =-1;
+
+   if((ret = getOps(buf, count, _pos, &tmp_err) ) >0){
+    _pos += ret;
+   }
+
+
+    if(tmp_err)
+        DavixError::propagateError(err, tmp_err);
+    return ret;
 }
 
 ssize_t IOBuffMap::write(const void *buf, size_t count, DavixError **err){
@@ -121,12 +131,12 @@ bool IOBuffMap::checkIsOpen(DavixError **err){
 void setup_offset_request(HttpRequest* req, off_t start_len, size_t size_read){
     std::string offset_value("bytes=");
 
-    if(start_len > 0){
+    if(start_len > 0 || size_read >0 ){
         const size_t s_buff = 20+log10(std::max<size_t>(start_len, size_read)+1)*2; //calculate the buffer size for the string val
         char buffer[s_buff]; // calc buffer size
 
         if(size_read > 0)
-            snprintf(buffer, s_buff, "bytes=%ld-%ld", (unsigned long) start_len, (unsigned long) size_read);
+            snprintf(buffer, s_buff, "bytes=%ld-%ld", (unsigned long) start_len, (unsigned long) start_len+size_read);
         else
             snprintf(buffer, s_buff, "bytes=%ld-", (unsigned long) start_len);
         req->addHeaderField(req_header_byte_range, buffer);
@@ -147,12 +157,12 @@ ssize_t read_segment_request(HttpRequest* req, void* buffer, size_t size_read,  
         if(tmp_ret > 0){ // tmp_ret bytes readed
             ret += tmp_ret;
         }
-        if(ret > 0 && ret < size_read){
+        if(ret > 0 && ret < (ssize_t) size_read){
             p_buff+= tmp_ret;
             s_read -= tmp_ret;
         }
     }while( tmp_ret > 0
-            &&  ret < size_read);
+            &&  ret < (ssize_t) size_read);
 
     if(tmp_err){
         DavixError::propagateError(err, tmp_err);

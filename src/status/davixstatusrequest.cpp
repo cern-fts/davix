@@ -67,6 +67,13 @@ void DavixError::setupError(DavixError **err, const std::string &scope, StatusCo
     }
 }
 
+void DavixError::clearError(DavixError **err){
+    if(err && *err){
+        delete *err;
+        *err = NULL;
+    }
+}
+
 std::string davix_scope_stat_str(){
     return "[davix_stat]";
 }

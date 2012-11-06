@@ -29,8 +29,10 @@ DAVIX_FD* DavPosix::open(const RequestParams * _params, const std::string & url,
     Uri uri(url);
 
     if(uri.getStatus() == StatusCode::OK){
-        Davix_fd* fd = new Davix_fd( new IOBuffMap(*context, uri, _params));
+        fd = new Davix_fd( new IOBuffMap(*context, uri, _params));
         fd->io_handler->open( flags, &tmp_err);
+    }else{
+        DavixError::setupError(&tmp_err, davix_scope_http_request(), uri.getStatus(), " Uri invalid in Davix::Open");
     }
 
     if(tmp_err){
@@ -60,13 +62,13 @@ ssize_t DavPosix::read(DAVIX_FD* fd, void* buf, size_t count, Davix::DavixError*
 }
 
 
-ssize_t write(DAVIX_FD* fd, const void* buf, size_t count, Davix::DavixError**){
+ssize_t DavPosix::write(DAVIX_FD* fd, const void* buf, size_t count, Davix::DavixError**){
     return -1;
 }
 
 
 
-off_t lseek(DAVIX_FD* fd, off_t offset, int flags, Davix::DavixError** err){
+off_t DavPosix::lseek(DAVIX_FD* fd, off_t offset, int flags, Davix::DavixError** err){
     davix_log_debug(" -> davix_lseek");
     ssize_t ret =-1;
     DavixError* tmp_err=NULL;
@@ -83,7 +85,7 @@ off_t lseek(DAVIX_FD* fd, off_t offset, int flags, Davix::DavixError** err){
 }
 
 
-int close(DAVIX_FD* fd, Davix::DavixError** err){
+int DavPosix::close(DAVIX_FD* fd, Davix::DavixError** err){
     if(fd){
         delete fd;
     }

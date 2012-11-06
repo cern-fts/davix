@@ -13,6 +13,7 @@ set( src_test_prop "test_propfind.cpp")
 set( src_test_stat "test_stat.cpp" )
 set( src_test_mkdir "test_mkdir.cpp")
 set( src_test_stat_session "test_stat_session.cpp")
+set( src_test_rw "davix_rw_test.cpp")
 set( src_test_opendir "test_opendir.cpp")
 set( src_test_opendir_c "test_opendir_c.cpp")
 set( src_test_opendir_partial "test_opendir_partial.cpp")
@@ -39,6 +40,9 @@ target_link_libraries(test_mkdir davix)
 add_executable(test_stat_session ${src_test_stat_session} ${src_davix_test_lib})
 target_link_libraries(test_stat_session davix)
 
+
+add_executable(test_rw ${src_test_rw} ${src_davix_test_lib})
+target_link_libraries(test_rw davix)
 
 add_executable(test_opendir ${src_test_opendir} )
 target_link_libraries(test_opendir davix)

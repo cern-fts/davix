@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #include <davixcontext.hpp>
 #include <params/davixrequestparams.hpp>
@@ -15,13 +16,18 @@
   @file davposix.hpp
   @author Devresse Adrien
 
-  @brief C++ POSIX like API of davix
+  @brief POSIX-like API of davix C++
 */
 
 namespace Davix {
 
 class DavPosixInternal;
 
+///
+/// @brief POSIX-like API of Davix
+///
+/// DavPosix offers POSIX like API for HTTP/WebDav file operations
+/// Thread safe
 class DavPosix
 {
 public:

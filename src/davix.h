@@ -15,16 +15,16 @@
   @file davix.h
   @author Devresse Adrien
 
+  @brief API of Davix C
 
-  @brief C API of Davix
+  Davix is a HTTP/Webdav library for file management purpose.
 
-  Davix is a file access and file management library on top of HTTP/Webdav
-
-  Non exhaustive list of features :
-  - all commons POSIX file operations : open/read/write/close, opendir, readdir, mkdir
+  Davix supports :
+  - Commons POSIX file operations : open/read/write/close, opendir, readdir, mkdir
+  - Transparent redirection
   - SSL client side credentials
   - Third party copy file
-  - session reuse
+  -
  */
 
 
@@ -35,22 +35,25 @@
 
 DAVIX_C_DECL_BEGIN
 
-/**
-  @brief create a new davix session handle
 
-  create a davix sessions handle, session handle can be used to configure and execute davix request
-  @param err : Gerror error report system, in case of failure
-  @return davix_sess_t : session handle or NULL pointer if error
-  */
+
+///
+///  @brief create a new davix session handle
+///
+///   create a davix sessions handle, session handle can be used to configure and execute davix request
+///   @param err : Gerror error report system, in case of failure
+///   @return davix_sess_t : session handle or NULL pointer if error
+///
 davix_sess_t davix_context_new(davix_error_t* err);
 
-
+///
+///   clone a davix context object
+///
 davix_sess_t davix_context_copy(davix_sess_t sess);
 
 
-/**
-  release a davix session handle
-*/
+///
+/// free a davix context object
 void davix_context_free(davix_sess_t sess);
 
 
@@ -60,43 +63,39 @@ void davix_context_free(davix_sess_t sess);
 // Params management functions
 //
 
-/**
- * create a new parameter container with default parameter values
- * this parameter container needs to be free with @ref davix_params_free
- */
+///
+/// create a davix parameter container with default parameter values
+/// a davix parameter container can be used to setup advanced settings to any davix request
+///
+/// need to be free with @ref davix_params_free
+///
 davix_params_t davix_params_new();
 
-/**
- * copy the davix parameters from src to a new allocated one
- * this copy needs to be free with @ref davix_params_free
- */
+///
+/// clone a davix parameter object
+///
 davix_params_t davix_params_copy(davix_params_t src);
 
-/**
-  free and destruct a parameter container
-*/
+///
+///  free a davix parameter container
+///
 void davix_params_free(davix_params_t p);
 
-/**
-  setup the authorization callback for the current parameter handle
-  This authorisation callback will be called each time that the associated request will need an authentification
-*/
+///
+///  setup the authorization callback for the current parameter handle
+///  This authorisation callback will be called each time that the associated request will need an authentification
+///
 int davix_params_set_auth_callback(davix_params_t params, davix_auth_callback call, void* userdata, davix_error_t* err);
 
-/**
-  disable or enable the validity check of the serveur side credential
-*/
+///
+///  disable or enable the validity check of the serveur side credential
+///
 int davix_params_set_ssl_check(davix_params_t params, gboolean ssl_check, davix_error_t* err);
 
 
-/**
-  set the default parameter container to use for the current session
-*/
-int davix_set_default_session_params(davix_sess_t sess, davix_params_t params, davix_error_t* err);
-
-//
-// Authenficiation callback specific parameters
-//
+///
+///  Authenficiation callback specific parameters
+///
 int davix_auth_set_pkcs12_cli_cert(davix_auth_t token, const char* filename_pkcs, const char* passwd, davix_error_t* err);
 
 int davix_auth_set_login_passwd(davix_auth_t token, const char* login, const char* passwd, davix_error_t* err);

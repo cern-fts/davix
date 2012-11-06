@@ -212,8 +212,10 @@ int NEONRequest::negotiate_request(DavixError** err){
     int code, status, end_status = NE_RETRY;
     int n =0;
 
+    davix_log_debug(" ->   Davix negociate request ... ");
     if(req_started){
         DavixError::setupError(err, davix_scope_http_request(), StatusCode::alreadyRunning, "Http request already started, Error");
+        davix_log_debug(" Davix negociate request ... <-");
         return -1;
     }
 
@@ -222,9 +224,10 @@ int NEONRequest::negotiate_request(DavixError** err){
     while(end_status == NE_RETRY && n < n_limit){
         davix_log_debug(" ->   NEON start internal request ... ");
 
-        if( (status = ne_begin_request(_req)) != NE_OK){
+        if( (status = ne_begin_request(_req)) != NE_OK && status != NE_REDIRECT){
             req_started= req_running == false;
             neon_to_davix_code(status, _sess, davix_scope_http_request(),err);
+            davix_log_debug(" Davix negociate request ... <-");
             return -1;
         }
 
@@ -237,11 +240,13 @@ int NEONRequest::negotiate_request(DavixError** err){
                         && end_status != NE_REDIRECT){
                     req_started= req_running = false;
                     neon_to_davix_code(status, _sess, davix_scope_http_request(),err);
+                    davix_log_debug(" Davix negociate request ... <-");
                     return -1;
                 }
                 ne_discard_response(_req);              // Get a valid redirection, drop request content
                 end_status = ne_end_request(_req);      // submit the redirection
                 if(redirect_request(err) <0){           // accept redirection
+                    davix_log_debug(" Davix negociate request ... <-");
                     return -1;
                 }
                 end_status = NE_RETRY;
@@ -268,7 +273,7 @@ int NEONRequest::negotiate_request(DavixError** err){
         DavixError::setupError(err,davix_scope_http_request(),StatusCode::authentificationError, "overpass the maximum number of authentification try, cancel");
         return -2;
     }
-    davix_log_debug(" ->   NEON end internal request ... ");
+    davix_log_debug(" Davix negociate request ... <-");
     return 0;
 }
 
@@ -351,7 +356,7 @@ int NEONRequest::beginRequest(DavixError** err){
 
     if(ret <0)
         DavixError::propagateError(err, tmp_err);
-    return 0;
+    return ret;
 }
 
 ssize_t NEONRequest::readBlock(char* buffer, size_t max_size, DavixError** err){

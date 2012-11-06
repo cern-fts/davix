@@ -299,13 +299,23 @@ int NEONRequest::redirect_request(DavixError **err){
                       ne_get_server_hostport(_sess), _path.c_str(), ne_uri_unparse(new_uri));
 
     // setup new path & session target
-    _path = std::string(new_uri->path);
-    ne_fill_server_uri(_sess, (ne_uri*) new_uri);
+    Uri davix_uri(ne_uri_unparse(new_uri));
+    _path = davix_uri.getPath();
+
+    // recycle old request and session
+    if( _f->storeNeonSession(_sess, err) <0){
+        return -1;
+    }
+    free_request();
+    _sess = NULL;
 
     // renew request
     req_started = false;
-    free_request();
-    if( create_req(err) < 0){
+    // create a new couple of session + request
+    if( _f->createNeonSession(davix_uri, &_sess, err) <0 ){
+        return -1;
+    }
+    if( create_req(err) <0){
         return -1;
     }
     req_started= true;

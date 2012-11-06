@@ -15,6 +15,7 @@ namespace Davix {
 
 void setup_offset_request(HttpRequest* req, off_t start_len, size_t size_read);
 ssize_t read_segment_request(HttpRequest* req, void* buffer, size_t size_read,  off_t off_set, DavixError**err);
+ssize_t read_truncated_segment_request(HttpRequest* req, void* buffer, size_t size_read,  off_t off_set, DavixError**err);
 
 
 IOBuffMap::IOBuffMap(Context & c, const Uri & uri, const RequestParams * params) : _c(c), _uri(uri), _params(params)
@@ -98,6 +99,8 @@ ssize_t IOBuffMap::getOps(void *buf, size_t count, off_t offset, DavixError **er
     DavixError * tmp_err=NULL;
     ssize_t ret = -1;
     davix_log_debug(" -> getOps operation for %s with size %ld and offset %ld",_uri.getString().c_str(), count, offset);
+    if(count ==0)
+        return 0;
 
     std::auto_ptr<HttpRequest> req( _c.createRequest(_uri, &tmp_err));
     if(req.get() != NULL){
@@ -107,12 +110,10 @@ ssize_t IOBuffMap::getOps(void *buf, size_t count, off_t offset, DavixError **er
             if(req->getRequestCode() == 416 ){ // out of file, end of file
                 ret = 0; // end of file
             }else{
-                if(req->getRequestCode() == 206 || req->getRequestCode() == 200 ){
-
-                    if(offset != 0 && req->getRequestCode() == 200){
-                        davix_log_debug(" WARNING : server does not support Request with range ! : %s ",_uri.getString().c_str());
-                    }
+                if(req->getRequestCode() == 206 ){ // partial request supported, just read !
                     ret = read_segment_request(req.get(), buf, count, offset, &tmp_err);
+                }else if( req->getRequestCode() == 200){ // full request content -> skip useless content
+                    ret = read_truncated_segment_request(req.get(), buf, count, offset, &tmp_err);
                 }else{
                     httpcodeToDavixCode(req->getRequestCode(),davix_scope_http_request(),", while  readding", &tmp_err);
                 }
@@ -181,7 +182,34 @@ ssize_t read_segment_request(HttpRequest* req, void* buffer, size_t size_read,  
 }
 
 
+ssize_t read_truncated_segment_request(HttpRequest* req, void* buffer, size_t size_read,  off_t off_set, DavixError**err){
+     DavixError* tmp_err=NULL;
+     ssize_t ret=0, tmp_ret=0;
+     const ssize_t begin_offset = (ssize_t) off_set;
+     char * p_buffer = (char*) buffer;
 
+     while(ret < begin_offset && !tmp_err){ // use buffer like trash for useless content
+         if( (ret + size_read) < begin_offset)
+            tmp_ret = req->readBlock(p_buffer, size_read, &tmp_err);
+         else
+            tmp_ret = req->readBlock(p_buffer, begin_offset - ret, &tmp_err);
+
+         if(tmp_ret == 0)
+             return 0;
+
+        ret += tmp_ret;
+     }
+
+     if(!tmp_err){
+        ret = read_segment_request(req, p_buffer, size_read,  off_set, &tmp_err);
+     }
+
+     if(tmp_err){
+         DavixError::propagateError(err, tmp_err);
+         return -1;
+     }
+     return ret;
+}
 
 
 

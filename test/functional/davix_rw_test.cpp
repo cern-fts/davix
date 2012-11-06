@@ -24,7 +24,7 @@ int main(int argc, char** argv){
         return 0;
     }
 
-    g_logger_set_globalfilter(G_LOG_LEVEL_MASK);
+    g_logger_set_globalfilter(G_LOG_LEVEL_WARNING);
 
     DavixError* tmp_err=NULL;
     Davix_fd* fd;
@@ -43,8 +43,9 @@ int main(int argc, char** argv){
         return -1;
     }
 
-    std::cout << "file content " << std::endl;
+   // std::cout << "file content " << std::endl;
     while( fd && (ret = pos.read(fd, buff, 2048, &tmp_err)) > 0){
+        buff[ret] = '\0';
         std::cout << buff;
     }
     std::cout << std::endl;

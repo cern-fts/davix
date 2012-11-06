@@ -17,6 +17,8 @@ namespace Davix {
 
 class RequestParamsInternal;
 
+
+
 ///
 /// @class RequestParams
 /// @brief Main container for HTTP/WebDAV request options
@@ -58,6 +60,7 @@ public:
     void* getAuthentificationCallbackData();
 
     /// define the connexion timeout
+    /// conn_timeout is a relative time
     /// DEFAULT : 180s
     void setConnexionTimeout(struct timespec* conn_timeout);
 
@@ -66,8 +69,9 @@ public:
 
 
     /// define the maximum execution time for a davix request
+    /// ops_timeout is a relative time
     /// DEFAULT : infinite
-    void setOperationTimeout(struct timespec* cops_timeout);
+    void setOperationTimeout(struct timespec* ops_timeout);
 
     /// get the maximum execution time for a davix request
     /// DEFAULT : infinite

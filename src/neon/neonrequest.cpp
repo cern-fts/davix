@@ -20,7 +20,7 @@ void neon_to_davix_code(int ne_status, ne_session* sess, const std::string & sco
             str= "Elvis is back !";
             break;
         case NE_ERROR:
-             str = ne_get_error(sess);
+             str = std::string("Neon error : ").append(ne_get_error(sess));
              code = StatusCode::ConnexionProblem;
              break;
         case NE_LOOKUP:
@@ -176,6 +176,7 @@ int NEONRequest::create_req(DavixError** err){
 
 void NEONRequest::configure_sess(){
     ne_redirect_register(_sess);
+    //ne_set_session_flag(_sess, NE_SESSFLAG_PERSIST, false);
 
     if(params.getSSLCACheck() == false){ // configure ssl check
         davix_log_debug("NEONRequest : disable ssl verification");
@@ -225,6 +226,12 @@ int NEONRequest::negotiate_request(DavixError** err){
         davix_log_debug(" ->   NEON start internal request ... ");
 
         if( (status = ne_begin_request(_req)) != NE_OK && status != NE_REDIRECT){
+            if( status == NE_ERROR && strstr(ne_get_error(_sess), "Could not") != NULL ){ // bugfix against neon keepalive problem
+               davix_log_debug("Connexion close, retry...");
+               n++;
+               continue;
+            }
+
             req_started= req_running == false;
             neon_to_davix_code(status, _sess, davix_scope_http_request(),err);
             davix_log_debug(" Davix negociate request ... <-");
@@ -236,7 +243,6 @@ int NEONRequest::negotiate_request(DavixError** err){
             case 301:
             case 302:
                 if( end_status != NE_OK
-                        && end_status != NE_RETRY
                         && end_status != NE_REDIRECT){
                     req_started= req_running = false;
                     neon_to_davix_code(status, _sess, davix_scope_http_request(),err);

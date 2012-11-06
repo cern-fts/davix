@@ -17,7 +17,7 @@ void neon_to_davix_code(int ne_status, ne_session* sess, const std::string & sco
     switch(ne_status){
         case NE_OK:
             code = StatusCode::OK;
-            str= "Elvis is back !";
+            str= "Status Ok";
             break;
         case NE_ERROR:
              str = std::string("Neon error : ").append(ne_get_error(sess));
@@ -178,6 +178,9 @@ void NEONRequest::configure_sess(){
     ne_redirect_register(_sess);
     //ne_set_session_flag(_sess, NE_SESSFLAG_PERSIST, false);
 
+    // define user agent
+    ne_set_useragent(_sess, params.getUserAgent().c_str());
+
     if(params.getSSLCACheck() == false){ // configure ssl check
         davix_log_debug("NEONRequest : disable ssl verification");
         ne_ssl_set_verify(_sess, validate_all_certificate, NULL);
@@ -243,6 +246,7 @@ int NEONRequest::negotiate_request(DavixError** err){
             case 301:
             case 302:
                 if( end_status != NE_OK
+                        && end_status != NE_RETRY
                         && end_status != NE_REDIRECT){
                     req_started= req_running = false;
                     neon_to_davix_code(status, _sess, davix_scope_http_request(),err);

@@ -87,6 +87,12 @@ public:
     /// return true if the transparent redirection mode is enabled
     bool getTransparentRedirectionSupport() const;
 
+    /// set the user agent for the associated request
+    void setUserAgent(const std::string & user_agent);
+
+    /// get the current user agent string
+    const std::string & getUserAgent() const;
+
     RequestParams & operator=(const RequestParams & _p);
 private:
 

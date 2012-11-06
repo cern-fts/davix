@@ -26,17 +26,17 @@ public:
       @return Request object
     */
     virtual HttpRequest* create_request(const std::string & url, DavixError** err) ;
-     virtual HttpRequest* create_request(const Uri & uri, DavixError** err) ;
+    virtual HttpRequest* create_request(const Uri & uri, DavixError** err) ;
 
     /**
       Create a session object or create a recycled  one ( session reuse )
     */
-    int createNeonSession(const Uri & uri, ne_session** sess);
+    int createNeonSession(const Uri & uri, ne_session** sess, DavixError** err);
 
     /**
       store a Neon session object for session reuse purpose
     */
-    int storeNeonSession(const Uri & uri, ne_session *sess);
+    int storeNeonSession(ne_session *sess, DavixError** err);
 
 private:
     std::multimap<std::string, ne_session*> _sess_map;

@@ -52,15 +52,20 @@ HttpRequest* NEONSessionFactory::create_request(const Uri &uri, DavixError **err
     return req;
 }
 
-int NEONSessionFactory::createNeonSession(const Uri & uri, ne_session** sess){
-    if(sess != NULL){
-        *sess = create_recycled_session(uri.getProtocol(), uri.getHost(),uri.getPort());
-        return 0;
+
+int NEONSessionFactory::createNeonSession(const Uri & uri, ne_session** sess, DavixError **err){
+    if(uri.getStatus() == StatusCode::OK){
+        if(sess != NULL){
+            *sess = create_recycled_session(uri.getProtocol(), uri.getHost(),uri.getPort());
+            return 0;
+        }
+    }else{
+        DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, "impossible to parse " + uri.getString() + " ,not a valid HTTP or Webdav URL");
     }
     return -1;
 }
 
-int NEONSessionFactory::storeNeonSession(const Uri & uri, ne_session* sess){
+int NEONSessionFactory::storeNeonSession(ne_session* sess, DavixError **err){
     internal_release_session_handle(sess);
     return 0;
 }

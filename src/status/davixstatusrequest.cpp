@@ -4,6 +4,7 @@
 namespace Davix {
 
 
+
 struct DavixErrorInternal{
     DavixErrorInternal(const std::string &scope, StatusCode::Code errCode, const std::string &errMsg){
         this->scope = scope;
@@ -56,6 +57,7 @@ void DavixError::setStatus(const StatusCode::Code c){
 StatusCode::Code DavixError::getStatus() const{
     return d_ptr->code;
 }
+
 
 
 void DavixError::setupError(DavixError **err, const std::string &scope, StatusCode::Code errCode, const std::string &errMsg){

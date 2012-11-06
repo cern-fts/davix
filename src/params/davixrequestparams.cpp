@@ -5,6 +5,9 @@
 namespace Davix {
 
 
+
+const char * default_agent = "libdavix/0.0.9";
+
 struct RequestParamsInternal{
     RequestParamsInternal(){
      _ssl_check = true;
@@ -15,6 +18,7 @@ struct RequestParamsInternal{
      timespec_clear(&ops_timeout);
      connexion_timeout.tv_sec = DAVIX_DEFAULT_CONN_TIMEOUT;
      ops_timeout.tv_sec = DAVIX_DEFAULT_OPS_TIMEOUT;
+     agent_string = default_agent;
     }
     virtual ~RequestParamsInternal(){
 
@@ -26,6 +30,7 @@ struct RequestParamsInternal{
         _call = param_private._call;
         timespec_copy(&(connexion_timeout), &(param_private.connexion_timeout));
         timespec_copy(&(ops_timeout), &(param_private.ops_timeout));
+        this->agent_string = param_private.agent_string;
     }
     bool _ssl_check; // ssl CA check
     bool _redirection; // redirection support
@@ -37,6 +42,9 @@ struct RequestParamsInternal{
     // timeout management
     struct timespec ops_timeout;
     struct timespec connexion_timeout;
+
+    // user agent
+    std::string agent_string;
 };
 
 
@@ -131,6 +139,14 @@ void RequestParams::setTransparentRedirectionSupport(bool redirection){
 
 bool RequestParams::getTransparentRedirectionSupport() const{
     return d_ptr->_redirection;
+}
+
+const std::string & RequestParams::getUserAgent() const{
+    return d_ptr->agent_string;
+}
+
+void RequestParams::setUserAgent(const std::string &user_agent){
+    d_ptr->agent_string = user_agent;
 }
 
 

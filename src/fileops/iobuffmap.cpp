@@ -20,13 +20,16 @@ ssize_t read_truncated_segment_request(HttpRequest* req, void* buffer, size_t si
 
 IOBuffMap::IOBuffMap(Context & c, const Uri & uri, const RequestParams * params) : _c(c), _uri(uri), _params(params)
 {
-    _req=NULL;
+    _read_req=NULL;
     _pos =0;
+    _read_pos =0;
     _file_size = 0;
+    _read_endfile = false;
+    _opened = false;
 }
 
 IOBuffMap::~IOBuffMap(){
-    delete _req;
+    delete _read_req;
 }
 
 bool IOBuffMap::open(int flags, DavixError **err){
@@ -45,6 +48,7 @@ bool IOBuffMap::open(int flags, DavixError **err){
                 httpcodeToDavixCode(req->getRequestCode(),davix_scope_http_request(),", while open", &tmp_err);
             }else{
                 DavixError::clearError(&tmp_err);
+                _opened = true;
             }
         }
 
@@ -59,10 +63,13 @@ ssize_t IOBuffMap::read(void *buf, size_t count, DavixError **err){
     DavixError* tmp_err = NULL;
     ssize_t ret =-1;
 
-   if((ret = getOps(buf, count, _pos, &tmp_err) ) >0){
-    _pos += ret;
-   }
-
+    // try read ahead strategie
+    ret = readAheadRequest(buf, count, &tmp_err);
+    if( ret  <0 && !tmp_err){ // fallback on partial read
+       ret = getOps(buf, count, _pos, &tmp_err);
+    }
+    if(ret > 0)
+        _pos += ret;
 
     if(tmp_err)
         DavixError::propagateError(err, tmp_err);
@@ -130,11 +137,57 @@ ssize_t IOBuffMap::getOps(void *buf, size_t count, off_t offset, DavixError **er
 
 
 bool IOBuffMap::checkIsOpen(DavixError **err){
-    if(_req == NULL){
-        DavixError::setupError(err, davix_scope_http_request(), StatusCode::OperationNonSupported, "File not open, Error");
-        return false;
+    return _opened;
+}
+
+
+ssize_t IOBuffMap::readAheadRequest(void * buffer, size_t size_read, DavixError ** err){
+    ssize_t ret = -1;
+    DavixError * tmp_err=NULL;
+
+    if(_pos ==0){ // reset read ahead offset to default if try to read a full file
+        _read_pos =0;
+        _read_endfile = false;
     }
-    return true;
+
+    if(_pos == _read_pos ){ // continue a already started readding
+        davix_log_debug(" -> try readaheal from %ld of size %lfd", _read_pos, size_read);
+
+        if(_read_endfile)
+            return 0;
+
+        if( _read_req == NULL){
+            _read_req = _c.createRequest(_uri, &tmp_err);
+            if(_read_req != NULL){
+                _read_req->set_parameters(_params);
+                if(_read_req->beginRequest(&tmp_err) ==0){
+                    if(_read_req->getRequestCode() != 200 ){
+                        httpcodeToDavixCode(_read_req->getRequestCode(),davix_scope_http_request(),", while  readding", &tmp_err);
+                        delete _read_req;
+                        _read_req = NULL;
+                    }
+                }
+            }
+        }
+
+        if(_read_req != NULL){ // valid request -> proceed to read
+            ret = read_segment_request(_read_req, buffer, size_read, _read_pos, &tmp_err);
+            if(ret > 0){
+                _read_pos += ret;
+                if(ret < size_read) // end of file
+                    _read_endfile =true;
+            }
+        }
+    }
+
+    if((_read_endfile || ret < 0) && _read_req){
+        delete _read_req;
+        _read_req = NULL;
+    }
+
+    if(tmp_err)
+        DavixError::propagateError(err, tmp_err);
+    return ret;
 }
 
 
@@ -210,6 +263,7 @@ ssize_t read_truncated_segment_request(HttpRequest* req, void* buffer, size_t si
      }
      return ret;
 }
+
 
 
 

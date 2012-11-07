@@ -47,13 +47,21 @@ private:
     Context & _c;
     Uri _uri;
     RequestParams _params;
-    off_t _pos;
     size_t _file_size;
-    HttpRequest * _req;
+    HttpRequest * _read_req;
     DppLock _rwlock;
+
+    // pos
+    off_t _pos; // current file offset
+    off_t _read_pos; //curent read file offset
+    bool _read_endfile;
+
+    // open status
+    bool _opened;
 
 
     bool checkIsOpen(DavixError** err);
+    ssize_t readAheadRequest(void * buffer, size_t size_read, DavixError ** err);
 };
 
 } // namespace Davix

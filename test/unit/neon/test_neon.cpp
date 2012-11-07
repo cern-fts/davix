@@ -12,40 +12,46 @@ using namespace Davix;
 static const char* list_urls[] = {
     "http://localhost:80/",
     "sfdfsdfdsfds://localhost:rrrrrrr/path",
-    "http://monurlrandom/"
+    "http://monurlrandom/",
+    "www.google.com"
 };
 
 static const size_t list_port[]={
     80,
     0,
+    80,
     80
 };
 
 static const char* list_host[] ={
     "localhost",
     "localhost",
-    "monurlrandom"
+    "monurlrandom",
+    "nothing"
 };
 
 static const char* list_path[] ={
     "/",
     "/path",
-    "/"
+    "/",
+    "nothing",
 };
 
 static const char* list_proto[] ={
     "http",
     "http",
-    "http"
+    "http",
+    "nothing"
 };
 
 static bool failure[]={
     false,
     true,
-    false
+    false,
+    true
 };
 
-const size_t len_list=3;
+const size_t len_list=4;
 
 
 TEST(testNeon, testParsing){

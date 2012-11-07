@@ -174,8 +174,10 @@ ssize_t IOBuffMap::readAheadRequest(void * buffer, size_t size_read, DavixError 
             ret = read_segment_request(_read_req, buffer, size_read, _read_pos, &tmp_err);
             if(ret > 0){
                 _read_pos += ret;
-                if(ret < size_read) // end of file
+                if(ret < (ssize_t) size_read){ // end of file
                     _read_endfile =true;
+                    _read_req->endRequest(NULL);
+                }
             }
         }
     }

@@ -175,6 +175,10 @@ int NEONRequest::create_req(DavixError** err){
 }
 
 void NEONRequest::configure_sess(){
+    if(strcmp(ne_get_scheme(_sess), "https") ==0) // fix a libneon bug with non ssl connexion
+        ne_ssl_trust_default_ca(_sess);
+
+    // register redirection management
     ne_redirect_register(_sess);
     //ne_set_session_flag(_sess, NE_SESSFLAG_PERSIST, false);
 

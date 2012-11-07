@@ -20,6 +20,7 @@ set( src_test_opendir_partial "test_opendir_partial.cpp")
 set( src_test_opendirpp "test_opendirpp.cpp")
 set( src_test_stat_c "test_stat_c.c")
 set( src_test_auto_stat_mkdir_check "test_auto_stat_mkdir_check.cpp")
+set( src_test_valid_read_generic_simple "test_valid_read_generic_simple.cpp")
 
 add_executable(test_request ${src_test_req} )
 target_link_libraries(test_request davix)
@@ -59,6 +60,8 @@ target_link_libraries(test_opendirpp davix)
 add_executable(test_stat_c ${src_test_stat_c} ${src_davix_test_lib})
 target_link_libraries(test_stat_c davix)
 
+add_executable(test_valid_read_generic_simple ${src_test_valid_read_generic_simple} ${src_davix_test_lib})
+target_link_libraries(test_valid_read_generic_simple davix)
 
 
 function(test_dav_endpoint_ronly name cred)
@@ -85,6 +88,10 @@ endfunction(test_dav_endpoint_rw name cred)
 function(listdir_partial name size cred)
     add_test(test_opendir_partial_${name}  test_opendir_partial ${name} ${size} ${cred})
 endfunction(listdir_partial name size cred)
+
+function(test_valid_read_generic url cred)
+    add_test(test_valid_read_generic_${url} test_valid_read_generic_simple ${url} ${cred})
+endfunction(test_valid_read_generic url cred)
 
 include(ctest_functional.cmake)
 

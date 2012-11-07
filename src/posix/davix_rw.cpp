@@ -62,8 +62,20 @@ ssize_t DavPosix::read(DAVIX_FD* fd, void* buf, size_t count, Davix::DavixError*
 }
 
 
-ssize_t DavPosix::write(DAVIX_FD* fd, const void* buf, size_t count, Davix::DavixError**){
-    return -1;
+ssize_t DavPosix::write(DAVIX_FD* fd, const void* buf, size_t count, Davix::DavixError** err){
+    davix_log_debug(" -> davix_write");
+    ssize_t ret =-1;
+    DavixError* tmp_err=NULL;
+
+    if( davix_check_rw_fd(fd, &tmp_err) ==0){
+        ret = fd->io_handler->write(buf, count, &tmp_err);
+    }
+
+
+    if(tmp_err)
+        DavixError::propagateError(err, tmp_err);
+    davix_log_debug(" davix_write <-");
+    return ret;
 }
 
 

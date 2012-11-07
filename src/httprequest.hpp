@@ -61,6 +61,12 @@ public:
     void setRequestBodyString(const std::string & body);
 
     ///
+    /// set the content of the request from a buffer
+    ///  NULL pointer means a empty content
+    ///
+    void setRequestBodyBuffer(const void * buffer, size_t len_buff);
+
+    ///
     /// @brief start a multi-part HTTP Request
     ///
     ///  the multi-part HTTP Request of davix

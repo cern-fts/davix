@@ -21,6 +21,7 @@ set( src_test_opendirpp "test_opendirpp.cpp")
 set( src_test_stat_c "test_stat_c.c")
 set( src_test_auto_stat_mkdir_check "test_auto_stat_mkdir_check.cpp")
 set( src_test_valid_read_generic_simple "test_valid_read_generic_simple.cpp")
+set( src_test_valid_write_read_generic_simple "test_valid_write_read_generic_simple.cpp")
 
 add_executable(test_request ${src_test_req} )
 target_link_libraries(test_request davix)
@@ -62,6 +63,9 @@ target_link_libraries(test_stat_c davix)
 
 add_executable(test_valid_read_generic_simple ${src_test_valid_read_generic_simple} ${src_davix_test_lib})
 target_link_libraries(test_valid_read_generic_simple davix)
+
+add_executable(test_valid_write_read_generic_simple ${src_test_valid_write_read_generic_simple} ${src_davix_test_lib})
+target_link_libraries(test_valid_write_read_generic_simple davix)
 
 
 function(test_dav_endpoint_ronly name cred)

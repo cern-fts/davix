@@ -6,10 +6,16 @@ message (" Setup tests parameters... ")
 set(BASIC_LOGIN "test")
 set(BASIC_PASSWD "tester")
 
+set(http_desy_base "http://sligo.desy.de:2880/pnfs/desy.de/data/dteam/")
+set(http_desy_file "${http_desy_base}/fbxtest.txt")
 
-test_dav_endpoint_ronly( "http://sligo.desy.de:2880/pnfs/desy.de/data/dteam/" "")
-test_dav_endpoint_rw( "https://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam/" "${CMAKE_SOURCE_DIR}/test.p12")
-listdir_partial("https://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam/dir10k" 2000 "${CMAKE_SOURCE_DIR}/test.p12")
+set(http_lcgdm_base "https://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam/")
+
+
+test_dav_endpoint_ronly( ${http_desy_base} "")
+
+test_dav_endpoint_rw( "${http_lcgdm_base}" "${CMAKE_SOURCE_DIR}/test.p12")
+listdir_partial("${http_lcgdm_base}" 2000 "${CMAKE_SOURCE_DIR}/test.p12")
 
 # localhost generic server, ex : "davserver -n -D /tmp"
 test_dav_endpoint_rw("http://localhost:8008" " ")
@@ -27,5 +33,6 @@ test_valid_read_generic("http://cnn.com" "")
 test_valid_read_generic("http://cern.ch" "")
 
 # testwith common SE
-test_valid_read_generic("http://sligo.desy.de:2880/pnfs/desy.de/data/dteam/" "")
-test_valid_read_generic("https://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam/" "${CMAKE_SOURCE_DIR}/test.p12")
+test_valid_read_generic("${http_desy_base}" "")
+test_valid_read_generic("${http_desy_file}" "")
+test_valid_read_generic("${http_lcgdm_base}" "${CMAKE_SOURCE_DIR}/test.p12")

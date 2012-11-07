@@ -34,6 +34,10 @@ void HttpRequest::setRequestBodyString(const std::string &body){
     d_ptr->setRequestBodyString(body);
 }
 
+void HttpRequest::setRequestBodyBuffer(const void *buffer, size_t len_buff){
+    d_ptr->setRequestBodyBuffer(buffer, len_buff);
+}
+
 int HttpRequest::getRequestCode(){
     return d_ptr->getRequestCode();
 }

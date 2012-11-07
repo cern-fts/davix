@@ -143,6 +143,8 @@ NEONRequest::NEONRequest(NEONSessionFactory* f, ne_session * sess, const std::st
     _f = f;
     req_started= req_running =false;
     auth_last_error = NULL;
+    _content_ptr = NULL;
+    _content_len =0;
 }
 
 NEONRequest::~NEONRequest(){
@@ -166,11 +168,6 @@ int NEONRequest::create_req(DavixError** err){
     _req= ne_request_create(_sess, _request_type.c_str(), _path.c_str());
     configure_req();
 
-    for(size_t i=0; i< _headers_field.size(); ++i){
-        ne_add_request_header(_req, _headers_field[i].first.c_str(),  _headers_field[i].second.c_str());
-    }
-    if(_content_body.size() > 0)
-        ne_set_request_body_buffer(_req, _content_body.c_str(), _content_body.size());
     return 0;
 }
 
@@ -211,7 +208,13 @@ void NEONRequest::configure_sess(){
 }
 
 void NEONRequest::configure_req(){
+    for(size_t i=0; i< _headers_field.size(); ++i){
+        ne_add_request_header(_req, _headers_field[i].first.c_str(),  _headers_field[i].second.c_str());
+    }
 
+    if(_content_ptr && _content_len >0){
+        ne_set_request_body_buffer(_req, _content_ptr, _content_len);
+    }
 }
 
 int NEONRequest::negotiate_request(DavixError** err){
@@ -474,6 +477,13 @@ int NEONRequest::do_login_passwd_authentification(const char *login, const char 
 void NEONRequest::setRequestBodyString(const std::string & body){
     davix_log_debug("NEONRequest : add request content of size %s ", body.c_str());
     _content_body = std::string(body);
+    _content_ptr = (char*) _content_body.c_str();
+    _content_len = strlen(_content_ptr);
+}
+
+void NEONRequest::setRequestBodyBuffer(const void *buffer, size_t len){
+    _content_ptr = (char*) buffer;
+    _content_len = len;
 }
 
 

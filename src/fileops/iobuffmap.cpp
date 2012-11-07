@@ -44,7 +44,7 @@ bool IOBuffMap::open(int flags, DavixError **err){
         req->setRequestMethod("HEAD");
         if( req->executeRequest(&tmp_err) == 0){
             if( (res = httpcodeIsValid(req->getRequestCode())) == false
-                    && !( ( flags & O_RDONLY) && req->getRequestCode() == 404) ){
+                    &&  (req->getRequestCode() != 404 && !(flags & O_RDONLY)) ){
                 httpcodeToDavixCode(req->getRequestCode(),davix_scope_http_request(),", while open", &tmp_err);
             }else{
                 DavixError::clearError(&tmp_err);
@@ -78,7 +78,31 @@ ssize_t IOBuffMap::read(void *buf, size_t count, DavixError **err){
 
 ssize_t IOBuffMap::write(const void *buf, size_t count, DavixError **err){
     DppLocker l(_rwlock);
-    return -1;
+    ssize_t ret =-1;
+    DavixError* tmp_err=NULL;
+
+    if(_pos != 0){
+        DavixError::setupError(&tmp_err, davix_scope_http_request(), StatusCode::OperationNonSupported, " Multi-part write is not supported by Http !");
+    }else{
+        std::auto_ptr<HttpRequest> req( _c.createRequest(_uri, &tmp_err));
+        if(req.get() != NULL){
+            req->setRequestMethod("PUT");
+            req->set_parameters(_params);
+            req->setRequestBodyBuffer(buf, count);
+            if(req->beginRequest(&tmp_err) ==0){
+                if(req->getRequestCode() != 200 ||  req->getRequestCode() != 204){ // out of file, end of file
+                    ret = count; // end of file
+                }else{
+                    httpcodeToDavixCode(req->getRequestCode(),davix_scope_http_request(),", while  readding", &tmp_err);
+                    ret = -1;
+                }
+            }
+            req->endRequest(NULL);
+        }
+    }
+    if(tmp_err)
+        DavixError::propagateError(err, tmp_err);
+    return ret;
 }
 
 off_t IOBuffMap::lseek(off_t offset, int flags, DavixError **err){
@@ -99,6 +123,10 @@ off_t IOBuffMap::lseek(off_t offset, int flags, DavixError **err){
 }
 
 ssize_t IOBuffMap::putOps(const void *buf, size_t count, off_t offset, DavixError **err){
+    DavixError * tmp_err=NULL;
+    DavixError::setupError(&tmp_err, davix_scope_http_request(), StatusCode::OperationNonSupported, " Multi-part write is not supported by Http !");
+    if(tmp_err)
+        DavixError::propagateError(err, tmp_err);
     return -1;
 }
 

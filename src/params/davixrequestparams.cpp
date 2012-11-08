@@ -10,16 +10,18 @@ const char * default_agent = "libdavix/0.0.9";
 
 struct RequestParamsInternal{
     RequestParamsInternal(){
-     _ssl_check = true;
-     _redirection = true;
-     _call = NULL;
-     _userdata = NULL;
-     timespec_clear(&connexion_timeout);
-     timespec_clear(&ops_timeout);
-     connexion_timeout.tv_sec = DAVIX_DEFAULT_CONN_TIMEOUT;
-     ops_timeout.tv_sec = DAVIX_DEFAULT_OPS_TIMEOUT;
-     agent_string = default_agent;
+        _ssl_check = true;
+        _redirection = true;
+        _call = NULL;
+        _userdata = NULL;
+        timespec_clear(&connexion_timeout);
+        timespec_clear(&ops_timeout);
+        connexion_timeout.tv_sec = DAVIX_DEFAULT_CONN_TIMEOUT;
+        ops_timeout.tv_sec = DAVIX_DEFAULT_OPS_TIMEOUT;
+        agent_string = default_agent;
+        _proto = DAVIX_PROTOCOL_WEBDAV;
     }
+
     virtual ~RequestParamsInternal(){
 
     }
@@ -31,6 +33,7 @@ struct RequestParamsInternal{
         timespec_copy(&(connexion_timeout), &(param_private.connexion_timeout));
         timespec_copy(&(ops_timeout), &(param_private.ops_timeout));
         this->agent_string = param_private.agent_string;
+        this->_proto = param_private._proto;
     }
     bool _ssl_check; // ssl CA check
     bool _redirection; // redirection support
@@ -45,6 +48,9 @@ struct RequestParamsInternal{
 
     // user agent
     std::string agent_string;
+
+    // proto
+    davix_request_protocol_t  _proto;
 };
 
 
@@ -147,6 +153,15 @@ const std::string & RequestParams::getUserAgent() const{
 
 void RequestParams::setUserAgent(const std::string &user_agent){
     d_ptr->agent_string = user_agent;
+}
+
+
+const davix_request_protocol_t RequestParams::getProtocol() const {
+    return d_ptr->_proto;
+}
+
+void RequestParams::setProtocol(const davix_request_protocol_t proto){
+    d_ptr->_proto = proto;
 }
 
 

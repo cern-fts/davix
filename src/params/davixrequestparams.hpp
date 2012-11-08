@@ -19,6 +19,7 @@ class RequestParamsInternal;
 
 
 
+
 ///
 /// @class RequestParams
 /// @brief Main container for HTTP/WebDAV request options
@@ -92,6 +93,11 @@ public:
 
     /// get the current user agent string
     const std::string & getUserAgent() const;
+
+    /// set the request protocol ( ex : Webdav, Http-only )
+    void setProtocol(const davix_request_protocol_t proto);
+
+    const davix_request_protocol_t getProtocol() const;
 
     RequestParams & operator=(const RequestParams & _p);
 private:

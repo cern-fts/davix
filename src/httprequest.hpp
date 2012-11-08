@@ -112,7 +112,16 @@ public:
     ///
     /// @return current request code error
     /// undefined if executeRequest or beginRequest has not be called before
-    virtual int getRequestCode();
+    int getRequestCode();
+
+    ///
+    /// get the value associated to a header key in the request answer
+    /// @param header_name : key of the header field
+    /// @param value : reference of the string to set
+    /// @return true if this header exist or false if it does not
+    bool getAnswerHeader(const std::string & header_name, std::string & value);
+
+
 
 
 private:

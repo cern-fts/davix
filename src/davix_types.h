@@ -57,10 +57,16 @@ typedef struct davix_request_params* davix_params_t;
 #define DAVIX_STATUS_FILE_NOT_FOUND                         0x13
 
 
+//// protocol type
+typedef enum davix_request_protocol_e{
+    DAVIX_PROTOCOL_WEBDAV=0,
+    DAVIX_PROTOCOL_HTTP
+} davix_request_protocol_t;
 
-/**
-  @brief authentification type requested
-*/
+
+///
+///  @brief authentification type requested
+///
 typedef enum _AUTH_TYPE{
     DAVIX_LOGIN_PASSWORD,       /* login / password */
     DAVIX_CLI_CERT_PKCS12,      /* PKCS12 client credential */

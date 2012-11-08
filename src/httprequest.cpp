@@ -63,6 +63,10 @@ void HttpRequest::clear_result(){
     d_ptr->clear_result();
 }
 
+bool HttpRequest::getAnswerHeader(const std::string &header_name, std::string &value){
+    return d_ptr->getAnswerHeader(header_name, value);
+}
+
 const std::vector<char> & HttpRequest::getAnswerContent(){
     return d_ptr->getAnswerContent();
 }

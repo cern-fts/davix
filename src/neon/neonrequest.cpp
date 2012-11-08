@@ -436,6 +436,15 @@ const std::vector<char> & NEONRequest::getAnswerContent(){
     return _vec;
 }
 
+bool NEONRequest::getAnswerHeader(const std::string &header_name, std::string &value){
+    const char* answer_content = ne_get_response_header(_req, header_name.c_str());
+    if(answer_content){
+        value = answer_content;
+        return true;
+    }
+    return false;
+}
+
 int NEONRequest::do_pkcs12_cert_authentification(const char *filename_pkcs12, const char *passwd, DavixError** err){
     int ret;
     ne_ssl_client_cert * cert = ne_ssl_clicert_read(filename_pkcs12);

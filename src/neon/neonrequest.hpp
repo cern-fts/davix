@@ -78,12 +78,10 @@ public:
 
 
 
-    /**
-      @brief current HTTP answer code
-     */
+    //
     int getRequestCode();
 
-
+    bool getAnswerHeader(const std::string &header_name, std::string &value);
 
 
     // auth method support

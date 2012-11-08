@@ -21,14 +21,12 @@ void fill_stat_from_fileproperties(struct stat* st, const  FileProperties & prop
 }
 
 
-int DavPosix::stat(const RequestParams * _params, const std::string & url, struct stat* st, DavixError** err){
-    davix_log_debug(" -> davix_stat");
-    RequestParams params(_params);
-    DavixError* tmp_err=NULL;
-
+int dav_stat_mapper_webdav(Context* context, const RequestParams & params, const std::string & url, struct stat* st, DavixError** err){
     int ret =-1;
+
     DavPropXMLParser parser;
-    std::auto_ptr<HttpRequest> req( context->_intern->getSessionFactory()->create_request(url, &tmp_err));
+    std::auto_ptr<HttpRequest> req( context->createRequest(url, err));
+    DavixError * tmp_err=NULL;
     if( req.get() != NULL){
         req->set_parameters(params);
 
@@ -48,9 +46,56 @@ int DavPosix::stat(const RequestParams * _params, const std::string & url, struc
                 ret =0;
         }
         }
-        davix_log_debug(" davix_stat <-");
     }
+    if(tmp_err)
+        DavixError::propagateError(err, tmp_err);
+    return ret;
+}
 
+
+int dav_stat_mapper_http(Context* context, const RequestParams & params, const std::string & url, struct stat* st, DavixError** err){
+    int ret = -1;
+    std::auto_ptr<HttpRequest> req( context->createRequest(url, err));
+    DavixError * tmp_err=NULL;
+    if( req.get() != NULL){
+        req->set_parameters(params);
+        req->setRequestMethod("HEAD");
+        req->executeRequest(&tmp_err);
+
+        if(!tmp_err){
+            if(httpcodeIsValid(req->getRequestCode()) ){
+                memset(st, 0, sizeof(struct stat));
+                std::string content_length;
+                //req->getAns
+
+            }else{
+                httpcodeToDavixCode(req->getRequestCode(), davix_scope_stat_str(), url , &tmp_err);
+                ret = -1;
+            }
+        }
+    }
+    if(tmp_err)
+        DavixError::propagateError(err, tmp_err);
+    return ret;
+}
+
+
+int DavPosix::stat(const RequestParams * _params, const std::string & url, struct stat* st, DavixError** err){
+    davix_log_debug(" -> davix_stat");
+    RequestParams params(_params);
+    DavixError* tmp_err=NULL;
+
+    int ret =-1;
+
+    switch(params.getProtocol()){
+         case DAVIX_PROTOCOL_HTTP:
+            ret = -1;
+            break;
+        default:
+            ret = dav_stat_mapper_webdav(context, &params, url, st, &tmp_err);
+            break;
+    }
+    davix_log_debug(" davix_stat <-");
     if(tmp_err)
         DavixError::propagateError(err, tmp_err);
     return ret;

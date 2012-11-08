@@ -133,12 +133,12 @@ int NEONRequest::provide_login_passwd_fn(void *userdata, const char *realm, int 
 
 
 
-NEONRequest::NEONRequest(NEONSessionFactory* f, ne_session * sess, const std::string & path) : _request_type("GET")
+NEONRequest::NEONRequest(NEONSessionFactory* f, ne_session * sess, const Uri & uri_req) : _request_type("GET")
 {
     _sess=sess;
     _login.clear();
     _passwd.clear();
-    _orig_path= _path = path;
+    _current = _orig = uri_req;
     _req=NULL;
     _f = f;
     req_started= req_running =false;
@@ -165,7 +165,7 @@ int NEONRequest::create_req(DavixError** err){
     }
 
     configure_sess();
-    _req= ne_request_create(_sess, _request_type.c_str(), _path.c_str());
+    _req= ne_request_create(_sess, _request_type.c_str(), _current.getPathAndQuery().c_str());
     configure_req();
 
     return 0;
@@ -252,6 +252,7 @@ int NEONRequest::negotiate_request(DavixError** err){
         switch(code){
             case 301:
             case 302:
+            case 307:
                 if( end_status != NE_OK
                         && end_status != NE_RETRY
                         && end_status != NE_REDIRECT){
@@ -303,11 +304,10 @@ int NEONRequest::redirect_request(DavixError **err){
 
 
     davix_log_debug("redirection from %s://%s/%s to %s", ne_get_scheme(_sess),
-                      ne_get_server_hostport(_sess), _path.c_str(), ne_uri_unparse(new_uri));
+                      ne_get_server_hostport(_sess), _current.getPathAndQuery().c_str(), ne_uri_unparse(new_uri));
 
     // setup new path & session target
-    Uri davix_uri(ne_uri_unparse(new_uri));
-    _path = davix_uri.getPath();
+    _current= Uri(ne_uri_unparse(new_uri));
 
     // recycle old request and session
     if( _f->storeNeonSession(_sess, err) <0){
@@ -319,7 +319,7 @@ int NEONRequest::redirect_request(DavixError **err){
     // renew request
     req_started = false;
     // create a new couple of session + request
-    if( _f->createNeonSession(davix_uri, &_sess, err) <0 ){
+    if( _f->createNeonSession(_current, &_sess, err) <0 ){
         return -1;
     }
     if( create_req(err) <0){

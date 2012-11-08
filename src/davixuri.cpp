@@ -16,6 +16,8 @@ struct UriPrivate{
         proto = orig.proto;
         path = orig.path;
         host = orig.host;
+        query = orig.query;
+        query_and_path = orig.query_and_path;
         code = orig.code;
     }
 
@@ -41,6 +43,13 @@ struct UriPrivate{
             proto = my_uri.scheme;
             path = my_uri.path;
             host = my_uri.host;
+            if(my_uri.query){
+                query = my_uri.query;
+                query_and_path= path + "?" + query;
+            }else{
+                query_and_path = path;
+            }
+
         }
     }
 
@@ -49,6 +58,9 @@ struct UriPrivate{
     std::string proto;
     std::string path;
     std::string host;
+    std::string query;
+    std::string query_and_path;
+
 };
 
 Uri::Uri(){
@@ -103,6 +115,23 @@ const std::string & Uri::getPath() const {
     if(d_ptr->code != StatusCode::OK)
         return void_str;
     return d_ptr->path;
+}
+
+const std::string & Uri::getPathAndQuery() const {
+    if(d_ptr->code != StatusCode::OK)
+        return void_str;
+    return d_ptr->query_and_path;
+}
+
+const std::string & Uri::getQuery() const{
+    if(d_ptr->code != StatusCode::OK)
+        return void_str;
+    return d_ptr->query;
+}
+
+Uri & Uri::operator =(const Uri & orig){
+    d_ptr = new UriPrivate(*(orig.d_ptr));
+    return *this;
 }
 
 StatusCode::Code Uri::getStatus() const{

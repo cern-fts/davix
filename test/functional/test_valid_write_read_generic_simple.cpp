@@ -27,6 +27,8 @@ int main(int argc, char** argv){
         return 0;
     }
 
+    srand(time(NULL));
+
     g_logger_set_globalfilter(G_LOG_LEVEL_DEBUG);
 
     DavixError* tmp_err=NULL;
@@ -38,6 +40,10 @@ int main(int argc, char** argv){
 
     const size_t size_content = rand()/1000000+2;
 
+
+    char url[2048];
+    generate_random_uri(argv[1], "test_davix_",url, 2048);
+
     char buff_output[size_content+1];
     char* buff_input = generate_random_string_content(size_content);
 
@@ -46,7 +52,7 @@ int main(int argc, char** argv){
         configure_grid_env(argv[2], p);
     }
 
-    if( (fd =pos.open(&p, argv[1], O_RDONLY, &tmp_err)) == NULL){
+    if( (fd =pos.open(&p, url, O_RDONLY, &tmp_err)) == NULL){
         std::cerr << " error while opening file " << tmp_err->getErrMsg() << " code :" << (int) tmp_err->getStatus() << std::endl;
         return -1;
     }
@@ -60,7 +66,7 @@ int main(int argc, char** argv){
 
    // read content back !
     off_t offset_buffer = 0;
-    while(  (ret = pos.read(fd, buff_output, 2048, &tmp_err) ) > 0
+    while(  (ret = pos.read(fd, buff_output+ offset_buffer, 50, &tmp_err) ) > 0
             && (size_t) offset_buffer  < size_content){
         offset_buffer += ret;
     }

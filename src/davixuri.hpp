@@ -39,7 +39,13 @@ public:
 
     const std::string & getPath()const;
 
+    const std::string & getPathAndQuery() const;
+
+    const std::string & getQuery() const;
+
     StatusCode::Code getStatus() const;
+
+    Uri & operator=(const Uri & orig);
 
 protected:
     std::string uri_string;

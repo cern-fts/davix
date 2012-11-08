@@ -21,7 +21,7 @@ class NEONSessionFactory;
 class NEONRequest
 {
 public:
-    NEONRequest(NEONSessionFactory* f, ne_session * sess,  const std::string & path);
+    NEONRequest(NEONSessionFactory* f, ne_session * sess,  const Uri & uri_req);
     virtual ~NEONRequest();
 
     /**
@@ -96,7 +96,7 @@ protected:
     // neon internal field
     ne_session *    _sess;
     ne_request * _req;
-    std::string  _path,_orig_path;
+    Uri  _current, _orig;
     std::vector<char> _vec;
 
     // request content;

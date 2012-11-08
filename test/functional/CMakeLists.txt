@@ -97,6 +97,11 @@ function(test_valid_read_generic url cred)
     add_test(test_valid_read_generic_${url} test_valid_read_generic_simple ${url} ${cred})
 endfunction(test_valid_read_generic url cred)
 
+
+function(test_valid_write_read_generic url cred)
+    add_test(test_valid_write_read_generic_simple_${url} test_valid_write_read_generic_simple ${url} ${cred})
+endfunction(test_valid_write_read_generic url cred)
+
 include(ctest_functional.cmake)
 
 endif(FUNCTIONAL_TESTS)

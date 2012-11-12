@@ -28,6 +28,7 @@ int main(int argc, char** argv){
 
     DavixError* tmp_err=NULL;
     RequestParams  p;
+    p.setProtocol(DAVIX_PROTOCOL_HTTP);
     std::auto_ptr<Context> c( new Context());
     DavPosix pos(c.get());
 

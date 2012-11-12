@@ -66,8 +66,20 @@ int dav_stat_mapper_http(Context* context, const RequestParams & params, const s
             if(httpcodeIsValid(req->getRequestCode()) ){
                 memset(st, 0, sizeof(struct stat));
                 std::string content_length;
-                //req->getAns
-
+                st->st_mode = 0755;
+                if( req->getAnswerHeader("Content-Length", content_length) ){
+                     unsigned long l = strtoul(content_length.c_str(), NULL,10);
+                     if(l != ULONG_MAX){
+                         st->st_size = l;
+                         ret = 0;
+                     }
+                }else{ // no data
+                    st->st_size =0;
+                    ret =0;
+                }
+                if(ret != 0){
+                    DavixError::setupError(&tmp_err, davix_scope_stat_str(), StatusCode::WebDavPropertiesParsingError, " Invalid HEAD content");
+                }
             }else{
                 httpcodeToDavixCode(req->getRequestCode(), davix_scope_stat_str(), url , &tmp_err);
                 ret = -1;
@@ -89,7 +101,7 @@ int DavPosix::stat(const RequestParams * _params, const std::string & url, struc
 
     switch(params.getProtocol()){
          case DAVIX_PROTOCOL_HTTP:
-            ret = -1;
+            ret = dav_stat_mapper_http(context, &params, url, st, &tmp_err);
             break;
         default:
             ret = dav_stat_mapper_webdav(context, &params, url, st, &tmp_err);

@@ -302,12 +302,13 @@ int NEONRequest::redirect_request(DavixError **err){
         return -1;
     }
 
-
+    char* dst_uri = ne_uri_unparse(new_uri);
     davix_log_debug("redirection from %s://%s/%s to %s", ne_get_scheme(_sess),
-                      ne_get_server_hostport(_sess), _current.getPathAndQuery().c_str(), ne_uri_unparse(new_uri));
+                      ne_get_server_hostport(_sess), _current.getPathAndQuery().c_str(), dst_uri);
 
     // setup new path & session target
-    _current= Uri(ne_uri_unparse(new_uri));
+    _current= Uri(dst_uri);
+    ne_free(dst_uri);
 
     // recycle old request and session
     if( _f->storeNeonSession(_sess, err) <0){

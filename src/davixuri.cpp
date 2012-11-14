@@ -9,6 +9,7 @@ static std::string void_str;
 struct UriPrivate{
     UriPrivate(){
         code = StatusCode::UriParsingError;
+        memset(&my_uri, 0, sizeof(my_uri));
     }
 
     UriPrivate(const UriPrivate & orig){
@@ -19,6 +20,10 @@ struct UriPrivate{
         query = orig.query;
         query_and_path = orig.query_and_path;
         code = orig.code;
+    }
+
+    ~UriPrivate() {
+        ne_uri_free(&my_uri);
     }
 
     void parsing(const std::string & uri_string){
@@ -130,6 +135,7 @@ const std::string & Uri::getQuery() const{
 }
 
 Uri & Uri::operator =(const Uri & orig){
+    if (d_ptr) delete d_ptr;
     d_ptr = new UriPrivate(*(orig.d_ptr));
     return *this;
 }

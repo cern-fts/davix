@@ -71,6 +71,7 @@ struct ne_ssl_dname_s {
 struct ne_ssl_certificate_s {
     ne_ssl_dname subj_dn, issuer_dn;
     X509 *subject;
+    STACK_OF(X509) *chain;
     ne_ssl_certificate *issuer;
     char *identity;
 };
@@ -178,6 +179,7 @@ void ne_ssl_clicert_free(ne_ssl_client_cert *cc)
         if (cc->cert.identity) ne_free(cc->cert.identity);
         EVP_PKEY_free(cc->pkey);
         X509_free(cc->cert.subject);
+        sk_X509_pop_free(cc->cert.chain, X509_free);
     }
     if (cc->friendly_name) ne_free(cc->friendly_name);
     ne_free(cc);
@@ -490,6 +492,7 @@ static int check_certificate(ne_session *sess, SSL *ssl, ne_ssl_certificate *cha
 static ne_ssl_client_cert *dup_client_cert(const ne_ssl_client_cert *cc)
 {
     ne_ssl_client_cert *newcc = ne_calloc(sizeof *newcc);
+    int count, n;
     
     newcc->decrypted = 1;
     newcc->pkey = cc->pkey;
@@ -500,6 +503,13 @@ static ne_ssl_client_cert *dup_client_cert(const ne_ssl_client_cert *cc)
 
     cc->cert.subject->references++;
     cc->pkey->references++;
+
+    newcc->cert.chain = sk_X509_dup(cc->cert.chain);
+    count = sk_X509_num(newcc->cert.chain);
+    for (n = 0; n < count; ++n) {
+      sk_X509_value(newcc->cert.chain, n)->references++;
+    }
+
     return newcc;
 }
 
@@ -535,12 +545,24 @@ static int provide_client_cert(SSL *ssl, X509 **cert, EVP_PKEY **pkey)
     }
 
     if (sess->client_cert) {
+        int count, n;
+        SSL_CTX* ctx;
+
         ne_ssl_client_cert *const cc = sess->client_cert;
-	NE_DEBUG(NE_DBG_SSL, "Supplying client certificate.\n");
-	cc->pkey->references++;
-	cc->cert.subject->references++;
-	*cert = cc->cert.subject;
-	*pkey = cc->pkey;
+        NE_DEBUG(NE_DBG_SSL, "Supplying client certificate.\n");
+        cc->pkey->references++;
+        cc->cert.subject->references++;
+        *cert = cc->cert.subject;
+        *pkey = cc->pkey;
+
+        /* The only way of adding intermediate cert support (needed for proxies)
+         * is to call this method. See man page for SSL_CTX_set_client_cert_cb */
+        ctx = SSL_get_SSL_CTX(ssl);
+        count = sk_X509_num(cc->cert.chain);
+        for (n = 0; n < count; ++n) {
+          SSL_CTX_add_extra_chain_cert(ctx, sk_X509_value(cc->cert.chain, n));
+        }
+
 	return 1;
     } else {
         sess->ssl_cc_requested = 1;
@@ -820,6 +842,7 @@ ne_ssl_client_cert *ne_ssl_clicert_read(const char *filename)
     PKCS12 *p12;
     FILE *fp;
     X509 *cert;
+    STACK_OF(X509)* chain = NULL;
     EVP_PKEY *pkey;
     ne_ssl_client_cert *cc;
 
@@ -837,7 +860,7 @@ ne_ssl_client_cert *ne_ssl_clicert_read(const char *filename)
     }
 
     /* Try parsing with no password. */
-    if (PKCS12_parse(p12, NULL, &pkey, &cert, NULL) == 1) {
+    if (PKCS12_parse(p12, NULL, &pkey, &cert, &chain) == 1) {
         /* Success - no password needed for decryption. */
         int len = 0;
         unsigned char *name;
@@ -855,6 +878,7 @@ ne_ssl_client_cert *ne_ssl_clicert_read(const char *filename)
         if (name && len > 0)
             cc->friendly_name = ne_strndup((char *)name, len);
         populate_cert(&cc->cert, cert);
+        cc->cert.chain = chain;
         PKCS12_free(p12);
         return cc;
     } else {

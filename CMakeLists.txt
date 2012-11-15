@@ -31,6 +31,8 @@ set(VERSION_STRING ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 SET(HTTP_LIB "NEON") # http backend can be NEON
 SET(UNIT_TESTS FALSE
     CACHE STRING "enable or disable unit test compilation")
+SET(NEON_EMBEDED TRUE
+    CACHE STRING "enable or disable unit test compilation")
 
 
 # libs checks
@@ -46,6 +48,7 @@ endif ( ${HTTP_LIB} STREQUAL "NEON" )
 pkg_check_modules(CRYPTO_PKG REQUIRED libcrypto)
 
 add_definitions( -D_GNU_SOURCE)
+add_subdirectory(deps)
 
 if ( ${HTTP_LIB} STREQUAL "NEON" )
     add_definitions( -DNEON_BACKEND)
@@ -65,6 +68,7 @@ include_directories( ${HTTPLIB_PKG_INCLUDE_DIRS} ${GLIB2_PKG_INCLUDE_DIRS})
 
 install(FILES RELEASE-NOTES
 		DESTINATION ${DOC_INSTALL_DIR}/) # install release notes
+
 
 add_subdirectory (src)
 add_subdirectory (doc)

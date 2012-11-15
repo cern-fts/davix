@@ -225,7 +225,7 @@ void setup_offset_request(HttpRequest* req, off_t start_len, size_t size_read){
     std::string offset_value("bytes=");
 
     if(start_len > 0 || size_read >0 ){
-        const size_t s_buff = 20+log10(std::max<size_t>(start_len, size_read)+1)*2; //calculate the buffer size for the string val
+        const size_t s_buff = 20+(size_t)log10(std::max<size_t>(start_len, size_read)+1)*2; //calculate the buffer size for the string val
         char buffer[s_buff]; // calc buffer size
 
         if(size_read > 0)

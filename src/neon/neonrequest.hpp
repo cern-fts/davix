@@ -56,6 +56,10 @@ public:
 
     void setRequestBodyBuffer(const void * buffer, size_t len);
 
+    ///
+    ///
+    void setRequestBodyFileDescriptor(int fd, off_t offset, size_t len);
+
     int beginRequest(DavixError** err);
     /**
       read a block of a maximum size bytes in the request
@@ -100,7 +104,9 @@ protected:
     // request content;
     char* _content_ptr;
     size_t _content_len;
+    off_t _content_offset;
     std::string _content_body;
+    int _fd_content;
 
     std::string _request_type;
     NEONSessionFactory* _f;

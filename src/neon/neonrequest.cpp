@@ -3,6 +3,8 @@
 #include <cstring>
 #include <libs/time_utils.h>
 #include <ne_redirect.h>
+#include <ne_request.h>
+#include <ne_session.h>
 
 namespace Davix {
 
@@ -145,6 +147,7 @@ NEONRequest::NEONRequest(NEONSessionFactory* f, ne_session * sess, const Uri & u
     auth_last_error = NULL;
     _content_ptr = NULL;
     _content_len =0;
+    _fd_content = -1;
 }
 
 NEONRequest::~NEONRequest(){
@@ -212,8 +215,11 @@ void NEONRequest::configure_req(){
         ne_add_request_header(_req, _headers_field[i].first.c_str(),  _headers_field[i].second.c_str());
     }
 
-    if(_content_ptr && _content_len >0){
-        ne_set_request_body_buffer(_req, _content_ptr, _content_len);
+
+    if(_fd_content > 0){
+        ne_set_request_body_fd(_req, _fd_content, _content_offset, _content_len);
+    }else if(_content_ptr && _content_len >0){
+        ne_set_request_body_buffer(_req, _content_ptr, _content_len);       
     }
 }
 
@@ -489,13 +495,22 @@ void NEONRequest::setRequestBodyString(const std::string & body){
     _content_body = std::string(body);
     _content_ptr = (char*) _content_body.c_str();
     _content_len = strlen(_content_ptr);
+    _fd_content = -1;
 }
 
 void NEONRequest::setRequestBodyBuffer(const void *buffer, size_t len){
     _content_ptr = (char*) buffer;
     _content_len = len;
+    _fd_content = -1;
 }
 
+
+void NEONRequest::setRequestBodyFileDescriptor(int fd, off_t offset, size_t len){
+    _fd_content = fd;
+    _content_ptr = NULL;
+    _content_len = len;
+    _content_offset = offset;
+}
 
 void NEONRequest::free_request(){
     if(_req != NULL){

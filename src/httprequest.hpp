@@ -67,6 +67,12 @@ public:
     void setRequestBodyBuffer(const void * buffer, size_t len_buff);
 
     ///
+    /// set the content of the request from a file descriptor
+    /// start at offset and read a maximum of len bytes
+    ///
+    void setRequestBodyFileDescriptor(int fd, off_t offset, size_t len);
+
+    ///
     /// @brief start a multi-part HTTP Request
     ///
     ///  the multi-part HTTP Request of davix

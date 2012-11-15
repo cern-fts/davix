@@ -5,7 +5,7 @@ Version:			0.0.10
 Release:			0.1%{?dist}
 Summary:			Webdav File access and file management Library
 Group:				Applications/Internet
-License:			ASL 2.0
+License:			LGPLv2+
 URL:				https://svnweb.cern.ch/trac/lcgdm/wiki
 # svn export http://svn.cern.ch/guest/lcgdm/davix/trunk davix
 Source0:			http://grid-deployment.web.cern.ch/grid-deployment/dms/lcgutil/tar/%{name}/%{name}-%{version}.tar.gz

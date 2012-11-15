@@ -4,8 +4,8 @@
 #include <vector>
 #include <utility>
 #include <queue>
-#include <neon/ne_request.h>
-#include <neon/ne_auth.h>
+#include <ne_request.h>
+#include <ne_auth.h>
 #include <neon/neonsessionfactory.hpp>
 
 #include <global_def.hpp>

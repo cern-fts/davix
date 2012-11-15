@@ -179,7 +179,8 @@ void ne_ssl_clicert_free(ne_ssl_client_cert *cc)
         if (cc->cert.identity) ne_free(cc->cert.identity);
         EVP_PKEY_free(cc->pkey);
         X509_free(cc->cert.subject);
-        sk_X509_pop_free(cc->cert.chain, X509_free);
+	if(cc->cert.chain != NULL)
+        	sk_X509_pop_free(cc->cert.chain, X509_free);
     }
     if (cc->friendly_name) ne_free(cc->friendly_name);
     ne_free(cc);
@@ -492,7 +493,7 @@ static int check_certificate(ne_session *sess, SSL *ssl, ne_ssl_certificate *cha
 static ne_ssl_client_cert *dup_client_cert(const ne_ssl_client_cert *cc)
 {
     ne_ssl_client_cert *newcc = ne_calloc(sizeof *newcc);
-    int count, n;
+
     
     newcc->decrypted = 1;
     newcc->pkey = cc->pkey;
@@ -504,11 +505,14 @@ static ne_ssl_client_cert *dup_client_cert(const ne_ssl_client_cert *cc)
     cc->cert.subject->references++;
     cc->pkey->references++;
 
-    newcc->cert.chain = sk_X509_dup(cc->cert.chain);
-    count = sk_X509_num(newcc->cert.chain);
-    for (n = 0; n < count; ++n) {
-      sk_X509_value(newcc->cert.chain, n)->references++;
-    }
+    if(cc->cert.chain != NULL){
+    	    int count, n;
+	    newcc->cert.chain = sk_X509_dup(cc->cert.chain);
+	    count = sk_X509_num(newcc->cert.chain);
+	    for (n = 0; n < count; ++n) {
+	      sk_X509_value(newcc->cert.chain, n)->references++;
+	    }
+     }
 
     return newcc;
 }
@@ -557,11 +561,13 @@ static int provide_client_cert(SSL *ssl, X509 **cert, EVP_PKEY **pkey)
 
         /* The only way of adding intermediate cert support (needed for proxies)
          * is to call this method. See man page for SSL_CTX_set_client_cert_cb */
-        ctx = SSL_get_SSL_CTX(ssl);
-        count = sk_X509_num(cc->cert.chain);
-        for (n = 0; n < count; ++n) {
-          SSL_CTX_add_extra_chain_cert(ctx, sk_X509_value(cc->cert.chain, n));
-        }
+	if(cc->cert.chain != NULL){
+		ctx = SSL_get_SSL_CTX(ssl);
+		count = sk_X509_num(cc->cert.chain);
+		for (n = 0; n < count; ++n) {
+		  SSL_CTX_add_extra_chain_cert(ctx, sk_X509_value(cc->cert.chain, n));
+		}
+	}
 
 	return 1;
     } else {

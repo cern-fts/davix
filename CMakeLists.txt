@@ -40,28 +40,30 @@ pkg_check_modules(GTHREAD_PKG REQUIRED gthread-2.0)
 pkg_check_modules(GLIB2_PKG REQUIRED glib-2.0)
 
 
-if ( ${HTTP_LIB} STREQUAL "NEON" )
-pkg_check_modules(HTTPLIB_PKG REQUIRED neon)
-endif ( ${HTTP_LIB} STREQUAL "NEON" )
-
+if(NOT NEON_EMBEDED)
+    pkg_check_modules(HTTPLIB_PKG REQUIRED neon)
+else(NOT NEON_EMBEDED)
+    add_subdirectory(deps)
+endif(NOT NEON_EMBEDED)
 
 pkg_check_modules(CRYPTO_PKG REQUIRED libcrypto)
 
+
+
+
+## general defs
 add_definitions( -D_GNU_SOURCE)
-add_subdirectory(deps)
+add_definitions( -DNEON_BACKEND)
 
-if ( ${HTTP_LIB} STREQUAL "NEON" )
-    add_definitions( -DNEON_BACKEND)
 
-    if("${HTTPLIB_PKG_VERSION}" VERSION_LESS "0.27.0")
-        message(" .... neon version < 0.27 detected : disable session re-use, risk of bug important")
-        add_definitions( -D_DISABLE_SESSION_REUSE)
-        add_definitions( -D_NEON_VERSION_0_25)
-    endif("${HTTPLIB_PKG_VERSION}" VERSION_LESS "0.27.0")
+## patch against 0.25.0 problem of libneon
+## valid in shared library mod only
+if("${HTTPLIB_PKG_VERSION}" VERSION_LESS "0.27.0")
+    message(" .... neon version < 0.27 detected : disable session re-use, risk of bug important")
+    add_definitions( -D_DISABLE_SESSION_REUSE)
+    add_definitions( -D_NEON_VERSION_0_25)
+endif("${HTTPLIB_PKG_VERSION}" VERSION_LESS "0.27.0")
 
-else ( ${HTTP_LIB} STREQUAL "NEON" )
-    add_definitions( -DCURL_BACKEND)
-endif ( ${HTTP_LIB} STREQUAL "NEON" )
 
 
 include_directories( ${HTTPLIB_PKG_INCLUDE_DIRS} ${GLIB2_PKG_INCLUDE_DIRS})

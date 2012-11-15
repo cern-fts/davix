@@ -45,6 +45,7 @@ add_definitions(${HTTPLIB_PKG_CFLAGS} )
 add_library(davix  SHARED ${src_davix} ${SRC_HTTP}  ${src_xmlparser} ${src_logger} ${src_datetime}
                            ${src_lockers} ${src_davix_posix} ${src_davix_status} ${src_davix_fileops}
                            ${src_davix_params})
+add_dependencies(davix neon_static)
 
 
 target_link_libraries(davix  ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES} ${GTHREAD_PKG_LIBRARIES})

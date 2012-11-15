@@ -15,7 +15,8 @@ BuildRoot:			%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildRequires:		cmake
 BuildRequires:		doxygen
 BuildRequires:		glib2-devel
-BuildRequires:		neon-devel
+BuildRequires:		libgssapi-devel
+BuildRequires:		libxml2-devel
 BuildRequires:		openssl-devel
 
 %description

@@ -147,6 +147,10 @@ private:
 
     friend int davix_auth_set_login_passwd(davix_auth_t token, const char* login, const char* passwd, GError** err);
 
+    NEONRequest(const NEONRequest & req);
+    NEONRequest & operator=(const NEONRequest & req);
+
+
 };
 
 

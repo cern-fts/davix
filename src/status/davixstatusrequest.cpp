@@ -6,30 +6,40 @@ namespace Davix {
 
 
 struct DavixErrorInternal{
-    DavixErrorInternal(const std::string &scope, StatusCode::Code errCode, const std::string &errMsg){
-        this->scope = scope;
-        this->errMsg = errMsg;
-        this->code = errCode;
+    DavixErrorInternal(const std::string &scope, StatusCode::Code errCode, const std::string &errMsg) :
+        _scope(scope),
+        _code(errCode),
+        _errMsg(errMsg){
     }
 
-    DavixErrorInternal(const DavixErrorInternal & e){
-        this->scope = e.scope;
-        this->errMsg = e.errMsg;
-        this->code = e.code;
+    DavixErrorInternal(const DavixErrorInternal & e) :
+        _scope(e._scope),
+        _code(e._code),
+        _errMsg(e._errMsg){
+
     }
 
-    std::string scope;
-    StatusCode::Code code;
-    std::string errMsg;
+    std::string _scope;
+    StatusCode::Code _code;
+    std::string _errMsg;
 };
 
 
-DavixError::DavixError(const std::string &scope, StatusCode::Code errCode, const std::string &errMsg){
-    d_ptr = new DavixErrorInternal(scope, errCode, errMsg);
+DavixError::DavixError(const std::string &scope, StatusCode::Code errCode, const std::string &errMsg) :
+    d_ptr(new DavixErrorInternal(scope, errCode, errMsg)){
+
 }
 
-DavixError::DavixError(const DavixError & e){
+DavixError::DavixError(const DavixError & e) :
+    d_ptr(new DavixErrorInternal(*(e.d_ptr))){
+
+}
+
+DavixError & DavixError::operator =(const DavixError & e){
+    if(d_ptr)
+        delete d_ptr;
     d_ptr = new DavixErrorInternal(*(e.d_ptr));
+    return *this;
 }
 
 
@@ -43,19 +53,19 @@ DavixError* DavixError::clone(){
 
 
 const std::string & DavixError::getErrMsg() const{
-    return d_ptr->errMsg;
+    return d_ptr->_errMsg;
 }
 
 void DavixError::setErrMsg(const std::string &msg){
-    d_ptr->errMsg = msg;
+    d_ptr->_errMsg = msg;
 }
 
 void DavixError::setStatus(const StatusCode::Code c){
-    d_ptr->code = c;
+    d_ptr->_code = c;
 }
 
 StatusCode::Code DavixError::getStatus() const{
-    return d_ptr->code;
+    return d_ptr->_code;
 }
 
 

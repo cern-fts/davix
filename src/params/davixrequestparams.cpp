@@ -8,32 +8,40 @@ namespace Davix {
 
 const char * default_agent = "libdavix/0.0.9";
 
+
 struct RequestParamsInternal{
-    RequestParamsInternal(){
-        _ssl_check = true;
-        _redirection = true;
-        _call = NULL;
-        _userdata = NULL;
+    RequestParamsInternal() :
+        _ssl_check(true),
+        _redirection(true),
+        _userdata(NULL),
+        _call(NULL),
+        ops_timeout(),
+        connexion_timeout(),
+        agent_string(default_agent),
+        _proto(DAVIX_PROTOCOL_WEBDAV)
+    {
         timespec_clear(&connexion_timeout);
         timespec_clear(&ops_timeout);
         connexion_timeout.tv_sec = DAVIX_DEFAULT_CONN_TIMEOUT;
         ops_timeout.tv_sec = DAVIX_DEFAULT_OPS_TIMEOUT;
-        agent_string = default_agent;
-        _proto = DAVIX_PROTOCOL_WEBDAV;
     }
 
     virtual ~RequestParamsInternal(){
 
     }
-    RequestParamsInternal(const RequestParamsInternal & param_private){
-        _ssl_check = param_private._ssl_check;
-        _redirection = param_private._redirection;
-        _userdata = param_private._userdata;
-        _call = param_private._call;
+    RequestParamsInternal(const RequestParamsInternal & param_private):
+        _ssl_check(param_private._ssl_check),
+        _redirection(param_private._redirection),
+        _userdata(param_private._userdata),
+        _call(param_private._call),
+        ops_timeout(),
+        connexion_timeout(),
+        agent_string(param_private.agent_string),
+        _proto(param_private._proto){
+
         timespec_copy(&(connexion_timeout), &(param_private.connexion_timeout));
         timespec_copy(&(ops_timeout), &(param_private.ops_timeout));
-        this->agent_string = param_private.agent_string;
-        this->_proto = param_private._proto;
+
     }
     bool _ssl_check; // ssl CA check
     bool _redirection; // redirection support
@@ -51,17 +59,21 @@ struct RequestParamsInternal{
 
     // proto
     davix_request_protocol_t  _proto;
+
+private:
+    RequestParamsInternal & operator=(const RequestParamsInternal & params);
 };
 
 
-RequestParams::RequestParams()
+RequestParams::RequestParams() :
+    d_ptr(new RequestParamsInternal())
 {
-    d_ptr= NULL;
-    _init();
+
 }
 
-RequestParams::RequestParams(const RequestParams& params){
-    copy(this, &params);
+RequestParams::RequestParams(const RequestParams& params) :
+    d_ptr(new RequestParamsInternal(*(params.d_ptr))){
+
 }
 
 
@@ -71,29 +83,16 @@ RequestParams::~RequestParams(){
    delete d_ptr;
 }
 
-RequestParams::RequestParams(const RequestParams* params){
-    if(params){
-        copy(this, params);
-    }else{
-        _init();
-    }
+RequestParams::RequestParams(const RequestParams* params) :
+    d_ptr( ((params)?(new RequestParamsInternal(*(params->d_ptr))):(new RequestParamsInternal())) ){
+
 }
 
-void RequestParams::copy(RequestParams *dest, const RequestParams *params){
-
-    dest->d_ptr = new RequestParamsInternal(*(params->d_ptr));
-}
-
-
-void RequestParams::_init(){
-
-    d_ptr = new RequestParamsInternal();
-}
 
 RequestParams & RequestParams::operator=(const RequestParams & orig){
     if(d_ptr != orig.d_ptr)
         delete d_ptr;
-    copy(this, &orig);
+    d_ptr = new RequestParamsInternal(*(orig.d_ptr));
     return *this;
 }
 

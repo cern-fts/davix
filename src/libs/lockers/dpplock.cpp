@@ -1,6 +1,7 @@
 #include "dpplock.hpp"
 
-DppLock::DppLock()
+DppLock::DppLock() :
+    mux()
 {
     pthread_mutex_init(&mux,NULL);
 }

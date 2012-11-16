@@ -7,19 +7,28 @@ namespace Davix {
 static std::string void_str;
 
 struct UriPrivate{
-    UriPrivate(){
-        code = StatusCode::UriParsingError;
+    UriPrivate() :
+        my_uri(),
+        code(StatusCode::UriParsingError),
+        proto(),
+        path(),
+        host(),
+        query(),
+        query_and_path(){
+
         memset(&my_uri, 0, sizeof(my_uri));
     }
 
-    UriPrivate(const UriPrivate & orig){
+    UriPrivate(const UriPrivate & orig):
+        my_uri(),
+        code(orig.code),
+        proto(orig.proto),
+        path(orig.path),
+        host(orig.host),
+        query(orig.query),
+        query_and_path(orig.query_and_path){
         ne_uri_copy(&my_uri, &(orig.my_uri));
-        proto = orig.proto;
-        path = orig.path;
-        host = orig.host;
-        query = orig.query;
-        query_and_path = orig.query_and_path;
-        code = orig.code;
+
     }
 
     ~UriPrivate() {
@@ -68,25 +77,21 @@ struct UriPrivate{
 
 };
 
-Uri::Uri(){
-    _init();
+Uri::Uri() :
+    uri_string(),
+    d_ptr(new UriPrivate()){
 }
 
-void Uri::_init(){
-    d_ptr = new UriPrivate();
 
-}
-
-Uri::Uri(const std::string & uri)
-{
-    this->uri_string = uri;
-    _init();
+Uri::Uri(const std::string & uri) :
+    uri_string(uri),
+    d_ptr(new UriPrivate()){
     d_ptr->parsing(uri);
 }
 
-Uri::Uri(const Uri & uri){
-    uri_string = uri.uri_string;
-    d_ptr = new UriPrivate(*(uri.d_ptr));
+Uri::Uri(const Uri & uri) :
+    uri_string(uri.uri_string),
+    d_ptr(new UriPrivate(*(uri.d_ptr))){
 }
 
 Uri::~Uri(){

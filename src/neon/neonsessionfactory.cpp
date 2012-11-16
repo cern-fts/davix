@@ -18,7 +18,9 @@ static gpointer init_neon(gpointer useless){
     return NULL;
 }
 
-NEONSessionFactory::NEONSessionFactory()
+NEONSessionFactory::NEONSessionFactory() :
+    _sess_map(),
+    _sess_mut()
 {
     g_once (&neon_once, init_neon, NULL);
 

@@ -78,14 +78,42 @@ inline bool remove_scope(bool *scope_bool, const char* origin, const char* patte
 }
 
 
+std::deque<FileProperties> _props;
+FileProperties _current_props;
 
-DavPropXMLParser::DavPropXMLParser()
+// scope boolean
+bool prop_section;
+bool propname_section;
+bool response_section;
+bool lastmod_section;
+bool creatdate_section;
+bool contentlength_section;
+bool mode_ext_section;
+bool href_section;
+bool resource_type;
+bool status_section;
+
+std::string last_filename; // last filename section
+std::string char_buffer;
+
+
+
+DavPropXMLParser::DavPropXMLParser() :
+    _props(),
+    _current_props(),
+    prop_section(false),
+    propname_section(false),
+    response_section(false),
+    lastmod_section(false),
+    creatdate_section(false),
+    contentlength_section(false),
+    mode_ext_section(false),
+    href_section(false),
+    resource_type(false),
+    status_section(false),
+    last_filename(),
+    char_buffer()
 {
-    prop_section = propname_section = false;
-    response_section = lastmod_section = false;
-    creatdate_section = contentlength_section= false;
-    mode_ext_section = href_section = false;
-    resource_type = status_section= false;
 }
 
 DavPropXMLParser::~DavPropXMLParser(){

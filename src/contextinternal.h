@@ -27,13 +27,12 @@ public:
 
 
     static ContextInternal* takeRef(ContextInternal* me){
-        me->count_instance++;
+        g_atomic_int_inc(&(me->count_instance));
         return me;
     }
 
     static void releaseRef(ContextInternal* me){
-        me->count_instance--;
-        if(me->count_instance <= 0)
+        if(g_atomic_int_dec_and_test(&(me->count_instance)))
             delete me;
     }
 

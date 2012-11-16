@@ -18,14 +18,19 @@ ssize_t read_segment_request(HttpRequest* req, void* buffer, size_t size_read,  
 ssize_t read_truncated_segment_request(HttpRequest* req, void* buffer, size_t size_read,  off_t off_set, DavixError**err);
 
 
-IOBuffMap::IOBuffMap(Context & c, const Uri & uri, const RequestParams * params) : _c(c), _uri(uri), _params(params)
+IOBuffMap::IOBuffMap(Context & c, const Uri & uri, const RequestParams * params) :
+    _c(c),
+    _uri(uri),
+    _params(params),
+    _file_size(0),
+    _read_req(NULL),
+    _rwlock(),
+    _pos(0),
+    _read_pos(0),
+    _read_endfile(false),
+    _opened(false)
 {
-    _read_req=NULL;
-    _pos =0;
-    _read_pos =0;
-    _file_size = 0;
-    _read_endfile = false;
-    _opened = false;
+
 }
 
 IOBuffMap::~IOBuffMap(){

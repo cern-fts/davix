@@ -131,6 +131,9 @@ public:
 
 
 private:
+    HttpRequest(const HttpRequest &req);
+    HttpRequest & operator=(const HttpRequest &);
+
     NEONRequest* d_ptr;
 
     friend class NEONRequest;

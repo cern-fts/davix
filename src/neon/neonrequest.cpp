@@ -135,20 +135,30 @@ int NEONRequest::provide_login_passwd_fn(void *userdata, const char *realm, int 
 
 
 
-NEONRequest::NEONRequest(NEONSessionFactory* f, ne_session * sess, const Uri & uri_req) : _request_type("GET")
-{
-    _sess=sess;
-    _login.clear();
-    _passwd.clear();
-    _current = _orig = uri_req;
-    _req=NULL;
-    _f = f;
-    req_started= req_running =false;
-    auth_last_error = NULL;
-    _content_ptr = NULL;
-    _content_len =0;
-    _fd_content = -1;
+NEONRequest::NEONRequest(NEONSessionFactory* f, ne_session * sess, const Uri & uri_req) :
+    params(),
+    _sess(sess),
+    _req(NULL),
+    _current(uri_req),
+    _orig(uri_req),
+    _vec(),
+    _content_ptr(),
+    _content_len(0),
+    _content_offset(0),
+    _content_body(),
+    _fd_content(-1),
+    _request_type("GET"),
+    _f(f),
+    req_started(false),
+    req_running(false),
+    auth_last_error(NULL),
+    _headers_field(),
+    _passwd(),
+    _login(){
 }
+
+
+
 
 NEONRequest::~NEONRequest(){
     // safe destruction of the request

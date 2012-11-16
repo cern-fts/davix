@@ -46,6 +46,9 @@ protected:
                                 const char *nspace, const char *name);
 
 private:
+    DavXMLParser(const DavXMLParser &);
+    DavXMLParser & operator=(const DavXMLParser &);
+
     ne_xml_parser*  _ne_parser;
     friend struct InternalDavParser;
 };

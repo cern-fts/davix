@@ -30,6 +30,10 @@ if (COMMAND pre_project_set_up_hermetic_build)
   pre_project_set_up_hermetic_build()
 endif()
 
+# disable warnings
+set(CMAKE_CXX_FLAGS_DEBUG  "-g   -fstack-protector-all ")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "  -g -O2")
+
 ########################################################################
 #
 # Project-wide settings
@@ -42,6 +46,7 @@ endif()
 # Language "C" is required for find_package(Threads).
 project(gtest CXX C)
 cmake_minimum_required(VERSION 2.6.2)
+
 
 if (COMMAND set_up_hermetic_build)
   set_up_hermetic_build()

@@ -62,6 +62,8 @@ private:
 
     bool checkIsOpen(DavixError** err);
     ssize_t readAheadRequest(void * buffer, size_t size_read, DavixError ** err);
+    IOBuffMap(const IOBuffMap &);
+    IOBuffMap & operator=(const IOBuffMap &);
 };
 
 } // namespace Davix

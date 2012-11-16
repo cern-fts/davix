@@ -2,11 +2,14 @@
 
 namespace Davix {
 
-DavPosix::DavPosix(Context* context)
+DavPosix::DavPosix(Context* _context) :
+    context(_context),
+    _timeout(180),
+    _s_buff(2048),
+    d_ptr(NULL)
+
 {
-    this->context = context;
-    _s_buff= 2048;
-    _timeout =180;
+
 }
 
 

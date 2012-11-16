@@ -6,15 +6,16 @@
 
 namespace Davix {
 
-HttpRequest::HttpRequest(NEONRequest* req)
+HttpRequest::HttpRequest(NEONRequest* req) : d_ptr(req)
 {
-    d_ptr = req;
 }
 
 HttpRequest::~HttpRequest()
 {
     delete d_ptr;
 }
+
+
 
 
 void HttpRequest::setRequestMethod(const std::string &request_str){

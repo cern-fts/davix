@@ -26,15 +26,13 @@ int davParserNotImplemented(Davix::DavixError** err){
     return -1;
 }
 
-DavXMLParser::DavXMLParser()
+DavXMLParser::DavXMLParser() :  err(NULL), _ne_parser(ne_xml_create())
 {
-    _ne_parser = ne_xml_create();
     ne_xml_push_handler(_ne_parser,
                         &InternalDavParser::dav_xml_parser_ne_xml_startelm_cb,
                         &InternalDavParser::dav_xml_ne_xml_cdata_cb,
                         &InternalDavParser::ne_xml_endelm_cb,
                         this);
-    err = NULL;
 }
 
 DavXMLParser::~DavXMLParser(){

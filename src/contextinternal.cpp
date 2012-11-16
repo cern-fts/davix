@@ -16,11 +16,12 @@ void core_init(){
 
 
 
-ContextInternal::ContextInternal(AbstractSessionFactory* fsess) : _fsess(fsess)
+ContextInternal::ContextInternal(AbstractSessionFactory* fsess) :
+    _fsess(fsess),
+    _s_buff(65536),
+    _timeout(300),
+    count_instance(1)
 {
-    _s_buff = 65536;
-    _timeout = 300;
-    count_instance =1;
 }
 
 

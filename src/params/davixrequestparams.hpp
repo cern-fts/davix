@@ -102,14 +102,9 @@ public:
     RequestParams & operator=(const RequestParams & _p);
 private:
 
-
-    //
-    void _init();
-    // dptr
+   // dptr
     RequestParamsInternal* d_ptr;
 
-
-    static void copy(RequestParams* dest, const RequestParams* params);
 };
 
 

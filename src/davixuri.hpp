@@ -29,6 +29,7 @@ public:
     Uri(const std::string & uri_string);
     /// Copy constructor
     Uri(const Uri & uri);
+    Uri & operator=(const Uri & orig);
     virtual ~Uri();
 
     /// get a string representation of the full uri
@@ -64,7 +65,7 @@ public:
     /// @return StatusCode::OK if success or StatusCode::UriParsingError if error
     StatusCode::Code getStatus() const;
 
-    Uri & operator=(const Uri & orig);
+
 
 protected:
     std::string uri_string;

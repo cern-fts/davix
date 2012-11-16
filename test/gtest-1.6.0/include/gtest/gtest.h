@@ -51,6 +51,8 @@
 #ifndef GTEST_INCLUDE_GTEST_GTEST_H_
 #define GTEST_INCLUDE_GTEST_GTEST_H_
 
+#pragma GCC system_header
+
 #include <limits>
 #include <vector>
 

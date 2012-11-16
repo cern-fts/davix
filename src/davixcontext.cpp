@@ -5,13 +5,20 @@
 
 namespace Davix{
 
-Context::Context()
+Context::Context() :
+    _intern(new ContextInternal(new NEONSessionFactory()))
 {
-    _intern= new ContextInternal(new NEONSessionFactory());
 }
 
-Context::Context(const Context &c){
+Context::Context(const Context &c) :
+    _intern(ContextInternal::takeRef(c._intern)){
+}
+
+Context & Context::operator=(const Context & c){
+    if(this->_intern != NULL)
+        ContextInternal::releaseRef(this->_intern);
     this->_intern = ContextInternal::takeRef(c._intern);
+    return *this;
 }
 
 Context::~Context(){

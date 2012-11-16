@@ -170,6 +170,9 @@ protected:
 
 
 private:
+    DavPosix(const DavPosix &);
+    DavPosix & operator=(DavPosix &);
+
     DavPosixInternal* d_ptr;
 
 };

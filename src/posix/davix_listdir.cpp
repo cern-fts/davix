@@ -20,23 +20,26 @@ static const std::string stat_listing("<propfind xmlns=\"DAV:\"><prop><getlastmo
 
 struct Davix_dir_handle{
 
-    Davix_dir_handle(Davix::HttpRequest* _req, Davix::DavPropXMLParser * _parser){
-        request = _req;
-        parser = _parser;
-        size_t s_dirent = sizeof(struct dirent) + NAME_MAX +1;
-        dir_info = (struct dirent*) calloc(1, s_dirent);
+    Davix_dir_handle(Davix::HttpRequest* _req, Davix::DavPropXMLParser * _parser):
+        request(_req),
+        parser(_parser),
+        dir_info((struct dirent*) calloc(1,sizeof(struct dirent) + NAME_MAX +1)){
+
     }
 
    ~Davix_dir_handle(){
-    delete request;
-    delete parser;
-    free(dir_info);
+        delete request;
+        delete parser;
+        free(dir_info);
     }
 
    Davix::HttpRequest* request;
    Davix::DavPropXMLParser * parser;
    struct dirent* dir_info;
 
+private:
+   Davix_dir_handle(const Davix_dir_handle & );
+   Davix_dir_handle & operator=(const Davix_dir_handle & );
 };
 
 

@@ -80,6 +80,7 @@ public:
     /// @param errMsg : String representation of the error
     DavixError(const std::string & scope, StatusCode::Code errCode, const std::string & errMsg);
     DavixError(const DavixError & e);
+    DavixError & operator=(const DavixError & e);
     virtual ~DavixError();
 
 

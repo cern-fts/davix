@@ -7,10 +7,7 @@ namespace Davix {
 
 struct FileProperties
 {
-    FileProperties(){
-        clear();
-    }
-
+    FileProperties();
     std::string filename;
     unsigned int  req_status; /* status code of the request associated ( ex: http 200) */
 

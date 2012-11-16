@@ -269,21 +269,26 @@ int NEONRequest::negotiate_request(DavixError** err){
             case 301:
             case 302:
             case 307:
-                if( end_status != NE_OK
-                        && end_status != NE_RETRY
-                        && end_status != NE_REDIRECT){
-                    req_started= req_running = false;
-                    neon_to_davix_code(status, _sess, davix_scope_http_request(),err);
-                    davix_log_debug(" Davix negociate request ... <-");
-                    return -1;
+                if (this->params.getTransparentRedirectionSupport()) {
+                    if( end_status != NE_OK
+                            && end_status != NE_RETRY
+                            && end_status != NE_REDIRECT){
+                        req_started= req_running = false;
+                        neon_to_davix_code(status, _sess, davix_scope_http_request(),err);
+                        davix_log_debug(" Davix negociate request ... <-");
+                        return -1;
+                    }
+                    ne_discard_response(_req);              // Get a valid redirection, drop request content
+                    end_status = ne_end_request(_req);      // submit the redirection
+                    if(redirect_request(err) <0){           // accept redirection
+                        davix_log_debug(" Davix negociate request ... <-");
+                        return -1;
+                    }
+                    end_status = NE_RETRY;
                 }
-                ne_discard_response(_req);              // Get a valid redirection, drop request content
-                end_status = ne_end_request(_req);      // submit the redirection
-                if(redirect_request(err) <0){           // accept redirection
-                    davix_log_debug(" Davix negociate request ... <-");
-                    return -1;
+                else {
+                    end_status = 0;
                 }
-                end_status = NE_RETRY;
                 break;
             case 401: // authentification requested, do retry
                 ne_discard_response(_req);

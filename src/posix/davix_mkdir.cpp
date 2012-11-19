@@ -5,7 +5,6 @@
 
 #include <global_def.hpp>
 #include <davixcontext.hpp>
-#include <contextinternal.h>
 #include <status/davixstatusrequest.hpp>
 #include <fileops/fileutils.hpp>
 
@@ -19,7 +18,7 @@ int DavPosix::mkdir(const RequestParams * _params, const std::string &url, mode_
     RequestParams params(_params);
 
 
-    std::auto_ptr<HttpRequest> req( static_cast<HttpRequest*>(context->_intern->getSessionFactory()->create_request(url, &tmp_err)));
+    std::auto_ptr<HttpRequest> req( static_cast<HttpRequest*>(context->createRequest(url, &tmp_err)));
     if(req.get() != NULL){
 
         req->set_parameters(params);

@@ -1,11 +1,12 @@
 #include <sys/stat.h>
 #include <dirent.h>
+#include <malloc.h>
 #include <ostream>
 #include <sstream>
+#include <memory>
 
 #include "davix_listdir.hpp"
 #include <posix/davposix.hpp>
-#include <contextinternal.h>
 
 
 #include <httprequest.hpp>
@@ -90,7 +91,7 @@ DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char
 
 
     // create a new connexion + parser for this opendir
-    HttpRequest* http_req = static_cast<HttpRequest*>(context->_intern->getSessionFactory()->create_request(url, &tmp_err));
+    HttpRequest* http_req = static_cast<HttpRequest*>(context->createRequest(url, &tmp_err));
     if(http_req){
         configure_req_for_listdir(http_req);
         std::auto_ptr<DIR_handle> res(  new DIR_handle(http_req, new DavPropXMLParser()));

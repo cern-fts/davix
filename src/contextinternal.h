@@ -51,8 +51,6 @@ protected:
     gint count_instance;
 };
 
-typedef ContextInternal Core;
-
 } // namespace Davix
 
 #endif // DAVIX_CONTEXTINTERNAL_H

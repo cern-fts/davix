@@ -100,14 +100,73 @@ NEONSession::NEONSession(Context & c, const Uri & uri, const RequestParams & p, 
             configureSession(_sess, p, &NEONSession::provide_login_passwd_fn, this, &NEONSession::provide_clicert_fn, this);
 }
 
-NEONSession::~NEONSession(){
+
+NEONSession::NEONSession(NEONSessionFactory & f, const Uri & uri, const RequestParams & p, DavixError** err) :
+    _f(f),
+    _sess(NULL),
+    _params(p),
+    _last_error(NULL),
+    _login(),
+    _passwd()
+{
+    _f.createNeonSession(uri, &_sess, err);
     if(_sess)
-        _f.storeNeonSession(_sess, NULL);
+        configureSession(_sess, p, &NEONSession::provide_login_passwd_fn, this, &NEONSession::provide_clicert_fn, this);
 }
+
+
+NEONSession::~NEONSession(){
+#   ifndef _DISABLE_SESSION_REUSE
+        if(_sess)
+         _f.storeNeonSession(_sess, NULL);
+#   endif
+
+}
+
+
+
 
 
 ne_session* NEONSession::get_ne_sess(){
     return _sess;
+}
+
+
+int NEONSession::do_pkcs12_cert_authentification(const char *filename_pkcs12, const char *passwd, DavixError** err){
+    int ret;
+    ne_ssl_client_cert * cert = ne_ssl_clicert_read(filename_pkcs12);
+    if(cert == NULL){
+        DavixError::setupError(err, davix_scope_http_request(), StatusCode::credentialNotFound, "impossible to load credential pkcs12");
+        return -1;
+    }
+
+    // try to decrypt
+    int crypt_state = ne_ssl_clicert_encrypted(cert);
+    if(crypt_state ==0 ){
+        davix_log_debug("NEONRequest : Credential unencrypted, try to use it directly");
+    }else{
+        davix_log_debug("NEONRequest : Credential is encrypted, try to decrypt credential");
+
+        if(passwd == NULL){
+            DavixError::setupError(err, davix_scope_http_request(), StatusCode::loginPasswordError, "no password provided and credential encrypted");
+            return -1;
+        }
+
+        if ((ret= ne_ssl_clicert_decrypt(cert, passwd)) != 0){
+            DavixError::setupError(err, davix_scope_http_request(), StatusCode::loginPasswordError, "Unable to decrypt credential, bad password");
+            return -1;
+        }
+    }
+    ne_ssl_set_clicert(_sess, cert);
+    ne_ssl_clicert_free(cert);
+    davix_log_debug("NEONRequest : associate credential to the current session");
+    return 0;
+}
+
+int NEONSession::do_login_passwd_authentification(const char *login, const char *passwd, DavixError** err){
+   this->_login = (char*) login;
+   this->_passwd = (char*)  passwd;
+   return 0;
 }
 
 

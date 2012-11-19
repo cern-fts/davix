@@ -10,18 +10,20 @@
 
 #include <global_def.hpp>
 #include <httprequest.hpp>
+#include <neon/neonsession.hpp>
 
 namespace Davix {
 
 #define NEON_BUFFER_SIZE 65000
 
 class NEONSessionFactory;
+class NEONSession;
 
 
 class NEONRequest
 {
 public:
-    NEONRequest(NEONSessionFactory* f, ne_session * sess,  const Uri & uri_req);
+    NEONRequest(NEONSessionFactory& f, const Uri & uri_req);
     virtual ~NEONRequest();
 
     /**
@@ -96,7 +98,8 @@ protected:
     // request parameters
     RequestParams params;
     // neon internal field
-    ne_session *    _sess;
+    std::auto_ptr<NEONSession> _neon_sess;
+
     ne_request * _req;
     Uri  _current, _orig;
     std::vector<char> _vec;
@@ -109,17 +112,12 @@ protected:
     int _fd_content;
 
     std::string _request_type;
-    NEONSessionFactory* _f;
+    NEONSessionFactory& _f;
     bool req_started, req_running;
-    DavixError* auth_last_error;
 
     std::vector< std::pair<std::string, std::string > > _headers_field;
 
-    /** temporary field used for login/password authentification
-     */
-    std::string _passwd, _login;
-
-    void configure_sess();
+    int pick_sess(DavixError** err);
     void configure_req();
 
     // create initial neon request object
@@ -139,13 +137,6 @@ protected:
 
 
 private:
-    static void provide_clicert_fn(void *userdata, ne_session *sess,
-                              const ne_ssl_dname *const *dnames,
-                              int dncount);
-    static int provide_login_passwd_fn(void *userdata, const char *realm, int attempt,
-                                char *username, char *password);
-
-    friend int davix_auth_set_login_passwd(davix_auth_t token, const char* login, const char* passwd, GError** err);
 
     NEONRequest(const NEONRequest & req);
     NEONRequest & operator=(const NEONRequest & req);

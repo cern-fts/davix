@@ -10,14 +10,21 @@
 
 namespace Davix{
 
+class NEONSessionFactory;
+
 class NEONSession
 {
 public:
     NEONSession(Context & c, const Uri & uri, const RequestParams & p, DavixError** err);
+    NEONSession(NEONSessionFactory & f, const Uri & uri, const RequestParams & p, DavixError** err);
     virtual ~NEONSession();
 
 
     ne_session* get_ne_sess();
+
+    // auth method support
+    int do_pkcs12_cert_authentification(const char * filename_pkcs12, const char* passwd, DavixError** err);
+    int do_login_passwd_authentification(const char *login, const char *passwd, DavixError** err);
 
 private:
     NEONSessionFactory & _f;
@@ -39,6 +46,11 @@ private:
 
     static int provide_login_passwd_fn(void *userdata, const char *realm, int attempt,
                                     char *username, char *password);
+
+    friend int davix_auth_set_login_passwd(davix_auth_t token, const char* login, const char* passwd, GError** err);
+
+
+
 };
 
 

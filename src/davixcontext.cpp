@@ -148,7 +148,7 @@ DAVIX_C_DECL_BEGIN
 
 
 int davix_auth_set_pkcs12_cli_cert(davix_auth_t token, const char* filename_pkcs, const char* passwd, davix_error_t* err){
-    Davix::NEONRequest* req = (Davix::NEONRequest*)(token);
+    Davix::NEONSession* req = (Davix::NEONSession*)(token);
     Davix::DavixError* tmp_err=NULL;
 
     if( req->do_pkcs12_cert_authentification(filename_pkcs, passwd, &tmp_err) <0){
@@ -160,7 +160,7 @@ int davix_auth_set_pkcs12_cli_cert(davix_auth_t token, const char* filename_pkcs
 }
 
 int davix_auth_set_login_passwd(davix_auth_t token, const char* login, const char* passwd, davix_error_t* err){
-    Davix::NEONRequest* req = (Davix::NEONRequest*)(token);
+    Davix::NEONSession* req = (Davix::NEONSession*)(token);
     Davix::DavixError* tmp_err=NULL;
 
     if(req->do_login_passwd_authentification(login, passwd, &tmp_err) <0){

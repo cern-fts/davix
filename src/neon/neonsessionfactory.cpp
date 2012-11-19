@@ -46,8 +46,7 @@ HttpRequest* NEONSessionFactory::create_request(const Uri &uri, DavixError **err
     HttpRequest* req = NULL;
 
     if(uri.getStatus() == StatusCode::OK){
-        ne_session* sess = create_recycled_session(uri.getProtocol(), uri.getHost(), uri.getPort());
-        req = new HttpRequest(new NEONRequest(this, sess, uri));
+        req = new HttpRequest(new NEONRequest(*this, uri));
     }else{
         DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, "impossible to parse " + uri.getString() + " ,not a valid HTTP or Webdav URL");
     }

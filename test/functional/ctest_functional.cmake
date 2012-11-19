@@ -9,7 +9,7 @@ set(BASIC_PASSWD "tester")
 set(http_desy_base "http://sligo.desy.de:2880/pnfs/desy.de/data/dteam")
 set(http_desy_file "${http_desy_base}/fbxtest.txt")
 
-set(http_lcgdm_base "https://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam/")
+set(http_lcgdm_base "https://lxfsra10a01.cern.ch/dpm/cern.ch/home/dteam/")
 
 
 test_dav_endpoint_ronly( ${http_desy_base} "")
@@ -29,7 +29,7 @@ test_dav_endpoint_rw("http://localhost:8009" "${BASIC_LOGIN}:${BASIC_PASSWD}")
 test_valid_read_generic("http://google.com" "")
 test_valid_read_generic("http://wikipedia.org" "")
 test_valid_read_generic("https://wikipedia.org" "")
-test_valid_read_generic("http://cnn.com" "")
+test_valid_read_generic("http://www.w3.org/" "")
 test_valid_read_generic("http://cern.ch" "")
 
 # testwith common SE

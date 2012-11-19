@@ -2,6 +2,7 @@
 #include <davixuri.hpp>
 #include <abstractsessionfactory.hpp>
 #include <neon/neonsessionfactory.hpp>
+#include <davix_context_internal.hpp>
 
 // initialization
 __attribute__((constructor))
@@ -89,6 +90,7 @@ HttpRequest* ContextInternal::createRequest(const Uri & uri, DavixError** err){
 }
 
 
+
 ///////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
@@ -130,7 +132,16 @@ HttpRequest* Context::createRequest(const Uri &uri, DavixError **err){
     return _intern->createRequest(uri, err);
 }
 
+
+NEONSessionFactory & ContextExplorer::SessionFactoryFromContext(Context & c){
+    return *static_cast<NEONSessionFactory*>(c._intern->getSessionFactory());
 }
+
+
+} // End Davix
+
+
+
 
 
 DAVIX_C_DECL_BEGIN

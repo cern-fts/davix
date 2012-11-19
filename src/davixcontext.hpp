@@ -14,8 +14,10 @@
 namespace Davix{
 
 struct ContextInternal;
+class ContextExplorer;
 class HttpRequest;
 class DavPosix;
+
 
 /// @brief Main entry point for Davix
 /// Each new davix context has its own session-reuse pool and set of parameters
@@ -51,7 +53,7 @@ private:
     ContextInternal* _intern;
 
     friend class DavPosix;
-
+    friend class ContextExplorer;
 };
 
 }

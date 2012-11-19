@@ -1,12 +1,17 @@
 #ifndef DAVIX_CONTEXTINTERNAL_H
 #define DAVIX_CONTEXTINTERNAL_H
 
-#include <tr1/memory>
+#include <davixcontext.hpp>
 #include <neon/neonsessionfactory.hpp>
 
 namespace Davix {
 
 
+class ContextExplorer{
+
+static NEONSessionFactory & SessionFactoryFromContext(Context & c);
+
+};
 
 
 } // namespace Davix

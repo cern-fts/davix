@@ -48,7 +48,7 @@ protected:
     std::auto_ptr<AbstractSessionFactory>  _fsess;
     size_t _s_buff;
     unsigned long _timeout;
-    unsigned int count_instance;
+    gint count_instance;
 };
 
 typedef ContextInternal Core;

@@ -30,7 +30,7 @@ add_custom_target(neon_static ALL
 
 pkg_search_module(LIBXML2_PKG REQUIRED libxml-2.0)
 pkg_search_module(LIBSSL_PKG REQUIRED libssl)
-pkg_search_module(LIBGSSAPI_PKG REQUIRED libgssapi gss)
+pkg_search_module(LIBGSSAPI_PKG REQUIRED libgssapi gss libgssglue)
 
 message("include dir : ${LIBXML2_PKG_INCLUDE_DIRS}")
 

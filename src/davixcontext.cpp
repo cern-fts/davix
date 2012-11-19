@@ -1,9 +1,98 @@
 #include <davixcontext.hpp>
+#include <davixuri.hpp>
+#include <abstractsessionfactory.hpp>
+#include <neon/neonsessionfactory.hpp>
 
+// initialization
+__attribute__((constructor))
+void core_init(){
+    if (!g_thread_supported())
+      g_thread_init(NULL);
+}
 
-#include <contextinternal.h>
 
 namespace Davix{
+
+
+///  Implementation f the core logic in davix
+struct ContextInternal
+{
+public:
+    ContextInternal(AbstractSessionFactory * fsess);
+
+    virtual ~ContextInternal(){}
+
+    /**
+      implementation of getSessionFactory
+    */
+    virtual AbstractSessionFactory* getSessionFactory();
+
+
+     virtual void set_buffer_size(const size_t value);
+
+
+    static ContextInternal* takeRef(ContextInternal* me){
+        g_atomic_int_inc(&(me->count_instance));
+        return me;
+    }
+
+    static void releaseRef(ContextInternal* me){
+        if(g_atomic_int_dec_and_test(&(me->count_instance)))
+            delete me;
+    }
+
+
+    HttpRequest* createRequest(const std::string & uri, DavixError** err);
+
+    HttpRequest* createRequest(const Uri & uri, DavixError** err);
+
+
+
+    DAVIX_DIR* internal_opendirpp(const char * scope, const std::string & body, const std::string & url  );
+
+    std::auto_ptr<AbstractSessionFactory>  _fsess;
+    size_t _s_buff;
+    unsigned long _timeout;
+    unsigned int count_instance;
+};
+
+///////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+
+
+ContextInternal::ContextInternal(AbstractSessionFactory* fsess) :
+    _fsess(fsess),
+    _s_buff(65536),
+    _timeout(300),
+    count_instance(1)
+{
+}
+
+
+AbstractSessionFactory* ContextInternal::getSessionFactory(){
+    return _fsess.get();
+}
+
+void ContextInternal::set_buffer_size(const size_t value){
+    _s_buff = value;
+}
+
+
+
+HttpRequest* ContextInternal::createRequest(const std::string & uri, DavixError** err){
+    return getSessionFactory()->create_request(uri, err);
+}
+
+HttpRequest* ContextInternal::createRequest(const Uri & uri, DavixError** err){
+    return getSessionFactory()->create_request(uri, err);
+}
+
+
+///////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+
 
 Context::Context() :
     _intern(new ContextInternal(new NEONSessionFactory()))

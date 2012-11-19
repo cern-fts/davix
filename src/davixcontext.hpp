@@ -13,7 +13,7 @@
 
 namespace Davix{
 
-class ContextInternal;
+struct ContextInternal;
 class HttpRequest;
 class DavPosix;
 

@@ -127,11 +127,6 @@ NEONSession::~NEONSession(){
 
 
 
-ne_session* NEONSession::get_ne_sess(){
-    return _sess;
-}
-
-
 int NEONSession::do_pkcs12_cert_authentification(const char *filename_pkcs12, const char *passwd, DavixError** err){
     int ret;
     ne_ssl_client_cert * cert = ne_ssl_clicert_read(filename_pkcs12);

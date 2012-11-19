@@ -106,6 +106,10 @@ std::string davix_scope_xml_parser(){
     return "[davix_xml_parser]";
 }
 
+std::string davix_scope_uri_parser(){
+    return "[davix_uri_parser]";
+}
+
 
 } // namespace Davix
 

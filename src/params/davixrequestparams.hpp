@@ -54,11 +54,11 @@ public:
 
     /// return the current authentification callback
     /// DEFAULT : NULL
-    davix_auth_callback getAuthentificationCallbackFunction();
+    davix_auth_callback getAuthentificationCallbackFunction() const;
 
     /// return the current user data
     /// DEFAULT : NULL
-    void* getAuthentificationCallbackData();
+    void* getAuthentificationCallbackData() const;
 
     /// define the connexion timeout
     /// conn_timeout is a relative time

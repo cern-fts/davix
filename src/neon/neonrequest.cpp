@@ -4,7 +4,7 @@
 #include <libs/time_utils.h>
 #include <ne_redirect.h>
 #include <ne_request.h>
-#include <ne_session.h>
+#include <neon/neonsession.hpp>
 
 namespace Davix {
 
@@ -59,10 +59,6 @@ void neon_to_davix_code(int ne_status, ne_session* sess, const std::string & sco
 }
 
 
-static int validate_all_certificate(void *userdata, int failures,
-                                const ne_ssl_certificate *cert){
-    return 0;
-}
 
 
 
@@ -185,39 +181,7 @@ int NEONRequest::create_req(DavixError** err){
 }
 
 void NEONRequest::configure_sess(){
-    if(strcmp(ne_get_scheme(_sess), "https") ==0) // fix a libneon bug with non ssl connexion
-        ne_ssl_trust_default_ca(_sess);
-
-    // register redirection management
-    ne_redirect_register(_sess);
-    //ne_set_session_flag(_sess, NE_SESSFLAG_PERSIST, false);
-
-    // define user agent
-    ne_set_useragent(_sess, params.getUserAgent().c_str());
-
-    if(params.getSSLCACheck() == false){ // configure ssl check
-        davix_log_debug("NEONRequest : disable ssl verification");
-        ne_ssl_set_verify(_sess, validate_all_certificate, NULL);
-    }
-
-    // if authentification callback defined, enable the wrapper
-    if( params.getAuthentificationCallbackFunction() != NULL){
-        ne_ssl_provide_clicert(_sess, &NEONRequest::provide_clicert_fn, this);
-        ne_set_server_auth(_sess, &NEONRequest::provide_login_passwd_fn, this);
-    }
-
-
-
-    if( timespec_isset(params.getOperationTimeout())){
-        davix_log_debug("NEONRequest : define operation timeout to %d", params.getOperationTimeout());
-        ne_set_read_timeout(_sess, (int) params.getOperationTimeout()->tv_sec);
-    }
-    if(timespec_isset(params.getConnexionTimeout())){
-        davix_log_debug("NEONRequest : define connexion timeout to %d", params.getConnexionTimeout());
-#ifndef _NEON_VERSION_0_25
-        ne_set_connect_timeout(_sess, (int) params.getConnexionTimeout()->tv_sec);
-#endif
-    }
+    configureSession(_sess, params,&NEONRequest::provide_login_passwd_fn, this, &NEONRequest::provide_clicert_fn, this);
 }
 
 void NEONRequest::configure_req(){

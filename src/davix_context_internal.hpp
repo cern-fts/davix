@@ -7,7 +7,7 @@
 namespace Davix {
 
 
-class ContextExplorer{
+struct ContextExplorer{
 
 static NEONSessionFactory & SessionFactoryFromContext(Context & c);
 

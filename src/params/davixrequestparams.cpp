@@ -112,11 +112,11 @@ void RequestParams::setAuthentificationCallback(void * _userdata, davix_auth_cal
 }
 
 
-davix_auth_callback RequestParams::getAuthentificationCallbackFunction(){
+davix_auth_callback RequestParams::getAuthentificationCallbackFunction() const{
     return d_ptr->_call;
 }
 
-void* RequestParams::getAuthentificationCallbackData(){
+void* RequestParams::getAuthentificationCallbackData() const{
     return d_ptr->_userdata;
 }
 

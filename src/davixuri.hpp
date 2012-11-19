@@ -73,6 +73,13 @@ protected:
     void _init();
 };
 
+///
+/// check the validity of a Davix::Uri
+/// @param uri : davix uri
+/// @param err : Davix Error report object
+/// @return true if the uri is valid, or false and setup err with a string expression
+bool UricheckError(const Uri & uri, DavixError ** err);
+
 } // namespace Davix
 
 #endif // DAVIX_DAVIXURI_HPP

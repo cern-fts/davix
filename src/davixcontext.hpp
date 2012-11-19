@@ -14,7 +14,7 @@
 namespace Davix{
 
 struct ContextInternal;
-class ContextExplorer;
+struct ContextExplorer;
 class HttpRequest;
 class DavPosix;
 

@@ -79,6 +79,27 @@ void DavixError::setupError(DavixError **err, const std::string &scope, StatusCo
     }
 }
 
+
+void DavixError::propagateError(DavixError **newErr, DavixError *oldErr){
+
+}
+
+void DavixError::propagatePrefixedError(DavixError **newErr, DavixError *oldErr, const std::string &prefix){
+    if(newErr){
+        if(*newErr != NULL){
+            std::cerr << "***ERROR*** in propagateError, *newErr is not NULL impossible to overwrite ... "
+                     " old error wass" << ((oldErr)?(oldErr->getErrMsg()):"<NULL>") << std::endl;
+        }else{
+            *newErr = oldErr;
+            if(*newErr && prefix.empty() == false){
+                std::string new_mess(prefix);
+                (*newErr)->d_ptr->_errMsg = new_mess.append((*newErr)->d_ptr->_errMsg);
+            }
+        }
+    }
+
+}
+
 void DavixError::clearError(DavixError **err){
     if(err && *err){
         delete *err;
@@ -108,6 +129,10 @@ std::string davix_scope_xml_parser(){
 
 std::string davix_scope_uri_parser(){
     return "[davix_uri_parser]";
+}
+
+std::string davix_scope_davOps_str(){
+    return "[davix_dav_operation]";
 }
 
 

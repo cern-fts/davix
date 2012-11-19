@@ -123,16 +123,15 @@ public:
     /// OldErr can be consider as free after this operation
     /// erase the error message if newErr is NULL
     ///
-    static void propagateError(DavixError** newErr, DavixError* oldErr){
-        if(newErr){
-            if(*newErr != NULL){
-                std::cerr << "***ERROR*** in propagateError, *newErr is not NULL impossible to overwrite ... "
-                         " old error wass" << ((oldErr)?(oldErr->getErrMsg()):"<NULL>") << std::endl;
-            }else{
-                *newErr = oldErr;
-            }
-        }
-    }
+    static void propagateError(DavixError** newErr, DavixError* oldErr);
+
+    ///
+    /// same than propagateError but add a string prefix in front of the error description
+    ///
+    /// OldErr can be consider as free after this operation
+    /// erase the error message if newErr is NULL
+    ///
+    static void propagatePrefixedError(DavixError** newErr, DavixError* oldErr, const std::string & prefix);
 
 private:
    DavixErrorInternal * d_ptr;
@@ -143,6 +142,7 @@ private:
 /// scope of the davix stat part
 //
 std::string davix_scope_stat_str();
+std::string davix_scope_davOps_str();
 std::string davix_scope_mkdir_str();
 std::string davix_scope_directory_listing_str();
 std::string davix_scope_http_request();

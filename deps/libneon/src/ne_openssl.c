@@ -565,7 +565,7 @@ static int provide_client_cert(SSL *ssl, X509 **cert, EVP_PKEY **pkey)
 		ctx = SSL_get_SSL_CTX(ssl);
 		count = sk_X509_num(cc->cert.chain);
 		for (n = 0; n < count; ++n) {
-		  SSL_CTX_add_extra_chain_cert(ctx, sk_X509_value(cc->cert.chain, n));
+		  SSL_CTX_add_extra_chain_cert(ctx, X509_dup(sk_X509_value(cc->cert.chain, n)));
 		}
 	}
 

@@ -81,7 +81,7 @@ void DavixError::setupError(DavixError **err, const std::string &scope, StatusCo
 
 
 void DavixError::propagateError(DavixError **newErr, DavixError *oldErr){
-
+    propagatePrefixedError(newErr, oldErr, "");
 }
 
 void DavixError::propagatePrefixedError(DavixError **newErr, DavixError *oldErr, const std::string &prefix){

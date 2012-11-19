@@ -6,7 +6,7 @@ namespace Davix {
 int davixRequestToFileStatus(HttpRequest* req, const std::string & scope, DavixError** err){
     const int reqcode = req->getRequestCode();
     int ret = 0;
-    if(reqcode != 200 && reqcode != 207){
+    if( httpcodeIsValid(reqcode) == false){
         DavixError* tmp_err=NULL;
         httpcodeToDavixCode(reqcode, scope, "",&tmp_err);
         if(tmp_err && tmp_err->getStatus() != StatusCode::OK){

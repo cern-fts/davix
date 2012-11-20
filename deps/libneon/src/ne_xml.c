@@ -57,6 +57,7 @@ typedef XML_Char ne_xml_char;
 /* libxml2 support: */
 #include <libxml/xmlversion.h>
 #include <libxml/parser.h>
+#include <pthread.h>
 typedef xmlChar ne_xml_char;
 
 #if LIBXML_VERSION < 20619
@@ -174,6 +175,14 @@ static const char *const empty_atts[] = {NULL, NULL};
 
 /* macro for determining the attributes array to pass */
 #define PASS_ATTS(atts) (atts ? (const char **)(atts) : empty_atts)
+
+/* locker for libxml2 thread safety */
+static pthread_once_t libxml_is_initialized = PTHREAD_ONCE_INIT;
+
+void initialize_libxml()
+{
+    xmlInitParser();
+}
 
 #else
 
@@ -496,6 +505,7 @@ ne_xml_parser *ne_xml_create(void)
 #endif
 
 #else /* HAVE_LIBXML */
+    pthread_once(&libxml_is_initialized, initialize_libxml);
     p->parser = xmlCreatePushParserCtxt(&sax_handler, 
 					(void *)p, NULL, 0, NULL);
     if (p->parser == NULL) {

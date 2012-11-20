@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MY_DIR=`dirname $0`
+MY_DIR=$(dirname $(readlink -f "$BASH_SOURCE"))
 
 ARGS="$1"
 

@@ -55,6 +55,7 @@ typedef struct davix_request_params* davix_params_t;
 #define DAVIX_STATUS_CREDENTIAL_NOT_FOUND                   0x11
 #define DAVIX_STATUS_PERMISSION_REFUSED                     0x12
 #define DAVIX_STATUS_FILE_NOT_FOUND                         0x13
+#define DAVIX_STATUS_IS_A_DIRECTORY                         0x14
 
 
 //// protocol type

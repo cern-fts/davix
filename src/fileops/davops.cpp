@@ -9,7 +9,7 @@ int DavOpsDelete(Context & c, const RequestParams & params, const Uri & uri, Dav
 
     int ret =-1;
     DavixError* tmp_err=NULL;
-    if(UricheckError(uri, &tmp_err)){
+    if(uriCheckError(uri, &tmp_err)){
         NEONSession s(c,uri, params, &tmp_err);
         if(!tmp_err){
             int ret;
@@ -20,7 +20,7 @@ int DavOpsDelete(Context & c, const RequestParams & params, const Uri & uri, Dav
     }
 
     if(tmp_err)
-        DavixError::propagatePrefixedError(err,tmp_err, "Davix Delete Operation : ");
+        DavixError::propagatePrefixedError(err,tmp_err, "delete ops : ");
     return ret;
 }
 

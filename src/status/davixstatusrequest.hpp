@@ -47,7 +47,8 @@ enum Code{
     loginPasswordError = DAVIX_STATUS_LOGIN_PASSWORD_ERROR,
     credentialNotFound = DAVIX_STATUS_CREDENTIAL_NOT_FOUND,
     permissionRefused = DAVIX_STATUS_PERMISSION_REFUSED,
-    fileNotFound = DAVIX_STATUS_FILE_NOT_FOUND
+    fileNotFound = DAVIX_STATUS_FILE_NOT_FOUND,
+    IsADirectory = DAVIX_STATUS_IS_A_DIRECTORY
 };
 
 }

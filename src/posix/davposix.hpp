@@ -62,17 +62,20 @@ public:
     */
     struct dirent* readdir(DAVIX_DIR*, DavixError** err);
     /**
-      @brief close an existing file handle
+       close an existing file handle
+       @param  d : directory handle to close
+       @param err : Davix error report system
+       @return 0 if success else a negative value and err is set.
     */
-    int closedir(DAVIX_DIR*, DavixError** err);
+    int closedir(DAVIX_DIR* d, DavixError** err);
 
     /**
       @brief execute an opendirpp function with Webdav
            opendirpp/readdirpp/closedirpp function read a directory content with a struct stat associated to  each directory entry
 
       @param params : request options, can be NULL
-      @return DAVIX_DIR : davix readdir handle
-      @return
+      @param err : Davix error report system
+      @return DAVIX_DIR : davix readdir handle or NULL if error, in this case err is set.
     */
     DAVIX_DIR* opendirpp(const RequestParams* params, const std::string & url, DavixError** err);
 
@@ -101,9 +104,22 @@ public:
       @param params : request options, can be NULL
       @param url: url of the directory to create
       @param right : default mode of the directory ( ignored for now )
+      @param err : Davix error report system
+      @return 0 if success else a negative value and err is set.
 
     */
     int mkdir(const RequestParams * _params, const std::string & url, mode_t right, DavixError** err);
+
+    /**
+      @brief execute a remove file operation
+      behavior similar to the POSIX unlink function
+
+      @param params : request options, can be NULL
+      @param url: file to delete
+      @param err : Davix error report system
+      @return 0 if success else a negative value and err is set.
+    */
+    int unlink(const RequestParams * _params, const std::string &url, DavixError** err);
 
 
     /**

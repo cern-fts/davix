@@ -12,6 +12,8 @@
 
 namespace Davix{
 
+
+
 void fill_stat_from_fileproperties(struct stat* st, const  FileProperties & prop){
     memset(st, 0, sizeof(struct stat));
     st->st_mtime = prop.mtime;
@@ -110,7 +112,7 @@ int DavPosix::stat(const RequestParams * _params, const std::string & url, struc
     }
     davix_log_debug(" davix_stat <-");
     if(tmp_err)
-        DavixError::propagateError(err, tmp_err);
+        DavixError::propagatePrefixedError(err, tmp_err, "stat ops : ");
     return ret;
 
 }

@@ -149,7 +149,7 @@ StatusCode::Code Uri::getStatus() const{
     return d_ptr->code;
 }
 
-bool UricheckError(const Uri &uri, DavixError **err){
+bool uriCheckError(const Uri &uri, DavixError **err){
     if(uri.getStatus() == StatusCode::OK)
         return true;
     DavixError::setupError(err, davix_scope_uri_parser(), uri.getStatus(), std::string("Uri syntax Invalid : ").append(uri.getString()));

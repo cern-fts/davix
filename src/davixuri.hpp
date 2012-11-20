@@ -78,7 +78,7 @@ protected:
 /// @param uri : davix uri
 /// @param err : Davix Error report object
 /// @return true if the uri is valid, or false and setup err with a string expression
-bool UricheckError(const Uri & uri, DavixError ** err);
+bool uriCheckError(const Uri & uri, DavixError ** err);
 
 } // namespace Davix
 

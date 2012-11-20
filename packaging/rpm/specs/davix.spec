@@ -15,7 +15,11 @@ BuildRoot:			%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildRequires:		cmake
 BuildRequires:		doxygen
 BuildRequires:		glib2-devel
+%if 0%{?el5}
 BuildRequires:		libgssapi-devel
+%else
+BuildRequires:		libgssglue-devel
+%endif
 BuildRequires:		libxml2-devel
 BuildRequires:		openssl-devel
 

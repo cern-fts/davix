@@ -286,17 +286,19 @@ int NEONRequest::executeRequest(DavixError** err){
         davix_log_debug(" -> NEON Read data flow... ");
         size_t s = _vec.size();
         _vec.resize(s + NEON_BUFFER_SIZE);
-        read_status= ne_read_response_block(_req, &(_vec[s]), NEON_BUFFER_SIZE );
+        read_status= readBlock(&(_vec[s]), NEON_BUFFER_SIZE, &tmp_err);
         if( read_status >= 0 && read_status != NEON_BUFFER_SIZE){
            _vec.resize(s +  read_status);
         }
 
     }
+
     // push a last NULL char for safety
     _vec.push_back('\0');
 
     if(read_status < 0){
-        neon_to_davix_code(read_status, _neon_sess->get_ne_sess(), davix_scope_http_request(), &tmp_err);
+        if(!tmp_err)
+            neon_to_davix_code(read_status, _neon_sess->get_ne_sess(), davix_scope_http_request(), &tmp_err);
         DavixError::propagateError(err, tmp_err);
         return -1;
     }
@@ -332,11 +334,10 @@ ssize_t NEONRequest::readBlock(char* buffer, size_t max_size, DavixError** err){
         DavixError::setupError(err, davix_scope_http_request(), StatusCode::alreadyRunning, "No request started");
         return -1;
     }
-
-
     read_status= ne_read_response_block(_req, buffer, max_size );
     if(read_status <0){
        DavixError::setupError(err, davix_scope_http_request(), StatusCode::ConnexionProblem, "Invalid Read in request");
+       req_running = false;
        return -1;
     }
     return read_status;
@@ -345,19 +346,16 @@ ssize_t NEONRequest::readBlock(char* buffer, size_t max_size, DavixError** err){
 int NEONRequest::endRequest(DavixError** err){
     int status;
 
-    if(_req == NULL || req_running == false){
-        DavixError::setupError(err, davix_scope_http_request(), StatusCode::alreadyRunning, "Http request already started, Error");
-        return -1;
-    }
-
-    req_running = false;
-    if( (status = ne_end_request(_req)) != NE_OK){
-        DavixError* tmp_err=NULL;
-        if(_neon_sess.get() != NULL)
-            neon_to_davix_code(status, _neon_sess->get_ne_sess(), davix_scope_http_request(), &tmp_err);
-        if(tmp_err)
-            davix_log_debug("NEONRequest::endRequest -> error %d Error closing request -> %s ", tmp_err->getStatus(), tmp_err->getErrMsg().c_str());
-        DavixError::clearError(&tmp_err);
+    if(_req  && req_running == true){
+        req_running = false;
+        if( (status = ne_end_request(_req)) != NE_OK){
+            DavixError* tmp_err=NULL;
+            if(_neon_sess.get() != NULL)
+                neon_to_davix_code(status, _neon_sess->get_ne_sess(), davix_scope_http_request(), &tmp_err);
+            if(tmp_err)
+                davix_log_debug("NEONRequest::endRequest -> error %d Error closing request -> %s ", tmp_err->getStatus(), tmp_err->getErrMsg().c_str());
+            DavixError::clearError(&tmp_err);
+        }
     }
     return 0;
 }

@@ -151,6 +151,9 @@ private:
 void neon_to_davix_code(int ne_status,ne_session* sess, const std::string & scope, DavixError** err);
 
 
+void neon_simple_req_code_to_davix_code(int ne_status, ne_session* sess, const std::string & scope, DavixError** err);
+
+
 } // namespace Davix
 
 #endif // DAVIX_NEONREQUEST_H

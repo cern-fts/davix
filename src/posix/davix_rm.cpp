@@ -68,7 +68,18 @@ int DavPosix::unlink(const RequestParams * _params, const std::string &url, Davi
 }
 
 
+int DavPosix::rmdir(const RequestParams * _params, const std::string &url, DavixError** err){
+    davix_log_debug(" -> davix_rmdir");
+    int ret=-1;
+    DavixError* tmp_err=NULL;
+    RequestParams params(_params);
 
+    ret = davix_remove_posix(*this, context, _params, url, true, &tmp_err);
+    davix_log_debug(" davix_rmdir <-");
+    if(tmp_err)
+        DavixError::propagatePrefixedError(err, tmp_err, "DavPosix::rmdir ");
+    return ret;
+}
 
 
 }

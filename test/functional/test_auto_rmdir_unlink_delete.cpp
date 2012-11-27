@@ -2,6 +2,7 @@
 #include <davixcontext.hpp>
 #include <http_backend.hpp>
 #include <posix/davposix.hpp>
+#include <fileops/davops.hpp>
 
 #include <string>
 #include <sstream>
@@ -57,6 +58,7 @@ int main(int argc, char** argv){
 
     Context c;
     DavPosix pos(&c);
+    WebdavQuery query(c);
 
 
     std::cout << "verify that " << created_dir << "does not exist" << std::endl;
@@ -72,7 +74,13 @@ int main(int argc, char** argv){
     DavixError::clearError(&tmp_err);
 
     std::cout << " verify that rmdir() return enoent on not existing dir" << std::endl;
-    res = pos.unlink(&p, created_dir, &tmp_err);
+    res = pos.rmdir(&p, created_dir, &tmp_err);
+    g_assert( res != 0);
+    g_assert(tmp_err && tmp_err->getStatus() == StatusCode::fileNotFound);
+    DavixError::clearError(&tmp_err);
+
+    std::cout << " verify that WebdavQuery::davDelete() return enoent on not existing dir" << std::endl;
+    res = query.davDelete(&p, created_dir, &tmp_err);
     g_assert( res != 0);
     g_assert(tmp_err && tmp_err->getStatus() == StatusCode::fileNotFound);
     DavixError::clearError(&tmp_err);
@@ -92,8 +100,22 @@ int main(int argc, char** argv){
     res = pos.unlink(&p, created_dir, &tmp_err);
     g_assert( res != 0);
     g_assert(tmp_err && tmp_err->getStatus() == StatusCode::IsADirectory);
+    DavixError::clearError(&tmp_err);
 
+    std::cout << " remove dir with rmdir() " << std::endl;
+    res = pos.rmdir(&p, created_dir, &tmp_err);
+    g_assert( res == 0);
+    g_assert(tmp_err == NULL);
 
+    std::cout << "verify that " << created_dir << "does not exist" << std::endl;
+    res = pos.stat(&p, created_dir, &st, &tmp_err);
+    g_assert( res != 0);
+    g_assert(tmp_err && tmp_err->getStatus() == StatusCode::fileNotFound);
+    DavixError::clearError(&tmp_err);
+
+    std::cout << "create again " << created_dir << std::endl;
+    res = pos.mkdir(&p, created_dir, 0755, &tmp_err);
+    g_assert( res ==0 && tmp_err == NULL);
 
 
     return 0;

@@ -8,34 +8,25 @@
 
 namespace Davix {
 
-/*
-  authentification handle for neon
- */
 
 
-void neon_to_davix_code(int ne_status, ne_session* sess, const std::string & scope, DavixError** err){
-    StatusCode::Code code;
-    std::string str;
+void neon_generic_error_mapper(int ne_status, StatusCode::Code & code, std::string & str){
     switch(ne_status){
         case NE_OK:
             code = StatusCode::OK;
             str= "Status Ok";
             break;
-        case NE_ERROR:
-             str = std::string("Neon error : ").append(ne_get_error(sess));
-             code = StatusCode::ConnexionProblem;
-             break;
         case NE_LOOKUP:
              code = StatusCode::NameResolutionFailure;
-             str= "Domain Name resolution failed";
+             str= "Domain name resolution failed";
              break;
         case NE_AUTH:
             code = StatusCode::authentificationError;
-            str=  "Authentification Failed on server";
+            str=  "Authentification failed on server";
             break;
         case NE_PROXYAUTH:
             code = StatusCode::authentificationError;
-            str=  "Authentification Failed on proxy";
+            str=  "Authentification failed on proxy";
         case NE_CONNECT:
             code = StatusCode::ConnexionProblem;
             str= "Could not connect to server";
@@ -54,6 +45,44 @@ void neon_to_davix_code(int ne_status, ne_session* sess, const std::string & sco
         default:
             code= StatusCode::UnknowError;
             str= "Unknow Error from libneon";
+    }
+}
+
+
+// convert standard neon error to davix code
+void neon_to_davix_code(int ne_status, ne_session* sess, const std::string & scope, DavixError** err){
+    StatusCode::Code code;
+    std::string str;
+    switch(ne_status){
+        case NE_ERROR:
+             str = std::string("Neon error : ").append(ne_get_error(sess));
+             code = StatusCode::ConnexionProblem;
+             break;
+        default:
+            neon_generic_error_mapper(ne_status, code, str);
+    }
+    DavixError::setupError(err,scope, code, str);
+}
+
+// convert neon_simple_request error to davix code,
+void neon_simple_req_code_to_davix_code(int ne_status, ne_session* sess, const std::string & scope, DavixError** err){
+    StatusCode::Code code;
+    std::string str;
+    switch(ne_status){
+        case NE_ERROR:{
+             const char * str_error = ne_get_error(sess);
+             if(strstr(str_error, "404") != NULL){
+                 code = StatusCode::fileNotFound;
+             }else if(strstr(str_error, "401") != NULL || strstr(str_error, "403") != NULL){
+                 code = StatusCode::permissionRefused;
+             }else{
+                 code = StatusCode::ConnexionProblem;
+             }
+             str = std::string("Neon error : ").append(str_error);
+             break;
+        }
+        default:
+            neon_generic_error_mapper(ne_status, code, str);
     }
     DavixError::setupError(err,scope, code, str);
 }

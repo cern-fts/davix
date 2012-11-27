@@ -121,6 +121,17 @@ public:
     */
     int unlink(const RequestParams * _params, const std::string &url, DavixError** err);
 
+    /**
+      @brief execute a remove directory operation
+      behavior similar to the POSIX rmdir function
+
+      @param params : request options, can be NULL
+      @param url: directory to delete
+      @param err : Davix error report system
+      @return 0 if success else a negative value and err is set.
+    */
+    int rmdir(const RequestParams * _params, const std::string &url, DavixError** err);
+
 
     /**
       @brief open a file for read/write operation in a POSIX-like approach

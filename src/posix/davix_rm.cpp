@@ -32,8 +32,8 @@ int davix_remove_posix(DavPosix & p, Context* c, const RequestParams & params, c
                 }else{
                     ret = -1;
                     std::ostringstream ss;
-                    ss << " " << url << " is not a directory, impossible to rmdir"<< std::endl;
-                    DavixError::setupError(&tmp_err, davix_scope_davOps_str(), StatusCode::isNotADirectory, ss.str());
+                    ss << " " << url << " is not a directory, impossible to unlink"<< std::endl;
+                    DavixError::setupError(&tmp_err, davix_scope_davOps_str(), StatusCode::IsADirectory, ss.str());
                 }
             }else{ // file, rock & roll
                 if(directory == false){
@@ -41,8 +41,8 @@ int davix_remove_posix(DavPosix & p, Context* c, const RequestParams & params, c
                 }else{
                     ret = -1;
                     std::ostringstream ss;
-                    ss << " " << url << " is a directory, impossible to unlink"<< std::endl;
-                    DavixError::setupError(&tmp_err, davix_scope_davOps_str(), StatusCode::IsADirectory, ss.str());
+                    ss << " " << url << " is not a directory, impossible to rmdir"<< std::endl;
+                    DavixError::setupError(&tmp_err, davix_scope_davOps_str(), StatusCode::isNotADirectory, ss.str());
                 }
             }
         }

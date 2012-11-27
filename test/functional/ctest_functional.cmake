@@ -25,6 +25,9 @@ test_dav_endpoint_rw("http://localhost:8008" " ")
 test_dav_endpoint_rw("http://localhost:8009" "${BASIC_LOGIN}:${BASIC_PASSWD}")
 
 
+test_valid_delete_all("http://localhost:8008"  "${CMAKE_SOURCE_DIR}/test.p12")
+
+
 ## generic http query test
 test_valid_read_generic("http://google.com" "")
 test_valid_read_generic("http://wikipedia.org" "")

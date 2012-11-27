@@ -5,7 +5,8 @@
 
 namespace Davix{
 
-int DavOpsDelete(Context & c, const RequestParams & params, const Uri & uri, DavixError** err){
+
+static int DavOpsDelete(Context & c, const RequestParams & params, const Uri & uri, DavixError** err){
 
     int ret =-1;
     DavixError* tmp_err=NULL;
@@ -23,6 +24,22 @@ int DavOpsDelete(Context & c, const RequestParams & params, const Uri & uri, Dav
         DavixError::propagatePrefixedError(err,tmp_err, "delete ops : ");
     return ret;
 }
+
+WebdavQuery::WebdavQuery(Context &c) :
+    _c(c)
+{
+
+}
+
+
+
+int WebdavQuery::davDelete(const RequestParams &params, const Uri &uri, DavixError **err){
+    return DavOpsDelete(_c, params, uri, err);
+}
+
+
+
+
 
 
 }

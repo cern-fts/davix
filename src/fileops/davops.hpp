@@ -11,8 +11,20 @@
 
 namespace Davix{
 
+class WebdavQuery{
+public:
+    WebdavQuery(Context & c);
 
-int DavOpsDelete(Context & c, const RequestParams & params, const Uri & uri, DavixError** err);
+
+    int davDelete(const RequestParams & params, const Uri & uri, DavixError** err);
+
+private:
+    WebdavQuery(const WebdavQuery &);
+    WebdavQuery & operator=(const WebdavQuery &);
+    Context & _c;
+};
+
+
 
 
 }

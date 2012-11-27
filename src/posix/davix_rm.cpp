@@ -17,10 +17,10 @@ int davix_remove_posix(DavPosix & p, Context* c, const RequestParams & params, c
     DavixError* tmp_err = NULL;
     int ret = -1;
     Uri uri(url);
+    WebdavQuery query(*c);
 
     if(params.getProtocol() == DAVIX_PROTOCOL_HTTP){ // pure protocol http : ignore posix semantic, execute a simple delete
-        ret = DavOpsDelete(*c, params, uri, &tmp_err);
-
+        ret = query.davDelete(params, uri, &tmp_err);
     }else{ // full posix semantic support
         struct stat st;
         ret = p.stat(&params, url, &st, &tmp_err);
@@ -28,7 +28,7 @@ int davix_remove_posix(DavPosix & p, Context* c, const RequestParams & params, c
             if( S_ISDIR(st.st_mode)){ // directory : impossible to delete if not empty
                 if(directory == true){
                     // ignore non empty dir check for now
-                    ret = DavOpsDelete(*c, params, uri, &tmp_err);
+                    ret = query.davDelete(params, uri, &tmp_err);
                 }else{
                     ret = -1;
                     std::ostringstream ss;
@@ -37,7 +37,7 @@ int davix_remove_posix(DavPosix & p, Context* c, const RequestParams & params, c
                 }
             }else{ // file, rock & roll
                 if(directory == false){
-                    ret = DavOpsDelete(*c, params, uri, &tmp_err);
+                    ret = query.davDelete(params, uri, &tmp_err);
                 }else{
                     ret = -1;
                     std::ostringstream ss;

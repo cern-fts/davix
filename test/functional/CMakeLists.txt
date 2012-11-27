@@ -20,6 +20,7 @@ set( src_test_opendir_partial "test_opendir_partial.cpp")
 set( src_test_opendirpp "test_opendirpp.cpp")
 set( src_test_stat_c "test_stat_c.c")
 set( src_test_auto_stat_mkdir_check "test_auto_stat_mkdir_check.cpp")
+set( src_test_auto_rmdir_unlink_delete "test_auto_rmdir_unlink_delete.cpp")
 set( src_test_valid_read_generic_simple "test_valid_read_generic_simple.cpp")
 set( src_test_valid_write_read_generic_simple "test_valid_write_read_generic_simple.cpp")
 
@@ -36,8 +37,11 @@ target_link_libraries(test_stat davix)
 add_executable(test_stat_auto_check ${src_test_auto_stat_mkdir_check} ${src_davix_test_lib})
 target_link_libraries(test_stat_auto_check davix)
 
-add_executable(test_mkdir ${src_test_mkdir} )
+add_executable(test_mkdir ${src_test_mkdir} ${src_davix_test_lib})
 target_link_libraries(test_mkdir davix)
+
+add_executable(test_auto_rmdir_unlink_delete ${src_test_auto_rmdir_unlink_delete} ${src_davix_test_lib})
+target_link_libraries(test_auto_rmdir_unlink_delete davix )
 
 add_executable(test_stat_session ${src_test_stat_session} ${src_davix_test_lib})
 target_link_libraries(test_stat_session davix)

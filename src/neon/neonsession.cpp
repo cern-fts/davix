@@ -172,7 +172,6 @@ void configureSession(ne_session *_sess, const RequestParams &params, ne_auth_cr
 
     // register redirection management
     ne_redirect_register(_sess);
-    //ne_set_session_flag(_sess, NE_SESSFLAG_PERSIST, false);
 
     // define user agent
     ne_set_useragent(_sess, params.getUserAgent().c_str());

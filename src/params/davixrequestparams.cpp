@@ -21,7 +21,7 @@ struct RequestParamsInternal{
         connexion_timeout(),
         agent_string(default_agent),
         _proto(DAVIX_PROTOCOL_WEBDAV),
-        _session_flag(0)
+        _session_flag(SESSION_FLAG_KEEP_ALIVE)
     {
         timespec_clear(&connexion_timeout);
         timespec_clear(&ops_timeout);

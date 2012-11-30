@@ -9,6 +9,8 @@ namespace Davix {
 const char * default_agent = "libdavix/0.0.9";
 
 
+#define SESSION_FLAG_KEEP_ALIVE 0x01
+
 struct RequestParamsInternal{
     RequestParamsInternal() :
         _ssl_check(true),
@@ -18,7 +20,8 @@ struct RequestParamsInternal{
         ops_timeout(),
         connexion_timeout(),
         agent_string(default_agent),
-        _proto(DAVIX_PROTOCOL_WEBDAV)
+        _proto(DAVIX_PROTOCOL_WEBDAV),
+        _session_flag(0)
     {
         timespec_clear(&connexion_timeout);
         timespec_clear(&ops_timeout);
@@ -37,11 +40,11 @@ struct RequestParamsInternal{
         ops_timeout(),
         connexion_timeout(),
         agent_string(param_private.agent_string),
-        _proto(param_private._proto){
+        _proto(param_private._proto),
+        _session_flag(param_private._session_flag){
 
         timespec_copy(&(connexion_timeout), &(param_private.connexion_timeout));
         timespec_copy(&(ops_timeout), &(param_private.ops_timeout));
-
     }
     bool _ssl_check; // ssl CA check
     bool _redirection; // redirection support
@@ -60,6 +63,8 @@ struct RequestParamsInternal{
     // proto
     davix_request_protocol_t  _proto;
 
+    // session flag
+    int _session_flag;
 private:
     RequestParamsInternal & operator=(const RequestParamsInternal & params);
 };
@@ -161,6 +166,18 @@ const davix_request_protocol_t RequestParams::getProtocol() const {
 
 void RequestParams::setProtocol(const davix_request_protocol_t proto){
     d_ptr->_proto = proto;
+}
+
+void RequestParams::setKeepAlive(const bool keep_alive_flag){
+    if(keep_alive_flag)
+        d_ptr->_session_flag |= SESSION_FLAG_KEEP_ALIVE;
+    else
+        d_ptr->_session_flag &= ~(SESSION_FLAG_KEEP_ALIVE);
+}
+
+
+const bool RequestParams::getKeepAlive() const{
+    return d_ptr->_session_flag & SESSION_FLAG_KEEP_ALIVE;
 }
 
 

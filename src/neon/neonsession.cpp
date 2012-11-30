@@ -201,6 +201,8 @@ void configureSession(ne_session *_sess, const RequestParams &params, ne_auth_cr
 #endif
     }
 
+    ne_set_session_flag(_sess, NE_SESSFLAG_PERSIST, params.getKeepAlive());
+
 }
 
 

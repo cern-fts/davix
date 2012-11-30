@@ -97,7 +97,14 @@ public:
     /// set the request protocol ( ex : Webdav, Http-only )
     void setProtocol(const davix_request_protocol_t proto);
 
+    /// get the current value of the request protocol
     const davix_request_protocol_t getProtocol() const;
+
+    /// set the keep alive value of the associated session
+    void setKeepAlive(const bool keep_alive_flag);
+
+    /// get the keep alive value of this request params
+    const bool getKeepAlive() const;
 
     RequestParams & operator=(const RequestParams & _p);
 private:

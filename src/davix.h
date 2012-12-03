@@ -11,27 +11,22 @@
 
 
 
-/**
-  @file davix.h
-  @author Devresse Adrien
-
-  @brief API of Davix C
-
-  Davix is a HTTP/Webdav library for file management purpose.
-
-  Davix supports :
-  - Commons POSIX file operations : open/read/write/close, opendir, readdir, mkdir
-  - Transparent redirection
-  - SSL client side credentials
-  - Third party copy file
-  -
- */
+///
+///  @file davix.h
+///  @author Devresse Adrien
+///
+///  @brief API of Davix C
+///
+///  Davix is a high level HTTP/Webdav library for file management purpose.
+///
 
 
-//
+
 // Davix POSIX-like API
-//
 #include <posix/davix_posix.h>
+
+// davix uri parser
+#include <davixuri.h>
 
 DAVIX_C_DECL_BEGIN
 

@@ -10,7 +10,7 @@ FILE(GLOB src_davix_status "status/*.cpp")
 FILE(GLOB src_davix_fileops "fileops/*.cpp")
 FILE(GLOB src_davix_params "params/*.cpp")
 
-LIST(APPEND davix_headers "davix.h" "davix_types.h" "davixcontext.hpp" "global_def.hpp"
+LIST(APPEND davix_headers "davix.h" "davix_types.h"  "davixuri.h" "davixcontext.hpp" "global_def.hpp"
             "abstractsessionfactory.hpp" "httprequest.hpp" "davix_cpp.hpp" "davixuri.hpp" )
 
 LIST(APPEND davix_logger_header "logging/logger.h")

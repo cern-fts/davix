@@ -171,6 +171,12 @@ davix_uri_t davix_uri_new(const char* url){
     return (davix_uri_t) new Uri(url);
 }
 
+davix_uri_t davix_uri_copy(davix_uri_t orig_uri){
+    g_assert(orig_uri != NULL);
+    Uri* myself = (Uri*) orig_uri;
+    return (davix_uri_t) new Uri(*myself);
+}
+
 void davix_uri_free(davix_uri_t duri){
     if(duri)
         delete ((Uri*) duri);
@@ -211,5 +217,11 @@ const char* davix_uri_get_protocol(davix_uri_t duri){
     return ((myself->getProtocol().empty() == false)?(myself->getProtocol().c_str()):NULL);
 }
 
+
+int davix_uri_get_status(davix_uri_t duri){
+    g_assert(duri != NULL);
+    Uri* myself = (Uri*) duri;
+    return ((int)myself->getStatus());
+}
 
 DAVIX_C_DECL_END

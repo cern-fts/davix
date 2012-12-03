@@ -29,7 +29,7 @@ public:
     virtual AbstractSessionFactory* getSessionFactory();
 
 
-     virtual void set_buffer_size(const size_t value);
+     virtual void setBufferSize(const size_t value);
 
 
     static ContextInternal* takeRef(ContextInternal* me){
@@ -75,7 +75,7 @@ AbstractSessionFactory* ContextInternal::getSessionFactory(){
     return _fsess.get();
 }
 
-void ContextInternal::set_buffer_size(const size_t value){
+void ContextInternal::setBufferSize(const size_t value){
     _s_buff = value;
 }
 

@@ -218,10 +218,10 @@ const char* davix_uri_get_protocol(davix_uri_t duri){
 }
 
 
-int davix_uri_get_status(davix_uri_t duri){
+davix_status_t davix_uri_get_status(davix_uri_t duri){
     g_assert(duri != NULL);
     Uri* myself = (Uri*) duri;
-    return ((int)myself->getStatus());
+    return ((davix_status_t) myself->getStatus());
 }
 
 DAVIX_C_DECL_END

@@ -49,7 +49,8 @@ enum Code{
     permissionRefused = DAVIX_STATUS_PERMISSION_REFUSED,
     fileNotFound = DAVIX_STATUS_FILE_NOT_FOUND,
     IsADirectory = DAVIX_STATUS_IS_A_DIRECTORY,
-    SystemError = DAVIX_STATUS_SYSTEM_ERROR
+    SystemError = DAVIX_STATUS_SYSTEM_ERROR,
+    FileExist = DAVIX_STATUS_FILE_EXIST
 };
 
 const davix_status_t mOk= DAVIX_STATUS_OK;

@@ -255,9 +255,14 @@ bool HttpIOBuffer::open(int flags, DavixError **err){
 
     struct stat st;
     if( stat(&st, &tmp_err) ==0){
-        _file_size = st.st_size;
-        _file_exist = true;
-        _opened = true;
+        if( (flags & O_EXCL) && ( flags & O_CREAT)){
+            DavixError::setupError(&tmp_err, davix_scope_io_cache(),
+                                   StatusCode::FileExist, "file exist and O_EXCL flag usedin open");
+        }else{
+            _file_size = st.st_size;
+            _file_exist = true;
+            _opened = true;
+        }
     }else if (tmp_err->getStatus() == StatusCode::fileNotFound
               &&  (flags & O_CREAT)
               && ((flags & O_RDWR) || (flags  & O_WRONLY))){

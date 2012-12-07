@@ -103,6 +103,11 @@ int main(int argc, char** argv){
         return -1;
     }
 
+    if( (fd =pos.open(&p, url, O_RDWR | O_CREAT | O_EXCL, &tmp_err)) != NULL){
+        std::cerr << " should fail , O_EXCL flag and file exist" << std::endl;
+        return -1;
+    }
+
     free(buff_input);
     return 0;
 }

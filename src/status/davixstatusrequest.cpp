@@ -135,6 +135,10 @@ std::string davix_scope_davOps_str(){
     return "[davix_dav_operation]";
 }
 
+std::string davix_scope_io_cache(){
+    return "[davix_io_cache]";
+}
+
 
 } // namespace Davix
 

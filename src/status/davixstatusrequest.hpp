@@ -48,8 +48,11 @@ enum Code{
     credentialNotFound = DAVIX_STATUS_CREDENTIAL_NOT_FOUND,
     permissionRefused = DAVIX_STATUS_PERMISSION_REFUSED,
     fileNotFound = DAVIX_STATUS_FILE_NOT_FOUND,
-    IsADirectory = DAVIX_STATUS_IS_A_DIRECTORY
+    IsADirectory = DAVIX_STATUS_IS_A_DIRECTORY,
+    SystemError = DAVIX_STATUS_SYSTEM_ERROR
 };
+
+const davix_status_t mOk= DAVIX_STATUS_OK;
 
 }
 
@@ -149,6 +152,7 @@ std::string davix_scope_directory_listing_str();
 std::string davix_scope_http_request();
 std::string davix_scope_xml_parser();
 std::string davix_scope_uri_parser();
+std::string davix_scope_io_cache();
 
 
 } // namespace Davix

@@ -52,8 +52,20 @@ int main(int argc, char** argv){
         configure_grid_env(argv[2], p);
     }
 
-    if( (fd =pos.open(&p, url, O_RDONLY, &tmp_err)) == NULL){
-        std::cerr << " error while opening file " << tmp_err->getErrMsg() << " code :" << (int) tmp_err->getStatus() << std::endl;
+    if( (fd =pos.open(&p, url, O_RDONLY, &tmp_err)) != NULL){
+        std::cerr << "Error ! open should fail, not an existing file and read only mode " << std::endl;
+        return -1;
+    }
+    DavixError::clearError(&tmp_err);
+
+    if( (fd =pos.open(&p, url, O_RDWR, &tmp_err)) != NULL){
+        std::cerr << "Error ! open should fail, not an existing file and  not O_CREAT " << std::endl;
+        return -1;
+    }
+    DavixError::clearError(&tmp_err);
+
+    if( (fd =pos.open(&p, url, O_RDWR | O_CREAT, &tmp_err)) == NULL){
+        std::cerr << " open error "<< tmp_err->getErrMsg() << " code :" << (int) tmp_err->getStatus() << std::endl;
         return -1;
     }
 
@@ -63,6 +75,10 @@ int main(int argc, char** argv){
         return -1;
     }
 
+    if( pos.lseek(fd, 0,0, &tmp_err) != 0){
+        std::cerr << " error while lseek file " << tmp_err->getErrMsg() << " code :" << (int) tmp_err->getStatus() << std::endl;
+        return -1;
+    }
 
    // read content back !
     off_t offset_buffer = 0;

@@ -6,8 +6,8 @@
 
 struct Davix_fd{
 
-    Davix_fd(Davix::IOBuffMap * buff) : io_handler(buff){}
-    std::auto_ptr<Davix::IOBuffMap> io_handler;
+    Davix_fd(Davix::HttpIOBuffer * buff) : io_handler(buff){}
+    std::auto_ptr<Davix::HttpIOBuffer> io_handler;
 };
 
 namespace Davix{
@@ -29,7 +29,7 @@ DAVIX_FD* DavPosix::open(const RequestParams * _params, const std::string & url,
     Uri uri(url);
 
     if(uri.getStatus() == StatusCode::OK){
-        fd = new Davix_fd( new IOBuffMap(*context, uri, _params));
+        fd = new Davix_fd( new HttpIOBuffer(*context, uri, _params));
         fd->io_handler->open( flags, &tmp_err);
     }else{
         DavixError::setupError(&tmp_err, davix_scope_http_request(), uri.getStatus(), " Uri invalid in Davix::Open");

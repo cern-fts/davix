@@ -1,7 +1,7 @@
 
 
 Name:				davix
-Version:			0.0.15
+Version:			0.0.17
 Release:			0.1%{?dist}
 Summary:			Webdav File access and file management Library
 Group:				Applications/Internet

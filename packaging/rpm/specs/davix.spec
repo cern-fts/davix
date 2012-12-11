@@ -32,7 +32,6 @@ Summary:			Development files for %{name}
 Group:				Applications/Internet
 Requires:			%{name}%{?_isa} = %{version}-%{release} 
 Requires:			glib2-devel%{?_isa}
-Requires:			neon-devel%{?_isa}
 Requires:			pkgconfig
 
 %description devel
@@ -44,7 +43,7 @@ Group:				Applications/Internet
 Requires:			%{name}%{?_isa} = %{version}-%{release} 
 
 %description doc
-documentation, Doxygen and examples of %{name} .
+documentation and examples for %{name} .
 
 %clean
 rm -rf %{buildroot};

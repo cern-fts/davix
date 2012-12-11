@@ -3,7 +3,7 @@
 
 
 #include <ne_xml.h>
-#include <davix_cpp.hpp>
+#include <davix.hpp>
 
 namespace Davix {
 

@@ -6,17 +6,18 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-
-
-
 ///
 ///  @file davix.h
 ///  @author Devresse Adrien
 ///
-///  @brief API of Davix C
+///  @brief C header file of Davix
+///  Davix is a high level HTTP/Webdav library
+///  for file management and file access.
 ///
-///  Davix is a high level HTTP/Webdav library for file management purpose.
-///
+
+#ifndef __DAVIX_INSIDE__
+#define __DAVIX_INSIDE__
+#endif
 
 /// logger
 #include <logger/davix_logger.h>

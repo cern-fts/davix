@@ -13,6 +13,11 @@
   @brief C++ URI utilities functions for davix
  */
 
+#ifndef __DAVIX_INSIDE__
+#error "Only davix.h or davix.hpp should be included."
+#endif
+
+
 namespace Davix {
 
 struct UriPrivate;

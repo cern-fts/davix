@@ -14,6 +14,11 @@
 
 */
 
+#ifndef __DAVIX_INSIDE__
+#error "Only davix.h or davix.hpp should be included."
+#endif
+
+
 struct Davix_fd;
 struct Davix_dir_handle;
 struct Davix_context;

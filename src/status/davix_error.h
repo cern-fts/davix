@@ -10,10 +10,13 @@
   @brief C Error report system of davix and status code
 */
 
+
+#ifndef __DAVIX_INSIDE__
+#error "Only davix.h or davix.hpp should be included."
+#endif
+
+
 DAVIX_C_DECL_BEGIN
-
-
-
 
 
 ///

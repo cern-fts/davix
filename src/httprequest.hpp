@@ -6,7 +6,9 @@
 #include <status/davixstatusrequest.hpp>
 #include <params/davixrequestparams.hpp>
 
-
+#ifndef __DAVIX_INSIDE__
+#error "Only davix.h or davix.hpp should be included."
+#endif
 
 /**
   @file httprequest.hpp
@@ -14,6 +16,8 @@
 
   @brief Http low level request interface
  */
+
+
 
 
 namespace Davix {

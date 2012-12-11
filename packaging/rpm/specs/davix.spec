@@ -1,7 +1,7 @@
 
 
 Name:				davix
-Version:			0.0.17
+Version:			0.0.18
 Release:			0.1%{?dist}
 Summary:			Webdav File access and file management Library
 Group:				Applications/Internet
@@ -24,8 +24,8 @@ BuildRequires:		libxml2-devel
 BuildRequires:		openssl-devel
 
 %description
-Davix provides a file operiented API and POSIX-like API
-for file access and file management with WebDav/Http.
+Davix is a C/C++ Webdav/Http library for file access and file
+management.
 
 %package devel
 Summary:			Development files for %{name}

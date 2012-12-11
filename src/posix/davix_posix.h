@@ -16,9 +16,11 @@
   @brief C POSIX like API of davix
  */
 
+#ifndef __DAVIX_INSIDE__
+#error "Only davix.h or davix.hpp should be included."
+#endif
 
 DAVIX_C_DECL_BEGIN
-
 
 //
 // POSIX like API

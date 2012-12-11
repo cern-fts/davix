@@ -54,6 +54,7 @@ pkg_check_modules(CRYPTO_PKG REQUIRED libcrypto)
 ## general defs
 add_definitions( -D_GNU_SOURCE)
 add_definitions( -DNEON_BACKEND)
+add_definitions( -D__DAVIX_INSIDE__)
 
 
 ## patch against 0.25.0 problem of libneon

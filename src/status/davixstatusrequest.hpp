@@ -13,6 +13,10 @@
   @brief C++ Error report system of davix
 */
 
+#ifndef __DAVIX_INSIDE__
+#error "Only davix.h or davix.hpp should be included."
+#endif
+
 
 namespace Davix {
 

@@ -5,6 +5,11 @@
 #include <string.h>
 #include <davix_types.h>
 
+#ifndef __DAVIX_INSIDE__
+#error "Only davix.h or davix.hpp should be included."
+#endif
+
+
 DAVIX_C_DECL_BEGIN
 
 ///  @file davixuri.h

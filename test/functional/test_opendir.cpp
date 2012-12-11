@@ -1,10 +1,10 @@
 #include "test_opendir.h"
 
 
-#include <davixcontext.hpp>
+#include <davix.hpp>
 #include <string.h>
 #include <http_backend.hpp>
-#include <posix/davposix.hpp>
+
 
 using namespace Davix;
 

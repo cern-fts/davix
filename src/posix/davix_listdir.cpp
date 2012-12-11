@@ -58,7 +58,7 @@ int incremental_propfind_listdir_parsing(HttpRequest* req, DavPropXMLParser * pa
     const ssize_t ret_s_buff= req->readBlock(buffer, s_buff, &tmp_err);
     if(ret_s_buff >= 0){
         buffer[ret_s_buff]= '\0';
-        davix_log_debug("chunk parse : result content : %s", buffer);
+        DAVIX_DEBUG("chunk parse : result content : %s", buffer);
         if( parser->parseChuck(buffer, ret_s_buff) < 0){
             DavixError::propagateError(err, parser->getLastErr());
             return -1;
@@ -138,19 +138,19 @@ DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char
 
 DAVIX_DIR* DavPosix::opendir(const RequestParams* params, const std::string &url, DavixError** err){
 
-    davix_log_debug(" -> davix_opendir");
+    DAVIX_DEBUG(" -> davix_opendir");
     DAVIX_DIR* r = internal_opendirpp(params, "Core::opendir",simple_listing, url, err);
 
-    davix_log_debug(" <- davix_opendir");
+    DAVIX_DEBUG(" <- davix_opendir");
     return (DAVIX_DIR*) r;
 }
 
 DAVIX_DIR* DavPosix::opendirpp(const RequestParams* params, const std::string &url, DavixError** err){
 
-    davix_log_debug(" -> davix_opendirpp");
+    DAVIX_DEBUG(" -> davix_opendirpp");
     DAVIX_DIR* r = internal_opendirpp(params, "Core::opendir",stat_listing, url, err);
 
-    davix_log_debug(" <- davix_opendirpp");
+    DAVIX_DEBUG(" <- davix_opendirpp");
     return (DAVIX_DIR*) r;
 }
 
@@ -158,7 +158,7 @@ DAVIX_DIR* DavPosix::opendirpp(const RequestParams* params, const std::string &u
 struct dirent* DavPosix::readdir(DAVIX_DIR * d, DavixError** err){
     DIR_handle* handle = static_cast<DIR_handle*>(d);
     DavixError* tmp_err=NULL;
-    davix_log_debug(" -> davix_readdir");
+    DAVIX_DEBUG(" -> davix_readdir");
 
     if( d==NULL){
         DavixError::setupError(err, davix_scope_directory_listing_str(), StatusCode::InvalidFileHandle,  "Invalid file descriptor for DAVIX_DIR*");
@@ -185,7 +185,7 @@ struct dirent* DavPosix::readdir(DAVIX_DIR * d, DavixError** err){
             return NULL;
         fill_dirent_from_filestat(handle->dir_info, parser->getProperties().front(), read_offset);
         parser->getProperties().pop_front(); // clean the current element
-        davix_log_debug(" <- davix_readdir");
+        DAVIX_DEBUG(" <- davix_readdir");
         return handle->dir_info;
     }
 
@@ -196,7 +196,7 @@ struct dirent* DavPosix::readdir(DAVIX_DIR * d, DavixError** err){
 }
 
 struct dirent* DavPosix::readdirpp(DAVIX_DIR * d, struct stat *st, DavixError** err){
-    davix_log_debug(" -> davix_readdirpp");
+    DAVIX_DEBUG(" -> davix_readdirpp");
 
     if( d==NULL){
         DavixError::setupError(err, davix_scope_directory_listing_str(), StatusCode::InvalidFileHandle,  "Invalid file descriptor for DAVIX_DIR*");
@@ -231,7 +231,7 @@ struct dirent* DavPosix::readdirpp(DAVIX_DIR * d, struct stat *st, DavixError** 
             parser->getProperties().pop_front(); // clean the current element
             ret= handle->dir_info;
         }
-        davix_log_debug(" <- davix_readdirpp");
+        DAVIX_DEBUG(" <- davix_readdirpp");
     }
 
     if(tmp_err)

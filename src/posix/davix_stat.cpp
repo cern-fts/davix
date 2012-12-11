@@ -96,7 +96,7 @@ int dav_stat_mapper_http(Context* context, const RequestParams & params, const s
 
 
 int DavPosix::stat(const RequestParams * _params, const std::string & url, struct stat* st, DavixError** err){
-    davix_log_debug(" -> davix_stat");
+    DAVIX_DEBUG(" -> davix_stat");
     RequestParams params(_params);
     DavixError* tmp_err=NULL;
 
@@ -110,7 +110,7 @@ int DavPosix::stat(const RequestParams * _params, const std::string & url, struc
             ret = dav_stat_mapper_webdav(context, &params, url, st, &tmp_err);
             break;
     }
-    davix_log_debug(" davix_stat <-");
+    DAVIX_DEBUG(" davix_stat <-");
     if(tmp_err)
         DavixError::propagatePrefixedError(err, tmp_err, "stat ops : ");
     return ret;

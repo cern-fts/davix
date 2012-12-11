@@ -22,7 +22,7 @@ int davix_check_rw_fd(DAVIX_FD* fd, DavixError** err){
 
 
 DAVIX_FD* DavPosix::open(const RequestParams * _params, const std::string & url, int flags, DavixError** err){
-    davix_log_debug(" -> davix_open");
+    DAVIX_DEBUG(" -> davix_open");
     DavixError* tmp_err=NULL;
     Davix_fd* fd = NULL;
     Uri uri(url);
@@ -39,13 +39,13 @@ DAVIX_FD* DavPosix::open(const RequestParams * _params, const std::string & url,
         delete fd;
         fd= NULL;
     }
-    davix_log_debug(" davix_open <-");
+    DAVIX_DEBUG(" davix_open <-");
     return fd;
 }
 
 
 ssize_t DavPosix::read(DAVIX_FD* fd, void* buf, size_t count, Davix::DavixError** err){
-    davix_log_debug(" -> davix_read");
+    DAVIX_DEBUG(" -> davix_read");
     ssize_t ret =-1;
     DavixError* tmp_err=NULL;
 
@@ -56,13 +56,13 @@ ssize_t DavPosix::read(DAVIX_FD* fd, void* buf, size_t count, Davix::DavixError*
 
     if(tmp_err)
         DavixError::propagateError(err, tmp_err);
-    davix_log_debug(" davix_read <-");
+    DAVIX_DEBUG(" davix_read <-");
     return ret;
 }
 
 
 ssize_t DavPosix::write(DAVIX_FD* fd, const void* buf, size_t count, Davix::DavixError** err){
-    davix_log_debug(" -> davix_write");
+    DAVIX_DEBUG(" -> davix_write");
     ssize_t ret =-1;
     DavixError* tmp_err=NULL;
 
@@ -73,14 +73,14 @@ ssize_t DavPosix::write(DAVIX_FD* fd, const void* buf, size_t count, Davix::Davi
 
     if(tmp_err)
         DavixError::propagateError(err, tmp_err);
-    davix_log_debug(" davix_write <-");
+    DAVIX_DEBUG(" davix_write <-");
     return ret;
 }
 
 
 
 off_t DavPosix::lseek(DAVIX_FD* fd, off_t offset, int flags, Davix::DavixError** err){
-    davix_log_debug(" -> davix_lseek");
+    DAVIX_DEBUG(" -> davix_lseek");
     ssize_t ret =-1;
     DavixError* tmp_err=NULL;
 
@@ -91,7 +91,7 @@ off_t DavPosix::lseek(DAVIX_FD* fd, off_t offset, int flags, Davix::DavixError**
 
     if(tmp_err)
         DavixError::propagateError(err, tmp_err);
-    davix_log_debug(" davix_lseek <-");
+    DAVIX_DEBUG(" davix_lseek <-");
     return ret;
 }
 

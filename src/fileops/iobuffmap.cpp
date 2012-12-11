@@ -177,7 +177,7 @@ ssize_t HttpIO::readFullBuff(void *buffer, size_t size_read, DavixError **err){
 ssize_t HttpIO::readPartialBuffer(void *buf, size_t count, off_t offset, DavixError **err){
     DavixError * tmp_err=NULL;
     ssize_t ret = -1;
-    davix_log_debug(" -> getOps operation for %s with size %ld and offset %ld",_uri.getString().c_str(), count, offset);
+    DAVIX_DEBUG(" -> getOps operation for %s with size %ld and offset %ld",_uri.getString().c_str(), count, offset);
     if(count ==0)
         return 0;
 
@@ -200,7 +200,7 @@ ssize_t HttpIO::readPartialBuffer(void *buf, size_t count, off_t offset, DavixEr
         }
         req->endRequest(NULL);
     }
-    davix_log_debug(" end getOps operation for %s <- ",_uri.getString().c_str());
+    DAVIX_DEBUG(" end getOps operation for %s <- ",_uri.getString().c_str());
     if(tmp_err)
         DavixError::propagateError(err, tmp_err);
     return ret;

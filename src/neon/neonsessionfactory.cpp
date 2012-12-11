@@ -24,8 +24,8 @@ NEONSessionFactory::NEONSessionFactory() :
 {
     g_once (&neon_once, init_neon, NULL);
 
-    if(davix_get_log_filter() & G_LOG_LEVEL_DEBUG){
-        davix_log_debug("Enable Debug mode in NEON ...");
+    if(davix_get_log_level() & DAVIX_LOG_DEBUG){
+        DAVIX_DEBUG("Enable Debug mode in NEON ...");
         ne_debug_init(stderr, NE_DBG_HTTP | NE_DBG_HTTPAUTH | NE_DBG_HTTPPLAIN | NE_DBG_HTTPBODY);
     }
 }
@@ -88,14 +88,14 @@ ne_session* NEONSessionFactory::create_recycled_session(const std::string &proto
         DppLocker lock(_sess_mut);
         std::multimap<std::string, ne_session*>::iterator it;
         if( (it = _sess_map.find(create_map_keys_from_URL(protocol, host, port))) != _sess_map.end()){
-            davix_log_debug("cached ne_session found ! taken from cache ");
+            DAVIX_DEBUG("cached ne_session found ! taken from cache ");
             se = it->second;
             _sess_map.erase(it);
             return se;
         }
 
     }
-    davix_log_debug("no cached ne_session, create a new one ");
+    DAVIX_DEBUG("no cached ne_session, create a new one ");
     return create_session(protocol, host, port);
 }
 
@@ -107,7 +107,7 @@ void NEONSessionFactory::internal_release_session_handle(ne_session* sess){
     std::multimap<std::string, ne_session*>::iterator it;
     const std::string protocol(ne_get_scheme(sess));
     const std::string hostport(ne_get_server_hostport(sess));
-    davix_log_debug("add old session to cache %s%s", protocol.c_str(), hostport.c_str());
+    DAVIX_DEBUG("add old session to cache %s%s", protocol.c_str(), hostport.c_str());
 
     _sess_map.insert(std::pair<std::string, ne_session*>(protocol + hostport, sess));
 }
@@ -121,7 +121,7 @@ std::string create_map_keys_from_URL(const std::string & protocol, const std::st
     }else
         oss <<  protocol << host << ":" << port;
     std::string res = oss.str();
-    davix_log_debug(" creating session keys... %s", res.c_str());
+    DAVIX_DEBUG(" creating session keys... %s", res.c_str());
     return res;
 }
 

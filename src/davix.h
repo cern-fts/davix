@@ -18,6 +18,9 @@
 ///  Davix is a high level HTTP/Webdav library for file management purpose.
 ///
 
+/// logger
+#include <logging/davix_logger.h>
+
 // general types
 #include <davix_types.h>
 

@@ -3,7 +3,7 @@
 /**
   every that does not match & with this filter is dropped
  */
-GLogLevelFlags current_filter= G_LOG_LEVEL_WARNING & G_LOG_LEVEL_CRITICAL & G_LOG_LEVEL_MESSAGE ;
+GLogLevelFlags current_filter= G_LOG_LEVEL_MASK ;
 
 
 void g_logger(const gchar *log_domain, GLogLevelFlags log_level,

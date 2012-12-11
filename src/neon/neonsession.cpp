@@ -29,14 +29,14 @@ void NEONSession::provide_clicert_fn(void *userdata, ne_session *sess,
     auth_info.auth = DAVIX_CLI_CERT_PKCS12;
     davix_auth_callback auth_call = req->_params.getAuthentificationCallbackFunction();
 
-    davix_log_debug("NEONSession > clicert callback ");
+    DAVIX_DEBUG("NEONSession > clicert callback ");
     if( auth_call == NULL){
-        davix_log_debug("NEONSession : No callback specified, cancel authentification");
+        DAVIX_DEBUG("NEONSession : No callback specified, cancel authentification");
         return;
     }else{
-        davix_log_debug("NEONSession > call authentification callback ");
+        DAVIX_DEBUG("NEONSession > call authentification callback ");
         int ret = auth_call((davix_auth_t) req, &auth_info, req->_params.getAuthentificationCallbackData(), (davix_error_t*) &tmp_err); // try to get authentification
-        davix_log_debug("NEONSession > return from authentification callback ");
+        DAVIX_DEBUG("NEONSession > return from authentification callback ");
         if(ret !=0 && tmp_err == NULL){
             DavixError::setupError(&tmp_err, davix_scope_http_request(), StatusCode::AuthentificationError, "Authentification callback returned with CANCEL without DavixError object");
         }
@@ -51,7 +51,7 @@ int NEONSession::provide_login_passwd_fn(void *userdata, const char *realm, int 
                                 char *username, char *password){
     NEONSession * req = static_cast<NEONSession*>(userdata);
 
-     davix_log_debug("NEONRequest > Try to get auth/password authentification ");
+     DAVIX_DEBUG("NEONRequest > Try to get auth/password authentification ");
      davix_auth_info_t auth_info;
     // memset(&auth_info,0,sizeof(davix_auth_info_t));
      davix_auth_callback auth_call = req->_params.getAuthentificationCallbackFunction();
@@ -59,13 +59,13 @@ int NEONSession::provide_login_passwd_fn(void *userdata, const char *realm, int 
      DavixError* tmp_err=NULL;
 
      if(auth_call  == NULL){
-         davix_log_debug("NEONSession : No credential specified, cancel login/password authentification");
+         DAVIX_DEBUG("NEONSession : No credential specified, cancel login/password authentification");
          return -1;
      }
 
-     davix_log_debug("NEONSession > call authentification callback ");
+     DAVIX_DEBUG("NEONSession > call authentification callback ");
      int ret = auth_call((davix_auth_t) req, &auth_info, req->_params.getAuthentificationCallbackData(), (davix_error_t*) &tmp_err); // try to get authentification
-     davix_log_debug("NEONSession > return from authentification callback ");
+     DAVIX_DEBUG("NEONSession > return from authentification callback ");
      if(ret != 0){
             DavixError::propagateError(&(req->_last_error), tmp_err);
             return -2;
@@ -73,10 +73,10 @@ int NEONSession::provide_login_passwd_fn(void *userdata, const char *realm, int 
 
      if( req->_passwd.empty()
         || req->_login.empty() ){
-        davix_log_debug("NEONSession > Login/Password missings ....");
+        DAVIX_DEBUG("NEONSession > Login/Password missings ....");
         return -1;
     }
-    davix_log_debug("NEONSession > setup authentification pwd/login....");
+    DAVIX_DEBUG("NEONSession > setup authentification pwd/login....");
     g_strlcpy(username, req->_login.c_str(), NE_ABUFSIZ);
     g_strlcpy(password, req->_passwd.c_str(), NE_ABUFSIZ);
     req->_login.clear();
@@ -138,9 +138,9 @@ int NEONSession::do_pkcs12_cert_authentification(const char *filename_pkcs12, co
     // try to decrypt
     int crypt_state = ne_ssl_clicert_encrypted(cert);
     if(crypt_state ==0 ){
-        davix_log_debug("NEONRequest : Credential unencrypted, try to use it directly");
+        DAVIX_DEBUG("NEONRequest : Credential unencrypted, try to use it directly");
     }else{
-        davix_log_debug("NEONRequest : Credential is encrypted, try to decrypt credential");
+        DAVIX_DEBUG("NEONRequest : Credential is encrypted, try to decrypt credential");
 
         if(passwd == NULL){
             DavixError::setupError(err, davix_scope_http_request(), StatusCode::LoginPasswordError, "no password provided and credential encrypted");
@@ -154,7 +154,7 @@ int NEONSession::do_pkcs12_cert_authentification(const char *filename_pkcs12, co
     }
     ne_ssl_set_clicert(_sess, cert);
     ne_ssl_clicert_free(cert);
-    davix_log_debug("NEONRequest : associate credential to the current session");
+    DAVIX_DEBUG("NEONRequest : associate credential to the current session");
     return 0;
 }
 
@@ -177,7 +177,7 @@ void configureSession(ne_session *_sess, const RequestParams &params, ne_auth_cr
     ne_set_useragent(_sess, params.getUserAgent().c_str());
 
     if(params.getSSLCACheck() == false){ // configure ssl check
-        davix_log_debug("NEONRequest : disable ssl verification");
+        DAVIX_DEBUG("NEONRequest : disable ssl verification");
         ne_ssl_set_verify(_sess, validate_all_certificate, NULL);
     }
 
@@ -190,11 +190,11 @@ void configureSession(ne_session *_sess, const RequestParams &params, ne_auth_cr
 
 
     if( timespec_isset(params.getOperationTimeout())){
-        davix_log_debug("NEONSession : define operation timeout to %d", params.getOperationTimeout());
+        DAVIX_DEBUG("NEONSession : define operation timeout to %d", params.getOperationTimeout());
         ne_set_read_timeout(_sess, (int) params.getOperationTimeout()->tv_sec);
     }
     if(timespec_isset(params.getConnectionTimeout())){
-        davix_log_debug("NEONSession : define connection timeout to %d", params.getConnectionTimeout());
+        DAVIX_DEBUG("NEONSession : define connection timeout to %d", params.getConnectionTimeout());
 #ifndef _NEON_VERSION_0_25
         ne_set_connect_timeout(_sess, (int) params.getConnectionTimeout()->tv_sec);
 #endif

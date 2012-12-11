@@ -9,7 +9,7 @@
 namespace Davix{
 
 int DavPosix::mkdir(const RequestParams * _params, const std::string &url, mode_t right, DavixError** err){
-    davix_log_debug(" -> davix_mkdir");
+    DAVIX_DEBUG(" -> davix_mkdir");
     int ret=-1;
     DavixError* tmp_err=NULL;
     RequestParams params(_params);
@@ -25,7 +25,7 @@ int DavPosix::mkdir(const RequestParams * _params, const std::string &url, mode_
             ret = davixRequestToFileStatus(req.get(), davix_scope_mkdir_str(), &tmp_err);
         }
 
-        davix_log_debug(" davix_mkdir <-");
+        DAVIX_DEBUG(" davix_mkdir <-");
     }
     if(tmp_err)
         DavixError::propagateError(err, tmp_err);

@@ -1,6 +1,7 @@
 #include "neonrequest.hpp"
 
 #include <cstring>
+#include <logging/davix_logger.h>
 #include <libs/time_utils.h>
 #include <ne_redirect.h>
 #include <ne_request.h>
@@ -162,28 +163,28 @@ int NEONRequest::negotiate_request(DavixError** err){
     int code, status, end_status = NE_RETRY;
     int n =0;
 
-    davix_log_debug(" ->   Davix negociate request ... ");
+    DAVIX_DEBUG(" ->   Davix negociate request ... ");
     if(req_started){
         DavixError::setupError(err, davix_scope_http_request(), StatusCode::AlreadyRunning, "Http request already started, Error");
-        davix_log_debug(" Davix negociate request ... <-");
+        DAVIX_DEBUG(" Davix negociate request ... <-");
         return -1;
     }
 
     req_started = req_running= true;
 
     while(end_status == NE_RETRY && n < n_limit){
-        davix_log_debug(" ->   NEON start internal request ... ");
+        DAVIX_DEBUG(" ->   NEON start internal request ... ");
 
         if( (status = ne_begin_request(_req)) != NE_OK && status != NE_REDIRECT){
             if( status == NE_ERROR && strstr(ne_get_error(_neon_sess->get_ne_sess()), "Could not") != NULL ){ // bugfix against neon keepalive problem
-               davix_log_debug("Connexion close, retry...");
+               DAVIX_DEBUG("Connexion close, retry...");
                n++;
                continue;
             }
 
             req_started= req_running == false;
             neon_to_davix_code(status, _neon_sess->get_ne_sess(), davix_scope_http_request(),err);
-            davix_log_debug(" Davix negociate request ... <-");
+            DAVIX_DEBUG(" Davix negociate request ... <-");
             return -1;
         }
 
@@ -198,13 +199,13 @@ int NEONRequest::negotiate_request(DavixError** err){
                             && end_status != NE_REDIRECT){
                         req_started= req_running = false;
                         neon_to_davix_code(status, _neon_sess->get_ne_sess(), davix_scope_http_request(),err);
-                        davix_log_debug(" Davix negociate request ... <-");
+                        DAVIX_DEBUG(" Davix negociate request ... <-");
                         return -1;
                     }
                     ne_discard_response(_req);              // Get a valid redirection, drop request content
                     end_status = ne_end_request(_req);      // submit the redirection
                     if(redirect_request(err) <0){           // accept redirection
-                        davix_log_debug(" Davix negociate request ... <-");
+                        DAVIX_DEBUG(" Davix negociate request ... <-");
                         return -1;
                     }
                     end_status = NE_RETRY;
@@ -221,7 +222,7 @@ int NEONRequest::negotiate_request(DavixError** err){
                     neon_to_davix_code(status, _neon_sess->get_ne_sess(), davix_scope_http_request(),err);
                     return -1;
                 }
-                davix_log_debug(" ->   NEON receive %d code, %d .... request again ... ", code, end_status);
+                DAVIX_DEBUG(" ->   NEON receive %d code, %d .... request again ... ", code, end_status);
                 break;
             default:
                 end_status = 0;
@@ -235,7 +236,7 @@ int NEONRequest::negotiate_request(DavixError** err){
         DavixError::setupError(err,davix_scope_http_request(),StatusCode::AuthentificationError, "overpass the maximum number of authentification try, cancel");
         return -2;
     }
-    davix_log_debug(" Davix negociate request ... <-");
+    DAVIX_DEBUG(" Davix negociate request ... <-");
     return 0;
 }
 
@@ -247,7 +248,7 @@ int NEONRequest::redirect_request(DavixError **err){
     }
 
     char* dst_uri = ne_uri_unparse(new_uri);
-    davix_log_debug("redirection from %s://%s/%s to %s", ne_get_scheme(_neon_sess->get_ne_sess()),
+    DAVIX_DEBUG("redirection from %s://%s/%s to %s", ne_get_scheme(_neon_sess->get_ne_sess()),
                       ne_get_server_hostport(_neon_sess->get_ne_sess()), _current.getPathAndQuery().c_str(), dst_uri);
 
     // setup new path & session target
@@ -276,14 +277,14 @@ int NEONRequest::executeRequest(DavixError** err){
         DavixError::propagateError(err, tmp_err);
         return -1;
     }
-    davix_log_debug(" -> NEON start synchronous  request... ");
+    DAVIX_DEBUG(" -> NEON start synchronous  request... ");
     if( negotiate_request(&tmp_err) < 0){
         DavixError::propagateError(err, tmp_err);
         return -1;
     }
 
     while(read_status > 0){
-        davix_log_debug(" -> NEON Read data flow... ");
+        DAVIX_DEBUG(" -> NEON Read data flow... ");
         size_t s = _vec.size();
         _vec.resize(s + NEON_BUFFER_SIZE);
         read_status= readBlock(&(_vec[s]), NEON_BUFFER_SIZE, &tmp_err);
@@ -308,7 +309,7 @@ int NEONRequest::executeRequest(DavixError** err){
        return -1;
    }
 
-    davix_log_debug(" -> End synchronous request ... ");
+    DAVIX_DEBUG(" -> End synchronous request ... ");
     return 0;
 }
 
@@ -353,7 +354,7 @@ int NEONRequest::endRequest(DavixError** err){
             if(_neon_sess.get() != NULL)
                 neon_to_davix_code(status, _neon_sess->get_ne_sess(), davix_scope_http_request(), &tmp_err);
             if(tmp_err)
-                davix_log_debug("NEONRequest::endRequest -> error %d Error closing request -> %s ", tmp_err->getStatus(), tmp_err->getErrMsg().c_str());
+                DAVIX_DEBUG("NEONRequest::endRequest -> error %d Error closing request -> %s ", tmp_err->getStatus(), tmp_err->getErrMsg().c_str());
             DavixError::clearError(&tmp_err);
         }
     }
@@ -387,7 +388,7 @@ bool NEONRequest::getAnswerHeader(const std::string &header_name, std::string &v
 
 
 void NEONRequest::setRequestBodyString(const std::string & body){
-    davix_log_debug("NEONRequest : add request content of size %s ", body.c_str());
+    DAVIX_DEBUG("NEONRequest : add request content of size %s ", body.c_str());
     _content_body = std::string(body);
     _content_ptr = (char*) _content_body.c_str();
     _content_len = strlen(_content_ptr);

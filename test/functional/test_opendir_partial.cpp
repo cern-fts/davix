@@ -31,7 +31,7 @@ int main(int argc, char** argv){
         return 0;
     }
 
-    g_logger_set_globalfilter(G_LOG_LEVEL_WARNING);
+    davix_set_log_level(DAVIX_LOG_ALL);
     int max_read= atoi(argv[2]);
     std::cout << " end of the dir number " << max_read << std::endl;
 

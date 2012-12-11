@@ -124,7 +124,7 @@ DavPropXMLParser::~DavPropXMLParser(){
 
 int DavPropXMLParser::compute_new_elem(){
     if(prop_section && propname_section && response_section){
-        davix_log_debug(" properties detected ");
+        DAVIX_DEBUG(" properties detected ");
         _current_props.clear();
         _current_props.filename = last_filename; // setup the current filename
         _current_props.mode = 0777; // default : fake access to everything
@@ -134,12 +134,12 @@ int DavPropXMLParser::compute_new_elem(){
 
 int DavPropXMLParser::store_new_elem(){
     if(response_section){
-        davix_log_debug(" end of properties... ");
+        DAVIX_DEBUG(" end of properties... ");
         if( _current_props.req_status > 100
             && _current_props.req_status < 400){
             _props.push_back(_current_props);
         }else
-           davix_log_debug(" Bad status code ! properties dropped ");
+           DAVIX_DEBUG(" Bad status code ! properties dropped ");
     }
     return 0;
 }
@@ -147,7 +147,7 @@ int DavPropXMLParser::store_new_elem(){
 int DavPropXMLParser::check_last_modified(const char* name){
     if(response_section && prop_section && propname_section
           && lastmod_section){ // parse rfc1123 date format
-        davix_log_debug(" getlastmodified found -> parse it ");
+        DAVIX_DEBUG(" getlastmodified found -> parse it ");
         GError * tmp_err=NULL;
         time_t t = parse_standard_date(name, &tmp_err);
         if(t == -1){
@@ -155,7 +155,7 @@ int DavPropXMLParser::check_last_modified(const char* name){
             g_clear_error(&tmp_err);
             return -1;
         }
-        davix_log_debug(" getlastmodified found -> value %ld ", t);
+        DAVIX_DEBUG(" getlastmodified found -> value %ld ", t);
         _current_props.mtime = t;
     }
     return 0;
@@ -164,7 +164,7 @@ int DavPropXMLParser::check_last_modified(const char* name){
 int DavPropXMLParser::check_creation_date(const char* name){
     if(response_section && prop_section && propname_section
             && creatdate_section){
-        davix_log_debug("creationdate found -> parse it");
+        DAVIX_DEBUG("creationdate found -> parse it");
         GError * tmp_err1=NULL;
         time_t t = parse_standard_date(name, &tmp_err1);
         if(t == -1){
@@ -172,7 +172,7 @@ int DavPropXMLParser::check_creation_date(const char* name){
             g_clear_error(&tmp_err1);
            return -1;
         }
-        davix_log_debug(" creationdate found -> value %ld ", t);
+        DAVIX_DEBUG(" creationdate found -> value %ld ", t);
         _current_props.ctime = t;
     }
     return 0;
@@ -186,7 +186,7 @@ int DavPropXMLParser::check_is_directory(const char* name){
         if(err != NULL)
             return -1;
         if(is_dir){
-           davix_log_debug(" directory pattern found -> set flag IS_DIR");
+           DAVIX_DEBUG(" directory pattern found -> set flag IS_DIR");
            _current_props.mode |=  S_IFDIR;
         }
     }
@@ -196,14 +196,14 @@ int DavPropXMLParser::check_is_directory(const char* name){
 int DavPropXMLParser::check_content_length(const char* name){
     if(response_section && prop_section && propname_section
              && contentlength_section){
-        davix_log_debug(" content length found -> parse it");
+        DAVIX_DEBUG(" content length found -> parse it");
         const unsigned long mysize = strtoul(name, NULL, 10);
         if(mysize == ULONG_MAX){
             DavixError::setupError(&err, davix_scope_xml_parser(), StatusCode::WebDavPropertiesParsingError, " Invalid content length value in dav response");
             errno =0;
             return -1;
         }
-        davix_log_debug(" content length found -> %ld", mysize);
+        DAVIX_DEBUG(" content length found -> %ld", mysize);
         _current_props.size = (off_t) mysize;
     }
     return 0;
@@ -212,14 +212,14 @@ int DavPropXMLParser::check_content_length(const char* name){
 int DavPropXMLParser::check_mode_ext(const char* name){
     if(response_section && prop_section && propname_section &&
             mode_ext_section){
-        davix_log_debug(" mode_t extension for LCGDM found -> parse it");
+        DAVIX_DEBUG(" mode_t extension for LCGDM found -> parse it");
         const unsigned long mymode = strtoul(name, NULL, 8);
         if(mymode == ULONG_MAX){
             DavixError::setupError(&err, davix_scope_xml_parser(), StatusCode::WebDavPropertiesParsingError, " Invalid mode_t value for the LCGDM extension");
             errno =0;
             return -1;
         }
-        davix_log_debug(" mode_t extension found -> 0%o", (mode_t) mymode);
+        DAVIX_DEBUG(" mode_t extension found -> 0%o", (mode_t) mymode);
         _current_props.mode = (mode_t) mymode;
     }
     return 0;
@@ -228,7 +228,7 @@ int DavPropXMLParser::check_mode_ext(const char* name){
 int DavPropXMLParser::check_href(const char* c_name){
     if(response_section &&
             href_section){
-        davix_log_debug(" href/filename found -> parse it");
+        DAVIX_DEBUG(" href/filename found -> parse it");
         size_t s_name = strlen(c_name);
         char buff_name[s_name+1];
         char * p_end= (char*)mempcpy(buff_name, c_name, s_name);
@@ -244,7 +244,7 @@ int DavPropXMLParser::check_href(const char* c_name){
        }else{
            last_filename = buff_name;
         }
-       davix_log_debug(" href/filename found -> %s ", last_filename.c_str() );
+       DAVIX_DEBUG(" href/filename found -> %s ", last_filename.c_str() );
     }
     return 0;
 }
@@ -252,7 +252,7 @@ int DavPropXMLParser::check_href(const char* c_name){
 int DavPropXMLParser::check_status(const char* name){
     if(response_section &&
             propname_section && status_section ){
-        davix_log_debug(" status found -> parse it");
+        DAVIX_DEBUG(" status found -> parse it");
         char * p1, *p2 = (char*) name;
         while(*p2 == ' ')
             ++p2;
@@ -267,7 +267,7 @@ int DavPropXMLParser::check_status(const char* name){
            *((char*) mempcpy(buff, p1, p2-p1)) = '\0';
            unsigned long res = strtoul(buff, NULL, 10);
            if(res != ULONG_MAX){
-              davix_log_debug(" status value : %ld", res);
+              DAVIX_DEBUG(" status value : %ld", res);
               _current_props.req_status = res;
               return 0;
            }

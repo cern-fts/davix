@@ -53,13 +53,13 @@ int davix_remove_posix(DavPosix & p, Context* c, const RequestParams & params, c
 
 
 int DavPosix::unlink(const RequestParams * _params, const std::string &url, DavixError** err){
-    davix_log_debug(" -> davix_unlink");
+    DAVIX_DEBUG(" -> davix_unlink");
     int ret=-1;
     DavixError* tmp_err=NULL;
     RequestParams params(_params);
 
     ret = davix_remove_posix(*this, context, _params, url, false, &tmp_err);
-    davix_log_debug(" davix_unlink <-");
+    DAVIX_DEBUG(" davix_unlink <-");
     if(tmp_err)
         DavixError::propagatePrefixedError(err, tmp_err, "DavPosix::unlink ");
     return ret;
@@ -67,13 +67,13 @@ int DavPosix::unlink(const RequestParams * _params, const std::string &url, Davi
 
 
 int DavPosix::rmdir(const RequestParams * _params, const std::string &url, DavixError** err){
-    davix_log_debug(" -> davix_rmdir");
+    DAVIX_DEBUG(" -> davix_rmdir");
     int ret=-1;
     DavixError* tmp_err=NULL;
     RequestParams params(_params);
 
     ret = davix_remove_posix(*this, context, _params, url, true, &tmp_err);
-    davix_log_debug(" davix_rmdir <-");
+    DAVIX_DEBUG(" davix_rmdir <-");
     if(tmp_err)
         DavixError::propagatePrefixedError(err, tmp_err, "DavPosix::rmdir ");
     return ret;

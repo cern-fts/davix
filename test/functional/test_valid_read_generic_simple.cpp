@@ -26,7 +26,7 @@ int main(int argc, char** argv){
         return 0;
     }
 
-    g_logger_set_globalfilter(G_LOG_LEVEL_WARNING);
+    davix_set_log_level(DAVIX_LOG_ALL);
 
     DavixError* tmp_err=NULL;
     Davix_fd* fd;

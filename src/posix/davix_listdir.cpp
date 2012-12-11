@@ -5,8 +5,6 @@
 #include <sstream>
 #include <memory>
 
-#include "davix_listdir.hpp"
-
 #include <httprequest.hpp>
 #include <posix/davposix.hpp>
 #include <posix/davix_stat.hpp>

@@ -3,7 +3,7 @@
 Name:				davix
 Version:			0.0.18
 Release:			0.1%{?dist}
-Summary:			Webdav File access and file management Library
+Summary:			Webdav file access and file management Library
 Group:				Applications/Internet
 License:			LGPLv2+
 URL:				https://svnweb.cern.ch/trac/lcgdm/wiki

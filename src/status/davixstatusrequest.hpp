@@ -23,37 +23,36 @@ struct DavixErrorInternal;
 namespace StatusCode{
 
 ///
-/// @brief Davix status codes
+/// @brief C++ Davix status codes
 ///
-/// List of Davix Status code used by \ref Davix::DavixError
+/// equal to davix_status_t
 ///
-enum Code{
-    OK = DAVIX_STATUS_OK,
-    PartialDone = DAVIX_STATUS_PARTIAL_DONE,
-    WebDavPropertiesParsingError = DAVIX_STATUS_WEBDAV_PROPERTIES_PARSING_ERROR,
-    UriParsingError = DAVIX_STATUS_URI_PARSING_ERROR,
-    SessionCreationError = DAVIX_STATUS_SESSION_CREATION_ERROR,
-    NameResolutionFailure= DAVIX_STATUS_NAME_RESOLUTION_FAILURE,
-    ConnexionProblem = DAVIX_STATUS_CONNEXION_PROBLEM,
-    RedirectionNeeded = DAVIX_STATUS_REDIRECTION_NEEDED,
-    ConnectionTimeout= DAVIX_STATUS_CONNEXION_TIMEOUT,
-    OperationTimeout= DAVIX_STATUS_OPERATION_TIMEOUT,
-    OperationNonSupported= DAVIX_STATUS_OPERATION_NOT_SUPPORTED,
-    UnknowError= DAVIX_STATUS_UNKNOW_ERROR,
-    IsNotADirectory = DAVIX_STATUS_IS_NOT_A_DIRECTORY,
-    InvalidFileHandle = DAVIX_STATUS_INVALID_FILE_HANDLE,
-    AlreadyRunning = DAVIX_STATUS_ALREADY_RUNNING,
-    AuthentificationError = DAVIX_STATUS_AUTHENTIFICATION_ERROR,
-    LoginPasswordError = DAVIX_STATUS_LOGIN_PASSWORD_ERROR,
-    CredentialNotFound = DAVIX_STATUS_CREDENTIAL_NOT_FOUND,
-    PermissionRefused = DAVIX_STATUS_PERMISSION_REFUSED,
-    FileNotFound = DAVIX_STATUS_FILE_NOT_FOUND,
-    IsADirectory = DAVIX_STATUS_IS_A_DIRECTORY,
-    SystemError = DAVIX_STATUS_SYSTEM_ERROR,
-    FileExist = DAVIX_STATUS_FILE_EXIST
-};
+typedef davix_status_t Code;
 
-const davix_status_t mOk= DAVIX_STATUS_OK;
+// C++ mapping of davix_status_t
+const Code OK = DAVIX_STATUS_OK;
+const Code PartialDone = DAVIX_STATUS_PARTIAL_DONE;
+const Code WebDavPropertiesParsingError = DAVIX_STATUS_WEBDAV_PROPERTIES_PARSING_ERROR;
+const Code UriParsingError = DAVIX_STATUS_URI_PARSING_ERROR;
+const Code SessionCreationError = DAVIX_STATUS_SESSION_CREATION_ERROR;
+const Code NameResolutionFailure= DAVIX_STATUS_NAME_RESOLUTION_FAILURE;
+const Code ConnexionProblem = DAVIX_STATUS_CONNEXION_PROBLEM;
+const Code RedirectionNeeded = DAVIX_STATUS_REDIRECTION_NEEDED;
+const Code ConnectionTimeout= DAVIX_STATUS_CONNEXION_TIMEOUT;
+const Code OperationTimeout= DAVIX_STATUS_OPERATION_TIMEOUT;
+const Code OperationNonSupported= DAVIX_STATUS_OPERATION_NOT_SUPPORTED;
+const Code UnknowError= DAVIX_STATUS_UNKNOW_ERROR;
+const Code IsNotADirectory = DAVIX_STATUS_IS_NOT_A_DIRECTORY;
+const Code InvalidFileHandle = DAVIX_STATUS_INVALID_FILE_HANDLE;
+const Code AlreadyRunning = DAVIX_STATUS_ALREADY_RUNNING;
+const Code AuthentificationError = DAVIX_STATUS_AUTHENTIFICATION_ERROR;
+const Code LoginPasswordError = DAVIX_STATUS_LOGIN_PASSWORD_ERROR;
+const Code CredentialNotFound = DAVIX_STATUS_CREDENTIAL_NOT_FOUND;
+const Code PermissionRefused = DAVIX_STATUS_PERMISSION_REFUSED;
+const Code FileNotFound = DAVIX_STATUS_FILE_NOT_FOUND;
+const Code IsADirectory = DAVIX_STATUS_IS_A_DIRECTORY;
+const Code SystemError = DAVIX_STATUS_SYSTEM_ERROR;
+const Code FileExist = DAVIX_STATUS_FILE_EXIST;
 
 }
 

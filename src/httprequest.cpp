@@ -27,8 +27,8 @@ void HttpRequest::addHeaderField(const std::string &field, const std::string &va
     d_ptr->addHeaderField(field, value);
 }
 
-void HttpRequest::set_parameters(const RequestParams &p){
-    d_ptr->set_parameters(p);
+void HttpRequest::setParameters(const RequestParams &p){
+    d_ptr->setParameters(p);
 }
 
 void HttpRequest::setRequestBodyString(const std::string &body){
@@ -60,8 +60,8 @@ int HttpRequest::endRequest(DavixError **err){
 }
 
 
-void HttpRequest::clear_result(){
-    d_ptr->clear_result();
+void HttpRequest::clearAnswerContent(){
+    d_ptr->clearAnswerContent();
 }
 
 bool HttpRequest::getAnswerHeader(const std::string &header_name, std::string &value){

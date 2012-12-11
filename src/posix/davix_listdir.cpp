@@ -96,7 +96,7 @@ DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char
         std::auto_ptr<DIR_handle> res(  new DIR_handle(http_req, new DavPropXMLParser()));
         time_t timestamp_timeout = time(NULL) + _timeout;
 
-        http_req->set_parameters(params);
+        http_req->setParameters(params);
         DavPropXMLParser* parser = res->parser;
         // setup the handle for simple listing only
         http_req->setRequestBodyString(body);

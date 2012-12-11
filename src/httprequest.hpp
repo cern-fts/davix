@@ -44,7 +44,7 @@ public:
     /// DEFAULT : GET
     void setRequestMethod(const std::string & request_str);
 
-    void set_parameters(const RequestParams &p );
+    void setParameters(const RequestParams &p );
 
     ///   @brief execute this request completely
     ///
@@ -111,7 +111,7 @@ public:
     ///
     ///  clear the current result
     ///
-    void clear_result();
+    void clearAnswerContent();
 
 
 

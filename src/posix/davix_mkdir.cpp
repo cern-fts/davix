@@ -21,7 +21,7 @@ int DavPosix::mkdir(const RequestParams * _params, const std::string &url, mode_
     std::auto_ptr<HttpRequest> req( static_cast<HttpRequest*>(context->createRequest(url, &tmp_err)));
     if(req.get() != NULL){
 
-        req->set_parameters(params);
+        req->setParameters(params);
         req->setRequestMethod("MKCOL");
 
         if( (ret = req->executeRequest(&tmp_err)) == 0){

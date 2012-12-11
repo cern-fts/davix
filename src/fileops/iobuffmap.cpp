@@ -142,7 +142,7 @@ ssize_t HttpIO::readFullBuff(void *buffer, size_t size_read, DavixError **err){
 
     if( _read_req == NULL
             && (_read_req = _c.createRequest(_uri, &tmp_err)) != NULL){
-        _read_req->set_parameters(_params);
+        _read_req->setParameters(_params);
         if(_read_req->beginRequest(&tmp_err) ==0
             && (_read_req->getRequestCode() != 200)){
                 httpcodeToDavixCode(_read_req->getRequestCode(),davix_scope_http_request(),", while  readding", &tmp_err);
@@ -183,7 +183,7 @@ ssize_t HttpIO::readPartialBuffer(void *buf, size_t count, off_t offset, DavixEr
 
     std::auto_ptr<HttpRequest> req( _c.createRequest(_uri, &tmp_err));
     if(req.get() != NULL){
-        req->set_parameters(_params);
+        req->setParameters(_params);
         setup_offset_request(req.get(), offset, offset+count);
         if(req->beginRequest(&tmp_err) ==0){
             if(req->getRequestCode() == 416 ){ // out of file, end of file
@@ -340,7 +340,7 @@ ssize_t HttpIOBuffer::write(const void *buf, size_t count, DavixError **err){
         std::auto_ptr<HttpRequest> req( _c.createRequest(_uri, &tmp_err));
         if(req.get() != NULL){
             req->setRequestMethod("PUT");
-            req->set_parameters(_params);
+            req->setParameters(_params);
             req->setRequestBodyBuffer(buf, count);
             if(req->beginRequest(&tmp_err) ==0){
                 if(req->getRequestCode() != 200 ||  req->getRequestCode() != 204){ // out of file, end of file

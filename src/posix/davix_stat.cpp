@@ -31,7 +31,7 @@ int dav_stat_mapper_webdav(Context* context, const RequestParams & params, const
     std::auto_ptr<HttpRequest> req( context->createRequest(url, err));
     DavixError * tmp_err=NULL;
     if( req.get() != NULL){
-        req->set_parameters(params);
+        req->setParameters(params);
 
         const std::vector<char> & res = req_webdav_propfind(req.get(), &tmp_err);
         if(!tmp_err){
@@ -61,7 +61,7 @@ int dav_stat_mapper_http(Context* context, const RequestParams & params, const s
     std::auto_ptr<HttpRequest> req( context->createRequest(url, err));
     DavixError * tmp_err=NULL;
     if( req.get() != NULL){
-        req->set_parameters(params);
+        req->setParameters(params);
         req->setRequestMethod("HEAD");
         req->executeRequest(&tmp_err);
 

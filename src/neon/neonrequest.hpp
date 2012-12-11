@@ -45,7 +45,7 @@ public:
         _request_type = request_str;
     }
 
-    void set_parameters(const RequestParams &p ){
+    void setParameters(const RequestParams &p ){
         params = p;
     }
 
@@ -80,7 +80,7 @@ public:
     /**
       clear the current result
     */
-    void clear_result();
+    void clearAnswerContent();
 
 
 

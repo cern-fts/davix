@@ -360,7 +360,7 @@ int NEONRequest::endRequest(DavixError** err){
     return 0;
 }
 
-void NEONRequest::clear_result(){
+void NEONRequest::clearAnswerContent(){
     _vec.clear();
 }
 

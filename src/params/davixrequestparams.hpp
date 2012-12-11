@@ -63,10 +63,10 @@ public:
     /// define the connexion timeout
     /// conn_timeout is a relative time
     /// DEFAULT : 180s
-    void setConnexionTimeout(struct timespec* conn_timeout);
+    void setConnectionTimeout(struct timespec* conn_timeout);
 
     /// get the current connexion timeout
-    const struct timespec * getConnexionTimeout()  const;
+    const struct timespec * getConnectionTimeout()  const;
 
 
     /// define the maximum execution time for a davix request

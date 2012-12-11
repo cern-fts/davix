@@ -42,7 +42,7 @@ int main(int argc, char** argv){
     std::cout << " stat enoent dir " << buff  << std::endl;
     int ret = pos.stat(&p, buff, &st, &tmp_err);
     g_assert( ret < 0);
-    g_assert(tmp_err && StatusCode::fileNotFound == tmp_err->getStatus());
+    g_assert(tmp_err && StatusCode::FileNotFound == tmp_err->getStatus());
     DavixError::clearError(&tmp_err);
 
     std::cout << " create dir " << buff  << std::endl;

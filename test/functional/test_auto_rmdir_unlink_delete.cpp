@@ -64,25 +64,25 @@ int main(int argc, char** argv){
     std::cout << "verify that " << created_dir << "does not exist" << std::endl;
     res = pos.stat(&p, created_dir, &st, &tmp_err);
     g_assert( res != 0);
-    g_assert(tmp_err && tmp_err->getStatus() == StatusCode::fileNotFound);
+    g_assert(tmp_err && tmp_err->getStatus() == StatusCode::FileNotFound);
     DavixError::clearError(&tmp_err);
 
     std::cout << " verify that unlink() return enoent on not existing dir" << std::endl;
     res = pos.unlink(&p, created_dir, &tmp_err);
     g_assert( res != 0);
-    g_assert(tmp_err && tmp_err->getStatus() == StatusCode::fileNotFound);
+    g_assert(tmp_err && tmp_err->getStatus() == StatusCode::FileNotFound);
     DavixError::clearError(&tmp_err);
 
     std::cout << " verify that rmdir() return enoent on not existing dir" << std::endl;
     res = pos.rmdir(&p, created_dir, &tmp_err);
     g_assert( res != 0);
-    g_assert(tmp_err && tmp_err->getStatus() == StatusCode::fileNotFound);
+    g_assert(tmp_err && tmp_err->getStatus() == StatusCode::FileNotFound);
     DavixError::clearError(&tmp_err);
 
     std::cout << " verify that WebdavQuery::davDelete() return enoent on not existing dir" << std::endl;
     res = query.davDelete(&p, created_dir, &tmp_err);
     g_assert( res != 0);
-    g_assert(tmp_err && tmp_err->getStatus() == StatusCode::fileNotFound);
+    g_assert(tmp_err && tmp_err->getStatus() == StatusCode::FileNotFound);
     DavixError::clearError(&tmp_err);
 
     std::cout << "create  " << created_dir << std::endl;
@@ -110,7 +110,7 @@ int main(int argc, char** argv){
     std::cout << "verify that " << created_dir << "does not exist" << std::endl;
     res = pos.stat(&p, created_dir, &st, &tmp_err);
     g_assert( res != 0);
-    g_assert(tmp_err && tmp_err->getStatus() == StatusCode::fileNotFound);
+    g_assert(tmp_err && tmp_err->getStatus() == StatusCode::FileNotFound);
     DavixError::clearError(&tmp_err);
 
     std::cout << "create again " << created_dir << std::endl;

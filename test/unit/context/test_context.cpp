@@ -27,7 +27,7 @@ TEST(RequestParametersTest, CreateDelete){
 
     ASSERT_EQ(params.getSSLCACheck(), true);
     ASSERT_EQ(params.getOperationTimeout()->tv_sec, DAVIX_DEFAULT_OPS_TIMEOUT);
-    ASSERT_EQ(params.getConnexionTimeout()->tv_sec, DAVIX_DEFAULT_CONN_TIMEOUT);
+    ASSERT_EQ(params.getConnectionTimeout()->tv_sec, DAVIX_DEFAULT_CONN_TIMEOUT);
     ASSERT_EQ(params.getAuthentificationCallbackData(), (void*) NULL);
     ASSERT_EQ(params.getAuthentificationCallbackFunction(), (int (*)(davix_auth_st*, const davix_auth_info_t*, void*, Davix_error**)) NULL);
     ASSERT_TRUE( params.getTransparentRedirectionSupport());
@@ -42,8 +42,8 @@ TEST(RequestParametersTest, CreateDelete){
     ASSERT_EQ(params.getSSLCACheck(), false);
     params.setOperationTimeout(&timeout_co);
     ASSERT_EQ(params.getOperationTimeout()->tv_sec, 10);
-    params.setConnexionTimeout(&timeout_ops);
-    ASSERT_EQ(params.getConnexionTimeout()->tv_sec, 20);
+    params.setConnectionTimeout(&timeout_ops);
+    ASSERT_EQ(params.getConnectionTimeout()->tv_sec, 20);
 
     params.setTransparentRedirectionSupport(false);
     ASSERT_FALSE( params.getTransparentRedirectionSupport());
@@ -54,8 +54,8 @@ TEST(RequestParametersTest, CreateDelete){
     ASSERT_EQ(p2.getOperationTimeout()->tv_sec, 10);
     ASSERT_EQ(p3.getOperationTimeout()->tv_sec, 10);
 
-    ASSERT_EQ(p2.getConnexionTimeout()->tv_sec, 20);
-    ASSERT_EQ(p3.getConnexionTimeout()->tv_sec, 20);
+    ASSERT_EQ(p2.getConnectionTimeout()->tv_sec, 20);
+    ASSERT_EQ(p3.getConnectionTimeout()->tv_sec, 20);
 
     ASSERT_FALSE( p2.getTransparentRedirectionSupport());
 
@@ -64,7 +64,7 @@ TEST(RequestParametersTest, CreateDelete){
     ASSERT_EQ(p2.getOperationTimeout()->tv_sec, 10);
     ASSERT_EQ(p3.getOperationTimeout()->tv_sec, 10);
 
-    ASSERT_EQ(p4.getConnexionTimeout()->tv_sec, 20);
+    ASSERT_EQ(p4.getConnectionTimeout()->tv_sec, 20);
  }
 
 TEST(RequestParametersTest, CreateDeleteDyn){
@@ -72,7 +72,7 @@ TEST(RequestParametersTest, CreateDeleteDyn){
 
     ASSERT_EQ(params->getSSLCACheck(), true);
     ASSERT_EQ(params->getOperationTimeout()->tv_sec, DAVIX_DEFAULT_OPS_TIMEOUT);
-    ASSERT_EQ(params->getConnexionTimeout()->tv_sec, DAVIX_DEFAULT_CONN_TIMEOUT);
+    ASSERT_EQ(params->getConnectionTimeout()->tv_sec, DAVIX_DEFAULT_CONN_TIMEOUT);
     ASSERT_EQ(params->getAuthentificationCallbackData(), (void*) NULL);
     ASSERT_EQ(params->getAuthentificationCallbackFunction(), (int (*)(davix_auth_st*, const davix_auth_info_t*, void*, Davix_error**)) NULL);
 
@@ -86,8 +86,8 @@ TEST(RequestParametersTest, CreateDeleteDyn){
     ASSERT_EQ(params->getSSLCACheck(), false);
     params->setOperationTimeout(&timeout_co);
     ASSERT_EQ(params->getOperationTimeout()->tv_sec, 10);
-    params->setConnexionTimeout(&timeout_ops);
-    ASSERT_EQ(params->getConnexionTimeout()->tv_sec, 20);
+    params->setConnectionTimeout(&timeout_ops);
+    ASSERT_EQ(params->getConnectionTimeout()->tv_sec, 20);
 
     Davix::RequestParams *p2 = new Davix::RequestParams(params);
     Davix::RequestParams *p3 = new Davix::RequestParams(*p2);
@@ -97,8 +97,8 @@ TEST(RequestParametersTest, CreateDeleteDyn){
     ASSERT_EQ(p2->getOperationTimeout()->tv_sec, 10);
     ASSERT_EQ(p3->getOperationTimeout()->tv_sec, 10);
 
-    ASSERT_EQ(p2->getConnexionTimeout()->tv_sec, 20);
-    ASSERT_EQ(p3->getConnexionTimeout()->tv_sec, 20);
+    ASSERT_EQ(p2->getConnectionTimeout()->tv_sec, 20);
+    ASSERT_EQ(p3->getConnectionTimeout()->tv_sec, 20);
 
     delete params;
     delete p2;
@@ -107,9 +107,9 @@ TEST(RequestParametersTest, CreateDeleteDyn){
 
 
 TEST(DavixErrorTest, CreateDelete){
-    Davix::DavixError err("test_dav_scope", Davix::StatusCode::isNotADirectory, " problem");
+    Davix::DavixError err("test_dav_scope", Davix::StatusCode::IsNotADirectory, " problem");
     ASSERT_EQ(err.getErrMsg(), " problem");
-    ASSERT_EQ(err.getStatus(), Davix::StatusCode::isNotADirectory);
+    ASSERT_EQ(err.getStatus(), Davix::StatusCode::IsNotADirectory);
     ASSERT_EQ(err.getStatus(), DAVIX_STATUS_IS_NOT_A_DIRECTORY);
 
     Davix::DavixError * err2=NULL;

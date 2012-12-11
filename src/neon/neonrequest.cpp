@@ -21,18 +21,18 @@ void neon_generic_error_mapper(int ne_status, StatusCode::Code & code, std::stri
              str= "Domain name resolution failed";
              break;
         case NE_AUTH:
-            code = StatusCode::authentificationError;
+            code = StatusCode::AuthentificationError;
             str=  "Authentification failed on server";
             break;
         case NE_PROXYAUTH:
-            code = StatusCode::authentificationError;
+            code = StatusCode::AuthentificationError;
             str=  "Authentification failed on proxy";
         case NE_CONNECT:
             code = StatusCode::ConnexionProblem;
             str= "Could not connect to server";
             break;
         case NE_TIMEOUT:
-            code = StatusCode::ConnexionTimeout;
+            code = StatusCode::ConnectionTimeout;
             str= "Connection timed out";
         case NE_FAILED:
             code = StatusCode::SessionCreationError;
@@ -72,9 +72,9 @@ void neon_simple_req_code_to_davix_code(int ne_status, ne_session* sess, const s
         case NE_ERROR:{
              const char * str_error = ne_get_error(sess);
              if(strstr(str_error, "404") != NULL){
-                 code = StatusCode::fileNotFound;
+                 code = StatusCode::FileNotFound;
              }else if(strstr(str_error, "401") != NULL || strstr(str_error, "403") != NULL){
-                 code = StatusCode::permissionRefused;
+                 code = StatusCode::PermissionRefused;
              }else{
                  code = StatusCode::ConnexionProblem;
              }
@@ -119,7 +119,7 @@ NEONRequest::~NEONRequest(){
 
 int NEONRequest::create_req(DavixError** err){
     if(_req != NULL || req_started){
-        DavixError::setupError(err, davix_scope_http_request(), StatusCode::alreadyRunning, "Http request already started, Error");
+        DavixError::setupError(err, davix_scope_http_request(), StatusCode::AlreadyRunning, "Http request already started, Error");
         return -1;
     }
 
@@ -164,7 +164,7 @@ int NEONRequest::negotiate_request(DavixError** err){
 
     davix_log_debug(" ->   Davix negociate request ... ");
     if(req_started){
-        DavixError::setupError(err, davix_scope_http_request(), StatusCode::alreadyRunning, "Http request already started, Error");
+        DavixError::setupError(err, davix_scope_http_request(), StatusCode::AlreadyRunning, "Http request already started, Error");
         davix_log_debug(" Davix negociate request ... <-");
         return -1;
     }
@@ -232,7 +232,7 @@ int NEONRequest::negotiate_request(DavixError** err){
     }
 
     if(n >= n_limit){
-        DavixError::setupError(err,davix_scope_http_request(),StatusCode::authentificationError, "overpass the maximum number of authentification try, cancel");
+        DavixError::setupError(err,davix_scope_http_request(),StatusCode::AuthentificationError, "overpass the maximum number of authentification try, cancel");
         return -2;
     }
     davix_log_debug(" Davix negociate request ... <-");
@@ -331,7 +331,7 @@ ssize_t NEONRequest::readBlock(char* buffer, size_t max_size, DavixError** err){
     ssize_t read_status=-1;
 
     if(_req == NULL){
-        DavixError::setupError(err, davix_scope_http_request(), StatusCode::alreadyRunning, "No request started");
+        DavixError::setupError(err, davix_scope_http_request(), StatusCode::AlreadyRunning, "No request started");
         return -1;
     }
     read_status= ne_read_response_block(_req, buffer, max_size );

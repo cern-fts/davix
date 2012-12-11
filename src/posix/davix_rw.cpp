@@ -15,7 +15,7 @@ namespace Davix{
 
 int davix_check_rw_fd(DAVIX_FD* fd, DavixError** err){
     if(fd == NULL){
-        DavixError::setupError(err, davix_scope_http_request(),StatusCode::invalidFileHandle, "Invalid Davix file descriptor");
+        DavixError::setupError(err, davix_scope_http_request(),StatusCode::InvalidFileHandle, "Invalid Davix file descriptor");
         return -1;
     }
     return 0;

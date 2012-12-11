@@ -6,10 +6,9 @@
 #include <memory>
 
 #include "davix_listdir.hpp"
-#include <posix/davposix.hpp>
-
 
 #include <httprequest.hpp>
+#include <posix/davposix.hpp>
 #include <posix/davix_stat.hpp>
 #include <status/davixstatusrequest.hpp>
 #include <fileops/fileutils.hpp>
@@ -164,7 +163,7 @@ struct dirent* DavPosix::readdir(DAVIX_DIR * d, DavixError** err){
     davix_log_debug(" -> davix_readdir");
 
     if( d==NULL){
-        DavixError::setupError(err, davix_scope_directory_listing_str(), StatusCode::invalidFileHandle,  "Invalid file descriptor for DAVIX_DIR*");
+        DavixError::setupError(err, davix_scope_directory_listing_str(), StatusCode::InvalidFileHandle,  "Invalid file descriptor for DAVIX_DIR*");
         return NULL;
     }
 
@@ -202,7 +201,7 @@ struct dirent* DavPosix::readdirpp(DAVIX_DIR * d, struct stat *st, DavixError** 
     davix_log_debug(" -> davix_readdirpp");
 
     if( d==NULL){
-        DavixError::setupError(err, davix_scope_directory_listing_str(), StatusCode::invalidFileHandle,  "Invalid file descriptor for DAVIX_DIR*");
+        DavixError::setupError(err, davix_scope_directory_listing_str(), StatusCode::InvalidFileHandle,  "Invalid file descriptor for DAVIX_DIR*");
         return NULL;
     }
 
@@ -246,7 +245,7 @@ struct dirent* DavPosix::readdirpp(DAVIX_DIR * d, struct stat *st, DavixError** 
 int DavPosix::closedirpp(DAVIX_DIR * d, DavixError** err){
     int ret =-1;
     if( d==NULL){
-        Davix::DavixError::setupError(err,davix_scope_directory_listing_str(),Davix::StatusCode::invalidFileHandle, "Invalid file descriptor for DAVIX_DIR*");
+        Davix::DavixError::setupError(err,davix_scope_directory_listing_str(),Davix::StatusCode::InvalidFileHandle, "Invalid file descriptor for DAVIX_DIR*");
    }else{
         delete (static_cast<DIR_handle*>(d));
         ret =0;

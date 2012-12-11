@@ -92,13 +92,13 @@ void httpcodeToDavixCode(int code, const std::string & scope, const std::string 
         case 401:           /* Unauthorized */
         case 402:           /* Payment Required */
         case 407:           /* Proxy Authentication Required */
-            dav_code = StatusCode::authentificationError;
+            dav_code = StatusCode::AuthentificationError;
             str_msg = "HTTP Authentification Error";
             break;
         case 303:           /* See Other */
         case 404:           /* Not Found */
         case 410:           /* Gone */
-            dav_code = StatusCode::fileNotFound;
+            dav_code = StatusCode::FileNotFound;
             str_msg = "HTTP File not found";
             break;
         case 408:           /* Request Timeout */
@@ -108,7 +108,7 @@ void httpcodeToDavixCode(int code, const std::string & scope, const std::string 
             break;
         case 423:           /* Locked */
         case 403:           /* Forbidden */
-            dav_code = StatusCode::permissionRefused;
+            dav_code = StatusCode::PermissionRefused;
             str_msg = "HTTP Permission refused";
             break;
         break;

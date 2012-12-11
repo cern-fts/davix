@@ -12,11 +12,6 @@
 
   Davix is a file access and file management library on top of HTTP/Webdav
 
-  Non exhaustive list of features :
-  - all commons POSIX file operations : open/read/write/close, opendir, readdir, mkdir
-  - SSL client side credentials
-  - Third party copy file
-  - session reuse
 */
 
 struct Davix_fd;
@@ -32,10 +27,8 @@ typedef struct davix_file_desc_s* davix_file_desc_t;
 typedef struct davix_auth_st* davix_auth_t;
 typedef struct davix_request_params* davix_params_t;
 
-///
-/// Davix request status list
-///
 
+/// Davix status codes
 typedef enum davix_status_e {
     DAVIX_STATUS_OK  = 0x00,
     DAVIX_STATUS_PARTIAL_DONE,

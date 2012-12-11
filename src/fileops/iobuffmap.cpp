@@ -98,7 +98,7 @@ ssize_t read_truncated_segment_request(HttpRequest* req, void* buffer, size_t si
 
 int get_valid_cache_file(FILE** stream, DavixError** err){
     if(stream == NULL){
-        DavixError::setupError(err, davix_scope_io_cache(), StatusCode::invalidFileHandle, "Invalid file stream");
+        DavixError::setupError(err, davix_scope_io_cache(), StatusCode::InvalidFileHandle, "Invalid file stream");
         return -1;
     }
     if( *stream == NULL){
@@ -263,7 +263,7 @@ bool HttpIOBuffer::open(int flags, DavixError **err){
             _file_exist = true;
             _opened = true;
         }
-    }else if (tmp_err->getStatus() == StatusCode::fileNotFound
+    }else if (tmp_err->getStatus() == StatusCode::FileNotFound
               &&  (flags & O_CREAT)
               && ((flags & O_RDWR) || (flags  & O_WRONLY))){
         DavixError::clearError(&tmp_err);

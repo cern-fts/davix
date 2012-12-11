@@ -42,7 +42,7 @@ int davix_remove_posix(DavPosix & p, Context* c, const RequestParams & params, c
                     ret = -1;
                     std::ostringstream ss;
                     ss << " " << url << " is not a directory, impossible to rmdir"<< std::endl;
-                    DavixError::setupError(&tmp_err, davix_scope_davOps_str(), StatusCode::isNotADirectory, ss.str());
+                    DavixError::setupError(&tmp_err, davix_scope_davOps_str(), StatusCode::IsNotADirectory, ss.str());
                 }
             }
         }

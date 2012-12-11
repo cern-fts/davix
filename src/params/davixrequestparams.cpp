@@ -126,7 +126,7 @@ void* RequestParams::getAuthentificationCallbackData() const{
 }
 
 
-void RequestParams::setConnexionTimeout(struct timespec *conn_timeout1){
+void RequestParams::setConnectionTimeout(struct timespec *conn_timeout1){
     timespec_copy(&(d_ptr->connexion_timeout),conn_timeout1);
 }
 
@@ -134,7 +134,7 @@ void RequestParams::setOperationTimeout(struct timespec *ops_timeout1){
     timespec_copy(&(d_ptr->ops_timeout), ops_timeout1);
 }
 
-const struct timespec* RequestParams::getConnexionTimeout() const {
+const struct timespec* RequestParams::getConnectionTimeout() const {
     return &d_ptr->connexion_timeout;
 }
 

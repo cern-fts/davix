@@ -38,7 +38,7 @@ void NEONSession::provide_clicert_fn(void *userdata, ne_session *sess,
         int ret = auth_call((davix_auth_t) req, &auth_info, req->_params.getAuthentificationCallbackData(), (davix_error_t*) &tmp_err); // try to get authentification
         davix_log_debug("NEONSession > return from authentification callback ");
         if(ret !=0 && tmp_err == NULL){
-            DavixError::setupError(&tmp_err, davix_scope_http_request(), StatusCode::authentificationError, "Authentification callback returned with CANCEL without DavixError object");
+            DavixError::setupError(&tmp_err, davix_scope_http_request(), StatusCode::AuthentificationError, "Authentification callback returned with CANCEL without DavixError object");
         }
     }
     if(tmp_err){
@@ -131,7 +131,7 @@ int NEONSession::do_pkcs12_cert_authentification(const char *filename_pkcs12, co
     int ret;
     ne_ssl_client_cert * cert = ne_ssl_clicert_read(filename_pkcs12);
     if(cert == NULL){
-        DavixError::setupError(err, davix_scope_http_request(), StatusCode::credentialNotFound, "impossible to load credential pkcs12");
+        DavixError::setupError(err, davix_scope_http_request(), StatusCode::CredentialNotFound, "impossible to load credential pkcs12");
         return -1;
     }
 
@@ -143,12 +143,12 @@ int NEONSession::do_pkcs12_cert_authentification(const char *filename_pkcs12, co
         davix_log_debug("NEONRequest : Credential is encrypted, try to decrypt credential");
 
         if(passwd == NULL){
-            DavixError::setupError(err, davix_scope_http_request(), StatusCode::loginPasswordError, "no password provided and credential encrypted");
+            DavixError::setupError(err, davix_scope_http_request(), StatusCode::LoginPasswordError, "no password provided and credential encrypted");
             return -1;
         }
 
         if ((ret= ne_ssl_clicert_decrypt(cert, passwd)) != 0){
-            DavixError::setupError(err, davix_scope_http_request(), StatusCode::loginPasswordError, "Unable to decrypt credential, bad password");
+            DavixError::setupError(err, davix_scope_http_request(), StatusCode::LoginPasswordError, "Unable to decrypt credential, bad password");
             return -1;
         }
     }
@@ -193,10 +193,10 @@ void configureSession(ne_session *_sess, const RequestParams &params, ne_auth_cr
         davix_log_debug("NEONSession : define operation timeout to %d", params.getOperationTimeout());
         ne_set_read_timeout(_sess, (int) params.getOperationTimeout()->tv_sec);
     }
-    if(timespec_isset(params.getConnexionTimeout())){
-        davix_log_debug("NEONSession : define connexion timeout to %d", params.getConnexionTimeout());
+    if(timespec_isset(params.getConnectionTimeout())){
+        davix_log_debug("NEONSession : define connection timeout to %d", params.getConnectionTimeout());
 #ifndef _NEON_VERSION_0_25
-        ne_set_connect_timeout(_sess, (int) params.getConnexionTimeout()->tv_sec);
+        ne_set_connect_timeout(_sess, (int) params.getConnectionTimeout()->tv_sec);
 #endif
     }
 

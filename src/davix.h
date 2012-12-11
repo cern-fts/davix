@@ -6,8 +6,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include <status/davix_error.h>
-#include <davix_types.h>
 
 
 
@@ -20,7 +18,11 @@
 ///  Davix is a high level HTTP/Webdav library for file management purpose.
 ///
 
+// general types
+#include <davix_types.h>
 
+// error code and status
+#include <status/davix_error.h>
 
 // Davix POSIX-like API
 #include <posix/davix_posix.h>

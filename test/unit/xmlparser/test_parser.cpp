@@ -290,7 +290,7 @@ TEST(XmlParserInstance, createParser){
 
 
 TEST(XmlParserInstance, parseOneStat){
-    g_logger_set_globalfilter(G_LOG_LEVEL_MASK);
+    davix_set_log_level(DAVIX_LOG_ALL);
     Davix::DavPropXMLParser parser;
 
     int ret = parser.parseChuck(simple_stat_propfind_content, strlen(simple_stat_propfind_content));
@@ -357,7 +357,7 @@ TEST(XmlParserInstance,parserNonWebdav){
 
 
 TEST(XmlPaserInstance, destroyPartial){
-    g_logger_set_globalfilter(G_LOG_LEVEL_MASK);
+    davix_set_log_level(DAVIX_LOG_ALL);
     Davix::DavPropXMLParser* parser = new Davix::DavPropXMLParser();
 
     int ret = parser->parseChuck(simple_stat_propfind_content, strlen(simple_stat_propfind_content)/2);

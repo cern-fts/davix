@@ -1,5 +1,5 @@
-#include <logging/davix_logger.h>
-#include <logging/logger.h>
+#include <logger/davix_logger.h>
+#include <logger/logger.h>
 
 
 static int internal_log_mask = DAVIX_LOG_CRITICAL;

@@ -55,7 +55,7 @@ const size_t len_list=4;
 
 
 TEST(testNeon, testParsing){
-    g_logger_set_globalfilter(G_LOG_LEVEL_MASK);
+    davix_set_log_level(DAVIX_LOG_ALL);
     for(size_t i=0; i < len_list; ++i){
         Uri uri(list_urls[i]);
         if(failure[i] == false){

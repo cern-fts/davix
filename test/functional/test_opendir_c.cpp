@@ -5,7 +5,7 @@
 #include <string.h>
 #include <cstdio>
 #include <iostream>
-#include <logging/logger.h>
+#include <logger/logger.h>
 
 
 #include "davix_test_lib.h"

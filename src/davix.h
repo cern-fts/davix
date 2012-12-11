@@ -19,7 +19,7 @@
 ///
 
 /// logger
-#include <logging/davix_logger.h>
+#include <logger/davix_logger.h>
 
 // general types
 #include <davix_types.h>

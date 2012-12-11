@@ -7,8 +7,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <logging/logger.h>
-#include <logging/davix_logger.h>
+#include <logger/davix_logger.h>
 
 #include <davix.h>
 

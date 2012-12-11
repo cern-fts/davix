@@ -123,7 +123,7 @@ void httpcodeToDavixCode(int code, const std::string & scope, const std::string 
         case 501:           /* Not Implemented */
         case 413:           /* Request Entity Too Large */
         case 507:           /* Insufficient Storage */
-            dav_code = StatusCode::ConnexionProblem;
+            dav_code = StatusCode::ConnectionProblem;
             str_msg = "HTTP Server Error";
             break;
         case 301:           /* Moved Permanently */

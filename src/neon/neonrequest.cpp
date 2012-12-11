@@ -28,7 +28,7 @@ void neon_generic_error_mapper(int ne_status, StatusCode::Code & code, std::stri
             code = StatusCode::AuthentificationError;
             str=  "Authentification failed on proxy";
         case NE_CONNECT:
-            code = StatusCode::ConnexionProblem;
+            code = StatusCode::ConnectionProblem;
             str= "Could not connect to server";
             break;
         case NE_TIMEOUT:
@@ -56,7 +56,7 @@ void neon_to_davix_code(int ne_status, ne_session* sess, const std::string & sco
     switch(ne_status){
         case NE_ERROR:
              str = std::string("Neon error : ").append(ne_get_error(sess));
-             code = StatusCode::ConnexionProblem;
+             code = StatusCode::ConnectionProblem;
              break;
         default:
             neon_generic_error_mapper(ne_status, code, str);
@@ -76,7 +76,7 @@ void neon_simple_req_code_to_davix_code(int ne_status, ne_session* sess, const s
              }else if(strstr(str_error, "401") != NULL || strstr(str_error, "403") != NULL){
                  code = StatusCode::PermissionRefused;
              }else{
-                 code = StatusCode::ConnexionProblem;
+                 code = StatusCode::ConnectionProblem;
              }
              str = std::string("Neon error : ").append(str_error);
              break;
@@ -336,7 +336,7 @@ ssize_t NEONRequest::readBlock(char* buffer, size_t max_size, DavixError** err){
     }
     read_status= ne_read_response_block(_req, buffer, max_size );
     if(read_status <0){
-       DavixError::setupError(err, davix_scope_http_request(), StatusCode::ConnexionProblem, "Invalid Read in request");
+       DavixError::setupError(err, davix_scope_http_request(), StatusCode::ConnectionProblem, "Invalid Read in request");
        req_running = false;
        return -1;
     }

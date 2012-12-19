@@ -13,6 +13,12 @@ void core_init(){
 #endif
 }
 
+/**
+ * @cond HIDDEN_SYMBOLS
+ */
+
+
+/// @internal
 
 namespace Davix{
 
@@ -144,11 +150,13 @@ NEONSessionFactory & ContextExplorer::SessionFactoryFromContext(Context & c){
 
 
 
-
+/**
+ * @endcond
+ **/
 
 DAVIX_C_DECL_BEGIN
 
-
+/*
 int davix_auth_set_pkcs12_cli_cert(davix_auth_t token, const char* filename_pkcs, const char* passwd, davix_error_t* err){
     Davix::NEONSession* req = (Davix::NEONSession*)(token);
     Davix::DavixError* tmp_err=NULL;
@@ -170,7 +178,7 @@ int davix_auth_set_login_passwd(davix_auth_t token, const char* login, const cha
         return -1;
     }
     return 0;
-}
+}*/
 
 davix_sess_t davix_context_new(davix_error_t* err){
     Davix::Context* comp = new Davix::Context();
@@ -190,3 +198,5 @@ void davix_context_free(davix_sess_t sess){
 }
 
 DAVIX_C_DECL_END
+
+/// @endinternal

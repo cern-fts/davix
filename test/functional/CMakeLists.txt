@@ -6,7 +6,7 @@ SET(FUNCTIONAL_TESTS FALSE
 
 if(FUNCTIONAL_TESTS)
 
-set(src_davix_test_lib "davix_test_lib.c")
+set(src_davix_test_lib "davix_test_lib.cpp")
 
 set( src_test_req "test_request.cpp")
 set( src_test_prop "test_propfind.cpp")
@@ -50,7 +50,7 @@ target_link_libraries(test_stat_session davix)
 add_executable(test_rw ${src_test_rw} ${src_davix_test_lib})
 target_link_libraries(test_rw davix)
 
-add_executable(test_opendir ${src_test_opendir} )
+add_executable(test_opendir ${src_test_opendir} ${src_davix_test_lib} )
 target_link_libraries(test_opendir davix)
 
 add_executable(test_opendir_c ${src_test_opendir_c} ${src_davix_test_lib})

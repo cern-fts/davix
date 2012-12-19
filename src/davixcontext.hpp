@@ -1,5 +1,5 @@
-#ifndef DAVIXCONTEXT_H
-#define DAVIXCONTEXT_H
+#ifndef DAVIXCONTEXT_HPP
+#define DAVIXCONTEXT_HPP
 
 #include <string>
 #include <davix_types.h>
@@ -63,4 +63,4 @@ private:
 
 }
 
-#endif // DAVIXCONTEXT_H
+#endif // DAVIXCONTEXT_HPP

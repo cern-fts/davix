@@ -1,4 +1,4 @@
-#include "x509cred.hpp"
+#include "davixx509cred_internal.hpp"
 
 #include <ne_ssl.h>
 
@@ -10,8 +10,13 @@ struct X509CredentialInternal{
     {}
 
     X509CredentialInternal(const X509CredentialInternal & orig) :
-        _cred(ne_ssl_dup_client_cert(orig._cred))
+        _cred((orig._cred)?ne_ssl_dup_client_cert(orig._cred):NULL)
     {}
+
+    X509CredentialInternal & operator=(const X509CredentialInternal & orig){
+        _cred= (orig._cred)?ne_ssl_dup_client_cert(orig._cred):NULL;
+        return *this;
+    }
 
     ~X509CredentialInternal(){
         clear_cert();
@@ -28,6 +33,20 @@ struct X509CredentialInternal{
 X509Credential::X509Credential() :
     d_ptr(new X509CredentialInternal())
 {
+}
+
+X509Credential::X509Credential(const X509Credential &orig) :
+    d_ptr(new X509CredentialInternal(*(orig.d_ptr)))
+{
+
+}
+
+X509Credential & X509Credential::operator =( const X509Credential & orig){
+    if(this == & orig)
+        return *this;
+    delete d_ptr;
+    d_ptr = new X509CredentialInternal(*(orig.d_ptr));
+    return *this;
 }
 
 X509Credential::~X509Credential(){
@@ -53,6 +72,11 @@ int X509Credential::loadFromFileP12(const std::string &p12_cred, const std::stri
 
 bool X509Credential::hasCert() const{
     return (d_ptr->_cred != NULL);
+}
+
+ne_ssl_client_cert* X509CredentialExtra::extract_ne_ssl_clicert(const X509Credential &cred)
+{
+        return (cred.d_ptr->_cred);
 }
 
 } // namespace DAvix

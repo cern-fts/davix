@@ -24,10 +24,6 @@ public:
         return _sess;
     }
 
-    // auth method support
-    int do_pkcs12_cert_authentification(const char * filename_pkcs12, const char* passwd, DavixError** err);
-    int do_login_passwd_authentification(const char *login, const char *passwd, DavixError** err);
-
 private:
     NEONSessionFactory & _f;
     ne_session* _sess;

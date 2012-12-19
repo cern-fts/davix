@@ -15,8 +15,13 @@ struct RequestParamsInternal{
     RequestParamsInternal() :
         _ssl_check(true),
         _redirection(true),
-        _userdata(NULL),
-        _call(NULL),
+        _cli_cert(),
+        _login(),
+        _passwd(),
+        _callb(NULL),
+        _callb_userdata(NULL),
+        _call_loginpswwd(NULL),
+        _call_loginpswwd_userdata(NULL),
         ops_timeout(),
         connexion_timeout(),
         agent_string(default_agent),
@@ -35,8 +40,13 @@ struct RequestParamsInternal{
     RequestParamsInternal(const RequestParamsInternal & param_private):
         _ssl_check(param_private._ssl_check),
         _redirection(param_private._redirection),
-        _userdata(param_private._userdata),
-        _call(param_private._call),
+        _cli_cert(param_private._cli_cert),
+        _login(param_private._login),
+        _passwd(param_private._passwd),
+        _callb(param_private._callb),
+        _callb_userdata(param_private._callb_userdata),
+        _call_loginpswwd(param_private._call_loginpswwd),
+        _call_loginpswwd_userdata(param_private._call_loginpswwd_userdata),
         ops_timeout(),
         connexion_timeout(),
         agent_string(param_private.agent_string),
@@ -50,8 +60,12 @@ struct RequestParamsInternal{
     bool _redirection; // redirection support
 
     // auth info
-    void* _userdata;
-    davix_auth_callback _call;
+    X509Credential _cli_cert;
+    std::string _login, _passwd;
+    authCallbackClientCertX509 _callb;
+    void* _callb_userdata;
+    authCallbackLoginPasswordBasic _call_loginpswwd;
+    void* _call_loginpswwd_userdata;
 
     // timeout management
     struct timespec ops_timeout;
@@ -110,21 +124,46 @@ void RequestParams::setSSLCAcheck(bool chk){
     d_ptr->_ssl_check = chk;
 }
 
-//
-void RequestParams::setAuthentificationCallback(void * _userdata, davix_auth_callback _call){
-    d_ptr->_call = _call;
-    d_ptr->_userdata = _userdata;
+
+void RequestParams::setClientCertX509(const X509Credential & cli_cert){
+    d_ptr->_cli_cert = cli_cert;
 }
 
-
-davix_auth_callback RequestParams::getAuthentificationCallbackFunction() const{
-    return d_ptr->_call;
+void RequestParams::setClientLoginPassword(const std::string & login, const std::string & password){
+    d_ptr->_login = login; d_ptr->_passwd = password;
 }
 
-void* RequestParams::getAuthentificationCallbackData() const{
-    return d_ptr->_userdata;
+std::pair<const std::string &, const std::string &> RequestParams::getClientLoginPassword() const{
+    return std::pair<const std::string &, const std::string &>(d_ptr->_login, d_ptr->_passwd);
 }
 
+const X509Credential & RequestParams::getClientCertX509() const{
+    return d_ptr->_cli_cert;
+}
+
+/// set a callback for X509 client side dynamic authentication
+/// this function overwrite \ref setClientCertX509
+void RequestParams::setClientCertCallbackX509(authCallbackClientCertX509 callback, void* userdata){
+    d_ptr->_callb = callback;
+    d_ptr->_callb_userdata = userdata;
+}
+
+/// return the current client side callback for authentification with the current user data
+std::pair<authCallbackClientCertX509,void*> RequestParams::getClientCertCallbackX509() const{
+    return std::pair<authCallbackClientCertX509,void*>(d_ptr->_callb, d_ptr->_callb_userdata);
+}
+
+/// set a callback for X509 client side dynamic authentication
+/// this function overwrite \ref setClientCertX509
+void RequestParams::setClientLoginPasswordCallback(authCallbackLoginPasswordBasic callback, void* userdata){
+    d_ptr->_call_loginpswwd = callback;
+    d_ptr->_call_loginpswwd_userdata = userdata;
+}
+
+/// return the current client side callback for authentification with the current user data
+std::pair<authCallbackLoginPasswordBasic,void*> RequestParams::getClientLoginPasswordCallback() const{
+    return std::pair<authCallbackLoginPasswordBasic,void*>(d_ptr->_call_loginpswwd, d_ptr->_call_loginpswwd_userdata);
+}
 
 void RequestParams::setConnectionTimeout(struct timespec *conn_timeout1){
     timespec_copy(&(d_ptr->connexion_timeout),conn_timeout1);
@@ -187,12 +226,7 @@ const bool RequestParams::getKeepAlive() const{
 
 DAVIX_C_DECL_BEGIN
 
-int davix_params_set_auth_callback(davix_params_t params, davix_auth_callback call, void* userdata, davix_error_t* err){
-    g_return_val_if_fail(params != NULL, -1);
-    Davix::RequestParams* p = (Davix::RequestParams*)(params);
-    p->setAuthentificationCallback(userdata, call);
-    return 0;
-}
+
 
 
 int davix_params_set_ssl_check(davix_params_t params, gboolean ssl_check, davix_error_t* err){

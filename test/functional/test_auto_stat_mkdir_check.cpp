@@ -11,7 +11,7 @@ using namespace Davix;
 
 static void configure_grid_env(char * cert_path, RequestParams&  p){
     p.setSSLCAcheck(false);
-    p.setAuthentificationCallback(cert_path, &mycred_auth_callback);
+    p.setClientCertCallbackX509(&mycred_auth_callback_x509, cert_path);
 }
 
 int main(int argc, char** argv){
@@ -42,6 +42,9 @@ int main(int argc, char** argv){
     std::cout << " stat enoent dir " << buff  << std::endl;
     int ret = pos.stat(&p, buff, &st, &tmp_err);
     g_assert( ret < 0);
+    if(tmp_err){
+        std::cout << " error " << (int) tmp_err->getStatus() << " msg " << tmp_err->getErrMsg() << std::endl;
+    }
     g_assert(tmp_err && StatusCode::FileNotFound == tmp_err->getStatus());
     DavixError::clearError(&tmp_err);
 

@@ -7,6 +7,8 @@
 #include <ne_redirect.h>
 #include <libs/time_utils.h>
 
+#include <auth/davixx509cred_internal.hpp>
+
 
 namespace Davix{
 
@@ -16,7 +18,7 @@ static int validate_all_certificate(void *userdata, int failures,
     return 0;
 }
 
-
+const int n_max_auth = 20;
 
 
 void NEONSession::provide_clicert_fn(void *userdata, ne_session *sess,
@@ -25,24 +27,24 @@ void NEONSession::provide_clicert_fn(void *userdata, ne_session *sess,
 
     NEONSession* req = static_cast<NEONSession*>(userdata);
     DavixError* tmp_err=NULL;
-    davix_auth_info_t auth_info;
-    auth_info.auth = DAVIX_CLI_CERT_PKCS12;
-    davix_auth_callback auth_call = req->_params.getAuthentificationCallbackFunction();
 
+    X509Credential cert;
+    std::pair<authCallbackClientCertX509,void*> retcallback = req->_params.getClientCertCallbackX509();
     DAVIX_DEBUG("NEONSession > clicert callback ");
-    if( auth_call == NULL){
-        DAVIX_DEBUG("NEONSession : No callback specified, cancel authentification");
-        return;
-    }else{
-        DAVIX_DEBUG("NEONSession > call authentification callback ");
-        int ret = auth_call((davix_auth_t) req, &auth_info, req->_params.getAuthentificationCallbackData(), (davix_error_t*) &tmp_err); // try to get authentification
-        DAVIX_DEBUG("NEONSession > return from authentification callback ");
-        if(ret !=0 && tmp_err == NULL){
-            DavixError::setupError(&tmp_err, davix_scope_http_request(), StatusCode::AuthentificationError, "Authentification callback returned with CANCEL without DavixError object");
+    if( retcallback.first != NULL){
+        DAVIX_DEBUG("NEONSession > call client cert callback ");
+        SessionInfo infos;
+
+
+        if( retcallback.first(retcallback.second, infos, &cert, &tmp_err) != 0 || cert.hasCert() == false){
+            if(!tmp_err)
+                DavixError::setupError(&(req->_last_error), davix_scope_http_request(), StatusCode::AuthentificationError,
+                                       "No valid credential given ");
+             return;
         }
-    }
-    if(tmp_err){
-       DavixError::propagateError(&(req->_last_error), tmp_err);
+
+        ne_ssl_set_clicert(req->_sess, X509CredentialExtra::extract_ne_ssl_clicert(cert));
+        DAVIX_DEBUG("NEONSession > end call client cert callback");
     }
     return;
 }
@@ -50,37 +52,49 @@ void NEONSession::provide_clicert_fn(void *userdata, ne_session *sess,
 int NEONSession::provide_login_passwd_fn(void *userdata, const char *realm, int attempt,
                                 char *username, char *password){
     NEONSession * req = static_cast<NEONSession*>(userdata);
+    DavixError * tmp_err=NULL;
+    int ret =-1;
+    std::string tmp_login, tmp_password;
 
-     DAVIX_DEBUG("NEONRequest > Try to get auth/password authentification ");
-     davix_auth_info_t auth_info;
-    // memset(&auth_info,0,sizeof(davix_auth_info_t));
-     davix_auth_callback auth_call = req->_params.getAuthentificationCallbackFunction();
-     auth_info.auth = DAVIX_LOGIN_PASSWORD;
-     DavixError* tmp_err=NULL;
+    DAVIX_DEBUG("NEONSession > Try to get auth/password authentification ");
 
-     if(auth_call  == NULL){
-         DAVIX_DEBUG("NEONSession : No credential specified, cancel login/password authentification");
-         return -1;
+     if(attempt > n_max_auth ){
+         DavixError::setupError(&(req->_last_error), davix_scope_http_request(), StatusCode::LoginPasswordError,
+                                "Overpass maximum number of try for login/password authentication ");
      }
 
-     DAVIX_DEBUG("NEONSession > call authentification callback ");
-     int ret = auth_call((davix_auth_t) req, &auth_info, req->_params.getAuthentificationCallbackData(), (davix_error_t*) &tmp_err); // try to get authentification
-     DAVIX_DEBUG("NEONSession > return from authentification callback ");
-     if(ret != 0){
-            DavixError::propagateError(&(req->_last_error), tmp_err);
-            return -2;
+     std::pair<authCallbackLoginPasswordBasic, void*> retcallback = req->_params.getClientLoginPasswordCallback();
+     std::pair<const std::string &, const std::string &> id = req->_params.getClientLoginPassword();
+     if(retcallback.first != NULL){
+         DAVIX_DEBUG("NEONSession > Try callback for login/passwd for %d time", attempt+1);
+         SessionInfo infos;
+
+         if( (ret = retcallback.first(retcallback.second, infos, tmp_login, tmp_password, attempt, &tmp_err) ) <0){
+             if(!tmp_err)
+                 DavixError::setupError(&tmp_err, davix_scope_http_request(), StatusCode::LoginPasswordError,
+                                        "No valid login/passwd given in after ");
+              DavixError::propagateError(&(req->_last_error), tmp_err);
+              return -1;
+         }
+     }else if(id.first.empty() == false){
+        tmp_login = id.first;
+        tmp_password = id.second;
      }
 
-     if( req->_passwd.empty()
-        || req->_login.empty() ){
-        DAVIX_DEBUG("NEONSession > Login/Password missings ....");
+    if( tmp_login.empty()
+        || tmp_password.empty() ){
+        DAVIX_DEBUG("NEONSession > no login/passwd : abort ");
+        DavixError::setupError(&(req->_last_error), davix_scope_http_request(),
+                               StatusCode::LoginPasswordError,
+                               "Server requested login/password authentication and no valid login/password have been given");
         return -1;
     }
     DAVIX_DEBUG("NEONSession > setup authentification pwd/login....");
-    g_strlcpy(username, req->_login.c_str(), NE_ABUFSIZ);
-    g_strlcpy(password, req->_passwd.c_str(), NE_ABUFSIZ);
+    g_strlcpy(username, tmp_login.c_str(), NE_ABUFSIZ);
+    g_strlcpy(password, tmp_password.c_str(), NE_ABUFSIZ);
     req->_login.clear();
     req->_passwd.clear();
+    DAVIX_DEBUG("NEONSession > get login/password with success...try server submission ");
     return 0;
 
 }
@@ -124,47 +138,6 @@ NEONSession::~NEONSession(){
 }
 
 
-
-
-
-int NEONSession::do_pkcs12_cert_authentification(const char *filename_pkcs12, const char *passwd, DavixError** err){
-    int ret;
-    ne_ssl_client_cert * cert = ne_ssl_clicert_read(filename_pkcs12);
-    if(cert == NULL){
-        DavixError::setupError(err, davix_scope_http_request(), StatusCode::CredentialNotFound, "impossible to load credential pkcs12");
-        return -1;
-    }
-
-    // try to decrypt
-    int crypt_state = ne_ssl_clicert_encrypted(cert);
-    if(crypt_state ==0 ){
-        DAVIX_DEBUG("NEONRequest : Credential unencrypted, try to use it directly");
-    }else{
-        DAVIX_DEBUG("NEONRequest : Credential is encrypted, try to decrypt credential");
-
-        if(passwd == NULL){
-            DavixError::setupError(err, davix_scope_http_request(), StatusCode::LoginPasswordError, "no password provided and credential encrypted");
-            return -1;
-        }
-
-        if ((ret= ne_ssl_clicert_decrypt(cert, passwd)) != 0){
-            DavixError::setupError(err, davix_scope_http_request(), StatusCode::LoginPasswordError, "Unable to decrypt credential, bad password");
-            return -1;
-        }
-    }
-    ne_ssl_set_clicert(_sess, cert);
-    ne_ssl_clicert_free(cert);
-    DAVIX_DEBUG("NEONRequest : associate credential to the current session");
-    return 0;
-}
-
-int NEONSession::do_login_passwd_authentification(const char *login, const char *passwd, DavixError** err){
-   this->_login = (char*) login;
-   this->_passwd = (char*)  passwd;
-   return 0;
-}
-
-
 void configureSession(ne_session *_sess, const RequestParams &params, ne_auth_creds lp_callback, void* lp_userdata,
                       ne_ssl_provide_fn cred_callback,  void* cred_userdata){
     if(strcmp(ne_get_scheme(_sess), "https") ==0) // fix a libneon bug with non ssl connexion
@@ -181,13 +154,25 @@ void configureSession(ne_session *_sess, const RequestParams &params, ne_auth_cr
         ne_ssl_set_verify(_sess, validate_all_certificate, NULL);
     }
 
-    // if authentification callback defined, enable the wrapper
-    if( params.getAuthentificationCallbackFunction() != NULL){
-        ne_ssl_provide_clicert(_sess, cred_callback, lp_userdata);
-        ne_set_server_auth(_sess, lp_callback, cred_userdata);
+    // if authentification for login/password
+    if( params.getClientLoginPassword().first.empty() == false
+            || params.getClientLoginPasswordCallback().first != NULL){
+        DAVIX_DEBUG("NEONSession : enable login/password authentication");
+        ne_set_server_auth(_sess, lp_callback, lp_userdata);
+    }else{
+        DAVIX_DEBUG("NEONSession : disable login/password authentication");
     }
 
-
+    // if authentification for cli cert by callback
+    if( params.getClientCertCallbackX509().first != NULL){
+        DAVIX_DEBUG("NEONSession : enable client cert authentication by callback ");
+        ne_ssl_provide_clicert(_sess, cred_callback, cred_userdata);
+    }else if( params.getClientCertX509().hasCert()){
+        ne_ssl_set_clicert(_sess, X509CredentialExtra::extract_ne_ssl_clicert(params.getClientCertX509()));
+        DAVIX_DEBUG("NEONSession : enable client cert authentication with predefined cert");
+    }else{
+          DAVIX_DEBUG("NEONSession : disable client cert authentication");
+    }
 
     if( timespec_isset(params.getOperationTimeout())){
         DAVIX_DEBUG("NEONSession : define operation timeout to %d", params.getOperationTimeout());

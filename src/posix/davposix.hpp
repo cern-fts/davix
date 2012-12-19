@@ -193,7 +193,8 @@ public:
      */
     int close(DAVIX_FD* fd, DavixError** err);
 
-protected:
+
+private:
     DAVIX_DIR* internal_opendirpp(const RequestParams* params,  const char * scope, const std::string & body, const std::string & url, DavixError** err);
 
     Context* context;
@@ -201,7 +202,6 @@ protected:
     long _s_buff;
 
 
-private:
     DavPosix(const DavPosix &);
     DavPosix & operator=(DavPosix &);
 

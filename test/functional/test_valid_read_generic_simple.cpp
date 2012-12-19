@@ -14,7 +14,7 @@ using namespace Davix;
 
 static void configure_grid_env(char * cert_path, RequestParams&  p){
     p.setSSLCAcheck(false);
-    p.setAuthentificationCallback(cert_path, &mycred_auth_callback);
+    p.setClientCertCallbackX509(&mycred_auth_callback_x509, cert_path);
 }
 
 

@@ -30,11 +30,15 @@ TEST(CredTest, basicLoad){
     ASSERT_EQ(NULL, tmp_err);
     ASSERT_TRUE(cred.hasCert());
 
+    X509Credential cred2(cred);
+    ASSERT_TRUE(cred2.hasCert());
+
     ret = cred.loadFromFileP12("/random/stupid/path", "", &tmp_err);
     ASSERT_EQ(-1, ret);
     ASSERT_EQ(StatusCode::CredentialNotFound, tmp_err->getStatus());
     DavixError::clearError(&tmp_err);
     ASSERT_FALSE(cred.hasCert());
+    ASSERT_TRUE(cred2.hasCert());
 
     ret = cred.loadFromFileP12(cert_path.c_str(), "", &tmp_err);
     ASSERT_EQ(-1, ret);

@@ -3,6 +3,7 @@
 #define DAVIX_REQUESTPARAMS_H
 
 #include "global_def.hpp"
+#include <auth/davixauth.hpp>
 
 
 /**
@@ -48,22 +49,33 @@ public:
     /// return the SSL Certificate authority validity check
     bool getSSLCACheck() const;
 
+    /// set a X509 credential for a simple client authentication
+    /// this function overwrite \ref setClientCertCallbackX509
+    void setClientCertX509(const X509Credential & cli_cert);
+
+    /// get the current client side credential
+    const X509Credential &  getClientCertX509() const;
+
+    /// set login/password for HTTP Authentication
+    void setClientLoginPassword(const std::string & login, const std::string & password);
+
+    /// get login/password for HTTP Authentication
+    std::pair<const std::string &, const std::string &> getClientLoginPassword() const;
 
 
+    /// set a callback for X509 client side dynamic authentication
+    /// this function overwrite \ref setClientCertX509
+    void setClientCertCallbackX509(authCallbackClientCertX509 callback, void* userdata);
 
-    /// set the authentification callback for the associated Request or set of request
-    /// userdata will be passed as argument inside the callback
-    /// @param userdata : user data handler
-    /// @param auth_cb : authentification function
-    void setAuthentificationCallback(void * userdata, davix_auth_callback call);
+    /// return the current client side callback for authentification with the associated user data
+    std::pair<authCallbackClientCertX509,void*> getClientCertCallbackX509() const;
 
-    /// return the current authentification callback
-    /// DEFAULT : NULL
-    davix_auth_callback getAuthentificationCallbackFunction() const;
+    /// set a callback for basic login/password http authentification
+    /// this function overwrite \ref setClientLoginPassword
+    void setClientLoginPasswordCallback(authCallbackLoginPasswordBasic callback, void* userdata);
 
-    /// return the current user data
-    /// DEFAULT : NULL
-    void* getAuthentificationCallbackData() const;
+    /// return the current login/password callback and the associated user data
+    std::pair<authCallbackLoginPasswordBasic,void*> getClientLoginPasswordCallback() const;
 
     /// define the connexion timeout
     /// conn_timeout is a relative time
@@ -110,6 +122,7 @@ public:
 
     /// get the keep alive value of this request params
     const bool getKeepAlive() const;
+
 
     RequestParams & operator=(const RequestParams & _p);
 private:

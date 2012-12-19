@@ -28,8 +28,8 @@ TEST(RequestParametersTest, CreateDelete){
     ASSERT_EQ(params.getSSLCACheck(), true);
     ASSERT_EQ(params.getOperationTimeout()->tv_sec, DAVIX_DEFAULT_OPS_TIMEOUT);
     ASSERT_EQ(params.getConnectionTimeout()->tv_sec, DAVIX_DEFAULT_CONN_TIMEOUT);
-    ASSERT_EQ(params.getAuthentificationCallbackData(), (void*) NULL);
-    ASSERT_EQ(params.getAuthentificationCallbackFunction(), (int (*)(davix_auth_st*, const davix_auth_info_t*, void*, Davix_error**)) NULL);
+    ASSERT_EQ(params.getClientCertCallbackX509().second, (void*) NULL);
+    ASSERT_EQ(params.getClientCertCallbackX509().first, (int (*)(void*, const Davix::SessionInfo&, Davix::X509Credential*, Davix::DavixError**)) NULL);
     ASSERT_TRUE( params.getTransparentRedirectionSupport());
 
     params.setSSLCAcheck(false);
@@ -73,8 +73,8 @@ TEST(RequestParametersTest, CreateDeleteDyn){
     ASSERT_EQ(params->getSSLCACheck(), true);
     ASSERT_EQ(params->getOperationTimeout()->tv_sec, DAVIX_DEFAULT_OPS_TIMEOUT);
     ASSERT_EQ(params->getConnectionTimeout()->tv_sec, DAVIX_DEFAULT_CONN_TIMEOUT);
-    ASSERT_EQ(params->getAuthentificationCallbackData(), (void*) NULL);
-    ASSERT_EQ(params->getAuthentificationCallbackFunction(), (int (*)(davix_auth_st*, const davix_auth_info_t*, void*, Davix_error**)) NULL);
+    ASSERT_EQ(params->getClientCertCallbackX509().second, (void*) NULL);
+    ASSERT_EQ(params->getClientCertCallbackX509().first, (int (*)(void*, const Davix::SessionInfo&, Davix::X509Credential*, Davix::DavixError**)) NULL);
 
     params->setSSLCAcheck(false);
     struct timespec timeout_co, timeout_ops;

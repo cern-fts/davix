@@ -11,14 +11,16 @@ using namespace Davix;
 
 int n_call=0;
 
-int davix_auth_callback_count(davix_auth_t token, const davix_auth_info_t* t, void* userdata, davix_error_t* err){
+
+int mycred_auth_callback_x509_count(void* userdata, const Davix::SessionInfo & info, Davix::X509Credential * cert, Davix::DavixError** err){
     n_call++;
-    return mycred_auth_callback(token, t, userdata, err);
+    return mycred_auth_callback_x509(userdata, info, cert, err);
 }
+
 
 static void configure_grid_env(char * cert_path, RequestParams&  p){
     p.setSSLCAcheck(false);
-    p.setAuthentificationCallback(cert_path, &davix_auth_callback_count);
+    p.setClientCertCallbackX509(&mycred_auth_callback_x509_count, cert_path);
 }
 
 int main(int argc, char** argv){

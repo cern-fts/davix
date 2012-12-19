@@ -23,7 +23,7 @@
 #include <davixcontext.hpp>
 
 /// authentication utilities
-#include <auth/x509cred.hpp>
+#include <auth/davixauth.hpp>
 
 /// low level HttpRequest builder
 #include <httprequest.hpp>

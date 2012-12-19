@@ -5,6 +5,10 @@
 
 namespace Davix {
 
+/**
+ * @cond HIDDEN_SYMBOLS
+ */
+
 static std::string void_str;
 
 struct UriPrivate{
@@ -160,6 +164,9 @@ bool uriCheckError(const Uri &uri, DavixError **err){
 } // namespace Davix
 
 
+/**
+ * @endcond
+ **/
 
 DAVIX_C_DECL_BEGIN
 

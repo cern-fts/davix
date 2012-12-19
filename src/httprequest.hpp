@@ -148,9 +148,7 @@ private:
 
 
 
-///
-/// return true if this http code is a success
-///
+
 bool httpcodeIsValid(int code);
 
 void httpcodeToDavixCode(int code, const std::string & scope, const std::string & end_message, DavixError** err);

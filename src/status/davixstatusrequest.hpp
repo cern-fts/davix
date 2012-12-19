@@ -26,9 +26,8 @@ struct DavixErrorInternal;
 
 namespace StatusCode{
 
-///
+/// @typedef StatusCode::Code
 /// @brief C++ Davix status codes
-///
 /// equal to davix_status_t
 ///
 typedef davix_status_t Code;

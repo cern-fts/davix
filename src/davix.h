@@ -82,24 +82,12 @@ davix_params_t davix_params_copy(davix_params_t src);
 ///
 void davix_params_free(davix_params_t p);
 
-///
-///  setup the authorization callback for the current parameter handle
-///  This authorisation callback will be called each time that the associated request will need an authentification
-///
-int davix_params_set_auth_callback(davix_params_t params, davix_auth_callback call, void* userdata, davix_error_t* err);
 
 ///
 ///  disable or enable the validity check of the serveur side credential
 ///
 int davix_params_set_ssl_check(davix_params_t params, gboolean ssl_check, davix_error_t* err);
 
-
-///
-///  Authenficiation callback specific parameters
-///
-int davix_auth_set_pkcs12_cli_cert(davix_auth_t token, const char* filename_pkcs, const char* passwd, davix_error_t* err);
-
-int davix_auth_set_login_passwd(davix_auth_t token, const char* login, const char* passwd, davix_error_t* err);
 
 
 DAVIX_C_DECL_END

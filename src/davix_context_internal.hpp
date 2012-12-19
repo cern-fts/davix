@@ -6,6 +6,8 @@
 
 namespace Davix {
 
+/// @cond HIDDEN_SYMBOLS
+
 
 struct ContextExplorer{
 
@@ -13,6 +15,8 @@ static NEONSessionFactory & SessionFactoryFromContext(Context & c);
 
 };
 
+
+///@endcond
 
 } // namespace Davix
 

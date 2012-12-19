@@ -9,6 +9,7 @@ FILE(GLOB src_davix_posix "posix/*.cpp")
 FILE(GLOB src_davix_status "status/*.cpp")
 FILE(GLOB src_davix_fileops "fileops/*.cpp")
 FILE(GLOB src_davix_params "params/*.cpp")
+FILE(GLOB src_davix_auth "auth/*.cpp")
 
 LIST(APPEND davix_headers "davix.h" "davix_types.h"  "davixuri.h" "davixcontext.hpp" "global_def.hpp"
             "abstractsessionfactory.hpp" "httprequest.hpp" "davix.hpp" "davixuri.hpp" )
@@ -20,6 +21,8 @@ LIST(APPEND davix_posix_header "posix/davix_posix.h" "posix/davposix.hpp")
 LIST(APPEND davix_status_header "status/davixstatusrequest.hpp" "status/davix_error.h")
 
 LIST(APPEND davix_params_header "params/davixrequestparams.hpp")
+
+LIST(APPEND davix_auth_header "auth/authobject.hpp" "auth/x509cred.hpp")
 
 
 include_directories("libs")
@@ -44,7 +47,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(${HTTPLIB_PKG_CFLAGS} )
 add_library(davix  SHARED ${src_davix} ${SRC_HTTP}  ${src_xmlparser} ${src_logger} ${src_datetime}
                            ${src_lockers} ${src_davix_posix} ${src_davix_status} ${src_davix_fileops}
-                           ${src_davix_params})
+                           ${src_davix_params} ${src_davix_auth})
 add_dependencies(davix neon_static)
 
 
@@ -88,3 +91,7 @@ install( FILES ${davix_status_header}
 
 install( FILES ${davix_params_header}
          DESTINATION ${INCLUDE_INSTALL_DIR}/davix/params)
+
+
+install( FILES ${davix_auth_header}
+         DESTINATION ${INCLUDE_INSTALL_DIR}/davix/auth)

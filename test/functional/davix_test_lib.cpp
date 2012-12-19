@@ -53,6 +53,35 @@ void configure_grid_env(char * cert_path, RequestParams&  p){
 
 }
 
+
+void configure_grid_env_bis(char * cert_path, RequestParams&  p){
+
+    X509Credential cred;
+    DavixError * tmp_err=NULL;
+    char login_passwd[strlen(cert_path)+1];
+    char* pstr;
+
+    strcpy(login_passwd, cert_path);
+    pstr = strchr(login_passwd, ':');
+    if( pstr != NULL){
+        *pstr= '\0';
+        pstr++;
+        p.setClientLoginPassword(std::string(login_passwd), std::string(pstr));
+    }else{
+        cred.loadFromFileP12(cert_path, "", &tmp_err);
+        if(tmp_err){
+            std::cerr << " failure when load cert : " << tmp_err->getErrMsg() << std::endl;
+            exit(-1);
+        }
+
+        p.setClientCertX509(cred );
+    }
+
+    p.setSSLCAcheck(false);
+
+
+}
+
 char * generate_random_string_content(size_t size){
     char * res = (char*) malloc(size * sizeof(char));
     size_t i =0;

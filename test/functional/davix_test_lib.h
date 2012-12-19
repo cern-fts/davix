@@ -15,6 +15,8 @@ char * generate_random_string_content(size_t size);
 
 void configure_grid_env(char * auth_args, Davix::RequestParams&  p);
 
+void configure_grid_env_bis(char * auth_args, Davix::RequestParams&  p);
+
 DAVIX_C_DECL_END
 
 #endif // DAVIX_TEST_LIB_H

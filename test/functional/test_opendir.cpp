@@ -29,7 +29,7 @@ int main(int argc, char** argv){
     std::auto_ptr<Context> c( new Context());
     DavPosix pos(c.get());
     if(argc > 2){
-        configure_grid_env(argv[2], p);
+        configure_grid_env_bis(argv[2], p);
     }
 
 

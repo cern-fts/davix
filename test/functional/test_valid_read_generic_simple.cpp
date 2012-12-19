@@ -11,13 +11,6 @@
 using namespace Davix;
 
 
-
-static void configure_grid_env(char * cert_path, RequestParams&  p){
-    p.setSSLCAcheck(false);
-    p.setClientCertCallbackX509(&mycred_auth_callback_x509, cert_path);
-}
-
-
 int main(int argc, char** argv){
     if( argc < 2){
         std::cout << "Usage  : " << std::endl;

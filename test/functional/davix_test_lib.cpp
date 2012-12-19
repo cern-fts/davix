@@ -36,6 +36,23 @@ char* generate_random_uri(const char* uri_dir, const char* prefix, char* buff, s
     return buff;
 }
 
+void configure_grid_env(char * cert_path, RequestParams&  p){
+
+    char login_passwd[strlen(cert_path)+1];
+    char* pstr;
+    strcpy(login_passwd, cert_path);
+    pstr = strchr(login_passwd, ':');
+    if( pstr != NULL){
+        *pstr= '\0';
+        pstr++;
+        p.setClientLoginPassword(std::string(login_passwd), std::string(pstr));
+    }
+
+    p.setSSLCAcheck(false);
+    p.setClientCertCallbackX509(&mycred_auth_callback_x509, cert_path);
+
+}
+
 char * generate_random_string_content(size_t size){
     char * res = (char*) malloc(size * sizeof(char));
     size_t i =0;

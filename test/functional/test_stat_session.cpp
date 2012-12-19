@@ -11,18 +11,6 @@ using namespace Davix;
 
 int n_call=0;
 
-
-int mycred_auth_callback_x509_count(void* userdata, const Davix::SessionInfo & info, Davix::X509Credential * cert, Davix::DavixError** err){
-    n_call++;
-    return mycred_auth_callback_x509(userdata, info, cert, err);
-}
-
-
-static void configure_grid_env(char * cert_path, RequestParams&  p){
-    p.setSSLCAcheck(false);
-    p.setClientCertCallbackX509(&mycred_auth_callback_x509_count, cert_path);
-}
-
 int main(int argc, char** argv){
     if( argc < 3){
         std::cout << "Usage  : " << std::endl;

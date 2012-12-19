@@ -157,6 +157,7 @@ std::string davix_scope_http_request();
 std::string davix_scope_xml_parser();
 std::string davix_scope_uri_parser();
 std::string davix_scope_io_cache();
+std::string davix_scope_x509cred();
 
 
 } // namespace Davix

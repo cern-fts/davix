@@ -22,6 +22,9 @@
 /// main context
 #include <davixcontext.hpp>
 
+/// authentication utilities
+#include <auth/x509cred.hpp>
+
 /// low level HttpRequest builder
 #include <httprequest.hpp>
 

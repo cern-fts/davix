@@ -139,6 +139,9 @@ std::string davix_scope_io_cache(){
     return "[davix_io_cache]";
 }
 
+std::string davix_scope_x509cred(){
+    return "[davix_x509cred]";
+}
 
 } // namespace Davix
 

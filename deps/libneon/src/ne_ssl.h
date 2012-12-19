@@ -135,7 +135,7 @@ int ne_ssl_clicert_encrypted(const ne_ssl_client_cert *ccert);
 
 /* Duplicate a client certificate object
  * Must be in a decrypted state */
-ne_ssl_client_cert *dup_client_cert(const ne_ssl_client_cert *cc);
+ne_ssl_client_cert *ne_ssl_dup_client_cert(const ne_ssl_client_cert *cc);
 
 /* Returns the "friendly name" given for the client cert, or NULL if
  * none given.  Returns a NUL-terminated, UTF-8-encoded string.  This

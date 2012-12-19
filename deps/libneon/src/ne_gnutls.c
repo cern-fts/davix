@@ -523,6 +523,8 @@ static gnutls_x509_crt x509_crt_copy(gnutls_x509_crt src)
     return dest;
 }
 
+
+
 /* Duplicate a client certificate, which must be in the decrypted state. */
 ne_ssl_client_cert *dup_client_cert(const ne_ssl_client_cert *cc)
 {
@@ -561,7 +563,12 @@ dup_error:
     }
     ne_free(newcc);
     return NULL;
-}    
+}
+
+ne_ssl_client_cert * ne_ssl_dup_client_cert(const ne_ssl_client_cert *cc)
+{
+    return dup_client_cert(cc);
+}
 
 /* Callback invoked when the SSL server requests a client certificate.  */
 static int provide_client_cert(gnutls_session session,

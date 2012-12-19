@@ -582,6 +582,12 @@ void ne_ssl_set_clicert(ne_session *sess, const ne_ssl_client_cert *cc)
     sess->client_cert = dup_client_cert(cc);
 }
 
+ne_ssl_client_cert * ne_ssl_dup_client_cert(const ne_ssl_client_cert *cc)
+{
+    return dup_client_cert(cc);
+}
+
+
 ne_ssl_context *ne_ssl_context_create(int mode)
 {
     ne_ssl_context *ctx = ne_calloc(sizeof *ctx);

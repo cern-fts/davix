@@ -22,7 +22,7 @@ LIST(APPEND davix_status_header "status/davixstatusrequest.hpp" "status/davix_er
 
 LIST(APPEND davix_params_header "params/davixrequestparams.hpp")
 
-LIST(APPEND davix_auth_header "auth/authobject.hpp" "auth/x509cred.hpp")
+LIST(APPEND davix_auth_header "auth/davixauth.hpp" "auth/davixx509cred.hpp")
 
 
 include_directories("libs")

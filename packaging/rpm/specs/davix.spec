@@ -2,7 +2,7 @@
 
 Name:				davix
 Version:			0.0.19
-Release:			0.1%{?dist}
+Release:			0.2%{?dist}
 Summary:			Webdav file access and file management Library
 Group:				Applications/Internet
 License:			LGPLv2+

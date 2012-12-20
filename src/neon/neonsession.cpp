@@ -63,8 +63,8 @@ int NEONSession::provide_login_passwd_fn(void *userdata, const char *realm, int 
                                 "Overpass maximum number of try for login/password authentication ");
      }
 
-     std::pair<authCallbackLoginPasswordBasic, void*> retcallback = req->_params.getClientLoginPasswordCallback();
-     std::pair<const std::string &, const std::string &> id = req->_params.getClientLoginPassword();
+     std::pair<authCallbackLoginPasswordBasic, void*> retcallback(req->_params.getClientLoginPasswordCallback());
+     std::pair<const std::string &, const std::string &> id(req->_params.getClientLoginPassword());
      if(retcallback.first != NULL){
          DAVIX_DEBUG("NEONSession > Try callback for login/passwd for %d time", attempt+1);
          SessionInfo infos;

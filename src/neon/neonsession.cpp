@@ -64,7 +64,7 @@ int NEONSession::provide_login_passwd_fn(void *userdata, const char *realm, int 
      }
 
      const std::pair<authCallbackLoginPasswordBasic, void*> retcallback(req->_params.getClientLoginPasswordCallback());
-     const std::pair<const std::string , const std::string > id(req->_params.getClientLoginPassword());
+     const std::pair<std::string , std::string > id(req->_params.getClientLoginPassword());
      if(retcallback.first != NULL){
          DAVIX_DEBUG("NEONSession > Try callback for login/passwd for %d time", attempt+1);
          SessionInfo infos;

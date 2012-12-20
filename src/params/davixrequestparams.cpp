@@ -16,8 +16,7 @@ struct RequestParamsInternal{
         _ssl_check(true),
         _redirection(true),
         _cli_cert(),
-        _login(),
-        _passwd(),
+        _idlogpass(),
         _callb(NULL),
         _callb_userdata(NULL),
         _call_loginpswwd(NULL),
@@ -41,8 +40,7 @@ struct RequestParamsInternal{
         _ssl_check(param_private._ssl_check),
         _redirection(param_private._redirection),
         _cli_cert(param_private._cli_cert),
-        _login(param_private._login),
-        _passwd(param_private._passwd),
+        _idlogpass(param_private._idlogpass),
         _callb(param_private._callb),
         _callb_userdata(param_private._callb_userdata),
         _call_loginpswwd(param_private._call_loginpswwd),
@@ -61,7 +59,7 @@ struct RequestParamsInternal{
 
     // auth info
     X509Credential _cli_cert;
-    std::string _login, _passwd;
+    std::pair<std::string,std::string> _idlogpass;
     authCallbackClientCertX509 _callb;
     void* _callb_userdata;
     authCallbackLoginPasswordBasic _call_loginpswwd;
@@ -130,11 +128,11 @@ void RequestParams::setClientCertX509(const X509Credential & cli_cert){
 }
 
 void RequestParams::setClientLoginPassword(const std::string & login, const std::string & password){
-    d_ptr->_login = login; d_ptr->_passwd = password;
+    d_ptr->_idlogpass = std::make_pair(login, password);
 }
 
-std::pair<const std::string &, const std::string &> RequestParams::getClientLoginPassword() const{
-    return std::pair<const std::string &, const std::string &>(d_ptr->_login, d_ptr->_passwd);
+const std::pair<std::string, std::string> & RequestParams::getClientLoginPassword() const{
+    return d_ptr->_idlogpass;
 }
 
 const X509Credential & RequestParams::getClientCertX509() const{

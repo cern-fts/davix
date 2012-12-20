@@ -60,7 +60,7 @@ public:
     void setClientLoginPassword(const std::string & login, const std::string & password);
 
     /// get login/password for HTTP Authentication
-    std::pair<const std::string &, const std::string &> getClientLoginPassword() const;
+    const std::pair<std::string,std::string> & getClientLoginPassword() const;
 
 
     /// set a callback for X509 client side dynamic authentication

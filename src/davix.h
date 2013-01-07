@@ -19,11 +19,14 @@
 #define __DAVIX_INSIDE__
 #endif
 
-/// logger
+// logger
 #include <logger/davix_logger.h>
 
 // general types
 #include <davix_types.h>
+
+// parameters
+#include <params/davixrequestparams.h>
 
 // error code and status
 #include <status/davix_error.h>
@@ -60,33 +63,7 @@ void davix_context_free(davix_sess_t sess);
 
 
 
-//
-// Params management functions
-//
 
-///
-/// create a davix parameter container with default parameter values
-/// a davix parameter container can be used to setup advanced settings to any davix request
-///
-/// need to be free with @ref davix_params_free
-///
-davix_params_t davix_params_new();
-
-///
-/// clone a davix parameter object
-///
-davix_params_t davix_params_copy(davix_params_t src);
-
-///
-///  free a davix parameter container
-///
-void davix_params_free(davix_params_t p);
-
-
-///
-///  disable or enable the validity check of the serveur side credential
-///
-int davix_params_set_ssl_check(davix_params_t params, gboolean ssl_check, davix_error_t* err);
 
 
 

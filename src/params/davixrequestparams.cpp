@@ -227,7 +227,7 @@ DAVIX_C_DECL_BEGIN
 
 
 
-int davix_params_set_ssl_check(davix_params_t params, gboolean ssl_check, davix_error_t* err){
+int davix_params_set_ssl_check(davix_params_t params, bool ssl_check, davix_error_t* err){
     g_return_val_if_fail(params != NULL, -1);
     Davix::RequestParams* p = (Davix::RequestParams*)(params);
     p->setSSLCAcheck(ssl_check);
@@ -248,5 +248,28 @@ void davix_params_free(davix_params_t p){
         delete ((Davix::RequestParams*) p);
     }
 }
+
+bool davix_params_get_keep_alive(davix_params_t params){
+    g_assert(params);
+    return ((Davix::RequestParams*) params)->getKeepAlive();
+}
+
+
+/// enable or disable http keep alive
+void davix_params_set_keep_alive(davix_params_t params, bool keep_alive){
+    g_assert(params);
+    ((Davix::RequestParams*) params)->setKeepAlive(keep_alive);
+}
+
+void davix_params_set_protocol(davix_params_t params, davix_request_protocol_t protocol){
+    g_assert(params);
+    ((Davix::RequestParams*) params)->setProtocol(protocol);
+}
+
+davix_request_protocol_t davix_params_get_protocol(davix_params_t params){
+    g_assert(params);
+    return ((Davix::RequestParams*) params)->getProtocol();
+}
+
 
 DAVIX_C_DECL_END

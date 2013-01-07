@@ -2,6 +2,7 @@
 #define DAVIX_TYPES_H
 
 #include <glib.h>
+#include <stdbool.h>
 
 /**
   @file davix_types.h

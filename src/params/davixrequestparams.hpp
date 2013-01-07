@@ -1,6 +1,6 @@
 #pragma once
-#ifndef DAVIX_REQUESTPARAMS_H
-#define DAVIX_REQUESTPARAMS_H
+#ifndef DAVIX_REQUESTPARAMS_HPP
+#define DAVIX_REQUESTPARAMS_HPP
 
 #include "global_def.hpp"
 #include <auth/davixauth.hpp>
@@ -135,4 +135,4 @@ private:
 
 } // namespace Davix
 
-#endif // DAVIX_REQUESTPARAMS_H
+#endif // DAVIX_REQUESTPARAMS_HPP

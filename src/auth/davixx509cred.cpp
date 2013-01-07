@@ -23,8 +23,10 @@ struct X509CredentialInternal{
     }
 
     void clear_cert(){
-        if(_cred)
+        if(_cred){
             ne_ssl_clicert_free(_cred);
+            _cred = NULL;
+        }
     }
 
     ne_ssl_client_cert * _cred;

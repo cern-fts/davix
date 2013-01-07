@@ -13,6 +13,7 @@ TEST(CredTest, basicLoad){
     DavixError* tmp_err=NULL;
     davix_set_log_level(DAVIX_LOG_DEBUG | DAVIX_LOG_WARNING | DAVIX_LOG_TRACE);
 
+    Context c;
     X509Credential cred;
 
     ASSERT_FALSE(cred.hasCert());

@@ -2,6 +2,7 @@
 #define DAVIX_X509CRED_INTERNAL_HPP
 
 #include <auth/davixx509cred.hpp>
+#include <auth/davixx509cred.h>
 #include <ne_ssl.h>
 
 namespace Davix{

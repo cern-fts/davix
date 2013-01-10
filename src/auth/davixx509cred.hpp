@@ -28,8 +28,9 @@ public:
 
     /// load a credential from a PEM file
     /// @param key_file : path to the p12 credential file
-    /// @param
-    int loadFromFileP12(const std::string & p12_cred, const std::string & password, DavixError** err);
+    /// @param password : pass to decrypt the credential, empty string if nothing
+    /// @param err : davix error report
+    int loadFromFileP12(const std::string & filepath_p12_cred, const std::string & password, DavixError** err);
 
 
     /// check if contains a valid certificate

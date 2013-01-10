@@ -1,30 +1,22 @@
-#ifndef DAVIX_AUTH_HPP
-#define DAVIX_AUTH_HPP
+#ifndef DAVIX_AUTH_H
+#define DAVIX_AUTH_H
 
 
-#include <string>
-
-#include <auth/davixx509cred.hpp>
+#include <auth/davixx509cred.h>
 
 
 #ifndef __DAVIX_INSIDE__
 #error "Only davix.h or davix.hpp should be included."
 #endif
 
-/// @file davixauth.hpp
-/// @brief Authentication support for davix
+/// @file davixauth.h
+/// @brief Authentication support for davix, C Bindings
 /// support for client cert x509, login password
 
 
-namespace Davix {
+DAVIX_C_DECL_BEGIN
 
-///  @clas
-class SessionInfo{
-public:
-    void* a;
-/// need to be fill with server side infos
-
-};
+typedef struct davix_session_info_s* davix_session_info_t;
 
 ///
 /// callback for advanced authentification with client cert X509
@@ -33,7 +25,7 @@ public:
 /// @param cert : Client side credential to provide
 /// @param err : error object to set if an error occures
 /// @return MUST return 0 if credential if provided with success or != 0 if error occures
-typedef int (*authCallbackClientCertX509)(void* userdata, const SessionInfo & info, X509Credential * cert, DavixError** err);
+typedef int (*davix_auth_cb_client_cert_x509)(void* userdata, const davix_session_info_t info, davix_x509_certificate_t cert, davix_error_t* err);
 
 
 ///
@@ -44,9 +36,10 @@ typedef int (*authCallbackClientCertX509)(void* userdata, const SessionInfo & in
 /// @param password : password to use
 /// @param count : number of try
 /// @return MUST return 0 if success, or !=0 if an error has occures
-typedef int (*authCallbackLoginPasswordBasic)(void* userdata, const SessionInfo & info, std::string & login, std::string & password,
-                                        int count, DavixError** err);
+typedef int (*davix_auth_cb_login_passwd)(void* userdata, const davix_session_info_t info, const char* login, const char* password,
+                                        int count, davix_error_t* err);
 
-} // namespace Davix
 
-#endif // DAVIX_AUTHOBJECT_HPP
+DAVIX_C_DECL_END
+
+#endif // DAVIX_AUTHOBJECT_H

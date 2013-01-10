@@ -62,6 +62,41 @@ davix_request_protocol_t davix_params_get_protocol(davix_params_t params);
 /// set protocol used by the  request
 void davix_params_set_protocol(davix_params_t params, davix_request_protocol_t protocol);
 
+
+/// enable or disable transparent redirection support
+/// In the transparent redirection mode,
+/// davix follows the HTTP redirection automatically
+/// default : enabled
+void davix_params_set_trans_redirect(davix_params_t params, bool redirection);
+
+/// return true if the transparent redirection mode is enabled
+bool davix_params_get_trans_redirect(davix_params_t params);
+
+/// set the user agent for the associated request
+void davix_params_set_user_agent(davix_params_t params, const char* user_agent);
+
+/// get the current user agent string
+const char* davix_params_get_user_agent(davix_params_t params);
+
+
+/// define the connexion timeout
+/// conn_timeout is a relative time
+/// DEFAULT : 180s
+void davix_params_set_conn_timeout(davix_params_t params, unsigned int timeout);
+
+/// get the current connexion timeout
+unsigned int davix_params_get_conn_timeout(davix_params_t params);
+
+
+/// define the maximum execution time for a davix request
+/// ops_timeout is a relative time
+/// DEFAULT : infinite
+void davix_params_set_ops_timeout(davix_params_t params, unsigned int timeout);
+
+/// get the maximum execution time for a davix request
+/// DEFAULT : infinite
+unsigned int davix_params_get_ops_timeout(davix_params_t params);
+
 DAVIX_C_DECL_END
 
 #endif // DAVIXREQUESTPARAMS_H

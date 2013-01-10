@@ -221,6 +221,12 @@ const bool RequestParams::getKeepAlive() const{
 } // namespace Davix
 
 
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+///// C bindings
+////////////////////////////////////////////////
+////////////////////////////////////////////////
+
 
 DAVIX_C_DECL_BEGIN
 
@@ -269,6 +275,65 @@ void davix_params_set_protocol(davix_params_t params, davix_request_protocol_t p
 davix_request_protocol_t davix_params_get_protocol(davix_params_t params){
     g_assert(params);
     return ((Davix::RequestParams*) params)->getProtocol();
+}
+
+
+void davix_params_set_trans_redirect(davix_params_t params, bool redirection){
+    g_assert(params);
+    ((Davix::RequestParams*) params)->setTransparentRedirectionSupport(redirection);
+}
+
+bool davix_params_get_trans_redirect(davix_params_t params){
+    g_assert(params);
+    return ((Davix::RequestParams*) params)->getTransparentRedirectionSupport();
+}
+
+/// set the user agent for the associated request
+void davix_params_set_user_agent(davix_params_t params, const char* user_agent){
+    g_assert(params && user_agent);
+    ((Davix::RequestParams*) params)->setUserAgent(user_agent);
+}
+
+/// get the current user agent string
+const char* davix_params_get_user_agent(davix_params_t params){
+    g_assert(params);
+    return ((Davix::RequestParams*) params)->getUserAgent().c_str();
+}
+
+/// define the connexion timeout
+/// conn_timeout is a relative time
+/// DEFAULT : 180s
+void davix_params_set_conn_timeout(davix_params_t params, unsigned int timeout){
+    g_assert(params);
+    struct timespec t;
+    t.tv_sec = timeout;
+    t.tv_nsec =0;
+    return ((Davix::RequestParams*) params)->setConnectionTimeout(&t);
+}
+
+/// get the current connexion timeout
+unsigned int davix_params_get_conn_timeout(davix_params_t params){
+    g_assert(params);
+    return ((Davix::RequestParams*) params)->getConnectionTimeout()->tv_sec;
+}
+
+
+/// define the maximum execution time for a davix request
+/// ops_timeout is a relative time
+/// DEFAULT : infinite
+void davix_params_set_ops_timeout(davix_params_t params, unsigned int timeout){
+    g_assert(params);
+    struct timespec t;
+    t.tv_sec = timeout;
+    t.tv_nsec =0;
+    return ((Davix::RequestParams*) params)->setOperationTimeout(&t);
+}
+
+/// get the maximum execution time for a davix request
+/// DEFAULT : infinite
+unsigned int davix_params_get_ops_timeout(davix_params_t params){
+    g_assert(params);
+    return ((Davix::RequestParams*) params)->getOperationTimeout()->tv_sec;
 }
 
 

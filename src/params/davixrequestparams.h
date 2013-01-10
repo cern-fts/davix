@@ -104,10 +104,10 @@ void davix_params_set_login_passwd(davix_params_t params, const char* login, con
 
 /// set a X509 credential for a simple client authentication
 /// this function overwrite \ref setClientCertCallbackX509
-void davix_params_set_client_cert_X509(davix_params_t params, davix_x509_certificate_t cred);
+void davix_params_set_client_cert_X509(davix_params_t params, davix_x509_cert_t cred);
 
 /// get the current client side credential
-davix_x509_certificate_t  davix_params_get_client_cert_X509(davix_params_t params);
+davix_x509_cert_t  davix_params_get_client_cert_X509(davix_params_t params);
 
 DAVIX_C_DECL_END
 

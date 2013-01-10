@@ -1,5 +1,6 @@
 
 #include "davix_test_lib.h"
+#include "davix_test_lib_c.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -91,3 +92,37 @@ char * generate_random_string_content(size_t size){
     }
     return res;
 }
+
+
+DAVIX_C_DECL_BEGIN
+
+
+void configure_grid_env_c(char * cert_path, davix_params_t  params){
+
+
+    davix_error_t tmp_err=NULL;
+    char login_passwd[strlen(cert_path)+1];
+    char* pstr;
+
+    strcpy(login_passwd, cert_path);
+    pstr = strchr(login_passwd, ':');
+    if( pstr != NULL){
+        *pstr= '\0';
+        pstr++;
+        davix_params_set_login_passwd(params, login_passwd, pstr);
+    }else{
+        davix_x509_cert_t cred = davix_x509_cert_new();
+        davix_x509_cert_load_from_p12(cred, cert_path, "", &tmp_err);
+        if(tmp_err){
+            std::cerr << " failure when load cert : " << davix_error_msg(tmp_err) << std::endl;
+            exit(-1);
+        }
+        davix_params_set_client_cert_X509(params, cred);
+        davix_x509_cert_free(cred);
+
+    }
+
+    davix_params_set_ssl_check(params, FALSE, &tmp_err);
+}
+
+DAVIX_C_DECL_END

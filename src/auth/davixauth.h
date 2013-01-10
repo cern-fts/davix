@@ -25,7 +25,7 @@ typedef struct davix_session_info_s* davix_session_info_t;
 /// @param cert : Client side credential to provide
 /// @param err : error object to set if an error occures
 /// @return MUST return 0 if credential if provided with success or != 0 if error occures
-typedef int (*davix_auth_cb_client_cert_x509)(void* userdata, const davix_session_info_t info, davix_x509_certificate_t cert, davix_error_t* err);
+typedef int (*davix_auth_cb_client_cert_x509)(void* userdata, const davix_session_info_t info, davix_x509_cert_t cert, davix_error_t* err);
 
 
 ///

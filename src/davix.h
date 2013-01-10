@@ -25,6 +25,9 @@
 // general types
 #include <davix_types.h>
 
+// authentication
+#include <auth/davixauth.h>
+
 // parameters
 #include <params/davixrequestparams.h>
 

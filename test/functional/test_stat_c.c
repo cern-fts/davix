@@ -4,7 +4,7 @@
 #include <davix.h>
 #include <glib.h>
 #include <string.h>
-//#include "davix_test_lib.h"
+#include "davix_test_lib_c.h"
 
 
 
@@ -13,7 +13,6 @@ int main(int argc, char** argv){
         printf(" Usage %s [url] [credential_path_p12]", argv[0]);
         return 0;
     }
-/*
 
     davix_error_t tmp_err=NULL;
     int res =-1;
@@ -24,10 +23,7 @@ int main(int argc, char** argv){
 
     if(!tmp_err && argc >=3){
         p = davix_params_new();
-        davix_params_set_auth_callback(p, mycred_auth_callback, argv[2], &tmp_err);
-        davix_params_set_ssl_check(p, FALSE, &tmp_err);
-      //  davix_set_default_session_params(ctxt, p, NULL);
-
+        configure_grid_env_c(argv[2], p);
     }
 
 
@@ -47,7 +43,7 @@ int main(int argc, char** argv){
     }
     davix_context_free(ctxt);
     davix_params_free(p);
-    return res;*/
+    return res;
     return 0;
 }
 

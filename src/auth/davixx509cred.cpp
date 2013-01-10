@@ -86,24 +86,24 @@ ne_ssl_client_cert* X509CredentialExtra::extract_ne_ssl_clicert(const X509Creden
 
 DAVIX_C_DECL_BEGIN
 
-davix_x509_certificate_t davix_x509_certificate_new(){
-    return (davix_x509_certificate_t) new Davix::X509Credential();
+davix_x509_cert_t davix_x509_cert_new(){
+    return (davix_x509_cert_t) new Davix::X509Credential();
 }
 
 /// return true if certificate container contain a valid credential, else false
-bool davix_x509_certificate_has_cert(davix_x509_certificate_t cred){
+bool davix_x509_cert_has_cert(davix_x509_cert_t cred){
     g_assert(cred);
     return ((Davix::X509Credential*) cred)->hasCert();
 }
 
 /// load a pkcs12 certificate
-int davix_x509_certificate_load_from_p12(davix_x509_certificate_t cred, const char * path, const char* passwd, davix_error_t* err){
+int davix_x509_cert_load_from_p12(davix_x509_cert_t cred, const char * path, const char* passwd, davix_error_t* err){
     g_assert(cred && path);
     return ((Davix::X509Credential*) cred)->loadFromFileP12(path, ((passwd)?(passwd):""), (Davix::DavixError**)err);
 }
 
 /// free a container for X509 certificate
-void davix_x509_certificate_free(davix_x509_certificate_t cred){
+void davix_x509_cert_free(davix_x509_cert_t cred){
     if(cred)
         delete (Davix::X509Credential*) cred;
 }

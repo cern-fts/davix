@@ -330,15 +330,15 @@ unsigned int davix_params_get_ops_timeout(davix_params_t params){
 }
 
 
-void davix_params_set_client_cert_X509(davix_params_t params, davix_x509_certificate_t cred){
+void davix_params_set_client_cert_X509(davix_params_t params, davix_x509_cert_t cred){
     g_assert(params && cred);
     ((Davix::RequestParams*) params)->setClientCertX509(*(Davix::X509Credential*) cred);
 }
 
 
-davix_x509_certificate_t  davix_params_get_client_cert_X509(davix_params_t params){
+davix_x509_cert_t  davix_params_get_client_cert_X509(davix_params_t params){
     g_assert(params);
-    return (davix_x509_certificate_t) &((Davix::RequestParams*) params)->getClientCertX509();
+    return (davix_x509_cert_t) &((Davix::RequestParams*) params)->getClientCertX509();
 }
 
 /// set login/password for HTTP Authentication

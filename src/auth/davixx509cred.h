@@ -14,21 +14,21 @@
 
 DAVIX_C_DECL_BEGIN
 
-typedef struct davix_x509_certificate_s* davix_x509_certificate_t;
+typedef struct davix_x509_certificate_s* davix_x509_cert_t;
 
 
 
 /// create a new container for X509 certificate
-davix_x509_certificate_t davix_x509_certificate_new();
+davix_x509_cert_t davix_x509_cert_new();
 
 /// return true if certificate container contain a valid credential, else false
-bool davix_x509_certificate_has_cert(davix_x509_certificate_t cred);
+bool davix_x509_cert_has_cert(davix_x509_cert_t cred);
 
 /// load a pkcs12 certificate
-int davix_x509_certificate_load_from_p12(davix_x509_certificate_t cred, const char * path, const char* passwd, davix_error_t* err);
+int davix_x509_cert_load_from_p12(davix_x509_cert_t cred, const char * path, const char* passwd, davix_error_t* err);
 
 /// free a container for X509 certificate
-void davix_x509_certificate_free(davix_x509_certificate_t cred);
+void davix_x509_cert_free(davix_x509_cert_t cred);
 
 
 DAVIX_C_DECL_END

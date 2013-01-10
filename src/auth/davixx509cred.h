@@ -1,8 +1,7 @@
 #ifndef DAVIX_X509CRED_H
 #define DAVIX_X509CRED_H
 
-#include <status/davixstatusrequest.hpp>
-
+#include <davix_types.h>
 
 #ifndef __DAVIX_INSIDE__
 #error "Only davix.h or davix.hpp should be included."

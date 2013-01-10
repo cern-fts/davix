@@ -1,3 +1,4 @@
+#include <auth/davixauth.h>
 #include <params/davixrequestparams.hpp>
 #include <libs/time_utils.h>
 
@@ -288,21 +289,18 @@ bool davix_params_get_trans_redirect(davix_params_t params){
     return ((Davix::RequestParams*) params)->getTransparentRedirectionSupport();
 }
 
-/// set the user agent for the associated request
 void davix_params_set_user_agent(davix_params_t params, const char* user_agent){
     g_assert(params && user_agent);
     ((Davix::RequestParams*) params)->setUserAgent(user_agent);
 }
 
-/// get the current user agent string
+
 const char* davix_params_get_user_agent(davix_params_t params){
     g_assert(params);
     return ((Davix::RequestParams*) params)->getUserAgent().c_str();
 }
 
-/// define the connexion timeout
-/// conn_timeout is a relative time
-/// DEFAULT : 180s
+
 void davix_params_set_conn_timeout(davix_params_t params, unsigned int timeout){
     g_assert(params);
     struct timespec t;
@@ -311,16 +309,13 @@ void davix_params_set_conn_timeout(davix_params_t params, unsigned int timeout){
     return ((Davix::RequestParams*) params)->setConnectionTimeout(&t);
 }
 
-/// get the current connexion timeout
 unsigned int davix_params_get_conn_timeout(davix_params_t params){
     g_assert(params);
     return ((Davix::RequestParams*) params)->getConnectionTimeout()->tv_sec;
 }
 
 
-/// define the maximum execution time for a davix request
-/// ops_timeout is a relative time
-/// DEFAULT : infinite
+
 void davix_params_set_ops_timeout(davix_params_t params, unsigned int timeout){
     g_assert(params);
     struct timespec t;
@@ -329,11 +324,27 @@ void davix_params_set_ops_timeout(davix_params_t params, unsigned int timeout){
     return ((Davix::RequestParams*) params)->setOperationTimeout(&t);
 }
 
-/// get the maximum execution time for a davix request
-/// DEFAULT : infinite
 unsigned int davix_params_get_ops_timeout(davix_params_t params){
     g_assert(params);
     return ((Davix::RequestParams*) params)->getOperationTimeout()->tv_sec;
+}
+
+
+void davix_params_set_client_cert_X509(davix_params_t params, davix_x509_certificate_t cred){
+    g_assert(params && cred);
+    ((Davix::RequestParams*) params)->setClientCertX509(*(Davix::X509Credential*) cred);
+}
+
+
+davix_x509_certificate_t  davix_params_get_client_cert_X509(davix_params_t params){
+    g_assert(params);
+    return (davix_x509_certificate_t) &((Davix::RequestParams*) params)->getClientCertX509();
+}
+
+/// set login/password for HTTP Authentication
+void davix_params_set_login_passwd(davix_params_t params, const char* login, const char*  password){
+    g_assert(params && login && password);
+    ((Davix::RequestParams*) params)->setClientLoginPassword(login, password);
 }
 
 

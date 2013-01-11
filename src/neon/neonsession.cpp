@@ -1,5 +1,11 @@
 #include "neonsession.hpp"
 
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+
 #include <string>
 #include <cstring>
 
@@ -183,6 +189,17 @@ void configureSession(ne_session *_sess, const RequestParams &params, ne_auth_cr
 #ifndef _NEON_VERSION_0_25
         ne_set_connect_timeout(_sess, (int) params.getConnectionTimeout()->tv_sec);
 #endif
+    }
+
+    for(std::vector<std::string>::const_iterator it = params.listCertificateAuthorityPath().begin(); it < params.listCertificateAuthorityPath().end(); it++){
+        struct stat st;
+        if ( stat(it->c_str(), &st) < 0 || S_ISDIR(st.st_mode) == false){
+            DAVIX_LOG(DAVIX_LOG_WARNING, "NEONSession : CA Path invalid : %s, %s ", it->c_str(), (errno != 0)?strerror(errno):strerror(ENOTDIR));
+            errno = 0;
+        }else{
+            DAVIX_TRACE(" add CA PATH %s", it->c_str());
+            ne_ssl_truse_add_ca_path(_sess, it->c_str());
+        }
     }
 
     ne_set_session_flag(_sess, NE_SESSFLAG_PERSIST, params.getKeepAlive());

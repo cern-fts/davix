@@ -804,6 +804,11 @@ void ne_ssl_context_trustcert(ne_ssl_context *ctx, const ne_ssl_certificate *cer
     X509_STORE_add_cert(store, cert->subject);
 }
 
+int ne_ssl_context_trust_add_ca_path(ne_ssl_context * ctx, const char* path){
+     X509_STORE *store = SSL_CTX_get_cert_store(ctx->ctx);
+     return ((X509_STORE_load_locations(store, NULL, path) ==1)?0:-1);
+}
+
 void ne_ssl_trust_default_ca(ne_session *sess)
 {
     X509_STORE *store = SSL_CTX_get_cert_store(sess->ssl_context->ctx);

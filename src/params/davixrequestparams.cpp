@@ -16,6 +16,7 @@ struct RequestParamsInternal{
     RequestParamsInternal() :
         _ssl_check(true),
         _redirection(true),
+        _ca_path(),
         _cli_cert(),
         _idlogpass(),
         _callb(NULL),
@@ -40,6 +41,7 @@ struct RequestParamsInternal{
     RequestParamsInternal(const RequestParamsInternal & param_private):
         _ssl_check(param_private._ssl_check),
         _redirection(param_private._redirection),
+        _ca_path(param_private._ca_path),
         _cli_cert(param_private._cli_cert),
         _idlogpass(param_private._idlogpass),
         _callb(param_private._callb),
@@ -57,6 +59,9 @@ struct RequestParamsInternal{
     }
     bool _ssl_check; // ssl CA check
     bool _redirection; // redirection support
+
+    // CA management
+    std::vector<std::string> _ca_path;
 
     // auth info
     X509Credential _cli_cert;
@@ -163,6 +168,16 @@ void RequestParams::setClientLoginPasswordCallback(authCallbackLoginPasswordBasi
 std::pair<authCallbackLoginPasswordBasic,void*> RequestParams::getClientLoginPasswordCallback() const{
     return std::pair<authCallbackLoginPasswordBasic,void*>(d_ptr->_call_loginpswwd, d_ptr->_call_loginpswwd_userdata);
 }
+
+
+void RequestParams::addCertificateAuthorityPath(const std::string &path){
+    d_ptr->_ca_path.push_back(path);
+}
+
+const std::vector<std::string> & RequestParams::listCertificateAuthorityPath() const{
+    return d_ptr->_ca_path;
+}
+
 
 void RequestParams::setConnectionTimeout(struct timespec *conn_timeout1){
     timespec_copy(&(d_ptr->connexion_timeout),conn_timeout1);

@@ -2,6 +2,9 @@
 #ifndef DAVIX_REQUESTPARAMS_HPP
 #define DAVIX_REQUESTPARAMS_HPP
 
+#include <vector>
+#include <string>
+
 #include "global_def.hpp"
 #include <auth/davixauth.hpp>
 
@@ -76,6 +79,13 @@ public:
 
     /// return the current login/password callback and the associated user data
     std::pair<authCallbackLoginPasswordBasic,void*> getClientLoginPasswordCallback() const;
+
+
+    /// add the CA certificate in the directory 'path' as trusted certificate
+    void addCertificateAuthorityPath(const std::string & path);
+
+    /// get the list of the current user defined CA path
+    const std::vector<std::string> & listCertificateAuthorityPath() const;
 
     /// define the connexion timeout
     /// conn_timeout is a relative time

@@ -49,7 +49,13 @@ void configure_grid_env(char * cert_path, RequestParams&  p){
         p.setClientLoginPassword(std::string(login_passwd), std::string(pstr));
     }
 
-    p.setSSLCAcheck(false);
+    // add standard grid certificate for wlcg test
+    p.addCertificateAuthorityPath("/etc/grid-security/certificates/");
+    // add wrong cert path for testing purpose
+    p.addCertificateAuthorityPath("/Iamnotexisting");
+    p.addCertificateAuthorityPath("");
+    p.addCertificateAuthorityPath("/etc/group"); // add a file
+
     p.setClientCertCallbackX509(&mycred_auth_callback_x509, cert_path);
 
 }
@@ -78,7 +84,7 @@ void configure_grid_env_bis(char * cert_path, RequestParams&  p){
         p.setClientCertX509(cred );
     }
 
-    p.setSSLCAcheck(false);
+   p.setSSLCAcheck(false);
 
 
 }

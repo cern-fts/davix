@@ -512,6 +512,15 @@ void ne_ssl_trust_cert(ne_session *sess, const ne_ssl_certificate *cert)
 #endif
 }
 
+int ne_ssl_truse_add_ca_path(ne_session* sess, const char* path){
+#ifdef NE_HAVE_SSL
+    if (sess->ssl_context) {
+        return ne_ssl_context_trust_add_ca_path(sess->ssl_context, path);
+    }
+#endif
+    return -1;
+}
+
 void ne_ssl_cert_validity(const ne_ssl_certificate *cert, char *from, char *until)
 {
 #ifdef NE_HAVE_SSL

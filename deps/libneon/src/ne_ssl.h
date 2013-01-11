@@ -169,11 +169,16 @@ typedef struct ne_ssl_context_s ne_ssl_context;
 #define NE_SSL_CTX_SERVER (1) /* default server context */
 #define NE_SSL_CTX_SERVERv2 (2) /* SSLv2-specific server context */
 
-/* Create an SSL context. */
+
+
+
 ne_ssl_context *ne_ssl_context_create(int mode);
 
 /* Client mode: trust the given certificate 'cert' in context 'ctx'. */
 void ne_ssl_context_trustcert(ne_ssl_context *ctx, const ne_ssl_certificate *cert);
+
+/* trust all the CA certificate contained in the directory dir for this ssl context */
+int ne_ssl_context_trust_add_ca_path(ne_ssl_context * ctx, const char* path);
 
 /* Server mode: use given cert and key (filenames to PEM certificates). */
 int ne_ssl_context_keypair(ne_ssl_context *ctx,

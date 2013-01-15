@@ -31,17 +31,10 @@ add_subdirectory(libs)
 add_subdirectory(datetime)
 add_subdirectory(logger)
 add_subdirectory(xml)
-if ( ${HTTP_LIB} STREQUAL "NEON" )
 
-    add_subdirectory(neon)
-    SET(SRC_HTTP ${src_neon})
+add_subdirectory(neon)
+SET(SRC_HTTP ${src_neon})
 
-else ( ${HTTP_LIB} STREQUAL "NEON" )
-
-    add_subdirectory(curl)
-    SET(SRC_HTTP ${src_curl})
-
-endif ( ${HTTP_LIB} STREQUAL "NEON" )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(${HTTPLIB_PKG_CFLAGS} )

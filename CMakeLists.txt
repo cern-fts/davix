@@ -56,22 +56,10 @@ add_definitions( -D_GNU_SOURCE)
 add_definitions( -DNEON_BACKEND)
 add_definitions( -D__DAVIX_INSIDE__)
 
-
-## patch against 0.25.0 problem of libneon
-## valid in shared library mod only
-if("${HTTPLIB_PKG_VERSION}" VERSION_LESS "0.27.0")
-    message(" .... neon version < 0.27 detected : disable session re-use, risk of bug important")
-    add_definitions( -D_DISABLE_SESSION_REUSE)
-    add_definitions( -D_NEON_VERSION_0_25)
-endif("${HTTPLIB_PKG_VERSION}" VERSION_LESS "0.27.0")
-
-
-
 include_directories( ${HTTPLIB_PKG_INCLUDE_DIRS} ${GLIB2_PKG_INCLUDE_DIRS})
 
 install(FILES RELEASE-NOTES
 		DESTINATION ${DOC_INSTALL_DIR}/) # install release notes
-
 
 add_subdirectory (src)
 add_subdirectory (doc)

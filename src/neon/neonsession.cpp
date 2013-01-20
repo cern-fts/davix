@@ -41,7 +41,6 @@ void NEONSession::provide_clicert_fn(void *userdata, ne_session *sess,
         DAVIX_DEBUG("NEONSession > call client cert callback ");
         SessionInfo infos;
 
-
         if( retcallback.first(retcallback.second, infos, &cert, &tmp_err) != 0 || cert.hasCert() == false){
             if(!tmp_err)
                 DavixError::setupError(&(req->_last_error), davix_scope_http_request(), StatusCode::AuthentificationError,

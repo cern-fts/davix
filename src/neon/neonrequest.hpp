@@ -76,7 +76,12 @@ public:
     /**
       get a reference to the current result for synchronous full request
      */
-    const std::vector<char> & getAnswerContent();
+    const char* getAnswerContent();
+    /**
+     * get content length
+     **/
+    size_t getAnswerSize() const;
+
     /**
       clear the current result
     */

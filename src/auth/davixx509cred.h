@@ -17,7 +17,6 @@ DAVIX_C_DECL_BEGIN
 typedef struct davix_x509_certificate_s* davix_x509_cert_t;
 
 
-
 /// create a new container for X509 certificate
 davix_x509_cert_t davix_x509_cert_new();
 

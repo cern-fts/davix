@@ -110,7 +110,11 @@ public:
     int endRequest(DavixError** err);
 
     /// get a reference to the internal anwser content buffer
-    const std::vector<char> & getAnswerContent();
+    const char* getAnswerContent();
+
+
+    /// get content length
+    size_t getAnswerSize() const;
 
     ///
     ///  clear the current result

@@ -31,9 +31,9 @@ int main(int argc, char** argv){
         r->setParameters(params);
         r->addHeaderField("Depth", "1");
 
-        std::vector<char> v = req_webdav_propfind(r.get(), &tmp_err);
-        v.push_back('\0');
-        std::cout << "content "<< (char*) &(v.at(0)) << std::endl;
+        std::string v(req_webdav_propfind(r.get(), &tmp_err));
+
+        std::cout << "content "<< v << std::endl;
     }
     if(tmp_err){
         std::cerr << " req error " << tmp_err->getErrMsg() << std::endl;

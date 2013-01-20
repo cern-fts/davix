@@ -33,9 +33,9 @@ int dav_stat_mapper_webdav(Context* context, const RequestParams & params, const
     if( req.get() != NULL){
         req->setParameters(params);
 
-        const std::vector<char> & res = req_webdav_propfind(req.get(), &tmp_err);
+        const char * res = req_webdav_propfind(req.get(), &tmp_err);
         if(!tmp_err){
-            if( (ret = parser.parseChuck((const char*) & res.at(0), res.size() -1) ) < 0){
+            if( (ret = parser.parseChuck((const char*) res, strlen(res)) ) < 0){
                 DavixError::propagateError(err, parser.getLastErr());
                 return -1;
             }
@@ -121,7 +121,7 @@ int DavPosix::stat(const RequestParams * _params, const std::string & url, struc
   execute a propfind/stat request on a given HTTP request handle
   return a vector with the content of the request if success
 */
-const std::vector<char> & req_webdav_propfind(HttpRequest* req, DavixError** err){
+const char* req_webdav_propfind(HttpRequest* req, DavixError** err){
     DavixError* tmp_err=NULL;
     int ret =-1;
 

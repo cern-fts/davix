@@ -68,10 +68,14 @@ bool HttpRequest::getAnswerHeader(const std::string &header_name, std::string &v
     return d_ptr->getAnswerHeader(header_name, value);
 }
 
-const std::vector<char> & HttpRequest::getAnswerContent(){
+const char* HttpRequest::getAnswerContent(){
     return d_ptr->getAnswerContent();
 }
 
+/// get content length
+size_t HttpRequest::getAnswerSize() const{
+    return d_ptr->getAnswerSize();
+}
 
 
 void httpcodeToDavixCode(int code, const std::string & scope, const std::string & end_message, DavixError** err){

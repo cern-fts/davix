@@ -371,8 +371,12 @@ int NEONRequest::getRequestCode(){
     return ne_get_status(_req)->code;
 }
 
-const std::vector<char> & NEONRequest::getAnswerContent(){
-    return _vec;
+const char* NEONRequest::getAnswerContent(){
+    return (const char*) &(_vec.at(0));
+}
+
+size_t NEONRequest::getAnswerSize() const{
+    return _vec.size()-1;
 }
 
 bool NEONRequest::getAnswerHeader(const std::string &header_name, std::string &value){

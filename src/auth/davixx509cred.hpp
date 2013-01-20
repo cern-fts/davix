@@ -26,12 +26,20 @@ public:
     X509Credential & operator=(const X509Credential & orig);
     ~X509Credential();
 
-    /// load a credential from a PEM file
+    /// load a credential from a PKCS12 file
     /// @param key_file : path to the p12 credential file
     /// @param password : pass to decrypt the credential, empty string if nothing
     /// @param err : davix error report
     int loadFromFileP12(const std::string & filepath_p12_cred, const std::string & password, DavixError** err);
 
+    /// load a credential from a PEM file
+    /// support RFC-3820 proxy certificate and "VOMS" proxy certificate
+    /// support for concatenated format
+    ///
+    /// @param filepath_priv_key : path to the private key file
+    /// @param filepath_cred : path to the credential file
+    /// @param password : pass to decrypt the credential, empty string if unencrypted
+    /// @param err : davix error report
     int loadFromFilePEM(const std::string & filepath_priv_key, const std::string & filepath_cred,
                                 const std::string & password, DavixError** err);
 

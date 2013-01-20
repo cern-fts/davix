@@ -72,6 +72,19 @@ int X509Credential::loadFromFileP12(const std::string &p12_cred, const std::stri
     return 0;
 }
 
+
+int X509Credential::loadFromFilePEM(const std::string & filepath_priv_key, const std::string & filepath_cred,
+                                    const std::string & password, DavixError** err){
+    d_ptr->clear_cert();
+    if( (d_ptr->_cred = ne_ssl_clicert_pem_read(filepath_priv_key.c_str(), filepath_cred.c_str(),
+                                                (password.size() == 0)?NULL:password.c_str())) == NULL){
+        Davix::DavixError::setupError(err, davix_scope_x509cred(), StatusCode::CredentialNotFound, std::string("Impossible to load PEM credential : ") + filepath_priv_key + " " + filepath_cred);
+        d_ptr->clear_cert();
+        return -1;
+    }
+    return 0;
+}
+
 bool X509Credential::hasCert() const{
     return (d_ptr->_cred != NULL);
 }

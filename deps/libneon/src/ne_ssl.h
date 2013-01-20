@@ -133,6 +133,12 @@ ne_ssl_client_cert *ne_ssl_clicert_read(const char *filename);
 int ne_ssl_clicert_encrypted(const ne_ssl_client_cert *ccert);
 
 
+/*
+ * Load client certificate from PEM files
+ **/
+ne_ssl_client_cert *ne_ssl_clicert_pem_read(const char* pkey, const char* cred, const char* password);
+
+
 /* Duplicate a client certificate object
  * Must be in a decrypted state */
 ne_ssl_client_cert *ne_ssl_dup_client_cert(const ne_ssl_client_cert *cc);

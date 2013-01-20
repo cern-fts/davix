@@ -10,7 +10,7 @@ DAVIX_C_DECL_BEGIN
 #define DAVIX_LOG_VERBOSE   0x02
 #define DAVIX_LOG_DEBUG     0x04
 #define DAVIX_LOG_TRACE     0x08
-#define DAVIX_LOG_ALL       0xFF
+#define DAVIX_LOG_ALL       (~(0x00))
 
 
 /// set the davix log mask

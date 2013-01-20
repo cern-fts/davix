@@ -917,6 +917,97 @@ ne_ssl_client_cert *ne_ssl_clicert_read(const char *filename)
     }
 }
 
+
+int ne_ssl_pem_passwd_cb(char *buf, int size, int rwflag, void *userdata){
+    if(userdata != NULL){
+        strncpy(buf, (char *)(userdata), size);
+        buf[size - 1] = '\0';
+        return(strlen(buf));
+    }
+}
+
+ne_ssl_client_cert *ne_ssl_clicert_pem_read(const char* pkeyfile, const char* credfile, const char* password){
+    FILE *fp;
+    BIO* in;
+    X509 *cert,*ca;
+    STACK_OF(X509)* chain = NULL;
+    EVP_PKEY *pkey;
+    ne_ssl_client_cert *cc;
+    int len, err;
+    unsigned char* name;
+
+    if(pkeyfile ==NULL || credfile ==NULL)
+        return NULL;
+
+    if( (in = BIO_new(BIO_s_file())) == NULL){
+         NE_DEBUG(NE_DBG_SSL, "BIO init error");
+         return NULL;
+    }
+
+    // load cred
+    if (BIO_read_filename(in, credfile) <= 0){
+        NE_DEBUG(NE_DBG_SSL, "impossible to open %s : %s", credfile, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+    }
+    if ( (cert = PEM_read_bio_X509(in, NULL, ne_ssl_pem_passwd_cb, (void*) password)) == NULL){
+        NE_DEBUG(NE_DBG_SSL, " parse PEM credential %s failed : %s\n",
+                 credfile, ERR_reason_error_string(ERR_get_error()));
+        ERR_clear_error();
+        BIO_free(in);
+        return NULL;
+    }
+
+    // load chain
+    chain = sk_X509_new_null();
+    while ((ca = PEM_read_bio_X509(in,NULL, ne_ssl_pem_passwd_cb, (void*) password))
+                != NULL){
+        sk_X509_push(chain, ca);
+    }
+            /* When the while loop ends, it's usually just EOF. */
+    BIO_free(in);
+    err = ERR_peek_last_error();
+    if (ERR_GET_LIB(err) == ERR_LIB_PEM && ERR_GET_REASON(err) == PEM_R_NO_START_LINE){
+        ERR_clear_error();
+    }else{
+        NE_DEBUG(NE_DBG_SSL, " parse PEM credential chain %s failed : %s\n",
+                 credfile, ERR_reason_error_string(err));
+        ERR_clear_error();
+        X509_free(cert);
+        return NULL;
+    }
+
+    // load pkey
+    fp = fopen(pkeyfile, "rb");
+    if (fp == NULL){
+        NE_DEBUG(NE_DBG_SSL, "impossible to open %s : %s", pkeyfile, strerror(errno));
+        errno = 0;
+        X509_free(cert);
+        return NULL;
+    }
+    if ( (pkey = PEM_read_PrivateKey(fp, NULL, ne_ssl_pem_passwd_cb,  (void*) password)) == NULL){
+        NE_DEBUG(NE_DBG_SSL, " parse PEM private key %s failed : %s\n",
+                 pkeyfile, ERR_reason_error_string(ERR_get_error()));
+        ERR_clear_error();
+        X509_free(cert);
+        return NULL;
+    }
+    fclose(fp);
+
+    // load ca chain
+
+
+    name = X509_alias_get0(cert, &len);
+    cc = ne_calloc(sizeof(ne_ssl_client_cert));
+    cc->pkey = pkey;
+    cc->decrypted = 1;
+    if (name && len > 0)
+        cc->friendly_name = ne_strndup((char *)name, len);
+    populate_cert(&cc->cert, cert);
+    cc->cert.chain = chain;
+    return cc;
+
+}
+
 #ifdef HAVE_PAKCHOIS
 ne_ssl_client_cert *ne__ssl_clicert_exkey_import(const unsigned char *der,
                                                  size_t der_len,

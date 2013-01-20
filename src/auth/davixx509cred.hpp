@@ -32,6 +32,9 @@ public:
     /// @param err : davix error report
     int loadFromFileP12(const std::string & filepath_p12_cred, const std::string & password, DavixError** err);
 
+    int loadFromFilePEM(const std::string & filepath_priv_key, const std::string & filepath_cred,
+                                const std::string & password, DavixError** err);
+
 
     /// check if contains a valid certificate
     /// @return true if contains a valid certificate, else false

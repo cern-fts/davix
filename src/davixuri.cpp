@@ -42,7 +42,6 @@ struct UriPrivate{
 
     void parsing(const std::string & uri_string){
         if(ne_uri_parse(uri_string.c_str(), &(my_uri)) == 0){
-
             if(my_uri.scheme == NULL
                || my_uri.path == NULL
                || my_uri.host ==NULL)

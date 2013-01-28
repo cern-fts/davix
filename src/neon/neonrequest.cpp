@@ -79,7 +79,7 @@ void neon_simple_req_code_to_davix_code(int ne_status, ne_session* sess, const s
              }else{
                  code = StatusCode::ConnectionProblem;
              }
-             str = std::string("Neon error : ").append(str_error);
+             str = std::string("Neon error: ").append(str_error);
              break;
         }
         default:

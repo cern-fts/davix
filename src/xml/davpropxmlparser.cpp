@@ -146,7 +146,7 @@ int DavPropXMLParser::store_new_elem(){
 
 int DavPropXMLParser::check_last_modified(const char* name){
     if(response_section && prop_section && propname_section
-          && lastmod_section){ // parse rfc1123 date format
+          && lastmod_section && char_buffer.empty() == false){ // parse rfc1123 date format
         DAVIX_DEBUG(" getlastmodified found -> parse it ");
         GError * tmp_err=NULL;
         time_t t = parse_standard_date(name, &tmp_err);
@@ -163,7 +163,7 @@ int DavPropXMLParser::check_last_modified(const char* name){
 
 int DavPropXMLParser::check_creation_date(const char* name){
     if(response_section && prop_section && propname_section
-            && creatdate_section){
+            && creatdate_section && char_buffer.empty() == false){
         DAVIX_DEBUG("creationdate found -> parse it");
         GError * tmp_err1=NULL;
         time_t t = parse_standard_date(name, &tmp_err1);
@@ -180,7 +180,7 @@ int DavPropXMLParser::check_creation_date(const char* name){
 
 int DavPropXMLParser::check_is_directory(const char* name){
     if(response_section && prop_section && propname_section
-            && resource_type){
+            && resource_type && char_buffer.empty() == false){
         bool is_dir=false;
         add_scope(&is_dir, name, collection_patern, propname_section && resource_type, false, &err);
         if(err != NULL)
@@ -195,7 +195,7 @@ int DavPropXMLParser::check_is_directory(const char* name){
 
 int DavPropXMLParser::check_content_length(const char* name){
     if(response_section && prop_section && propname_section
-             && contentlength_section){
+             && contentlength_section && char_buffer.empty() == false){
         DAVIX_DEBUG(" content length found -> parse it");
         const unsigned long mysize = strtoul(name, NULL, 10);
         if(mysize == ULONG_MAX){
@@ -211,7 +211,7 @@ int DavPropXMLParser::check_content_length(const char* name){
 
 int DavPropXMLParser::check_mode_ext(const char* name){
     if(response_section && prop_section && propname_section &&
-            mode_ext_section){
+            mode_ext_section && char_buffer.empty() == false){
         DAVIX_DEBUG(" mode_t extension for LCGDM found -> parse it");
         const unsigned long mymode = strtoul(name, NULL, 8);
         if(mymode == ULONG_MAX){
@@ -227,7 +227,7 @@ int DavPropXMLParser::check_mode_ext(const char* name){
 
 int DavPropXMLParser::check_href(const char* c_name){
     if(response_section &&
-            href_section){
+            href_section && char_buffer.empty() == false){
         DAVIX_DEBUG(" href/filename found -> parse it");
         size_t s_name = strlen(c_name);
         char buff_name[s_name+1];
@@ -345,7 +345,6 @@ int DavPropXMLParser::parserEndElemCb(int state, const char *nspace, const char 
     DAVIX_XML_REPORT_ERROR( remove_scope(&mode_ext_section, name, mode_pattern, propname_section, false, &err) ); // lcgdm extension for mode_t support
     DAVIX_XML_REPORT_ERROR( remove_scope(&href_section, name, href_pattern, response_section, prop_section, &err) );
     DAVIX_XML_REPORT_ERROR( remove_scope(&resource_type, name, resource_type_patern, propname_section, false, &err) );
-
     if(end_prop)
         ret = store_new_elem();
     return ret;

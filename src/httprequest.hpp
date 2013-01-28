@@ -104,14 +104,12 @@ public:
     ///
     ssize_t readBlock(char* buffer, size_t max_size, DavixError** err);
 
-
     ///
     /// finish a request stated with beginRequest
     int endRequest(DavixError** err);
 
     /// get a reference to the internal anwser content buffer
     const char* getAnswerContent();
-
 
     /// get content length
     size_t getAnswerSize() const;
@@ -120,8 +118,6 @@ public:
     ///  clear the current result
     ///
     void clearAnswerContent();
-
-
 
     ///
     /// @return current request code error

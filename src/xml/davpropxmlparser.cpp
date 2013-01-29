@@ -180,7 +180,7 @@ int DavPropXMLParser::check_creation_date(const char* name){
 
 int DavPropXMLParser::check_is_directory(const char* name){
     if(response_section && prop_section && propname_section
-            && resource_type && char_buffer.empty() == false){
+            && resource_type){
         bool is_dir=false;
         add_scope(&is_dir, name, collection_patern, propname_section && resource_type, false, &err);
         if(err != NULL)

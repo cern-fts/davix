@@ -25,6 +25,17 @@ namespace Davix {
 class NEONRequest;
 class NEONSessionFactory;
 
+/// Callback for body providers
+/// Before each time the body is provided, the callback will be called
+/// once with buflen == 0.  The body may have to be provided >1 time
+/// per request (for authentication retries etc.).
+/// For a call with buflen > 0, the callback must return:
+///    <0           : error, abort request; session error string must be set.
+///     0           : ignore 'buffer' contents, end of body.
+///     0 < x <= buflen : buffer contains x bytes of body data.  */
+typedef ssize_t (*HttpBodyProvider)(void *userdata,
+                                    char *buffer, size_t buflen);
+
 ///
 /// @class HTTPRequest
 /// HTTPRequest is the main davix class for low level HTTP queries
@@ -75,6 +86,11 @@ public:
     /// start at offset and read a maximum of len bytes
     ///
     void setRequestBodyFileDescriptor(int fd, off_t offset, size_t len);
+
+    ///
+    /// set a callback to provide the body of the requests
+    ///
+    void setRequestBodyCallback(HttpBodyProvider provider, size_t len, void* udata);
 
     ///
     /// @brief start a multi-part HTTP Request

@@ -43,6 +43,10 @@ void HttpRequest::setRequestBodyFileDescriptor(int fd, off_t offset, size_t len)
     d_ptr->setRequestBodyFileDescriptor(fd, offset, len);
 }
 
+void HttpRequest::setRequestBodyCallback(HttpBodyProvider provider, size_t len, void* udata){
+    d_ptr->setRequestBodyCallback(provider, len, udata);
+}
+
 int HttpRequest::getRequestCode(){
     return d_ptr->getRequestCode();
 }

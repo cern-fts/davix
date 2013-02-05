@@ -101,6 +101,7 @@ NEONRequest::NEONRequest(NEONSessionFactory& f, const Uri & uri_req) :
     _content_offset(0),
     _content_body(),
     _fd_content(-1),
+    _content_provider(),
     _request_type("GET"),
     _f(f),
     req_started(false),
@@ -152,9 +153,14 @@ void NEONRequest::configure_req(){
 
     if(_fd_content > 0){
         ne_set_request_body_fd(_req, _fd_content, _content_offset, _content_len);
+    }else if(_content_provider.callback) {
+        ne_set_request_body_provider(_req, _content_len,
+                                     _content_provider.callback, _content_provider.udata);
     }else if(_content_ptr && _content_len >0){
         ne_set_request_body_buffer(_req, _content_ptr, _content_len);       
     }
+
+    ne_set_request_flag(_req, NE_REQFLAG_EXPECT100, 1);
 }
 
 int NEONRequest::negotiate_request(DavixError** err){
@@ -171,9 +177,6 @@ int NEONRequest::negotiate_request(DavixError** err){
     }
 
     req_started = req_running= true;
-
-    // Wait for 100 when writing, so redirects are captured
-    ne_set_request_flag(_req, NE_REQFLAG_EXPECT100, 1);
 
     while(end_status == NE_RETRY && n < n_limit){
         DAVIX_DEBUG(" ->   NEON start internal request ... ");
@@ -415,6 +418,12 @@ void NEONRequest::setRequestBodyFileDescriptor(int fd, off_t offset, size_t len)
     _content_ptr = NULL;
     _content_len = len;
     _content_offset = offset;
+}
+
+void NEONRequest::setRequestBodyCallback(HttpBodyProvider provider, size_t len, void* udata){
+    _content_len      = len;
+    _content_provider.callback = provider;
+    _content_provider.udata    = udata;
 }
 
 void NEONRequest::free_request(){

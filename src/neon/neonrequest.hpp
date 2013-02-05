@@ -20,6 +20,13 @@ class NEONSessionFactory;
 class NEONSession;
 
 
+struct ContentProviderContext {
+    ContentProviderContext(): callback(NULL), udata(NULL) {}
+    HttpBodyProvider callback;
+    void *udata;
+};
+
+
 class NEONRequest
 {
 public:
@@ -58,9 +65,9 @@ public:
 
     void setRequestBodyBuffer(const void * buffer, size_t len);
 
-    ///
-    ///
     void setRequestBodyFileDescriptor(int fd, off_t offset, size_t len);
+
+    void setRequestBodyCallback(HttpBodyProvider provider, size_t len, void* udata);
 
     int beginRequest(DavixError** err);
     /**
@@ -115,6 +122,8 @@ protected:
     off_t _content_offset;
     std::string _content_body;
     int _fd_content;
+    ContentProviderContext _content_provider;
+
 
     std::string _request_type;
     NEONSessionFactory& _f;

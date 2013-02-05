@@ -172,6 +172,9 @@ int NEONRequest::negotiate_request(DavixError** err){
 
     req_started = req_running= true;
 
+    // Wait for 100 when writing, so redirects are captured
+    ne_set_request_flag(_req, NE_REQFLAG_EXPECT100, 1);
+
     while(end_status == NE_RETRY && n < n_limit){
         DAVIX_DEBUG(" ->   NEON start internal request ... ");
 
@@ -233,7 +236,8 @@ int NEONRequest::negotiate_request(DavixError** err){
     }
 
     if(n >= n_limit){
-        DavixError::setupError(err,davix_scope_http_request(),StatusCode::AuthentificationError, "overpass the maximum number of authentification try, cancel");
+        DavixError::setupError(err,davix_scope_http_request(),StatusCode::AuthentificationError,
+                               "Maximum number of retrial reached.");
         return -2;
     }
     DAVIX_DEBUG(" Davix negociate request ... <-");

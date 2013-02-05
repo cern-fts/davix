@@ -39,6 +39,10 @@ void HttpRequest::setRequestBodyBuffer(const void *buffer, size_t len_buff){
     d_ptr->setRequestBodyBuffer(buffer, len_buff);
 }
 
+void HttpRequest::setRequestBodyFileDescriptor(int fd, off_t offset, size_t len){
+    d_ptr->setRequestBodyFileDescriptor(fd, offset, len);
+}
+
 int HttpRequest::getRequestCode(){
     return d_ptr->getRequestCode();
 }

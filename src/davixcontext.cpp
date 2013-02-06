@@ -17,6 +17,7 @@ void core_init(){
  * @cond HIDDEN_SYMBOLS
  */
 
+static const std::string _version = DAVIX_VERSION;
 
 /// @internal
 
@@ -143,6 +144,11 @@ HttpRequest* Context::createRequest(const Uri &uri, DavixError **err){
 
 NEONSessionFactory & ContextExplorer::SessionFactoryFromContext(Context & c){
     return *static_cast<NEONSessionFactory*>(c._intern->getSessionFactory());
+}
+
+
+const std::string & version(){
+    return _version;
 }
 
 

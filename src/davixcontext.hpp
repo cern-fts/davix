@@ -61,6 +61,9 @@ private:
     friend class ContextExplorer;
 };
 
+
+const std::string & version();
+
 }
 
 #endif // DAVIXCONTEXT_HPP

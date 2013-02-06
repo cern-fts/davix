@@ -56,6 +56,7 @@ const Code FileNotFound = DAVIX_STATUS_FILE_NOT_FOUND;
 const Code IsADirectory = DAVIX_STATUS_IS_A_DIRECTORY;
 const Code SystemError = DAVIX_STATUS_SYSTEM_ERROR;
 const Code FileExist = DAVIX_STATUS_FILE_EXIST;
+const Code InvalidArgument = DAVIX_STATUS_INVALID_ARG;
 
 }
 

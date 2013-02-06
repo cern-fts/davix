@@ -55,6 +55,7 @@ pkg_check_modules(CRYPTO_PKG REQUIRED libcrypto)
 add_definitions( -D_GNU_SOURCE)
 add_definitions( -DNEON_BACKEND)
 add_definitions( -D__DAVIX_INSIDE__)
+add_definitions( -DDAVIX_VERSION="${VERSION_STRING}" )
 
 include_directories( ${HTTPLIB_PKG_INCLUDE_DIRS} ${GLIB2_PKG_INCLUDE_DIRS})
 

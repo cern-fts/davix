@@ -25,12 +25,13 @@ LIST(APPEND davix_params_header "params/davixrequestparams.hpp" "params/davixreq
 LIST(APPEND davix_auth_header "auth/davixauth.hpp" "auth/davixx509cred.hpp" "auth/davixauth.h" "auth/davixx509cred.h")
 
 
-include_directories("libs")
+include_directories("libs" ".")
 
 add_subdirectory(libs)
 add_subdirectory(datetime)
 add_subdirectory(logger)
 add_subdirectory(xml)
+add_subdirectory(tools)
 
 add_subdirectory(neon)
 SET(SRC_HTTP ${src_neon})
@@ -38,30 +39,30 @@ SET(SRC_HTTP ${src_neon})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(${HTTPLIB_PKG_CFLAGS} )
-add_library(davix  SHARED ${src_davix} ${SRC_HTTP}  ${src_xmlparser} ${src_logger} ${src_datetime}
+add_library(libdavix  SHARED ${src_davix} ${SRC_HTTP}  ${src_xmlparser} ${src_logger} ${src_datetime}
                            ${src_lockers} ${src_davix_posix} ${src_davix_status} ${src_davix_fileops}
                            ${src_davix_params} ${src_davix_auth})
-add_dependencies(davix neon_static)
+add_dependencies(libdavix neon_static)
 
 
-target_link_libraries(davix  ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES} ${GTHREAD_PKG_LIBRARIES})
+target_link_libraries(libdavix  ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES} ${GTHREAD_PKG_LIBRARIES} ${GLIB2_PKG_LIBRARIES} )
 
 
 
-set_target_properties(davix PROPERTIES
+set_target_properties(libdavix PROPERTIES
                             VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}
                             SOVERSION ${VERSION_MAJOR}
                             CLEAN_DIRECT_OUTPUT 1
                             OUTPUT_NAME ${OUTPUT_NAME_DAVIX})
 
-add_PkgConfigFile_for_Library("davix.pc" davix
+add_PkgConfigFile_for_Library("davix.pc" libdavix
                                HEADER_DIRS "davix"
                                CFLAGS " -D_FILE_OFFSET_BITS=64 "
                                DESCRIPTION "Davix, High level WebDav/HTTP library"
                                REQUIRES "glib-2.0")
 
 # install lib
-install(TARGETS davix
+install(TARGETS libdavix
         LIBRARY       DESTINATION ${LIB_INSTALL_DIR} )
 
 #install pkgconfig

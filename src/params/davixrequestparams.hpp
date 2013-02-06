@@ -36,7 +36,7 @@ class RequestParamsInternal;
 /// RequestParams hold the davix request options :
 /// authentification parameters, timeouts, user-agents,...
 /// A Requestparams object can be shared between several Request
-class RequestParams
+class   RequestParams
 {
 public:
     RequestParams();

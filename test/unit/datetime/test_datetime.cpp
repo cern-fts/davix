@@ -18,7 +18,6 @@ TEST(DateTimeTest, testConvert){
     ASSERT_TRUE(tmp_err != NULL);
     if(tmp_err){
         printf(" error : %s \n", tmp_err->message);
-        g_clear_error(&tmp_err);
     }
 }
 

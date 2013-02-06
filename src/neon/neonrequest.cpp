@@ -223,9 +223,16 @@ int NEONRequest::negotiate_request(DavixError** err){
             case 401: // authentification requested, do retry
                 ne_discard_response(_req);
                 end_status = ne_end_request(_req);
+
                 if( end_status != NE_RETRY){
                     req_started= req_running = false;
-                    neon_to_davix_code(status, _neon_sess->get_ne_sess(), davix_scope_http_request(),err);
+                    clearAnswerContent();
+                    if(end_status == NE_OK){
+                            DavixError::setupError(err,davix_scope_http_request(),
+                                                   StatusCode::AuthentificationError, "401 Unauthorized Error");
+                    }else{
+                        neon_to_davix_code(status, _neon_sess->get_ne_sess(), davix_scope_http_request(),err);
+                    }
                     return -1;
                 }
                 DAVIX_DEBUG(" ->   NEON receive %d code, %d .... request again ... ", code, end_status);

@@ -21,6 +21,8 @@ add_definitions( -DTEST_VALID_CERT="${TEST_CRED_PATH}" -DTEST_VALID_CERT_PASS="$
 add_executable(g_test_unit_davix_exe ${src_context} ${src_session} ${src_credential}
                 ${src_datetime} ${src_neon} ${src_parser} ${src_auth})
 target_link_libraries(g_test_unit_davix_exe davix gtest gtest_main)
+add_dependencies(g_test_unit_davix_exe libdavix)
+
 
 
 add_test(g_test_unit_davix g_test_unit_davix_exe )

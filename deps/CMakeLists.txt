@@ -4,7 +4,7 @@
 IF(NEON_EMBEDED)
 
 set(NEON_CONFIGURE_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/libneon/configure")
-list(APPEND NEON_CONFIGURE_ARGS  "--with-ssl=openssl" "--with-libxml2")
+list(APPEND NEON_CONFIGURE_ARGS  "--with-ssl=openssl" "--with-libxml2" "--without-gssapi")
 set(CONFIGURE_RESULT_CODE "-1")
 set(CONFIGURE_RESULT_MSG "")
 

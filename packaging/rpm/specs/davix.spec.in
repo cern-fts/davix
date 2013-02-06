@@ -1,8 +1,6 @@
-
-
 Name:				davix
 Version:			@VERSION_STRING@
-Release:			0.2%{?dist}
+Release:			0.1%{?dist}
 Summary:			Webdav file access and file management Library
 Group:				Applications/Internet
 License:			LGPLv2+
@@ -15,35 +13,42 @@ BuildRoot:			%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildRequires:		cmake
 BuildRequires:		doxygen
 BuildRequires:		glib2-devel
-%if 0%{?el5}
-BuildRequires:		libgssapi-devel
-%else
-BuildRequires:		libgssglue-devel
-%endif
 BuildRequires:		libxml2-devel
 BuildRequires:		openssl-devel
 
 %description
-Davix is a C/C++ Webdav/Http library for file access and file
-management.
+Davix is a toolkit for remote file operations
+with Webdav and Http based protocols.
+Davix provides an API and a set of command line tools.
+
+%package libs
+Summary:			Development files for %{name}
+Group:				Applications/Internet
+
+%description libs
+Libraries for %{name}. Davix is a toolkit for remote
+file operations with Webdav and Http based protocols.
+
 
 %package devel
 Summary:			Development files for %{name}
 Group:				Applications/Internet
-Requires:			%{name}%{?_isa} = %{version}-%{release} 
+Requires:			%{name}-libs%{?_isa} = %{version}-%{release}
 Requires:			glib2-devel%{?_isa}
 Requires:			pkgconfig
 
 %description devel
-development files for %{name}
+Development files for %{name}. Davix is a toolkit for remote
+file operations with Webdav and Http based protocols.
 
 %package doc
 Summary:			Documentation for %{name}
 Group:				Applications/Internet
-Requires:			%{name}%{?_isa} = %{version}-%{release} 
+Requires:			%{name}%{?_isa} = %{version}-%{release}
 
 %description doc
-documentation and examples for %{name} .
+Documentation and examples for %{name}. Davix is a toolkit for remote
+file operations with Webdav and Http based protocols.
 
 %clean
 rm -rf %{buildroot};
@@ -72,6 +77,9 @@ make DESTDIR=%{buildroot} install
 %postun -p /sbin/ldconfig
 
 %files
+%{_bindir}/*
+
+%files libs
 %defattr (-,root,root)
 %{_libdir}/libdavix.so.*
 %{_docdir}/%{name}-%{version}/RELEASE-NOTES
@@ -88,5 +96,9 @@ make DESTDIR=%{buildroot} install
 %{_docdir}/%{name}-%{version}/html/*
 
 %changelog
+* Wed Feb 06 2013 Adrien Devresse <adevress at cern.ch> - 0.0.24-0.1
+ - add cmd line tools
+ - lot of dev work
+
 * Fri Jun 01 2012 Adrien Devresse <adevress at cern.ch> - 0.0.2-0.1-2012052812snap
  - initial preview

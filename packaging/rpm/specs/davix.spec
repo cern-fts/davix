@@ -15,32 +15,27 @@ BuildRoot:			%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildRequires:		cmake
 BuildRequires:		doxygen
 BuildRequires:		glib2-devel
+%if 0%{?el5}
+BuildRequires:		libgssapi-devel
+%else
+BuildRequires:		libgssglue-devel
+%endif
 BuildRequires:		libxml2-devel
 BuildRequires:		openssl-devel
 
 %description
-Davix is a toolkit for remote file access and file
-management with Webdav and Http-based protocols.
+Davix is a C/C++ Webdav/Http library for file access and file
+management.
 
 %package devel
 Summary:			Development files for %{name}
 Group:				Applications/Internet
-Requires:			%{name}%{?_isa}-libs = %{version}-%{release}
+Requires:			%{name}%{?_isa} = %{version}-%{release} 
 Requires:			glib2-devel%{?_isa}
 Requires:			pkgconfig
 
 %description devel
-development files for %{name}. %{name} is a toolkit for remote
-file access and file management with Webdav and Http-based protocols.
-
-
-%package libs
-Summary:			Development files for %{name}
-Group:				Applications/Internet
-
-%description libs
-libraries of %{name}. %{name} is a toolkit for remote file access
-and file management with Webdav and Http-based protocols.
+development files for %{name}
 
 %package doc
 Summary:			Documentation for %{name}
@@ -48,9 +43,7 @@ Group:				Applications/Internet
 Requires:			%{name}%{?_isa} = %{version}-%{release} 
 
 %description doc
-documentation and examples for %{name}. %{name} is a toolkit for remote file access
-and file management with Webdav and Http-based protocols.
-
+documentation and examples for %{name} .
 
 %clean
 rm -rf %{buildroot};
@@ -79,14 +72,9 @@ make DESTDIR=%{buildroot} install
 %postun -p /sbin/ldconfig
 
 %files
-%{_bindir}/*
-
-
-%files libs
 %defattr (-,root,root)
 %{_libdir}/libdavix.so.*
 %{_docdir}/%{name}-%{version}/RELEASE-NOTES
-
 
 %files devel
 %defattr (-,root,root)

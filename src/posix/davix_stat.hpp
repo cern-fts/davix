@@ -17,7 +17,7 @@
 namespace Davix{
 
 
-/**
+/*
   retrieve a webdav propfind stat request to the given url
     @param req : http request where to executethe query
     @return vector of characters of the query content

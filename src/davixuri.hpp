@@ -66,7 +66,7 @@ public:
     const std::string & getQuery() const;
 
     /// Status of the Uri
-    /// see \ref Davix::StatusCode
+    /// see \ref StatusCode::Code
     /// @return StatusCode::OK if success or StatusCode::UriParsingError if error
     StatusCode::Code getStatus() const;
 

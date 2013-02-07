@@ -5,12 +5,13 @@
 
 
 #ifndef __DAVIX_INSIDE__
-#error "Only davix.h or davix.hpp should be included."
+#error "Only davix.hpp for the C++ API or davix.h for the C API should be included."
 #endif
 
 
+
 /// @file davixx509cred.hpp
-/// @brief utility tools for X509 credential manipulation
+/// @brief utilities for X509 credential
 
 
 namespace Davix {
@@ -18,6 +19,9 @@ namespace Davix {
 struct X509CredentialInternal;
 struct X509CredentialExtra;
 
+/// @class X509Credential
+/// @brief container for X509 certificate
+///
 class X509Credential
 {
 public:
@@ -27,14 +31,16 @@ public:
     ~X509Credential();
 
     /// load a credential from a PKCS12 file
-    /// @param key_file : path to the p12 credential file
+    /// @param filepath_p12_cred : path to the p12 credential file
     /// @param password : pass to decrypt the credential, empty string if nothing
     /// @param err : davix error report
     int loadFromFileP12(const std::string & filepath_p12_cred, const std::string & password, DavixError** err);
 
     /// load a credential from a PEM file
-    /// support RFC-3820 proxy certificate and "VOMS" proxy certificate
+    /// support RFC-3820 proxy certificate, "globus" proxy  certificate and "VOMS" proxy certificate
     /// support for concatenated format
+    ///
+    /// to use a concatenated PEM cred, just set filepath_priv_key = filepath_cred = concat cred path
     ///
     /// @param filepath_priv_key : path to the private key file
     /// @param filepath_cred : path to the credential file
@@ -44,8 +50,8 @@ public:
                                 const std::string & password, DavixError** err);
 
 
-    /// check if contains a valid certificate
-    /// @return true if contains a valid certificate, else false
+    /// check if the container owns a certificate
+    /// @return true if contains a valid certificate, false if empty
     bool hasCert() const;
 
 private:

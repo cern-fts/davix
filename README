@@ -1,0 +1,98 @@
+   		=== DAVIX ===
+
+        Davix is a lightweight toolkit for remote file / object interactions
+              with HTTP based protocols.
+
+        Davix offers a multi-layer API for the end user :
+
+            - High level POSIX file API, for convenience
+            - High level Object API, REST like
+            - Low Level API, compose your own HTTP query like with curl.
+
+
+       Davix supports Http, Webdav ( and S3 )
+       Davix integrate a Webdav / XML parser.
+
+   * Davix is yet an other libcurl ?
+
+	No, 
+
+	- libcurl is defined as a "client side URL transfer".
+		 it provides "protocol level" API, you compose your queries
+
+	- Davix offers a "file level" API and aims 
+		to provide a complete API for remote file / object operations
+		
+
+   * What does Davix support ?
+
+        Davix supports :
+            - all common posix operation ( stat/opendir/readdir/open/read/write/close/mkdir )
+            - Webdav and XML parsing
+            - remote random I/O
+            - client side credential in PEM and P12 format
+            - proxy certificate and voms extension
+            - transparent redirection
+            - third party copy with Webdav
+            - keep alive and session re-use.
+            - Basic authentication scheme
+
+        Davix is going to support soon :
+            - transparent meta-link support with failover
+            - vector operations
+            - kerberos auth
+            - transparent caching
+
+
+   * How to compile :
+
+    - Davix Dependencies :
+       -  openssl
+       -  libxml-2.0
+       -  glib-2.0 ( will be removed )
+       -  Doxygen ( optional, for doc generation )
+
+
+    - Compile :
+        - " 1.svn export http://svn.cern.ch/guest/lcgdm/davix/trunk davix "
+        - " 2.cd davix "
+        - " 3.mkdir build; cd build"
+        - " 4. cmake ../"
+        - " 5. make "
+
+    - Generate doc :
+        - * run cmake
+        - make doc
+
+    - Compile and run unit tests :
+        - cmake -DUNIT_TESTS=TRUE ../
+        - make
+        - make test
+
+    - Compile & execute func tests :
+         * warning : functionals test needs davserver and a valid credential
+        - " 4. cmake  -DFUNCTIONAL_TESTS=TRUE ../ "
+        - " 5. . ../test/setup_test_env.sh
+        - " 5.  make; make test"
+
+    - make RPMS :
+        - ./packaging/bin/packager_rpm.sh ./packaging/rpm/specs/ ./
+        - mock -r [mycfg] RPMS/davix-[...].src.rpm
+
+    * Play with davix command line tool : 
+        davix has a set of command line tool for Http/Webdav common operations
+
+            -> davix ( Low level and general purpose command line tool for HTTP Request, similar to curl )
+
+     * I wish to see XYZ feature in Davix :
+
+     	Any suggestion is welcome.
+
+        please contact us on davix-devel@cern.ch ( CERN e-group & mailing list ) or personnaly on adrien.devresse@cern.ch
+
+        Davix is an open source and free project and will stay like this.
+        Any contribution is welcome
+
+     * Davix Website :
+
+	https://svnweb.cern.ch/trac/lcgutil/wiki

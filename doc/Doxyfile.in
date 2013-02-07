@@ -468,7 +468,7 @@ INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/../src/  @CMAKE_CURRENT_SOUR
 # *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.h *.hh *.hxx 
 # *.hpp *.h++ *.idl *.odl *.cs *.php *.php3 *.inc *.m *.mm *.py
 
-FILE_PATTERNS          = *.c *.h *.cpp *.hpp
+FILE_PATTERNS          =  *.hpp
 
 # The RECURSIVE tag can be used to turn specify whether or not subdirectories 
 # should be searched for input files as well. Possible values are YES and NO. 
@@ -480,7 +480,9 @@ RECURSIVE              = YES
 # excluded from the INPUT source files. This way you can easily exclude a 
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
-EXCLUDE                = 
+EXCLUDE                =  @CMAKE_CURRENT_SOURCE_DIR@/../src/neon @CMAKE_CURRENT_SOURCE_DIR@/../src/fileops/ \
+ @CMAKE_CURRENT_SOURCE_DIR@/../src/fileproperties.hpp  @CMAKE_CURRENT_SOURCE_DIR@/../src/xml  \
+ @CMAKE_CURRENT_SOURCE_DIR@/../src/tools  @CMAKE_CURRENT_SOURCE_DIR@/../src/libs
 
 # The EXCLUDE_SYMLINKS tag can be used select whether or not files or 
 # directories that are symbolic links (a Unix filesystem feature) are excluded 

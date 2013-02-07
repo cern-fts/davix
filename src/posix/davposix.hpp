@@ -20,8 +20,9 @@
 */
 
 #ifndef __DAVIX_INSIDE__
-#error "Only davix.h or davix.hpp should be included."
+#error "Only davix.hpp for the C++ API or davix.h for the C API should be included."
 #endif
+
 
 
 namespace Davix {
@@ -31,8 +32,12 @@ class DavPosixInternal;
 ///
 /// @brief POSIX-like API of Davix
 ///
-/// DavPosix offers POSIX like API for HTTP/WebDav file operations
-/// Thread safe
+/// DavPosix offers a POSIX-like API for HTTP/WebDav file operations
+///
+/// POSIX API can be used for convenience when porting application
+/// to a POSIX like interface.
+///
+/// DavPosix and all associated method are Thread safe.
 class DavPosix
 {
 public:

@@ -115,8 +115,9 @@ public:
     ///
     /// read a block of a maximum size bytes in the request
     /// @param buffer : buffer to fill
-    ///  @param max_size : maximum number of byte to read
-    ///  @return number of bytes readed
+    /// @param max_size : maximum number of byte to read
+    /// @param err : DavixError error report system
+    /// @return number of bytes readed
     ///
     ssize_t readBlock(char* buffer, size_t max_size, DavixError** err);
 

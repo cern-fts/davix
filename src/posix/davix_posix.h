@@ -38,7 +38,7 @@ DAVIX_C_DECL_BEGIN
   @param params : request parameters, can be NULL
   @param url : url of the webdav file/directory
   @param st : stat structure
-  @param err : GError error handling system
+  @param err: Davix Error report
   @return 0 if success else a negative value
 */
 int davix_posix_stat(davix_sess_t sess, davix_params_t params, const char* url, struct stat * st, davix_error_t* err);
@@ -57,7 +57,7 @@ int davix_posix_stat(davix_sess_t sess, davix_params_t params, const char* url, 
   @param params : request parameters, can be NULL
   @param url : url of the folder to create
   @param right : remote file right
-  @param err : GError error handling system
+  @param err: Davix Error report
   @return 0 if success else a negative value
 */
 int davix_posix_mkdir(davix_sess_t sess, davix_params_t _params, const char* url,  mode_t right, davix_error_t* err);
@@ -74,7 +74,7 @@ int davix_posix_mkdir(davix_sess_t sess, davix_params_t _params, const char* url
   @param sess : davix session handle
   @param params : request parameters, can be NULL
   @param url : url of the folder to list
-  @param err : GError error handling system
+  @param err: Davix Error report
   @return directory stream pointer or NULL if error
 */
 DAVIX_DIR* davix_posix_opendir(davix_sess_t sess, davix_params_t params, const char* url, davix_error_t* err);
@@ -90,7 +90,7 @@ DAVIX_DIR* davix_posix_opendir(davix_sess_t sess, davix_params_t params, const c
 
   @param sess : davix session handle
   @param dirp : directory stream
-  @param err : GError error handling system
+  @param err: Davix Error report
   @return pointer to a dirent structure or NULL if error
 */
 struct dirent* davix_posix_readdir(davix_sess_t sess, DAVIX_DIR* dirp, davix_error_t* err);
@@ -105,7 +105,7 @@ struct dirent* davix_posix_readdir(davix_sess_t sess, DAVIX_DIR* dirp, davix_err
 
   @param sess : davix session handle
   @param d : directory stream
-  @param err : GError error handling system
+  @param err: Davix Error report
   @return 0 if success else -1
 */
 int davix_posix_closedir(davix_sess_t sess, DAVIX_DIR* dirp, davix_error_t* err);
@@ -120,7 +120,8 @@ int davix_posix_closedir(davix_sess_t sess, DAVIX_DIR* dirp, davix_error_t* err)
   @param sess : davix session handle
   @param params : request parameters, can be NULL
   @param url : url of the file to open
-  @param err : GError error handling system
+  @param flags : flags to use
+  @param err: Davix Error report
   @return directory stream pointer or NULL if error
 */
 DAVIX_FD* davix_posix_open(davix_sess_t sess, davix_params_t params, const char* url, int flags, davix_error_t* err);
@@ -132,9 +133,9 @@ DAVIX_FD* davix_posix_open(davix_sess_t sess, davix_params_t params, const char*
 
   @param sess : davix session handle
   @param fd : davix file descriptor
-  @param buf : buffer to fill
-  @param count : maximum number of bytes to read
-  @param err: GError error handling system
+  @param buffer : buffer to fill
+  @param read_size : maximum number of bytes to read
+  @param err: Davix Error report
   @return the size of data or a negative value if an error occured
  */
 ssize_t davix_posix_read(davix_sess_t sess, DAVIX_FD* fd, void* buffer, size_t read_size, davix_error_t* err);
@@ -146,26 +147,35 @@ ssize_t davix_posix_read(davix_sess_t sess, DAVIX_FD* fd, void* buffer, size_t r
 
   @param sess : davix session handle
   @param fd : davix file descriptor
-  @param buf : buffer with the write content
-  @param count : number of bytes to write
+  @param buffer : buffer with the write content
+  @param write_size : number of bytes to write
+  @param err: Davix Error report
   @return the size of the written data or a negative value if an error occured
  */
 ssize_t davix_posix_write(davix_sess_t sess, DAVIX_FD* fd, const void* buffer, size_t write_size, davix_error_t* err);
 
 
 /**
-  @brief move the cursor a davix file with HTTP(S)
+  @brief move the cursor of a davix file with HTTP(S)
   behavior similar to the POSIX lseek function
 
   @param sess : davix session handle
   @param fd : davix file descriptor
   @param offset : offset in byte inside the file
   @param flags : lseek flags, similar to the lseek function
+  @param err: Davix Error report
   @return the offset position or a negative value if an error occures
  */
 off_t davix_posix_lseek(davix_sess_t sess, DAVIX_FD* fd, off_t offset, int flags, davix_error_t* err);
 
+/**
+  @brief close a davix file descriptor
 
+  @param sess : davix session handle
+  @param fd : davix file descriptor
+  @param err: Davix Error report
+  @return the offset position or a negative value if an error occures
+ */
 int davix_posix_close(davix_sess_t sess, DAVIX_FD* fd, davix_error_t* err);
 
 DAVIX_C_DECL_END

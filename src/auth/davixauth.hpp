@@ -8,7 +8,7 @@
 
 
 #ifndef __DAVIX_INSIDE__
-#error "Only davix.h or davix.hpp should be included."
+#error "Only davix.hpp for the C++ API or davix.h for the C API should be included."
 #endif
 
 /// @file davixauth.hpp
@@ -18,11 +18,12 @@
 
 namespace Davix {
 
-///  @clas
+///  @class
+///  @brief server related info
 class SessionInfo{
 public:
     void* a;
-/// need to be fill with server side infos
+/// TODO: fill with server side infos
 
 };
 

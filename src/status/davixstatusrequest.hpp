@@ -32,31 +32,84 @@ namespace StatusCode{
 ///
 typedef davix_status_t Code;
 
-// C++ mapping of davix_status_t
+//
+// Davix::statusCode and davix_status_t are
+// the same error codes.
+//
+// Davix::statusCode is provided for C++ programmer
+// convenience
+//
+/// No Error report
 const Code OK = DAVIX_STATUS_OK;
+
+/// Request executed partially
 const Code PartialDone = DAVIX_STATUS_PARTIAL_DONE;
+
+/// Error in the Webdav properties parsing
 const Code WebDavPropertiesParsingError = DAVIX_STATUS_WEBDAV_PROPERTIES_PARSING_ERROR;
+
+/// Wrong Uri, impossible to parse
 const Code UriParsingError = DAVIX_STATUS_URI_PARSING_ERROR;
+
+/// impossible to create a session
 const Code SessionCreationError = DAVIX_STATUS_SESSION_CREATION_ERROR;
+
+/// DNS resolution failure
 const Code NameResolutionFailure= DAVIX_STATUS_NAME_RESOLUTION_FAILURE;
+
+/// Impossible to connect, host down or network problem
 const Code ConnectionProblem = DAVIX_STATUS_CONNECTION_PROBLEM;
+
+/// redirection is needed manually
 const Code RedirectionNeeded = DAVIX_STATUS_REDIRECTION_NEEDED;
+
+/// Connexion timeout
 const Code ConnectionTimeout= DAVIX_STATUS_CONNECTION_TIMEOUT;
+
+/// operation timeout
 const Code OperationTimeout= DAVIX_STATUS_OPERATION_TIMEOUT;
+
+/// this operation is not supported
 const Code OperationNonSupported= DAVIX_STATUS_OPERATION_NOT_SUPPORTED;
-const Code UnknowError= DAVIX_STATUS_UNKNOW_ERROR;
+
+/// this file is not a directory
 const Code IsNotADirectory = DAVIX_STATUS_IS_NOT_A_DIRECTORY;
+
+/// Invalid file descriptor
 const Code InvalidFileHandle = DAVIX_STATUS_INVALID_FILE_HANDLE;
+
+/// Request already running
 const Code AlreadyRunning = DAVIX_STATUS_ALREADY_RUNNING;
+
+/// Authentication Error
 const Code AuthentificationError = DAVIX_STATUS_AUTHENTIFICATION_ERROR;
+
+/// Wrong Login and/or Password
 const Code LoginPasswordError = DAVIX_STATUS_LOGIN_PASSWORD_ERROR;
+
+/// Impossible to find specified credential
 const Code CredentialNotFound = DAVIX_STATUS_CREDENTIAL_NOT_FOUND;
+
+/// Permission deny
 const Code PermissionRefused = DAVIX_STATUS_PERMISSION_REFUSED;
+
+/// No such file, no such directoy, no such remote entity
 const Code FileNotFound = DAVIX_STATUS_FILE_NOT_FOUND;
+
+/// Action impossible, is a directory or a collection
 const Code IsADirectory = DAVIX_STATUS_IS_A_DIRECTORY;
+
+/// System related error
 const Code SystemError = DAVIX_STATUS_SYSTEM_ERROR;
+
+/// File already exist, impossible to create
 const Code FileExist = DAVIX_STATUS_FILE_EXIST;
+
+/// Invalid user argument
 const Code InvalidArgument = DAVIX_STATUS_INVALID_ARG;
+
+/// Unknow error
+const Code UnknowError= DAVIX_STATUS_UNKNOW_ERROR;
 
 }
 

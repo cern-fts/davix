@@ -14,7 +14,9 @@
 
 ///
 /// @file davixcontext.hpp
+/// @author Devresse Adrien
 ///
+///  Handle of Davix
 
 namespace Davix{
 
@@ -40,17 +42,41 @@ public:
     /// clone this instance to a new context dynamically allocated,
     /// the new context inherit of a copy of all the parent context parameters
     /// this context need to be destroyed after usage
+    /// @return new allocated clone of this context
     Context* clone();
 
 
     /// create a new Http request for direct HTTP low level feature usage
     /// this HTTP request object should be destroyed after usage
-    HttpRequest* createRequest(const std::string & url, DavixError** err);
+    ///
+    /// This function is thread safe.
+    ///     several requests object can be used on the same context in parallel
+    ///
+    /// @param uri : Davix \ref Uri to use for the request
+    /// @param err : Davix Error report
+    /// @return pointer to a new allocated request object or null if error
     HttpRequest* createRequest(const Uri & uri, DavixError** err);
 
-    /// create a posix entry point from this context
-    /// this object is thread-safe
-    /// need to be delete
+
+    ///  similar to \ref createRequest(const Uri & uri, DavixError** err) but with
+    ///  a raw string input
+    ///
+    /// @param url : url to use for the request
+    /// @param err : Davix Error report
+    /// @return pointer to a new allocated request object or null if error
+    HttpRequest* createRequest(const std::string & url, DavixError** err);
+
+    /// Create a new allocated \ref DavPosix Object entry point
+    ///
+    /// \ref DavPosix is the main entry point for all the POSIX-like operation :
+    ///
+    ///     ex : stat()
+    ///          open() / read() / write() / close()
+    ///          opendir() / readdir() / closedir()
+    ///          mkdir() / rmdir() / unlink()
+    ///
+    /// These operations follows the POSIX semantic as much as possible.
+    ///
     DavPosix* createDavPosix();
 
 private:
@@ -62,6 +88,8 @@ private:
 };
 
 
+/// version string of the current davix library
+/// @return version of davix
 const std::string & version();
 
 }

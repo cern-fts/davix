@@ -12,6 +12,8 @@
 ///  Davix is a high level HTTP/Webdav library
 ///  for file management and file access.
 ///
+/// You need to create a context before any operations
+///
 
 
 #ifndef __DAVIX_INSIDE__

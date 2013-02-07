@@ -1,0 +1,31 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+
+// portability mapper
+
+#if( defined _WIN32 )|| ( defined __MINGW32__ )
+// macros
+
+#define __PLATFORM_WINDOWS__
+
+// stat struct def
+typedef short nlink_t;
+typedef short gid_t;
+typedef short uid_t;
+
+// string
+#include <string.h>
+
+void *mempcpy (void *dstpp, const void *srcpp, size_t len)
+{
+	memcpy(dstpp, srcpp, len);
+	return (void *)(((char *)dstpp) + len);
+}
+// readdir
+#define NAME_MAX 256
+
+#endif
+
+
+
+#endif // CONFIG_H

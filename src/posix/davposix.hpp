@@ -63,9 +63,13 @@ public:
     /**
       @brief execute a readdir function with Webdav
       behavior similar to the POSIX readdir function
-      @param FileObject
+
+      @param params : request options, can be NULL
+      @param dir : directory handle
+      @param err: Davix Error report
+      @return dirent struct if success, or NULL if error
     */
-    struct dirent* readdir(DAVIX_DIR*, DavixError** err);
+    struct dirent* readdir(DAVIX_DIR* dir, DavixError** err);
     /**
        close an existing file handle
        @param  d : directory handle to close
@@ -91,10 +95,12 @@ public:
            opendirpp and readdirpp function read a directory content with stat information for each directory entry
 
       @param params : request options, can be NULL
-      @param DAVIX_DIR
+      @param dir : directory handle
       @param stat struct to fill
+      @param err: Davix Error report
+      @return dirent struct if success, or NULL if error
     */
-    struct dirent* readdirpp(DAVIX_DIR*, struct stat * st, DavixError** err );
+    struct dirent* readdirpp(DAVIX_DIR* dir, struct stat * st, DavixError** err );
 
     /**
       @brief close an existing file handle
@@ -146,6 +152,7 @@ public:
       @param params : request options, can be NULL
       @param url : url of the HTTP file to open
       @param flags : open flags, similar to the POSIX function open
+      @param err: Davix Error report
       @return Davix file descriptor in case of success, or NULL if an error occures.
      */
     DAVIX_FD* open(const RequestParams * _params, const std::string & url, int flags, DavixError** err);
@@ -157,9 +164,22 @@ public:
       @param fd : davix file descriptor
       @param buf : buffer to fill
       @param count : maximum number of bytes to read
+      @param err: Davix Error report
       @return the size of data or a negative value if an error occured
      */
     ssize_t read(DAVIX_FD* fd, void* buf, size_t count, DavixError** err);
+
+    /**
+      @brief do a partial read of a file in a POSIX-like approach with HTTP(S)
+      behavior similar to the POSIX pread function
+      @param fd : davix file descriptor
+      @param buf : buffer to fill
+      @param count : maximum number of bytes to read
+      @param offset : offset to use
+      @param err: Davix Error report
+      @return the size of data or a negative value if an error occured
+     */
+    ssize_t pread(DAVIX_FD* fd, void* buf, size_t count, off_t offset, DavixError** err);
 
     /**
       @brief write a file in a POSIX-like approach with HTTP(S)

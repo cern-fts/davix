@@ -1,7 +1,9 @@
 #ifndef DAVIX_FILEPROPERTIES_H
 #define DAVIX_FILEPROPERTIES_H
 
+#include <sys/stat.h>
 #include "global_def.hpp"
+
 
 namespace Davix {
 

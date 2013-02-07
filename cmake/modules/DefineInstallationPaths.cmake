@@ -122,12 +122,23 @@ endif (UNIX)
 
 if (WIN32)
   # Same same
-  set(BIN_INSTALL_DIR "." CACHE PATH "-")
-  set(SBIN_INSTALL_DIR "." CACHE PATH "-")
-  set(LIB_INSTALL_DIR "lib" CACHE PATH "-")
-  set(INCLUDE_INSTALL_DIR "include" CACHE PATH "-")
-  set(PLUGIN_INSTALL_DIR "plugins" CACHE PATH "-")
-  set(HTML_INSTALL_DIR "doc/HTML" CACHE PATH "-")
+  SET(EXEC_INSTALL_PREFIX
+    "${CMAKE_INSTALL_PREFIX}"
+    CACHE PATH  "Base directory for executables and libraries"
+  )  
+  set(BIN_INSTALL_DIR "${EXEC_INSTALL_PREFIX}/bin" CACHE PATH "-")
+  set(SBIN_INSTALL_DIR "${EXEC_INSTALL_PREFIX}/bin" CACHE PATH "-")
+  set(LIB_INSTALL_DIR "${EXEC_INSTALL_PREFIX}/bin" CACHE PATH "-")
+  set(INCLUDE_INSTALL_DIR "${EXEC_INSTALL_PREFIX}/include" CACHE PATH "-")
+  SET(SYSCONF_INSTALL_DIR
+    "${CMAKE_INSTALL_PREFIX}/etc"
+    CACHE PATH "The ${APPLICATION_NAME} sysconfig install dir (default prefix/etc)"
+  )  
+  SET(PKGCONFIG_FILES_DIR ²"${EXEC_INSTALL_PREFIX}/lib/pkgconfig/"
+    CACHE PATH "subdirectory relative to the install prefix where pkgconfig files (.pc) will be installed"
+  )  
+  set(PLUGIN_INSTALL_DIR "${EXEC_INSTALL_PREFIX}/bin/plugins" CACHE PATH "-")
+  set(HTML_INSTALL_DIR "${EXEC_INSTALL_PREFIX}/doc/HTML" CACHE PATH "-")
   set(ICON_INSTALL_DIR "." CACHE PATH "-")
   set(SOUND_INSTALL_DIR "." CACHE PATH "-")
   set(LOCALE_INSTALL_DIR "lang" CACHE PATH "-")

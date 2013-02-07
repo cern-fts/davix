@@ -72,9 +72,9 @@ ctest -V
 rm -rf %{buildroot}
 make DESTDIR=%{buildroot} install
 
-%post -p /sbin/ldconfig
+%post libs -p /sbin/ldconfig
 
-%postun -p /sbin/ldconfig
+%postun libs -p /sbin/ldconfig
 
 %files
 %{_bindir}/*

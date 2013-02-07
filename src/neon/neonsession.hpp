@@ -1,7 +1,7 @@
 #ifndef NEONSESSION_HPP
 #define NEONSESSION_HPP
 
-
+#include <pthread.h>
 #include <davixcontext.hpp>
 #include <params/davixrequestparams.hpp>
 #include <neon/neonsessionfactory.hpp>

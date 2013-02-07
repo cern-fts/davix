@@ -23,7 +23,7 @@ IF(NOT ( CONFIGURE_RESULT_CODE STREQUAL "0"))
 ENDIF(NOT ( CONFIGURE_RESULT_CODE STREQUAL "0"))
 
 add_custom_target(neon_static ALL
-                "make"
+                "${CMAKE_MAKE_PROGRAM}"
                 WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/libneon/"
                 COMMENT "neon-build"
                 )

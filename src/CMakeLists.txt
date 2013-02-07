@@ -27,6 +27,10 @@ LIST(APPEND davix_auth_header "auth/davixauth.hpp" "auth/davixx509cred.hpp" "aut
 
 include_directories("libs" ".")
 
+configure_file(config.in config.h @ONLY)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+
 add_subdirectory(libs)
 add_subdirectory(datetime)
 add_subdirectory(logger)
@@ -37,7 +41,7 @@ add_subdirectory(neon)
 SET(SRC_HTTP ${src_neon})
 
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
 add_definitions(${HTTPLIB_PKG_CFLAGS} )
 add_library(libdavix  SHARED ${src_davix} ${SRC_HTTP}  ${src_xmlparser} ${src_logger} ${src_datetime}
                            ${src_lockers} ${src_davix_posix} ${src_davix_status} ${src_davix_fileops}
@@ -63,7 +67,7 @@ add_PkgConfigFile_for_Library("davix.pc" libdavix
 
 # install lib
 install(TARGETS libdavix
-        LIBRARY       DESTINATION ${LIB_INSTALL_DIR} )
+             DESTINATION ${LIB_INSTALL_DIR} )
 
 #install pkgconfig
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/davix.pc

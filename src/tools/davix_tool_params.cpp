@@ -9,10 +9,6 @@ namespace Davix{
 namespace Tool{
 
 
-const char * arg_tool_main= "H:E:X:M:vdkV";
-
-
-
 const std::string scope_params = "Davix::Tools::Params";
 
 
@@ -53,23 +49,14 @@ static int set_header_field(const std::string & arg, OptParams & p, DavixError**
 }
 
 
-int parse_davix_options(int argc, char** argv, OptParams & p, DavixError** err){
+
+int parse_davix_options_generic(const std::string &opt_filter,
+                                const struct option* long_options,
+                                int argc, char** argv, OptParams & p, DavixError** err){
     int ret =0;
     int option_index=0;
-    static struct option long_options[] = {
-        {"header",  required_argument, 0,  'H' },
-        {"cert",  no_argument,       0, 'E' },
-        {"request",  required_argument, 0,  'X' },
-        {"capath",  required_argument, 0, 'M' },
-        {"verbose", no_argument, 0,  0 },
-        {"debug", no_argument, 0,  'd' },
-        {"insecure", no_argument, 0,  'k' },
-        {"Version", no_argument, 0, 'V'},
-        {"help", no_argument,0,'?'},
-        {0,         0,                 0,  0 }
-     };
 
-    while( (ret =  getopt_long(argc, argv, arg_tool_main,
+    while( (ret =  getopt_long(argc, argv, opt_filter.c_str(),
                                long_options, &option_index)) > 0){
 
         switch(ret){
@@ -122,6 +109,47 @@ int parse_davix_options(int argc, char** argv, OptParams & p, DavixError** err){
     }
 
     return ret;
+}
+
+
+
+int parse_davix_options(int argc, char** argv, OptParams & p, DavixError** err){
+    const std::string arg_tool_main= "H:E:X:M:vdkV";
+    const struct option long_options[] = {
+        {"header",  required_argument, 0,  'H' },
+        {"cert",  no_argument,       0, 'E' },
+        {"request",  required_argument, 0,  'X' },
+        {"capath",  required_argument, 0, 'M' },
+        {"verbose", no_argument, 0,  0 },
+        {"debug", no_argument, 0,  'd' },
+        {"insecure", no_argument, 0,  'k' },
+        {"Version", no_argument, 0, 'V'},
+        {"help", no_argument,0,'?'},
+        {0,         0,                 0,  0 }
+     };
+
+    return parse_davix_options_generic(arg_tool_main, long_options,
+                                       argc, argv,
+                                       p, err);
+}
+
+
+int parse_davix_ls_options(int argc, char** argv, OptParams & p, DavixError** err){
+    const std::string arg_tool_main= "E:M:vdkV";
+    const struct option long_options[] = {
+        {"cert",  no_argument,       0, 'E' },
+        {"capath",  required_argument, 0, 'M' },
+        {"verbose", no_argument, 0,  0 },
+        {"debug", no_argument, 0,  'd' },
+        {"insecure", no_argument, 0,  'k' },
+        {"Version", no_argument, 0, 'V'},
+        {"help", no_argument,0,'?'},
+        {0,         0,                 0,  0 }
+     };
+
+    return parse_davix_options_generic(arg_tool_main, long_options,
+                                       argc, argv,
+                                       p, err);
 }
 
 

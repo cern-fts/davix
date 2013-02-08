@@ -27,6 +27,8 @@ struct OptParams{
 
 int parse_davix_options(int argc, char** argv, OptParams & p, DavixError** err);
 
+int parse_davix_ls_options(int argc, char** argv, OptParams & p, DavixError** err);
+
 
 }
 

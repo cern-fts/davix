@@ -4,15 +4,17 @@
 #include <davix.hpp>
 #include <tools/davix_tool_params.hpp>
 #include <tools/davix_tool_util.hpp>
+#include <cstdio>
 
 
 // @author : Devresse Adrien
-// main file for davix cmd line tool
+// main file for davix low level cmd line tool
 
 
 using namespace Davix;
 using namespace std;
 
+#define READ_BLOCK_SIZE 4096
 
 static void configure_req(HttpRequest& req, Tool::OptParams & opts){
     req.setParameters(opts.params);
@@ -35,12 +37,26 @@ static std::string help_msg(){
            "\t-M, --capath:     Add an additional certificate authority directory    \n"
            "\t-k, --insecure:   Disable SSL credential checks \n"
            "\t-X, --request:    Request operation to use (ex : GET, PUT, PROPFIND, etc..)\n"
-
                        ;
 }
 
+
+static int read_stream(HttpRequest* req, FILE* fstream, DavixError** err){
+    char buffer [READ_BLOCK_SIZE];
+
+    ssize_t s_read=1;
+    if(req->beginRequest(err) <0 )
+        return -1;
+    do{
+         if( (s_read = req->readBlock(buffer, READ_BLOCK_SIZE, err)) <0)
+             return -1;
+         fwrite(buffer, s_read, 1, fstream);
+   }while(s_read > 0);
+   return req->endRequest(err);
+}
+
 int main(int argc, char** argv){
-    int retcode;
+    int retcode=-1;
     Tool::OptParams opts;
     DavixError* tmp_err=NULL;
     opts.help_msg = help_msg();
@@ -52,12 +68,11 @@ int main(int argc, char** argv){
 
             if( (req = c.createRequest(opts.vec_arg[0], &tmp_err)) != NULL){
                 configure_req(*req, opts);
-                if( (retcode = req->executeRequest(&tmp_err)) ==0){
-                    if(req->getAnswerSize() > 0){
-                        std::cout << std::string(req->getAnswerContent(),req->getAnswerSize())  << std::endl;
-                    }
-                }
+                retcode= read_stream(req, stdout, &tmp_err);
+                fflush(stdout);
                 delete req;
+            }else{
+                retcode =-1;
             }
         }
     }

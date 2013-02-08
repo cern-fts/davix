@@ -2,8 +2,10 @@
 /**
  *
 @mainpage Davix Documentation
-@author CERN IT-GT-DMS ( lcgutil-support@cern.ch )
 @author Devresse Adrien ( adrien.devresse@cern.ch )
+
+From CERN IT-GT-DMS ( lcgutil-support@cern.ch )
+mailing list : davix-devel@cern.ch
 
 
 <h2> DAVIX </h2>

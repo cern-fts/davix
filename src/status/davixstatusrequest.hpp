@@ -113,7 +113,7 @@ const Code UnknowError= DAVIX_STATUS_UNKNOW_ERROR;
 
 }
 
-///
+///  @class DavixError
 ///  @brief Davix Error Handler
 ///
 /// Error report system of Davix

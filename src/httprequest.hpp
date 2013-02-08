@@ -38,6 +38,7 @@ typedef ssize_t (*HttpBodyProvider)(void *userdata,
 
 ///
 /// @class HTTPRequest
+/// @brief Http low level request interface
 /// HTTPRequest is the main davix class for low level HTTP queries
 /// HTTPRequest objects are provided by Davix::Context
 ///

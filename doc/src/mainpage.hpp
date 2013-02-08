@@ -20,6 +20,10 @@ Davix offers a multi-layer API for the end user :
 Davix supports Http, Webdav ( and S3 ) </br>
 Davix integrate a Webdav / XML parser. </br>
 
+<h2> DAVIX API :</h2>
+
+C++ API : \ref davix.hpp
+
 <h2> Davix is yet an other libcurl ? </h2>
 
 No,
@@ -27,13 +31,15 @@ No,
 - libcurl defines itself as a "client side URL transfer". <br/>
  it provides "protocol level" API, you compose your http queries mannually.
 
-- Davix offers a "file level" API <br/>
- Davix is tends to be of one level higher and
- aims to provide a complete API for remote file operations on data and meta-data.
+- Davix offers a "file level" API. <br/>
+ Davix tends to be of one level higher and
+ provides a complete API for remote file operations on data and meta-data.
 
 <h2> Examples : </h2>
 
 <h3> POSIX API </h3>
+
+ @code{.cpp}
 
             Davix::DavPosix p;
             p.stat("https://mywebdav-server.org/mydir/", &stat, &tmp_err);
@@ -45,9 +51,11 @@ No,
             ####
             #### directory creation
             p.mkdir(NULL, "https://mywebdav-server.org/mnewdir");
-
+ @endcode
 
 <h3> LOW LEVEL REQUEST API </h3>
+
+ @code{.cpp}
 
             Davix::HttpRequest req("https://restapi-server.org/rest")
             req.addHeaderField(...)
@@ -55,7 +63,7 @@ No,
             ###
             ### execute your request
             req.executeRequest(...);
-
+ @endcode
 
 <h2> What does Davix support ? </h2>
 

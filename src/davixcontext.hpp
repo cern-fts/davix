@@ -46,6 +46,8 @@ public:
     Context* clone();
 
 
+    /// @brief low level operations
+    ///
     /// create a new Http request for direct HTTP low level feature usage
     /// this HTTP request object should be destroyed after usage
     ///
@@ -57,7 +59,8 @@ public:
     /// @return pointer to a new allocated request object or null if error
     HttpRequest* createRequest(const Uri & uri, DavixError** err);
 
-
+    /// @brief low level operations
+    ///
     ///  similar to \ref createRequest(const Uri & uri, DavixError** err) but with
     ///  a raw string input
     ///
@@ -66,6 +69,8 @@ public:
     /// @return pointer to a new allocated request object or null if error
     HttpRequest* createRequest(const std::string & url, DavixError** err);
 
+    /// @brief POSIX-like operations
+    ///
     /// Create a new allocated \ref DavPosix Object entry point
     ///
     /// \ref DavPosix is the main entry point for all the POSIX-like operation :

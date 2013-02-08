@@ -9,8 +9,7 @@
 /**
   @file davixuri.hpp
   @author Devresse Adrien
-
-  @brief C++ URI utilities functions for davix
+  @brief URI utilities functions for davix
  */
 
 #ifndef __DAVIX_INSIDE__
@@ -23,6 +22,7 @@ namespace Davix {
 struct UriPrivate;
 
 /// @class Uri
+/// @brief Uri parser
 /// convenience class for uri parsing
 ///
 class Uri

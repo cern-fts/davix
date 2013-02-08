@@ -123,8 +123,12 @@ DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char
                     }while( prop_size < 1); // leave is end of req & no data
 
                     if(!tmp_err){
-                        parser->getProperties().pop_front(); // suppress the parent directory infos...
-                        r = res.release(); // success : take ownership of the pointer
+                        if( S_ISDIR(parser->getProperties().at(0).mode) == false){
+                             DavixError::setupError(&tmp_err, davix_scope_directory_listing_str(), StatusCode::IsNotADirectory, url + " is not a collection or a directory, impossible to list");
+                        }else{
+                            parser->getProperties().pop_front(); // suppress the parent directory infos...
+                            r = res.release(); // success : take ownership of the pointer
+                        }
                     }
             }
         }

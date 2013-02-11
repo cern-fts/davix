@@ -61,7 +61,7 @@ make clean
 %cmake \
 -DDOC_INSTALL_DIR=%{_docdir}/%{name}-%{version} \
 -D UNIT_TESTS=TRUE .
-make %{?_smp_mflags}
+make
 make doc
 
 %check

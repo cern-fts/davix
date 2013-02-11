@@ -7,12 +7,12 @@
 # SOCKET_PKG_LIBRARIES   =  link flag for the w32 sockets
 
 
-if(win32)
+if(MSYS)
 set(SOCKET_PKG_LIBRARIES "ws2_32")
-else(win32)
+else(MSYS)
 set(SOCKET_PKG_LIBRARIES "")
 
-endif(win32)
+endif(MSYS)
 set(SOCKET_PKG_FOUND TRUE)
 
 

@@ -30,6 +30,8 @@ include_directories("libs" ".")
 configure_file(config.in ${CMAKE_CURRENT_BINARY_DIR}/config.h @ONLY)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+link_directories(${HTTPLIB_PKG_LIBRARY_DIR} ${CRYPTO_PKG_LIBRARY_DIR} 
+					${GLIB2_PKG_LIBRARY_DIR} ${LIBXML2_PKG_LIBRARY_DIR} )
 
 add_subdirectory(libs)
 add_subdirectory(datetime)
@@ -49,7 +51,8 @@ add_library(libdavix  SHARED ${src_davix} ${SRC_HTTP}  ${src_xmlparser} ${src_lo
 add_dependencies(libdavix neon_static)
 
 
-target_link_libraries(libdavix  ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES} ${GTHREAD_PKG_LIBRARIES} ${GLIB2_PKG_LIBRARIES} )
+target_link_libraries(libdavix  ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES}
+					  ${GTHREAD_PKG_LIBRARIES} ${GLIB2_PKG_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${SOCKET_PKG_LIBRARIES})
 
 
 

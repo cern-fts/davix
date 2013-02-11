@@ -23,11 +23,12 @@ const std::string scope_get = "Davix::Tools::davix-get";
 static std::string help_msg(){
     return "Usage: %s [OPTIONS ...] <url> \n"
            "Options: \n"
-           "\t--capath:         Add an additional certificate authority directory    \n"
-           "\t--cred, -E:       Client Certificate in PEM format\n"
-           "\t--debug:          Debug mode\n"
-           "\t--help, -h:       Display this help message \n"
-           "\t--insecure, -k:   Disable SSL credential checks \n"
+           "\t--capath CA_path:         Add an additional certificate authority directory\n"
+           "\t--cred, -E cred_path:     Client Certificate in PEM format\n"
+           "\t--debug:                  Debug mode\n"
+           "\t--help, -h:               Display this help message\n"
+           "\t--insecure, -k:           Disable SSL credential checks\n"
+           "\t--output, -o file:        Redirect content to file\n"
                        ;
 }
 
@@ -57,16 +58,36 @@ static int execute_get(const Tool::OptParams & opts, FILE* fstream, DavixError**
         return -1;
 }
 
+
+static FILE* configure_fstream(const Tool::OptParams & opts , DavixError** err){
+    if(opts.output_file_path.empty() == false){
+        FILE* f = fopen(opts.output_file_path.c_str(),"w");
+        if(f == NULL){
+            davix_errno_to_davix_error(errno, scope_get, opts.output_file_path, err);
+            return NULL;
+        }
+
+        return f;
+
+    }
+    return stdout;
+}
+
+
 int main(int argc, char** argv){
     int retcode=-1;
     Tool::OptParams opts;
     DavixError* tmp_err=NULL;
     opts.help_msg = help_msg();
-    FILE* fstream = stdout;
+    FILE* fstream= NULL;
 
-    if( (retcode= Tool::parse_davix_options(argc, argv, opts, &tmp_err)) ==0){
-        if( (retcode = Tool::setup_credential(opts, &tmp_err)) == 0){
+    if( (retcode= Tool::parse_davix_get_options(argc, argv, opts, &tmp_err)) ==0
+        && (retcode = Tool::setup_credential(opts, &tmp_err)) == 0){
+
+        if( ( fstream = configure_fstream(opts, &tmp_err)) != NULL){
             retcode = execute_get(opts, fstream, &tmp_err);
+            if(fstream != stdout)
+                fclose(fstream);
         }
     }
     Tool::err_display(&tmp_err);

@@ -213,6 +213,10 @@ std::string davix_scope_io_cache();
 std::string davix_scope_x509cred();
 
 
+
+//
+void davix_errno_to_davix_error(int errcode, const std::string & scope, const std::string & msg, DavixError** newErr);
+
 } // namespace Davix
 
 #endif // DAVIX_DAVIXSTATUSREQUEST_H

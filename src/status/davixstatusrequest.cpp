@@ -1,5 +1,6 @@
 #include "davixstatusrequest.hpp"
 #include <davix_types.h>
+#include <config.h>
 
 namespace Davix {
 
@@ -105,6 +106,44 @@ void DavixError::clearError(DavixError **err){
         delete *err;
         *err = NULL;
     }
+}
+
+void davix_errno_to_davix_error(int errcode, const std::string & scope, const std::string & msg, DavixError** newErr){
+    StatusCode::Code c;
+    std::string msg_final;
+    switch(errcode){
+        case 0:
+            return;
+        case ENOENT:
+            c = StatusCode::FileNotFound;
+            msg_final = "File not found " + msg;
+            break;
+        case EPERM:
+        case EACCES:
+            c = StatusCode::PermissionRefused;
+            msg_final = "Permission refused " + msg;
+            break;
+        case EISDIR:
+            c = StatusCode::IsADirectory;
+            msg_final = "is a directory " + msg;
+            break;
+        case EINVAL:
+            c = StatusCode::InvalidArgument;
+            msg_final = "invalid argument " + msg;
+            break;
+        case EIO:
+            c = StatusCode::InvalidArgument;
+            msg_final = "Input/output error" + msg;
+            break;
+        case ENOTDIR:
+            c = StatusCode::IsNotADirectory;
+            msg_final = "is not a directory" + msg;
+            break;
+        default:
+            c = StatusCode::SystemError;
+            msg_final = std::string(strerror(errcode)) +  " " + msg;
+    }
+    DavixError::setupError(newErr, scope, c, msg_final);
 }
 
 std::string davix_scope_stat_str(){

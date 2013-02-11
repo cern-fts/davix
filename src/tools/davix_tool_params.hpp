@@ -23,6 +23,7 @@ struct OptParams{
     HeaderVec header_args;
     std::string help_msg;
     std::string cred_path;
+    std::string output_file_path;
 };
 
 int parse_davix_options(int argc, char** argv, OptParams & p, DavixError** err);

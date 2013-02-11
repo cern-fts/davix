@@ -10,6 +10,8 @@
 #include <unistd.h>
 //
 #include <string.h>
+//
+#include <errno.h>
 
 //
 // Win 32 mapper

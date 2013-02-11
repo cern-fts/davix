@@ -23,7 +23,8 @@ OptParams::OptParams() :
     req_type(),
     header_args(),
     help_msg(),
-    cred_path()
+    cred_path(),
+    output_file_path()
 {
 
 }
@@ -83,6 +84,9 @@ int parse_davix_options_generic(const std::string &opt_filter,
                 break;
             case CAPATH_OPT:
                 p.params.addCertificateAuthorityPath(optarg);
+                break;
+            case 'o':
+                p.output_file_path = optarg;
                 break;
             case 'V':
                 display_version();
@@ -156,10 +160,11 @@ int parse_davix_ls_options(int argc, char** argv, OptParams & p, DavixError** er
 
 
 int parse_davix_get_options(int argc, char** argv, OptParams & p, DavixError** err){
-    const std::string arg_tool_main= "E:vkV";
+    const std::string arg_tool_main= "E:o:vkV";
     const struct option long_options[] = {
         {"cert",  no_argument,       0, 'E' },
         {"capath",  required_argument, 0, CAPATH_OPT },
+        {"output",  no_argument,       0, 'o' },
         {"verbose", no_argument, 0,  0 },
         {"debug", no_argument, 0,  DEBUG_OPT },
         {"insecure", no_argument, 0,  'k' },

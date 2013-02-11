@@ -9,17 +9,17 @@
 
 if(MSYS)
 set(SOCKET_PKG_LIBRARIES "ws2_32")
-else(MSYS)
-set(SOCKET_PKG_LIBRARIES "")
-
-endif(MSYS)
 set(SOCKET_PKG_FOUND TRUE)
-
-
 # -----------------------------------------------------
-# handle the QUIETLY and REQUIRED arguments and set LFC_FOUND to TRUE if 
+# handle the QUIETLY and REQUIRED arguments and set LFC_FOUND to TRUE if
 # all listed variables are TRUE
 # -----------------------------------------------------
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(SOCKET_PKG DEFAULT_MSG SOCKET_PKG_LIBRARIES)
 mark_as_advanced(SOCKET_PKG_LIBRARIES)
+
+endif(MSYS)
+
+
+
+

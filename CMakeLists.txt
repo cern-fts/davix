@@ -41,7 +41,7 @@ find_package(SOCKET)
 pkg_check_modules(GTHREAD_PKG REQUIRED gthread-2.0)
 pkg_check_modules(GLIB2_PKG REQUIRED glib-2.0)
 pkg_search_module(LIBSSL_PKG REQUIRED libssl)
-find_package(LIBXML2)
+find_package(LibXml2)
 
 
 if(NOT NEON_EMBEDED)

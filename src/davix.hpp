@@ -20,6 +20,10 @@
 #define __DAVIX_INSIDE__
 #endif
 
+#ifndef DAVIX_EXPORT
+#define DAVIX_EXPORT
+#endif
+
 
 /// main context
 #include <davixcontext.hpp>

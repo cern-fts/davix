@@ -1,3 +1,4 @@
+#include <config.h>
 #include <logger/davix_logger.h>
 #include <logger/logger.h>
 

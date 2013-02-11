@@ -14,6 +14,43 @@
 //
 #include <errno.h>
 
+//has malloc
+#cmakedefine HAVE_MALLOC_H 1
+#ifdef HAVE_MALLOC_H
+#include <malloc.h>
+#endif
+
+// has locale
+#cmakedefine HAVE_LOCALE_H 1
+
+// has strptime
+#cmakedefine HAVE_STRPTIME_H 1
+#ifndef HAVE_STRPTIME_H
+#	define strptime __strptime
+#endif
+
+// has mempcpy
+#cmakedefine HAVE_MEMPCPY_H 1
+#ifndef HAVE_MEMPCPY_H
+#	define mempcpy __mempcpy
+#ifdef __cplusplus
+extern "C" {
+#endif
+void *__mempcpy (void *dstpp, const void *srcpp, size_t len);
+#ifdef __cplusplus
+}
+#endif
+#endif
+
+// readdir max name size
+#ifndef NAME_MAX
+#define NAME_MAX 256
+#endif
+
+// default export 
+#undef DAVIX_EXPORT
+#define DAVIX_EXPORT
+
 //
 // Win 32 mapper
 #if( defined _WIN32 )|| ( defined __MINGW32__ )
@@ -26,17 +63,17 @@ typedef short nlink_t;
 typedef short gid_t;
 typedef short uid_t;
 
-// mempcpy GNU ext
-inline void *mempcpy (void *dstpp, const void *srcpp, size_t len)
-{
-	memcpy(dstpp, srcpp, len);
-	return (void *)(((char *)dstpp) + len);
-}
+#undef DAVIX_EXPORT
+#if defined(libdavix_EXPORTS)
+#define  DAVIX_EXPORT __declspec(dllexport)
+#else
+#define  DAVIX_EXPORT __declspec(dllimport)
+#endif /* libdavix_EXPORTS */
 
-// readdir
-#define NAME_MAX 256
-
-#endif
+// windows headers
+#include <Windows.h>
+#include <Winnls.h>
+#endif /* end of win32*/
 
 
 

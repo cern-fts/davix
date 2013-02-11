@@ -1,3 +1,4 @@
+#include <config.h>
 #include <davixcontext.hpp>
 #include <davixuri.hpp>
 #include <abstractsessionfactory.hpp>

@@ -13,6 +13,7 @@ include(MacroCopyFile REQUIRED)
 include(ReleaseDebugAutoFlags REQUIRED)
 include(CMakeGeneratePkgConfig REQUIRED)
 include(MacroAddDoxygen REQUIRED)
+include(PortabilityGNUCheck REQUIRED)
 
 find_package(PkgConfig REQUIRED)
 

@@ -130,7 +130,7 @@ const Code UnknowError= DAVIX_STATUS_UNKNOW_ERROR;
 ///         clearError(&tmp_err); // clean error
 ///     }
 ///
-class DavixError{
+class DAVIX_EXPORT DavixError{
 public:
 
     ///
@@ -202,20 +202,20 @@ private:
 ///
 /// scope of the davix stat part
 //
-std::string davix_scope_stat_str();
-std::string davix_scope_davOps_str();
-std::string davix_scope_mkdir_str();
-std::string davix_scope_directory_listing_str();
-std::string davix_scope_http_request();
-std::string davix_scope_xml_parser();
-std::string davix_scope_uri_parser();
-std::string davix_scope_io_cache();
-std::string davix_scope_x509cred();
+DAVIX_EXPORT std::string davix_scope_stat_str();
+DAVIX_EXPORT std::string davix_scope_davOps_str();
+DAVIX_EXPORT std::string davix_scope_mkdir_str();
+DAVIX_EXPORT std::string davix_scope_directory_listing_str();
+DAVIX_EXPORT std::string davix_scope_http_request();
+DAVIX_EXPORT std::string davix_scope_xml_parser();
+DAVIX_EXPORT std::string davix_scope_uri_parser();
+DAVIX_EXPORT std::string davix_scope_io_cache();
+DAVIX_EXPORT std::string davix_scope_x509cred();
 
 
 
 //
-void davix_errno_to_davix_error(int errcode, const std::string & scope, const std::string & msg, DavixError** newErr);
+DAVIX_EXPORT void davix_errno_to_davix_error(int errcode, const std::string & scope, const std::string & msg, DavixError** newErr);
 
 } // namespace Davix
 

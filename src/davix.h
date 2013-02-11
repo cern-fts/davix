@@ -19,11 +19,11 @@
 #define __DAVIX_INSIDE__
 #endif
 
-// logger
-#include <logger/davix_logger.h>
-
 // general types
 #include <davix_types.h>
+
+// logger
+#include <logger/davix_logger.h>
 
 // authentication
 #include <auth/davixauth.h>

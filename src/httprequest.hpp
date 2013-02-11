@@ -42,7 +42,7 @@ typedef ssize_t (*HttpBodyProvider)(void *userdata,
 /// HTTPRequest is the main davix class for low level HTTP queries
 /// HTTPRequest objects are provided by Davix::Context
 ///
-class HttpRequest
+class DAVIX_EXPORT HttpRequest
 {
 public:
     HttpRequest(NEONRequest* req);
@@ -167,9 +167,9 @@ private:
 
 
 
-bool httpcodeIsValid(int code);
+DAVIX_EXPORT bool httpcodeIsValid(int code);
 
-void httpcodeToDavixCode(int code, const std::string & scope, const std::string & end_message, DavixError** err);
+DAVIX_EXPORT void httpcodeToDavixCode(int code, const std::string & scope, const std::string & end_message, DavixError** err);
 
 
 } // namespace Davix

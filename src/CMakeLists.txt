@@ -47,7 +47,7 @@ SET(SRC_HTTP ${src_neon})
 add_definitions(${HTTPLIB_PKG_CFLAGS} )
 add_library(libdavix  SHARED ${src_davix} ${SRC_HTTP}  ${src_xmlparser} ${src_logger} ${src_datetime}
                            ${src_lockers} ${src_davix_posix} ${src_davix_status} ${src_davix_fileops}
-                           ${src_davix_params} ${src_davix_auth})
+                           ${src_davix_params} ${src_davix_auth} ${SRC_STRPTIME} ${SRC_MEMPCPY})
 add_dependencies(libdavix neon_static)
 
 

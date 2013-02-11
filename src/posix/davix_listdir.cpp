@@ -1,6 +1,4 @@
-#include <sys/stat.h>
-#include <dirent.h>
-#include <malloc.h>
+#include <config.h>
 #include <ostream>
 #include <sstream>
 #include <memory>

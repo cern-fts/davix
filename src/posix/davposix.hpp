@@ -38,7 +38,7 @@ class DavPosixInternal;
 /// to a POSIX like interface.
 ///
 /// DavPosix and all associated method are Thread safe.
-class DavPosix
+class DAVIX_EXPORT DavPosix
 {
 public:
     DavPosix(Context* handle);

@@ -1,5 +1,4 @@
-#include "davix_stat.hpp"
-
+#include <config.h>
 #include <ostream>
 #include <sstream>
 #include <string>
@@ -7,6 +6,10 @@
 #include <cstdlib>
 #include <status/davixstatusrequest.hpp>
 #include <fileops/fileutils.hpp>
+
+
+#include "davix_stat.hpp"
+
 
 
 

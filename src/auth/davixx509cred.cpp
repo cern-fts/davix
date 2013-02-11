@@ -1,6 +1,9 @@
+#include <config.h>
+#include <ne_ssl.h>
+
 #include "davixx509cred_internal.hpp"
 
-#include <ne_ssl.h>
+
 
 namespace Davix {
 

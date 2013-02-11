@@ -1,6 +1,8 @@
-#include "davixstatusrequest.hpp"
-#include <davix_types.h>
 #include <config.h>
+#include <davix_types.h>
+#include "davixstatusrequest.hpp"
+
+
 
 namespace Davix {
 

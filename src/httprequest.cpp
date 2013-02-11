@@ -1,8 +1,9 @@
-#include "httprequest.hpp"
+#include <config.h>
 #include <sstream>
 #include <ostream>
 
 #include <neon/neonrequest.hpp>
+#include "httprequest.hpp"
 
 namespace Davix {
 

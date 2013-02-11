@@ -29,7 +29,7 @@ class DavPosix;
 /// @brief Main entry point for Davix
 /// Each new davix context has its own session-reuse pool and set of parameters
 /// Any Method in a Davix::Context is thread-safe
-class Context
+class DAVIX_EXPORT Context
 {
 public:
     /// create a new context for Davix
@@ -95,7 +95,7 @@ private:
 
 /// version string of the current davix library
 /// @return version of davix
-const std::string & version();
+DAVIX_EXPORT const std::string & version();
 
 }
 

@@ -22,7 +22,7 @@ struct X509CredentialExtra;
 /// @class X509Credential
 /// @brief container for X509 certificate
 ///
-class X509Credential
+class DAVIX_EXPORT X509Credential
 {
 public:
     X509Credential();

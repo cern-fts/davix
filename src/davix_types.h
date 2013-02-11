@@ -19,6 +19,9 @@
 #error "Only davix.h or davix.hpp should be included."
 #endif
 
+#ifndef DAVIX_EXPORT
+#define DAVIX_EXPORT
+#endif
 
 struct Davix_fd;
 struct Davix_dir_handle;

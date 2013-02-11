@@ -20,7 +20,7 @@ namespace Davix {
 
 ///  @class
 ///  @brief server related info
-class SessionInfo{
+class DAVIX_EXPORT SessionInfo{
 public:
     void* a;
 /// TODO: fill with server side infos

@@ -27,7 +27,7 @@ LIST(APPEND davix_auth_header "auth/davixauth.hpp" "auth/davixx509cred.hpp" "aut
 
 include_directories("libs" ".")
 
-configure_file(config.in config.h @ONLY)
+configure_file(config.in ${CMAKE_CURRENT_BINARY_DIR}/config.h @ONLY)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 

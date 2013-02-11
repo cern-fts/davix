@@ -21,7 +21,8 @@ struct Davix_dir_handle{
     Davix_dir_handle(Davix::HttpRequest* _req, Davix::DavPropXMLParser * _parser):
         request(_req),
         parser(_parser),
-        dir_info((struct dirent*) calloc(1,sizeof(struct dirent) + NAME_MAX +1)){
+        dir_info((struct dirent*) calloc(1,sizeof(struct dirent) + NAME_MAX +1)),
+        dir_offset(0){
 
     }
 
@@ -34,6 +35,7 @@ struct Davix_dir_handle{
    Davix::HttpRequest* request;
    Davix::DavPropXMLParser * parser;
    struct dirent* dir_info;
+   off_t dir_offset;
 
 private:
    Davix_dir_handle(const Davix_dir_handle & );
@@ -45,8 +47,7 @@ namespace Davix{
 
 typedef Davix_dir_handle DIR_handle;
 
-static void fill_dirent_from_filestat(struct dirent * d, const FileProperties & f, const off_t offset){
-    d->d_off = offset;
+static void fill_dirent_from_filestat(struct dirent * d, const FileProperties & f){
     g_strlcpy(d->d_name, f.filename.c_str(), NAME_MAX);
 }
 
@@ -172,7 +173,7 @@ struct dirent* DavPosix::readdir(DAVIX_DIR * d, DavixError** err){
 
     HttpRequest *req = handle->request; // setup env again
     DavPropXMLParser* parser = handle->parser;
-    off_t read_offset = handle->dir_info->d_off+1;
+    off_t read_offset = handle->dir_offset+1;
     size_t prop_size = parser->getProperties().size();
     size_t s_resu = _s_buff;
 
@@ -187,7 +188,8 @@ struct dirent* DavPosix::readdir(DAVIX_DIR * d, DavixError** err){
     if(!tmp_err){
         if(prop_size == 0) // end of the request, end of the story
             return NULL;
-        fill_dirent_from_filestat(handle->dir_info, parser->getProperties().front(), read_offset);
+        fill_dirent_from_filestat(handle->dir_info, parser->getProperties().front());
+        handle->dir_offset = read_offset;
         parser->getProperties().pop_front(); // clean the current element
         DAVIX_DEBUG(" <- davix_readdir");
         return handle->dir_info;
@@ -213,7 +215,7 @@ struct dirent* DavPosix::readdirpp(DAVIX_DIR * d, struct stat *st, DavixError** 
 
     HttpRequest* req = handle->request; // setup env again
     DavPropXMLParser* parser = handle->parser;
-    off_t read_offset = handle->dir_info->d_off+1;
+    off_t read_offset = handle->dir_offset+1;
     size_t prop_size = parser->getProperties().size();
     size_t s_resu = _s_buff;
 
@@ -230,7 +232,8 @@ struct dirent* DavPosix::readdirpp(DAVIX_DIR * d, struct stat *st, DavixError** 
         if(prop_size == 0){
             ret= NULL; // end of the request, end of the story
         }else{
-            fill_dirent_from_filestat(handle->dir_info, parser->getProperties().front(), read_offset);
+            fill_dirent_from_filestat(handle->dir_info, parser->getProperties().front());
+            handle->dir_offset = read_offset;
             fill_stat_from_fileproperties(st, parser->getProperties().front());
             parser->getProperties().pop_front(); // clean the current element
             ret= handle->dir_info;

@@ -6,6 +6,7 @@
 
 LIST(APPEND davix_main_src "davix_tool_main.cpp")
 LIST(APPEND davix_ls_main_src "davix_tool_ls_main.cpp")
+LIST(APPEND davix_get_main_src "davix_tool_get_main.cpp")
 LIST(APPEND davix_tool_common_src "davix_tool_params.cpp" "davix_tool_util.cpp")
 
 link_directories(${PROJECT_BINARY_DIR}/src/)
@@ -27,5 +28,14 @@ set_target_properties(davix_ls_tool PROPERTIES
 add_dependencies(davix_ls_tool libdavix)
 
 
-install(TARGETS davix_tool davix_ls_tool
+## davix get cmd line
+add_executable(davix_get_tool ${davix_get_main_src} ${davix_tool_common_src})
+
+target_link_libraries(davix_get_tool davix)
+set_target_properties(davix_get_tool PROPERTIES
+                                OUTPUT_NAME "davix-get")
+add_dependencies(davix_get_tool libdavix)
+
+
+install(TARGETS davix_tool davix_ls_tool davix_get_tool
          DESTINATION ${BIN_INSTALL_DIR}/)

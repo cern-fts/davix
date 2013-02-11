@@ -116,7 +116,7 @@ int parse_davix_options_generic(const std::string &opt_filter,
 
 
 int parse_davix_options(int argc, char** argv, OptParams & p, DavixError** err){
-    const std::string arg_tool_main= "H:E:X:M:vdkV";
+    const std::string arg_tool_main= "H:E:X:kV";
     const struct option long_options[] = {
         {"header",  required_argument, 0,  'H' },
         {"cert",  no_argument,       0, 'E' },
@@ -137,7 +137,26 @@ int parse_davix_options(int argc, char** argv, OptParams & p, DavixError** err){
 
 
 int parse_davix_ls_options(int argc, char** argv, OptParams & p, DavixError** err){
-    const std::string arg_tool_main= "E:M:vdkV";
+    const std::string arg_tool_main= "E:vkV";
+    const struct option long_options[] = {
+        {"cert",  no_argument,       0, 'E' },
+        {"capath",  required_argument, 0, CAPATH_OPT },
+        {"verbose", no_argument, 0,  0 },
+        {"debug", no_argument, 0,  DEBUG_OPT },
+        {"insecure", no_argument, 0,  'k' },
+        {"Version", no_argument, 0, 'V'},
+        {"help", no_argument,0,'?'},
+        {0,         0,                 0,  0 }
+     };
+
+    return parse_davix_options_generic(arg_tool_main, long_options,
+                                       argc, argv,
+                                       p, err);
+}
+
+
+int parse_davix_get_options(int argc, char** argv, OptParams & p, DavixError** err){
+    const std::string arg_tool_main= "E:vkV";
     const struct option long_options[] = {
         {"cert",  no_argument,       0, 'E' },
         {"capath",  required_argument, 0, CAPATH_OPT },

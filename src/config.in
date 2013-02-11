@@ -3,6 +3,16 @@
 
 // portability mapper
 
+
+// POSIX inclusion
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+//
+#include <string.h>
+
+//
+// Win 32 mapper
 #if( defined _WIN32 )|| ( defined __MINGW32__ )
 // macros
 
@@ -13,14 +23,13 @@ typedef short nlink_t;
 typedef short gid_t;
 typedef short uid_t;
 
-// string
-#include <string.h>
-
+// mempcpy GNU ext
 void *mempcpy (void *dstpp, const void *srcpp, size_t len)
 {
 	memcpy(dstpp, srcpp, len);
 	return (void *)(((char *)dstpp) + len);
 }
+
 // readdir
 #define NAME_MAX 256
 

@@ -1,7 +1,7 @@
 #ifndef DAVIX_FILEPROPERTIES_H
 #define DAVIX_FILEPROPERTIES_H
 
-#include <sys/stat.h>
+#include <config.h>
 #include "global_def.hpp"
 
 

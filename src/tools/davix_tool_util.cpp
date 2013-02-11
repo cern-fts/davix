@@ -18,5 +18,26 @@ int setup_credential(OptParams & opts, DavixError** err){
     return 0;
 }
 
+
+void err_display(DavixError ** err){
+    if(err && *err){
+        std::cerr << "Error: "<< (*err)->getErrMsg() << std::endl;
+        DavixError::clearError(err);
+    }
+}
+
+std::string mode_to_stringmode(mode_t mode){
+    mode_t tmp_mode = mode;
+    const char * strv= "xwrxwrxwr";
+    char res[11];
+    memset(res,'-', sizeof(10));
+    res[10]='\0';
+    for(int i=0; i <9; i++){
+        res[9-i] = ( mode = (tmp_mode >> 1)) & 0x01;
+    }
+    res[0]= S_ISDIR(mode);
+    return std::string(res);
+}
+
 }
 }

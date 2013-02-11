@@ -1,6 +1,5 @@
 
 
-
 #include <davix.hpp>
 #include <tools/davix_tool_params.hpp>
 #include <tools/davix_tool_util.hpp>
@@ -16,6 +15,10 @@ using namespace std;
 
 #define READ_BLOCK_SIZE 4096
 
+
+
+
+
 static void configure_req(HttpRequest& req, Tool::OptParams & opts){
     req.setParameters(opts.params);
     if(opts.req_type.empty() == false)
@@ -30,13 +33,13 @@ static void configure_req(HttpRequest& req, Tool::OptParams & opts){
 static std::string help_msg(){
     return "Usage: %s [OPTIONS ...] <url> \n"
            "Options: \n"
-           "\t-d, --debug:      Debug mode\n"
-           "\t-E, --cred:       Client Certificate in PEM format\n"
-           "\t-h, --help:       Display this help message \n"
-           "\t-H, --header:     Add a header field to the request (ex: \"Depth: 1\") \n"
-           "\t-M, --capath:     Add an additional certificate authority directory    \n"
-           "\t-k, --insecure:   Disable SSL credential checks \n"
-           "\t-X, --request:    Request operation to use (ex : GET, PUT, PROPFIND, etc..)\n"
+           "\t--capath:         Add an additional certificate authority directory    \n"
+           "\t--cred, -E:       Client Certificate in PEM format\n"
+           "\t--debug:          Debug mode\n"
+           "\t--help, -h:       Display this help message \n"
+           "\t--header, -H:     Add a header field to the request (ex: \"Depth: 1\") \n"
+           "\t--insecure, -k:   Disable SSL credential checks \n"
+           "\t--request, -X:    Request operation to use (ex : GET, PUT, PROPFIND, etc..)\n"
                        ;
 }
 
@@ -76,10 +79,7 @@ int main(int argc, char** argv){
             }
         }
     }
-    if(tmp_err){
-        std::cerr << "Error: "<< tmp_err->getErrMsg() << std::endl;
-        DavixError::clearError(&tmp_err);
-    }
+    Tool::err_display(&tmp_err);
     return retcode;
 }
 

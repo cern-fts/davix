@@ -12,8 +12,13 @@ namespace Tool{
 
 int setup_credential(OptParams & opts, DavixError** err);
 
-}
 
+
+
+void err_display(DavixError ** err);
+
+
+}
 }
 
 

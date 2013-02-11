@@ -12,6 +12,8 @@ namespace Tool{
 const std::string scope_params = "Davix::Tools::Params";
 
 
+#define CAPATH_OPT  1000
+#define DEBUG_OPT  1001
 
 OptParams::OptParams() :
     params(),
@@ -64,7 +66,7 @@ int parse_davix_options_generic(const std::string &opt_filter,
               /* If this option set a flag, do nothing else now. */
               std::cout << " case 0 " << std::endl;
               break;
-            case 'd':
+            case DEBUG_OPT:
                 p.debug = true;
                 davix_set_log_level(DAVIX_LOG_ALL);
                 break;
@@ -79,7 +81,7 @@ int parse_davix_options_generic(const std::string &opt_filter,
                 if( set_header_field(optarg, p, err) <0)
                     return -1;
                 break;
-            case 'M':
+            case CAPATH_OPT:
                 p.params.addCertificateAuthorityPath(optarg);
                 break;
             case 'V':
@@ -119,9 +121,9 @@ int parse_davix_options(int argc, char** argv, OptParams & p, DavixError** err){
         {"header",  required_argument, 0,  'H' },
         {"cert",  no_argument,       0, 'E' },
         {"request",  required_argument, 0,  'X' },
-        {"capath",  required_argument, 0, 'M' },
+        {"capath",  required_argument, 0, CAPATH_OPT },
         {"verbose", no_argument, 0,  0 },
-        {"debug", no_argument, 0,  'd' },
+        {"debug", no_argument, 0,  DEBUG_OPT },
         {"insecure", no_argument, 0,  'k' },
         {"Version", no_argument, 0, 'V'},
         {"help", no_argument,0,'?'},
@@ -138,9 +140,9 @@ int parse_davix_ls_options(int argc, char** argv, OptParams & p, DavixError** er
     const std::string arg_tool_main= "E:M:vdkV";
     const struct option long_options[] = {
         {"cert",  no_argument,       0, 'E' },
-        {"capath",  required_argument, 0, 'M' },
+        {"capath",  required_argument, 0, CAPATH_OPT },
         {"verbose", no_argument, 0,  0 },
-        {"debug", no_argument, 0,  'd' },
+        {"debug", no_argument, 0,  DEBUG_OPT },
         {"insecure", no_argument, 0,  'k' },
         {"Version", no_argument, 0, 'V'},
         {"help", no_argument,0,'?'},

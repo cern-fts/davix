@@ -1,5 +1,6 @@
 #include "neonsessionfactory.hpp"
 
+#include <lockers/dpponce.hpp>
 #include <logger/davix_logger_internal.h>
 #include <string>
 #include <sstream>
@@ -12,18 +13,17 @@ namespace Davix {
 const char* proto_support[] = { "http", "https", NULL };
 const unsigned int ports[] = { 80 ,443 , 0};
 
-static GOnce neon_once = G_ONCE_INIT;
+static DppOnce neon_once;
 
-static gpointer init_neon(gpointer useless){
+static void init_neon(){
     ne_sock_init();
-    return NULL;
 }
 
 NEONSessionFactory::NEONSessionFactory() :
     _sess_map(),
     _sess_mut()
 {
-    g_once (&neon_once, init_neon, NULL);
+    neon_once.once(&init_neon);
 
     if(davix_get_log_level() & DAVIX_LOG_DEBUG){
         DAVIX_DEBUG("Enable Debug mode in NEON ...");

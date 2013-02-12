@@ -4,32 +4,54 @@
 
 
 time_t parse_http_date(const char* http_date){
+        // TODO : possible issue with timezone != GMT,
+
     static const char rfc1123[] = "%a, %d %b %Y %H:%M:%S GMT";
     struct tm tm;
-    time_t mtime;
     memset(&tm,0, sizeof(struct tm));
 
     const char * p = strptime(http_date, rfc1123, &tm);
     if ( p == NULL || *p != '\0'){
         return -1;
     }
-    if( (mtime = mktime(&tm)) == -1){
-        return -1;
-    }
-    return mtime;
+    return mktime(&tm) - timezone;;
 
 }
 
 
 time_t parse_iso8601date(const char* iso_date){
 
-    // old part of code, should be corrected in the futur, EL 5 SL 5 compat
-    GTimeVal timval;
-    time_t res = -1;
-    if( g_time_val_from_iso8601 (iso_date, &timval) == TRUE){
-        res = (time_t) timval.tv_sec;
+    // TODO : possible issue with timezone != Z,
+    struct tm tm_time;
+    char* p, *end_p;
+    memset(&tm_time,0, sizeof(struct tm ));
+    if(  (p = strptime(iso_date, "%Y-%m-%dT%H:%M:%SZ", &tm_time) ) == NULL || *p != '\0'){
+        if( (p = strptime(iso_date, "%Y-%m-%dT%H:%M:%S", &tm_time) ) != NULL
+                && (*p == '+' || *p == '-') ){
+                struct tm tm_time_offset;
+                memset(&tm_time_offset,0, sizeof(struct tm ));
+                if( ( ( end_p= strptime(p+1,  "%H:%M", &tm_time_offset)) == NULL
+                      || *end_p != '\0'
+                     )
+                    && ( (end_p =strptime(p+1,  "%H%M", &tm_time_offset)) == NULL
+                         || *end_p != '\0'
+                       )
+                   )
+                    return -1;
+                if( *p =='+'){
+                    tm_time.tm_hour +=  tm_time_offset.tm_hour;
+                    tm_time.tm_min +=  tm_time_offset.tm_min;
+                 } else{
+                    tm_time.tm_hour -=  tm_time_offset.tm_hour;
+                    tm_time.tm_min -=  tm_time_offset.tm_min;
+                 }
+        }else{
+            return -1;
+        }
     }
-    return res;
+
+
+    return mktime(&tm_time) - timezone;
 
 }
 

@@ -31,7 +31,7 @@ configure_file(config.in ${CMAKE_CURRENT_BINARY_DIR}/config.h @ONLY)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 link_directories(${HTTPLIB_PKG_LIBRARY_DIR} ${CRYPTO_PKG_LIBRARY_DIR} 
-					${GLIB2_PKG_LIBRARY_DIR} ${LIBXML2_PKG_LIBRARY_DIR} )
+                                        ${LIBXML2_PKG_LIBRARY_DIR} )
 
 add_subdirectory(libs)
 add_subdirectory(datetime)

@@ -5,14 +5,6 @@
 #include <neon/neonsessionfactory.hpp>
 #include <davix_context_internal.hpp>
 
-// initialization
-__attribute__((constructor))
-void core_init(){
-#if  (!GLIB_CHECK_VERSION (2, 32, 0))
-    if (!g_thread_supported())
-      g_thread_init(NULL);
-#endif
-}
 
 /**
  * @cond HIDDEN_SYMBOLS
@@ -43,12 +35,17 @@ public:
 
 
     static ContextInternal* takeRef(ContextInternal* me){
-        g_atomic_int_inc(&(me->count_instance));
+        DppLocker(me->l_counter);
+        (me->count_instance)++;
         return me;
     }
 
     static void releaseRef(ContextInternal* me){
-        if(g_atomic_int_dec_and_test(&(me->count_instance)))
+        {
+            DppLocker(me->l_counter);
+            (me->count_instance)--;
+        }
+        if(me->count_instance <=0)
             delete me;
     }
 
@@ -64,6 +61,7 @@ public:
     std::auto_ptr<AbstractSessionFactory>  _fsess;
     size_t _s_buff;
     unsigned long _timeout;
+    DppLock l_counter;
     volatile int count_instance;
 };
 
@@ -76,6 +74,7 @@ ContextInternal::ContextInternal(AbstractSessionFactory* fsess) :
     _fsess(fsess),
     _s_buff(65536),
     _timeout(300),
+    l_counter(),
     count_instance(1)
 {
 }

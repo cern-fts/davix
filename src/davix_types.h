@@ -1,7 +1,6 @@
 #ifndef DAVIX_TYPES_H
 #define DAVIX_TYPES_H
 
-#include <glib.h>
 #include <stdbool.h>
 
 /**

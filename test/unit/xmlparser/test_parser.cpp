@@ -1,4 +1,5 @@
-
+#include <config.h>
+#include <stdbool.h>
 #include <ctime>
 #include <datetime/datetime_utils.h>
 #include <davix.h>
@@ -296,7 +297,7 @@ TEST(XmlParserInstance, parseOneStat){
     int ret = parser.parseChuck(simple_stat_propfind_content, strlen(simple_stat_propfind_content));
     if( ret !=0){
         std::cerr << " error : " << parser.getLastErr()->getErrMsg() << std::endl;
-        ASSERT_TRUE(FALSE);
+        ASSERT_TRUE(false);
     }
     ASSERT_EQ(1u, parser.getProperties().size());
     parser.parseChuck(NULL, 0);
@@ -317,7 +318,7 @@ TEST(XMLParserInstance,ParseList){
     int ret = parser.parseChuck(recursive_listing, strlen(recursive_listing));
     if( ret !=0){
         std::cerr << " error : " << parser.getLastErr()->getErrMsg() << std::endl;
-        ASSERT_TRUE(FALSE);
+        ASSERT_TRUE(false);
     }
     ASSERT_EQ(16u, parser.getProperties().size());
     parser.parseChuck(NULL, 0);
@@ -363,7 +364,7 @@ TEST(XmlPaserInstance, destroyPartial){
     int ret = parser->parseChuck(simple_stat_propfind_content, strlen(simple_stat_propfind_content)/2);
     if( ret !=0){
         std::cerr << " error : " << parser->getLastErr()->getErrMsg() << std::endl;
-        ASSERT_TRUE(FALSE);
+        ASSERT_TRUE(false);
     }
     // destroy the parser with still parsing on the stack
     delete parser;

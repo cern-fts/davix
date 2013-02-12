@@ -12,7 +12,6 @@ BuildRoot:			%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 #main lib dependencies
 BuildRequires:		cmake
 BuildRequires:		doxygen
-BuildRequires:		glib2-devel
 BuildRequires:		libxml2-devel
 BuildRequires:		openssl-devel
 
@@ -34,7 +33,6 @@ file operations with Webdav and Http based protocols.
 Summary:			Development files for %{name}
 Group:				Applications/Internet
 Requires:			%{name}-libs%{?_isa} = %{version}-%{release}
-Requires:			glib2-devel%{?_isa}
 Requires:			pkgconfig
 
 %description devel

@@ -1,10 +1,6 @@
 #ifndef DAVIX_H
 #define DAVIX_H
 
-#include <glib.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 
 ///
 ///  @file davix.h

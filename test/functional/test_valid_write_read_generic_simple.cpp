@@ -1,5 +1,5 @@
 #include "test_stat.h"
-
+#include <algorithm>
 #include <davixcontext.hpp>
 #include <http_backend.hpp>
 #include <posix/davposix.hpp>
@@ -95,7 +95,7 @@ int main(int argc, char** argv){
     // try partial read
     memset(buff_output, 0, sizeof(size_content));
     off_t offset_read = size_content/2;
-    size_t size_read = MIN(size_content - offset_read, 600);
+    size_t size_read = std::min<size_t>(size_content - offset_read, 600);
     if( ( ret = pos.pread(fd, buff_output, size_read, offset_read, &tmp_err)) <0){
         std::cerr << " error while pread " << tmp_err->getErrMsg() << " code :" << (int) tmp_err->getStatus() << std::endl;
         return -1;

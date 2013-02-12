@@ -24,7 +24,7 @@ INCLUDE(CTest)
 set(OUTPUT_NAME_DAVIX "davix")
 set(VERSION_MAJOR 0)
 set(VERSION_MINOR 0)
-set(VERSION_PATCH 24)
+set(VERSION_PATCH 25)
 set(VERSION_STRING ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 
@@ -39,8 +39,6 @@ SET(NEON_EMBEDED TRUE
 # libs checks
 find_package(Threads)
 find_package(SOCKET)
-pkg_check_modules(GTHREAD_PKG REQUIRED gthread-2.0)
-pkg_check_modules(GLIB2_PKG REQUIRED glib-2.0)
 pkg_search_module(LIBSSL_PKG REQUIRED libssl)
 find_package(LibXml2)
 

@@ -2,7 +2,6 @@
 
 #include <stdio.h>
 #include <davix.h>
-#include <glib.h>
 #include <string.h>
 #include "davix_test_lib_c.h"
 

@@ -1,4 +1,4 @@
-
+#include <config.h>
 #include <logger/davix_logger_internal.h>
 #include <status/davixstatusrequest.hpp>
 #include <cstdlib>

@@ -128,7 +128,7 @@ void configure_grid_env_c(char * cert_path, davix_params_t  params){
 
     }
 
-    davix_params_set_ssl_check(params, FALSE, &tmp_err);
+    davix_params_set_ssl_check(params, false, &tmp_err);
 }
 
 DAVIX_C_DECL_END

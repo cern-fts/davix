@@ -1,4 +1,5 @@
 #include <config.h>
+#include <cstdio>
 #include <logger/davix_logger.h>
 #include <stdarg.h>
 

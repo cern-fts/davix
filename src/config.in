@@ -31,16 +31,13 @@
 
 // has mempcpy
 #cmakedefine HAVE_MEMPCPY_H 1
-#ifndef HAVE_MEMPCPY_H
-#	define mempcpy __mempcpy
-#ifdef __cplusplus
-extern "C" {
-#endif
-void *__mempcpy (void *dstpp, const void *srcpp, size_t len);
-#ifdef __cplusplus
-}
-#endif
-#endif
+#include <mempcpy/mempcpy.h>
+
+
+// has strlcpy
+#cmakedefine HAVE_STRLCPY_H 1
+#include <strlcpy/strlcpy.h>
+
 
 // readdir max name size
 #ifndef NAME_MAX

@@ -90,8 +90,8 @@ int NEONSession::provide_login_passwd_fn(void *userdata, const char *realm, int 
         return -1;
     }
     DAVIX_DEBUG("NEONSession > setup authentification pwd/login....");
-    g_strlcpy(username, tmp_login.c_str(), NE_ABUFSIZ);
-    g_strlcpy(password, tmp_password.c_str(), NE_ABUFSIZ);
+    strlcpy(username, tmp_login.c_str(), NE_ABUFSIZ);
+    strlcpy(password, tmp_password.c_str(), NE_ABUFSIZ);
     req->_login.clear();
     req->_passwd.clear();
     DAVIX_DEBUG("NEONSession > get login/password with success...try server submission ");

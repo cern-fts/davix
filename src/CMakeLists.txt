@@ -47,12 +47,13 @@ SET(SRC_HTTP ${src_neon})
 add_definitions(${HTTPLIB_PKG_CFLAGS} )
 add_library(libdavix  SHARED ${src_davix} ${SRC_HTTP}  ${src_xmlparser} ${src_logger} ${src_datetime}
                            ${src_lockers} ${src_davix_posix} ${src_davix_status} ${src_davix_fileops}
-                           ${src_davix_params} ${src_davix_auth} ${SRC_STRPTIME} ${SRC_MEMPCPY})
+                           ${src_davix_params} ${src_davix_auth} ${SRC_STRPTIME} ${SRC_MEMPCPY}
+                           ${SRC_STRLCPY})
 add_dependencies(libdavix neon_static)
 
 
 target_link_libraries(libdavix  ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES}
-                                          ${GTHREAD_PKG_LIBRARIES} ${GLIB2_PKG_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${SOCKET_PKG_LIBRARIES})
+                                          ${GTHREAD_PKG_LIBRARIES} ${GLIB2_PKG_LIBRARIES}  ${CMAKE_THREAD_LIBS_INIT} ${SOCKET_PKG_LIBRARIES})
 
 
 

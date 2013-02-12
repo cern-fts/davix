@@ -62,7 +62,7 @@ add_definitions( -DNEON_BACKEND)
 add_definitions( -D__DAVIX_INSIDE__)
 add_definitions( -DDAVIX_VERSION="${VERSION_STRING}" )
 
-include_directories( ${HTTPLIB_PKG_INCLUDE_DIRS} ${GLIB2_PKG_INCLUDE_DIRS})
+include_directories( ${HTTPLIB_PKG_INCLUDE_DIRS} ${GLIB2_PKG_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/deps)
 
 install(FILES RELEASE-NOTES
 		DESTINATION ${DOC_INSTALL_DIR}/) # install release notes

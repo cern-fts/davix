@@ -46,7 +46,7 @@ namespace Davix{
 typedef Davix_dir_handle DIR_handle;
 
 static void fill_dirent_from_filestat(struct dirent * d, const FileProperties & f){
-    g_strlcpy(d->d_name, f.filename.c_str(), NAME_MAX);
+    strlcpy(d->d_name, f.filename.c_str(), NAME_MAX);
 }
 
 int incremental_propfind_listdir_parsing(HttpRequest* req, DavPropXMLParser * parser, size_t s_buff, const char* scope, DavixError** err){

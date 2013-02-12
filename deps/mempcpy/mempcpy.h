@@ -1,3 +1,6 @@
+#pragma once
+#ifndef _MEMPCPY_H_H
+#define _MEMPCPY_H_H
 /* Convert a string representation of time to a time value.
    Copyright (C) 1996, 1997, 1998, 1999, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -26,11 +29,21 @@
 #include <string.h>
 
 
-void *mempcpy (void *dstpp, const void *srcpp, size_t len)
-{
-	memcpy(dstpp, srcpp, len);
-	return (void *)(((char *)dstpp) + len);
-}
-
-
+#ifdef __cplusplus
+extern "C" {
 #endif
+
+
+
+
+void *mempcpy (void *dstpp, const void *srcpp, size_t len);
+
+
+#ifdef __cplusplus
+}
+#endif
+
+
+#endif // HAVE_MEMPCPY_H
+
+#endif // _MEMPCPY_H_H

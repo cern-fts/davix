@@ -1,5 +1,6 @@
 #include <config.h>
 #include <ne_ssl.h>
+#include <cassert>
 
 #include "davixx509cred_internal.hpp"
 
@@ -108,13 +109,13 @@ davix_x509_cert_t davix_x509_cert_new(){
 
 /// return true if certificate container contain a valid credential, else false
 bool davix_x509_cert_has_cert(davix_x509_cert_t cred){
-    g_assert(cred);
+    assert(cred);
     return ((Davix::X509Credential*) cred)->hasCert();
 }
 
 /// load a pkcs12 certificate
 int davix_x509_cert_load_from_p12(davix_x509_cert_t cred, const char * path, const char* passwd, davix_error_t* err){
-    g_assert(cred && path);
+    assert(cred && path);
     return ((Davix::X509Credential*) cred)->loadFromFileP12(path, ((passwd)?(passwd):""), (Davix::DavixError**)err);
 }
 

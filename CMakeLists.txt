@@ -3,10 +3,11 @@ project (davix)
 cmake_minimum_required (VERSION 2.6)
 
 # build type
-set(CMAKE_BUILD_TYPE "RelWithDebInfo"
+set(CMAKE_BUILD_TYPE RelWithDebInfo
     CACHE STRING "build type")
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules/")
+
 # load module
 include(DefineInstallationPaths REQUIRED)
 include(MacroCopyFile REQUIRED)
@@ -14,7 +15,6 @@ include(ReleaseDebugAutoFlags REQUIRED)
 include(CMakeGeneratePkgConfig REQUIRED)
 include(MacroAddDoxygen REQUIRED)
 include(PortabilityGNUCheck REQUIRED)
-
 find_package(PkgConfig REQUIRED)
 
 #enable testing

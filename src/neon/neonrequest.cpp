@@ -1,7 +1,7 @@
 #include "neonrequest.hpp"
 
 #include <cstring>
-#include <logger/davix_logger.h>
+#include <logger/davix_logger_internal.h>
 #include <libs/time_utils.h>
 #include <ne_redirect.h>
 #include <ne_request.h>

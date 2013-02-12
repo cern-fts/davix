@@ -22,21 +22,6 @@ DAVIX_EXPORT int davix_get_log_level();
 
 DAVIX_EXPORT void davix_logger(int log_mask, const char * msg, ...);
 
-#define DAVIX_LOG(X, msg, ...) \
-    do{ \
-    if(X & davix_get_log_level()){ davix_logger(X, msg, ##__VA_ARGS__); } \
-    }while(0)
-
-#define DAVIX_DEBUG(msg, ...) \
-    do{ \
-    if(0x04 & davix_get_log_level() ){ davix_logger(0x04, msg, ##__VA_ARGS__); } \
-    }while(0)
-
-#define DAVIX_TRACE(msg, ...) \
-    do{ \
-    if(0x08 & davix_get_log_level()){ davix_logger(0x08, msg, ##__VA_ARGS__); } \
-    }while(0)
-
 DAVIX_C_DECL_END
 
 #endif // DAVIX_LOGGER_H

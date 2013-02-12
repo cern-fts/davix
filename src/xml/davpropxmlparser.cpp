@@ -1,10 +1,9 @@
-#include "davpropxmlparser.hpp"
 
+#include <logger/davix_logger_internal.h>
 #include <status/davixstatusrequest.hpp>
-
 #include <cstdlib>
 #include <datetime/datetime_utils.h>
-
+#include "davpropxmlparser.hpp"
 
 
 const char * prop_pattern = "prop";
@@ -148,11 +147,9 @@ int DavPropXMLParser::check_last_modified(const char* name){
     if(response_section && prop_section && propname_section
           && lastmod_section && char_buffer.empty() == false){ // parse rfc1123 date format
         DAVIX_DEBUG(" getlastmodified found -> parse it ");
-        GError * tmp_err=NULL;
-        time_t t = parse_standard_date(name, &tmp_err);
+        time_t t = parse_standard_date(name);
         if(t == -1){
             DavixError::setupError(&err, davix_scope_xml_parser(), StatusCode::WebDavPropertiesParsingError, "Invalid last modified date format");
-            g_clear_error(&tmp_err);
             return -1;
         }
         DAVIX_DEBUG(" getlastmodified found -> value %ld ", t);
@@ -165,11 +162,9 @@ int DavPropXMLParser::check_creation_date(const char* name){
     if(response_section && prop_section && propname_section
             && creatdate_section && char_buffer.empty() == false){
         DAVIX_DEBUG("creationdate found -> parse it");
-        GError * tmp_err1=NULL;
-        time_t t = parse_standard_date(name, &tmp_err1);
+        time_t t = parse_standard_date(name);
         if(t == -1){
             DavixError::setupError(&err, davix_scope_xml_parser(), StatusCode::WebDavPropertiesParsingError, "Invalid creation date format");
-            g_clear_error(&tmp_err1);
            return -1;
         }
         DAVIX_DEBUG(" creationdate found -> value %ld ", t);

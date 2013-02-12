@@ -1,4 +1,5 @@
 #include <config.h>
+#include <logger/davix_logger_internal.h>
 #include <davix_types.h>
 #include <posix/davposix.hpp>
 #include <fileops/iobuffmap.hpp>

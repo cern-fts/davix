@@ -1,5 +1,6 @@
 #include "neonsessionfactory.hpp"
 
+#include <logger/davix_logger_internal.h>
 #include <string>
 #include <sstream>
 

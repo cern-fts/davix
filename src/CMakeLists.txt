@@ -52,7 +52,7 @@ add_dependencies(libdavix neon_static)
 
 
 target_link_libraries(libdavix  ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES}
-					  ${GTHREAD_PKG_LIBRARIES} ${GLIB2_PKG_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${SOCKET_PKG_LIBRARIES})
+                                          ${GTHREAD_PKG_LIBRARIES} ${GLIB2_PKG_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${SOCKET_PKG_LIBRARIES})
 
 
 

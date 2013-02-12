@@ -1,6 +1,6 @@
 #include <ostream>
 #include <sstream>
-
+#include <logger/davix_logger_internal.h>
 #include <posix/davposix.hpp>
 #include <status/davixstatusrequest.hpp>
 #include <fileops/fileutils.hpp>
@@ -41,7 +41,7 @@ int DavPosix::mkdir(const RequestParams * _params, const std::string &url, mode_
 DAVIX_C_DECL_BEGIN
 
 int davix_posix_mkdir(davix_sess_t sess, davix_params_t _params, const char* url,  mode_t right, davix_error_t* err){
-    g_return_val_if_fail(sess != NULL && url != NULL,-1);
+    davix_return_val_if_fail(sess != NULL && url != NULL,-1);
 
     Davix::DavPosix p((Davix::Context*)(sess));
     Davix::RequestParams * params = (Davix::RequestParams*) (_params);

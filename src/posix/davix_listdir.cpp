@@ -2,7 +2,7 @@
 #include <ostream>
 #include <sstream>
 #include <memory>
-
+#include <logger/davix_logger_internal.h>
 #include <httprequest.hpp>
 #include <posix/davposix.hpp>
 #include <posix/davix_stat.hpp>
@@ -276,7 +276,7 @@ int DavPosix::closedir(DAVIX_DIR * d, DavixError** err){
 DAVIX_C_DECL_BEGIN
 
 DAVIX_DIR* davix_posix_opendir(davix_sess_t sess, davix_params_t _params, const char* url,  davix_error_t* err){
-    g_return_val_if_fail(sess != NULL, NULL);
+    davix_return_val_if_fail(sess != NULL, NULL);
     DAVIX_DIR* ret = NULL;
 
 
@@ -290,7 +290,7 @@ DAVIX_DIR* davix_posix_opendir(davix_sess_t sess, davix_params_t _params, const 
 
 
 int davix_posix_closedir(davix_sess_t sess, DAVIX_DIR* d, davix_error_t* err){
-    g_return_val_if_fail(sess != NULL,-1);
+    davix_return_val_if_fail(sess != NULL,-1);
 
     Davix::DavPosix p((Davix::Context*)(sess));
 
@@ -301,7 +301,7 @@ int davix_posix_closedir(davix_sess_t sess, DAVIX_DIR* d, davix_error_t* err){
 
 
 struct dirent* davix_posix_readdir(davix_sess_t sess, DAVIX_DIR* d, davix_error_t* err){
-    g_return_val_if_fail(sess != NULL,NULL);
+    davix_return_val_if_fail(sess != NULL,NULL);
 
     struct dirent* ret = NULL;
     Davix::DavPosix p((Davix::Context*)(sess));

@@ -35,22 +35,22 @@ int main(int argc, char** argv){
     // do a first stat, should return enoent
     std::cout << " stat enoent dir " << buff  << std::endl;
     int ret = pos.stat(&p, buff, &st, &tmp_err);
-    g_assert( ret < 0);
+    assert( ret < 0);
     if(tmp_err){
         std::cout << " error " << (int) tmp_err->getStatus() << " msg " << tmp_err->getErrMsg() << std::endl;
     }
-    g_assert(tmp_err && StatusCode::FileNotFound == tmp_err->getStatus());
+    assert(tmp_err && StatusCode::FileNotFound == tmp_err->getStatus());
     DavixError::clearError(&tmp_err);
 
     std::cout << " create dir " << buff  << std::endl;
     ret = pos.mkdir(&p, buff, 0755, &tmp_err);
-    g_assert(0 == ret);
-    g_assert(NULL == tmp_err);
+    assert(0 == ret);
+    assert(NULL == tmp_err);
 
     std::cout << " stat new dir " << std::endl;
     ret = pos.stat(&p, buff, &st, &tmp_err);
-    g_assert(0 == ret);
-    g_assert(S_ISDIR(st.st_mode));
+    assert(0 == ret);
+    assert(S_ISDIR(st.st_mode));
 
     std::cout << "stat success" << std::endl;
     std::cout << " atime : " << st.st_atime << std::endl;

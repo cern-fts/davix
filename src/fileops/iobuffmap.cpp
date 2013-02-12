@@ -1,7 +1,7 @@
 #include "iobuffmap.hpp"
 #include <httprequest.hpp>
 #include <posix/davposix.hpp>
-
+#include <logger/davix_logger_internal.h>
 #include <sstream>
 #include <string>
 

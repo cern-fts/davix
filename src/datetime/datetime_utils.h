@@ -1,7 +1,7 @@
 #ifndef DATETIME_UTILS_H
 #define DATETIME_UTILS_H
 
-#include <glib.h>
+#include <davix.h>
 #include <string.h>
 #include <time.h>
 
@@ -16,10 +16,9 @@ extern "C"
 /**
   parse an http standard date to a posix time
   @param http_date http string of the date
-  @param err : Gerror error report system
-  @return posix time or -1 if error occures, err is set
+  @return posix time or -1 if error occures
 */
-time_t parse_http_date(const char* http_date, GError** err);
+time_t parse_http_date(const char* http_date);
 
 /**
   parse a iso 8601 date to a posix time
@@ -27,15 +26,14 @@ time_t parse_http_date(const char* http_date, GError** err);
   @param err : Gerror error report system
   @return posix time or -1 if error occures and err is set
 */
-time_t parse_iso8601date(const char* http_date, GError** err);
+time_t parse_iso8601date(const char* http_date);
 
 /**
   parse both of iso 8601 and http standard date to a posix time
   @param http or iso8601 date
-  @param err : GError report system
-  @return posix time
+  @return posix time or -1 if error occures
 */
-time_t parse_standard_date(const char* http_date, GError** err);
+time_t parse_standard_date(const char* http_date);
 
 #ifdef __cplusplus
 }

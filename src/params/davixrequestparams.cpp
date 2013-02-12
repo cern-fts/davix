@@ -1,4 +1,6 @@
 #include <config.h>
+#include <cassert>
+#include <logger/davix_logger_internal.h>
 #include <auth/davixauth.h>
 #include <params/davixrequestparams.hpp>
 #include <libs/time_utils.h>
@@ -252,7 +254,7 @@ DAVIX_C_DECL_BEGIN
 
 
 int davix_params_set_ssl_check(davix_params_t params, bool ssl_check, davix_error_t* err){
-    g_return_val_if_fail(params != NULL, -1);
+    davix_return_val_if_fail(params != NULL, -1);
     Davix::RequestParams* p = (Davix::RequestParams*)(params);
     p->setSSLCAcheck(ssl_check);
     return 0;
@@ -274,52 +276,52 @@ void davix_params_free(davix_params_t p){
 }
 
 bool davix_params_get_keep_alive(davix_params_t params){
-    g_assert(params);
+    assert(params);
     return ((Davix::RequestParams*) params)->getKeepAlive();
 }
 
 
 /// enable or disable http keep alive
 void davix_params_set_keep_alive(davix_params_t params, bool keep_alive){
-    g_assert(params);
+    assert(params);
     ((Davix::RequestParams*) params)->setKeepAlive(keep_alive);
 }
 
 void davix_params_set_protocol(davix_params_t params, davix_request_protocol_t protocol){
-    g_assert(params);
+    assert(params);
     ((Davix::RequestParams*) params)->setProtocol(protocol);
 }
 
 davix_request_protocol_t davix_params_get_protocol(davix_params_t params){
-    g_assert(params);
+    assert(params);
     return ((Davix::RequestParams*) params)->getProtocol();
 }
 
 
 void davix_params_set_trans_redirect(davix_params_t params, bool redirection){
-    g_assert(params);
+    assert(params);
     ((Davix::RequestParams*) params)->setTransparentRedirectionSupport(redirection);
 }
 
 bool davix_params_get_trans_redirect(davix_params_t params){
-    g_assert(params);
+    assert(params);
     return ((Davix::RequestParams*) params)->getTransparentRedirectionSupport();
 }
 
 void davix_params_set_user_agent(davix_params_t params, const char* user_agent){
-    g_assert(params && user_agent);
+    assert(params && user_agent);
     ((Davix::RequestParams*) params)->setUserAgent(user_agent);
 }
 
 
 const char* davix_params_get_user_agent(davix_params_t params){
-    g_assert(params);
+    assert(params);
     return ((Davix::RequestParams*) params)->getUserAgent().c_str();
 }
 
 
 void davix_params_set_conn_timeout(davix_params_t params, unsigned int timeout){
-    g_assert(params);
+    assert(params);
     struct timespec t;
     t.tv_sec = timeout;
     t.tv_nsec =0;
@@ -327,14 +329,14 @@ void davix_params_set_conn_timeout(davix_params_t params, unsigned int timeout){
 }
 
 unsigned int davix_params_get_conn_timeout(davix_params_t params){
-    g_assert(params);
+    assert(params);
     return ((Davix::RequestParams*) params)->getConnectionTimeout()->tv_sec;
 }
 
 
 
 void davix_params_set_ops_timeout(davix_params_t params, unsigned int timeout){
-    g_assert(params);
+    assert(params);
     struct timespec t;
     t.tv_sec = timeout;
     t.tv_nsec =0;
@@ -342,25 +344,25 @@ void davix_params_set_ops_timeout(davix_params_t params, unsigned int timeout){
 }
 
 unsigned int davix_params_get_ops_timeout(davix_params_t params){
-    g_assert(params);
+    assert(params);
     return ((Davix::RequestParams*) params)->getOperationTimeout()->tv_sec;
 }
 
 
 void davix_params_set_client_cert_X509(davix_params_t params, davix_x509_cert_t cred){
-    g_assert(params && cred);
+    assert(params && cred);
     ((Davix::RequestParams*) params)->setClientCertX509(*(Davix::X509Credential*) cred);
 }
 
 
 davix_x509_cert_t  davix_params_get_client_cert_X509(davix_params_t params){
-    g_assert(params);
+    assert(params);
     return (davix_x509_cert_t) &((Davix::RequestParams*) params)->getClientCertX509();
 }
 
 /// set login/password for HTTP Authentication
 void davix_params_set_login_passwd(davix_params_t params, const char* login, const char*  password){
-    g_assert(params && login && password);
+    assert(params && login && password);
     ((Davix::RequestParams*) params)->setClientLoginPassword(login, password);
 }
 

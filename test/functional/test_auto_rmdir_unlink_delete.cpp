@@ -8,6 +8,7 @@
 #include <sstream>
 #include <cmath>
 #include <string.h>
+#include <cassert>
 
 #include "davix_test_lib.h"
 
@@ -55,59 +56,59 @@ int main(int argc, char** argv){
 
     std::cout << "verify that " << created_dir << "does not exist" << std::endl;
     res = pos.stat(&p, created_dir, &st, &tmp_err);
-    g_assert( res != 0);
-    g_assert(tmp_err && tmp_err->getStatus() == StatusCode::FileNotFound);
+    assert( res != 0);
+    assert(tmp_err && tmp_err->getStatus() == StatusCode::FileNotFound);
     DavixError::clearError(&tmp_err);
 
     std::cout << " verify that unlink() return enoent on not existing dir" << std::endl;
     res = pos.unlink(&p, created_dir, &tmp_err);
-    g_assert( res != 0);
-    g_assert(tmp_err && tmp_err->getStatus() == StatusCode::FileNotFound);
+    assert( res != 0);
+    assert(tmp_err && tmp_err->getStatus() == StatusCode::FileNotFound);
     DavixError::clearError(&tmp_err);
 
     std::cout << " verify that rmdir() return enoent on not existing dir" << std::endl;
     res = pos.rmdir(&p, created_dir, &tmp_err);
-    g_assert( res != 0);
-    g_assert(tmp_err && tmp_err->getStatus() == StatusCode::FileNotFound);
+    assert( res != 0);
+    assert(tmp_err && tmp_err->getStatus() == StatusCode::FileNotFound);
     DavixError::clearError(&tmp_err);
 
     std::cout << " verify that WebdavQuery::davDelete() return enoent on not existing dir" << std::endl;
     res = query.davDelete(&p, created_dir, &tmp_err);
-    g_assert( res != 0);
-    g_assert(tmp_err && tmp_err->getStatus() == StatusCode::FileNotFound);
+    assert( res != 0);
+    assert(tmp_err && tmp_err->getStatus() == StatusCode::FileNotFound);
     DavixError::clearError(&tmp_err);
 
     std::cout << "create  " << created_dir << std::endl;
     res = pos.mkdir(&p, created_dir, 0755, &tmp_err);
-    g_assert( res ==0 && tmp_err == NULL);
+    assert( res ==0 && tmp_err == NULL);
 
 
     std::cout << "verify that   " << created_dir << "exist " << std::endl;
     res = pos.stat(&p, created_dir, &st, &tmp_err);
-    g_assert( res == 0);
-    g_assert(tmp_err == NULL);
+    assert( res == 0);
+    assert(tmp_err == NULL);
     DavixError::clearError(&tmp_err);
 
     std::cout << " verify that unlink() does not delete directory " << std::endl;
     res = pos.unlink(&p, created_dir, &tmp_err);
-    g_assert( res != 0);
-    g_assert(tmp_err && tmp_err->getStatus() == StatusCode::IsADirectory);
+    assert( res != 0);
+    assert(tmp_err && tmp_err->getStatus() == StatusCode::IsADirectory);
     DavixError::clearError(&tmp_err);
 
     std::cout << " remove dir with rmdir() " << std::endl;
     res = pos.rmdir(&p, created_dir, &tmp_err);
-    g_assert( res == 0);
-    g_assert(tmp_err == NULL);
+    assert( res == 0);
+    assert(tmp_err == NULL);
 
     std::cout << "verify that " << created_dir << "does not exist" << std::endl;
     res = pos.stat(&p, created_dir, &st, &tmp_err);
-    g_assert( res != 0);
-    g_assert(tmp_err && tmp_err->getStatus() == StatusCode::FileNotFound);
+    assert( res != 0);
+    assert(tmp_err && tmp_err->getStatus() == StatusCode::FileNotFound);
     DavixError::clearError(&tmp_err);
 
     std::cout << "create again " << created_dir << std::endl;
     res = pos.mkdir(&p, created_dir, 0755, &tmp_err);
-    g_assert( res ==0 && tmp_err == NULL);
+    assert( res ==0 && tmp_err == NULL);
 
 
     return 0;

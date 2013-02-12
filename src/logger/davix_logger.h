@@ -22,6 +22,15 @@ DAVIX_EXPORT int davix_get_log_level();
 
 DAVIX_EXPORT void davix_logger(int log_mask, const char * msg, ...);
 
+/// @brief setup a log handler
+///
+/// redirect the davix log output to the function f_handler
+/// setting up a log handler disable the std output log
+///
+/// @param fhandler : log handler callback
+/// @param userdata : callback userdata
+DAVIX_EXPORT void davix_set_log_handler( void (*fhandler)(void* userdata, int mgs_level, const char* msg), void* userdata);
+
 DAVIX_C_DECL_END
 
 #endif // DAVIX_LOGGER_H

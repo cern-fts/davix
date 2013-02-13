@@ -9,7 +9,7 @@
 #include <status/davixstatusrequest.hpp>
 #include <fileops/fileutils.hpp>
 
-static const std::string simple_listing("<propfind xmlns=\"DAV:\"><prop></prop></propfind>");
+static const std::string simple_listing("<propfind xmlns=\"DAV:\"><prop><resourcetype><collection/></resourcetype></prop></propfind>");
 
 static const std::string stat_listing("<propfind xmlns=\"DAV:\"><prop><getlastmodified/><creationdate/><getcontentlength/><resourcetype><collection/></resourcetype><mode/></prop></propfind>");
 

@@ -1,0 +1,134 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+
+// portability mapper
+
+
+// POSIX inclusion
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <pthread.h>
+//
+#include <string.h>
+#include <limits.h>
+//
+#include <errno.h>
+
+// force dav
+#define NE_HAVE_DAV 1
+
+//has malloc
+#cmakedefine HAVE_MALLOC_H 1
+#ifdef HAVE_MALLOC_H
+#include <malloc.h>
+#endif
+
+// string and strings
+#cmakedefine  HAVE_STRING_H
+#cmakedefine  HAVE_STRINGS_H
+
+// has unistd
+#cmakedefine HAVE_UNISTD_H 1
+
+// has I18N
+#cmakedefine NE_HAVE_I18N 1
+
+// ipv6 support
+#cmakedefine HAVE_IPV6 1
+
+// has system time
+#cmakedefine HAVE_SYSTIME_H 1
+
+// has system socket
+#cmakedefine HAVE_SYSSOCKET_H 1
+
+// has locale
+#cmakedefine HAVE_LOCALE_H 1
+
+// general SSL support
+#cmakedefine NE_HAVE_SSL 1
+
+// openssl support
+#cmakedefine HAVE_OPENSSL 1
+
+//gnutls support
+#cmakedefine HAVE_GNUTLS 1
+
+// libxml support
+#cmakedefine HAVE_LIBXML 1
+
+// libexpat support
+#cmakedefine HAVE_EXPAT 1
+
+// has strptime
+#cmakedefine HAVE_STRPTIME_H 1
+#ifndef HAVE_STRPTIME_H
+#	define strptime __strptime
+#endif
+
+// has mempcpy
+#cmakedefine HAVE_MEMPCPY_H 1
+#include <mempcpy/mempcpy.h>
+
+// has strlcpy
+#cmakedefine HAVE_STRLCPY_H 1
+#include <strlcpy/strlcpy.h>
+
+// poll
+#cmakedefine HAVE_POLL_H 1
+#ifdef HAVE_POLL_H
+#define NE_USE_POLL
+#endif
+
+
+//select
+#cmakedefine HAVE_SYS_SELECT_H 1
+
+//net
+#cmakedefine HAVE_NETINET_IN_H 1
+#cmakedefine HAVE_NETINET_TCP_H 1
+#cmakedefine HAVE_ARPA_INET_H 1
+#cmakedefine HAVE_NETDB_H 1
+
+// type size
+#define SIZEOF_INT @DEF_SIZEOF_INT@
+#define SIZEOF_LONG @DEF_SIZEOF_LONG@
+#define SIZEOF_SIZE_T @DEF_SIZEOF_SIZE_T@
+#define SIZEOF_SSIZE_T @DEF_SIZEOF_SSIZE_T@
+#define SIZEOF_OFF_T @DEF_SIZEOF_OFF_T@
+
+#if( SIZEOF_INT == SIZEOF_SIZE_T )
+#   define NE_FMT_SIZE_T "d"
+#else
+#   define NE_FMT_SIZE_T "ld"
+#endif
+
+#if( SIZEOF_INT == SIZEOF_SSIZE_T )
+#   define NE_FMT_SSIZE_T "d"
+#else
+#   define NE_FMT_SSIZE_T "ld"
+#endif
+
+#if( SIZEOF_INT == SIZEOF_OFF_T )
+#   define NE_FMT_OFF_T "d"
+#else
+#   define NE_FMT_OFF_T "ld"
+#endif
+
+
+//
+// Win 32 mapper
+#if( defined _WIN32 )|| ( defined __MINGW32__ )
+// macros
+
+#define __PLATFORM_WINDOWS__
+
+// windows headers
+#include <Windows.h>
+#include <Winnls.h>
+#endif /* end of win32*/
+
+
+
+#endif // CONFIG_H

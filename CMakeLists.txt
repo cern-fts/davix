@@ -2,11 +2,15 @@
 project (davix)
 cmake_minimum_required (VERSION 2.6)
 
-# build type
-set(CMAKE_BUILD_TYPE RelWithDebInfo
-    CACHE STRING "build type")
-
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules/")
+option(shared_library "generate shared library" TRUE)
+option(static_library  "generate static library" TRUE)
+
+
+# build type
+if(NOT DEFINED CMAKE_BUILD_TYPE)
+set(CMAKE_BUILD_TYPE RelWithDebInfo)
+endif(NOT DEFINED CMAKE_BUILD_TYPE)
 
 # load module
 include(DefineInstallationPaths REQUIRED)
@@ -38,16 +42,11 @@ SET(NEON_EMBEDED TRUE
 
 # libs checks
 find_package(Threads)
-find_package(SOCKET)
-pkg_search_module(LIBSSL_PKG REQUIRED libssl)
-find_package(LibXml2)
 
 
-if(NOT NEON_EMBEDED)
-    pkg_check_modules(HTTPLIB_PKG REQUIRED neon)
-else(NOT NEON_EMBEDED)
-    add_subdirectory(deps)
-endif(NOT NEON_EMBEDED)
+
+add_subdirectory(deps)
+
 
 pkg_check_modules(CRYPTO_PKG REQUIRED libcrypto)
 

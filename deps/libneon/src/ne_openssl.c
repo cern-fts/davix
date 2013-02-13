@@ -924,6 +924,7 @@ int ne_ssl_pem_passwd_cb(char *buf, int size, int rwflag, void *userdata){
         buf[size - 1] = '\0';
         return(strlen(buf));
     }
+    return 0;
 }
 
 ne_ssl_client_cert *ne_ssl_clicert_pem_read(const char* pkeyfile, const char* credfile, const char* password){

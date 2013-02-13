@@ -45,6 +45,8 @@ SET(SRC_HTTP ${src_neon})
 
 
 add_definitions(${HTTPLIB_PKG_CFLAGS} )
+
+if(shared_library)
 add_library(libdavix  SHARED ${src_davix} ${SRC_HTTP}  ${src_xmlparser} ${src_logger} ${src_datetime}
                            ${src_lockers} ${src_davix_posix} ${src_davix_status} ${src_davix_fileops}
                            ${src_davix_params} ${src_davix_auth} ${SRC_STRPTIME} ${SRC_MEMPCPY}
@@ -63,15 +65,49 @@ set_target_properties(libdavix PROPERTIES
                             CLEAN_DIRECT_OUTPUT 1
                             OUTPUT_NAME ${OUTPUT_NAME_DAVIX})
 
+install(TARGETS libdavix
+             DESTINATION ${LIB_INSTALL_DIR} )
+
 add_PkgConfigFile_for_Library("davix.pc" libdavix
                                HEADER_DIRS "davix"
                                CFLAGS " -D_FILE_OFFSET_BITS=64 "
                                DESCRIPTION "Davix, High level WebDav/HTTP library"
                                REQUIRES "glib-2.0")
 
-# install lib
-install(TARGETS libdavix
+endif(shared_library)
+
+
+
+if(static_library)
+
+add_library(libdavix_static  STATIC ${src_davix} ${SRC_HTTP}  ${src_xmlparser} ${src_logger} ${src_datetime}
+                           ${src_lockers} ${src_davix_posix} ${src_davix_status} ${src_davix_fileops}
+                           ${src_davix_params} ${src_davix_auth} ${SRC_STRPTIME} ${SRC_MEMPCPY}
+                           ${SRC_STRLCPY})
+add_dependencies(libdavix_static neon_static)
+
+
+target_link_libraries(libdavix_static  ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES}
+                                          ${CMAKE_THREAD_LIBS_INIT} ${SOCKET_PKG_LIBRARIES})
+
+
+
+set_target_properties(libdavix_static PROPERTIES
+                            VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}
+                            SOVERSION ${VERSION_MAJOR}
+                            CLEAN_DIRECT_OUTPUT 1
+                            OUTPUT_NAME ${OUTPUT_NAME_DAVIX})
+
+install(TARGETS libdavix_static
              DESTINATION ${LIB_INSTALL_DIR} )
+
+endif(static_library)
+
+
+
+
+# install lib
+
 
 #install pkgconfig
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/davix.pc

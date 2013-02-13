@@ -23,42 +23,42 @@ ELSE(NOT HAVE_STRLCPY_H)
 ENDIF(NOT HAVE_STRLCPY_H)
 
 
-IF(NEON_EMBEDED)
 
-set(NEON_CONFIGURE_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/libneon/configure")
-list(APPEND NEON_CONFIGURE_ARGS  "--with-ssl=openssl" "--with-libxml2" "--without-gssapi")
-set(CONFIGURE_RESULT_CODE "-1")
-set(CONFIGURE_RESULT_MSG "")
+#set(NEON_CONFIGURE_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/libneon/configure")
+#list(APPEND NEON_CONFIGURE_ARGS  "--with-ssl=openssl" "--with-libxml2" "--without-gssapi")
+#set(CONFIGURE_RESULT_CODE "-1")
+#set(CONFIGURE_RESULT_MSG "")
 
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/libneon)
+#file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/libneon)
 
-IF(NOT ( CONFIGURE_RESULT_CODE STREQUAL "0"))
+#IF(NOT ( CONFIGURE_RESULT_CODE STREQUAL "0"))
 
-    if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/libneon/Makefile )
-    execute_process(COMMAND "${NEON_CONFIGURE_COMMAND}" ${NEON_CONFIGURE_ARGS}
-                    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/libneon/"
-                    RESULT_VARIABLE CONFIGURE_RESULT_CODE
-                    )
+#    if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/libneon/Makefile )
+#    execute_process(COMMAND "${NEON_CONFIGURE_COMMAND}" ${NEON_CONFIGURE_ARGS}
+  #                  WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/libneon/"
+#                    RESULT_VARIABLE CONFIGURE_RESULT_CODE
+ #                   )
 
-    ENDIF(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/libneon/Makefile )
+  #  ENDIF(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/libneon/Makefile )
 
-ENDIF(NOT ( CONFIGURE_RESULT_CODE STREQUAL "0"))
+#ENDIF(NOT ( CONFIGURE_RESULT_CODE STREQUAL "0"))
 
-add_custom_target(neon_static ALL
-                "${CMAKE_MAKE_PROGRAM}"
-                WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/libneon/"
-                COMMENT "neon-build"
-                )
+#add_custom_target(neon_static ALL
+ #               "${CMAKE_MAKE_PROGRAM}"
+  #              WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/libneon/"
+  #              COMMENT "neon-build"
+   #             )
 
 
 #pkg_search_module(LIBGSSAPI_PKG REQUIRED libgssapi gss libgssglue)
 
-message("include dir : ${LIBXML2_PKG_INCLUDE_DIRS}")
+#message("include dir : ${LIBXML2_PKG_INCLUDE_DIRS}")
+
+add_subdirectory(libneon)
 
 SET(HTTPLIB_PKG_VERSION "0.29.0" PARENT_SCOPE)
-SET(HTTPLIB_PKG_STATIC_LIB_PATH "${CMAKE_CURRENT_BINARY_DIR}/libneon/src/.libs/libneon.a")
+SET(HTTPLIB_PKG_STATIC_LIB_PATH "${CMAKE_CURRENT_BINARY_DIR}/libneon/src/libneon.a")
 SET(HTTPLIB_PKG_LIBRARIES ${HTTPLIB_PKG_STATIC_LIB_PATH} ${LIBSSL_PKG_LIBRARIES} ${LIBGSSAPI_PKG_LIBRARIES} ${LIBXML2_LIBRARIES} PARENT_SCOPE)
 SET(HTTPLIB_PKG_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/libneon/src/  ${LIBXML2_INCLUDE_DIRS} ${LIBSSL_PKG_INCLUDE_DIRS}  ${LIBGSSAPI_PKG_INCLUDE_DIRS} PARENT_SCOPE)
 
 
-ENDIF(NEON_EMBEDED)

@@ -21,6 +21,9 @@
 #include <malloc.h>
 #endif
 
+// has unistd
+#cmakedefine HAVE_UNISTD_H 1
+
 // has locale
 #cmakedefine HAVE_LOCALE_H 1
 

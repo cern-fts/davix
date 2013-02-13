@@ -12,26 +12,10 @@ CHECK_INCLUDE_FILES (malloc.h HAVE_MALLOC_H)
 CHECK_INCLUDE_FILES (string.h HAVE_STRING_H)
 CHECK_INCLUDE_FILES (strings.h HAVE_STRINGS_H)
 CHECK_INCLUDE_FILES (locale.h HAVE_LOCALE_H)
-CHECK_INCLUDE_FILES(malloc.h HAVE_MALLOC_H)
+CHECK_INCLUDE_FILES(errno.h HAVE_ERRNO_H)
+CHECK_INCLUDE_FILES(stdlib.h HAVE_STDLIB_H)
 
-#ifdef NE_USE_POLL
-#include <sys/poll.h>
-#elif defined(HAVE_SYS_SELECT_H)
-#include <sys/select.h>
-#endif
 
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-#ifdef HAVE_NETINET_TCP_H
-#include <netinet/tcp.h>
-#endif
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
-#endif
-#ifdef HAVE_NETDB_H
-#include <netdb.h>
-#endif
 
 ## SYSTEM
 CHECK_INCLUDE_FILES(sys/time.h HAVE_SYSTIME_H)
@@ -48,6 +32,8 @@ CHECK_TYPE_SIZE(off_t          DEF_SIZEOF_OFF_T)
 
 ## POSIX
 CHECK_INCLUDE_FILES(unistd.h HAVE_UNISTD_H)
+CHECK_INCLUDE_FILES(signal.h HAVE_SIGNAL_H)
+CHECK_INCLUDE_FILES(fcntl.h HAVE_FCNTL_H)
 
 
 ## BSD
@@ -61,4 +47,7 @@ CHECK_FUNCTION_EXISTS(strptime HAVE_STRPTIME_H)
 CHECK_INCLUDE_FILES(netdb.h HAVE_NETDB_H)
 CHECK_INCLUDE_FILES(arpa/inet.h HAVE_ARPA_INET_H)
 CHECK_INCLUDE_FILES(netinet/in.h HAVE_NETINET_IN_H)
+CHECK_INCLUDE_FILES(netinet/tcp.h HAVE_NETINET_TCP_H)
+CHECK_SYMBOL_EXISTS(getaddrinfo "netdb.h" "sys/socket.h" "winsock2.h" "ws2tcpip.h" HAVE_GETADDRINFO_H)
+
 

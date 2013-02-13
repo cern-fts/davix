@@ -2,31 +2,26 @@
 #define CONFIG_H
 
 // portability mapper
-
-
-// POSIX inclusion
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <pthread.h>
-//
-#include <string.h>
 #include <limits.h>
-//
-#include <errno.h>
 
 // force dav
 #define NE_HAVE_DAV 1
 
 //has malloc
 #cmakedefine HAVE_MALLOC_H 1
-#ifdef HAVE_MALLOC_H
-#include <malloc.h>
-#endif
+
+// has errno
+#cmakedefine HAVE_ERRNO_H 1
+
+// has stdlib
+#cmakedefine HAVE_STDLIB_H 1
+
+// has fcntl
+#cmakedefine HAVE_FCNTL_H 1
 
 // string and strings
-#cmakedefine  HAVE_STRING_H
-#cmakedefine  HAVE_STRINGS_H
+#cmakedefine  HAVE_STRING_H 1
+#cmakedefine  HAVE_STRINGS_H 1
 
 // has unistd
 #cmakedefine HAVE_UNISTD_H 1
@@ -42,6 +37,15 @@
 
 // has system socket
 #cmakedefine HAVE_SYSSOCKET_H 1
+
+// has signal support
+#cmakedefine HAVE_SIGNAL_H 1
+
+// has getaddrinfo
+#cmakedefine HAVE_GETADDRINFO_H 1
+#ifdef HAVE_GETADDRINFO_H
+#define USE_GETADDRINFO 1
+#endif
 
 // has locale
 #cmakedefine HAVE_LOCALE_H 1

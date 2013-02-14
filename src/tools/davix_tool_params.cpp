@@ -12,8 +12,11 @@ namespace Tool{
 const std::string scope_params = "Davix::Tools::Params";
 
 
-#define CAPATH_OPT  1000
-#define DEBUG_OPT  1001
+#define CAPATH_OPT      1000
+#define DEBUG_OPT       1001
+#define USER_LOGIN      1002
+#define USER_PASSWORD   1003
+#define DATA_CONTENT    1004
 
 OptParams::OptParams() :
     params(),
@@ -24,7 +27,9 @@ OptParams::OptParams() :
     header_args(),
     help_msg(),
     cred_path(),
-    output_file_path()
+    output_file_path(),
+    userlogpasswd(),
+    req_content()
 {
 
 }
@@ -85,6 +90,15 @@ int parse_davix_options_generic(const std::string &opt_filter,
             case CAPATH_OPT:
                 p.params.addCertificateAuthorityPath(optarg);
                 break;
+            case USER_LOGIN:
+                p.userlogpasswd.first = optarg;
+                break;
+            case USER_PASSWORD:
+                p.userlogpasswd.second = optarg;
+                break;
+            case DATA_CONTENT:
+                p.req_content = optarg;
+                break;
             case 'o':
                 p.output_file_path = optarg;
                 break;
@@ -126,6 +140,9 @@ int parse_davix_options(int argc, char** argv, OptParams & p, DavixError** err){
         {"cert",  no_argument,       0, 'E' },
         {"request",  required_argument, 0,  'X' },
         {"capath",  required_argument, 0, CAPATH_OPT },
+        {"data", required_argument, 0, DATA_CONTENT },
+        {"userlogin", required_argument, 0, USER_LOGIN},
+        {"userpass", required_argument, 0, USER_PASSWORD},
         {"verbose", no_argument, 0,  0 },
         {"debug", no_argument, 0,  DEBUG_OPT },
         {"insecure", no_argument, 0,  'k' },
@@ -145,6 +162,8 @@ int parse_davix_ls_options(int argc, char** argv, OptParams & p, DavixError** er
     const struct option long_options[] = {
         {"cert",  no_argument,       0, 'E' },
         {"capath",  required_argument, 0, CAPATH_OPT },
+        {"userlogin", required_argument, 0, USER_LOGIN},
+        {"userpass", required_argument, 0, USER_PASSWORD},
         {"verbose", no_argument, 0,  0 },
         {"debug", no_argument, 0,  DEBUG_OPT },
         {"insecure", no_argument, 0,  'k' },

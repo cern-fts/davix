@@ -167,6 +167,15 @@ public:
     void setErrMsg(const std::string & msg);
 
     ///
+    /// set the scope of this error
+    void setErrScope(const std::string & scope);
+
+    ///
+    /// get the scope of this error
+    const std::string & getErrScope() const;
+
+
+    ///
     /// create a new dynamically allocated DavixError Object
     /// if err is NULL, do nothing
     ///

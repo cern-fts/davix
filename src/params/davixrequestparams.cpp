@@ -40,6 +40,11 @@ struct RequestParamsInternal{
     }
 
     virtual ~RequestParamsInternal(){
+        if(_idlogpass.second.empty() == false){
+            // eradicate password from memory
+            for(std::string::iterator it = _idlogpass.second.begin(); it < _idlogpass.second.end(); ++it)
+                *it = 'a';
+        }
 
     }
     RequestParamsInternal(const RequestParamsInternal & param_private):

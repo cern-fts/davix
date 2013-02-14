@@ -71,6 +71,14 @@ StatusCode::Code DavixError::getStatus() const{
     return d_ptr->_code;
 }
 
+const std::string & DavixError::getErrScope() const{
+    return d_ptr->_scope;
+}
+
+void DavixError::setErrScope(const std::string &scope){
+    d_ptr->_scope = scope;
+}
+
 
 
 void DavixError::setupError(DavixError **err, const std::string &scope, StatusCode::Code errCode, const std::string &errMsg){
@@ -149,39 +157,39 @@ void davix_errno_to_davix_error(int errcode, const std::string & scope, const st
 }
 
 std::string davix_scope_stat_str(){
-    return "[davix_stat]";
+    return "Davix::Posix::stat";
 }
 
 std::string davix_scope_mkdir_str(){
-    return "[davix_mkdir]";
+    return "Davix::Posix::mkdir";
 }
 
 std::string davix_scope_directory_listing_str(){
-    return "[davix_directory_listing]";
+    return "Davix::Posix::listdir";
 }
 
 std::string davix_scope_http_request(){
-    return "[davix_http_request]";
+    return "Davix::HttpRequest";
 }
 
 std::string davix_scope_xml_parser(){
-    return "[davix_xml_parser]";
+    return "Davix::XMLParser";
 }
 
 std::string davix_scope_uri_parser(){
-    return "[davix_uri_parser]";
+    return "Davix::Uri::Parser";
 }
 
 std::string davix_scope_davOps_str(){
-    return "[davix_dav_operation]";
+    return "Davix::Dav::Ops";
 }
 
 std::string davix_scope_io_cache(){
-    return "[davix_io_cache]";
+    return "Davix::IO:Cache";
 }
 
 std::string davix_scope_x509cred(){
-    return "[davix_x509cred]";
+    return "Davix::X509cred";
 }
 
 } // namespace Davix

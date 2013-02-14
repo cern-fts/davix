@@ -28,7 +28,7 @@ int setup_credential(OptParams & opts, DavixError** err){
 
 void err_display(DavixError ** err){
     if(err && *err){
-        std::cerr << "Error: "<< (*err)->getErrMsg() << std::endl;
+        std::cerr << "("<< (*err)->getErrScope() <<") Error: "<< (*err)->getErrMsg() << std::endl;
         DavixError::clearError(err);
     }
 }

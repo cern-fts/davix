@@ -187,6 +187,8 @@ int parse_davix_get_options(int argc, char** argv, OptParams & p, DavixError** e
         {"verbose", no_argument, 0,  0 },
         {"debug", no_argument, 0,  DEBUG_OPT },
         {"insecure", no_argument, 0,  'k' },
+        {"userlogin", required_argument, 0, USER_LOGIN},
+        {"userpass", required_argument, 0, USER_PASSWORD},
         {"Version", no_argument, 0, 'V'},
         {"help", no_argument,0,'?'},
         {0,         0,                 0,  0 }

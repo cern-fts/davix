@@ -154,6 +154,7 @@ void httpcodeToDavixCode(int code, const std::string & scope, const std::string 
         case 502:           /* Bad Gateway */
         case 503:           /* Service Unavailable */
         case 505:           /* HTTP Version Not Supported */
+        default:
             dav_code = StatusCode::UnknowError;
             str_msg = "HTTP unexcepted Server Error";
             break;

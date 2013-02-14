@@ -15,6 +15,11 @@
 //
 #include <errno.h>
 
+
+// default export
+#undef DAVIX_EXPORT
+#define DAVIX_EXPORT
+
 //has malloc
 #cmakedefine HAVE_MALLOC_H 1
 #ifdef HAVE_MALLOC_H
@@ -23,6 +28,7 @@
 
 // has unistd
 #cmakedefine HAVE_UNISTD_H 1
+
 
 // has locale
 #cmakedefine HAVE_LOCALE_H 1
@@ -37,20 +43,16 @@
 #cmakedefine HAVE_MEMPCPY_H 1
 #include <mempcpy/mempcpy.h>
 
-
 // has strlcpy
 #cmakedefine HAVE_STRLCPY_H 1
 #include <strlcpy/strlcpy.h>
-
 
 // readdir max name size
 #ifndef NAME_MAX
 #define NAME_MAX 256
 #endif
 
-// default export 
-#undef DAVIX_EXPORT
-#define DAVIX_EXPORT
+#cmakedefine HAVE_TERMIOS_H 1
 
 //
 // Win 32 mapper

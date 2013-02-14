@@ -23,6 +23,8 @@ ELSE(NOT HAVE_STRLCPY_H)
 ENDIF(NOT HAVE_STRLCPY_H)
 
 
+SET(SRC_SIMPLE_GET_PASS "${CMAKE_CURRENT_SOURCE_DIR}/simple_getpass/simple_get_pass.c" PARENT_SCOPE)
+
 
 #set(NEON_CONFIGURE_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/libneon/configure")
 #list(APPEND NEON_CONFIGURE_ARGS  "--with-ssl=openssl" "--with-libxml2" "--without-gssapi")

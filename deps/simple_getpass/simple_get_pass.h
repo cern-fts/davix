@@ -10,6 +10,9 @@ extern "C" {
 
 ssize_t simple_get_pass(char** passwd);
 
+
+void decimate_passwd(char* p);
+
 #ifdef __cplusplus
 }
 #endif

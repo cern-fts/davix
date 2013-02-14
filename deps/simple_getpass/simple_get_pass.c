@@ -7,31 +7,27 @@
 #error "impossible to compile simple_get_pass"
 #endif
 
-#endif
-
 ssize_t simple_get_pass(char** passwd){
     ssize_t ret = 0;
 #ifdef HAVE_TERMIOS_H
-    FiLE* stream =stdin;
-    struct termios old, new;
-    int nread;
+    FILE* stream =stdin;
+    struct termios old_term, new_term;
     *passwd = NULL;
 
     /* Turn echoing off and fail if we can't. */
-    if (tcgetattr (fileno (stream), &old) != 0)
+    if (tcgetattr (fileno (stream), &old_term) != 0)
       return -1;
-    new = old;
-    new.c_lflag &= ~ECHO;
-    if (tcsetattr (fileno (stream), TCSAFLUSH, &new) != 0)
+    new_term = old_term;
+    new_term.c_lflag &= ~ECHO;
+    if (tcsetattr (fileno (stream), TCSAFLUSH, &new_term) != 0)
       return -1;
 
     /* Read the password. */
     ret =  (ssize_t)  getline (passwd, NULL, stream);
 
     /* Restore terminal. */
-    (void) tcsetattr (fileno (stream), TCSAFLUSH, &old);
+    (void) tcsetattr (fileno (stream), TCSAFLUSH, &old_term);
 
-    returnret;
 #else
     char* p;
     if((p = getpass("")) == NULL)
@@ -41,4 +37,12 @@ ssize_t simple_get_pass(char** passwd){
 #endif
     return ret;
 
+}
+
+
+void decimate_passwd(char* p){
+    int i=0;
+    const int s_size = strlen(p);
+    for( i =0; i < s_size;i++)
+            p[i] = '0';
 }

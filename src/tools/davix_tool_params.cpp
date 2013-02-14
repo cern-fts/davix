@@ -18,6 +18,27 @@ const std::string scope_params = "Davix::Tools::Params";
 #define USER_PASSWORD   1003
 #define DATA_CONTENT    1004
 
+// LONG OPTS
+
+#define COMMON_LONG_OPTIONS \
+{"verbose", no_argument, 0,  0 }, \
+{"debug", no_argument, 0,  DEBUG_OPT }, \
+{"version", no_argument, 0, 'V'}, \
+{"help", no_argument,0,'?'}
+
+#define SECURITY_LONG_OPTIONS \
+{"cert",  no_argument,       0, 'E' }, \
+{"capath",  required_argument, 0, CAPATH_OPT }, \
+{"userlogin", required_argument, 0, USER_LOGIN}, \
+{"userpass", required_argument, 0, USER_PASSWORD}, \
+{"insecure", no_argument, 0,  'k' }
+
+#define REQUEST_LONG_OPTIONS \
+{"header",  required_argument, 0,  'H' }, \
+{"request",  required_argument, 0,  'X' }, \
+{"data", required_argument, 0, DATA_CONTENT}, \
+{"verbose", no_argument, 0,  0 }
+
 OptParams::OptParams() :
     params(),
     vec_arg(),
@@ -136,18 +157,9 @@ int parse_davix_options_generic(const std::string &opt_filter,
 int parse_davix_options(int argc, char** argv, OptParams & p, DavixError** err){
     const std::string arg_tool_main= "H:E:X:kV";
     const struct option long_options[] = {
-        {"header",  required_argument, 0,  'H' },
-        {"cert",  no_argument,       0, 'E' },
-        {"request",  required_argument, 0,  'X' },
-        {"capath",  required_argument, 0, CAPATH_OPT },
-        {"data", required_argument, 0, DATA_CONTENT },
-        {"userlogin", required_argument, 0, USER_LOGIN},
-        {"userpass", required_argument, 0, USER_PASSWORD},
-        {"verbose", no_argument, 0,  0 },
-        {"debug", no_argument, 0,  DEBUG_OPT },
-        {"insecure", no_argument, 0,  'k' },
-        {"Version", no_argument, 0, 'V'},
-        {"help", no_argument,0,'?'},
+        COMMON_LONG_OPTIONS,
+        SECURITY_LONG_OPTIONS,
+        REQUEST_LONG_OPTIONS,
         {0,         0,                 0,  0 }
      };
 
@@ -160,15 +172,8 @@ int parse_davix_options(int argc, char** argv, OptParams & p, DavixError** err){
 int parse_davix_ls_options(int argc, char** argv, OptParams & p, DavixError** err){
     const std::string arg_tool_main= "E:vkV";
     const struct option long_options[] = {
-        {"cert",  no_argument,       0, 'E' },
-        {"capath",  required_argument, 0, CAPATH_OPT },
-        {"userlogin", required_argument, 0, USER_LOGIN},
-        {"userpass", required_argument, 0, USER_PASSWORD},
-        {"verbose", no_argument, 0,  0 },
-        {"debug", no_argument, 0,  DEBUG_OPT },
-        {"insecure", no_argument, 0,  'k' },
-        {"Version", no_argument, 0, 'V'},
-        {"help", no_argument,0,'?'},
+        COMMON_LONG_OPTIONS,
+        SECURITY_LONG_OPTIONS,
         {0,         0,                 0,  0 }
      };
 
@@ -181,16 +186,8 @@ int parse_davix_ls_options(int argc, char** argv, OptParams & p, DavixError** er
 int parse_davix_get_options(int argc, char** argv, OptParams & p, DavixError** err){
     const std::string arg_tool_main= "E:o:vkV";
     const struct option long_options[] = {
-        {"cert",  no_argument,       0, 'E' },
-        {"capath",  required_argument, 0, CAPATH_OPT },
-        {"output",  no_argument,       0, 'o' },
-        {"verbose", no_argument, 0,  0 },
-        {"debug", no_argument, 0,  DEBUG_OPT },
-        {"insecure", no_argument, 0,  'k' },
-        {"userlogin", required_argument, 0, USER_LOGIN},
-        {"userpass", required_argument, 0, USER_PASSWORD},
-        {"Version", no_argument, 0, 'V'},
-        {"help", no_argument,0,'?'},
+        COMMON_LONG_OPTIONS,
+        SECURITY_LONG_OPTIONS,
         {0,         0,                 0,  0 }
      };
 

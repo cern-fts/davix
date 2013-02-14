@@ -22,7 +22,7 @@ const std::string scope_get = "Davix::Tools::davix-get";
 
 static std::string help_msg(){
     return Tool::get_base_description_options() +
-           Tool::get_common_options();
+           Tool::get_common_options()+ "\n";
 }
 
 
@@ -56,7 +56,7 @@ static FILE* configure_fstream(const Tool::OptParams & opts , DavixError** err){
     if(opts.output_file_path.empty() == false){
         FILE* f = fopen(opts.output_file_path.c_str(),"w");
         if(f == NULL){
-            davix_errno_to_davix_error(errno, scope_get, opts.output_file_path, err);
+            davix_errno_to_davix_error(errno, scope_get, std::string(" ").append(opts.output_file_path), err);
             return NULL;
         }
 

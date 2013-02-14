@@ -33,6 +33,7 @@ private:
     // result store
     std::deque<FileProperties> _props;
     FileProperties _current_props;
+    int _last_response_status;
 
     // scope boolean
     bool prop_section;

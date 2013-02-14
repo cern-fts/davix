@@ -100,6 +100,7 @@ std::string char_buffer;
 DavPropXMLParser::DavPropXMLParser() :
     _props(),
     _current_props(),
+    _last_response_status(404),
     prop_section(false),
     propname_section(false),
     response_section(false),
@@ -134,8 +135,8 @@ int DavPropXMLParser::compute_new_elem(){
 int DavPropXMLParser::store_new_elem(){
     if(response_section){
         DAVIX_DEBUG(" end of properties... ");
-        if( _current_props.req_status > 100
-            && _current_props.req_status < 400){
+        if( _last_response_status > 100
+            && _last_response_status < 400){
             _props.push_back(_current_props);
         }else
            DAVIX_DEBUG(" Bad status code ! properties dropped ");
@@ -263,7 +264,7 @@ int DavPropXMLParser::check_status(const char* name){
            unsigned long res = strtoul(buff, NULL, 10);
            if(res != ULONG_MAX){
               DAVIX_DEBUG(" status value : %ld", res);
-              _current_props.req_status = res;
+              _last_response_status = res;
               return 0;
            }
 
@@ -279,14 +280,14 @@ int DavPropXMLParser::check_status(const char* name){
 
 int DavPropXMLParser::parserStartElemCb(int parent, const char *nspace, const char *name, const char **atts){
     // compute the current scope
-    bool new_prop;
+    bool new_prop, new_response;
     int ret=-1;
     char_buffer.clear();
 
     DAVIX_XML_REPORT_ERROR( add_scope(&propname_section, name, propstat_pattern,  response_section, false, &err) );
     DAVIX_XML_REPORT_ERROR( new_prop = add_scope(&prop_section, name, prop_pattern, response_section && propname_section , false, &err) );
     DAVIX_XML_REPORT_ERROR( add_scope(&status_section, name, status_pattern, propname_section && response_section, prop_section, &err) );
-    DAVIX_XML_REPORT_ERROR( add_scope(&response_section, name, response_pattern, true, prop_section && propname_section, &err) );
+    DAVIX_XML_REPORT_ERROR( new_response= add_scope(&response_section, name, response_pattern, true, prop_section && propname_section, &err) );
     DAVIX_XML_REPORT_ERROR( add_scope(&lastmod_section, name, getlastmodified_pattern, propname_section, false, &err) );
     DAVIX_XML_REPORT_ERROR( add_scope(&creatdate_section, name, creationdate_pattern, propname_section, false, &err) );
     DAVIX_XML_REPORT_ERROR( add_scope(&contentlength_section, name, getcontentlength_pattern,propname_section, false, &err) );
@@ -297,6 +298,8 @@ int DavPropXMLParser::parserStartElemCb(int parent, const char *nspace, const ch
     if( ( ret = check_is_directory(name)) < 0)
             return ret;
     // collect information
+    if(new_response)
+        _last_response_status = 404;
     if(new_prop)
         ret= compute_new_elem();
     return (ret==0)?1:-1;

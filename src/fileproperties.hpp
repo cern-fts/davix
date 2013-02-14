@@ -27,6 +27,7 @@ struct FileProperties
         nlink = req_status =  gid = uid = size =0;
         mode = atime = mtime = ctime = 0;
         filename=std::string();
+
     }
 
 };

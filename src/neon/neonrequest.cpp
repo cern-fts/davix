@@ -160,7 +160,7 @@ void NEONRequest::configure_req(){
         ne_set_request_body_buffer(_req, _content_ptr, _content_len);       
     }
 
-    ne_set_request_flag(_req, NE_REQFLAG_EXPECT100, 1);
+   // ne_set_request_flag(_req, NE_REQFLAG_EXPECT100, 1);
 }
 
 int NEONRequest::negotiate_request(DavixError** err){

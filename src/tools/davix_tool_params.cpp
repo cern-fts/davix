@@ -200,6 +200,34 @@ int parse_davix_get_options(int argc, char** argv, OptParams & p, DavixError** e
 }
 
 
+
+
+const std::string  & get_common_options(){
+    static const std::string s(
+            "  Common Options:\n"
+            "\t--debug:                  Debug mode\n"
+            "\t--help, -h:               Display this help message\n"
+            "\t--output, -o file:        Redirect output to file\n"
+            "\t--verbose:                Verbose mode\n"
+            "\t--version, -V:            Display version\n"
+            "  Security Options:\n"
+            "\t--capath CA_path:         Add an additional certificate authority directory\n"
+            "\t--cred, -E cred_path:     Client Certificate in PEM format\n"
+            "\t--insecure, -k:           Disable SSL credential checks\n"
+            "\t--userlogin:              User login for login/password authentication \n"
+            "\t--userpass:               User password for login/password authentication \n"
+
+            );
+    return s;
+}
+
+const std::string  & get_base_description_options(){
+    static const std::string s("Usage: %s [OPTIONS ...] <url> \n"
+            );
+    return s;
+}
+
+
 }
 
 }

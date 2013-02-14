@@ -21,17 +21,8 @@ const std::string scope_get = "Davix::Tools::davix-get";
 
 
 static std::string help_msg(){
-    return "Usage: %s [OPTIONS ...] <url> \n"
-           "Options: \n"
-           "\t--capath CA_path:         Add an additional certificate authority directory\n"
-           "\t--cred, -E cred_path:     Client Certificate in PEM format\n"
-           "\t--debug:                  Debug mode\n"
-           "\t--help, -h:               Display this help message\n"
-           "\t--insecure, -k:           Disable SSL credential checks\n"
-           "\t--userlogin:      User login for login/password authentication \n"
-           "\t--userpass:       User password for login/password authentication \n"
-           "\t--output, -o file:        Redirect content to file\n"
-                       ;
+    return Tool::get_base_description_options() +
+           Tool::get_common_options();
 }
 
 

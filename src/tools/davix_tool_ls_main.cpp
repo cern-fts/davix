@@ -15,17 +15,8 @@ using namespace std;
 
 
 static std::string help_msg(){
-    return "Usage: %s [OPTIONS ...] <url> \n"
-           "Options: \n"
-            "\t--capath:         Add an additional certificate authority directory    \n"
-            "\t--cred, -E:       Client Certificate in PEM format\n"
-            "\t--debug:          Debug mode\n"
-            "\t--help, -h:       Display this help message \n"
-            "\t--insecure, -k:   Disable SSL credential checks \n"
-            "\t--userlogin:      User login for login/password authentication \n"
-            "\t--userpass:       User password for login/password authentication \n"
-
-                       ;
+    return Tool::get_base_description_options() +
+           Tool::get_common_options()+ "\n";
 }
 
 

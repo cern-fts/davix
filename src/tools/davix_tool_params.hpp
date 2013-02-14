@@ -44,6 +44,12 @@ int parse_davix_ls_options(int argc, char** argv, OptParams & p, DavixError** er
 
 int parse_davix_get_options(int argc, char** argv, OptParams & p, DavixError** err);
 
+
+
+const std::string & get_common_options();
+
+const std::string & get_base_description_options();
+
 }
 
 }

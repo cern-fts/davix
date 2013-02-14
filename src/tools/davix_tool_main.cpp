@@ -33,18 +33,13 @@ static void configure_req(HttpRequest& req, Tool::OptParams & opts){
 }
 
 static std::string help_msg(){
-    return "Usage: %s [OPTIONS ...] <url> \n"
-           "Options: \n"
-           "\t--capath:         Add an additional certificate authority directory    \n"
-           "\t--cred, -E:       Client Certificate in PEM format\n"
-           "\t--data            Content of the request\n"
-           "\t--debug:          Debug mode\n"
-           "\t--help, -h:       Display this help message \n"
-           "\t--header, -H:     Add a header field to the request (ex: \"Depth: 1\") \n"
-           "\t--insecure, -k:   Disable SSL credential checks \n"
-           "\t--request, -X:    Request operation to use (ex : GET, PUT, PROPFIND, etc..)\n"
-           "\t--userlogin:      User login for login/password authentication \n"
-           "\t--userpass:       User password for login/password authentication \n"
+    return Tool::get_base_description_options() +
+            Tool::get_common_options() +
+           "  Request Options: \n"
+           "\t--data                    Content of the request\n"
+           "\t--header, -H:             Add a header field to the request (ex: \"Depth: 1\") \n"
+           "\t--request, -X:            Request operation to use (ex : GET, PUT, PROPFIND, etc..)\n"
+           "\n"
                        ;
 }
 

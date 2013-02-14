@@ -21,11 +21,13 @@ time_t parse_http_date(const char* http_date){
 
 time_t parse_iso8601date(const char* iso_date){
 
-    // TODO : possible issue with timezone != Z,
+    // TODO : refactor to a regex parser.. ISO8601 b******* is impossible to parse correctly with strptime
     struct tm tm_time;
     char* p, *end_p;
     memset(&tm_time,0, sizeof(struct tm ));
-    if(  (p = strptime(iso_date, "%Y-%m-%dT%H:%M:%SZ", &tm_time) ) == NULL || *p != '\0'){
+    if(  ( (p = strptime(iso_date, "%Y-%m-%dT%H:%M:%SZ", &tm_time) ) == NULL || *p != '\0')
+         && ( (p = strptime(iso_date, "%Y-%m-%dT%H:%M:%S", &tm_time) ) == NULL || *p != '.'
+              ||  *(iso_date + strlen(iso_date) -1) != 'Z' )){
         if( (p = strptime(iso_date, "%Y-%m-%dT%H:%M:%S", &tm_time) ) != NULL
                 && (*p == '+' || *p == '-') ){
                 struct tm tm_time_offset;

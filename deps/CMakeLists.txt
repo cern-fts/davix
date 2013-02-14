@@ -25,37 +25,6 @@ ENDIF(NOT HAVE_STRLCPY_H)
 
 SET(SRC_SIMPLE_GET_PASS "${CMAKE_CURRENT_SOURCE_DIR}/simple_getpass/simple_get_pass.c" PARENT_SCOPE)
 
-
-#set(NEON_CONFIGURE_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/libneon/configure")
-#list(APPEND NEON_CONFIGURE_ARGS  "--with-ssl=openssl" "--with-libxml2" "--without-gssapi")
-#set(CONFIGURE_RESULT_CODE "-1")
-#set(CONFIGURE_RESULT_MSG "")
-
-#file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/libneon)
-
-#IF(NOT ( CONFIGURE_RESULT_CODE STREQUAL "0"))
-
-#    if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/libneon/Makefile )
-#    execute_process(COMMAND "${NEON_CONFIGURE_COMMAND}" ${NEON_CONFIGURE_ARGS}
-  #                  WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/libneon/"
-#                    RESULT_VARIABLE CONFIGURE_RESULT_CODE
- #                   )
-
-  #  ENDIF(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/libneon/Makefile )
-
-#ENDIF(NOT ( CONFIGURE_RESULT_CODE STREQUAL "0"))
-
-#add_custom_target(neon_static ALL
- #               "${CMAKE_MAKE_PROGRAM}"
-  #              WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/libneon/"
-  #              COMMENT "neon-build"
-   #             )
-
-
-#pkg_search_module(LIBGSSAPI_PKG REQUIRED libgssapi gss libgssglue)
-
-#message("include dir : ${LIBXML2_PKG_INCLUDE_DIRS}")
-
 add_subdirectory(libneon)
 
 SET(HTTPLIB_PKG_VERSION "0.29.0" PARENT_SCOPE)

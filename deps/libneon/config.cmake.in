@@ -4,6 +4,9 @@
 // portability mapper
 #include <limits.h>
 
+// force debug support
+#define NE_DEBUGGING
+
 // force dav
 #define NE_HAVE_DAV 1
 

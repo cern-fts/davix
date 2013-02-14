@@ -29,8 +29,6 @@ private:
     ne_session* _sess;
     const RequestParams & _params;
     DavixError* _last_error;
-    std::string _login;
-    std::string _passwd;
 
     NEONSession(const NEONSession &);
     NEONSession& operator=(const NEONSession &);

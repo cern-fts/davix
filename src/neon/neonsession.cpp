@@ -54,13 +54,13 @@ int NEONSession::provide_login_passwd_fn(void *userdata, const char *realm, int 
     NEONSession * req = static_cast<NEONSession*>(userdata);
     DavixError * tmp_err=NULL;
     int ret =-1;
-    std::string tmp_login, tmp_password;
 
-    DAVIX_DEBUG("NEONSession > Try to get auth/password authentification ");
+
+    DAVIX_DEBUG("NEONSession > Try to get auth/password authentification from client");
 
      if(attempt > n_max_auth ){
          DavixError::setupError(&(req->_last_error), davix_scope_http_request(), StatusCode::LoginPasswordError,
-                                "Overpass maximum number of try for login/password authentication ");
+                                "Overpass allowed number of authentication attempt");
      }
 
      const std::pair<authCallbackLoginPasswordBasic, void*> retcallback(req->_params.getClientLoginPasswordCallback());
@@ -68,32 +68,21 @@ int NEONSession::provide_login_passwd_fn(void *userdata, const char *realm, int 
      if(retcallback.first != NULL){
          DAVIX_DEBUG("NEONSession > Try callback for login/passwd for %d time", attempt+1);
          SessionInfo infos;
-
+         std::string tmp_login, tmp_password;
          if( (ret = retcallback.first(retcallback.second, infos, tmp_login, tmp_password, attempt, &tmp_err) ) <0){
              if(!tmp_err)
                  DavixError::setupError(&tmp_err, davix_scope_http_request(), StatusCode::LoginPasswordError,
-                                        "No valid login/passwd given in after ");
+                                        "No valid login/passwd");
               DavixError::propagateError(&(req->_last_error), tmp_err);
               return -1;
          }
+         strlcpy(username, tmp_login.c_str(), NE_ABUFSIZ);
+         strlcpy(password, tmp_password.c_str(), NE_ABUFSIZ);
      }else if(id.first.empty() == false){
-        tmp_login = id.first;
-        tmp_password = id.second;
+        strlcpy(username, id.first.c_str(), NE_ABUFSIZ);
+        strlcpy(password, id.second.c_str(), NE_ABUFSIZ);
      }
 
-    if( tmp_login.empty()
-        || tmp_password.empty() ){
-        DAVIX_DEBUG("NEONSession > no login/passwd : abort ");
-        DavixError::setupError(&(req->_last_error), davix_scope_http_request(),
-                               StatusCode::LoginPasswordError,
-                               "Server requested login/password authentication and no valid login/password have been given");
-        return -1;
-    }
-    DAVIX_DEBUG("NEONSession > setup authentification pwd/login....");
-    strlcpy(username, tmp_login.c_str(), NE_ABUFSIZ);
-    strlcpy(password, tmp_password.c_str(), NE_ABUFSIZ);
-    req->_login.clear();
-    req->_passwd.clear();
     DAVIX_DEBUG("NEONSession > get login/password with success...try server submission ");
     return 0;
 
@@ -105,9 +94,7 @@ NEONSession::NEONSession(Context & c, const Uri & uri, const RequestParams & p, 
     _f(ContextExplorer::SessionFactoryFromContext(c)),
     _sess(NULL),
     _params(p),
-    _last_error(NULL),
-    _login(),
-    _passwd()
+    _last_error(NULL)
 {
         _f.createNeonSession(uri, &_sess, err);
         if(_sess)
@@ -119,9 +106,7 @@ NEONSession::NEONSession(NEONSessionFactory & f, const Uri & uri, const RequestP
     _f(f),
     _sess(NULL),
     _params(p),
-    _last_error(NULL),
-    _login(),
-    _passwd()
+    _last_error(NULL)
 {
     _f.createNeonSession(uri, &_sess, err);
     if(_sess)

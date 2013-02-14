@@ -56,7 +56,10 @@ int DavixToolsAuthCallbackLoginPassword(void* userdata, const SessionInfo & info
         char l[1024];
         char p[1024];
 
-        std::cout << "Authentication needed:\n";
+        if(count > 0)
+            std::cout << "Authentication Failure, try again:\n";
+        else
+            std::cout << "Authentication needed:\n";
         std::cout << "Login: ";
         std::cout.flush();
         std::cin.getline(l, 1024);
@@ -71,11 +74,13 @@ int DavixToolsAuthCallbackLoginPassword(void* userdata, const SessionInfo & info
                 ret =0;
             }
 
-        }else{
-            DavixError::setupError(err, "Davix::Tool::Auth", StatusCode::LoginPasswordError, "No valid login/password provided");
         }
-
     }
+    std::cout << std::endl;
+    if(ret < 0)
+        DavixError::setupError(err, "Davix::Tool::Auth",
+                               StatusCode::LoginPasswordError,
+                               "No valid login/password provided");
     return ret;
 }
 

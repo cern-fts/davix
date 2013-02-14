@@ -1,18 +1,19 @@
 #include <config.h>
 #include "simple_get_pass.h"
 
+#include <iostream>
+
 #if defined HAVE_TERMIOS_H
 #include <termios.h>
 #elif !defined HAVE_GETPASS
 #error "impossible to compile simple_get_pass"
 #endif
 
-ssize_t simple_get_pass(char** passwd){
-    ssize_t ret = 0;
+int simple_get_pass(char* passwd, size_t max_size){
+    int ret = 0;
 #ifdef HAVE_TERMIOS_H
-    FILE* stream =stdin;
     struct termios old_term, new_term;
-    *passwd = NULL;
+    FILE* stream = stdin;
 
     /* Turn echoing off and fail if we can't. */
     if (tcgetattr (fileno (stream), &old_term) != 0)
@@ -23,7 +24,8 @@ ssize_t simple_get_pass(char** passwd){
       return -1;
 
     /* Read the password. */
-    ret =  (ssize_t)  getline (passwd, NULL, stream);
+    std::cin.getline(passwd, max_size);
+    ret = strlen(passwd);
 
     /* Restore terminal. */
     (void) tcsetattr (fileno (stream), TCSAFLUSH, &old_term);
@@ -38,6 +40,8 @@ ssize_t simple_get_pass(char** passwd){
     return ret;
 
 }
+
+
 
 
 void decimate_passwd(char* p){

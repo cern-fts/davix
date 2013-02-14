@@ -1,6 +1,7 @@
 #include "davix_tool_util.hpp"
 
-
+#include <cstdio>
+#include <simple_getpass/simple_get_pass.h>
 
 namespace Davix{
 
@@ -18,10 +19,7 @@ int setup_credential(OptParams & opts, DavixError** err){
     }
 
     // setup client login / password
-    if( !opts.userlogpasswd.first.empty()){
-      opts.params.setClientLoginPassword(opts.userlogpasswd.first,
-                                         opts.userlogpasswd.second);
-    }
+    opts.params.setClientLoginPasswordCallback(&DavixToolsAuthCallbackLoginPassword, &opts);
     return 0;
 }
 
@@ -44,6 +42,41 @@ std::string mode_to_stringmode(mode_t mode){
     }
     res[0]= S_ISDIR(mode);
     return std::string(res);
+}
+
+int DavixToolsAuthCallbackLoginPassword(void* userdata, const SessionInfo & info, std::string & login, std::string & password,
+                                        int count, DavixError** err){
+    OptParams* opts = (OptParams*) userdata;
+    int ret = -1;
+    if(opts->userlogpasswd.first.empty() == false){
+        login = opts->userlogpasswd.first;
+        password = opts->userlogpasswd.second;
+        ret =0;
+    }else{
+        char l[1024];
+        char p[1024];
+
+        std::cout << "Authentication needed:\n";
+        std::cout << "Login: ";
+        std::cout.flush();
+        std::cin.getline(l, 1024);
+        if( strlen(l) > 0){
+            std::cout << "Password: ";
+            std::cout.flush();
+            if(simple_get_pass(p, 1024) > 0){
+                login = std::string(l);
+                password = std::string(p);
+                decimate_passwd(p);
+                decimate_passwd(l);
+                ret =0;
+            }
+
+        }else{
+            DavixError::setupError(err, "Davix::Tool::Auth", StatusCode::LoginPasswordError, "No valid login/password provided");
+        }
+
+    }
+    return ret;
 }
 
 }

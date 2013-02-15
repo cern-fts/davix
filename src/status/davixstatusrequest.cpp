@@ -184,8 +184,8 @@ std::string davix_scope_davOps_str(){
     return "Davix::Dav::Ops";
 }
 
-std::string davix_scope_io_cache(){
-    return "Davix::IO:Cache";
+std::string davix_scope_io_buff(){
+    return "Davix::IO:Buff";
 }
 
 std::string davix_scope_x509cred(){

@@ -218,7 +218,7 @@ DAVIX_EXPORT std::string davix_scope_directory_listing_str();
 DAVIX_EXPORT std::string davix_scope_http_request();
 DAVIX_EXPORT std::string davix_scope_xml_parser();
 DAVIX_EXPORT std::string davix_scope_uri_parser();
-DAVIX_EXPORT std::string davix_scope_io_cache();
+DAVIX_EXPORT std::string davix_scope_io_buff();
 DAVIX_EXPORT std::string davix_scope_x509cred();
 
 

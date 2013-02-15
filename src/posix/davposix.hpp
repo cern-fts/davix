@@ -28,6 +28,7 @@
 namespace Davix {
 
 class DavPosixInternal;
+struct DavIOVec;
 
 ///
 /// @brief POSIX-like API of Davix
@@ -52,7 +53,7 @@ public:
       @param str: string url
       @param stat : stat struct to fill
      **/
-    int stat(const RequestParams* params, const std::string & str, struct stat *, DavixError** err);
+    int stat(const RequestParams* params, const std::string & str, struct stat * st, DavixError** err);
 
     /**
       @brief execute an opendir function with Webdav
@@ -232,6 +233,21 @@ private:
 
     DavPosixInternal* d_ptr;
 
+};
+
+/// @struct DavIOVecInput
+/// @brief used for vector operations in Davix
+struct DavIOVecInput{
+    void* dio_buffer;                // buffer, in case of read : destination buffer, in case of write : source buffer
+    dav_off_t dio_offset;            // initial offset taken from the source
+    size_t dio_size;                 // size of the data requested
+};
+
+/// @struct DavIOVecOuput
+/// @brief used for vector operations in Davix
+struct DavIOVecOuput{
+    void* dio_buffer;                // pointer to the buffer used for this fragment
+    ssize_t dio_size;                // size of the data returned
 };
 
 } // namespace Davix

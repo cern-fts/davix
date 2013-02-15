@@ -61,7 +61,6 @@ private:
 
 ///
 /// RW operation with buffering support
-/// add partial write support
 class HttpIOBuffer : public HttpIO{
 public:
     HttpIOBuffer(Context & c, const Uri & uri, const RequestParams * params);
@@ -75,6 +74,11 @@ public:
     ssize_t read(void* buf, size_t count, DavixError** err);
 
     ssize_t pread(void* buf, size_t count, off_t offset, DavixError** err);
+
+    dav_ssize_t pread_vec(const DavIOVecInput * input_vec,
+                          DavIOVecOuput * ioutput_vec,
+                          dav_size_t count_vec, DavixError** err);
+
 
     //
     ssize_t write(const void* buf, size_t count, DavixError** err);

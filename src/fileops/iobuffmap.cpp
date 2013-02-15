@@ -1,15 +1,17 @@
-#include "iobuffmap.hpp"
+#include <config.h>
+
+#include <davix_types.h>
 #include <httprequest.hpp>
 #include <posix/davposix.hpp>
 #include <logger/davix_logger_internal.h>
+#include "iobuffmap.hpp"
+
 #include <sstream>
 #include <string>
 
 #include <cstring>
 #include <cstdio>
 #include <cmath>
-#include <unistd.h>
-#include <fcntl.h>
 
 
 
@@ -98,14 +100,14 @@ ssize_t read_truncated_segment_request(HttpRequest* req, void* buffer, size_t si
 
 int get_valid_cache_file(FILE** stream, DavixError** err){
     if(stream == NULL){
-        DavixError::setupError(err, davix_scope_io_cache(), StatusCode::InvalidFileHandle, "Invalid file stream");
+        DavixError::setupError(err, davix_scope_io_buff(), StatusCode::InvalidFileHandle, "Invalid file stream");
         return -1;
     }
     if( *stream == NULL){
         if( ( *stream =  tmpfile() ) == NULL){
             std::ostringstream ss;
             ss << "Error while file-cache creation: " << strerror(errno) << std::endl;
-            DavixError::setupError(err, davix_scope_io_cache(), StatusCode::SystemError, ss.str().c_str());
+            DavixError::setupError(err, davix_scope_io_buff(), StatusCode::SystemError, ss.str().c_str());
             return -1;
         }
 
@@ -206,6 +208,7 @@ ssize_t HttpIO::readPartialBuffer(void *buf, size_t count, off_t offset, DavixEr
     return ret;
 }
 
+
 ssize_t HttpIO::putFullFromFD(const void *buf, size_t count, off_t offset, DavixError **err){
     return -1;
 }
@@ -256,7 +259,7 @@ bool HttpIOBuffer::open(int flags, DavixError **err){
     struct stat st;
     if( stat(&st, &tmp_err) ==0){
         if( (flags & O_EXCL) && ( flags & O_CREAT)){
-            DavixError::setupError(&tmp_err, davix_scope_io_cache(),
+            DavixError::setupError(&tmp_err, davix_scope_io_buff(),
                                    StatusCode::FileExist, "file exist and O_EXCL flag usedin open");
         }else{
             _file_size = st.st_size;
@@ -308,6 +311,22 @@ ssize_t HttpIOBuffer::pread(void *buf, size_t count, off_t offset, DavixError **
     if(tmp_err)
         DavixError::propagateError(err, tmp_err);
     return ret;
+}
+
+dav_ssize_t HttpIOBuffer::pread_vec(const DavIOVecInput * input_vec,
+                      DavIOVecOuput * output_vec,
+                      dav_size_t count_vec, DavixError** err){
+    davix_return_val_if_fail( input_vec != NULL && output_vec != NULL,-1);
+    dav_ssize_t res = -1;
+    if(count_vec ==1){ // one offset read request, no need of multi part
+        res= (dav_ssize_t) pread(input_vec->diov_buffer, input_vec->diov_size, input_vec->diov_offset, err);
+        output_vec->diov_buffer = input_vec->diov_buffer;
+        output_vec->diov_size= res;
+
+    }else{  // setup multi part transfer
+        DavixError::setupError(err, davix_scope_io_buff(), StatusCode::InvalidArgument, " operation not supported");
+    }
+    return res;
 }
 
 

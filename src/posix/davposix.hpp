@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#include <davix_types.h>
 #include <davixcontext.hpp>
 #include <params/davixrequestparams.hpp>
 #include <status/davixstatusrequest.hpp>
@@ -28,7 +29,7 @@
 namespace Davix {
 
 class DavPosixInternal;
-struct DavIOVec;
+
 
 ///
 /// @brief POSIX-like API of Davix
@@ -175,6 +176,7 @@ public:
      */
     ssize_t read(DAVIX_FD* fd, void* buf, size_t count, DavixError** err);
 
+
     /**
       @brief do a partial read of a file in a POSIX-like approach with HTTP(S)
       behavior similar to the POSIX pread function
@@ -186,6 +188,21 @@ public:
       @return the size of data or a negative value if an error occured
      */
     ssize_t pread(DAVIX_FD* fd, void* buf, size_t count, off_t offset, DavixError** err);
+
+    /**
+      @brief pread_vec a file in a POSIX-like approach with HTTP(S)
+            Vector read operation
+            Allow to do several read operations in one single request
+      @param fd : davix file descriptor
+      @param input_vec : input vectors, parameters
+      @param output_vec : output vectors, results
+      @param count_vec : number of vector struct
+      @param err: Davix Error report
+      @return total number of bytes read, or -1 if error occures
+     */
+    dav_ssize_t pread_vec(DAVIX_FD* fd, const DavIOVecInput * input_vec,
+                          DavIOVecOuput * ioutput_vec,
+                          dav_size_t count_vec, DavixError** err);
 
     /**
       @brief write a file in a POSIX-like approach with HTTP(S)
@@ -235,20 +252,6 @@ private:
 
 };
 
-/// @struct DavIOVecInput
-/// @brief used for vector operations in Davix
-struct DavIOVecInput{
-    void* dio_buffer;                // buffer, in case of read : destination buffer, in case of write : source buffer
-    dav_off_t dio_offset;            // initial offset taken from the source
-    size_t dio_size;                 // size of the data requested
-};
-
-/// @struct DavIOVecOuput
-/// @brief used for vector operations in Davix
-struct DavIOVecOuput{
-    void* dio_buffer;                // pointer to the buffer used for this fragment
-    ssize_t dio_size;                // size of the data returned
-};
 
 } // namespace Davix
 

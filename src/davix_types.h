@@ -39,6 +39,8 @@ typedef struct davix_request_params* davix_params_t;
 
 // Davix Large File Support
 typedef uint64_t dav_off_t;
+typedef uint64_t dav_size_t;
+typedef int64_t dav_ssize_t;
 
 
 
@@ -77,6 +79,21 @@ typedef enum davix_request_protocol_e{
     DAVIX_PROTOCOL_HTTP
 } davix_request_protocol_t;
 
+
+/// @struct DavIOVecInput
+/// @brief used for vector operations in Davix
+struct DAVIX_EXPORT DavIOVecInput{
+    void* diov_buffer;                    // buffer, in case of read : destination buffer, in case of write : source buffer
+    dav_off_t diov_offset;                // initial offset taken from the source
+    dav_size_t diov_size;                 // size of the data requested
+};
+
+/// @struct DavIOVecOuput
+/// @brief used for vector operations in Davix
+struct DAVIX_EXPORT DavIOVecOuput{
+    void* diov_buffer;                    // pointer to the buffer used for this fragment
+    dav_ssize_t diov_size;                // size of the data returned, -1 if error
+};
 
 
 //

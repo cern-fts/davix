@@ -55,9 +55,8 @@ CHECK_INCLUDE_FILES(netdb.h HAVE_NETDB_H)
 CHECK_INCLUDE_FILES(arpa/inet.h HAVE_ARPA_INET_H)
 CHECK_INCLUDE_FILES(netinet/in.h HAVE_NETINET_IN_H)
 CHECK_INCLUDE_FILES(netinet/tcp.h HAVE_NETINET_TCP_H)
-CHECK_SYMBOL_EXISTS(getaddrinfo "netdb.h" "sys/socket.h" "winsock2.h" "ws2tcpip.h" HAVE_GETADDRINFO_H)
 
-SET(CMAKE_EXTRA_INCLUDE_FILES "arpa/inet.h" "netdb.h" "winsock2.h" "sys/socket.h")
+SET(CMAKE_EXTRA_INCLUDE_FILES "arpa/inet.h")
 
 	CHECK_TYPE_SIZE(in_addr_t DEF_SIZEOF_IN_ADDR_T)
 	if(DEF_SIZEOF_IN_ADDR_T)
@@ -68,6 +67,9 @@ SET(CMAKE_EXTRA_INCLUDE_FILES "arpa/inet.h" "netdb.h" "winsock2.h" "sys/socket.h
 	if(DEF_SIZEOF_SOCKLEN_T)
 	set(HAVE_SOCKLEN_T 1)
 	endif(DEF_SIZEOF_SOCKLEN_T)
+
+        CHECK_FUNCTION_EXISTS(getaddrinfo HAVE_GETADDRINFO_H)
+
 SET(CMAKE_EXTRA_INCLUDE_FILES) 
 
 

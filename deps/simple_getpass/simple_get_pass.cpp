@@ -5,13 +5,17 @@
 
 #if defined HAVE_TERMIOS_H
 #include <termios.h>
-#elif !defined HAVE_GETPASS
+#elif defined HAVE_GETPASS
+#include <unistd.h>
+#elif defined HAVE_SETCONSOLEMODE
+#include <windows.h>
+#else
 #error "impossible to compile simple_get_pass"
 #endif
 
 int simple_get_pass(char* passwd, size_t max_size){
     int ret = 0;
-#ifdef HAVE_TERMIOS_H
+#if defined HAVE_TERMIOS_H
     struct termios old_term, new_term;
     FILE* stream = stdin;
 
@@ -30,6 +34,20 @@ int simple_get_pass(char* passwd, size_t max_size){
     /* Restore terminal. */
     (void) tcsetattr (fileno (stream), TCSAFLUSH, &old_term);
 
+#elif HAVE_SETCONSOLEMODE
+	HANDLE hstdin = GetStdHandle(STD_INPUT_HANDLE);
+	DWORD mode;
+	
+	if (!GetConsoleMode(hstdin, &mode))
+		return -1;
+
+	if (hstdin == INVALID_HANDLE_VALUE || !(SetConsoleMode(hstdin, 0)))
+		return -1; 
+    std::cin.getline(passwd, max_size);
+    ret = strlen(passwd);
+	
+	if (!SetConsoleMode(hstdin, mode))
+		return -1;		
 #else
     char* p;
     if((p = getpass("")) == NULL)

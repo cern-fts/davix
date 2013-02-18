@@ -62,7 +62,11 @@
 #define NAME_MAX 256
 #endif
 
+// termios
 #cmakedefine HAVE_TERMIOS_H 1
+
+// getconsolemode
+#cmakedefine HAVE_SETCONSOLEMODE 1
 
 //
 // Win 32 mapper

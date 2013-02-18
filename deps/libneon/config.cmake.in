@@ -98,6 +98,18 @@
 #cmakedefine HAVE_ARPA_INET_H 1
 #cmakedefine HAVE_NETDB_H 1
 
+// in_add_t
+#cmakedefine HAVE_IN_ADDR_T 1
+#ifndef HAVE_IN_ADDR_T
+#define in_addr_t unsigned int
+#endif
+
+// socklen_t
+#cmakedefine HAVE_SOCKLEN_T 1
+#ifndef HAVE_SOCKLEN_T
+#define socklen_t int
+#endif
+
 // type size
 #define SIZEOF_INT @DEF_SIZEOF_INT@
 #define SIZEOF_LONG @DEF_SIZEOF_LONG@

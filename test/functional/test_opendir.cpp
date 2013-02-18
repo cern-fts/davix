@@ -1,8 +1,8 @@
 #include "test_opendir.h"
 
-
 #include <davix.hpp>
-#include <string.h>
+#include <cstring>
+#include <memory>
 
 
 #include "davix_test_lib.h"

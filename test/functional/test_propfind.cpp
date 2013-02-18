@@ -1,10 +1,9 @@
 #include "test_propfind.h"
 
 
-#include <davixcontext.hpp>
-
+#include <davix.hpp>
+#include <memory>
 #include <posix/davix_stat.hpp>
-
 #include "davix_test_lib.h"
 
 using namespace Davix;
@@ -22,11 +21,11 @@ int main(int argc, char** argv){
     RequestParams params;
     DavixError* tmp_err=NULL;
 
-    std::auto_ptr<AbstractSessionFactory> s( new NEONSessionFactory());
+    Context c;
     if(argc >2 ){ // setup ops if credential is found
          params.setSSLCAcheck(false);
     }
-    std::auto_ptr<HttpRequest> r (static_cast<HttpRequest*>(s->create_request(argv[1], &tmp_err)));
+    std::auto_ptr<HttpRequest> r (static_cast<HttpRequest*>(c.createRequest( argv[1], &tmp_err)));
     if(r.get() != NULL){
         r->setParameters(params);
         r->addHeaderField("Depth", "1");

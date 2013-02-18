@@ -1,8 +1,4 @@
-
-
-#include <davixcontext.hpp>
-#include <abstractsessionfactory.hpp>
-#include <neon/neonsessionfactory.hpp>
+#include <davix.hpp>
 #include <string>
 #include <cstring>
 #include <gtest/gtest.h>

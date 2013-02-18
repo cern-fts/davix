@@ -1,9 +1,8 @@
 #include "test_stat.h"
 
-#include <davixcontext.hpp>
-
-#include <posix/davposix.hpp>
-#include <string.h>
+#include <davix.hpp>
+#include <cstring>
+#include <memory>
 
 
 #include "davix_test_lib.h"

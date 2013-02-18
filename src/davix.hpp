@@ -46,6 +46,9 @@
 /// status and error management
 #include <status/davixstatusrequest.hpp>
 
+/// logger features
+#include <logger/davix_logger.h>
+
 
 
 #endif // DAVIX_HPP

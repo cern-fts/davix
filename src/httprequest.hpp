@@ -123,6 +123,15 @@ public:
     ssize_t readBlock(char* buffer, size_t max_size, DavixError** err);
 
     ///
+    /// read a line of text of a maximum size bytes in the request
+    /// @param buffer : buffer to fill
+    /// @param max_size : maximum number of bytes to read
+    /// @param err : DavixError error report system
+    /// @return number of bytes readed, if return == max_size -> the line too big
+    ///
+    ssize_t readLine(char* buffer, size_t max_size, DavixError** err);
+
+    ///
     /// finish a request stated with beginRequest
     int endRequest(DavixError** err);
 
@@ -147,7 +156,7 @@ public:
     /// @param header_name : key of the header field
     /// @param value : reference of the string to set
     /// @return true if this header exist or false if it does not
-    bool getAnswerHeader(const std::string & header_name, std::string & value);
+    bool getAnswerHeader(const std::string & header_name, std::string & value) const;
 
 
 

@@ -78,6 +78,10 @@ public:
       @param max_size : maximum number of bytes to set
     */
     ssize_t readBlock(char* buffer, size_t max_size,DavixError** err);
+
+
+    ssize_t readLine(char* buffer, size_t max_size, DavixError** err);
+
     /**
       finish an already started request
      */
@@ -101,7 +105,7 @@ public:
     //
     int getRequestCode();
 
-    bool getAnswerHeader(const std::string &header_name, std::string &value);
+    bool getAnswerHeader(const std::string &header_name, std::string &value) const;
 
 
     // auth method support
@@ -130,6 +134,7 @@ protected:
     std::string _request_type;
     NEONSessionFactory& _f;
     bool req_started, req_running;
+    int _last_request_flag;
 
     std::vector< std::pair<std::string, std::string > > _headers_field;
 

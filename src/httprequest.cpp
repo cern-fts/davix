@@ -64,6 +64,10 @@ ssize_t HttpRequest::readBlock(char *buffer, size_t max_size, DavixError **err){
     return d_ptr->readBlock(buffer, max_size, err);
 }
 
+ssize_t HttpRequest::readLine(char *buffer, size_t max_size, DavixError **err){
+    return d_ptr->readLine(buffer, max_size, err);
+}
+
 int HttpRequest::endRequest(DavixError **err){
     return d_ptr->endRequest(err);
 }
@@ -73,7 +77,7 @@ void HttpRequest::clearAnswerContent(){
     d_ptr->clearAnswerContent();
 }
 
-bool HttpRequest::getAnswerHeader(const std::string &header_name, std::string &value){
+bool HttpRequest::getAnswerHeader(const std::string &header_name, std::string &value) const{
     return d_ptr->getAnswerHeader(header_name, value);
 }
 

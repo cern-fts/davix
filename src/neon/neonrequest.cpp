@@ -107,6 +107,7 @@ NEONRequest::NEONRequest(NEONSessionFactory& f, const Uri & uri_req) :
     _f(f),
     req_started(false),
     req_running(false),
+    _last_request_flag(0),
     _headers_field(){
 }
 
@@ -286,6 +287,7 @@ int NEONRequest::redirect_request(DavixError **err){
 
 int NEONRequest::executeRequest(DavixError** err){
     ssize_t read_status=1;
+    _last_request_flag =0;
     DavixError* tmp_err=NULL;
 
     if( create_req(&tmp_err) < 0){
@@ -325,12 +327,15 @@ int NEONRequest::executeRequest(DavixError** err){
    }
 
     DAVIX_DEBUG(" -> End synchronous request ... ");
+    _last_request_flag =1; // 1 -> syn request
     return 0;
 }
 
 int NEONRequest::beginRequest(DavixError** err){
     DavixError* tmp_err=NULL;
     int ret = -1;
+    _last_request_flag = 0;
+    _vec.clear();
     ret= create_req(&tmp_err);
 
 
@@ -340,6 +345,7 @@ int NEONRequest::beginRequest(DavixError** err){
 
     if(ret <0)
         DavixError::propagateError(err, tmp_err);
+    _last_request_flag = 2; // 2 -> sequential req
     return ret;
 }
 
@@ -357,6 +363,26 @@ ssize_t NEONRequest::readBlock(char* buffer, size_t max_size, DavixError** err){
        return -1;
     }
     return read_status;
+}
+
+
+ssize_t NEONRequest::readLine(char* buffer, size_t max_size, DavixError** err){
+    ssize_t read_sum=0, tmp_read_status;
+    char c;
+    while( (tmp_read_status= readBlock(&c,1, err)) ==1 && read_sum < max_size){
+        if(c == '\n'){
+            if( read_sum > 0 && buffer[read_sum-1] == '\r'){ // remove cr
+                buffer[--read_sum] = '\0';
+            }
+            break;
+        }
+        buffer[read_sum] = c;
+        read_sum += 1;
+    }
+    if(tmp_read_status < 0)
+        return -1;
+
+    return read_sum;
 }
 
 int NEONRequest::endRequest(DavixError** err){
@@ -387,14 +413,18 @@ int NEONRequest::getRequestCode(){
 }
 
 const char* NEONRequest::getAnswerContent(){
-    return (const char*) &(_vec.at(0));
+    if(_last_request_flag == 1)
+        return (const char*) &(_vec.at(0));
+    return NULL;
 }
 
 size_t NEONRequest::getAnswerSize() const{
-    return _vec.size()-1;
+    if(_last_request_flag == 1)
+        return _vec.size()-1;
+    return 0;
 }
 
-bool NEONRequest::getAnswerHeader(const std::string &header_name, std::string &value){
+bool NEONRequest::getAnswerHeader(const std::string &header_name, std::string &value) const{
     const char* answer_content = ne_get_response_header(_req, header_name.c_str());
     if(answer_content){
         value = answer_content;

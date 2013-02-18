@@ -16,29 +16,29 @@
 
 
 const std::string req_header_byte_range("Range");
+const std::string offset_value("bytes=");
 
 namespace Davix {
 
-void setup_offset_request(HttpRequest* req, off_t start_len, size_t size_read);
 ssize_t read_segment_request(HttpRequest* req, void* buffer, size_t size_read,  off_t off_set, DavixError**err);
 ssize_t read_truncated_segment_request(HttpRequest* req, void* buffer, size_t size_read,  off_t off_set, DavixError**err);
 
 
 
-void setup_offset_request(HttpRequest* req, off_t start_len, size_t size_read){
-    std::string offset_value("bytes=");
+void setup_offset_request(HttpRequest* req, off_t *start_len, size_t *size_read, size_t number_ops){
+    std::ostringstream buffer;
+    buffer << offset_value;
 
-    if(start_len > 0 || size_read >0 ){
-        const size_t s_buff = 20+(size_t)log10(std::max<size_t>(start_len, size_read)+1)*2; //calculate the buffer size for the string val
-        char buffer[s_buff]; // calc buffer size
+    for(size_t i = 0; i<number_ops; ++i){
+        if( i > 0)
+            buffer << ",";
 
-        if(size_read > 0)
-            snprintf(buffer, s_buff, "bytes=%ld-%ld", (unsigned long) start_len, (unsigned long) start_len+size_read);
-        else
-            snprintf(buffer, s_buff, "bytes=%ld-", (unsigned long) start_len);
-        req->addHeaderField(req_header_byte_range, buffer);
-    }
-
+       if(size_read > 0)
+           buffer << start_len[i] << "-"<< (start_len[i]+size_read[i]);
+       else
+            buffer << start_len [i]<< "-";
+     }
+     req->addHeaderField(req_header_byte_range, buffer.str());
 
 }
 
@@ -83,7 +83,6 @@ ssize_t read_truncated_segment_request(HttpRequest* req, void* buffer, size_t si
 
          if(tmp_ret == 0)
              return 0;
-
         ret += tmp_ret;
      }
 
@@ -186,7 +185,7 @@ ssize_t HttpIO::readPartialBuffer(void *buf, size_t count, off_t offset, DavixEr
     std::auto_ptr<HttpRequest> req( _c.createRequest(_uri, &tmp_err));
     if(req.get() != NULL){
         req->setParameters(_params);
-        setup_offset_request(req.get(), offset, offset+count);
+        setup_offset_request(req.get(), &offset, &count,1);
         if(req->beginRequest(&tmp_err) ==0){
             if(req->getRequestCode() == 416 ){ // out of file, end of file
                 ret = 0; // end of file
@@ -208,6 +207,22 @@ ssize_t HttpIO::readPartialBuffer(void *buf, size_t count, off_t offset, DavixEr
     return ret;
 }
 
+dav_ssize_t HttpIO::readPartialBufferVec(const DavIOVecInput * input_vec,
+                      DavIOVecOuput * output_vec,
+                      dav_size_t count_vec, DavixError** err){
+    DavixError * tmp_err=NULL;
+    ssize_t ret = -1;
+    if(count_vec ==0)
+        return 0;
+    DAVIX_DEBUG(" -> getPartialVec operation for %d vectors", count_vec);
+
+
+
+    DAVIX_DEBUG(" <- getPartialVec operation for %d vectors", count_vec);
+    if(tmp_err)
+        DavixError::propagateError(err, tmp_err);
+    return ret;
+}
 
 ssize_t HttpIO::putFullFromFD(const void *buf, size_t count, off_t offset, DavixError **err){
     return -1;
@@ -313,18 +328,18 @@ ssize_t HttpIOBuffer::pread(void *buf, size_t count, off_t offset, DavixError **
     return ret;
 }
 
-dav_ssize_t HttpIOBuffer::pread_vec(const DavIOVecInput * input_vec,
+dav_ssize_t HttpIOBuffer::preadVec(const DavIOVecInput * input_vec,
                       DavIOVecOuput * output_vec,
                       dav_size_t count_vec, DavixError** err){
     davix_return_val_if_fail( input_vec != NULL && output_vec != NULL,-1);
     dav_ssize_t res = -1;
     if(count_vec ==1){ // one offset read request, no need of multi part
-        res= (dav_ssize_t) pread(input_vec->diov_buffer, input_vec->diov_size, input_vec->diov_offset, err);
+        res= (dav_ssize_t) pread(input_vec->diov_buffer, (size_t) input_vec->diov_size, (off_t) input_vec->diov_offset, err);
         output_vec->diov_buffer = input_vec->diov_buffer;
         output_vec->diov_size= res;
 
     }else{  // setup multi part transfer
-        DavixError::setupError(err, davix_scope_io_buff(), StatusCode::InvalidArgument, " operation not supported");
+        res = readPartialBufferVec(input_vec, output_vec, count_vec, err);
     }
     return res;
 }

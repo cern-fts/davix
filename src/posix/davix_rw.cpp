@@ -79,7 +79,7 @@ ssize_t DavPosix::pread(DAVIX_FD* fd, void* buf, size_t count, off_t offset, Dav
     return ret;
 }
 
-dav_ssize_t pread_vec(DAVIX_FD* fd, const DavIOVecInput * input_vec,
+dav_ssize_t DavPosix::preadVec(DAVIX_FD* fd, const DavIOVecInput * input_vec,
                       DavIOVecOuput * output_vec,
                       dav_size_t count_vec, DavixError** err){
     DAVIX_DEBUG(" -> davix_pread_vec");
@@ -87,7 +87,7 @@ dav_ssize_t pread_vec(DAVIX_FD* fd, const DavIOVecInput * input_vec,
     DavixError* tmp_err=NULL;
 
     if( davix_check_rw_fd(fd, &tmp_err) ==0){
-        ret = fd->io_handler->pread_vec(input_vec, output_vec, count_vec, &tmp_err);
+        ret = fd->io_handler->preadVec(input_vec, output_vec, count_vec, &tmp_err);
     }
 
 

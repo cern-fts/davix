@@ -36,6 +36,10 @@ public:
     // similar to pread except that does not need open() before
     ssize_t readPartialBuffer(void* buf, size_t count, off_t offset, DavixError** err);
 
+    dav_ssize_t readPartialBufferVec(const DavIOVecInput * input_vec,
+                          DavIOVecOuput * ioutput_vec,
+                          dav_size_t count_vec, DavixError** err);
+
     // position independant write operation,
     // similar to pwrite do not need open() before
     ssize_t putFullFromFD(const void* buf, size_t count, off_t offset, DavixError** err);
@@ -75,7 +79,7 @@ public:
 
     ssize_t pread(void* buf, size_t count, off_t offset, DavixError** err);
 
-    dav_ssize_t pread_vec(const DavIOVecInput * input_vec,
+    dav_ssize_t preadVec(const DavIOVecInput * input_vec,
                           DavIOVecOuput * ioutput_vec,
                           dav_size_t count_vec, DavixError** err);
 

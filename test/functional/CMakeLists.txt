@@ -23,6 +23,8 @@ set( src_test_auto_stat_mkdir_check "test_auto_stat_mkdir_check.cpp")
 set( src_test_auto_rmdir_unlink_delete "test_auto_rmdir_unlink_delete.cpp")
 set( src_test_valid_read_generic_simple "test_valid_read_generic_simple.cpp")
 set( src_test_valid_write_read_generic_simple "test_valid_write_read_generic_simple.cpp")
+set( src_test_valid_write_read_vector_simple "test_valid_write_read_vector_simple.cpp")
+
 
 add_executable(test_request ${src_test_req} )
 target_link_libraries(test_request davix ${GLIB2_PKG_LIBRARIES} )
@@ -71,6 +73,9 @@ target_link_libraries(test_valid_read_generic_simple davix ${GLIB2_PKG_LIBRARIES
 add_executable(test_valid_write_read_generic_simple ${src_test_valid_write_read_generic_simple} ${src_davix_test_lib})
 target_link_libraries(test_valid_write_read_generic_simple davix ${GLIB2_PKG_LIBRARIES} )
 
+add_executable(test_valid_write_read_vector_simple ${src_test_valid_write_read_vector_simple} ${src_davix_test_lib})
+target_link_libraries(test_valid_write_read_vector_simple davix ${GLIB2_PKG_LIBRARIES} )
+
 
 function(test_dav_endpoint_ronly name cred)
 
@@ -108,6 +113,7 @@ endfunction(test_valid_delete_all url cred)
 
 function(test_valid_write_read_generic url cred)
     add_test(test_valid_write_read_generic_simple_${url} test_valid_write_read_generic_simple ${url} ${cred})
+    add_test(test_valid_write_read_vector_simple_${url} test_valid_write_read_vector_simple ${url} ${cred})
 endfunction(test_valid_write_read_generic url cred)
 
 include(ctest_functional.cmake)

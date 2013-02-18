@@ -28,6 +28,21 @@
 
 namespace Davix {
 
+/// @struct DavIOVecInput
+/// @brief used for vector operations in Davix
+struct DAVIX_EXPORT DavIOVecInput{
+    void* diov_buffer;                    // buffer, in case of read : destination buffer, in case of write : source buffer
+    dav_off_t diov_offset;                // initial offset taken from the source
+    dav_size_t diov_size;                 // size of the data requested
+};
+
+/// @struct DavIOVecOuput
+/// @brief used for vector operations in Davix
+struct DAVIX_EXPORT DavIOVecOuput{
+    void* diov_buffer;                    // pointer to the buffer used for this fragment
+    dav_ssize_t diov_size;                // size of the data returned, -1 if error
+};
+
 class DavPosixInternal;
 
 
@@ -200,7 +215,7 @@ public:
       @param err: Davix Error report
       @return total number of bytes read, or -1 if error occures
      */
-    dav_ssize_t pread_vec(DAVIX_FD* fd, const DavIOVecInput * input_vec,
+    dav_ssize_t preadVec(DAVIX_FD* fd, const DavIOVecInput * input_vec,
                           DavIOVecOuput * ioutput_vec,
                           dav_size_t count_vec, DavixError** err);
 

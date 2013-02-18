@@ -1,4 +1,5 @@
 #include <config.h>
+#include <memory>
 #include <ostream>
 #include <sstream>
 #include <string>

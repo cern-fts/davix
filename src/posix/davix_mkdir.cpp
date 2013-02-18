@@ -1,5 +1,6 @@
 #include <ostream>
 #include <sstream>
+#include <memory>
 #include <logger/davix_logger_internal.h>
 #include <posix/davposix.hpp>
 #include <status/davixstatusrequest.hpp>

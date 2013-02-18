@@ -11,7 +11,7 @@ FILE(GLOB src_davix_fileops "fileops/*.cpp")
 FILE(GLOB src_davix_params "params/*.cpp")
 FILE(GLOB src_davix_auth "auth/*.cpp")
 
-LIST(APPEND davix_headers "davix.h" "davix_types.h"  "davixuri.h" "davixcontext.hpp" "global_def.hpp"
+LIST(APPEND davix_headers "davix.h" "davix_types.h"  "davixuri.h" "davixcontext.hpp"
             "abstractsessionfactory.hpp" "httprequest.hpp" "davix.hpp" "davixuri.hpp" )
 
 LIST(APPEND davix_logger_header "logger/davix_logger.h")

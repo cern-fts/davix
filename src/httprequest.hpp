@@ -2,7 +2,7 @@
 #define DAVIX_HTTPREQUEST_H
 
 #include <vector>
-
+#include <unistd.h>
 #include <status/davixstatusrequest.hpp>
 #include <params/davixrequestparams.hpp>
 

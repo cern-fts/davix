@@ -1,5 +1,7 @@
 #include "davix_tool_util.hpp"
 
+#include <string>
+#include <cstring>
 #include <cstdio>
 #include <simple_getpass/simple_get_pass.h>
 

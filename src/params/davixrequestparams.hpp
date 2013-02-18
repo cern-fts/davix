@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 
-#include "global_def.hpp"
+ 
 #include <auth/davixauth.hpp>
 
 

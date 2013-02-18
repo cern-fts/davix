@@ -6,6 +6,7 @@
 #include <ne_redirect.h>
 #include <ne_request.h>
 #include <neon/neonsession.hpp>
+#include <memory>
 
 namespace Davix {
 

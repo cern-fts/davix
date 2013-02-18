@@ -2,6 +2,7 @@
 #ifndef DAVIX_IOBUFFMAP_HPP
 #define DAVIX_IOBUFFMAP_HPP
 
+#include <memory>
 #include <davixcontext.hpp>
 #include <davixuri.hpp>
 #include <params/davixrequestparams.hpp>

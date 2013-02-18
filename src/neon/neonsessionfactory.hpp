@@ -4,7 +4,7 @@
 #include <map>
 #include <abstractsessionfactory.hpp>
 #include <davixuri.hpp>
-#include <global_def.hpp>
+ 
 #include <neon/neonrequest.hpp>
 #include <libs/lockers/dpplocker.hpp>
 

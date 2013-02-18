@@ -1,7 +1,7 @@
 #ifndef ABSTRACTSESSIONFACTORY_H
 #define ABSTRACTSESSIONFACTORY_H
 
-#include "global_def.hpp"
+ 
 #include "httprequest.hpp"
 #include <params/davixrequestparams.hpp>
 #include <davixuri.hpp>

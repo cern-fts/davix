@@ -1,7 +1,7 @@
 #include "test_stat_session.h"
 
 #include <davixcontext.hpp>
-#include <http_backend.hpp>
+
 #include <posix/davposix.hpp>
 #include <string.h>
 

@@ -2,7 +2,8 @@
 #define DAVIX_FILEPROPERTIES_H
 
 #include <config.h>
-#include "global_def.hpp"
+#include <string>
+ 
 
 
 namespace Davix {

@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <cstdio>
+#include <logger/davix_logger.h>
 
 namespace Davix{
 

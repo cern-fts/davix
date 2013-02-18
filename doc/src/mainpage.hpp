@@ -124,9 +124,11 @@ Davix is going to support soon :
 
 
 <h2> Play with davix command line tool : </h2>
-    davix has a set of command line tool for Http/Webdav common operations
+    davix has a set of command line tools for testing purpose and demonstration
 
-        -> davix ( low level and general purpose command line tool for HTTP Request, similar to curl )
+        -> davix-ls : file listing
+        -> davix-get: download operations
+        -> davix ( low level Http operations )
 
 <h2> I wish to see XYZ feature in Davix : </h2>
 

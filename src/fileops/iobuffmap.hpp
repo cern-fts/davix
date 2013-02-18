@@ -39,7 +39,7 @@ public:
 
     dav_ssize_t readPartialBufferVec(const DavIOVecInput * input_vec,
                           DavIOVecOuput * ioutput_vec,
-                          dav_size_t count_vec, DavixError** err);
+                          const dav_size_t count_vec, DavixError** err);
 
     // position independant write operation,
     // similar to pwrite do not need open() before

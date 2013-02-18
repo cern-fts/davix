@@ -108,8 +108,11 @@ const Code FileExist = DAVIX_STATUS_FILE_EXIST;
 /// Invalid user argument
 const Code InvalidArgument = DAVIX_STATUS_INVALID_ARG;
 
+const Code InvalidServerResponse = DAVIX_STATUS_INVALID_SERVER_RESPONSE;
+
 /// Unknow error
 const Code UnknowError= DAVIX_STATUS_UNKNOW_ERROR;
+
 
 }
 

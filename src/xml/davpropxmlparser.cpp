@@ -127,7 +127,7 @@ int DavPropXMLParser::compute_new_elem(){
         DAVIX_DEBUG(" properties detected ");
         _current_props.clear();
         _current_props.filename = last_filename; // setup the current filename
-        _current_props.mode = 0777; // default : fake access to everything
+        _current_props.mode = 0777 | S_IFREG; // default : fake access to everything
     }
     return 0;
 }
@@ -184,6 +184,7 @@ int DavPropXMLParser::check_is_directory(const char* name){
         if(is_dir){
            DAVIX_DEBUG(" directory pattern found -> set flag IS_DIR");
            _current_props.mode |=  S_IFDIR;
+           _current_props.mode &= ~(S_IFREG);
         }
     }
     return 0;

@@ -173,7 +173,7 @@ struct dirent* DavPosix::readdir(DAVIX_DIR * d, DavixError** err){
     DavPropXMLParser* parser = handle->parser;
     off_t read_offset = handle->dir_offset+1;
     size_t prop_size = parser->getProperties().size();
-    size_t s_resu = _s_buff;
+    ssize_t s_resu = _s_buff;
 
     while( prop_size == 0
           && s_resu > 0){ // request not complete and current data too smalls
@@ -215,7 +215,7 @@ struct dirent* DavPosix::readdirpp(DAVIX_DIR * d, struct stat *st, DavixError** 
     DavPropXMLParser* parser = handle->parser;
     off_t read_offset = handle->dir_offset+1;
     size_t prop_size = parser->getProperties().size();
-    size_t s_resu = _s_buff;
+    ssize_t s_resu = _s_buff;
 
     while( prop_size == 0
           && s_resu > 0){ // request not complete and current data too smalls

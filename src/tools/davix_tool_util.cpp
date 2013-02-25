@@ -35,7 +35,7 @@ void err_display(DavixError ** err){
 
 std::string mode_to_stringmode(mode_t mode){
     mode_t tmp_mode = mode;
-    const char * strv= "xwrxwrxwr";
+    //static const char * strv= "xwrxwrxwr";
     char res[11];
     memset(res,'-', sizeof(10));
     res[10]='\0';

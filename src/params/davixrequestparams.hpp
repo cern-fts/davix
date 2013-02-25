@@ -24,7 +24,7 @@
 
 namespace Davix {
 
-class RequestParamsInternal;
+struct RequestParamsInternal;
 
 
 

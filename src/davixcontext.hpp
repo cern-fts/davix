@@ -89,7 +89,7 @@ private:
     ContextInternal* _intern;
 
     friend class DavPosix;
-    friend class ContextExplorer;
+    friend struct ContextExplorer;
 };
 
 

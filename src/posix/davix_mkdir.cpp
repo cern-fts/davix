@@ -14,16 +14,15 @@ int DavPosix::mkdir(const RequestParams * _params, const std::string &url, mode_
     int ret=-1;
     DavixError* tmp_err=NULL;
     RequestParams params(_params);
+    HttpRequest req(*context, url, &tmp_err);
 
+    if(tmp_err == NULL){
 
-    std::auto_ptr<HttpRequest> req( static_cast<HttpRequest*>(context->createRequest(url, &tmp_err)));
-    if(req.get() != NULL){
+        req.setParameters(params);
+        req.setRequestMethod("MKCOL");
 
-        req->setParameters(params);
-        req->setRequestMethod("MKCOL");
-
-        if( (ret = req->executeRequest(&tmp_err)) == 0){
-            ret = davixRequestToFileStatus(req.get(), davix_scope_mkdir_str(), &tmp_err);
+        if( (ret = req.executeRequest(&tmp_err)) == 0){
+            ret = davixRequestToFileStatus(&req, davix_scope_mkdir_str(), &tmp_err);
         }
 
         DAVIX_DEBUG(" davix_mkdir <-");

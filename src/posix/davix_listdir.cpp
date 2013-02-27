@@ -11,7 +11,11 @@
 
 static const std::string simple_listing("<propfind xmlns=\"DAV:\"><prop><resourcetype><collection/></resourcetype></prop></propfind>");
 
-static const std::string stat_listing("<propfind xmlns=\"DAV:\"><prop><getlastmodified/><creationdate/><getcontentlength/><resourcetype><collection/></resourcetype><mode/></prop></propfind>");
+static const std::string stat_listing("<?xml version=\"1.0\" encoding=\"utf-8\" ?><D:propfind xmlns:D=\"DAV:\" xmlns:L=\"LCGDM:\"><D:prop>"
+                                      "<D:displayname/><D:getlastmodified/><D:creationdate/><D:getcontentlength/>"
+                                      "<D:resourcetype><D:collection/></D:resourcetype><L:mode/>"
+                                      "</D:prop>"
+                                      "</D:propfind>");
 
 
 struct Davix_dir_handle{

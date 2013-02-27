@@ -31,13 +31,13 @@ ssize_t read_truncated_segment_request(HttpRequest* req, void* buffer, size_t si
 
 
 
-static const dav_size_t get_answer_file_size(const HttpRequest&  req, DavixError**err){
+static const dav_ssize_t get_answer_file_size(const HttpRequest&  req, DavixError**err){
     std::string str_file_size;
-    dav_size_t size=-1;
+    dav_ssize_t size=-1;
     if( req.getAnswerHeader(ans_header_content_length, str_file_size)){
-        size = (dav_size_t) strtoul(str_file_size.c_str(), NULL, 10);
+        size = (dav_ssize_t) strtol(str_file_size.c_str(), NULL, 10);
     }
-    if( size == -1 || size == ULONG_MAX){
+    if( size == -1 || size == (dav_ssize_t) LONG_MAX){
         DavixError::setupError(err, davix_scope_io_buff(), StatusCode::InvalidServerResponse,
                                std::string("Bad server answer: ") + ans_header_content_length + "Invalid ");
         return -1;
@@ -92,10 +92,11 @@ ssize_t read_truncated_segment_request(HttpRequest* req, void* buffer, size_t si
      DavixError* tmp_err=NULL;
      ssize_t ret=0, tmp_ret=0;
      const ssize_t begin_offset = (ssize_t) off_set;
+     const ssize_t ssize_read = size_read;
      char * p_buffer = (char*) buffer;
 
      while(ret < begin_offset && !tmp_err){
-         if( (ret + size_read) < begin_offset) // use buffer like trash for useless content
+         if( (ret + ssize_read) < begin_offset) // use buffer like trash for useless content
             tmp_ret = req->readBlock(p_buffer, size_read, &tmp_err);
          else
             tmp_ret = req->readBlock(p_buffer, begin_offset - ret, &tmp_err);
@@ -268,7 +269,7 @@ int check_multi_part_content_type(const HttpRequest& req, std::string & boudary,
 }
 
 dav_ssize_t parse_multi_part_find_next_part(HttpRequest* req, dav_off_t* off, dav_size_t* size, DavixError** err){
-
+    return -1;
 }
 
 

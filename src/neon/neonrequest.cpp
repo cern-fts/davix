@@ -369,7 +369,7 @@ ssize_t NEONRequest::readBlock(char* buffer, size_t max_size, DavixError** err){
 ssize_t NEONRequest::readLine(char* buffer, size_t max_size, DavixError** err){
     ssize_t read_sum=0, tmp_read_status;
     char c;
-    while( (tmp_read_status= readBlock(&c,1, err)) ==1 && read_sum < max_size){
+    while( (tmp_read_status= readBlock(&c,1, err)) ==1 && read_sum < (ssize_t) max_size){
         if(c == '\n'){
             if( read_sum > 0 && buffer[read_sum-1] == '\r'){ // remove cr
                 buffer[--read_sum] = '\0';

@@ -33,12 +33,12 @@ int dav_stat_mapper_webdav(Context* context, const RequestParams & params, const
     int ret =-1;
 
     DavPropXMLParser parser;
-    std::auto_ptr<HttpRequest> req( context->createRequest(url, err));
     DavixError * tmp_err=NULL;
-    if( req.get() != NULL){
-        req->setParameters(params);
+    HttpRequest req(*context, url, &tmp_err);
+    if( tmp_err == NULL){
+        req.setParameters(params);
 
-        const char * res = req_webdav_propfind(req.get(), &tmp_err);
+        const char * res = req_webdav_propfind(&req, &tmp_err);
         if(!tmp_err){
             if( (ret = parser.parseChuck((const char*) res, strlen(res)) ) < 0){
                 DavixError::propagateError(err, parser.getLastErr());
@@ -63,19 +63,20 @@ int dav_stat_mapper_webdav(Context* context, const RequestParams & params, const
 
 int dav_stat_mapper_http(Context* context, const RequestParams & params, const std::string & url, struct stat* st, DavixError** err){
     int ret = -1;
-    std::auto_ptr<HttpRequest> req( context->createRequest(url, err));
     DavixError * tmp_err=NULL;
-    if( req.get() != NULL){
-        req->setParameters(params);
-        req->setRequestMethod("HEAD");
-        req->executeRequest(&tmp_err);
+    HttpRequest req(*context, url, &tmp_err);
+
+    if( tmp_err == NULL){
+        req.setParameters(params);
+        req.setRequestMethod("HEAD");
+        req.executeRequest(&tmp_err);
 
         if(!tmp_err){
-            if(httpcodeIsValid(req->getRequestCode()) ){
+            if(httpcodeIsValid(req.getRequestCode()) ){
                 memset(st, 0, sizeof(struct stat));
                 std::string content_length;
                 st->st_mode = 0755;
-                if( req->getAnswerHeader("Content-Length", content_length) ){
+                if( req.getAnswerHeader("Content-Length", content_length) ){
                      unsigned long l = strtoul(content_length.c_str(), NULL,10);
                      if(l != ULONG_MAX){
                          st->st_size = l;
@@ -89,7 +90,7 @@ int dav_stat_mapper_http(Context* context, const RequestParams & params, const s
                     DavixError::setupError(&tmp_err, davix_scope_stat_str(), StatusCode::WebDavPropertiesParsingError, " Invalid HEAD content");
                 }
             }else{
-                httpcodeToDavixCode(req->getRequestCode(), davix_scope_stat_str(), url , &tmp_err);
+                httpcodeToDavixCode(req.getRequestCode(), davix_scope_stat_str(), url , &tmp_err);
                 ret = -1;
             }
         }

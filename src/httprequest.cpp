@@ -17,8 +17,15 @@ HttpRequest::HttpRequest(Context & context, const Uri & uri, DavixError** err) :
 
     if(uri.getStatus() != StatusCode::OK){
         DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, "impossible to parse " + uri.getString() + " ,not a valid HTTP or Webdav URL");
-    }else{
+    }
+}
 
+HttpRequest::HttpRequest(Context & context, const std::string & url, DavixError** err) :
+    d_ptr(NULL){
+    Uri uri(url);
+    d_ptr= new NEONRequest(ContextExplorer::SessionFactoryFromContext(context), uri);
+    if(uri.getStatus() != StatusCode::OK){
+        DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, "impossible to parse " + uri.getString() + " ,not a valid HTTP or Webdav URL");
     }
 }
 

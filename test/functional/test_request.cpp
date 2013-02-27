@@ -12,15 +12,15 @@ int main(int argc, char** argv){
     }
 
     DavixError* tmp_err=NULL;
-    std::auto_ptr<AbstractSessionFactory> s( new NEONSessionFactory());
+    Context c;
+    HttpRequest r(c, argv[1], &tmp_err);
 
-    std::auto_ptr<HttpRequest> r(s->create_request(argv[1], &tmp_err));
-    if(r.get() != NULL)
-    r->executeRequest(&tmp_err);
+    if(!tmp_err)
+        r.executeRequest(&tmp_err);
     if(tmp_err){
         std::cerr << " error in request : " << tmp_err->getErrMsg() << std::endl;
     }else{
-        std::string v(r->getAnswerContent(), r->getAnswerSize());
+        std::string v(r.getAnswerContent(), r.getAnswerSize());
         std::cout << "content "<< v << std::endl;
     }
 

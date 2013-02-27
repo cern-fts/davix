@@ -50,11 +50,6 @@ public:
     }
 
 
-    HttpRequest* createRequest(const std::string & uri, DavixError** err);
-
-    HttpRequest* createRequest(const Uri & uri, DavixError** err);
-
-
 
     DAVIX_DIR* internal_opendirpp(const char * scope, const std::string & body, const std::string & url  );
 
@@ -86,16 +81,6 @@ AbstractSessionFactory* ContextInternal::getSessionFactory(){
 
 void ContextInternal::setBufferSize(const size_t value){
     _s_buff = value;
-}
-
-
-
-HttpRequest* ContextInternal::createRequest(const std::string & uri, DavixError** err){
-    return getSessionFactory()->create_request(uri, err);
-}
-
-HttpRequest* ContextInternal::createRequest(const Uri & uri, DavixError** err){
-    return getSessionFactory()->create_request(uri, err);
 }
 
 
@@ -133,12 +118,12 @@ Context* Context::clone(){
 
 
 HttpRequest* Context::createRequest(const std::string & url, DavixError** err){
-    return _intern->createRequest(url, err);
+    return new HttpRequest(*this, Uri(url), err);
 }
 
 
 HttpRequest* Context::createRequest(const Uri &uri, DavixError **err){
-    return _intern->createRequest(uri, err);
+    return new HttpRequest(*this, uri, err);
 }
 
 

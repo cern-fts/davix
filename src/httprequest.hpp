@@ -48,6 +48,7 @@ class DAVIX_EXPORT HttpRequest
 public:
     HttpRequest(NEONRequest* req);
     HttpRequest(Context & context, const Uri & uri, DavixError** err);
+    HttpRequest(Context & context, const std::string & url, DavixError** err);
     virtual ~HttpRequest();
 
     ///  add a optional HTTP header request

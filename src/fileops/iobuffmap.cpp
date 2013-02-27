@@ -40,8 +40,9 @@ static const dav_ssize_t get_answer_file_size(const HttpRequest&  req, DavixErro
     if( size == -1 || size == (dav_ssize_t) LONG_MAX){
         DavixError::setupError(err, davix_scope_io_buff(), StatusCode::InvalidServerResponse,
                                std::string("Bad server answer: ") + ans_header_content_length + "Invalid ");
-        return -1;
+        size = -1;
     }
+    return size;
 }
 
 void setup_offset_request(HttpRequest* req, const off_t *start_len, const size_t *size_read, const size_t number_ops){
@@ -162,7 +163,8 @@ ssize_t HttpIO::readFullBuff(void *buffer, size_t size_read, DavixError **err){
         return 0;
 
     if( _read_req == NULL
-            && (_read_req = _c.createRequest(_uri, &tmp_err)) != NULL){
+            && (_read_req = new HttpRequest(_c,_uri, &tmp_err)) != NULL
+            && tmp_err == NULL ){
         _read_req->setParameters(_params);
         if(_read_req->beginRequest(&tmp_err) ==0
             && (_read_req->getRequestCode() != 200)){
@@ -202,24 +204,24 @@ ssize_t HttpIO::readPartialBuffer(void *buf, size_t count, off_t offset, DavixEr
     if(count ==0)
         return 0;
 
-    std::auto_ptr<HttpRequest> req( _c.createRequest(_uri, &tmp_err));
-    if(req.get() != NULL){
-        req->setParameters(_params);
-        setup_offset_request(req.get(), &offset, &count,1);
-        if(req->beginRequest(&tmp_err) ==0){
-            if(req->getRequestCode() == 416 ){ // out of file, end of file
+    HttpRequest req(_c, _uri, &tmp_err);
+    if(tmp_err == NULL){
+        req.setParameters(_params);
+        setup_offset_request(&req, &offset, &count,1);
+        if(req.beginRequest(&tmp_err) ==0){
+            if(req.getRequestCode() == 416 ){ // out of file, end of file
                 ret = 0; // end of file
             }else{
-                if(req->getRequestCode() == 206 ){ // partial request supported, just read !
-                    ret = read_segment_request(req.get(), buf, count, offset, &tmp_err);
-                }else if( req->getRequestCode() == 200){ // full request content -> skip useless content
-                    ret = read_truncated_segment_request(req.get(), buf, count, offset, &tmp_err);
+                if(req.getRequestCode() == 206 ){ // partial request supported, just read !
+                    ret = read_segment_request(&req, buf, count, offset, &tmp_err);
+                }else if( req.getRequestCode() == 200){ // full request content -> skip useless content
+                    ret = read_truncated_segment_request(&req, buf, count, offset, &tmp_err);
                 }else{
-                    httpcodeToDavixCode(req->getRequestCode(),davix_scope_http_request(),", while  readding", &tmp_err);
+                    httpcodeToDavixCode(req.getRequestCode(),davix_scope_http_request(),", while  readding", &tmp_err);
                 }
             }
         }
-        req->endRequest(NULL);
+        req.endRequest(NULL);
     }
     DAVIX_DEBUG(" end getOps operation for %s <- ",_uri.getString().c_str());
     if(tmp_err)
@@ -304,19 +306,19 @@ dav_ssize_t HttpIO::readPartialBufferVec(const DavIOVecInput * input_vec,
     if(count_vec ==0)
         return 0;
     DAVIX_DEBUG(" -> getPartialVec operation for %d vectors", count_vec);
-    std::auto_ptr<HttpRequest> req (_c.createRequest(_uri, &tmp_err));
-    if(req.get() != NULL){
-        req->setParameters(_params);
-        configure_iovec_range_header(req.get(), input_vec, count_vec);
-        if( req->beginRequest(&tmp_err) >0){
-            if(req->getRequestCode() == 206 ){  // multipart req
-                ret = parse_multipart_request(req.get() , input_vec,
+    HttpRequest req (_c,_uri, &tmp_err);
+    if(tmp_err == NULL){
+        req.setParameters(_params);
+        configure_iovec_range_header(&req, input_vec, count_vec);
+        if( req.beginRequest(&tmp_err) >0){
+            if(req.getRequestCode() == 206 ){  // multipart req
+                ret = parse_multipart_request(&req , input_vec,
                                               output_vec, count_vec, &tmp_err);
-            }else if( req->getRequestCode() == 200){ // full request content , no multi part
+            }else if( req.getRequestCode() == 200){ // full request content , no multi part
                 // TODO
                 return -1;
             }else{ // error
-                httpcodeToDavixCode(req->getRequestCode(),davix_scope_http_request(),", ", &tmp_err);
+                httpcodeToDavixCode(req.getRequestCode(),davix_scope_http_request(),", ", &tmp_err);
             }
         }
     }
@@ -475,21 +477,21 @@ ssize_t HttpIOBuffer::write(const void *buf, size_t count, DavixError **err){
     if(_pos != 0){
         DavixError::setupError(&tmp_err, davix_scope_http_request(), StatusCode::OperationNonSupported, " Multi-part write is not supported by Http !");
     }else{
-        std::auto_ptr<HttpRequest> req( _c.createRequest(_uri, &tmp_err));
-        if(req.get() != NULL){
-            req->setRequestMethod("PUT");
-            req->setParameters(_params);
-            req->setRequestBodyBuffer(buf, count);
-            if(req->beginRequest(&tmp_err) ==0){
-                if(req->getRequestCode() != 200 ||  req->getRequestCode() != 204){ // out of file, end of file
+        HttpRequest req( _c, _uri, &tmp_err);
+        if(tmp_err == NULL){
+            req.setRequestMethod("PUT");
+            req.setParameters(_params);
+            req.setRequestBodyBuffer(buf, count);
+            if(req.beginRequest(&tmp_err) ==0){
+                if(req.getRequestCode() != 200 ||  req.getRequestCode() != 204){ // out of file, end of file
                     ret = count; // end of file
                     _pos += count;
                 }else{
-                    httpcodeToDavixCode(req->getRequestCode(),davix_scope_http_request(),", while  readding", &tmp_err);
+                    httpcodeToDavixCode(req.getRequestCode(),davix_scope_http_request(),", while  readding", &tmp_err);
                     ret = -1;
                 }
             }
-            req->endRequest(NULL);
+            req.endRequest(NULL);
         }
     }
     if(tmp_err)

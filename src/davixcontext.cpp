@@ -21,14 +21,14 @@ namespace Davix{
 struct ContextInternal
 {
 public:
-    ContextInternal(AbstractSessionFactory * fsess);
+    ContextInternal(NEONSessionFactory * fsess);
 
     virtual ~ContextInternal(){}
 
     /**
       implementation of getSessionFactory
     */
-    virtual AbstractSessionFactory* getSessionFactory();
+    virtual NEONSessionFactory* getSessionFactory();
 
 
      virtual void setBufferSize(const size_t value);
@@ -53,7 +53,7 @@ public:
 
     DAVIX_DIR* internal_opendirpp(const char * scope, const std::string & body, const std::string & url  );
 
-    std::auto_ptr<AbstractSessionFactory>  _fsess;
+    std::auto_ptr<NEONSessionFactory>  _fsess;
     size_t _s_buff;
     unsigned long _timeout;
     DppLock l_counter;
@@ -65,7 +65,7 @@ public:
 //////////////////////////////////////////////////////////////
 
 
-ContextInternal::ContextInternal(AbstractSessionFactory* fsess) :
+ContextInternal::ContextInternal(NEONSessionFactory* fsess) :
     _fsess(fsess),
     _s_buff(65536),
     _timeout(300),
@@ -75,7 +75,7 @@ ContextInternal::ContextInternal(AbstractSessionFactory* fsess) :
 }
 
 
-AbstractSessionFactory* ContextInternal::getSessionFactory(){
+NEONSessionFactory* ContextInternal::getSessionFactory(){
     return _fsess.get();
 }
 

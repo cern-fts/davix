@@ -12,7 +12,7 @@ namespace Davix {
 
 class HttpRequest;
 
-class NEONSessionFactory : public AbstractSessionFactory
+class NEONSessionFactory
 {
     friend class NEONRequest;
 public:

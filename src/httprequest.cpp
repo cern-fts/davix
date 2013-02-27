@@ -3,12 +3,23 @@
 #include <ostream>
 
 #include <neon/neonrequest.hpp>
+#include <davix_context_internal.hpp>
 #include "httprequest.hpp"
 
 namespace Davix {
 
 HttpRequest::HttpRequest(NEONRequest* req) : d_ptr(req)
 {
+}
+
+HttpRequest::HttpRequest(Context & context, const Uri & uri, DavixError** err) :
+    d_ptr(new NEONRequest(ContextExplorer::SessionFactoryFromContext(context),uri)){
+
+    if(uri.getStatus() != StatusCode::OK){
+        DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, "impossible to parse " + uri.getString() + " ,not a valid HTTP or Webdav URL");
+    }else{
+
+    }
 }
 
 HttpRequest::~HttpRequest()

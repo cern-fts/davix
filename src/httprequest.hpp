@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <status/davixstatusrequest.hpp>
 #include <params/davixrequestparams.hpp>
+#include <davixuri.hpp>
 
 #ifndef __DAVIX_INSIDE__
 #error "Only davix.h or davix.hpp should be included."
@@ -46,6 +47,7 @@ class DAVIX_EXPORT HttpRequest
 {
 public:
     HttpRequest(NEONRequest* req);
+    HttpRequest(Context & context, const Uri & uri, DavixError** err);
     virtual ~HttpRequest();
 
     ///  add a optional HTTP header request

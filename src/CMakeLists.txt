@@ -25,7 +25,7 @@ LIST(APPEND davix_params_header "params/davixrequestparams.hpp" "params/davixreq
 
 LIST(APPEND davix_auth_header "auth/davixauth.hpp" "auth/davixx509cred.hpp" "auth/davixauth.h" "auth/davixx509cred.h")
 
-LIST(APPEND davix_file_header "file/*.hpp")
+LIST(APPEND davix_file_header "file/davfile.hpp")
 
 
 include_directories("libs" ".")
@@ -134,3 +134,6 @@ install( FILES ${davix_params_header}
 
 install( FILES ${davix_auth_header}
          DESTINATION ${INCLUDE_INSTALL_DIR}/davix/auth)
+
+install( FILES ${davix_file_header}
+         DESTINATION ${INCLUDE_INSTALL_DIR}/davix/file)

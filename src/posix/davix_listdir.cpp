@@ -88,11 +88,10 @@ DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char
     int ret =-1;
     DavixError* tmp_err=NULL;
     RequestParams params(_params);
-
+    HttpRequest* http_req = new HttpRequest(*context, url, &tmp_err);
 
     // create a new connexion + parser for this opendir
-    HttpRequest* http_req = static_cast<HttpRequest*>(context->createRequest(url, &tmp_err));
-    if(http_req){
+    if(tmp_err == NULL){
         configure_req_for_listdir(http_req);
         std::auto_ptr<DIR_handle> res(  new DIR_handle(http_req, new DavPropXMLParser()));
         time_t timestamp_timeout = time(NULL) + _timeout;

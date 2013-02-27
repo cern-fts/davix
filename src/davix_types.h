@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <unistd.h>
 
 /**
   @file davix_types.h

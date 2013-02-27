@@ -34,8 +34,9 @@ No,
  it provides "protocol level" API, you compose your http queries mannually.
 
 - Davix offers a "file level" API. <br/>
- Davix tends to be of one level higher and
- provides a complete API for remote file operations on data and meta-data.
+ With Davix, you access to your data and do not have to care about the underlying queries
+ Davix tends to be of one level higher and provides a complete API for
+ remote I/O and remote file management.
 
 <h2> Examples : </h2>
 
@@ -45,13 +46,13 @@ No,
 
             Davix::DavPosix p;
             p.stat("https://mywebdav-server.org/mydir/", &stat, &tmp_err);
-            ####
-            #### read ops
+            //
+            // read ops
             fd= p.open(NULL, "https://mywebdav-server.org/myfile.jpg", O_RDONLY, &tmp_err);
             p.read(fd, buffer, size, &tmp_err);
             p.pread(fd, buffer, size2, offset, &tmp_err);
-            ####
-            #### directory creation
+            //
+            // directory creation
             p.mkdir(NULL, "https://mywebdav-server.org/mnewdir");
  @endcode
 
@@ -62,8 +63,8 @@ No,
             Davix::HttpRequest req("https://restapi-server.org/rest")
             req.addHeaderField(...)
             req.setRequestMethod("PUT")
-            ###
-            ### execute your request
+            //
+            // execute your request
             req.executeRequest(...);
  @endcode
 
@@ -92,9 +93,14 @@ Davix is going to support soon :
 - Davix Dependencies :
    -  openssl
    -  libxml-2.0
-   -  glib-2.0 ( will be removed )
    -  Doxygen ( optional, for doc generation )
 
+- Davix Portability :
+   - Should run on Windows and any POSIX compatible Operating system
+   - Any contribution to support a new plateform is welcome
+   - Tested on Debian, Ubuntu, Fedora 18/19, Scientific Linux 5/6
+   - Tested on Windows under MinGW
+   - Tested with clang and GCC.
 
 - Compile :
     - " 1.svn export http://svn.cern.ch/guest/lcgdm/davix/trunk davix "
@@ -126,9 +132,9 @@ Davix is going to support soon :
 <h2> Play with davix command line tool : </h2>
     davix has a set of command line tools for testing purpose and demonstration
 
-        -> davix-ls : file listing
+        -> davix-ls: file listing
         -> davix-get: download operations
-        -> davix ( low level Http operations )
+        -> davix: low level query composition
 
 <h2> I wish to see XYZ feature in Davix : </h2>
 

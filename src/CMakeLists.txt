@@ -10,6 +10,7 @@ FILE(GLOB src_davix_status "status/*.cpp")
 FILE(GLOB src_davix_fileops "fileops/*.cpp")
 FILE(GLOB src_davix_params "params/*.cpp")
 FILE(GLOB src_davix_auth "auth/*.cpp")
+FILE(GLOB src_davix_file "file/*.cpp")
 
 LIST(APPEND davix_headers "davix.h" "davix_types.h"  "davixuri.h" "davixcontext.hpp"
             "abstractsessionfactory.hpp" "httprequest.hpp" "davix.hpp" "davixuri.hpp" )
@@ -23,6 +24,8 @@ LIST(APPEND davix_status_header "status/davixstatusrequest.hpp" "status/davix_er
 LIST(APPEND davix_params_header "params/davixrequestparams.hpp" "params/davixrequestparams.h")
 
 LIST(APPEND davix_auth_header "auth/davixauth.hpp" "auth/davixx509cred.hpp" "auth/davixauth.h" "auth/davixx509cred.h")
+
+LIST(APPEND davix_file_header "file/*.hpp")
 
 
 include_directories("libs" ".")
@@ -42,15 +45,16 @@ add_subdirectory(tools)
 add_subdirectory(neon)
 SET(SRC_HTTP ${src_neon})
 
+LIST(APPEND SRC_DAVIX_FULL ${src_davix} ${SRC_HTTP}  ${src_xmlparser} ${src_logger} ${src_datetime}
+                           ${src_lockers} ${src_davix_posix} ${src_davix_status} ${src_davix_fileops}
+                           ${src_davix_params} ${src_davix_auth} ${src_davix_file} ${SRC_STRPTIME} ${SRC_MEMPCPY}
+                           ${SRC_STRLCPY})
 
 
 add_definitions(${HTTPLIB_PKG_CFLAGS} )
 
 if(shared_library)
-add_library(libdavix  SHARED ${src_davix} ${SRC_HTTP}  ${src_xmlparser} ${src_logger} ${src_datetime}
-                           ${src_lockers} ${src_davix_posix} ${src_davix_status} ${src_davix_fileops}
-                           ${src_davix_params} ${src_davix_auth} ${SRC_STRPTIME} ${SRC_MEMPCPY}
-                           ${SRC_STRLCPY})
+add_library(libdavix  SHARED ${SRC_DAVIX_FULL})
 add_dependencies(libdavix neon_static)
 
 
@@ -80,10 +84,7 @@ endif(shared_library)
 
 if(static_library)
 
-add_library(libdavix_static  STATIC ${src_davix} ${SRC_HTTP}  ${src_xmlparser} ${src_logger} ${src_datetime}
-                           ${src_lockers} ${src_davix_posix} ${src_davix_status} ${src_davix_fileops}
-                           ${src_davix_params} ${src_davix_auth} ${SRC_STRPTIME} ${SRC_MEMPCPY}
-                           ${SRC_STRLCPY})
+add_library(libdavix_static  STATIC ${SRC_DAVIX_FULL})
 add_dependencies(libdavix_static neon_static)
 
 

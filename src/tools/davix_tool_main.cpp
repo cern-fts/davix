@@ -66,14 +66,13 @@ int main(int argc, char** argv){
 
     if( (retcode= Tool::parse_davix_options(argc, argv, opts, &tmp_err)) ==0){
         Context c;
-        HttpRequest* req;
         if( (retcode = Tool::setup_credential(opts, &tmp_err)) == 0){
 
-            if( (req = c.createRequest(opts.vec_arg[0], &tmp_err)) != NULL){
-                configure_req(*req, opts);
-                retcode= read_stream(req, stdout, &tmp_err);
+            HttpRequest req(c, opts.vec_arg[0], &tmp_err);
+            if( tmp_err == NULL){
+                configure_req(req, opts);
+                retcode= read_stream(&req, stdout, &tmp_err);
                 fflush(stdout);
-                delete req;
             }else{
                 retcode =-1;
             }

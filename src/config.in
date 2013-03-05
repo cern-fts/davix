@@ -26,16 +26,27 @@
 /// default timeout on operations for HTTP/Webdav ( 0 : def value of the library )
 #define DAVIX_DEFAULT_OPS_TIMEOUT 0
 
+// c++11
+
+#cmakedefine HAVE_CXX011_FULL_SUPPORT 1
+#cmakedefine HAVE_CXX011_PARTIAL_SUPPORT 1
+
+#ifdef __cplusplus
+
+#if (defined HAVE_CXX011_FULL_SUPPORT) || (defined HAVE_CXX011_PARTIAL_SUPPORT)
+#include <array>
+#include <iostream>
+#define stdx11 std;
+#else
+#include <tr1/array>
+#define stdx11 std::tr1;
+#endif
+
+#endif
 
 // default export
 #undef DAVIX_EXPORT
 #define DAVIX_EXPORT
-
-//has malloc
-#cmakedefine HAVE_MALLOC_H 1
-#ifdef HAVE_MALLOC_H
-#include <malloc.h>
-#endif
 
 // has unistd
 #cmakedefine HAVE_UNISTD_H 1

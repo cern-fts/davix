@@ -5,6 +5,8 @@
 #include <string_utils/stringutils.hpp>
 #include <deque>
 #include <functional>
+#include <map>
+
 
 namespace Davix{
 
@@ -51,7 +53,7 @@ ssize_t HttpVecOps::readPartialBufferVec(const DavIOVecInput * input_vec,
                     break;
                 case 200: // classical req, simulate vector ops
                     // TODO
-                    ret = -1;
+                    ret = simulateMultiPartRequest(input_vec, output_vec, count_vec, &tmp_err);
                     break;
                 default:
                     httpcodeToDavixCode(_req.getRequestCode(),davix_scope_http_request(),", ", &tmp_err);
@@ -244,12 +246,10 @@ dav_ssize_t find_next_part(HttpRequest& req, const std::string & boundary,
 
 static bool find_corresponding_part(std::deque<PartPtr> & parts, dav_size_t part_size,
                                        dav_off_t part_off_set, std::deque<PartPtr>::iterator & res, DavixError** err){
-    size_t n=0;
     for(std::deque<PartPtr>::iterator it = parts.begin(); it != parts.end();it++){
         if( (*it).first->diov_offset == part_off_set &&  (*it).first->diov_size == part_size){
            res= it;
-           n++;
-           DAVIX_TRACE(" Match the vec io number %ld", n);
+           DAVIX_TRACE(" Match a vec io chunk offset: %ld size: %ld", part_off_set, part_size);
            return true;
         }
 
@@ -317,6 +317,117 @@ ssize_t HttpVecOps::parseMultipartRequest(const DavIOVecInput *input_vec,
 
     DAVIX_TRACE(" <- Davix multi part parsing");
     return ret;
+}
+
+
+
+struct ElemChunk{
+    ElemChunk(const DavIOVecInput* in, DavIOVecOuput* ou) :
+        _in(in),
+        _ou(ou),
+        _cursor((char*) in->diov_buffer){
+        _ou->diov_size=0; // reset elem read status
+        _ou->diov_buffer = _in->diov_buffer;
+    }
+
+    const DavIOVecInput *_in;
+    DavIOVecOuput * _ou;
+    char *_cursor;
+
+};
+
+typedef std::pair<dav_off_t, ElemChunk> PairChunk;
+
+
+typedef std::multimap<dav_off_t, ElemChunk> MapChunk;
+
+
+// order the chunk by offset
+static void fill_map_chunk(MapChunk & m, const DavIOVecInput *input_vec,
+                                    DavIOVecOuput * output_vec,
+                                    const dav_size_t count_vec){
+
+    for(dav_size_t s = 0; s < count_vec; s++){
+        m.insert(PairChunk(input_vec[s].diov_offset, ElemChunk(&input_vec[s], &output_vec[s])));
+    }
+}
+
+
+static void balance_iterator_windows(MapChunk & m,
+                                     MapChunk::iterator & start, MapChunk::iterator & end,
+                                     dav_ssize_t pos, dav_ssize_t read_size){
+    dav_ssize_t size_part;
+    dav_off_t off_part;
+    for(;start != m.end();){ // move the it to first concerned block
+        size_part = (*start).second._in->diov_size;
+        off_part = (*start).second._in->diov_offset;
+        if(pos > ((dav_ssize_t)off_part) + size_part)
+            start++;
+        else
+            break;
+    }
+
+    const dav_ssize_t end_chunk_pos = pos + read_size;
+    for(;end != m.end();){
+        off_part = (*end).second._in->diov_offset;
+        if(end_chunk_pos > (dav_ssize_t)off_part )
+            end++;
+        else
+            break;
+    }
+
+}
+
+
+static void fill_concerned_chunk_buffer(MapChunk & m,
+                                        MapChunk::iterator & start, MapChunk::iterator & end,
+                                        char* buffer, dav_ssize_t read_size, dav_ssize_t pos){
+
+    for(MapChunk::iterator it = start; it != end; it++){
+        const dav_ssize_t size_part = (*it).second._in->diov_size;
+        const dav_off_t off_part = (*it).second._in->diov_offset;
+        const dav_ssize_t cur_chunk_size = (*it).second._ou->diov_size;
+        const char* p_buff = (char*) (*it).second._ou->diov_buffer;
+
+        const dav_ssize_t current_chunk_offset = ((dav_ssize_t) off_part + cur_chunk_size);
+        const dav_ssize_t read_offset =  current_chunk_offset - pos;
+        const dav_ssize_t s_needed = std::min(size_part - cur_chunk_size, read_size - read_offset);
+        if(s_needed > 0){
+            memcpy((void*) (p_buff + cur_chunk_size), buffer+ read_offset, s_needed);
+            (*it).second._ou->diov_size += s_needed;
+        }
+    }
+}
+
+static dav_ssize_t sum_all_chunk_size(const MapChunk & cmap){
+
+    dav_ssize_t res =0;
+    for(MapChunk::const_iterator it = cmap.begin(); it != cmap.end(); ++it){
+        res += (*it).second._ou->diov_size;
+    }
+    return res;
+}
+
+ssize_t HttpVecOps::simulateMultiPartRequest(const DavIOVecInput *input_vec,
+                                 DavIOVecOuput * output_vec,
+                   const dav_size_t count_vec, DavixError** err){
+    DAVIX_TRACE(" -> Davix vec : 200 full file, simulate vec io");
+    MapChunk cmap;
+    dav_ssize_t total_read_size=0, tmp_read_size;
+    char buffer[DAVIX_READ_BLOCK_SIZE];
+
+    fill_map_chunk(cmap, input_vec, output_vec, count_vec);
+    MapChunk::iterator it_start=cmap.begin(),it_end = cmap.begin();
+    while( (tmp_read_size = _req.readBlock(buffer, DAVIX_READ_BLOCK_SIZE, err)) >0){
+        balance_iterator_windows(cmap, it_start, it_end, total_read_size, tmp_read_size); // re-balance the itnerested windows
+        fill_concerned_chunk_buffer(cmap, it_start, it_end, buffer, tmp_read_size, total_read_size); // fill the interested window
+        total_read_size += tmp_read_size;
+    }
+    if(tmp_read_size < 0)
+        return -1;
+
+    DAVIX_TRACE(" <- Davix vec : 200 full file, simulate vec io");
+    return sum_all_chunk_size(cmap);
 }
 
 

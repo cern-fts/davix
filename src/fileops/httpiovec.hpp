@@ -24,6 +24,10 @@ private:
     ssize_t parseMultipartRequest(const DavIOVecInput *input_vec,
                                                 DavIOVecOuput * output_vec,
                                   const dav_size_t count_vec, DavixError** tmp_err);
+
+    ssize_t simulateMultiPartRequest(const DavIOVecInput *input_vec,
+                                     DavIOVecOuput * output_vec,
+                       const dav_size_t count_vec, DavixError** tmp_err);
 };
 
 

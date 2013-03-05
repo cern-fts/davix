@@ -1,14 +1,18 @@
 #include "neonrequest.hpp"
 
-#include <cstring>
 #include <logger/davix_logger_internal.h>
 #include <libs/time_utils.h>
 #include <ne_redirect.h>
 #include <ne_request.h>
 #include <neon/neonsession.hpp>
+#include <fileops/fileutils.hpp>
 #include <memory>
+#include <sstream>
+#include <cstring>
+#include <climits>
 
 namespace Davix {
+
 
 
 
@@ -418,9 +422,32 @@ const char* NEONRequest::getAnswerContent(){
     return NULL;
 }
 
-size_t NEONRequest::getAnswerSize() const{
-    if(_last_request_flag == 1)
-        return _vec.size()-1;
+
+
+static const ssize_t get_answer_file_size(const NEONRequest&  req){
+    std::string str_file_size;
+    long size=-1;
+    if( req.getAnswerHeader(ans_header_content_length, str_file_size)){
+        size =  strtol(str_file_size.c_str(), NULL, 10);
+    }
+    if( size == -1 || size ==  LONG_MAX){
+       std::ostringstream ss;
+       ss << "Bad server answer: " << ans_header_content_length << "Invalid, impossible to determine answer size ";
+       DAVIX_TRACE("%s", ss.str().c_str());
+       size = -1;
+    }
+    return (ssize_t) size;
+}
+
+
+
+ssize_t NEONRequest::getAnswerSize() const{
+    switch(_last_request_flag){
+        case 1:
+            return _vec.size()-1;
+        default:
+            return get_answer_file_size(*this);
+    }
     return 0;
 }
 

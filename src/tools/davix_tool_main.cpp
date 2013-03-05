@@ -16,7 +16,7 @@ using namespace std;
 #define READ_BLOCK_SIZE 4096
 
 
-
+const std::string scope_main = "Davix::Tools::davix";
 
 
 static void configure_req(HttpRequest& req, Tool::OptParams & opts){
@@ -63,15 +63,17 @@ int main(int argc, char** argv){
     Tool::OptParams opts;
     DavixError* tmp_err=NULL;
     opts.help_msg = help_msg();
+    FILE* fstream;
 
     if( (retcode= Tool::parse_davix_options(argc, argv, opts, &tmp_err)) ==0){
         Context c;
-        if( (retcode = Tool::setup_credential(opts, &tmp_err)) == 0){
+        if( (fstream= Tool::configure_fstream(opts, scope_main, &tmp_err)) != NULL
+            && (retcode = Tool::setup_credential(opts, &tmp_err)) == 0){
 
             HttpRequest req(c, opts.vec_arg[0], &tmp_err);
             if( tmp_err == NULL){
                 configure_req(req, opts);
-                retcode= read_stream(&req, stdout, &tmp_err);
+                retcode= read_stream(&req, fstream, &tmp_err);
                 fflush(stdout);
             }else{
                 retcode =-1;

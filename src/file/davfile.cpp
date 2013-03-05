@@ -1,5 +1,5 @@
 #include "davfile.hpp"
-
+#include <fileops/davmeta.hpp>
 
 namespace Davix{
 
@@ -24,7 +24,7 @@ DavFile::~DavFile(){
 
 
 ssize_t DavFile::getAllReplicas(const RequestParams &params, ReplicaVec &vec, DavixError **err){
-
+    return webdavGetAllReplicas(d_ptr->_c, d_ptr->_u, params, vec, err);
 }
 
 

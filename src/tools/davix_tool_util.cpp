@@ -3,6 +3,7 @@
 #include <string>
 #include <cstring>
 #include <cstdio>
+#include <cerrno>
 #include <simple_getpass/simple_get_pass.h>
 
 namespace Davix{
@@ -24,6 +25,21 @@ int setup_credential(OptParams & opts, DavixError** err){
     opts.params.setClientLoginPasswordCallback(&DavixToolsAuthCallbackLoginPassword, &opts);
     return 0;
 }
+
+FILE* configure_fstream(const Tool::OptParams & opts, const std::string & scope, DavixError** err){
+    if(opts.output_file_path.empty() == false){
+        FILE* f = fopen(opts.output_file_path.c_str(),"w");
+        if(f == NULL){
+            davix_errno_to_davix_error(errno, scope, std::string(" ").append(opts.output_file_path), err);
+            return NULL;
+        }
+
+        return f;
+
+    }
+    return stdout;
+}
+
 
 
 void err_display(DavixError ** err){

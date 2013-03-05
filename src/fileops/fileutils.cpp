@@ -1,6 +1,14 @@
 #include "fileutils.hpp"
+#include <sstream>
 
 namespace Davix {
+
+
+const std::string ans_header_byte_range("Content-range");
+const std::string ans_header_content_range("Content-Type");
+const std::string ans_header_multi_part_value("multipart");
+const std::string ans_header_boundary_field("boundary=");
+const std::string ans_header_content_length("Content-Length");
 
 
 int davixRequestToFileStatus(HttpRequest* req, const std::string & scope, DavixError** err){
@@ -17,6 +25,26 @@ int davixRequestToFileStatus(HttpRequest* req, const std::string & scope, DavixE
         }
     }
     return ret;
+}
+
+
+void setup_offset_request(HttpRequest* req, const off_t *start_len, const size_t *size_read, const size_t number_ops){
+    static const std::string offset_value("bytes=");
+    static const std::string req_header_byte_range("Range");
+    std::ostringstream buffer;
+    buffer << offset_value;
+
+    for(size_t i = 0; i<number_ops; ++i){
+        if( i > 0)
+            buffer << ",";
+
+       if(size_read > 0)
+           buffer << start_len[i] << "-"<< (start_len[i]+size_read[i]-1);
+       else
+            buffer << start_len [i]<< "-";
+     }
+     req->addHeaderField(req_header_byte_range, buffer.str());
+
 }
 
 } // namespace Davix

@@ -4,6 +4,7 @@ namespace Davix {
 
 FileProperties::FileProperties() :
     filename(),
+    raw_reps(),
     req_status(0),
     nlink(0),
     uid(0),

@@ -93,7 +93,7 @@ public:
     /**
      * get content length
      **/
-    size_t getAnswerSize() const;
+    ssize_t getAnswerSize() const;
 
     /**
       clear the current result

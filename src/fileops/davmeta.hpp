@@ -9,7 +9,8 @@ namespace Davix{
 
 
 // get all reps from webdav queries
-ssize_t Webdav_getAllReplicas(const RequestParams & params, ReplicaVec & vec, DavixError** err);
+ssize_t webdavGetAllReplicas(Context & c, const Uri & r,
+                              const RequestParams & params, ReplicaVec & vec, DavixError** err);
 
 } // Davix
 

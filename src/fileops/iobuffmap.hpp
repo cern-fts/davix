@@ -7,6 +7,7 @@
 #include <davixuri.hpp>
 #include <params/davixrequestparams.hpp>
 #include <libs/lockers/dpplocker.hpp>
+#include <fileops/fileutils.hpp>
 
 
 namespace Davix {
@@ -114,6 +115,8 @@ private:
 
 // create a single-ton filestream for cache from
 int get_valid_cache_file(FILE** stream, DavixError** err);
+
+
 
 } // namespace Davix
 

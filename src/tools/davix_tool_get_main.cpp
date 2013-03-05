@@ -53,19 +53,6 @@ static int execute_get(const Tool::OptParams & opts, FILE* fstream, DavixError**
 }
 
 
-static FILE* configure_fstream(const Tool::OptParams & opts , DavixError** err){
-    if(opts.output_file_path.empty() == false){
-        FILE* f = fopen(opts.output_file_path.c_str(),"w");
-        if(f == NULL){
-            davix_errno_to_davix_error(errno, scope_get, std::string(" ").append(opts.output_file_path), err);
-            return NULL;
-        }
-
-        return f;
-
-    }
-    return stdout;
-}
 
 
 int main(int argc, char** argv){
@@ -78,7 +65,7 @@ int main(int argc, char** argv){
     if( (retcode= Tool::parse_davix_get_options(argc, argv, opts, &tmp_err)) ==0
         && (retcode = Tool::setup_credential(opts, &tmp_err)) == 0){
 
-        if( ( fstream = configure_fstream(opts, &tmp_err)) != NULL){
+        if( ( fstream = Tool::configure_fstream(opts, scope_get, &tmp_err)) != NULL){
             retcode = execute_get(opts, fstream, &tmp_err);
             if(fstream != stdout)
                 fclose(fstream);

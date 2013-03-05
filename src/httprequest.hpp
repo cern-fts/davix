@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <unistd.h>
+#include <davix_types.h>
 #include <status/davixstatusrequest.hpp>
 #include <params/davixrequestparams.hpp>
 #include <davixuri.hpp>
@@ -36,6 +37,7 @@ class NEONSessionFactory;
 ///     0 < x <= buflen : buffer contains x bytes of body data.  */
 typedef ssize_t (*HttpBodyProvider)(void *userdata,
                                     char *buffer, size_t buflen);
+
 
 ///
 /// @class HTTPRequest

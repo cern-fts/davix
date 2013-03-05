@@ -156,7 +156,7 @@ int parse_davix_options_generic(const std::string &opt_filter,
 
 
 int parse_davix_options(int argc, char** argv, OptParams & p, DavixError** err){
-    const std::string arg_tool_main= "H:E:X:kV";
+    const std::string arg_tool_main= "H:E:X:o:kV";
     const struct option long_options[] = {
         COMMON_LONG_OPTIONS,
         SECURITY_LONG_OPTIONS,
@@ -212,8 +212,8 @@ const std::string  & get_common_options(){
             "\t--capath CA_path:         Add an additional certificate authority directory\n"
             "\t--cred, -E cred_path:     Client Certificate in PEM format\n"
             "\t--insecure, -k:           Disable SSL credential checks\n"
-            "\t--userlogin:              User login for login/password authentication \n"
-            "\t--userpass:               User password for login/password authentication \n"
+            "\t--userlogin:              User login for login/password authentication\n"
+            "\t--userpass:               User password for login/password authentication\n"
 
             );
     return s;

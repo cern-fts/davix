@@ -21,6 +21,8 @@
 
 #include "config.h"
 
+#pragma GCC diagnostic ignored "-Wpointer-sign"
+
 #ifdef HAVE_STDLIB_H
 #include <stdlib.h>
 #endif

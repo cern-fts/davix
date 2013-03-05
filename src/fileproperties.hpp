@@ -3,15 +3,19 @@
 
 #include <config.h>
 #include <string>
- 
+#include <vector>
 
 
 namespace Davix {
+
+
+typedef std::vector<std::string> RawReplicasVec;
 
 struct FileProperties
 {
     FileProperties();
     std::string filename;
+    RawReplicasVec raw_reps;
     unsigned int  req_status; /* status code of the request associated ( ex: http 200) */
 
     nlink_t   nlink;

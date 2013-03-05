@@ -9,7 +9,6 @@
 
 
 #include "davixcontext.hpp"
-#include "abstractsessionfactory.hpp"
 #include "httprequest.hpp"
 #include <xml/davpropxmlparser.hpp>
 #include <posix/davposix.hpp>

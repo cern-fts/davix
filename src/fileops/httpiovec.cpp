@@ -2,6 +2,7 @@
 #include "httpiovec.hpp"
 #include <cstring>
 #include <logger/davix_logger_internal.h>
+#include <string_utils/stringutils.hpp>
 #include <deque>
 #include <functional>
 
@@ -76,7 +77,7 @@ int check_multi_part_content_type(const HttpRequest& req, std::string & boudary,
     size_t pos_bound;
     std::string buffer;
 
-    if( req.getAnswerHeader(ans_header_content_range, buffer) == true // has content type
+    if( req.getAnswerHeader(ans_header_content_type, buffer) == true // has content type
            && ( strncmp(buffer.c_str(), ans_header_multi_part_value.c_str(), ans_header_multi_part_value.size()) == 0) // has multipart
            && ( ( pos_bound= buffer.find(ans_header_boundary_field)) != std::string::npos)){
           char* p, *origin_p;
@@ -124,25 +125,47 @@ inline char* header_delimiter(char* buffer, DavixError** err){
 
 // analyze header and try to find size of the part
 // return 0 -> not a content length header, return -1 : not a header or error, return 1 : success
-int find_header_params(char* buffer, dav_size_t* part_size, DavixError** err){
-  /*  char * p = header_delimiter(buffer, err);
+int find_header_params(char* buffer, dav_size_t* part_size, dav_off_t* part_offset){
+    static const std::string delimiter(" bytes-/\t");
+    char * p = header_delimiter(buffer, NULL);
     if(p == NULL)
         return -1;
     std::string header_type(buffer, p - buffer);
-    if(ans_header_content_length.compare(0, p - buffer, buffer) !=0)
+    if( string_compare_ncase(ans_header_byte_range, 0, p - buffer, buffer) !=0) // check header type
         return 0;
-    p++;
-    while( (*p == ' ' || *p == '\t') && *p != '\0' )
-        p++;
 
-    long chunk_size = strtol(p, NULL, 10);
-    if(chunk_size == LONG_MAX || chunk_size <= 0)
+    std::vector<std::string> tokens = stringTokSplit(std::string(p+1),delimiter);     // parse header
+    if(tokens.size() != 3)
         return -1;
-    *part_size = chunk_size;*/
+
+    long chunk_size[2];
+    for(int i =0; i <2;++i){
+        chunk_size[i]= strtol(tokens[i].c_str(), &p, 10);
+        if(chunk_size[i] == LONG_MAX || chunk_size[i] <= 0 || *p != '\0'){
+            errno =0;
+            return -1;
+        }
+    }
+    if(chunk_size[1] < chunk_size[0])
+        return -1;
+
+    *part_offset= chunk_size[0];
+    *part_size =  chunk_size[1]-chunk_size[0]+1;
     return 1;
 }
 
-
+dav_ssize_t find_end_header_multi_part(HttpRequest& req, const std::string & boundary,
+                                       dav_ssize_t current_offset,
+                                       const dav_ssize_t request_size,
+                                       DavixError** err){
+    char buffer[DAVIX_READ_BLOCK_SIZE];
+    dav_ssize_t tmp_read_size =0;
+    while((tmp_read_size = req.readLine(buffer, DAVIX_READ_BLOCK_SIZE, err)) > 0
+          && (current_offset += tmp_read_size) < request_size);
+    if(tmp_read_size == 0) // CRLF FOUND !
+        return current_offset;
+    return -1;
+}
 
 dav_ssize_t find_and_analyze_multi_part_headers(HttpRequest& req, const std::string & boundary,
                                                 dav_ssize_t current_offset,
@@ -155,7 +178,17 @@ dav_ssize_t find_and_analyze_multi_part_headers(HttpRequest& req, const std::str
 
     while((tmp_read_size = req.readLine(buffer, DAVIX_READ_BLOCK_SIZE, err)) > 0
           && (current_offset += tmp_read_size) < request_size){
+            int res = find_header_params(buffer, part_size,part_offset);
+            switch(res){
+                case 0:
+                    break;
+                case 1:
 
+                    break;
+                default:
+                    HttpIoVecSetupErrorMultiPart (err);
+                    return -1;
+            }
 
     }
     HttpIoVecSetupErrorMultiPart(err);
@@ -219,7 +252,7 @@ ssize_t HttpVecOps::parseMultipartRequest(const DavIOVecInput *input_vec,
 
         }
     }
-
+    return -1;
 }
 
 

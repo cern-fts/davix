@@ -27,6 +27,8 @@ private:
 };
 
 
+int find_header_params(char* buffer, dav_size_t* part_size, dav_off_t* part_offset);
+
 } // Davix
 
 #endif // HTTPIOVEC_HPP

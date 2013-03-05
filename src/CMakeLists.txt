@@ -48,7 +48,7 @@ SET(SRC_HTTP ${src_neon})
 LIST(APPEND SRC_DAVIX_FULL ${src_davix} ${SRC_HTTP}  ${src_xmlparser} ${src_logger} ${src_datetime}
                            ${src_lockers} ${src_davix_posix} ${src_davix_status} ${src_davix_fileops}
                            ${src_davix_params} ${src_davix_auth} ${src_davix_file} ${SRC_STRPTIME} ${SRC_MEMPCPY}
-                           ${SRC_STRLCPY})
+                           ${SRC_STRLCPY} ${SRC_STRING_UTILS_CPP})
 
 
 add_definitions(${HTTPLIB_PKG_CFLAGS} )

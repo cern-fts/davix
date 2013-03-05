@@ -24,6 +24,8 @@ ENDIF(NOT HAVE_STRLCPY_H)
 
 
 SET(SRC_SIMPLE_GET_PASS "${CMAKE_CURRENT_SOURCE_DIR}/simple_getpass/simple_get_pass.cpp" PARENT_SCOPE)
+SET(SRC_STRING_UTILS_CPP "${CMAKE_CURRENT_SOURCE_DIR}/string_utils/stringutils.cpp" PARENT_SCOPE)
+
 
 add_subdirectory(libneon)
 

@@ -4,8 +4,8 @@
 namespace Davix {
 
 
-const std::string ans_header_byte_range("Content-range");
-const std::string ans_header_content_range("Content-Type");
+const std::string ans_header_byte_range("Content-Range");
+const std::string ans_header_content_type("Content-Type");
 const std::string ans_header_multi_part_value("multipart");
 const std::string ans_header_boundary_field("boundary=");
 const std::string ans_header_content_length("Content-Length");

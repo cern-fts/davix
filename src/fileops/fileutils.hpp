@@ -6,7 +6,7 @@
 namespace Davix {
 
 extern const std::string ans_header_byte_range;
-extern const std::string ans_header_content_range;
+extern const std::string ans_header_content_type;
 extern const std::string ans_header_multi_part_value;
 extern const std::string ans_header_boundary_field;
 extern const std::string ans_header_content_length;

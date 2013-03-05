@@ -20,7 +20,7 @@ int mycred_auth_callback_x509(void* userdata, const SessionInfo & info, X509Cred
     Davix::DavixError* tmp_err= NULL;
 
     std::string path((char*) userdata);
-    int ret = cred->loadFromFileP12(path, "", &tmp_err);
+    int ret = cred->loadFromFileP12( path, "", &tmp_err);
 
     if(ret != 0){
         fprintf(stderr, " FATAL authentification Error : %s", tmp_err->getErrMsg().c_str());

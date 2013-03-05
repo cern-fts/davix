@@ -1,11 +1,13 @@
 #include <config.h>
+#include "iobuffmap.hpp"
 
 #include <davix_types.h>
 #include <httprequest.hpp>
 #include <posix/davposix.hpp>
 #include <logger/davix_logger_internal.h>
 #include <http_util/http_util.hpp>
-#include "iobuffmap.hpp"
+#include <fileops/httpiovec.hpp>
+
 
 #include <sstream>
 #include <string>
@@ -211,7 +213,9 @@ dav_ssize_t HttpIO::readPartialBufferVec(const DavIOVecInput * input_vec,
     HttpRequest req (_c,_uri, &tmp_err);
     if(tmp_err == NULL){
         req.setParameters(_params);
+        HttpVecOps vec(req);
 
+        ret = vec.readPartialBufferVec(input_vec, output_vec, count_vec, err);
     }
 
 

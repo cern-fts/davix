@@ -29,6 +29,11 @@ private:
 
 int find_header_params(char* buffer, dav_size_t* part_size, dav_off_t* part_offset);
 
+int http_extract_boundary_from_content_type(const std::string & buffer, std::string & boundary, DavixError** err);
+
+bool is_a_start_boundary_part(char* buffer, size_t s_buff, const std::string & boundary,
+                            DavixError** err);
+
 } // Davix
 
 #endif // HTTPIOVEC_HPP

@@ -24,10 +24,14 @@ set( src_test_auto_rmdir_unlink_delete "test_auto_rmdir_unlink_delete.cpp")
 set( src_test_valid_read_generic_simple "test_valid_read_generic_simple.cpp")
 set( src_test_valid_write_read_generic_simple "test_valid_write_read_generic_simple.cpp")
 set( src_test_valid_write_read_vector_simple "test_valid_write_read_vector_simple.cpp")
-
+set( src_tool_read_vector_simple "tool_read_vector_simple.cpp")
 
 add_executable(test_request ${src_test_req} )
 target_link_libraries(test_request davix ${GLIB2_PKG_LIBRARIES} )
+
+add_executable(tool_read_vector_simple ${src_tool_read_vector_simple} ${src_davix_test_lib})
+target_link_libraries(tool_read_vector_simple davix )
+
 
 
 add_executable(test_prop ${src_test_prop} ${src_davix_test_lib} )

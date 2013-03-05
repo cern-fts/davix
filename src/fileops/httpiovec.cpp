@@ -40,8 +40,9 @@ ssize_t HttpVecOps::readPartialBufferVec(const DavIOVecInput * input_vec,
                           const dav_size_t count_vec, DavixError** err){
        ssize_t ret;
        DavixError* tmp_err=NULL;
+       DAVIX_TRACE(" -> Davix Vector operation");
        configure_iovec_range_header(_req, input_vec, count_vec);
-       if( _req.beginRequest(&tmp_err) >0){
+       if( _req.beginRequest(&tmp_err)  == 0){
            const int retcode = _req.getRequestCode();
            switch(retcode){
                 case 206: // multipart req
@@ -59,6 +60,7 @@ ssize_t HttpVecOps::readPartialBufferVec(const DavIOVecInput * input_vec,
        }
        if(tmp_err)
            DavixError::propagateError(err, tmp_err);
+       DAVIX_TRACE(" <- Davix Vector operation");
        return ret;
 }
 
@@ -71,26 +73,31 @@ inline bool isValidBoundaryChar(const char* p){
 }
 
 
-
-int check_multi_part_content_type(const HttpRequest& req, std::string & boudary, DavixError** err){
-
+int http_extract_boundary_from_content_type(const std::string & buffer, std::string & boundary, DavixError** err){
     size_t pos_bound;
+    static const std::string delimiter = "\";";
+    if( (pos_bound= buffer.find(ans_header_boundary_field)) != std::string::npos){
+        std::vector<std::string> tokens = stringTokSplit(buffer.substr(pos_bound + ans_header_boundary_field.size()), delimiter);
+        if( tokens.size() >= 1
+            && tokens[0].size() > 0
+            && tokens[0].size() <= 70){
+            DAVIX_TRACE("Multi part content type : %s", boundary.c_str());
+            std::swap(boundary,tokens[0]);
+            return 0;
+        }
+    }
+    HttpIoVecSetupErrorMultiPart(err);
+    return -1;
+}
+
+
+int check_multi_part_content_type(const HttpRequest& req, std::string & boundary, DavixError** err){
+
     std::string buffer;
 
     if( req.getAnswerHeader(ans_header_content_type, buffer) == true // has content type
-           && ( strncmp(buffer.c_str(), ans_header_multi_part_value.c_str(), ans_header_multi_part_value.size()) == 0) // has multipart
-           && ( ( pos_bound= buffer.find(ans_header_boundary_field)) != std::string::npos)){
-          char* p, *origin_p;
-          origin_p = p = (char*) buffer.c_str() + pos_bound;
-          if(*p == '"')
-              ++p;
-          while( isValidBoundaryChar(p))
-              ++p;
-          if( p != origin_p ){
-              DAVIX_TRACE("Multi part content type : %s", boudary.c_str());
-              boudary.assign(buffer.c_str(), p - buffer.c_str());
-              return 0;
-          }
+           && http_extract_boundary_from_content_type(buffer, boundary, err) == 0){
+          return 0;
     }
     HttpIoVecSetupErrorMultiPart(err);
     return -1;
@@ -102,7 +109,7 @@ bool is_a_start_boundary_part(char* buffer, size_t s_buff, const std::string & b
     if(s_buff > 3){
         char * p = buffer;
         if( *p == '-' && *(p+1)== '-'){
-            if( strcmp(buffer, boundary.c_str()) ==0){
+            if( strcmp(buffer+2, boundary.c_str()) ==0){
                 return true;
             }
         }
@@ -141,7 +148,7 @@ int find_header_params(char* buffer, dav_size_t* part_size, dav_off_t* part_offs
     long chunk_size[2];
     for(int i =0; i <2;++i){
         chunk_size[i]= strtol(tokens[i].c_str(), &p, 10);
-        if(chunk_size[i] == LONG_MAX || chunk_size[i] <= 0 || *p != '\0'){
+        if(chunk_size[i] == LONG_MAX || chunk_size[i] < 0 || *p != '\0'){
             errno =0;
             return -1;
         }
@@ -205,12 +212,20 @@ dav_ssize_t find_next_part(HttpRequest& req, const std::string & boundary,
                                     dav_size_t* part_size,
                                     dav_off_t* part_offset, DavixError** err){
     dav_ssize_t tmp_read_size =0;
+    int n_try =0;
     char buffer[DAVIX_READ_BLOCK_SIZE+1];
     buffer[DAVIX_READ_BLOCK_SIZE]= '\0';
 
-    // read first line, check and try to find boundary pattern
-    if( (tmp_read_size = req.readLine(buffer, DAVIX_READ_BLOCK_SIZE, err)) <0 )
+    // read first line, check and try to find boundary pattern, ignore some empty line if present
+    while(n_try++ < 10 && tmp_read_size ==0){
+        if( (tmp_read_size = req.readLine(buffer, DAVIX_READ_BLOCK_SIZE, err)) <0 )
+            return -1;
+    }
+    if(n_try >= 10){
+        HttpIoVecSetupErrorMultiPart(err);
         return -1;
+    }
+
 
     current_offset +=tmp_read_size;
 
@@ -229,9 +244,12 @@ dav_ssize_t find_next_part(HttpRequest& req, const std::string & boundary,
 
 static bool find_corresponding_part(std::deque<PartPtr> & parts, dav_size_t part_size,
                                        dav_off_t part_off_set, std::deque<PartPtr>::iterator & res, DavixError** err){
+    size_t n=0;
     for(std::deque<PartPtr>::iterator it = parts.begin(); it != parts.end();it++){
         if( (*it).first->diov_offset == part_off_set &&  (*it).first->diov_size == part_size){
            res= it;
+           n++;
+           DAVIX_TRACE(" Match the vec io number %ld", n);
            return true;
         }
 
@@ -264,6 +282,7 @@ ssize_t HttpVecOps::parseMultipartRequest(const DavIOVecInput *input_vec,
     dav_ssize_t file_size;
     dav_ssize_t current_offset=0;
     ssize_t ret = 0;
+    DAVIX_TRACE(" -> Davix multi part parsing");
 
     if(( file_size = _req.getAnswerSize() )== -1
           || check_multi_part_content_type(_req, boundary, err)  != 0 ){
@@ -276,7 +295,7 @@ ssize_t HttpVecOps::parseMultipartRequest(const DavIOVecInput *input_vec,
     for(dav_size_t i =0; i < count_vec; ++i)
         parts.push_back(PartPtr(input_vec+i, output_vec+i));
 
-    while(ret == 0 && parts.size() > 0){
+    while(ret >= 0 && parts.size() > 0){
         dav_size_t part_size;
         dav_off_t part_off_set;
         ssize_t tmp_ret;
@@ -295,6 +314,8 @@ ssize_t HttpVecOps::parseMultipartRequest(const DavIOVecInput *input_vec,
         ret += tmp_ret;
         parts.erase(part);
     }
+
+    DAVIX_TRACE(" <- Davix multi part parsing");
     return ret;
 }
 

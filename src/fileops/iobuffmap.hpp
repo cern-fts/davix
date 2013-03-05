@@ -117,6 +117,8 @@ private:
 int get_valid_cache_file(FILE** stream, DavixError** err);
 
 
+ssize_t read_segment_request(HttpRequest* req, void* buffer, size_t size_read,  off_t off_set, DavixError**err);
+
 
 } // namespace Davix
 

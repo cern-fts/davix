@@ -183,7 +183,10 @@ dav_ssize_t find_and_analyze_multi_part_headers(HttpRequest& req, const std::str
                 case 0:
                     break;
                 case 1:
-
+                    return find_end_header_multi_part(req, boundary,
+                                                          current_offset,
+                                                          request_size,
+                                                           err);
                     break;
                 default:
                     HttpIoVecSetupErrorMultiPart (err);
@@ -224,6 +227,35 @@ dav_ssize_t find_next_part(HttpRequest& req, const std::string & boundary,
 }
 
 
+static bool find_corresponding_part(std::deque<PartPtr> & parts, dav_size_t part_size,
+                                       dav_off_t part_off_set, std::deque<PartPtr>::iterator & res, DavixError** err){
+    for(std::deque<PartPtr>::iterator it = parts.begin(); it != parts.end();it++){
+        if( (*it).first->diov_offset == part_off_set &&  (*it).first->diov_size == part_size){
+           res= it;
+           return true;
+        }
+
+    }
+    HttpIoVecSetupErrorMultiPart(err);
+    return false;
+}
+
+
+ssize_t copy_and_configure(HttpRequest & req, std::deque<PartPtr>::iterator & it, DavixError** err){
+    const DavIOVecInput* i = (*it).first;
+    DavIOVecOuput* o = (*it).second;
+    DavixError* tmp_err=NULL;
+    ssize_t ret;
+    if( ( ret = read_segment_request(&req, i->diov_buffer, i->diov_size,  0, &tmp_err)) >0){
+        o->diov_buffer = i->diov_buffer;
+        o->diov_size = ret;
+    }
+    if(tmp_err){
+        // TODO : change error scope
+        DavixError::propagateError(err, tmp_err);
+    }
+    return ret;
+}
 
 ssize_t HttpVecOps::parseMultipartRequest(const DavIOVecInput *input_vec,
                                             DavIOVecOuput * output_vec,
@@ -247,116 +279,25 @@ ssize_t HttpVecOps::parseMultipartRequest(const DavIOVecInput *input_vec,
     while(ret == 0 && parts.size() > 0){
         dav_size_t part_size;
         dav_off_t part_off_set;
+        ssize_t tmp_ret;
 
         if( ( current_offset = find_next_part(_req, boundary, current_offset, file_size, &part_size, &part_off_set, err)) < 0){
-
+            return -1;
         }
-    }
-    return -1;
-}
 
-
-
-
-
-/*
-
-
-
-
-
-
-
-
-
-dav_ssize_t analyze_multi_part_header(MultiPartPartInfo & mpa, Multipart_analyzer a, DavixError** err){
-    char* p = strchr(mpa.buffer,':');
-    if(p != NULL){
-        if(strncasecmp(ans_header_byte_range, mpa.buffer, ans_header_byte_range.size()) ==0){
-
-            return analyze_skip_header(mpa, analyze_skip_header, err);
+        std::deque<PartPtr>::iterator part;
+        if( find_corresponding_part(parts, part_size, part_off_set, part, err) == false){
+            return -1;
         }
-        return parse_multi_part_find_next_part(mpa, &analyze_multi_part_header, err);
+
+        if( (tmp_ret = copy_and_configure(_req, part, err)) < 0)
+            return -1;
+        ret += tmp_ret;
+        parts.erase(part);
     }
-    DavixError::setupError(err, davix_scope_io_buff(), StatusCode::InvalidServerResponse,
-                           "invalid multi part header field");
-    return -1;
+    return ret;
 }
 
-
-
-dav_ssize_t analyze_multi_part_boundary(MultiPartPartInfo & mpa, Multipart_analyzer a, DavixError** err){
-    char* p = mpa.buffer;
-    while( (p == ' ' || p == '\t'
-           || p == '-')
-           && p < mpa.buffer + DAVIX_READ_BLOCK_SIZE)
-        p++;
-    if(strcmp(p, mpa.boundary.c_str()) ==0)
-        return parse_multi_part_find_next_part(mpa, analyze_multi_part_header, err);
-
-    DavixError::setupError(err, davix_scope_io_buff(), StatusCode::InvalidServerResponse,
-                           "invalid boundary field");
-    return -1;
-}
-
-
-dav_ssize_t analyze_skip_header(MultiPartPartInfo & mpa, Multipart_analyzer a, DavixError** err){
-    dav_ssize_t tmp_read_size;
-
-   if( (tmp_read_size = mpa.req->readLine(mpa.buffer, DAVIX_READ_BLOCK_SIZE, err)) <0 )
-       return -1;
-
-   mpa.read_number_bytes+= tmp_read_size;
-   if(tmp_read_size == DAVIX_READ_BLOCK_SIZE || mpa.read_number_bytes >= mpa.max_size
-           || mpa.n_trial++ > mpa.max_trial_number){
-       DavixError::setupError(err, davix_scope_io_buff(), StatusCode::InvalidServerResponse,
-                              "Corrupted multi part content");
-       return -1;
-   }
-
-   if(tmp_read_size == 0) //CRLF -> content start
-       return mpa.read_number_bytes;
-   return a(mpa, NULL, err);
-}
-
-
-
-dav_ssize_t skip_crlf(MultiPartPartInfo & mpa, char* buffer, size_t s_buff, Multipart_analyzer* a, DavixError** err){
-    if(s_buff != 0 || a == NULL){
-        DavixError::setupError(err, davix_scope_io_buff(), StatusCode::InvalidServerResponse,
-                               "No");
-        return -1;
-    }
-}
-
-dav_ssize_t analyse_get_line_content(MultiPartPartInfo & mpa, char* buffer, size_t s_buff, Multipart_analyzer* a, DavixError** err){
-    dav_ssize_t tmp_read_size;
-
-    char buffer[DAVIX_READ_BLOCK_SIZE];
-
-    // read a line and trigger next analyzer
-   if( (tmp_read_size = mpa.req->readLine(buffer, DAVIX_READ_BLOCK_SIZE, err)) <0 )
-       return -1;
-
-    mpa.read_number_bytes+= tmp_read_size;
-    if(tmp_read_size == DAVIX_READ_BLOCK_SIZE || mpa.read_number_bytes >= mpa.max_size
-            || mpa.n_trial++ > mpa.max_trial_number || a == NULL){
-        DavixError::setupError(err, davix_scope_io_buff(), StatusCode::InvalidServerResponse,
-                               "Corrupted multi part content");
-        return -1;
-    }
-
-    return *a(mpa, buffer, tmp_read_size, a+1, err);
-}
-
-
-
-
-
-
-
-
-}*/
 
 
 } // Davix

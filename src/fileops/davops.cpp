@@ -32,8 +32,9 @@ WebdavQuery::WebdavQuery(Context &c) :
 
 
 
-int WebdavQuery::davDelete(const RequestParams &params, const Uri &uri, DavixError **err){
-    return DavOpsDelete(_c, params, uri, err);
+int WebdavQuery::davDelete(const RequestParams * params, const Uri &uri, DavixError **err){
+    RequestParams _params(params);
+    return DavOpsDelete(_c, _params, uri, err);
 }
 
 

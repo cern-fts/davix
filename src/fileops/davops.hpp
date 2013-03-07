@@ -16,7 +16,7 @@ public:
     WebdavQuery(Context & c);
 
 
-    int davDelete(const RequestParams & params, const Uri & uri, DavixError** err);
+    int davDelete(const RequestParams * params, const Uri & uri, DavixError** err);
 
 private:
     WebdavQuery(const WebdavQuery &);

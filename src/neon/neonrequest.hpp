@@ -9,6 +9,7 @@
 #include <ne_request.h>
 #include <ne_auth.h>
 #include <neon/neonsessionfactory.hpp>
+#include <memory/memoryutils.hpp>
 
  
 #include <httprequest.hpp>
@@ -116,7 +117,7 @@ protected:
     // request parameters
     RequestParams params;
     // neon internal field
-    std::auto_ptr<NEONSession> _neon_sess;
+    ScopedPtr<NEONSession>::type _neon_sess;
 
     ne_request * _req;
     Uri  _current, _orig;

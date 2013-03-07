@@ -4,12 +4,13 @@
 #include <davix_types.h>
 #include <posix/davposix.hpp>
 #include <fileops/iobuffmap.hpp>
+#include <memory/memoryutils.hpp>
 
 
 struct Davix_fd{
 
     Davix_fd(Davix::HttpIOBuffer * buff) : io_handler(buff){}
-    std::auto_ptr<Davix::HttpIOBuffer> io_handler;
+    ScopedPtr<Davix::HttpIOBuffer>::type io_handler;
 };
 
 namespace Davix{

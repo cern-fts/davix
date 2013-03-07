@@ -8,6 +8,7 @@
 #include <posix/davix_stat.hpp>
 #include <status/davixstatusrequest.hpp>
 #include <fileops/fileutils.hpp>
+#include <memory/memoryutils.hpp>
 
 static const std::string simple_listing("<propfind xmlns=\"DAV:\"><prop><resourcetype><collection/></resourcetype></prop></propfind>");
 
@@ -93,7 +94,7 @@ DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char
     // create a new connexion + parser for this opendir
     if(tmp_err == NULL){
         configure_req_for_listdir(http_req);
-        std::auto_ptr<DIR_handle> res(  new DIR_handle(http_req, new DavPropXMLParser()));
+        ScopedPtr<DIR_handle>::type res(  new DIR_handle(http_req, new DavPropXMLParser()));
         time_t timestamp_timeout = time(NULL) + _timeout;
 
         http_req->setParameters(params);

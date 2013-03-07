@@ -3,6 +3,7 @@
 #include <davixuri.hpp>
 #include <neon/neonsessionfactory.hpp>
 #include <davix_context_internal.hpp>
+#include <memory/memoryutils.hpp>
 
 
 /**
@@ -52,7 +53,7 @@ public:
 
     DAVIX_DIR* internal_opendirpp(const char * scope, const std::string & body, const std::string & url  );
 
-    std::auto_ptr<NEONSessionFactory>  _fsess;
+    ScopedPtr<NEONSessionFactory>::type  _fsess;
     size_t _s_buff;
     unsigned long _timeout;
     DppLock l_counter;

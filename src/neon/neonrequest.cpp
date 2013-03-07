@@ -96,7 +96,7 @@ void neon_simple_req_code_to_davix_code(int ne_status, ne_session* sess, const s
 
 NEONRequest::NEONRequest(NEONSessionFactory& f, const Uri & uri_req) :
     params(),
-    _neon_sess(NULL),
+    _neon_sess(),
     _req(NULL),
     _current(uri_req),
     _orig(uri_req),
@@ -142,7 +142,7 @@ int NEONRequest::create_req(DavixError** err){
 
 int NEONRequest::pick_sess(DavixError** err){
     DavixError * tmp_err=NULL;
-    _neon_sess = std::auto_ptr<NEONSession>(new NEONSession(_f, _current, params, &tmp_err) );
+    _neon_sess.reset(new NEONSession(_f, _current, params, &tmp_err) );
     if(tmp_err){
         _neon_sess.reset(NULL);
         DavixError::propagateError(err, tmp_err);

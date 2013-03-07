@@ -1,6 +1,7 @@
 #ifndef MEMORYUTILS_HPP
 #define MEMORYUTILS_HPP
 
+#include <config.h>
 #include <memory>
 
 

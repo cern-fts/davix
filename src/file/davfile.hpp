@@ -3,7 +3,9 @@
 
 #include <davixcontext.hpp>
 #include <params/davixrequestparams.hpp>
+#include <posix/davposix.hpp>
 #include <davix_types.h>
+
 
 
 #ifndef __DAVIX_INSIDE__
@@ -33,8 +35,25 @@ public:
     /// @param vec : Replica vector
     /// @param err : DavixError error report
     /// @return  the number of replicas if found, -1 if error.
-    ssize_t getAllReplicas(const RequestParams & params, ReplicaVec & vec, DavixError** err);
+    dav_ssize_t getAllReplicas(const RequestParams* params, ReplicaVec & vec, DavixError** err);
 
+    ///
+    ///  @brief Vector read operation
+    ///        Allow to do several read several data chunk in one single operation
+    ///        Use Http multi-part when supported by the server,
+    ///        simulate a vector read operation in the other case
+    ///
+    ///  @param fd : davix file descriptor
+    ///  @param input_vec : input vectors, parameters
+    ///  @param output_vec : output vectors, results
+    ///  @param count_vec : number of vector struct
+    ///  @param err: Davix Error report
+    ///  @return total number of bytes read, or -1 if error occures
+    ///
+    dav_ssize_t readPartialBufferVec(const RequestParams* params,
+                          const DavIOVecInput * input_vec,
+                          DavIOVecOuput * ioutput_vec,
+                          const dav_size_t count_vec, DavixError** err);
 private:
     DavFileInternal* d_ptr;
     DavFile(const DavFile & f);

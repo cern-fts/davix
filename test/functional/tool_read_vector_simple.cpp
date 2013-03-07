@@ -47,7 +47,7 @@ int main(int argc, char** argv){
     DavIOVecInput in[vec];
     DavIOVecOuput out[vec];
     char buffer[vec][s_buff];
-    dav_size_t s[] = { 100, 5, 20, 12 ,15 ,60, 90, 1, 88, 10};
+    dav_size_t s[] = { 10000, 5, 20, 12 ,15 ,60, 90, 1, 88, 10};
     dav_off_t off[] = { 10, 20, 2, 10 ,800 ,600, 523, 1, 0, 100};
 
     for(size_t i = 0; i < vec; ++i){

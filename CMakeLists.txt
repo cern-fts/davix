@@ -59,7 +59,7 @@ add_definitions( -D_GNU_SOURCE)
 add_definitions( -DNEON_BACKEND)
 add_definitions( -D__DAVIX_INSIDE__)
 add_definitions( -DDAVIX_VERSION="${VERSION_STRING}" )
-add_definitions( ${CXX11_FLAG_ENABLE})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_FLAG_ENABLE}")
 
 include_directories( ${HTTPLIB_PKG_INCLUDE_DIRS} ${GLIB2_PKG_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/deps)
 

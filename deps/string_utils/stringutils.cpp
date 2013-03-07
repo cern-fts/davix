@@ -13,12 +13,22 @@ std::vector<std::string> stringTokSplit(const std::string & str, std::string del
     memcpy(buffer, str.c_str(), s_str);
     buffer[s_str] ='\0';
 
+
     for(input = buffer; ; input = NULL){
+#ifdef HAVE_STRTOK_R
         token = strtok_r(input, delimiter.c_str(), &state);
+#else
+        token = strtok_s(input, delimiter.c_str(), &state);
+#endif
         if(!token)
             break;
         res.push_back(token);
     }
+
+
+
+
+
 
     return res;
 }

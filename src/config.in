@@ -52,6 +52,10 @@
 // has unistd
 #cmakedefine HAVE_UNISTD_H 1
 
+// has strtok
+#cmakedefine HAVE_STRTOK_R
+#cmakedefine HAVE_STRTOK_S
+
 
 // has locale
 #cmakedefine HAVE_LOCALE_H 1

@@ -14,7 +14,6 @@ endif(NOT DEFINED CMAKE_BUILD_TYPE)
 
 # load module
 include(DefineInstallationPaths REQUIRED)
-include(MacroCopyFile REQUIRED)
 include(ReleaseDebugAutoFlags REQUIRED)
 include(CMakeGeneratePkgConfig REQUIRED)
 include(MacroAddDoxygen REQUIRED)
@@ -40,14 +39,9 @@ SET(UNIT_TESTS FALSE
 SET(NEON_EMBEDED TRUE
     CACHE STRING "enable or disable unit test compilation")
 
-
 # libs checks
 find_package(Threads)
-
-
-
 add_subdirectory(deps)
-
 
 pkg_check_modules(CRYPTO_PKG REQUIRED libcrypto)
 

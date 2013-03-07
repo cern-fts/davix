@@ -45,7 +45,7 @@ public:
     ///        Use Http multi-part when supported by the server,
     ///        simulate a vector read operation in the other case
     ///
-    ///  @param fd : davix file descriptor
+    ///  @param params: Davix request Parameters
     ///  @param input_vec : input vectors, parameters
     ///  @param output_vec : output vectors, results
     ///  @param count_vec : number of vector struct
@@ -60,9 +60,12 @@ public:
 
     ///
     ///  @brief Partial position independant read.
-    ///         Use Ranged request when supported by the server,
-    ///               simulate a ranged request when not  supported
     ///
+    ///
+    ///         Use Ranged request when supported by the server,
+    ///         simulate a ranged request when not  supported
+    ///
+    ///  @param params: Davix request Parameters
     ///  @param buff : buffer
     ///  @param count : maximum read size
     ///  @param offset : start offset  for the read operation
@@ -74,6 +77,17 @@ public:
                             dav_size_t count,
                             dav_off_t offset,
                             DavixError** err);
+
+    ///
+    ///  @brief Suppress the current entity.
+    ///         Able to suppress collection too
+    ///
+    ///  @param params: Davix request Parameters
+    ///  @param err: Davix Error report
+    ///  @return 0 if success, or -1 if error occures
+    ///
+    int deletion(const RequestParams* params,
+                 DavixError** err);
 
 
 

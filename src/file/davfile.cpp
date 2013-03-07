@@ -43,7 +43,13 @@ dav_ssize_t DavFile::readPartialBufferVec(const RequestParams *params, const Dav
                       DavIOVecOuput * output_vec,
                       const dav_size_t count_vec, DavixError** err){
     HttpIOBuffer io(d_ptr->_c, d_ptr->_u, params);
-    return io.readPartialBufferVec(input_vec, output_vec, count_vec, err);
+    return (dav_ssize_t) io.readPartialBufferVec(input_vec, output_vec, count_vec, err);
+}
+
+
+dav_ssize_t DavFile::readPartial(const RequestParams *params, void* buff, dav_size_t count, dav_off_t offset, DavixError** err){
+    HttpIOBuffer io(d_ptr->_c, d_ptr->_u, params);
+    return (dav_ssize_t) io.readPartialBuffer(buff, count, offset, err);
 }
 
 } //Davix

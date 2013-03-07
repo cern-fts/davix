@@ -35,7 +35,9 @@ public:
     /// @param vec : Replica vector
     /// @param err : DavixError error report
     /// @return  the number of replicas if found, -1 if error.
-    dav_ssize_t getAllReplicas(const RequestParams* params, ReplicaVec & vec, DavixError** err);
+    dav_ssize_t getAllReplicas(const RequestParams* params,
+                               ReplicaVec & vec,
+                               DavixError** err);
 
     ///
     ///  @brief Vector read operation
@@ -53,7 +55,28 @@ public:
     dav_ssize_t readPartialBufferVec(const RequestParams* params,
                           const DavIOVecInput * input_vec,
                           DavIOVecOuput * ioutput_vec,
-                          const dav_size_t count_vec, DavixError** err);
+                          const dav_size_t count_vec,
+                          DavixError** err);
+
+    ///
+    ///  @brief Partial position independant read.
+    ///         Use Ranged request when supported by the server,
+    ///               simulate a ranged request when not  supported
+    ///
+    ///  @param buff : buffer
+    ///  @param count : maximum read size
+    ///  @param offset : start offset  for the read operation
+    ///  @param err: Davix Error report
+    ///  @return total number of bytes read, or -1 if error occures
+    ///
+    dav_ssize_t readPartial(const RequestParams* params,
+                            void* buff,
+                            dav_size_t count,
+                            dav_off_t offset,
+                            DavixError** err);
+
+
+
 private:
     DavFileInternal* d_ptr;
     DavFile(const DavFile & f);

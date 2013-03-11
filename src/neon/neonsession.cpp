@@ -117,8 +117,12 @@ NEONSession::NEONSession(NEONSessionFactory & f, const Uri & uri, const RequestP
 
 NEONSession::~NEONSession(){
 #   ifndef _DISABLE_SESSION_REUSE
-        if(_sess && _session_recycling)
-         _f.storeNeonSession(_sess, NULL);
+        if(_sess){
+            if(_session_recycling)
+                _f.storeNeonSession(_sess, NULL);
+            else
+                ne_session_destroy(_sess);
+        }
 #   endif
 
 }

@@ -32,7 +32,7 @@
 #include <auth/davixauth.hpp>
 
 /// low level HttpRequest builder
-#include <httprequest.hpp>
+#include <request/httprequest.hpp>
 
 /// request parameters
 #include <params/davixrequestparams.hpp>

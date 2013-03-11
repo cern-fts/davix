@@ -12,7 +12,7 @@
 #include <memory/memoryutils.hpp>
 
  
-#include <httprequest.hpp>
+#include <request/httprequest.hpp>
 #include <neon/neonsession.hpp>
 
 namespace Davix {

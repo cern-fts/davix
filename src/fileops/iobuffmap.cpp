@@ -2,7 +2,7 @@
 #include "iobuffmap.hpp"
 
 #include <davix_types.h>
-#include <httprequest.hpp>
+#include <request/httprequest.hpp>
 #include <posix/davposix.hpp>
 #include <logger/davix_logger_internal.h>
 #include <http_util/http_util.hpp>

@@ -24,9 +24,6 @@
 
 namespace Davix {
 
-class NEONRequest;
-class NEONSessionFactory;
-
 /// Callback for body providers
 /// Before each time the body is provided, the callback will be called
 /// once with buflen == 0.  The body may have to be provided >1 time
@@ -38,8 +35,13 @@ class NEONSessionFactory;
 typedef ssize_t (*HttpBodyProvider)(void *userdata,
                                     char *buffer, size_t buflen);
 
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
 
-///
+class NEONRequest;
+class NEONSessionFactory;
+
+
 /// @class HTTPRequest
 /// @brief Http low level request interface
 /// HTTPRequest is the main davix class for low level HTTP queries
@@ -180,12 +182,10 @@ private:
 
 
 
-
 DAVIX_EXPORT bool httpcodeIsValid(int code);
 
 DAVIX_EXPORT void httpcodeToDavixCode(int code, const std::string & scope, const std::string & end_message, DavixError** err);
 
-
-} // namespace Davix
+}
 
 #endif // DAVIX_HTTPREQUEST_H

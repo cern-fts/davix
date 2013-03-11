@@ -9,7 +9,7 @@
 
 
 #include "davixcontext.hpp"
-#include "httprequest.hpp"
+#include <request/httprequest.hpp>
 #include <xml/davpropxmlparser.hpp>
 #include <posix/davposix.hpp>
 

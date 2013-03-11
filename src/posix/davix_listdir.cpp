@@ -3,7 +3,7 @@
 #include <sstream>
 #include <memory>
 #include <logger/davix_logger_internal.h>
-#include <httprequest.hpp>
+#include <request/httprequest.hpp>
 #include <posix/davposix.hpp>
 #include <posix/davix_stat.hpp>
 #include <status/davixstatusrequest.hpp>

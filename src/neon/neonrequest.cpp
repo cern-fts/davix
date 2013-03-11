@@ -13,7 +13,11 @@
 
 namespace Davix {
 
-
+static void neonrequest_eradicate_session(NEONSession& sess, DavixError ** err){
+    if(err && *err && (*err)->getStatus() == StatusCode::ConnectionProblem){
+        sess.disable_session_reuse();
+    }
+}
 
 
 void neon_generic_error_mapper(int ne_status, StatusCode::Code & code, std::string & str){
@@ -196,6 +200,7 @@ int NEONRequest::negotiate_request(DavixError** err){
 
             req_started= req_running == false;
             neon_to_davix_code(status, _neon_sess->get_ne_sess(), davix_scope_http_request(),err);
+            neonrequest_eradicate_session(*_neon_sess, err);
             DAVIX_DEBUG(" Davix negociate request ... <-");
             return -1;
         }

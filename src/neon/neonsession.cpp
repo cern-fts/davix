@@ -94,7 +94,8 @@ NEONSession::NEONSession(Context & c, const Uri & uri, const RequestParams & p, 
     _f(ContextExplorer::SessionFactoryFromContext(c)),
     _sess(NULL),
     _params(p),
-    _last_error(NULL)
+    _last_error(NULL),
+    _session_recycling(true)
 {
         _f.createNeonSession(uri, &_sess, err);
         if(_sess)
@@ -116,7 +117,7 @@ NEONSession::NEONSession(NEONSessionFactory & f, const Uri & uri, const RequestP
 
 NEONSession::~NEONSession(){
 #   ifndef _DISABLE_SESSION_REUSE
-        if(_sess)
+        if(_sess && _session_recycling)
          _f.storeNeonSession(_sess, NULL);
 #   endif
 

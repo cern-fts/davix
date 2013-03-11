@@ -5,6 +5,7 @@
 #include <davixcontext.hpp>
 #include <params/davixrequestparams.hpp>
 #include <neon/neonsessionfactory.hpp>
+#include <logger/davix_logger_internal.h>
 
 #include <ne_session.h>
 
@@ -24,11 +25,17 @@ public:
         return _sess;
     }
 
+    inline void disable_session_reuse(){
+        DAVIX_DEBUG(" Connection problem.....eradicate session ");
+        _session_recycling = false;
+    }
+
 private:
     NEONSessionFactory & _f;
     ne_session* _sess;
     const RequestParams & _params;
     DavixError* _last_error;
+    bool _session_recycling;
 
     NEONSession(const NEONSession &);
     NEONSession& operator=(const NEONSession &);

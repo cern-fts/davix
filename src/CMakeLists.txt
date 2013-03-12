@@ -14,7 +14,7 @@ FILE(GLOB src_davix_file "file/*.cpp")
 FILE(GLOB src_davix_request "request/*.cpp")
 
 LIST(APPEND davix_headers "davix.h" "davix_types.h"  "davixuri.h" "davixcontext.hpp"
-            "request/httprequest.hpp" "davix.hpp" "davixuri.hpp" )
+             "davix.hpp" "davixuri.hpp" )
 
 LIST(APPEND davix_logger_header "logger/davix_logger.h")
 
@@ -27,6 +27,8 @@ LIST(APPEND davix_params_header "params/davixrequestparams.hpp" "params/davixreq
 LIST(APPEND davix_auth_header "auth/davixauth.hpp" "auth/davixx509cred.hpp" "auth/davixauth.h" "auth/davixx509cred.h")
 
 LIST(APPEND davix_file_header "file/davfile.hpp")
+
+LIST(APPEND davix_request_header "request/httprequest.hpp")
 
 
 include_directories("libs" ".")
@@ -138,3 +140,6 @@ install( FILES ${davix_auth_header}
 
 install( FILES ${davix_file_header}
          DESTINATION ${INCLUDE_INSTALL_DIR}/davix/file)
+
+install( FILES ${davix_request_header}
+         DESTINATION ${INCLUDE_INSTALL_DIR}/davix/request)

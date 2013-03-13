@@ -115,6 +115,9 @@ HttpCacheToken* HttpRequest::extractCacheToken()const{
     return d_ptr->extractCacheToken();
 }
 
+void HttpRequest::useCacheToken(const HttpCacheToken *token){
+    d_ptr->useCacheToken(token);
+}
 
 void httpcodeToDavixCode(int code, const std::string & scope, const std::string & end_message, DavixError** err){
     StatusCode::Code dav_code;

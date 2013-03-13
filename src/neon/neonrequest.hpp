@@ -101,6 +101,10 @@ public:
     */
     void clearAnswerContent();
 
+    void useCacheToken(const HttpCacheToken * c){
+       _cache_info.reset((c)?(new HttpCacheToken(*c)):NULL);
+    }
+
     HttpCacheToken* extractCacheToken() const;
     //ake
 
@@ -117,6 +121,8 @@ private:
 
     // request parameters
     RequestParams params;
+    // cache parameters
+    ScopedPtr<HttpCacheToken>::type _cache_info;
     // neon internal field
     ScopedPtr<NEONSession>::type _neon_sess;
 

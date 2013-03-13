@@ -101,6 +101,7 @@ void neon_simple_req_code_to_davix_code(int ne_status, ne_session* sess, const s
 
 NEONRequest::NEONRequest(NEONSessionFactory& f, const Uri & uri_req) :
     params(),
+    _cache_info(),
     _neon_sess(),
     _req(NULL),
     _current(uri_req),
@@ -161,7 +162,6 @@ void NEONRequest::configure_req(){
     for(size_t i=0; i< _headers_field.size(); ++i){
         ne_add_request_header(_req, _headers_field[i].first.c_str(),  _headers_field[i].second.c_str());
     }
-
 
     if(_fd_content > 0){
         ne_set_request_body_fd(_req, _fd_content, _content_offset, _content_len);

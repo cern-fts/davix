@@ -107,7 +107,8 @@ NEONSession::NEONSession(NEONSessionFactory & f, const Uri & uri, const RequestP
     _f(f),
     _sess(NULL),
     _params(p),
-    _last_error(NULL)
+    _last_error(NULL),
+    _session_recycling(true)
 {
     _f.createNeonSession(uri, &_sess, err);
     if(_sess)

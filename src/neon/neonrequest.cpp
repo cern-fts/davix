@@ -297,15 +297,12 @@ int NEONRequest::redirect_request(DavixError **err){
 int NEONRequest::executeRequest(DavixError** err){
     ssize_t read_status=1;
     _last_request_flag =0;
-    DavixError* tmp_err=NULL;
 
-    if( create_req(&tmp_err) < 0){
-        DavixError::propagateError(err, tmp_err);
+    if( create_req(err) < 0){
         return -1;
     }
     DAVIX_DEBUG(" -> NEON start synchronous  request... ");
-    if( negotiate_request(&tmp_err) < 0){
-        DavixError::propagateError(err, tmp_err);
+    if( negotiate_request(err) < 0){
         return -1;
     }
 
@@ -313,47 +310,37 @@ int NEONRequest::executeRequest(DavixError** err){
         DAVIX_DEBUG(" -> NEON Read data flow... ");
         size_t s = _vec.size();
         _vec.resize(s + NEON_BUFFER_SIZE);
-        read_status= readBlock(&(_vec[s]), NEON_BUFFER_SIZE, &tmp_err);
+        read_status= readBlock(&(_vec[s]), NEON_BUFFER_SIZE, err);
         if( read_status >= 0 && read_status != NEON_BUFFER_SIZE){
            _vec.resize(s +  read_status);
         }
 
     }
-
     // push a last NULL char for safety
     _vec.push_back('\0');
 
     if(read_status < 0){
-        if(!tmp_err)
-            neon_to_davix_code(read_status, _neon_sess->get_ne_sess(), davix_scope_http_request(), &tmp_err);
-        DavixError::propagateError(err, tmp_err);
+        if(err && *err == NULL)
+            neon_to_davix_code(read_status, _neon_sess->get_ne_sess(), davix_scope_http_request(), err);
         return -1;
     }
 
-   if( endRequest(&tmp_err) < 0){
-       DavixError::propagateError(err, tmp_err);
+   if( endRequest(err) < 0){
        return -1;
    }
-
     DAVIX_DEBUG(" -> End synchronous request ... ");
     _last_request_flag =1; // 1 -> syn request
     return 0;
 }
 
 int NEONRequest::beginRequest(DavixError** err){
-    DavixError* tmp_err=NULL;
     int ret = -1;
     _last_request_flag = 0;
     _vec.clear();
-    ret= create_req(&tmp_err);
+    if( (ret= create_req(err)) < 0)
+        return -1;
 
-
-    if( ret >=0){
-       ret= negotiate_request(&tmp_err);
-    }
-
-    if(ret <0)
-        DavixError::propagateError(err, tmp_err);
+    ret= negotiate_request(err);
     _last_request_flag = 2; // 2 -> sequential req
     return ret;
 }
@@ -436,9 +423,7 @@ static const ssize_t get_answer_file_size(const NEONRequest&  req){
         size =  strtol(str_file_size.c_str(), NULL, 10);
     }
     if( size == -1 || size ==  LONG_MAX){
-       std::ostringstream ss;
-       ss << "Bad server answer: " << ans_header_content_length << "Invalid, impossible to determine answer size ";
-       DAVIX_TRACE("%s", ss.str().c_str());
+       DAVIX_TRACE("Bad server answer: %s Invalid, impossible to determine answer size", ans_header_content_length.c_str());
        size = -1;
     }
     return (ssize_t) size;

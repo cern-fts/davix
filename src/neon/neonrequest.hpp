@@ -113,7 +113,8 @@ public:
     int do_pkcs12_cert_authentification(const char * filename_pkcs12, const char* passwd, DavixError** err);
     int do_login_passwd_authentification(const char *login, const char *passwd, DavixError** err);
 
-protected:
+private:
+
     // request parameters
     RequestParams params;
     // neon internal field
@@ -156,9 +157,6 @@ protected:
       internal, try to authentification with pkcs12 credential
     */
     int try_pkcs12_authentification(ne_session *sess, const ne_ssl_dname *const *dnames, DavixError** err);
-
-
-private:
 
     NEONRequest(const NEONRequest & req);
     NEONRequest & operator=(const NEONRequest & req);

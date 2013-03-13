@@ -154,12 +154,26 @@ StatusCode::Code Uri::getStatus() const{
     return d_ptr->code;
 }
 
+bool Uri::equal(const Uri &u2) const{
+    if(this->getStatus() != Davix::StatusCode::OK || u2.getStatus() != Davix::StatusCode::OK)
+        return false;
+    return ne_uri_cmp(&this->d_ptr->my_uri, &u2.d_ptr->my_uri) ==0;
+}
+
+bool Uri::operator ==(const Uri & u2) const{
+    return this->equal(u2);
+}
+
+
 bool uriCheckError(const Uri &uri, DavixError **err){
     if(uri.getStatus() == StatusCode::OK)
         return true;
     DavixError::setupError(err, davix_scope_uri_parser(), uri.getStatus(), std::string("Uri syntax Invalid : ").append(uri.getString()));
     return false;
 }
+
+
+
 
 } // namespace Davix
 

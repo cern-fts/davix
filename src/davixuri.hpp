@@ -70,13 +70,17 @@ public:
     /// @return StatusCode::OK if success or StatusCode::UriParsingError if error
     StatusCode::Code getStatus() const;
 
+    /// return True if the two Uri are equals
+    bool equal(const Uri & u1) const;
 
+    bool operator==(const Uri & u2) const;
 
 protected:
     std::string uri_string;
     UriPrivate* d_ptr;
     void _init();
 };
+
 
 ///
 /// check the validity of a Davix::Uri
@@ -86,5 +90,6 @@ protected:
 bool DAVIX_EXPORT uriCheckError(const Uri & uri, DavixError ** err);
 
 } // namespace Davix
+
 
 #endif // DAVIX_DAVIXURI_HPP

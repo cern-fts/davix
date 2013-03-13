@@ -10,7 +10,7 @@ namespace Davix {
 struct HttpCacheTokenAccessor
 {
 
-    void addRedirection(HttpCacheToken & token, const Uri & uri);
+    static void addRedirection(HttpCacheToken & token, const Uri & uri);
 };
 
 

@@ -1,3 +1,4 @@
+#include <iterator>
 #include "httpcachetoken_internal.hpp"
 
 
@@ -11,7 +12,8 @@ struct HttpCacheTokenInternal{
     {}
 
     HttpCacheTokenInternal(const HttpCacheTokenInternal & orig){
-
+        _uris.reserve(orig._uris.size());
+        std::copy(orig._uris.begin(), orig._uris.end(), _uris.begin());
     }
 
     virtual ~HttpCacheTokenInternal(){}
@@ -50,7 +52,7 @@ HttpCacheToken::~HttpCacheToken(){
 
 
 const std::vector<Uri>  & HttpCacheToken::getRedirectionStack() const{
-    d_ptr->_uris;
+    return d_ptr->_uris;
 }
 
 void HttpCacheTokenAccessor::addRedirection(HttpCacheToken & token, const Uri & uri){

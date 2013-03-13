@@ -4,9 +4,10 @@
 #include <vector>
 #include <unistd.h>
 #include <davix_types.h>
+#include <davixuri.hpp>
 #include <status/davixstatusrequest.hpp>
 #include <params/davixrequestparams.hpp>
-#include <davixuri.hpp>
+#include <request/httpcachetoken.hpp>
 
 #ifndef __DAVIX_INSIDE__
 #error "Only davix.h or davix.hpp should be included."

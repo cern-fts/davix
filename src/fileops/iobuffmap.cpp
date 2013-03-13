@@ -3,10 +3,10 @@
 
 #include <davix_types.h>
 #include <request/httprequest.hpp>
-#include <posix/davposix.hpp>
 #include <logger/davix_logger_internal.h>
 #include <http_util/http_util.hpp>
 #include <fileops/httpiovec.hpp>
+#include <fileops/davmeta.hpp>
 
 
 #include <sstream>
@@ -114,6 +114,7 @@ HttpIO::HttpIO(Context &c, const Uri &uri, const RequestParams *params) :
     _rwlock(),
     _read_pos(0),
     _read_endfile(false),
+    _token(),
     _read_req(NULL)
 {
 
@@ -134,6 +135,7 @@ ssize_t HttpIO::readFullBuff(void *buffer, size_t size_read, DavixError **err){
             && (_read_req = new HttpRequest(_c,_uri, &tmp_err)) != NULL
             && tmp_err == NULL ){
         _read_req->setParameters(_params);
+        _read_req->useCacheToken(_token.get());
         if(_read_req->beginRequest(&tmp_err) ==0
             && (_read_req->getRequestCode() != 200)){
                 httpcodeToDavixCode(_read_req->getRequestCode(),davix_scope_http_request(),", while  readding", &tmp_err);
@@ -175,6 +177,7 @@ ssize_t HttpIO::readPartialBuffer(void *buf, size_t count, off_t offset, DavixEr
     HttpRequest req(_c, _uri, &tmp_err);
     if(tmp_err == NULL){
         req.setParameters(_params);
+        req.useCacheToken(_token.get());
         setup_offset_request(&req, &offset, &count,1);
         if(req.beginRequest(&tmp_err) ==0){
             if(req.getRequestCode() == 416 ){ // out of file, end of file
@@ -213,6 +216,7 @@ dav_ssize_t HttpIO::readPartialBufferVec(const DavIOVecInput * input_vec,
     HttpRequest req (_c,_uri, &tmp_err);
     if(tmp_err == NULL){
         req.setParameters(_params);
+        req.useCacheToken(_token.get());
         HttpVecOps vec(req);
 
         ret = vec.readPartialBufferVec(input_vec, output_vec, count_vec, err);
@@ -231,11 +235,13 @@ ssize_t HttpIO::putFullFromFD(const void *buf, size_t count, off_t offset, Davix
 
 
 int HttpIO::stat(struct stat *st, DavixError **err){
+    return stat( st, NULL, err);
+}
+
+int HttpIO::stat(struct stat* st, HttpCacheToken** token, DavixError** err){
     RequestParams p(_params);
     p.setProtocol(DAVIX_PROTOCOL_HTTP);
-
-    DavPosix posix(&_c);
-    return posix.stat(&p, _uri.getString(), st, err);
+    return Meta::posixStat(_c, _uri, &p, st, token, err);
 }
 
 void HttpIO::resetFullRead(){
@@ -264,6 +270,7 @@ HttpIOBuffer::~HttpIOBuffer(){
 bool HttpIOBuffer::open(int flags, DavixError **err){
     DavixError* tmp_err=NULL;
     bool res = false;
+    HttpCacheToken* token = NULL;
     if(_opened)
         return true;
     // configure local cache
@@ -273,7 +280,9 @@ bool HttpIOBuffer::open(int flags, DavixError **err){
     }*/
 
     struct stat st;
-    if( stat(&st, &tmp_err) ==0){
+    if( stat(&st, &token, &tmp_err) ==0){
+        if(token)
+            _token.reset(token);
         if( (flags & O_EXCL) && ( flags & O_CREAT)){
             DavixError::setupError(&tmp_err, davix_scope_io_buff(),
                                    StatusCode::FileExist, "file exist and O_EXCL flag usedin open");

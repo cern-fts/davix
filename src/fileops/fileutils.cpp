@@ -47,4 +47,14 @@ void setup_offset_request(HttpRequest* req, const off_t *start_len, const size_t
 
 }
 
+void fill_stat_from_fileproperties(struct stat* st, const  FileProperties & prop){
+    memset(st, 0, sizeof(struct stat));
+    st->st_mtime = prop.mtime;
+    st->st_atime = prop.atime;
+    st->st_ctime = prop.ctime;
+    st->st_size = prop.size;
+    st->st_mode = prop.mode;
+}
+
+
 } // namespace Davix

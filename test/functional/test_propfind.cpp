@@ -2,6 +2,7 @@
 
 
 #include <davix.hpp>
+#include <fileops/davmeta.hpp>
 #include <memory>
 #include <posix/davix_stat.hpp>
 #include "davix_test_lib.h"
@@ -30,7 +31,7 @@ int main(int argc, char** argv){
         r->setParameters(params);
         r->addHeaderField("Depth", "1");
 
-        std::string v(req_webdav_propfind(r.get(), &tmp_err));
+        std::string v(Meta::req_webdav_propfind(r.get(), &tmp_err));
 
         std::cout << "content "<< v << std::endl;
     }

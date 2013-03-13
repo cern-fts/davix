@@ -2,12 +2,11 @@
 #ifndef DAVIX_IOBUFFMAP_HPP
 #define DAVIX_IOBUFFMAP_HPP
 
-#include <memory>
-#include <davixcontext.hpp>
-#include <davixuri.hpp>
-#include <params/davixrequestparams.hpp>
+#include <memory/memoryutils.hpp>
+#include <davix.hpp>
 #include <libs/lockers/dpplocker.hpp>
 #include <fileops/fileutils.hpp>
+
 
 
 namespace Davix {
@@ -30,6 +29,7 @@ public:
 
     // execute a plain HTTP stat method for file info
     int stat(struct stat* st, DavixError** err);
+    int stat(struct stat* st, HttpCacheToken** token, DavixError** err);
 
     //
     void resetFullRead();
@@ -55,6 +55,8 @@ protected:
     off_t _read_pos; //curent read file offset
     bool _read_endfile;
 
+    // cache token
+    ScopedPtr<HttpCacheToken>::type _token;
 private:
     HttpRequest * _read_req;
 

@@ -111,6 +111,10 @@ size_t HttpRequest::getAnswerSize() const{
     return d_ptr->getAnswerSize();
 }
 
+HttpCacheToken* HttpRequest::extractCacheToken()const{
+    return d_ptr->extractCacheToken();
+}
+
 
 void httpcodeToDavixCode(int code, const std::string & scope, const std::string & end_message, DavixError** err){
     StatusCode::Code dav_code;

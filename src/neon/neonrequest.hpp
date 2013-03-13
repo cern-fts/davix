@@ -101,9 +101,9 @@ public:
     */
     void clearAnswerContent();
 
+    HttpCacheToken* extractCacheToken() const;
+    //ake
 
-
-    //
     int getRequestCode();
 
     bool getAnswerHeader(const std::string &header_name, std::string &value) const;
@@ -132,6 +132,9 @@ private:
     int _fd_content;
     ContentProviderContext _content_provider;
 
+    // answer length
+    mutable dav_ssize_t _ans_size;
+
 
     std::string _request_type;
     NEONSessionFactory& _f;
@@ -140,6 +143,8 @@ private:
 
     std::vector< std::pair<std::string, std::string > > _headers_field;
 
+    // Private Members
+    ssize_t getAnswerSizeFromHeaders() const;
     int pick_sess(DavixError** err);
     void configure_req();
 

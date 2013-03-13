@@ -166,7 +166,12 @@ public:
     /// @return true if this header exist or false if it does not
     bool getAnswerHeader(const std::string & header_name, std::string & value) const;
 
-
+    ///
+    /// Extract a cache token from this Request
+    /// a cache token allows to optimize future request
+    /// cache tokens are dynamically allocated and need to be free
+    /// @return cache token or null pointer if not available
+    HttpCacheToken* extractCacheToken() const;
 
 
 private:

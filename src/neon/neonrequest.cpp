@@ -6,6 +6,7 @@
 #include <ne_request.h>
 #include <neon/neonsession.hpp>
 #include <fileops/fileutils.hpp>
+#include <request/httpcachetoken_internal.hpp>
 #include <memory>
 #include <sstream>
 #include <cstring>
@@ -111,6 +112,7 @@ NEONRequest::NEONRequest(NEONSessionFactory& f, const Uri & uri_req) :
     _content_body(),
     _fd_content(-1),
     _content_provider(),
+    _ans_size(-1),
     _request_type("GET"),
     _f(f),
     req_started(false),
@@ -306,6 +308,10 @@ int NEONRequest::executeRequest(DavixError** err){
         return -1;
     }
 
+
+    if(getAnswerSize() > 0)
+        _vec.reserve(getAnswerSize());
+
     while(read_status > 0){
         DAVIX_DEBUG(" -> NEON Read data flow... ");
         size_t s = _vec.size();
@@ -383,7 +389,6 @@ ssize_t NEONRequest::readLine(char* buffer, size_t max_size, DavixError** err){
 
 int NEONRequest::endRequest(DavixError** err){
     int status;
-
     if(_req  && req_running == true){
         req_running = false;
         if( (status = ne_end_request(_req)) != NE_OK){
@@ -414,12 +419,10 @@ const char* NEONRequest::getAnswerContent(){
     return NULL;
 }
 
-
-
-static const ssize_t get_answer_file_size(const NEONRequest&  req){
+ssize_t NEONRequest::getAnswerSizeFromHeaders() const{
     std::string str_file_size;
     long size=-1;
-    if( req.getAnswerHeader(ans_header_content_length, str_file_size)){
+    if( getAnswerHeader(ans_header_content_length, str_file_size)){
         size =  strtol(str_file_size.c_str(), NULL, 10);
     }
     if( size == -1 || size ==  LONG_MAX){
@@ -429,23 +432,19 @@ static const ssize_t get_answer_file_size(const NEONRequest&  req){
     return (ssize_t) size;
 }
 
-
-
 ssize_t NEONRequest::getAnswerSize() const{
-    switch(_last_request_flag){
-        case 1:
-            return _vec.size()-1;
-        default:
-            return get_answer_file_size(*this);
-    }
-    return 0;
+    if(_ans_size < 0)
+        _ans_size = getAnswerSizeFromHeaders();
+    return _ans_size;
 }
 
 bool NEONRequest::getAnswerHeader(const std::string &header_name, std::string &value) const{
-    const char* answer_content = ne_get_response_header(_req, header_name.c_str());
-    if(answer_content){
-        value = answer_content;
-        return true;
+    if(_req){
+        const char* answer_content = ne_get_response_header(_req, header_name.c_str());
+        if(answer_content){
+            value = answer_content;
+            return true;
+        }
     }
     return false;
 }
@@ -479,6 +478,12 @@ void NEONRequest::setRequestBodyCallback(HttpBodyProvider provider, size_t len, 
     _content_len      = len;
     _content_provider.callback = provider;
     _content_provider.udata    = udata;
+}
+
+HttpCacheToken* NEONRequest::extractCacheToken() const {
+    if(_last_request_flag ==0)
+        return NULL;
+    return HttpCacheTokenAccessor::createCacheToken(_orig, _current);
 }
 
 void NEONRequest::free_request(){

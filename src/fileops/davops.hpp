@@ -11,6 +11,8 @@
 
 namespace Davix{
 
+///
+/// Pure Webdav query facilities
 class WebdavQuery{
 public:
     WebdavQuery(Context & c);

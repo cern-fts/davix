@@ -12,6 +12,7 @@ namespace Davix{
 ssize_t webdavGetAllReplicas(Context & c, const Uri & r,
                               const RequestParams & params, ReplicaVec & vec, DavixError** err);
 
+
 } // Davix
 
 

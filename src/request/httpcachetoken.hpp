@@ -36,11 +36,10 @@ public:
 
     HttpCacheToken & operator=(const HttpCacheToken &);
 
-    /// @brief list of redirections exeuted by the request
-    ///
-    /// transmit a redirection stack permits to avoid
-    /// superflous redirection
-    const std::vector<Uri> & getRedirectionStack() const;
+    const Uri & getrequestUri() const;
+
+    /// @brief get the final redirection Uri associated with the request Uri
+    const Uri & getCachedRedirection() const;
 private:
     HttpCacheTokenInternal* d_ptr;
 

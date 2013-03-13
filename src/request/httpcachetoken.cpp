@@ -8,19 +8,23 @@ namespace Davix {
 struct HttpCacheTokenInternal{
 
     HttpCacheTokenInternal() :
-        _uris()
+        _req_uri(),
+        _redirection_uri()
     {}
 
-    HttpCacheTokenInternal(const HttpCacheTokenInternal & orig){
-        _uris.reserve(orig._uris.size());
-        std::copy(orig._uris.begin(), orig._uris.end(), _uris.begin());
+    HttpCacheTokenInternal(const HttpCacheTokenInternal & orig) :
+        _req_uri(orig._req_uri),
+        _redirection_uri(orig._redirection_uri)
+
+    {
+
     }
 
     virtual ~HttpCacheTokenInternal(){}
 
 
 
-    std::vector<Uri> _uris;
+    Uri _req_uri, _redirection_uri;
 private:
     HttpCacheTokenInternal & operator=(const HttpCacheTokenInternal &);
 };
@@ -51,13 +55,19 @@ HttpCacheToken::~HttpCacheToken(){
 }
 
 
-const std::vector<Uri>  & HttpCacheToken::getRedirectionStack() const{
-    return d_ptr->_uris;
+const Uri  & HttpCacheToken::getCachedRedirection() const{
+    return d_ptr->_redirection_uri;
 }
 
-void HttpCacheTokenAccessor::addRedirection(HttpCacheToken & token, const Uri & uri){
-    token.d_ptr->_uris.push_back(uri);
+const Uri & HttpCacheToken::getrequestUri() const {
+    return d_ptr->_req_uri;
 }
 
+HttpCacheToken* HttpCacheTokenAccessor::createCacheToken(const Uri & uri, const Uri & red_uri){
+    HttpCacheToken* t = new HttpCacheToken();
+    t->d_ptr->_req_uri = uri;
+    t->d_ptr->_redirection_uri = red_uri;
+    return t;
+}
 }
 

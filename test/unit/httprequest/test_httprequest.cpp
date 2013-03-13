@@ -9,22 +9,20 @@ TEST(testHttpCacheToken, testCreate){
     davix_set_log_level(DAVIX_LOG_ALL);
 
     Uri u("http://higgs.boson/is/watchingus");
+    Uri u_red("http://higgs.boson/is/watchingus/on/moon");
+
+    // stupid creation
     HttpCacheToken t;
     HttpCacheToken t2(t);
-    HttpCacheTokenAccessor::addRedirection(t, u);
-    ASSERT_EQ(1,t.getRedirectionStack().size());
-    ASSERT_TRUE(t.getRedirectionStack()[0] == u);
-    t2 = t;
-    t2= t2;
-    ASSERT_EQ(1,t2.getRedirectionStack().size());
-    ASSERT_TRUE(t2.getRedirectionStack()[0] == u);
 
-    HttpCacheToken* t3,* t4;
-    t3 = new HttpCacheToken();
-    t4 = new HttpCacheToken(*t3);
-    ASSERT_TRUE(t3 != NULL);
-    ASSERT_TRUE(t4 != NULL);
-    delete t3;
-    delete t4;
+    HttpCacheToken* td = HttpCacheTokenAccessor::createCacheToken(u, u_red);
+    ASSERT_EQ(u, td->getrequestUri());
+    ASSERT_EQ(u_red, td->getCachedRedirection());
+
+    HttpCacheToken* td2 = new HttpCacheToken(*td);
+    delete td;
+    ASSERT_EQ(u, td2->getrequestUri());
+    ASSERT_EQ(u_red, td2->getCachedRedirection());
+    delete td2;
 }
 

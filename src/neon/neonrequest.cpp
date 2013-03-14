@@ -175,6 +175,29 @@ void NEONRequest::configure_req(){
    // ne_set_request_flag(_req, NE_REQFLAG_EXPECT100, 1);
 }
 
+int NEONRequest::processRedirection(int neonCode, DavixError **err){
+    int end_status = -1;
+    if (this->params.getTransparentRedirectionSupport()) {
+        if( neonCode != NE_OK
+                && neonCode != NE_RETRY
+                && neonCode != NE_REDIRECT){
+            req_started= req_running = false;
+            neon_to_davix_code(neonCode, _neon_sess->get_ne_sess(), davix_scope_http_request(),err);
+            return -1;
+        }
+        ne_discard_response(_req);              // Get a valid redirection, drop request content
+        end_status = ne_end_request(_req);      // submit the redirection
+        if(redirect_request(err) <0){           // accept redirection
+            return -1;
+        }
+        end_status = NE_RETRY;
+    }
+    else {
+        end_status = 0;
+    }
+    return end_status;
+}
+
 int NEONRequest::negotiate_request(DavixError** err){
 
     const int n_limit = 10;
@@ -212,25 +235,9 @@ int NEONRequest::negotiate_request(DavixError** err){
             case 301:
             case 302:
             case 307:
-                if (this->params.getTransparentRedirectionSupport()) {
-                    if( end_status != NE_OK
-                            && end_status != NE_RETRY
-                            && end_status != NE_REDIRECT){
-                        req_started= req_running = false;
-                        neon_to_davix_code(status, _neon_sess->get_ne_sess(), davix_scope_http_request(),err);
-                        DAVIX_DEBUG(" Davix negociate request ... <-");
-                        return -1;
-                    }
-                    ne_discard_response(_req);              // Get a valid redirection, drop request content
-                    end_status = ne_end_request(_req);      // submit the redirection
-                    if(redirect_request(err) <0){           // accept redirection
-                        DAVIX_DEBUG(" Davix negociate request ... <-");
-                        return -1;
-                    }
-                    end_status = NE_RETRY;
-                }
-                else {
-                    end_status = 0;
+                if( (end_status = processRedirection(status, err)) <0){
+                   DAVIX_DEBUG(" Davix negociate request ... <-");
+                   return -1;
                 }
                 break;
             case 401: // authentification requested, do retry

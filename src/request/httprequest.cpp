@@ -117,6 +117,9 @@ HttpCacheToken* HttpRequest::extractCacheToken()const{
 
 void HttpRequest::useCacheToken(const HttpCacheToken *token){
     d_ptr->useCacheToken(token);
+    if(token)
+        DAVIX_DEBUG("import redirection %s",
+                    (token->getCachedRedirection().getString().c_str()));
 }
 
 void httpcodeToDavixCode(int code, const std::string & scope, const std::string & end_message, DavixError** err){

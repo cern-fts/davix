@@ -207,9 +207,11 @@ int NEONRequest::startRequest(DavixError **err){
         int ret;
         DavixError * tmp_err=NULL;
         _current = _cache_info->getCachedRedirection();
+        DAVIX_TRACE("Try to use cached redirection %s", _current.getString().c_str());
         if( (ret = create_req(&tmp_err)) == 0){
             if((ret = negotiate_request(&tmp_err)) ==0){
                 if(httpcodeIsValid(getRequestCode())){
+                    DAVIX_TRACE("use of %s with success", _current.getString().c_str());
                     return 0;
                 }
             }
@@ -331,14 +333,10 @@ int NEONRequest::executeRequest(DavixError** err){
     ssize_t read_status=1;
     _last_request_flag =0;
 
-    if( create_req(err) < 0){
-        return -1;
-    }
     DAVIX_DEBUG(" -> NEON start synchronous  request... ");
-    if( negotiate_request(err) < 0){
+    if( startRequest(err) < 0){
         return -1;
     }
-
 
     if(getAnswerSize() > 0)
         _vec.reserve(getAnswerSize());
@@ -374,10 +372,8 @@ int NEONRequest::beginRequest(DavixError** err){
     int ret = -1;
     _last_request_flag = 0;
     _vec.clear();
-    if( (ret= create_req(err)) < 0)
+    if( (ret= startRequest(err)) < 0)
         return -1;
-
-    ret= negotiate_request(err);
     _last_request_flag = 2; // 2 -> sequential req
     return ret;
 }

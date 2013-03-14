@@ -217,6 +217,7 @@ int NEONRequest::startRequest(DavixError **err){
             }
         }
         DavixError::clearError(&tmp_err);
+        endRequest(NULL);
         _current = _orig;
     }
     if( create_req(err) < 0)
@@ -427,6 +428,7 @@ int NEONRequest::endRequest(DavixError** err){
             DavixError::clearError(&tmp_err);
         }
     }
+    req_started = req_running = false;
     return 0;
 }
 

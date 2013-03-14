@@ -198,6 +198,30 @@ int NEONRequest::processRedirection(int neonCode, DavixError **err){
     return end_status;
 }
 
+
+int NEONRequest::startRequest(DavixError **err){
+    if( _cache_info.get() != NULL
+            && httpCacheTokenIsValid(_orig, *(_cache_info.get()))
+            && params.getTransparentRedirectionSupport() == true){
+        // Try to connect directly to the cached redirection, if exist
+        int ret;
+        DavixError * tmp_err=NULL;
+        _current = _cache_info->getCachedRedirection();
+        if( (ret = create_req(&tmp_err)) == 0){
+            if((ret = negotiate_request(&tmp_err)) ==0){
+                if(httpcodeIsValid(getRequestCode())){
+                    return 0;
+                }
+            }
+        }
+        DavixError::clearError(&tmp_err);
+        _current = _orig;
+    }
+    if( create_req(err) < 0)
+            return -1;
+    return negotiate_request(err);
+}
+
 int NEONRequest::negotiate_request(DavixError** err){
 
     const int n_limit = 10;

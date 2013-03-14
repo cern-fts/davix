@@ -39,14 +39,26 @@ char* generate_random_uri(const char* uri_dir, const char* prefix, char* buff, s
 
 void configure_grid_env(char * cert_path, RequestParams&  p){
 
-    char login_passwd[strlen(cert_path)+1];
-    char* pstr;
-    strcpy(login_passwd, cert_path);
-    pstr = strchr(login_passwd, ':');
-    if( pstr != NULL){
-        *pstr= '\0';
-        pstr++;
-        p.setClientLoginPassword(std::string(login_passwd), std::string(pstr));
+    if(strcmp(cert_path, "proxy") == 0){ // VOMS PROXY MODE
+        X509Credential x;
+        char * proxy_path = getenv("X509_USER_PROXY");
+        if(!proxy_path){
+            std::cerr << "No user proxy defined, please setup X509_USER_PROXY"<< std::endl;
+            exit(-1);
+        }
+        x.loadFromFilePEM(proxy_path,proxy_path,"", NULL);
+        p.setClientCertX509(x);
+    } else{
+        char login_passwd[strlen(cert_path)+1];
+        char* pstr;
+        strcpy(login_passwd, cert_path);
+        pstr = strchr(login_passwd, ':');
+        if( pstr != NULL){
+            *pstr= '\0';
+            pstr++;
+            p.setClientLoginPassword(std::string(login_passwd), std::string(pstr));
+        }
+        p.setClientCertCallbackX509(&mycred_auth_callback_x509, cert_path);
     }
 
     // add standard grid certificate for wlcg test
@@ -56,7 +68,7 @@ void configure_grid_env(char * cert_path, RequestParams&  p){
     p.addCertificateAuthorityPath("");
     p.addCertificateAuthorityPath("/etc/group"); // add a file
 
-    p.setClientCertCallbackX509(&mycred_auth_callback_x509, cert_path);
+
 
 }
 

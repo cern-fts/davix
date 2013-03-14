@@ -6,6 +6,10 @@
 
 namespace Davix {
 
+inline bool httpCacheTokenIsValid(const Uri & myuri, const HttpCacheToken & token){
+    return (token.getrequestUri() == myuri);
+}
+
 
 struct HttpCacheTokenAccessor
 {

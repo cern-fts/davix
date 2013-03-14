@@ -151,7 +151,11 @@ private:
 
     // Private Members
     ssize_t getAnswerSizeFromHeaders() const;
+
+    int startRequest(DavixError** err);
+
     int processRedirection(int neonCode, DavixError** err); // analyze and process redirection if needed
+
     int pick_sess(DavixError** err);
     void configure_req();
 

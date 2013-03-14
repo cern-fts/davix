@@ -28,7 +28,7 @@ LIST(APPEND davix_auth_header "auth/davixauth.hpp" "auth/davixx509cred.hpp" "aut
 
 LIST(APPEND davix_file_header "file/davfile.hpp")
 
-LIST(APPEND davix_request_header "request/httprequest.hpp")
+LIST(APPEND davix_request_header "request/httprequest.hpp" "request/httpcachetoken.hpp")
 
 
 include_directories("libs" ".")

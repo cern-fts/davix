@@ -131,6 +131,7 @@ void httpcodeToDavixCode(int code, const std::string & scope, const std::string 
         case 202:           /* Accepted */
         case 203:           /* Non-Authoritative Information */
         case 204:           /* No Content */
+        case 206:           /* partial content*/
         case 205:           /* Reset Content */
         case 207:           /* Multi-Status */
         case 304:           /* Not Modified */
@@ -208,6 +209,7 @@ bool httpcodeIsValid(int code)
         case 202:           /* Accepted */
         case 203:           /* Non-Authoritative Information */
         case 204:           /* No Content */
+        case 206:           /* partial content */
         case 205:           /* Reset Content */
         case 207:           /* Multi-Status */
         case 304:           /* Not Modified */

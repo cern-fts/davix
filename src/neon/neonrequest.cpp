@@ -211,8 +211,8 @@ int NEONRequest::startRequest(DavixError **err){
         DavixError * tmp_err=NULL;
         _current = _cache_info->getCachedRedirection();
         DAVIX_TRACE("Try to use cached redirection %s", _current.getString().c_str());
-        if( (ret = create_req(&tmp_err)) == 0){
-            if((ret = negotiate_request(&tmp_err)) ==0){
+        if( (ret = create_req(&tmp_err)) >= 0){
+            if((ret = negotiate_request(&tmp_err)) >= 0){
                 if(httpcodeIsValid(getRequestCode())){
                     DAVIX_TRACE("use of %s with success", _current.getString().c_str());
                     return 0;

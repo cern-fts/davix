@@ -176,7 +176,6 @@ void httpcodeToDavixCode(int code, const std::string & scope, const std::string 
             str_msg = "HTTP Server Error";
             break;
         case 301:           /* Moved Permanently */
-        case 206:           /* Partial Content */
         case 300:           /* Multiple Choices */
         case 302:           /* Found */
         case 305:           /* Use Proxy */

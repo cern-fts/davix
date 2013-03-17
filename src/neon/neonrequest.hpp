@@ -156,6 +156,8 @@ private:
 
     int processRedirection(int neonCode, DavixError** err); // analyze and process redirection if needed
 
+    void reqReset();
+
     int pick_sess(DavixError** err);
     void configure_req();
 

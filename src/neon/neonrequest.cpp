@@ -127,15 +127,18 @@ NEONRequest::NEONRequest(NEONSessionFactory& f, const Uri & uri_req) :
 
 NEONRequest::~NEONRequest(){
     // safe destruction of the request
+    reqReset();
+}
+
+
+void NEONRequest::reqReset(){
     if(req_running) endRequest(NULL);
     free_request();
-
 }
 
 int NEONRequest::create_req(DavixError** err){
-    if(_req != NULL || req_started){
-        DavixError::setupError(err, davix_scope_http_request(), StatusCode::AlreadyRunning, "Http request already started, Error");
-        return -1;
+    if(_req){
+       reqReset();
     }
 
     if( pick_sess(err) < 0)

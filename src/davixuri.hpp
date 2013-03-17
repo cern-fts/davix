@@ -76,7 +76,6 @@ public:
     bool operator==(const Uri & u2) const;
 
 protected:
-    std::string uri_string;
     UriPrivate* d_ptr;
     void _init();
 };

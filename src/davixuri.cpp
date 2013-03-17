@@ -20,7 +20,8 @@ struct UriPrivate{
         path(),
         host(),
         query(),
-        query_and_path(){
+        query_and_path(),
+        _uri_string(){
 
         memset(&my_uri, 0, sizeof(my_uri));
     }
@@ -32,7 +33,8 @@ struct UriPrivate{
         path(orig.path),
         host(orig.host),
         query(orig.query),
-        query_and_path(orig.query_and_path){
+        query_and_path(orig.query_and_path),
+        _uri_string(orig._uri_string){
         ne_uri_copy(&my_uri, &(orig.my_uri));
 
     }
@@ -79,23 +81,21 @@ struct UriPrivate{
     std::string host;
     std::string query;
     std::string query_and_path;
+    std::string _uri_string;
 
 };
 
 Uri::Uri() :
-    uri_string(),
     d_ptr(new UriPrivate()){
 }
 
 
 Uri::Uri(const std::string & uri) :
-    uri_string(uri),
     d_ptr(new UriPrivate()){
     d_ptr->parsing(uri);
 }
 
 Uri::Uri(const Uri & uri) :
-    uri_string(uri.uri_string),
     d_ptr(new UriPrivate(*(uri.d_ptr))){
 }
 
@@ -117,7 +117,7 @@ const std::string & Uri::getHost() const{
 }
 
 const std::string & Uri::getString() const{
-    return uri_string;
+    return d_ptr->_uri_string;
 }
 
 const std::string & Uri::getProtocol() const {

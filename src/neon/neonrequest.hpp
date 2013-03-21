@@ -128,6 +128,9 @@ private:
 
     ne_request * _req;
     Uri  _current, _orig;
+    // read info
+    dav_ssize_t _last_read;
+
     std::vector<char> _vec;
 
     // request content;
@@ -140,8 +143,7 @@ private:
 
     // answer length
     mutable dav_ssize_t _ans_size;
-
-
+    // Request string
     std::string _request_type;
     NEONSessionFactory& _f;
     bool req_started, req_running;
@@ -149,6 +151,7 @@ private:
 
     std::vector< std::pair<std::string, std::string > > _headers_field;
 
+    ////////////////////////////////////////////
     // Private Members
     ssize_t getAnswerSizeFromHeaders() const;
 

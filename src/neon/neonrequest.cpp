@@ -106,6 +106,7 @@ NEONRequest::NEONRequest(NEONSessionFactory& f, const Uri & uri_req) :
     _req(NULL),
     _current(uri_req),
     _orig(uri_req),
+    _last_read(-1),
     _vec(),
     _content_ptr(),
     _content_len(0),
@@ -188,7 +189,7 @@ int NEONRequest::processRedirection(int neonCode, DavixError **err){
             neon_to_davix_code(neonCode, _neon_sess->get_ne_sess(), davix_scope_http_request(),err);
             return -1;
         }
-        ne_discard_response(_req);              // Get a valid redirection, drop request content
+       _last_read=  ne_discard_response(_req);              // Get a valid redirection, drop request content
         end_status = ne_end_request(_req);      // submit the redirection
         if(redirect_request(err) <0){           // accept redirection
             return -1;
@@ -271,7 +272,7 @@ int NEONRequest::negotiate_request(DavixError** err){
                 }
                 break;
             case 401: // authentification requested, do retry
-                ne_discard_response(_req);
+                _last_read= ne_discard_response(_req);
                 end_status = ne_end_request(_req);
 
                 if( end_status != NE_RETRY){
@@ -389,7 +390,7 @@ ssize_t NEONRequest::readBlock(char* buffer, size_t max_size, DavixError** err){
         DavixError::setupError(err, davix_scope_http_request(), StatusCode::AlreadyRunning, "No request started");
         return -1;
     }
-    read_status= ne_read_response_block(_req, buffer, max_size );
+    _last_read= read_status= ne_read_response_block(_req, buffer, max_size );
     if(read_status <0){
        DavixError::setupError(err, davix_scope_http_request(), StatusCode::ConnectionProblem, "Invalid Read in request");
        req_running = false;
@@ -422,6 +423,8 @@ int NEONRequest::endRequest(DavixError** err){
     int status;
     if(_req  && req_running == true){
         req_running = false;
+        if(_last_read > 0) // if read content, discard it
+            ne_discard_response(_req);
         if( (status = ne_end_request(_req)) != NE_OK){
             DavixError* tmp_err=NULL;
             if(_neon_sess.get() != NULL)

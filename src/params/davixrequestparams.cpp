@@ -269,9 +269,10 @@ const bool RequestParams::getKeepAlive() const{
     return d_ptr->_session_flag & SESSION_FLAG_KEEP_ALIVE;
 }
 
+// suppress useless warning
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
 void* RequestParams::getParmState() const{
-    // suppress useless warning
-    #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+
     return (void*) (d_ptr->_state_uid);
 }
 

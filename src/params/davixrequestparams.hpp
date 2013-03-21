@@ -133,6 +133,8 @@ public:
     /// get the keep alive value of this request params
     const bool getKeepAlive() const;
 
+    /// internal usage
+    void* getParmState() const;
 
     RequestParams & operator=(const RequestParams & _p);
 private:

@@ -12,6 +12,12 @@ namespace Davix {
 
 
 const char * default_agent = "libdavix/0.0.9";
+volatile int state_value =0;
+
+inline int get_requeste_uid(){
+    state_value +=1;
+    return state_value;
+}
 
 
 #define SESSION_FLAG_KEEP_ALIVE 0x01
@@ -31,7 +37,8 @@ struct RequestParamsInternal{
         connexion_timeout(),
         agent_string(default_agent),
         _proto(DAVIX_PROTOCOL_WEBDAV),
-        _session_flag(SESSION_FLAG_KEEP_ALIVE)
+        _session_flag(SESSION_FLAG_KEEP_ALIVE),
+        _state_uid(get_requeste_uid())
     {
         timespec_clear(&connexion_timeout);
         timespec_clear(&ops_timeout);
@@ -61,7 +68,8 @@ struct RequestParamsInternal{
         connexion_timeout(),
         agent_string(param_private.agent_string),
         _proto(param_private._proto),
-        _session_flag(param_private._session_flag){
+        _session_flag(param_private._session_flag),
+        _state_uid(param_private._state_uid){
 
         timespec_copy(&(connexion_timeout), &(param_private.connexion_timeout));
         timespec_copy(&(ops_timeout), &(param_private.ops_timeout));
@@ -92,6 +100,16 @@ struct RequestParamsInternal{
 
     // session flag
     int _session_flag;
+
+    // ssl state value, a state uid is used to check if two copy of a requestParam struct are equal
+    int _state_uid;
+
+
+    // method
+    inline void regenerateStateUid(){
+        _state_uid = get_requeste_uid();
+    }
+
 private:
     RequestParamsInternal & operator=(const RequestParamsInternal & params);
 };
@@ -134,15 +152,18 @@ bool RequestParams::getSSLCACheck() const{
 }
 
 void RequestParams::setSSLCAcheck(bool chk){
+    d_ptr->regenerateStateUid();
     d_ptr->_ssl_check = chk;
 }
 
 
 void RequestParams::setClientCertX509(const X509Credential & cli_cert){
+    d_ptr->regenerateStateUid();
     d_ptr->_cli_cert = cli_cert;
 }
 
 void RequestParams::setClientLoginPassword(const std::string & login, const std::string & password){
+    d_ptr->regenerateStateUid();
     d_ptr->_idlogpass = std::make_pair(login, password);
 }
 
@@ -157,6 +178,7 @@ const X509Credential & RequestParams::getClientCertX509() const{
 /// set a callback for X509 client side dynamic authentication
 /// this function overwrite \ref setClientCertX509
 void RequestParams::setClientCertCallbackX509(authCallbackClientCertX509 callback, void* userdata){
+    d_ptr->regenerateStateUid();
     d_ptr->_callb = callback;
     d_ptr->_callb_userdata = userdata;
 }
@@ -169,6 +191,7 @@ std::pair<authCallbackClientCertX509,void*> RequestParams::getClientCertCallback
 /// set a callback for X509 client side dynamic authentication
 /// this function overwrite \ref setClientCertX509
 void RequestParams::setClientLoginPasswordCallback(authCallbackLoginPasswordBasic callback, void* userdata){
+    d_ptr->regenerateStateUid();
     d_ptr->_call_loginpswwd = callback;
     d_ptr->_call_loginpswwd_userdata = userdata;
 }
@@ -180,6 +203,7 @@ std::pair<authCallbackLoginPasswordBasic,void*> RequestParams::getClientLoginPas
 
 
 void RequestParams::addCertificateAuthorityPath(const std::string &path){
+    d_ptr->regenerateStateUid();
     d_ptr->_ca_path.push_back(path);
 }
 
@@ -205,6 +229,7 @@ const struct timespec* RequestParams::getOperationTimeout() const {
 }
 
 void RequestParams::setTransparentRedirectionSupport(bool redirection){
+    d_ptr->regenerateStateUid();
     d_ptr->_redirection = redirection;
 }
 
@@ -218,6 +243,7 @@ const std::string & RequestParams::getUserAgent() const{
 }
 
 void RequestParams::setUserAgent(const std::string &user_agent){
+    d_ptr->regenerateStateUid();
     d_ptr->agent_string = user_agent;
 }
 
@@ -231,6 +257,7 @@ void RequestParams::setProtocol(const davix_request_protocol_t proto){
 }
 
 void RequestParams::setKeepAlive(const bool keep_alive_flag){
+    d_ptr->regenerateStateUid();
     if(keep_alive_flag)
         d_ptr->_session_flag |= SESSION_FLAG_KEEP_ALIVE;
     else
@@ -240,6 +267,12 @@ void RequestParams::setKeepAlive(const bool keep_alive_flag){
 
 const bool RequestParams::getKeepAlive() const{
     return d_ptr->_session_flag & SESSION_FLAG_KEEP_ALIVE;
+}
+
+void* RequestParams::getParmState() const{
+    // suppress useless warning
+    #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+    return (void*) (d_ptr->_state_uid);
 }
 
 

@@ -91,11 +91,12 @@ void NEONSessionFactory::internal_release_session_handle(ne_session* sess){
     //
     DppLocker lock(_sess_mut);
     std::multimap<std::string, ne_session*>::iterator it;
-    const std::string protocol(ne_get_scheme(sess));
-    const std::string hostport(ne_get_server_hostport(sess));
-    DAVIX_DEBUG("add old session to cache %s%s", protocol.c_str(), hostport.c_str());
+    std::string sess_key;
+    sess_key.append(ne_get_scheme(sess)).append(ne_get_server_hostport(sess));
 
-    _sess_map.insert(std::pair<std::string, ne_session*>(protocol + hostport, sess));
+    DAVIX_DEBUG("add old session to cache %s", sess_key.c_str());
+
+    _sess_map.insert(std::pair<std::string, ne_session*>(sess_key, sess));
 }
 
 

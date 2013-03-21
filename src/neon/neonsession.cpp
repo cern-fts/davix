@@ -10,6 +10,7 @@
 #include <libs/time_utils.h>
 #include <auth/davixx509cred_internal.hpp>
 
+const char* davix_neon_key="davix_key";
 
 namespace Davix{
 
@@ -131,63 +132,73 @@ NEONSession::~NEONSession(){
 
 void configureSession(ne_session *_sess, const RequestParams &params, ne_auth_creds lp_callback, void* lp_userdata,
                       ne_ssl_provide_fn cred_callback,  void* cred_userdata){
-    if(strcmp(ne_get_scheme(_sess), "https") ==0) // fix a libneon bug with non ssl connexion
-        ne_ssl_trust_default_ca(_sess);
 
-    // register redirection management
-    ne_redirect_register(_sess);
+    void* state = ne_get_session_private(_sess,davix_neon_key);
+    if(state == NULL || state != params.getParmState()){
+        // no configuration done, need to configure
+        DAVIX_TRACE("NEONSession : configure session...");
 
-    // define user agent
-    ne_set_useragent(_sess, params.getUserAgent().c_str());
+        if(strcmp(ne_get_scheme(_sess), "https") ==0) // fix a libneon bug with non ssl connexion
+            ne_ssl_trust_default_ca(_sess);
 
-    if(params.getSSLCACheck() == false){ // configure ssl check
-        DAVIX_DEBUG("NEONRequest : disable ssl verification");
-        ne_ssl_set_verify(_sess, validate_all_certificate, NULL);
-    }
+        // register redirection management
+        ne_redirect_register(_sess);
 
-    // if authentification for login/password
-    if( params.getClientLoginPassword().first.empty() == false
-            || params.getClientLoginPasswordCallback().first != NULL){
-        DAVIX_DEBUG("NEONSession : enable login/password authentication");
-        ne_set_server_auth(_sess, lp_callback, lp_userdata);
-    }else{
-        DAVIX_DEBUG("NEONSession : disable login/password authentication");
-    }
+        // define user agent
+        ne_set_useragent(_sess, params.getUserAgent().c_str());
 
-    // if authentification for cli cert by callback
-    if( params.getClientCertCallbackX509().first != NULL){
-        DAVIX_DEBUG("NEONSession : enable client cert authentication by callback ");
-        ne_ssl_provide_clicert(_sess, cred_callback, cred_userdata);
-    }else if( params.getClientCertX509().hasCert()){
-        ne_ssl_set_clicert(_sess, X509CredentialExtra::extract_ne_ssl_clicert(params.getClientCertX509()));
-        DAVIX_DEBUG("NEONSession : enable client cert authentication with predefined cert");
-    }else{
-          DAVIX_DEBUG("NEONSession : disable client cert authentication");
-    }
-
-    if( timespec_isset(params.getOperationTimeout())){
-        DAVIX_DEBUG("NEONSession : define operation timeout to %d", params.getOperationTimeout());
-        ne_set_read_timeout(_sess, (int) params.getOperationTimeout()->tv_sec);
-    }
-    if(timespec_isset(params.getConnectionTimeout())){
-        DAVIX_DEBUG("NEONSession : define connection timeout to %d", params.getConnectionTimeout());
-#ifndef _NEON_VERSION_0_25
-        ne_set_connect_timeout(_sess, (int) params.getConnectionTimeout()->tv_sec);
-#endif
-    }
-
-    for(std::vector<std::string>::const_iterator it = params.listCertificateAuthorityPath().begin(); it < params.listCertificateAuthorityPath().end(); it++){
-        struct stat st;
-        if ( stat(it->c_str(), &st) < 0 || S_ISDIR(st.st_mode) == false){
-            DAVIX_LOG(DAVIX_LOG_WARNING, "NEONSession : CA Path invalid : %s, %s ", it->c_str(), (errno != 0)?strerror(errno):strerror(ENOTDIR));
-            errno = 0;
-        }else{
-            DAVIX_TRACE(" add CA PATH %s", it->c_str());
-            ne_ssl_truse_add_ca_path(_sess, it->c_str());
+        if(params.getSSLCACheck() == false){ // configure ssl check
+            DAVIX_DEBUG("NEONRequest : disable ssl verification");
+            ne_ssl_set_verify(_sess, validate_all_certificate, NULL);
         }
-    }
 
-    ne_set_session_flag(_sess, NE_SESSFLAG_PERSIST, params.getKeepAlive());
+        // if authentification for login/password
+        if( params.getClientLoginPassword().first.empty() == false
+                || params.getClientLoginPasswordCallback().first != NULL){
+            DAVIX_DEBUG("NEONSession : enable login/password authentication");
+            ne_set_server_auth(_sess, lp_callback, lp_userdata);
+        }else{
+            DAVIX_DEBUG("NEONSession : disable login/password authentication");
+        }
+
+        // if authentification for cli cert by callback
+        if( params.getClientCertCallbackX509().first != NULL){
+            DAVIX_DEBUG("NEONSession : enable client cert authentication by callback ");
+            ne_ssl_provide_clicert(_sess, cred_callback, cred_userdata);
+        }else if( params.getClientCertX509().hasCert()){
+            ne_ssl_set_clicert(_sess, X509CredentialExtra::extract_ne_ssl_clicert(params.getClientCertX509()));
+            DAVIX_DEBUG("NEONSession : enable client cert authentication with predefined cert");
+        }else{
+              DAVIX_DEBUG("NEONSession : disable client cert authentication");
+        }
+
+        if( timespec_isset(params.getOperationTimeout())){
+            DAVIX_DEBUG("NEONSession : define operation timeout to %d", params.getOperationTimeout());
+            ne_set_read_timeout(_sess, (int) params.getOperationTimeout()->tv_sec);
+        }
+        if(timespec_isset(params.getConnectionTimeout())){
+            DAVIX_DEBUG("NEONSession : define connection timeout to %d", params.getConnectionTimeout());
+    #ifndef _NEON_VERSION_0_25
+            ne_set_connect_timeout(_sess, (int) params.getConnectionTimeout()->tv_sec);
+    #endif
+        }
+
+        for(std::vector<std::string>::const_iterator it = params.listCertificateAuthorityPath().begin(); it < params.listCertificateAuthorityPath().end(); it++){
+            struct stat st;
+            if ( stat(it->c_str(), &st) < 0 || S_ISDIR(st.st_mode) == false){
+                DAVIX_LOG(DAVIX_LOG_WARNING, "NEONSession : CA Path invalid : %s, %s ", it->c_str(), (errno != 0)?strerror(errno):strerror(ENOTDIR));
+                errno = 0;
+            }else{
+                DAVIX_TRACE(" add CA PATH %s", it->c_str());
+                ne_ssl_truse_add_ca_path(_sess, it->c_str());
+            }
+        }
+
+        ne_set_session_flag(_sess, NE_SESSFLAG_PERSIST, params.getKeepAlive());
+
+        // setup sess key
+        ne_set_session_private(_sess, davix_neon_key, params.getParmState());
+    }
 
 }
 

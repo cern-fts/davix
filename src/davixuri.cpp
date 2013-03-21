@@ -1,5 +1,4 @@
 #include "davixuri.hpp"
-#include "davixuri.h"
 #include <ne_uri.h>
 #include <cassert>
 #include <cstring>
@@ -178,71 +177,4 @@ bool uriCheckError(const Uri &uri, DavixError **err){
 } // namespace Davix
 
 
-/**
- * @endcond
- **/
 
-DAVIX_C_DECL_BEGIN
-
-using namespace Davix;
-
-struct davix_uri_s;
-
-davix_uri_t davix_uri_new(const char* url){
-    return (davix_uri_t) new Uri(url);
-}
-
-davix_uri_t davix_uri_copy(davix_uri_t orig_uri){
-    assert(orig_uri != NULL);
-    Uri* myself = (Uri*) orig_uri;
-    return (davix_uri_t) new Uri(*myself);
-}
-
-void davix_uri_free(davix_uri_t duri){
-    if(duri)
-        delete ((Uri*) duri);
-}
-
-int davix_uri_get_port(davix_uri_t duri){
-    assert(duri != NULL);
-    return ((Uri*) duri)->getPort();
-}
-
-const char* davix_uri_get_string(davix_uri_t duri){
-    assert(duri != NULL);
-    Uri* myself = (Uri*) duri;
-    return ((myself->getString().empty() == false)?(myself->getString().c_str()):NULL);
-}
-
-const char* davix_uri_get_path(davix_uri_t duri){
-    assert(duri != NULL);
-    Uri* myself = (Uri*) duri;
-    return ((myself->getPath().empty() == false)?(myself->getPath().c_str()):NULL);
-}
-
-const char* davix_uri_get_host(davix_uri_t duri){
-    assert(duri != NULL);
-    Uri* myself = (Uri*) duri;
-    return ((myself->getHost().empty() == false)?(myself->getHost().c_str()):NULL);
-}
-
-const char* davix_uri_get_path_and_query(davix_uri_t duri){
-    assert(duri != NULL);
-    Uri* myself = (Uri*) duri;
-    return ((myself->getPathAndQuery().empty() == false)?(myself->getPathAndQuery().c_str()):NULL);
-}
-
-const char* davix_uri_get_protocol(davix_uri_t duri){
-    assert(duri != NULL);
-    Uri* myself = (Uri*) duri;
-    return ((myself->getProtocol().empty() == false)?(myself->getProtocol().c_str()):NULL);
-}
-
-
-davix_status_t davix_uri_get_status(davix_uri_t duri){
-    assert(duri != NULL);
-    Uri* myself = (Uri*) duri;
-    return ((davix_status_t) myself->getStatus());
-}
-
-DAVIX_C_DECL_END

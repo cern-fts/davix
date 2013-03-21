@@ -84,6 +84,7 @@ char * generate_random_string_content(size_t size){
 }
 
 
+/*
 DAVIX_C_DECL_BEGIN
 
 
@@ -116,3 +117,4 @@ void configure_grid_env_c(char * cert_path, davix_params_t  params){
 }
 
 DAVIX_C_DECL_END
+*/

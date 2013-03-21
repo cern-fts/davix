@@ -1,5 +1,7 @@
 #include "test_stat_c.h"
 
+/*
+
 #include <stdio.h>
 #include <davix.h>
 #include <string.h>
@@ -47,3 +49,4 @@ int main(int argc, char** argv){
 }
 
 
+*/

@@ -1,6 +1,7 @@
 #ifndef DAVIX_TEST_LIB_C_H
 #define DAVIX_TEST_LIB_C_H
 
+/*
 #include <davix.h>
 
 DAVIX_C_DECL_BEGIN
@@ -13,4 +14,5 @@ void configure_grid_env_c(char * auth_args, davix_params_t params);
 
 DAVIX_C_DECL_END
 
+*/
 #endif // DAVIX_TEST_LIB_H

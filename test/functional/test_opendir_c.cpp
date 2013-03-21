@@ -1,5 +1,6 @@
 #include "test_opendir_c.h"
 
+/*
 
 #include <davix.h>
 #include <string.h>
@@ -33,12 +34,7 @@ int main(int argc, char** argv){
             std::cout << " handle creation error" << std::endl;
             return -2;
         }
-   /*     if(argc > 2){
-            params = davix_params_new();
-            davix_params_set_auth_callback(params, mycred_auth_callback, argv[2], &tmp_err);
-            davix_params_set_ssl_check(params, FALSE, &tmp_err);
-          //  davix_set_default_session_params(ctxt, p, NULL);
-        }*/
+
 
 
 
@@ -60,3 +56,4 @@ int main(int argc, char** argv){
     return 0;
 }
 
+*/

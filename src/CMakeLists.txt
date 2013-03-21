@@ -13,18 +13,18 @@ FILE(GLOB src_davix_auth "auth/*.cpp")
 FILE(GLOB src_davix_file "file/*.cpp")
 FILE(GLOB src_davix_request "request/*.cpp")
 
-LIST(APPEND davix_headers "davix.h" "davix_types.h"  "davixuri.h" "davixcontext.hpp"
+LIST(APPEND davix_headers "davix_types.h"  "davixcontext.hpp"
              "davix.hpp" "davixuri.hpp" )
 
 LIST(APPEND davix_logger_header "logger/davix_logger.h")
 
-LIST(APPEND davix_posix_header "posix/davix_posix.h" "posix/davposix.hpp")
+LIST(APPEND davix_posix_header "posix/davposix.hpp")
 
-LIST(APPEND davix_status_header "status/davixstatusrequest.hpp" "status/davix_error.h")
+LIST(APPEND davix_status_header "status/davixstatusrequest.hpp")
 
-LIST(APPEND davix_params_header "params/davixrequestparams.hpp" "params/davixrequestparams.h")
+LIST(APPEND davix_params_header "params/davixrequestparams.hpp" )
 
-LIST(APPEND davix_auth_header "auth/davixauth.hpp" "auth/davixx509cred.hpp" "auth/davixauth.h" "auth/davixx509cred.h")
+LIST(APPEND davix_auth_header "auth/davixauth.hpp" "auth/davixx509cred.hpp" )
 
 LIST(APPEND davix_file_header "file/davfile.hpp")
 

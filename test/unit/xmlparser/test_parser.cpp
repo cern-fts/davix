@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <ctime>
 #include <datetime/datetime_utils.h>
-#include <davix.h>
+#include <davix.hpp>
 #include <xml/davxmlparser.hpp>
 #include <xml/davpropxmlparser.hpp>
 #include <gtest/gtest.h>

@@ -3,7 +3,6 @@
 
 #include <string>
 #include <davix_types.h>
-#include <status/davix_error.h>
 #include <iostream>
 
 /**

@@ -277,48 +277,6 @@ int DavPosix::closedir(DAVIX_DIR * d, DavixError** err){
 
 
 
-DAVIX_C_DECL_BEGIN
-
-DAVIX_DIR* davix_posix_opendir(davix_sess_t sess, davix_params_t _params, const char* url,  davix_error_t* err){
-    davix_return_val_if_fail(sess != NULL, NULL);
-    DAVIX_DIR* ret = NULL;
-
-
-    Davix::DavPosix p((Davix::Context*)(sess));
-    Davix::RequestParams * params = (Davix::RequestParams*) (_params);
-    ret= p.opendir(params,url, (Davix::DavixError**) err);
-
-    return ret;
-}
-
-
-
-int davix_posix_closedir(davix_sess_t sess, DAVIX_DIR* d, davix_error_t* err){
-    davix_return_val_if_fail(sess != NULL,-1);
-
-    Davix::DavPosix p((Davix::Context*)(sess));
-
-
-    return p.closedir(d,(Davix::DavixError**) err);
-
-}
-
-
-struct dirent* davix_posix_readdir(davix_sess_t sess, DAVIX_DIR* d, davix_error_t* err){
-    davix_return_val_if_fail(sess != NULL,NULL);
-
-    struct dirent* ret = NULL;
-    Davix::DavPosix p((Davix::Context*)(sess));
-
-    if(d){
-        ret= p.readdir(d, (Davix::DavixError**) err);
-    }
-
-    return ret;
-}
-
-
-DAVIX_C_DECL_END
 
 
 

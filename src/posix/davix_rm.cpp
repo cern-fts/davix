@@ -84,26 +84,6 @@ int DavPosix::rmdir(const RequestParams * params, const std::string &url, DavixE
 
 
 
-DAVIX_C_DECL_BEGIN
 
-int davix_posix_unlink(davix_sess_t sess, davix_params_t _params, const char* url,   davix_error_t* err){
-    davix_return_val_if_fail(sess != NULL && url != NULL,-1);
-
-    Davix::DavPosix p((Davix::Context*)(sess));
-    Davix::RequestParams * params = (Davix::RequestParams*) (_params);
-
-    return p.unlink(params, url,  (Davix::DavixError**) err);
-}
-
-int davix_posix_rmdir(davix_sess_t sess, davix_params_t _params, const char* url,   davix_error_t* err){
-    davix_return_val_if_fail(sess != NULL && url != NULL,-1);
-
-    Davix::DavPosix p((Davix::Context*)(sess));
-    Davix::RequestParams * params = (Davix::RequestParams*) (_params);
-
-    return p.rmdir(params, url,  (Davix::DavixError**) err);
-}
-
-DAVIX_C_DECL_END
 
 

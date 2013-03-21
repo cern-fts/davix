@@ -194,40 +194,5 @@ std::string davix_scope_x509cred(){
 
 } // namespace Davix
 
-DAVIX_C_DECL_BEGIN
-
-using namespace Davix;
-
-///  @brief clear a davix error object and release its memory, and set the error pointer to NULL
-///
-void davix_error_clear(davix_error_t* ptr_err){
-    DavixError::clearError((DavixError**) ptr_err);
-}
-
-/// @brief create a new davix error object
-///
-void davix_error_setup(davix_error_t* ptr_err, const char* scope, int status_code, const char* msg){
-    DavixError::setupError((DavixError**) ptr_err, scope, (Davix::StatusCode::Code)status_code, msg);
-}
-
-
-const char* davix_error_msg(davix_error_t err){
-    return ((DavixError*) err)->getErrMsg().c_str();
-}
-
-int davix_error_code(davix_error_t err){
-    return ((DavixError*) err)->getStatus();
-}
-
-const char* davix_error_scope(davix_error_t err){
-    return NULL; // TODO
-}
-
-void davix_error_propagate(davix_error_t* newErr, davix_error_t oldErr ){
-    DavixError::propagateError((DavixError**)newErr, (DavixError*) oldErr);
-}
-
-
-DAVIX_C_DECL_END
 
 

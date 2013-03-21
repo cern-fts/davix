@@ -101,29 +101,4 @@ ne_ssl_client_cert* X509CredentialExtra::extract_ne_ssl_clicert(const X509Creden
 } // namespace DAvix
 
 
-DAVIX_C_DECL_BEGIN
 
-davix_x509_cert_t davix_x509_cert_new(){
-    return (davix_x509_cert_t) new Davix::X509Credential();
-}
-
-/// return true if certificate container contain a valid credential, else false
-bool davix_x509_cert_has_cert(davix_x509_cert_t cred){
-    assert(cred);
-    return ((Davix::X509Credential*) cred)->hasCert();
-}
-
-/// load a pkcs12 certificate
-int davix_x509_cert_load_from_p12(davix_x509_cert_t cred, const char * path, const char* passwd, davix_error_t* err){
-    assert(cred && path);
-    return ((Davix::X509Credential*) cred)->loadFromFileP12(path, ((passwd)?(passwd):""), (Davix::DavixError**)err);
-}
-
-/// free a container for X509 certificate
-void davix_x509_cert_free(davix_x509_cert_t cred){
-    if(cred)
-        delete (Davix::X509Credential*) cred;
-}
-
-
-DAVIX_C_DECL_END

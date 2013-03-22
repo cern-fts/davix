@@ -279,17 +279,19 @@ ssize_t HttpVecOps::parseMultipartRequest(const DavIOVecInput *input_vec,
                                             DavIOVecOuput * output_vec,
                               const dav_size_t count_vec, DavixError** err){
     std::string boundary;
-    dav_ssize_t file_size;
+    dav_ssize_t file_size = INT64_MAX;
     dav_ssize_t current_offset=0;
     ssize_t ret = 0;
     DAVIX_TRACE(" -> Davix multi part parsing");
 
-    if(( file_size = _req.getAnswerSize() )== -1
-          || check_multi_part_content_type(_req, boundary, err)  != 0 ){
+    if(check_multi_part_content_type(_req, boundary, err)  != 0 ){
         DAVIX_TRACE("Invalid Header Content info for multi part request");
         HttpIoVecSetupErrorMultiPart(err);
         return -1;
     }
+
+    if(_req.getAnswerSize() > 0 )
+        file_size= _req.getAnswerSize();
 
     std::deque<PartPtr> parts;
     for(dav_size_t i =0; i < count_vec; ++i)

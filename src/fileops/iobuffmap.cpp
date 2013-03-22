@@ -381,9 +381,8 @@ ssize_t HttpIOBuffer::write(const void *buf, size_t count, DavixError **err){
     if(_pos != 0){
         DavixError::setupError(&tmp_err, davix_scope_http_request(), StatusCode::OperationNonSupported, " Multi-part write is not supported by Http !");
     }else{
-        HttpRequest req( _c, _uri, &tmp_err);
+        PutRequest req( _c, _uri, &tmp_err);
         if(tmp_err == NULL){
-            req.setRequestMethod("PUT");
             req.setParameters(_params);
             req.setRequestBodyBuffer(buf, count);
             if(req.beginRequest(&tmp_err) ==0){

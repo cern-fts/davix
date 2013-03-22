@@ -80,7 +80,6 @@ int incremental_propfind_listdir_parsing(HttpRequest* req, DavPropXMLParser * pa
 
 void configure_req_for_listdir(HttpRequest* req){
     req->addHeaderField("Depth","1");
-    req->setRequestMethod("PROPFIND");
 }
 
 DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char * scope, const std::string & body, const std::string & url, DavixError** err ){
@@ -89,7 +88,7 @@ DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char
     int ret =-1;
     DavixError* tmp_err=NULL;
     RequestParams params(_params);
-    HttpRequest* http_req = new HttpRequest(*context, url, &tmp_err);
+    PropfindRequest* http_req = new PropfindRequest(*context, url, &tmp_err);
 
     // create a new connexion + parser for this opendir
     if(tmp_err == NULL){

@@ -190,6 +190,43 @@ private:
 };
 
 
+/// @class GetRequest
+/// @brief Http low level request configured for GET operation
+class GetRequest : public HttpRequest{
+public:
+    GetRequest(Context & context, const Uri & uri, DavixError** err);
+};
+
+/// @class PutRequest
+/// @brief Http low level request configured for PUT operation
+class PutRequest : public HttpRequest{
+public:
+    PutRequest(Context & context, const Uri & uri, DavixError** err);
+};
+
+/// @class HeadRequest
+/// @brief Http low level request configured for HEAD operation
+class HeadRequest : public HttpRequest{
+public:
+    HeadRequest(Context & context, const Uri & uri, DavixError** err);
+};
+
+
+/// @class DeleteRequest
+/// @brief Http low level request configured for DELETE operation
+class DeleteRequest : public HttpRequest{
+public:
+    DeleteRequest(Context & context, const Uri & uri, DavixError** err);
+};
+
+
+/// @class PropfindRequest
+/// @brief Webdav low level request configured for PROPFIND operation
+class PropfindRequest : public HttpRequest{
+public:
+    PropfindRequest(Context & context, const Uri & uri, DavixError** err);
+};
+
 
 
 DAVIX_EXPORT bool httpcodeIsValid(int code);

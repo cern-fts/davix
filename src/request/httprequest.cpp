@@ -122,6 +122,61 @@ void HttpRequest::useCacheToken(const HttpCacheToken *token){
                     (token->getCachedRedirection().getString().c_str()));
 }
 
+
+///////////////////////////////////////////////////
+///// Simplified request GET
+////////////////////////////////////////////////////
+
+GetRequest::GetRequest(Context & context, const Uri & uri, DavixError** err) :
+    HttpRequest(context, uri, err)
+{
+
+}
+
+
+///////////////////////////////////////////////////
+///// Simplified request PUT
+////////////////////////////////////////////////////
+
+PutRequest::PutRequest(Context & context, const Uri & uri, DavixError** err) :
+    HttpRequest(context, uri, err)
+{
+    setRequestMethod("PUT");
+}
+
+///////////////////////////////////////////////////
+///// Simplified request HEAD
+////////////////////////////////////////////////////
+
+HeadRequest::HeadRequest(Context & context, const Uri & uri, DavixError** err) :
+    HttpRequest(context, uri, err)
+{
+    setRequestMethod("HEAD");
+}
+
+
+///////////////////////////////////////////////////
+///// Simplified request DELETE
+////////////////////////////////////////////////////
+
+DeleteRequest::DeleteRequest(Context & context, const Uri & uri, DavixError** err) :
+    HttpRequest(context, uri, err)
+{
+    setRequestMethod("DELETE");
+}
+
+///////////////////////////////////////////////////
+///// Simplified request PROPFIND
+////////////////////////////////////////////////////
+
+PropfindRequest::PropfindRequest(Context & context, const Uri & uri, DavixError** err) :
+    HttpRequest(context, uri, err)
+{
+    setRequestMethod("PROPFIND");
+}
+
+
+
 void httpcodeToDavixCode(int code, const std::string & scope, const std::string & end_message, DavixError** err){
     StatusCode::Code dav_code;
     std::string str_msg;

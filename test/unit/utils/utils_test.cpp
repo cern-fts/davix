@@ -2,6 +2,7 @@
 
 #include <davix.hpp>
 #include <string_utils/stringutils.hpp>
+#include <base64/base64.hpp>
 #include <gtest/gtest.h>
 
 using namespace std;
@@ -28,4 +29,23 @@ TEST(StringUtils, splitok){
     delimiter=" ";
     res = stringTokSplit(str, delimiter);
     ASSERT_EQ(0, res.size());
+}
+
+
+TEST(testBase64, cmpbase){
+
+    size_t s_buff= rand()%100000;
+    char buff_input[s_buff];
+
+    for(size_t i = 0; i < s_buff; i++)
+        buff_input[i]= (char) rand()%255;
+
+    std::string conv = Base64::base64_encode((unsigned char*)buff_input, s_buff);
+
+  //  std::cout << conv << std::endl;
+
+    std::string res=  Base64::base64_decode(conv);
+    ASSERT_EQ(s_buff, res.length());
+    ASSERT_TRUE( memcmp(buff_input, res.c_str(), s_buff) == 0);
+
 }

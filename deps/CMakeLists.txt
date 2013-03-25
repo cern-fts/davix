@@ -27,6 +27,9 @@ SET(SRC_SIMPLE_GET_PASS "${CMAKE_CURRENT_SOURCE_DIR}/simple_getpass/simple_get_p
 SET(SRC_STRING_UTILS_CPP "${CMAKE_CURRENT_SOURCE_DIR}/string_utils/stringutils.cpp" PARENT_SCOPE)
 
 
+#base64
+SET(SRC_BASE64 "${CMAKE_CURRENT_SOURCE_DIR}/base64/base64.cpp" PARENT_SCOPE)
+
 add_subdirectory(libneon)
 
 

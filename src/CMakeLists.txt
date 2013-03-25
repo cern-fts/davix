@@ -79,7 +79,7 @@ add_PkgConfigFile_for_Library("davix.pc" libdavix
                                HEADER_DIRS "davix"
                                CFLAGS " -D_FILE_OFFSET_BITS=64 "
                                DESCRIPTION "Davix, High level WebDav/HTTP library"
-                               REQUIRES "glib-2.0")
+                               )
 
 endif(shared_library)
 

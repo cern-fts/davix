@@ -32,6 +32,7 @@ struct RequestParamsInternal{
         _callb_userdata(NULL),
         _call_loginpswwd(NULL),
         _call_loginpswwd_userdata(NULL),
+        _aws_cred(),
         ops_timeout(),
         connexion_timeout(),
         agent_string(default_agent),
@@ -63,6 +64,7 @@ struct RequestParamsInternal{
         _callb_userdata(param_private._callb_userdata),
         _call_loginpswwd(param_private._call_loginpswwd),
         _call_loginpswwd_userdata(param_private._call_loginpswwd_userdata),
+        _aws_cred(param_private._aws_cred),
         ops_timeout(),
         connexion_timeout(),
         agent_string(param_private.agent_string),
@@ -86,6 +88,7 @@ struct RequestParamsInternal{
     void* _callb_userdata;
     authCallbackLoginPasswordBasic _call_loginpswwd;
     void* _call_loginpswwd_userdata;
+    std::pair<AwsSecretKey, AwsAccessKey> _aws_cred;
 
     // timeout management
     struct timespec ops_timeout;
@@ -200,6 +203,14 @@ std::pair<authCallbackLoginPasswordBasic,void*> RequestParams::getClientLoginPas
     return std::pair<authCallbackLoginPasswordBasic,void*>(d_ptr->_call_loginpswwd, d_ptr->_call_loginpswwd_userdata);
 }
 
+
+void RequestParams::setAwsAuthorizationKeys(const std::string &secret_key, const std::string &access_key){
+    d_ptr->_aws_cred = std::pair<AwsSecretKey, AwsAccessKey>(secret_key,access_key);
+}
+
+const std::pair<AwsSecretKey, AwsAccessKey> & RequestParams::getAwsAutorizationKeys() const{
+    return d_ptr->_aws_cred;
+}
 
 void RequestParams::addCertificateAuthorityPath(const std::string &path){
     d_ptr->regenerateStateUid();

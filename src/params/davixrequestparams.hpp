@@ -40,6 +40,8 @@ namespace RequestProtocol{
 
 
 struct RequestParamsInternal;
+typedef std::string AwsSecretKey;
+typedef std::string AwsAccessKey;
 
 ///
 /// @class RequestParams
@@ -82,16 +84,21 @@ public:
     /// this function overwrite \ref setClientCertX509
     void setClientCertCallbackX509(authCallbackClientCertX509 callback, void* userdata);
 
-    /// return the current client side callback for authentification with the associated user data
+    /// return the current client side callback for authentication with the associated user data
     std::pair<authCallbackClientCertX509,void*> getClientCertCallbackX509() const;
 
-    /// set a callback for basic login/password http authentification
+    /// set a callback for basic login/password http authentication
     /// this function overwrite \ref setClientLoginPassword
     void setClientLoginPasswordCallback(authCallbackLoginPasswordBasic callback, void* userdata);
 
     /// return the current login/password callback and the associated user data
     std::pair<authCallbackLoginPasswordBasic,void*> getClientLoginPasswordCallback() const;
 
+    /// set S3 authorization key and pass
+    void setAwsAuthorizationKeys(const std::string & secret_key, const std::string & access_key);
+
+    /// get S3 authorization keys
+    const std::pair<AwsSecretKey, AwsAccessKey> & getAwsAutorizationKeys() const;
 
     /// add the CA certificate in the directory 'path' as trusted certificate
     void addCertificateAuthorityPath(const std::string & path);

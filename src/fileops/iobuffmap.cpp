@@ -240,7 +240,8 @@ int HttpIO::stat(struct stat *st, DavixError **err){
 
 int HttpIO::stat(struct stat* st, HttpCacheToken** token, DavixError** err){
     RequestParams p(_params);
-    p.setProtocol(RequestProtocol::Http);
+    if(p.getProtocol()== RequestProtocol::Auto) // default -> switch to http mode
+        p.setProtocol(RequestProtocol::Http);
     return Meta::posixStat(_c, _uri, &p, st, token, err);
 }
 

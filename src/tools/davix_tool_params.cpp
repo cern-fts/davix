@@ -18,6 +18,8 @@ const std::string scope_params = "Davix::Tools::Params";
 #define USER_LOGIN      1002
 #define USER_PASSWORD   1003
 #define DATA_CONTENT    1004
+#define S3_SECRET_KEY   1005
+#define S3_ACCESS_KEY   1006
 
 // LONG OPTS
 
@@ -32,6 +34,8 @@ const std::string scope_params = "Davix::Tools::Params";
 {"capath",  required_argument, 0, CAPATH_OPT }, \
 {"userlogin", required_argument, 0, USER_LOGIN}, \
 {"userpass", required_argument, 0, USER_PASSWORD}, \
+{"s3secretkey", required_argument, 0, S3_SECRET_KEY}, \
+{"s3accesskey", required_argument, 0, S3_ACCESS_KEY}, \
 {"insecure", no_argument, 0,  'k' }
 
 #define REQUEST_LONG_OPTIONS \
@@ -51,7 +55,8 @@ OptParams::OptParams() :
     cred_path(),
     output_file_path(),
     userlogpasswd(),
-    req_content()
+    req_content(),
+    aws_auth()
 {
 
 }
@@ -120,6 +125,12 @@ int parse_davix_options_generic(const std::string &opt_filter,
                 break;
             case DATA_CONTENT:
                 p.req_content = optarg;
+                break;
+            case S3_ACCESS_KEY:
+                p.aws_auth.second = optarg;
+                break;
+            case S3_SECRET_KEY:
+                p.aws_auth.first = optarg;
                 break;
             case 'o':
                 p.output_file_path = optarg;
@@ -214,7 +225,8 @@ const std::string  & get_common_options(){
             "\t--insecure, -k:           Disable SSL credential checks\n"
             "\t--userlogin:              User login for login/password authentication\n"
             "\t--userpass:               User password for login/password authentication\n"
-
+            "\t--s3secretkey:            S3 authentication: secret key\n"
+            "\t--s3accesskey:            S3 authentication: access key\n"
             );
     return s;
 }

@@ -23,6 +23,13 @@ int setup_credential(OptParams & opts, DavixError** err){
 
     // setup client login / password
     opts.params.setClientLoginPasswordCallback(&DavixToolsAuthCallbackLoginPassword, &opts);
+
+    //setup aws creds
+    if(opts.aws_auth.first.empty() == false){
+        opts.params.setAwsAuthorizationKeys(opts.aws_auth.first, opts.aws_auth.second);
+        opts.params.setProtocol(RequestProtocol::AwsS3);
+    }
+
     return 0;
 }
 

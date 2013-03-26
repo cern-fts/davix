@@ -140,6 +140,7 @@ dav_ssize_t posixStat(Context & c, const Uri & url, const RequestParams * _param
 
     switch(params.getProtocol()){
          case RequestProtocol::Http:
+         case RequestProtocol::AwsS3:
             ret = dav_stat_mapper_http(c, &params, url, st, token_ptr, &tmp_err);
             break;
         default:

@@ -35,6 +35,8 @@ struct OptParams{
     LoginPasswd userlogpasswd;
     // request content
     std::string req_content;
+    // s3 auth
+    std::pair<std::string, std::string> aws_auth;
 };
 
 int parse_davix_options(int argc, char** argv, OptParams & p, DavixError** err);

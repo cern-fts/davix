@@ -174,7 +174,10 @@ private:
     void reqReset();
 
     int pick_sess(DavixError** err);
+
     void configure_req();
+
+    void configureS3params();
 
     // create initial neon request object
     int create_req(DavixError** err);

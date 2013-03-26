@@ -164,6 +164,10 @@ int NEONRequest::pick_sess(DavixError** err){
 }
 
 void NEONRequest::configure_req(){
+    // configure S3 params if needed
+    if(params.getProtocol() == RequestProtocol::AwsS3)
+        configureS3params();
+
     // setup headers
     for(size_t i=0; i< _headers_field.size(); ++i){
         ne_add_request_header(_req, _headers_field[i].first.c_str(),  _headers_field[i].second.c_str());
@@ -181,7 +185,27 @@ void NEONRequest::configure_req(){
         ne_set_request_body_buffer(_req, _content_ptr, _content_len);       
     }
 
-   // ne_set_request_flag(_req, NE_REQFLAG_EXPECT100, 1);
+
+}
+
+
+void NEONRequest::configureS3params(){
+    struct tm utc_current;
+    time_t t = time(NULL);
+    char date[255];
+    std::ostringstream ss;
+    date[254]= '\0';
+    gmtime_r(&t, &utc_current);
+    strftime(date, 254, "%a, %d %b %Y %H:%M:%S %z", &utc_current);
+    // add Date header
+    addHeaderField("Date", date);
+    // construct Request token
+    ss << _request_type << "\n"
+       << "\n"          // TODO : implement Content-type and md5 parser
+       << "\n"
+       << date << "\n"
+       << _current.getPath();
+    addHeaderField("Authorization", getAwsAuthorizationField(ss.str(), params.getAwsAutorizationKeys().first, params.getAwsAutorizationKeys().second));
 }
 
 int NEONRequest::processRedirection(int neonCode, DavixError **err){

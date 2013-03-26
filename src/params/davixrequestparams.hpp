@@ -94,7 +94,7 @@ public:
     /// return the current login/password callback and the associated user data
     std::pair<authCallbackLoginPasswordBasic,void*> getClientLoginPasswordCallback() const;
 
-    /// set S3 authorization key and pass
+    /// set S3 authorization keys
     void setAwsAuthorizationKeys(const std::string & secret_key, const std::string & access_key);
 
     /// get S3 authorization keys

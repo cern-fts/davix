@@ -164,6 +164,20 @@ bool Uri::operator ==(const Uri & u2) const{
 }
 
 
+std::string Uri::escapeString(const std::string & str){
+    char* p = ne_path_escape(str.c_str());
+    std::string  res(p);
+    free(p);
+    return res;
+}
+
+std::string Uri::unescapeString(const std::string & str){
+    char* p = ne_path_unescape(str.c_str());
+    std::string res(p);
+    free(p);
+    return res;
+}
+
 bool uriCheckError(const Uri &uri, DavixError **err){
     if(uri.getStatus() == StatusCode::OK)
         return true;

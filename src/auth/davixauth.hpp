@@ -13,7 +13,7 @@
 
 /// @file davixauth.hpp
 /// @brief Authentication support for davix
-/// support for client cert x509, login password
+/// support for client cert x509, login password, S3 tokens
 
 
 namespace Davix {
@@ -47,6 +47,10 @@ typedef int (*authCallbackClientCertX509)(void* userdata, const SessionInfo & in
 /// @return MUST return 0 if success, or !=0 if an error has occures
 typedef int (*authCallbackLoginPasswordBasic)(void* userdata, const SessionInfo & info, std::string & login, std::string & password,
                                         int count, DavixError** err);
+
+
+
+std::string getAwsAuthorizationField(const std::string & stringToSign, const std::string & private_key, const std::string & access_key);
 
 } // namespace Davix
 

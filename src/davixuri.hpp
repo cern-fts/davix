@@ -75,6 +75,11 @@ public:
 
     bool operator==(const Uri & u2) const;
 
+
+    static std::string escapeString(const std::string & str);
+
+    static std::string unescapeString(const std::string & str);
+
 protected:
     UriPrivate* d_ptr;
     void _init();

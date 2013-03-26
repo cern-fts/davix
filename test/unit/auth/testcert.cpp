@@ -3,6 +3,7 @@
 #include <davix.hpp>
 #include <davixcontext.hpp>
 #include <params/davixrequestparams.hpp>
+#include <auth/davixauth.hpp>
 #include <gtest/gtest.h>
 
 using namespace std;
@@ -46,7 +47,22 @@ TEST(CredTest, basicLoad){
     ASSERT_EQ(StatusCode::LoginPasswordError, tmp_err->getStatus());
     DavixError::clearError(&tmp_err);
 
+}
 
 
+TEST(testAWS, awsToken){
+    std::string p_key("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY");
+    std::string a_key("AKIAIOSFODNN7EXAMPLE");
+    std::string req("GET\n"
+                    "\n"
+                    "\n"
+                    "Tue, 27 Mar 2007 19:36:42 +0000\n"
+                    "/johnsmith/photos/puppy.jpg");
+    std::string token("AWS AKIAIOSFODNN7EXAMPLE:"
+                      "bWq2s1WEIj+Ydj0vQ697zp+IXMU=");
+
+
+    std::string res = getAwsAuthorizationField(req, p_key, a_key);
+    ASSERT_STREQ(res.c_str(), token.c_str());
 
 }

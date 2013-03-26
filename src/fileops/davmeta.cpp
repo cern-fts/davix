@@ -139,7 +139,7 @@ dav_ssize_t posixStat(Context & c, const Uri & url, const RequestParams * _param
     int ret =-1;
 
     switch(params.getProtocol()){
-         case DAVIX_PROTOCOL_HTTP:
+         case RequestProtocol::Http:
             ret = dav_stat_mapper_http(c, &params, url, st, token_ptr, &tmp_err);
             break;
         default:

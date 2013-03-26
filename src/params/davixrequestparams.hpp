@@ -24,10 +24,22 @@
 
 namespace Davix {
 
+
+namespace RequestProtocol{
+    enum Protocol{
+        // default
+        Auto=0,
+        // Strict Http without extensions
+        Http,
+        // Use Http + Webdav extension
+        Webdav,
+        // Use Amazon S3 API
+        AwsS3
+    };
+}
+
+
 struct RequestParamsInternal;
-
-
-
 
 ///
 /// @class RequestParams
@@ -121,11 +133,11 @@ public:
     /// get the current user agent string
     const std::string & getUserAgent() const;
 
-    /// set the request protocol ( ex : Webdav, Http-only )
-    void setProtocol(const davix_request_protocol_t proto);
+    /// set the request protocol ( ex : Webdav, Http-only, S3 )
+    void setProtocol(const RequestProtocol::Protocol proto);
 
     /// get the current value of the request protocol
-    const davix_request_protocol_t getProtocol() const;
+    const RequestProtocol::Protocol getProtocol() const;
 
     /// set the keep alive value of the associated session
     void setKeepAlive(const bool keep_alive_flag);

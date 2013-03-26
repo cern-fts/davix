@@ -22,8 +22,8 @@ LIST(APPEND src_httprequest httprequest/test_httprequest.cpp)
 
 add_definitions( -DTEST_VALID_CERT="${TEST_CRED_PATH}" -DTEST_VALID_CERT_PASS="${TEST_CRED_PASS}")
 add_executable(g_test_unit_davix_exe ${src_context} ${src_session} ${src_credential}
-                ${src_httprequest} ${src_datetime} ${src_neon} ${src_parser} ${src_auth} ${src_utils} ${src_parser} ${SRC_BASE64})
-target_link_libraries(g_test_unit_davix_exe davix gtest gtest_main)
+                ${src_httprequest} ${src_datetime} ${src_neon} ${src_parser} ${src_auth} ${src_utils} ${src_parser} ${SRC_BASE64} ${SRC_HMACSHA1})
+target_link_libraries(g_test_unit_davix_exe davix gtest gtest_main ${LIBSSL_PKG_LIBRARIES})
 add_dependencies(g_test_unit_davix_exe libdavix)
 
 

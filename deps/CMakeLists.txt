@@ -2,7 +2,6 @@
 ## compile dependencies of davix
 
 
-
 IF(NOT HAVE_STRPTIME_H)
     SET(SRC_STRPTIME "${CMAKE_CURRENT_SOURCE_DIR}/strptime/strptime.c" PARENT_SCOPE)
 ELSE(NOT HAVE_STRPTIME_H)
@@ -29,6 +28,10 @@ SET(SRC_STRING_UTILS_CPP "${CMAKE_CURRENT_SOURCE_DIR}/string_utils/stringutils.c
 
 #base64
 SET(SRC_BASE64 "${CMAKE_CURRENT_SOURCE_DIR}/base64/base64.cpp" PARENT_SCOPE)
+
+
+#hmac sha1
+SET(SRC_HMACSHA1 "${CMAKE_CURRENT_SOURCE_DIR}/hmac_sha1/hmacsha1.cpp" PARENT_SCOPE)
 
 add_subdirectory(libneon)
 

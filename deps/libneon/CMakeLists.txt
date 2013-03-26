@@ -2,18 +2,11 @@ project(libneon-tuned)
 cmake_minimum_required (VERSION 2.6)
 # main file for src
 
-SET(SSL_BACKEND "OPENSSL"
-    CACHE STRING "set the default SSL backend openssl or gnutls ( default : openssl ) ")
-
-OPTION(ENABLE_IPV6 "enable or disable IPv6 support " "1")
-
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules/")
 
 # load module
 include(ReleaseDebugAutoFlags REQUIRED)
 include(PortabilityGNUCheck REQUIRED)
-
-
 set(OUTPUT_NAME_DAVIX "neon")
 set(VERSION_MAJOR 0)
 set(VERSION_MINOR 0)
@@ -26,12 +19,6 @@ find_package(LibXml2)
 if(LIBXML2_INCLUDE_DIR)
 set(HAVE_LIBXML 1)
 endif(LIBXML2_INCLUDE_DIR)
-
-if(${SSL_BACKEND} STREQUAL "OPENSSL")
-pkg_search_module(LIBSSL_PKG REQUIRED libssl)
-set(HAVE_OPENSSL 1)
-set(NE_HAVE_SSL 1)
-endif(${SSL_BACKEND} STREQUAL "OPENSSL")
 
 set(HAVE_IPV6 ${ENABLE_IPV6})
 

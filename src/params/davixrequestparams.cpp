@@ -35,7 +35,7 @@ struct RequestParamsInternal{
         ops_timeout(),
         connexion_timeout(),
         agent_string(default_agent),
-        _proto(DAVIX_PROTOCOL_WEBDAV),
+        _proto(RequestProtocol::Auto),
         _session_flag(SESSION_FLAG_KEEP_ALIVE),
         _state_uid(get_requeste_uid())
     {
@@ -95,7 +95,7 @@ struct RequestParamsInternal{
     std::string agent_string;
 
     // proto
-    davix_request_protocol_t  _proto;
+    RequestProtocol::Protocol  _proto;
 
     // session flag
     int _session_flag;
@@ -247,11 +247,11 @@ void RequestParams::setUserAgent(const std::string &user_agent){
 }
 
 
-const davix_request_protocol_t RequestParams::getProtocol() const {
+const RequestProtocol::Protocol RequestParams::getProtocol() const {
     return d_ptr->_proto;
 }
 
-void RequestParams::setProtocol(const davix_request_protocol_t proto){
+void RequestParams::setProtocol(const RequestProtocol::Protocol proto){
     d_ptr->_proto = proto;
 }
 

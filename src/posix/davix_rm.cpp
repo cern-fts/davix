@@ -18,7 +18,7 @@ int davix_remove_posix(DavPosix & p, Context* c, const RequestParams * params, c
     Uri uri(url);
     WebdavQuery query(*c);
 
-    if(params && params->getProtocol() == DAVIX_PROTOCOL_HTTP){ // pure protocol http : ignore posix semantic, execute a simple delete
+    if(params && params->getProtocol() == RequestProtocol::Http){ // pure protocol http : ignore posix semantic, execute a simple delete
         ret = query.davDelete(params, uri, &tmp_err);
     }else{ // full posix semantic support
         struct stat st;

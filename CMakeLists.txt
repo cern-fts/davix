@@ -1,3 +1,4 @@
+
 ## cmake build script for srm-ifce
 project (davix)
 cmake_minimum_required (VERSION 2.6)
@@ -38,6 +39,18 @@ SET(UNIT_TESTS FALSE
     CACHE STRING "enable or disable unit test compilation")
 SET(NEON_EMBEDED TRUE
     CACHE STRING "enable or disable unit test compilation")
+SET(SSL_BACKEND "OPENSSL"
+    CACHE STRING "set the default SSL backend openssl or gnutls ( default : openssl ) ")
+
+OPTION(ENABLE_IPV6 "enable or disable IPv6 support " "1")
+
+
+
+if(${SSL_BACKEND} STREQUAL "OPENSSL")
+pkg_search_module(LIBSSL_PKG REQUIRED libssl)
+set(HAVE_OPENSSL 1)
+set(NE_HAVE_SSL 1)
+endif(${SSL_BACKEND} STREQUAL "OPENSSL")
 
 # libs checks
 find_package(Threads)

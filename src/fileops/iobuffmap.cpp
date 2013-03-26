@@ -240,7 +240,7 @@ int HttpIO::stat(struct stat *st, DavixError **err){
 
 int HttpIO::stat(struct stat* st, HttpCacheToken** token, DavixError** err){
     RequestParams p(_params);
-    p.setProtocol(DAVIX_PROTOCOL_HTTP);
+    p.setProtocol(RequestProtocol::Http);
     return Meta::posixStat(_c, _uri, &p, st, token, err);
 }
 

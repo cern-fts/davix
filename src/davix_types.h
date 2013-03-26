@@ -75,15 +75,6 @@ typedef enum davix_status_e {
 } davix_status_t;
 
 
-//// protocol type
-typedef enum davix_request_protocol_e{
-    DAVIX_PROTOCOL_WEBDAV=0,
-    DAVIX_PROTOCOL_HTTP
-} davix_request_protocol_t;
-
-
-
-
 
 //
 // davix preproc facilities

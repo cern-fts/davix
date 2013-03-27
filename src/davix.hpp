@@ -40,6 +40,10 @@
 /// davix uri parser
 #include <davixuri.hpp>
 
+
+/// file API, main API for remote I/O
+#include <file/davfile.hpp>
+
 /// posix like API
 #include <posix/davposix.hpp>
 

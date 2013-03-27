@@ -80,7 +80,7 @@ public:
 
     ///
     ///  @brief Suppress the current entity.
-    ///         Able to suppress collection too
+    ///         able to suppress collection too
     ///
     ///  @param params: Davix request Parameters
     ///  @param err: Davix Error report

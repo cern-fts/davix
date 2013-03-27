@@ -19,6 +19,9 @@ dav_ssize_t posixStat(Context & c, const Uri & url, const RequestParams * _param
                       struct stat* st, HttpCacheToken** token_ptr,
                       DavixError** err);
 
+
+int deleteResource(Context & c, const Uri & u, const RequestParams & params, DavixError** err);
+
 /*
   retrieve a webdav propfind stat request to the given url
     @param req : http request where to executethe query

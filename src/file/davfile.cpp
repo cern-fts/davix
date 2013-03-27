@@ -44,8 +44,7 @@ dav_ssize_t DavFile::readPartial(const RequestParams *params, void* buff, dav_si
 }
 
 int DavFile::deletion(const RequestParams *params, DavixError **err){
-    WebdavQuery q(d_ptr->_c);
-    return q.davDelete(params, d_ptr->_u, err);
+    return Meta::deleteResource(d_ptr->_c, d_ptr->_u, params, err);
 }
 
 

@@ -43,6 +43,9 @@ typedef uint64_t dav_off_t;
 typedef uint64_t dav_size_t;
 typedef int64_t dav_ssize_t;
 
+// const
+#define DAVIX_BLOCK_SIZE 4096
+
 
 
 /// Davix status codes

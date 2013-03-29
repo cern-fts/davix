@@ -68,6 +68,12 @@ public:
     /// DEFAULT : GET
     void setRequestMethod(const std::string & request_str);
 
+
+    ///
+    /// define HttpRequest parameter
+    /// see \ref RequestParams for more details
+    /// a copy of the object is done
+    ///
     void setParameters(const RequestParams &p );
 
     ///   @brief execute this request completely
@@ -122,7 +128,7 @@ public:
     int beginRequest(DavixError** err);
 
     ///
-    /// read a block of a maximum size bytes in the request
+    /// read a block of a maximum size bytes in the answer
     /// @param buffer : buffer to fill
     /// @param max_size : maximum number of byte to read
     /// @param err : DavixError error report system
@@ -130,8 +136,26 @@ public:
     ///
     ssize_t readBlock(char* buffer, size_t max_size, DavixError** err);
 
+
     ///
-    /// read a line of text of a maximum size bytes in the request
+    /// write the full answer content to the given file descriptor
+    /// @param fd : buffer to fill
+    /// @param err : DavixError error report system
+    /// @return number of bytes read
+    ///
+    dav_ssize_t readToFd(int fd, DavixError** err);
+
+    ///
+    /// write the first 'read_size' first bytes to the given file descriptor
+    /// @param fd : buffer to fill
+    /// @param read_size : number of bytes to read
+    /// @param err : DavixError error report system
+    /// @return number of bytes read
+    ///
+    dav_ssize_t readToFd(int fd, dav_size_t read_size, DavixError** err);
+
+    ///
+    /// read a line of text of a maximum size bytes in the answer
     /// @param buffer : buffer to fill
     /// @param max_size : maximum number of bytes to read
     /// @param err : DavixError error report system

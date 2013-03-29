@@ -89,6 +89,17 @@ ssize_t HttpRequest::readLine(char *buffer, size_t max_size, DavixError **err){
     return d_ptr->readLine(buffer, max_size, err);
 }
 
+
+
+ssize_t HttpRequest::readToFd(int fd, DavixError** err){
+    return d_ptr->readToFd(fd, 0, err);
+}
+
+
+dav_ssize_t HttpRequest::readToFd(int fd, dav_size_t read_size, DavixError** err){
+    return d_ptr->readToFd(fd, read_size, err);
+}
+
 int HttpRequest::endRequest(DavixError **err){
     return d_ptr->endRequest(err);
 }

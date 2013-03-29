@@ -42,6 +42,8 @@ public:
                           DavIOVecOuput * ioutput_vec,
                           const dav_size_t count_vec, DavixError** err);
 
+    dav_ssize_t readToFd(int fd, dav_size_t size, DavixError** err);
+
     // position independant write operation,
     // similar to pwrite do not need open() before
     ssize_t putFullFromFD(const void* buf, size_t count, off_t offset, DavixError** err);

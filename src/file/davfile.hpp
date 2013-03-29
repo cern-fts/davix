@@ -78,6 +78,32 @@ public:
                             dav_off_t offset,
                             DavixError** err);
 
+
+    ///
+    ///  @brief Get Full content of the file and write it to fd
+    ///
+    ///  @param params: Davix request Parameters
+    ///  @param fd : file descriptor for write operation
+    ///  @param err: Davix Error report
+    ///  @return total number of bytes read, or -1 if error occures
+    ///
+    dav_ssize_t getToFD(const RequestParams* params,
+                            int fd,
+                            DavixError** err);
+
+    ///
+    ///  @brief Get the first 'size_read' bytes of the file and write it to fd
+    ///
+    ///  @param params: Davix request Parameters
+    ///  @param fd : file descriptor for write operation
+    ///  @param err: Davix Error report
+    ///  @return total number of bytes read, or -1 if error occures
+    ///
+    dav_ssize_t getToFD(const RequestParams* params,
+                            int fd,
+                            dav_size_t size_read,
+                            DavixError** err);
+
     ///
     ///  @brief Suppress the current entity.
     ///         able to suppress collection too

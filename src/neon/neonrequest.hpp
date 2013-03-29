@@ -85,6 +85,8 @@ public:
 
     ssize_t readLine(char* buffer, size_t max_size, DavixError** err);
 
+    dav_ssize_t readToFd(int fd, dav_size_t read_size, DavixError** err);
+
     /**
       finish an already started request
      */

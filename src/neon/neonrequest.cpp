@@ -10,7 +10,7 @@
 #include <memory>
 #include <sstream>
 #include <cstring>
-#include <climits>
+#include <limits>
 
 namespace Davix {
 
@@ -426,6 +426,35 @@ ssize_t NEONRequest::readBlock(char* buffer, size_t max_size, DavixError** err){
        return -1;
     }
     return read_status;
+}
+
+dav_ssize_t NEONRequest::readToFd(int fd, dav_size_t read_size, DavixError** err){
+    dav_ssize_t ret=1, total=0;
+    char buffer[DAVIX_BLOCK_SIZE];
+    read_size = (read_size==0)?(std::numeric_limits<dav_size_t>::max()):read_size;
+
+    while( (ret = readBlock(buffer,
+                            std::min<dav_size_t>(DAVIX_BLOCK_SIZE,read_size),
+                           err)) >0
+           && ( read_size >0 )){
+           dav_ssize_t write_len = ret;
+           read_size -= ret;
+           total += ret;
+           do{
+               ret = write(fd, buffer, write_len);
+
+               if (ret == -1 && errno == EINTR) {
+                   continue;
+               } else if (ret < 0) {
+                   DavixError::setupError(err, davix_scope_http_request(),
+                                          StatusCode::SystemError, std::string("Impossible to write to fd").append(strerror(errno)));
+                   return -1;
+               } else {
+                   write_len -= ret;
+               }
+           }while(write_len >0);
+    }
+    return (ret> 0)?total:ret;
 }
 
 

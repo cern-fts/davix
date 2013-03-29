@@ -213,7 +213,7 @@ dav_ssize_t HttpIO::readPartialBufferVec(const DavIOVecInput * input_vec,
     if(count_vec ==0)
         return 0;
     DAVIX_DEBUG(" -> getPartialVec operation for %d vectors", count_vec);
-    HttpRequest req (_c,_uri, &tmp_err);
+    GetRequest req (_c,_uri, &tmp_err);
     if(tmp_err == NULL){
         req.setParameters(_params);
         req.useCacheToken(_token.get());
@@ -224,6 +224,27 @@ dav_ssize_t HttpIO::readPartialBufferVec(const DavIOVecInput * input_vec,
 
 
     DAVIX_DEBUG(" <- getPartialVec operation for %d vectors", count_vec);
+    if(tmp_err)
+        DavixError::propagateError(err, tmp_err);
+    return ret;
+}
+
+dav_ssize_t HttpIO::readToFd(int fd, dav_size_t read_size, DavixError** err){
+    DavixError * tmp_err=NULL;
+    ssize_t ret = -1;
+
+    DAVIX_DEBUG(" -> readToFd for size %ld", read_size);
+    GetRequest req (_c,_uri, &tmp_err);
+    if(tmp_err == NULL){
+        req.setParameters(_params);
+        req.useCacheToken(_token.get());
+        ret= req.readToFd(fd, read_size, err);
+        if(ret > 0)
+            req.endRequest(NULL);
+    }
+
+
+    DAVIX_DEBUG(" <- readToFd for size %ld", read_size);
     if(tmp_err)
         DavixError::propagateError(err, tmp_err);
     return ret;

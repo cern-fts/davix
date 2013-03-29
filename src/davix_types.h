@@ -45,6 +45,7 @@ typedef int64_t dav_ssize_t;
 
 // const
 #define DAVIX_BLOCK_SIZE 4096
+#define DAVIX_MAX_BLOCK_SIZE 16777216
 
 
 

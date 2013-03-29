@@ -38,10 +38,12 @@ public:
     // similar to pread except that does not need open() before
     ssize_t readPartialBuffer(void* buf, size_t count, off_t offset, DavixError** err);
 
+    // vec read
     dav_ssize_t readPartialBufferVec(const DavIOVecInput * input_vec,
                           DavIOVecOuput * ioutput_vec,
                           const dav_size_t count_vec, DavixError** err);
 
+    // read to fd
     dav_ssize_t readToFd(int fd, dav_size_t size, DavixError** err);
 
     // position independant write operation,

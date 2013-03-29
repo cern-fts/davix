@@ -235,12 +235,17 @@ dav_ssize_t HttpIO::readToFd(int fd, dav_size_t read_size, DavixError** err){
 
     DAVIX_DEBUG(" -> readToFd for size %ld", read_size);
     GetRequest req (_c,_uri, &tmp_err);
-    if(tmp_err == NULL){
+    if(!tmp_err){
         req.setParameters(_params);
         req.useCacheToken(_token.get());
-        ret= req.readToFd(fd, read_size, err);
-        if(ret > 0)
-            req.endRequest(NULL);
+        ret = req.beginRequest(&tmp_err);
+        if(!tmp_err){
+            ret= req.readToFd(fd, read_size, &tmp_err);
+            if(!tmp_err && httpcodeIsValid(req.getRequestCode()) == false){
+                httpcodeToDavixCode(req.getRequestCode(),davix_scope_io_buff(),"read error: ", &tmp_err);
+                ret = -1;
+            }
+        }
     }
 
 

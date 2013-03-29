@@ -29,27 +29,8 @@ static std::string help_msg(){
 
 static int execute_get(const Tool::OptParams & opts, FILE* fstream, DavixError** err){
         Context c;
-        DavPosix pos(&c);
-        DAVIX_FD* fd;
-        char buffer[READ_BLOCK_SIZE];
-
-        if(  (fd = pos.open(&opts.params, opts.vec_arg[0], O_RDONLY, err))  != NULL){
-            ssize_t s_read;
-            while( (s_read =  pos.read(fd, buffer, READ_BLOCK_SIZE, err)) > 0){
-                if( fwrite(buffer, s_read, 1, fstream) == 0 &&
-                        ferror(fstream) != 0){
-                    DavixError::setupError(err, scope_get, StatusCode::SystemError, "I/O Error when writing to the destination file ");
-                    clearerr(fstream);
-                    s_read = -1;
-                    break;
-                }
-            }
-
-            pos.close(fd, NULL);
-            fflush(fstream);
-            return (s_read==0)?0:-1;
-        }
-        return -1;
+        DavFile f(c, opts.vec_arg[0]);
+        return f.getToFD(&opts.params, fileno(fstream), err);
 }
 
 

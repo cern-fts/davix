@@ -99,7 +99,7 @@ ssize_t HttpRequest::readLine(char *buffer, size_t max_size, DavixError **err){
 
 
 
-ssize_t HttpRequest::readToFd(int fd, DavixError** err){
+dav_ssize_t HttpRequest::readToFd(int fd, DavixError** err){
     return d_ptr->readToFd(fd, 0, err);
 }
 

@@ -47,18 +47,27 @@ int DavFile::deletion(const RequestParams *params, DavixError **err){
     return Meta::deleteResource(d_ptr->_c, d_ptr->_u, params, err);
 }
 
-dav_ssize_t DavFile::getToFD(const RequestParams* params,
+dav_ssize_t DavFile::getToFd(const RequestParams* params,
                         int fd,
                         DavixError** err){
-    return DavFile::getToFD(params, fd, 0, err);
+    return DavFile::getToFd(params, fd, 0, err);
 }
 
-dav_ssize_t DavFile::getToFD(const RequestParams* params,
+dav_ssize_t DavFile::getToFd(const RequestParams* params,
                         int fd,
                         dav_size_t size_read,
                         DavixError** err){
     HttpIOBuffer io(d_ptr->_c, d_ptr->_u, params);
     return io.readToFd(fd, size_read, err);
+}
+
+
+
+dav_ssize_t DavFile::getFull(const RequestParams* params,
+                        std::vector<char> & buffer,
+                        DavixError** err){
+    HttpIOBuffer io(d_ptr->_c, d_ptr->_u, params);
+    return io.readFull(buffer, err);
 }
 
 

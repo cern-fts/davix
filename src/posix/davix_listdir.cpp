@@ -99,7 +99,7 @@ DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char
         http_req->setParameters(params);
         DavPropXMLParser* parser = res->parser;
         // setup the handle for simple listing only
-        http_req->setRequestBodyString(body);
+        http_req->setRequestBody(body);
 
 
         if( (ret = http_req->beginRequest(&tmp_err)) == 0){ // start req

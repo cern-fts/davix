@@ -66,13 +66,13 @@ public:
     //  @return 0 on success
     int executeRequest(DavixError** err) ;
 
-    void setRequestBodyString(const std::string & body);
+    void setRequestBody(const std::string & body);
 
-    void setRequestBodyBuffer(const void * buffer, size_t len);
+    void setRequestBody(const void * buffer, size_t len);
 
-    void setRequestBodyFileDescriptor(int fd, off_t offset, size_t len);
+    void setRequestBody(int fd, off_t offset, size_t len);
 
-    void setRequestBodyCallback(HttpBodyProvider provider, size_t len, void* udata);
+    void setRequestBody(HttpBodyProvider provider, size_t len, void* udata);
 
     int beginRequest(DavixError** err);
     /**

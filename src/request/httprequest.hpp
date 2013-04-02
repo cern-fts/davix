@@ -88,24 +88,24 @@ public:
     ///  an empty string set no request content
     ///  @warning this string is not duplicated internally for performance reasons
     ///
-    void setRequestBodyString(const std::string & body);
+    void setRequestBody(const std::string & body);
 
     ///
     /// set the content of the request from a buffer
     ///  NULL pointer means a empty content
     ///
-    void setRequestBodyBuffer(const void * buffer, size_t len_buff);
+    void setRequestBody(const void * buffer, size_t len_buff);
 
     ///
     /// set the content of the request from a file descriptor
     /// start at offset and read a maximum of len bytes
     ///
-    void setRequestBodyFileDescriptor(int fd, off_t offset, size_t len);
+    void setRequestBody(int fd, off_t offset, size_t len);
 
     ///
     /// set a callback to provide the body of the requests
     ///
-    void setRequestBodyCallback(HttpBodyProvider provider, size_t len, void* udata);
+    void setRequestBody(HttpBodyProvider provider, size_t len, void* udata);
 
     ///
     /// @brief start a multi-part HTTP Request
@@ -135,6 +135,16 @@ public:
     /// @return number of bytes readed
     ///
     ssize_t readBlock(char* buffer, size_t max_size, DavixError** err);
+
+
+    ///
+    /// read a block of a maximum size bytes in the answer into buffer
+    /// @param buffer : vector to fill
+    /// @param max_size : maximum number of byte to read
+    /// @param err : DavixError error report system
+    /// @return number of bytes readed
+    ///
+    ssize_t readBlock(std::vector<char> & buffer, size_t max_size, DavixError** err);
 
 
     ///

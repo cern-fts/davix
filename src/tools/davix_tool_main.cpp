@@ -28,7 +28,7 @@ static void configure_req(HttpRequest& req, Tool::OptParams & opts){
             req.addHeaderField(it->first, it->second);
     }
 
-    req.setRequestBodyString(opts.req_content);
+    req.setRequestBody(opts.req_content);
 
 }
 

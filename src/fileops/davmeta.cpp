@@ -31,7 +31,7 @@ dav_ssize_t getAllReplicas(Context & c, const Uri & uri,
     PropfindRequest req(c, uri, &tmp_err);
     if(tmp_err == NULL){
         req.setParameters(params);
-        req.setRequestBodyString(propfind_request_replicas);
+        req.setRequestBody(propfind_request_replicas);
         if( req.executeRequest(&tmp_err) == 0){
 
         }

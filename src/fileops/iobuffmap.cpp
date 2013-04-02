@@ -167,6 +167,45 @@ ssize_t HttpIO::readFullBuff(void *buffer, size_t size_read, DavixError **err){
 }
 
 
+// read to dynamically allocated buffer
+dav_ssize_t HttpIO::readFull(std::vector<char> & buffer, DavixError** err){
+    DavixError * tmp_err=NULL;
+    ssize_t ret = -1, total=0;
+
+    DAVIX_DEBUG(" -> readFull on vector");
+    GetRequest req (_c,_uri, &tmp_err);
+    if(!tmp_err){
+        req.setParameters(_params);
+        req.useCacheToken(_token.get());
+        ret = req.beginRequest(&tmp_err);
+        if(!tmp_err){
+            const dav_size_t s_chunk = (req.getAnswerSize() > 0)?(req.getAnswerSize()):DAVIX_BLOCK_SIZE;
+            buffer.reserve(buffer.size()+ s_chunk);
+
+            while ( (ret= req.readBlock( buffer, s_chunk, &tmp_err)) > 0){
+                total += (dav_size_t) ret;
+            }
+            if(!tmp_err && httpcodeIsValid(req.getRequestCode()) == false){
+                httpcodeToDavixCode(req.getRequestCode(),davix_scope_io_buff(),"read error: ", &tmp_err);
+                ret = -1;
+            }
+        }
+    }
+
+    DAVIX_DEBUG(" <- readFull on vector");
+    if(tmp_err)
+        DavixError::propagateError(err, tmp_err);
+    return (ret>0)?total:-1;
+}
+
+// read to dynamically allocated buffer
+dav_ssize_t HttpIO::readFull(std::string & str_buffer , DavixError** err){
+    std::vector<char> buffer;
+    dav_ssize_t s = readFull(buffer, err);
+    str_buffer.assign(buffer.begin(), buffer.end());
+    return s;
+}
+
 ssize_t HttpIO::readPartialBuffer(void *buf, size_t count, off_t offset, DavixError **err){
     DavixError * tmp_err=NULL;
     ssize_t ret = -1;
@@ -255,9 +294,35 @@ dav_ssize_t HttpIO::readToFd(int fd, dav_size_t read_size, DavixError** err){
     return ret;
 }
 
-ssize_t HttpIO::putFullFromFD(const void *buf, size_t count, off_t offset, DavixError **err){
-    return -1;
+// position independant write operation,
+// similar to pwrite do not need open() before
+ssize_t HttpIO::writeFullFromFd(int fd, dav_size_t size, DavixError** err){
+    DavixError * tmp_err=NULL;
+    ssize_t ret = -1;
+
+    DAVIX_DEBUG(" -> writeFromFd for size %ld", size);
+    PutRequest req (_c,_uri, &tmp_err);
+    if(!tmp_err){
+        req.setParameters(_params);
+        req.useCacheToken(_token.get());
+        req.setRequestBody(fd,0, size);
+        ret = req.executeRequest(&tmp_err);
+        if(!tmp_err){
+            if(!tmp_err && httpcodeIsValid(req.getRequestCode()) == false){
+                httpcodeToDavixCode(req.getRequestCode(), davix_scope_io_buff(),
+                                    "read error: ", &tmp_err);
+                ret = -1;
+            }
+        }
+    }
+
+
+    DAVIX_DEBUG(" <- writeFromFd for size %ld", size);
+    if(tmp_err)
+        DavixError::propagateError(err, tmp_err);
+    return ret;
 }
+
 
 
 int HttpIO::stat(struct stat *st, DavixError **err){
@@ -276,6 +341,8 @@ void HttpIO::resetFullRead(){
         delete _read_req;
     _read_pos =0;
 }
+
+
 
 /////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////
@@ -411,7 +478,7 @@ ssize_t HttpIOBuffer::write(const void *buf, size_t count, DavixError **err){
         PutRequest req( _c, _uri, &tmp_err);
         if(tmp_err == NULL){
             req.setParameters(_params);
-            req.setRequestBodyBuffer(buf, count);
+            req.setRequestBody(buf, count);
             if(req.beginRequest(&tmp_err) ==0){
                 if(req.getRequestCode() != 200 ||  req.getRequestCode() != 204){ // out of file, end of file
                     ret = count; // end of file
@@ -432,6 +499,8 @@ ssize_t HttpIOBuffer::write(const void *buf, size_t count, DavixError **err){
 ssize_t HttpIOBuffer::pwrite(const void *buf, size_t count, off_t offset, DavixError **err){
     return -1;
 }
+
+
 
 
 } // namespace Davix

@@ -553,7 +553,7 @@ bool NEONRequest::getAnswerHeader(const std::string &header_name, std::string &v
 
 
 
-void NEONRequest::setRequestBodyString(const std::string & body){
+void NEONRequest::setRequestBody(const std::string & body){
     DAVIX_DEBUG("NEONRequest : add request content of size %s ", body.c_str());
     _content_body = std::string(body);
     _content_ptr = (char*) _content_body.c_str();
@@ -561,21 +561,21 @@ void NEONRequest::setRequestBodyString(const std::string & body){
     _fd_content = -1;
 }
 
-void NEONRequest::setRequestBodyBuffer(const void *buffer, size_t len){
+void NEONRequest::setRequestBody(const void *buffer, size_t len){
     _content_ptr = (char*) buffer;
     _content_len = len;
     _fd_content = -1;
 }
 
 
-void NEONRequest::setRequestBodyFileDescriptor(int fd, off_t offset, size_t len){
+void NEONRequest::setRequestBody(int fd, off_t offset, size_t len){
     _fd_content = fd;
     _content_ptr = NULL;
     _content_len = len;
     _content_offset = offset;
 }
 
-void NEONRequest::setRequestBodyCallback(HttpBodyProvider provider, size_t len, void* udata){
+void NEONRequest::setRequestBody(HttpBodyProvider provider, size_t len, void* udata){
     _content_len      = len;
     _content_provider.callback = provider;
     _content_provider.udata    = udata;

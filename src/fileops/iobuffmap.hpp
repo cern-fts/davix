@@ -26,6 +26,12 @@ public:
     // full sequential read of a file from begining to the end
     ssize_t readFullBuff(void* buf, size_t count, DavixError** err);
 
+    // read to dynamically allocated buffer
+    dav_ssize_t readFull(std::vector<char> & buffer, DavixError** err);
+
+    // read to dynamically allocated buffer
+    dav_ssize_t readFull(std::string & buffer , DavixError** err);
+
 
     // execute a plain HTTP stat method for file info
     int stat(struct stat* st, DavixError** err);
@@ -46,9 +52,11 @@ public:
     // read to fd
     dav_ssize_t readToFd(int fd, dav_size_t size, DavixError** err);
 
+
+
     // position independant write operation,
     // similar to pwrite do not need open() before
-    ssize_t putFullFromFD(const void* buf, size_t count, off_t offset, DavixError** err);
+    ssize_t writeFullFromFd(int fd, dav_size_t size, DavixError** err);
 
 protected:
     Context & _c;

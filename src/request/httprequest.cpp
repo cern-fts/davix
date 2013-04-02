@@ -53,20 +53,20 @@ void HttpRequest::setParameters(const RequestParams &p){
     d_ptr->setParameters(p);
 }
 
-void HttpRequest::setRequestBodyString(const std::string &body){
-    d_ptr->setRequestBodyString(body);
+void HttpRequest::setRequestBody(const std::string &body){
+    d_ptr->setRequestBody(body);
 }
 
-void HttpRequest::setRequestBodyBuffer(const void *buffer, size_t len_buff){
-    d_ptr->setRequestBodyBuffer(buffer, len_buff);
+void HttpRequest::setRequestBody(const void *buffer, size_t len_buff){
+    d_ptr->setRequestBody(buffer, len_buff);
 }
 
-void HttpRequest::setRequestBodyFileDescriptor(int fd, off_t offset, size_t len){
-    d_ptr->setRequestBodyFileDescriptor(fd, offset, len);
+void HttpRequest::setRequestBody(int fd, off_t offset, size_t len){
+    d_ptr->setRequestBody(fd, offset, len);
 }
 
-void HttpRequest::setRequestBodyCallback(HttpBodyProvider provider, size_t len, void* udata){
-    d_ptr->setRequestBodyCallback(provider, len, udata);
+void HttpRequest::setRequestBody(HttpBodyProvider provider, size_t len, void* udata){
+    d_ptr->setRequestBody(provider, len, udata);
 }
 
 int HttpRequest::getRequestCode(){
@@ -83,6 +83,14 @@ int HttpRequest::beginRequest(DavixError **err){
 
 ssize_t HttpRequest::readBlock(char *buffer, size_t max_size, DavixError **err){
     return d_ptr->readBlock(buffer, max_size, err);
+}
+
+ssize_t HttpRequest::readBlock(std::vector<char> & buffer, size_t max_size, DavixError **err){
+    dav_ssize_t ret, v_size = (dav_ssize_t) buffer.size();
+    buffer.resize(v_size + max_size);
+    ret = readBlock(((char*) &buffer[0])+ v_size, max_size, err);
+    buffer.resize(v_size + ( (ret > 0)?ret:0));
+    return ret;
 }
 
 ssize_t HttpRequest::readLine(char *buffer, size_t max_size, DavixError **err){

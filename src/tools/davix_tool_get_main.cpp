@@ -30,7 +30,7 @@ static std::string help_msg(){
 static int execute_get(const Tool::OptParams & opts, FILE* fstream, DavixError** err){
         Context c;
         DavFile f(c, opts.vec_arg[0]);
-        return f.getToFD(&opts.params, fileno(fstream), err);
+        return f.getToFd(&opts.params, fileno(fstream), err);
 }
 
 

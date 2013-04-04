@@ -364,7 +364,7 @@ int NEONRequest::redirect_request(DavixError **err){
 }
 
 int NEONRequest::executeRequest(DavixError** err){
-    ssize_t read_status=1;
+    dav_ssize_t read_status=1;
     _last_request_flag =0;
 
     DAVIX_DEBUG(" -> NEON start synchronous  request... ");
@@ -412,8 +412,8 @@ int NEONRequest::beginRequest(DavixError** err){
     return ret;
 }
 
-ssize_t NEONRequest::readBlock(char* buffer, size_t max_size, DavixError** err){
-    ssize_t read_status=-1;
+dav_ssize_t NEONRequest::readBlock(char* buffer, size_t max_size, DavixError** err){
+    dav_ssize_t read_status=-1;
 
     if(_req == NULL){
         DavixError::setupError(err, davix_scope_http_request(), StatusCode::AlreadyRunning, "No request started");
@@ -466,10 +466,10 @@ dav_ssize_t NEONRequest::readToFd(int fd, dav_size_t read_size, DavixError** err
 }
 
 
-ssize_t NEONRequest::readLine(char* buffer, size_t max_size, DavixError** err){
-    ssize_t read_sum=0, tmp_read_status;
+dav_ssize_t NEONRequest::readLine(char* buffer, size_t max_size, DavixError** err){
+    dav_ssize_t read_sum=0, tmp_read_status;
     char c;
-    while( (tmp_read_status= readBlock(&c,1, err)) ==1 && read_sum < (ssize_t) max_size){
+    while( (tmp_read_status= readBlock(&c,1, err)) ==1 && read_sum < (dav_ssize_t) max_size){
         if(c == '\n'){
             if( read_sum > 0 && buffer[read_sum-1] == '\r'){ // remove cr
                 buffer[--read_sum] = '\0';
@@ -520,7 +520,7 @@ const char* NEONRequest::getAnswerContent(){
     return NULL;
 }
 
-ssize_t NEONRequest::getAnswerSizeFromHeaders() const{
+dav_ssize_t NEONRequest::getAnswerSizeFromHeaders() const{
     std::string str_file_size;
     long size=-1;
     if( getAnswerHeader(ans_header_content_length, str_file_size)){
@@ -530,10 +530,10 @@ ssize_t NEONRequest::getAnswerSizeFromHeaders() const{
        DAVIX_TRACE("Bad server answer: %s Invalid, impossible to determine answer size", ans_header_content_length.c_str());
        size = -1;
     }
-    return (ssize_t) size;
+    return (dav_ssize_t) size;
 }
 
-ssize_t NEONRequest::getAnswerSize() const{
+dav_ssize_t NEONRequest::getAnswerSize() const{
     if(_ans_size < 0)
         _ans_size = getAnswerSizeFromHeaders();
     return _ans_size;
@@ -561,21 +561,21 @@ void NEONRequest::setRequestBody(const std::string & body){
     _fd_content = -1;
 }
 
-void NEONRequest::setRequestBody(const void *buffer, size_t len){
+void NEONRequest::setRequestBody(const void *buffer, dav_size_t len){
     _content_ptr = (char*) buffer;
     _content_len = len;
     _fd_content = -1;
 }
 
 
-void NEONRequest::setRequestBody(int fd, off_t offset, size_t len){
+void NEONRequest::setRequestBody(int fd, dav_off_t offset, dav_size_t len){
     _fd_content = fd;
     _content_ptr = NULL;
     _content_len = len;
     _content_offset = offset;
 }
 
-void NEONRequest::setRequestBody(HttpBodyProvider provider, size_t len, void* udata){
+void NEONRequest::setRequestBody(HttpBodyProvider provider, dav_size_t len, void* udata){
     _content_len      = len;
     _content_provider.callback = provider;
     _content_provider.udata    = udata;

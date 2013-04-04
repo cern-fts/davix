@@ -47,7 +47,7 @@ static std::string help_msg(){
 static int read_stream(HttpRequest* req, FILE* fstream, DavixError** err){
     char buffer [READ_BLOCK_SIZE];
 
-    ssize_t s_read=1;
+    dav_ssize_t s_read=1;
     if(req->beginRequest(err) <0 )
         return -1;
     do{

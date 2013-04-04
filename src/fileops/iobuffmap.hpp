@@ -24,7 +24,7 @@ public:
     virtual ~HttpIO();
 
     // full sequential read of a file from begining to the end
-    ssize_t readFullBuff(void* buf, size_t count, DavixError** err);
+    dav_ssize_t readFullBuff(void* buf, dav_size_t count, DavixError** err);
 
     // read to dynamically allocated buffer
     dav_ssize_t readFull(std::vector<char> & buffer, DavixError** err);
@@ -42,7 +42,7 @@ public:
 
     // position independant read operation,
     // similar to pread except that does not need open() before
-    ssize_t readPartialBuffer(void* buf, size_t count, off_t offset, DavixError** err);
+    dav_ssize_t readPartialBuffer(void* buf, dav_size_t count, dav_off_t offset, DavixError** err);
 
     // vec read
     dav_ssize_t readPartialBufferVec(const DavIOVecInput * input_vec,
@@ -56,7 +56,7 @@ public:
 
     // position independant write operation,
     // similar to pwrite do not need open() before
-    ssize_t writeFullFromFd(int fd, dav_size_t size, DavixError** err);
+    dav_ssize_t writeFullFromFd(int fd, dav_size_t size, DavixError** err);
 
 protected:
     Context & _c;
@@ -64,7 +64,7 @@ protected:
     RequestParams _params;
     DppLock _rwlock;
 
-    off_t _read_pos; //curent read file offset
+    dav_off_t _read_pos; //curent read file offset
     bool _read_endfile;
 
     // cache token
@@ -91,9 +91,9 @@ public:
     bool open(int flags, DavixError** err);
 
     //
-    ssize_t read(void* buf, size_t count, DavixError** err);
+    dav_ssize_t read(void* buf, dav_size_t count, DavixError** err);
 
-    ssize_t pread(void* buf, size_t count, off_t offset, DavixError** err);
+    dav_ssize_t pread(void* buf, dav_size_t count, dav_off_t offset, DavixError** err);
 
     dav_ssize_t preadVec(const DavIOVecInput * input_vec,
                           DavIOVecOuput * ioutput_vec,
@@ -101,24 +101,24 @@ public:
 
 
     //
-    ssize_t write(const void* buf, size_t count, DavixError** err);
+    dav_ssize_t write(const void* buf, dav_size_t count, DavixError** err);
 
 
     //
-    ssize_t pwrite(const void* buf, size_t count, off_t offset, DavixError** err);
+    dav_ssize_t pwrite(const void* buf, dav_size_t count, dav_off_t offset, DavixError** err);
 
 
     //
-    off_t lseek(off_t offset, int flags, DavixError** err);
+    dav_off_t lseek(dav_off_t offset, int flags, DavixError** err);
 
     // commit any pending operation on the file descriptor
     int commit(DavixError** err);
 
 protected:
 
-    size_t _file_size;
+    dav_size_t _file_size;
     bool _file_exist;
-    off_t _pos;
+    dav_off_t _pos;
     bool _opened;
 
 private:
@@ -131,7 +131,7 @@ private:
 int get_valid_cache_file(FILE** stream, DavixError** err);
 
 
-ssize_t read_segment_request(HttpRequest* req, void* buffer, size_t size_read,  off_t off_set, DavixError**err);
+dav_ssize_t read_segment_request(HttpRequest* req, void* buffer, dav_size_t size_read,  dav_off_t off_set, DavixError**err);
 
 
 } // namespace Davix

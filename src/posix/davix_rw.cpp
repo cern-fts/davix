@@ -54,7 +54,7 @@ ssize_t DavPosix::read(DAVIX_FD* fd, void* buf, size_t count, Davix::DavixError*
     DavixError* tmp_err=NULL;
 
     if( davix_check_rw_fd(fd, &tmp_err) ==0){
-        ret = fd->io_handler->read(buf, count, &tmp_err);
+        ret = (ssize_t) fd->io_handler->read(buf, (dav_size_t) count, &tmp_err);
     }
 
 
@@ -71,7 +71,7 @@ ssize_t DavPosix::pread(DAVIX_FD* fd, void* buf, size_t count, off_t offset, Dav
     DavixError* tmp_err=NULL;
 
     if( davix_check_rw_fd(fd, &tmp_err) ==0){
-        ret = fd->io_handler->pread(buf, count, offset, &tmp_err);
+        ret = (ssize_t) fd->io_handler->pread(buf, (dav_size_t)  count, (dav_off_t) offset, &tmp_err);
     }
 
 
@@ -105,7 +105,7 @@ ssize_t DavPosix::write(DAVIX_FD* fd, const void* buf, size_t count, Davix::Davi
     DavixError* tmp_err=NULL;
 
     if( davix_check_rw_fd(fd, &tmp_err) ==0){
-        ret = fd->io_handler->write(buf, count, &tmp_err);
+        ret = (ssize_t) fd->io_handler->write(buf, (dav_size_t) count, &tmp_err);
     }
 
 
@@ -123,7 +123,7 @@ off_t DavPosix::lseek(DAVIX_FD* fd, off_t offset, int flags, Davix::DavixError**
     DavixError* tmp_err=NULL;
 
     if( davix_check_rw_fd(fd, &tmp_err) ==0){
-        ret = fd->io_handler->lseek(offset, flags, &tmp_err);
+        ret = (off_t) fd->io_handler->lseek( (dav_off_t) offset, flags, &tmp_err);
     }
 
 

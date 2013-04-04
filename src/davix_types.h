@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 /**
@@ -39,11 +40,26 @@ typedef struct davix_auth_st* davix_auth_t;
 typedef struct davix_request_params* davix_params_t;
 
 // Davix Large File Support
+#if  ( __WORDSIZE == 32 ) || \
+        ( SIZE_MAX ==  (4294967295U) ) || \
+        ( defined __WIN32 )
+
 typedef uint64_t dav_off_t;
 typedef uint64_t dav_size_t;
 typedef int64_t dav_ssize_t;
 
-// const
+#else
+
+typedef off_t dav_off_t;
+typedef size_t dav_size_t;
+typedef ssize_t dav_ssize_t;
+
+#endif
+
+
+
+
+// block size
 #define DAVIX_BLOCK_SIZE 4096
 #define DAVIX_MAX_BLOCK_SIZE 16777216
 

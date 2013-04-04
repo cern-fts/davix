@@ -74,7 +74,7 @@ static void display_version(){
 
 
 static int set_header_field(const std::string & arg, OptParams & p, DavixError** err){
-    size_t pos;
+    dav_size_t pos;
     if( (pos = arg.find(':') ) == std::string::npos){
         DavixError::setupError(err, scope_params, StatusCode::InvalidArgument, " Invalid header field argument");
         return -1;

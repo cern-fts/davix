@@ -68,11 +68,11 @@ public:
 
     void setRequestBody(const std::string & body);
 
-    void setRequestBody(const void * buffer, size_t len);
+    void setRequestBody(const void * buffer, dav_size_t len);
 
-    void setRequestBody(int fd, off_t offset, size_t len);
+    void setRequestBody(int fd, dav_off_t offset, dav_size_t len);
 
-    void setRequestBody(HttpBodyProvider provider, size_t len, void* udata);
+    void setRequestBody(HttpBodyProvider provider, dav_size_t len, void* udata);
 
     int beginRequest(DavixError** err);
     /**
@@ -80,10 +80,10 @@ public:
       @param buffer : buffer to fill
       @param max_size : maximum number of bytes to set
     */
-    ssize_t readBlock(char* buffer, size_t max_size,DavixError** err);
+    dav_ssize_t readBlock(char* buffer, dav_size_t max_size,DavixError** err);
 
 
-    ssize_t readLine(char* buffer, size_t max_size, DavixError** err);
+    dav_ssize_t readLine(char* buffer, dav_size_t max_size, DavixError** err);
 
     dav_ssize_t readToFd(int fd, dav_size_t read_size, DavixError** err);
 
@@ -98,7 +98,7 @@ public:
     /**
      * get content length
      **/
-    ssize_t getAnswerSize() const;
+    dav_ssize_t getAnswerSize() const;
 
     /**
       clear the current result
@@ -149,8 +149,8 @@ private:
 
     // request content;
     char* _content_ptr;
-    size_t _content_len;
-    off_t _content_offset;
+    dav_size_t _content_len;
+    dav_off_t _content_offset;
     std::string _content_body;
     int _fd_content;
     ContentProviderContext _content_provider;
@@ -167,7 +167,7 @@ private:
 
     ////////////////////////////////////////////
     // Private Members
-    ssize_t getAnswerSizeFromHeaders() const;
+    dav_ssize_t getAnswerSizeFromHeaders() const;
 
     int startRequest(DavixError** err);
 

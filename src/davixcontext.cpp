@@ -28,10 +28,10 @@ public:
     /**
       implementation of getSessionFactory
     */
-    virtual NEONSessionFactory* getSessionFactory();
+    NEONSessionFactory* getSessionFactory();
 
 
-     virtual void setBufferSize(const size_t value);
+     void setBufferSize(const dav_size_t value);
 
 
     static ContextInternal* takeRef(ContextInternal* me){
@@ -54,7 +54,7 @@ public:
     DAVIX_DIR* internal_opendirpp(const char * scope, const std::string & body, const std::string & url  );
 
     ScopedPtr<NEONSessionFactory>::type  _fsess;
-    size_t _s_buff;
+    dav_size_t _s_buff;
     unsigned long _timeout;
     DppLock l_counter;
     volatile int count_instance;
@@ -79,7 +79,7 @@ NEONSessionFactory* ContextInternal::getSessionFactory(){
     return _fsess.get();
 }
 
-void ContextInternal::setBufferSize(const size_t value){
+void ContextInternal::setBufferSize(const dav_size_t value){
     _s_buff = value;
 }
 

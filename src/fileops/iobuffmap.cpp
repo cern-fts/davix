@@ -24,17 +24,17 @@
 
 namespace Davix {
 
-ssize_t read_segment_request(HttpRequest* req, void* buffer, size_t size_read,  off_t off_set, DavixError**err);
-ssize_t read_truncated_segment_request(HttpRequest* req, void* buffer, size_t size_read,  off_t off_set, DavixError**err);
+dav_ssize_t read_segment_request(HttpRequest* req, void* buffer, dav_size_t size_read,  dav_off_t off_set, DavixError**err);
+dav_ssize_t read_truncated_segment_request(HttpRequest* req, void* buffer, dav_size_t size_read,  dav_off_t off_set, DavixError**err);
 
 
 
 
-ssize_t read_segment_request(HttpRequest* req, void* buffer, size_t size_read,  off_t off_set, DavixError**err){
+dav_ssize_t read_segment_request(HttpRequest* req, void* buffer, dav_size_t size_read,  dav_off_t off_set, DavixError**err){
     DavixError* tmp_err=NULL;
-    ssize_t ret, tmp_ret;
+    dav_ssize_t ret, tmp_ret;
     char* p_buff =(char*) buffer;
-    size_t s_read= size_read;
+    dav_size_t s_read= size_read;
     ret = tmp_ret = 0;
 
     do{
@@ -42,12 +42,12 @@ ssize_t read_segment_request(HttpRequest* req, void* buffer, size_t size_read,  
         if(tmp_ret > 0){ // tmp_ret bytes readed
             ret += tmp_ret;
         }
-        if(ret > 0 && ret < (ssize_t) size_read){
+        if(ret > 0 && ret < (dav_ssize_t) size_read){
             p_buff+= tmp_ret;
             s_read -= tmp_ret;
         }
     }while( tmp_ret > 0
-            &&  ret < (ssize_t) size_read);
+            &&  ret < (dav_ssize_t) size_read);
 
     if(tmp_err){
         DavixError::propagateError(err, tmp_err);
@@ -57,11 +57,11 @@ ssize_t read_segment_request(HttpRequest* req, void* buffer, size_t size_read,  
 }
 
 
-ssize_t read_truncated_segment_request(HttpRequest* req, void* buffer, size_t size_read,  off_t off_set, DavixError**err){
+dav_ssize_t read_truncated_segment_request(HttpRequest* req, void* buffer, dav_size_t size_read,  dav_off_t off_set, DavixError**err){
      DavixError* tmp_err=NULL;
-     ssize_t ret=0, tmp_ret=0;
-     const ssize_t begin_offset = (ssize_t) off_set;
-     const ssize_t ssize_read = size_read;
+     dav_ssize_t ret=0, tmp_ret=0;
+     const dav_ssize_t begin_offset = (dav_ssize_t) off_set;
+     const dav_ssize_t ssize_read = size_read;
      char * p_buffer = (char*) buffer;
 
      while(ret < begin_offset && !tmp_err){
@@ -124,8 +124,8 @@ HttpIO::~HttpIO(){
     delete _read_req;
 }
 
-ssize_t HttpIO::readFullBuff(void *buffer, size_t size_read, DavixError **err){
-    ssize_t ret = -1;
+dav_ssize_t HttpIO::readFullBuff(void *buffer, dav_size_t size_read, DavixError **err){
+    dav_ssize_t ret = -1;
     DavixError * tmp_err=NULL;
 
     if(_read_endfile)
@@ -149,7 +149,7 @@ ssize_t HttpIO::readFullBuff(void *buffer, size_t size_read, DavixError **err){
         ret = read_segment_request(_read_req, buffer, size_read, _read_pos, &tmp_err);
         if(ret > 0){
             _read_pos += ret;
-            if(ret < (ssize_t) size_read){ // end of file
+            if(ret < (dav_ssize_t) size_read){ // end of file
                 _read_endfile =true;
                 _read_req->endRequest(NULL);
             }
@@ -170,7 +170,7 @@ ssize_t HttpIO::readFullBuff(void *buffer, size_t size_read, DavixError **err){
 // read to dynamically allocated buffer
 dav_ssize_t HttpIO::readFull(std::vector<char> & buffer, DavixError** err){
     DavixError * tmp_err=NULL;
-    ssize_t ret = -1, total=0;
+    dav_ssize_t ret = -1, total=0;
 
     DAVIX_DEBUG(" -> readFull on vector");
     GetRequest req (_c,_uri, &tmp_err);
@@ -206,9 +206,9 @@ dav_ssize_t HttpIO::readFull(std::string & str_buffer , DavixError** err){
     return s;
 }
 
-ssize_t HttpIO::readPartialBuffer(void *buf, size_t count, off_t offset, DavixError **err){
+dav_ssize_t HttpIO::readPartialBuffer(void *buf, dav_size_t count, dav_off_t offset, DavixError **err){
     DavixError * tmp_err=NULL;
-    ssize_t ret = -1;
+    dav_ssize_t ret = -1;
     DAVIX_DEBUG(" -> getOps operation for %s with size %ld and offset %ld",_uri.getString().c_str(), count, offset);
     if(count ==0)
         return 0;
@@ -248,7 +248,7 @@ dav_ssize_t HttpIO::readPartialBufferVec(const DavIOVecInput * input_vec,
                       DavIOVecOuput * output_vec,
                       const dav_size_t count_vec, DavixError** err){
     DavixError * tmp_err=NULL;
-    ssize_t ret = -1;
+    dav_ssize_t ret = -1;
     if(count_vec ==0)
         return 0;
     DAVIX_DEBUG(" -> getPartialVec operation for %d vectors", count_vec);
@@ -270,7 +270,7 @@ dav_ssize_t HttpIO::readPartialBufferVec(const DavIOVecInput * input_vec,
 
 dav_ssize_t HttpIO::readToFd(int fd, dav_size_t read_size, DavixError** err){
     DavixError * tmp_err=NULL;
-    ssize_t ret = -1;
+    dav_ssize_t ret = -1;
 
     DAVIX_DEBUG(" -> readToFd for size %ld", read_size);
     GetRequest req (_c,_uri, &tmp_err);
@@ -296,9 +296,9 @@ dav_ssize_t HttpIO::readToFd(int fd, dav_size_t read_size, DavixError** err){
 
 // position independant write operation,
 // similar to pwrite do not need open() before
-ssize_t HttpIO::writeFullFromFd(int fd, dav_size_t size, DavixError** err){
+dav_ssize_t HttpIO::writeFullFromFd(int fd, dav_size_t size, DavixError** err){
     DavixError * tmp_err=NULL;
-    ssize_t ret = -1;
+    dav_ssize_t ret = -1;
 
     DAVIX_DEBUG(" -> writeFromFd for size %ld", size);
     PutRequest req (_c,_uri, &tmp_err);
@@ -400,10 +400,10 @@ bool HttpIOBuffer::open(int flags, DavixError **err){
     return res;
 }
 
-ssize_t HttpIOBuffer::read(void *buf, size_t count, DavixError **err){
+dav_ssize_t HttpIOBuffer::read(void *buf, size_t count, DavixError **err){
     DppLocker l(_rwlock);
     DavixError* tmp_err = NULL;
-    ssize_t ret =-1;
+    dav_ssize_t ret =-1;
 
     if(_pos ==0) // reset read ahead offset to default if try to read a full file
         resetFullRead();
@@ -422,10 +422,10 @@ ssize_t HttpIOBuffer::read(void *buf, size_t count, DavixError **err){
 }
 
 
-ssize_t HttpIOBuffer::pread(void *buf, size_t count, off_t offset, DavixError **err){
+dav_ssize_t HttpIOBuffer::pread(void *buf, size_t count, dav_off_t offset, DavixError **err){
     DppLocker l(_rwlock);
     DavixError* tmp_err = NULL;
-    ssize_t ret = readPartialBuffer(buf, count, offset, &tmp_err);
+    dav_ssize_t ret = readPartialBuffer(buf, count, offset, &tmp_err);
 
     if(tmp_err)
         DavixError::propagateError(err, tmp_err);
@@ -438,7 +438,7 @@ dav_ssize_t HttpIOBuffer::preadVec(const DavIOVecInput * input_vec,
     davix_return_val_if_fail( input_vec != NULL && output_vec != NULL,-1);
     dav_ssize_t res = -1;
     if(count_vec ==1){ // one offset read request, no need of multi part
-        res= (dav_ssize_t) pread(input_vec->diov_buffer, (size_t) input_vec->diov_size, (off_t) input_vec->diov_offset, err);
+        res= (dav_ssize_t) pread(input_vec->diov_buffer, (size_t) input_vec->diov_size,  input_vec->diov_offset, err);
         output_vec->diov_buffer = input_vec->diov_buffer;
         output_vec->diov_size= res;
 
@@ -449,7 +449,7 @@ dav_ssize_t HttpIOBuffer::preadVec(const DavIOVecInput * input_vec,
 }
 
 
-off_t HttpIOBuffer::lseek(off_t offset, int flags, DavixError **err){
+dav_off_t HttpIOBuffer::lseek(dav_off_t offset, int flags, DavixError **err){
     DppLocker l(_rwlock);
     switch(flags){
         case SEEK_CUR:
@@ -467,9 +467,9 @@ off_t HttpIOBuffer::lseek(off_t offset, int flags, DavixError **err){
     return _pos;
 }
 
-ssize_t HttpIOBuffer::write(const void *buf, size_t count, DavixError **err){
+dav_ssize_t HttpIOBuffer::write(const void *buf, size_t count, DavixError **err){
     DppLocker l(_rwlock);
-    ssize_t ret =-1;
+    dav_ssize_t ret =-1;
     DavixError* tmp_err=NULL;
 
     if(_pos != 0){
@@ -496,7 +496,7 @@ ssize_t HttpIOBuffer::write(const void *buf, size_t count, DavixError **err){
     return ret;
 }
 
-ssize_t HttpIOBuffer::pwrite(const void *buf, size_t count, off_t offset, DavixError **err){
+dav_ssize_t HttpIOBuffer::pwrite(const void *buf, size_t count, dav_off_t offset, DavixError **err){
     return -1;
 }
 

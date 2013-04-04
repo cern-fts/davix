@@ -33,8 +33,8 @@ namespace Davix {
 ///    <0           : error, abort request; session error string must be set.
 ///     0           : ignore 'buffer' contents, end of body.
 ///     0 < x <= buflen : buffer contains x bytes of body data.  */
-typedef ssize_t (*HttpBodyProvider)(void *userdata,
-                                    char *buffer, size_t buflen);
+typedef dav_ssize_t (*HttpBodyProvider)(void *userdata,
+                                    char *buffer, dav_size_t buflen);
 
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
@@ -94,18 +94,18 @@ public:
     /// set the content of the request from a buffer
     ///  NULL pointer means a empty content
     ///
-    void setRequestBody(const void * buffer, size_t len_buff);
+    void setRequestBody(const void * buffer, dav_size_t len_buff);
 
     ///
     /// set the content of the request from a file descriptor
     /// start at offset and read a maximum of len bytes
     ///
-    void setRequestBody(int fd, off_t offset, size_t len);
+    void setRequestBody(int fd, dav_off_t offset, dav_size_t len);
 
     ///
     /// set a callback to provide the body of the requests
     ///
-    void setRequestBody(HttpBodyProvider provider, size_t len, void* udata);
+    void setRequestBody(HttpBodyProvider provider, dav_size_t len, void* udata);
 
     ///
     /// @brief start a multi-part HTTP Request
@@ -134,7 +134,7 @@ public:
     /// @param err : DavixError error report system
     /// @return number of bytes readed
     ///
-    ssize_t readBlock(char* buffer, size_t max_size, DavixError** err);
+    dav_ssize_t readBlock(char* buffer, dav_size_t max_size, DavixError** err);
 
 
     ///
@@ -144,7 +144,7 @@ public:
     /// @param err : DavixError error report system
     /// @return number of bytes readed
     ///
-    ssize_t readBlock(std::vector<char> & buffer, size_t max_size, DavixError** err);
+    dav_ssize_t readBlock(std::vector<char> & buffer, dav_size_t max_size, DavixError** err);
 
 
     ///
@@ -171,7 +171,7 @@ public:
     /// @param err : DavixError error report system
     /// @return number of bytes readed, if return == max_size -> the line too big
     ///
-    ssize_t readLine(char* buffer, size_t max_size, DavixError** err);
+    dav_ssize_t readLine(char* buffer, dav_size_t max_size, DavixError** err);
 
     ///
     /// finish a request stated with beginRequest
@@ -181,7 +181,7 @@ public:
     const char* getAnswerContent();
 
     /// get content length
-    size_t getAnswerSize() const;
+    dav_size_t getAnswerSize() const;
 
     ///
     ///  clear the current result

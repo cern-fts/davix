@@ -52,8 +52,6 @@ public:
     // read to fd
     dav_ssize_t readToFd(int fd, dav_size_t size, DavixError** err);
 
-
-
     // position independant write operation,
     // similar to pwrite do not need open() before
     dav_ssize_t writeFullFromFd(int fd, dav_size_t size, DavixError** err);

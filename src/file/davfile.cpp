@@ -71,4 +71,14 @@ dav_ssize_t DavFile::getFull(const RequestParams* params,
 }
 
 
+int DavFile::putFromFd(const RequestParams* params,
+              int fd,
+              dav_size_t size,
+              DavixError** err){
+    HttpIOBuffer io(d_ptr->_c, d_ptr->_u, params);
+    const dav_ssize_t s = io.writeFullFromFd(fd, size, err);
+    return (s >= 0)?0:-1;
+}
+
+
 } //Davix

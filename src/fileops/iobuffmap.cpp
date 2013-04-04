@@ -294,6 +294,7 @@ dav_ssize_t HttpIO::readToFd(int fd, dav_size_t read_size, DavixError** err){
     return ret;
 }
 
+
 // position independant write operation,
 // similar to pwrite do not need open() before
 dav_ssize_t HttpIO::writeFullFromFd(int fd, dav_size_t size, DavixError** err){

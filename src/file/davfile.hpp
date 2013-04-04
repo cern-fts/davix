@@ -117,6 +117,22 @@ public:
                             DavixError** err);
 
     ///
+    ///  @brief Create/replace the file with the content
+    ///     of the file descriptor fd
+    ///
+    ///  @param params: Davix request Parameters
+    ///  @param fd : file descriptor
+    ///  @param err: Davix Error report
+    ///  @return 0 if success, or -1 if error occures
+    ///
+    int putFromFd(const RequestParams* params,
+                  int fd,
+                  dav_size_t size,
+                  DavixError** err);
+
+
+
+    ///
     ///  @brief Suppress the current entity.
     ///         able to suppress collection too
     ///

@@ -163,6 +163,11 @@ int NEONRequest::pick_sess(DavixError** err){
     return 0;
 }
 
+ssize_t NEONRequest::neon_body_content_provider(void* userdata, char* buffer, size_t buflen){
+	NEONRequest* req = static_cast<NEONRequest*>(userdata);
+	return (ssize_t) req->_content_provider.callback(req->_content_provider.udata, buffer, buflen);
+}
+
 void NEONRequest::configure_req(){
     // configure S3 params if needed
     if(params.getProtocol() == RequestProtocol::AwsS3)
@@ -180,11 +185,10 @@ void NEONRequest::configure_req(){
         ne_set_request_body_fd(_req, _fd_content, _content_offset, _content_len);
     }else if(_content_provider.callback) {
         ne_set_request_body_provider(_req, _content_len,
-                                     _content_provider.callback, _content_provider.udata);
+                                     &neon_body_content_provider, this);
     }else if(_content_ptr && _content_len >0){
         ne_set_request_body_buffer(_req, _content_ptr, _content_len);       
     }
-
 
 }
 
@@ -412,7 +416,7 @@ int NEONRequest::beginRequest(DavixError** err){
     return ret;
 }
 
-dav_ssize_t NEONRequest::readBlock(char* buffer, size_t max_size, DavixError** err){
+dav_ssize_t NEONRequest::readBlock(char* buffer, dav_size_t max_size, DavixError** err){
     dav_ssize_t read_status=-1;
 
     if(_req == NULL){
@@ -466,7 +470,7 @@ dav_ssize_t NEONRequest::readToFd(int fd, dav_size_t read_size, DavixError** err
 }
 
 
-dav_ssize_t NEONRequest::readLine(char* buffer, size_t max_size, DavixError** err){
+dav_ssize_t NEONRequest::readLine(char* buffer, dav_size_t max_size, DavixError** err){
     dav_ssize_t read_sum=0, tmp_read_status;
     char c;
     while( (tmp_read_status= readBlock(&c,1, err)) ==1 && read_sum < (dav_ssize_t) max_size){

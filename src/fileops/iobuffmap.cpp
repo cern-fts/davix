@@ -400,7 +400,7 @@ bool HttpIOBuffer::open(int flags, DavixError **err){
     return res;
 }
 
-dav_ssize_t HttpIOBuffer::read(void *buf, size_t count, DavixError **err){
+dav_ssize_t HttpIOBuffer::read(void *buf, dav_size_t count, DavixError **err){
     DppLocker l(_rwlock);
     DavixError* tmp_err = NULL;
     dav_ssize_t ret =-1;
@@ -422,7 +422,7 @@ dav_ssize_t HttpIOBuffer::read(void *buf, size_t count, DavixError **err){
 }
 
 
-dav_ssize_t HttpIOBuffer::pread(void *buf, size_t count, dav_off_t offset, DavixError **err){
+dav_ssize_t HttpIOBuffer::pread(void *buf, dav_size_t count, dav_off_t offset, DavixError **err){
     DppLocker l(_rwlock);
     DavixError* tmp_err = NULL;
     dav_ssize_t ret = readPartialBuffer(buf, count, offset, &tmp_err);
@@ -467,7 +467,7 @@ dav_off_t HttpIOBuffer::lseek(dav_off_t offset, int flags, DavixError **err){
     return _pos;
 }
 
-dav_ssize_t HttpIOBuffer::write(const void *buf, size_t count, DavixError **err){
+dav_ssize_t HttpIOBuffer::write(const void *buf, dav_size_t count, DavixError **err){
     DppLocker l(_rwlock);
     dav_ssize_t ret =-1;
     DavixError* tmp_err=NULL;
@@ -496,7 +496,7 @@ dav_ssize_t HttpIOBuffer::write(const void *buf, size_t count, DavixError **err)
     return ret;
 }
 
-dav_ssize_t HttpIOBuffer::pwrite(const void *buf, size_t count, dav_off_t offset, DavixError **err){
+dav_ssize_t HttpIOBuffer::pwrite(const void *buf, dav_size_t count, dav_off_t offset, DavixError **err){
     return -1;
 }
 

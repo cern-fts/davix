@@ -199,7 +199,7 @@ private:
     NEONRequest(const NEONRequest & req);
     NEONRequest & operator=(const NEONRequest & req);
 
-
+	static ssize_t neon_body_content_provider(void* userdata, char* buffer, size_t buflen);
 };
 
 

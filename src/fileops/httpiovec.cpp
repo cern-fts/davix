@@ -25,7 +25,7 @@ HttpVecOps::HttpVecOps(HttpRequest &req) :
 }
 
 void configure_iovec_range_header(HttpRequest& req, const DavIOVecInput * input_vec, const dav_size_t count_vec){
-    off_t offset_tab[count_vec];
+    dav_off_t offset_tab[count_vec];
     dav_size_t size_tab[count_vec];
 
     for(dav_size_t i =0; i < count_vec; ++i){

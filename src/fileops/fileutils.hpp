@@ -18,7 +18,7 @@ int davixRequestToFileStatus(HttpRequest* req, const std::string & scope, DavixE
 
 
 // configure Range request
-void setup_offset_request(HttpRequest* req, const off_t *start_len, const size_t *size_read, const size_t number_ops);
+void setup_offset_request(HttpRequest* req, const dav_off_t *start_len, const dav_size_t *size_read, const dav_size_t number_ops);
 
 void fill_stat_from_fileproperties(struct stat* st, const  FileProperties & prop);
 

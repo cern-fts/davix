@@ -28,7 +28,7 @@ int davixRequestToFileStatus(HttpRequest* req, const std::string & scope, DavixE
 }
 
 
-void setup_offset_request(HttpRequest* req, const off_t *start_len, const size_t *size_read, const size_t number_ops){
+void setup_offset_request(HttpRequest* req, const dav_off_t *start_len, const dav_size_t *size_read, const dav_size_t number_ops){
     static const std::string offset_value("bytes=");
     static const std::string req_header_byte_range("Range");
     std::ostringstream buffer;

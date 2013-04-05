@@ -35,8 +35,9 @@ int setup_credential(OptParams & opts, DavixError** err){
 
 int get_output_fstream(const Tool::OptParams & opts, const std::string & scope, DavixError** err){
     int fd = -1;
+
     if(opts.output_file_path.empty() == false){
-        if((fd = open(opts.output_file_path.c_str(), O_WRONLY | O_TRUNC | O_CREAT)) <0  ){
+        if((fd = open(opts.output_file_path.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0777)) <0  ){
             davix_errno_to_davix_error(errno, scope, std::string("for destination file ").append(opts.output_file_path), err);
             return -1;
         }

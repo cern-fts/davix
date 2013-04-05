@@ -229,6 +229,10 @@ void httpcodeToDavixCode(int code, const std::string & scope, const std::string 
             dav_code = StatusCode::OperationTimeout;
             str_msg = "HTTP Operation timeout";
             break;
+        case 409:
+            dav_code = StatusCode::FileExist;
+            str_msg = "HTTP Conflict";
+            break;
         case 423:           /* Locked */
         case 403:           /* Forbidden */
             dav_code = StatusCode::PermissionRefused;
@@ -237,7 +241,6 @@ void httpcodeToDavixCode(int code, const std::string & scope, const std::string 
         break;
         case 400:           /* Bad Request */
         case 405:           /* Method Not Allowed */
-        case 409:           /* Conflict */
         case 411:           /* Length Required */
         case 412:           /* Precondition Failed */
         case 414:           /* Request-URI Too Long */

@@ -4,7 +4,6 @@
 #include <davix.hpp>
 #include <fileops/davmeta.hpp>
 #include <memory>
-#include <posix/davix_stat.hpp>
 #include "davix_test_lib.h"
 
 using namespace Davix;
@@ -26,15 +25,13 @@ int main(int argc, char** argv){
     if(argc >2 ){ // setup ops if credential is found
          params.setSSLCAcheck(false);
     }
-    std::auto_ptr<HttpRequest> r (static_cast<HttpRequest*>(c.createRequest( argv[1], &tmp_err)));
-    if(r.get() != NULL){
-        r->setParameters(params);
-        r->addHeaderField("Depth", "1");
+    HttpRequest r(c, argv[1], &tmp_err);
+    r.setParameters(params);
+    r.addHeaderField("Depth", "1");
 
-        std::string v(Meta::req_webdav_propfind(r.get(), &tmp_err));
+    std::string v(Meta::req_webdav_propfind(&r, &tmp_err));
 
-        std::cout << "content "<< v << std::endl;
-    }
+    std::cout << "content "<< v << std::endl;
     if(tmp_err){
         std::cerr << " req error " << tmp_err->getErrMsg() << std::endl;
     }

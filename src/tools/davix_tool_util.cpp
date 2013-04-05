@@ -49,8 +49,8 @@ int get_output_fstream(const Tool::OptParams & opts, const std::string & scope, 
 int get_input_fstream(const Tool::OptParams & opts, const std::string & scope, DavixError** err){
     int fd = -1;
     if(opts.input_file_path.empty() == false){
-        if((fd = open(opts.output_file_path.c_str(), O_WRONLY | O_TRUNC | O_CREAT)) <0  ){
-            davix_errno_to_davix_error(errno, scope, std::string("for destination file ").append(opts.output_file_path), err);
+        if((fd = open(opts.input_file_path.c_str(), O_RDONLY)) <0  ){
+            davix_errno_to_davix_error(errno, scope, std::string("for source file ").append(opts.input_file_path), err);
             return -1;
         }
     }else{

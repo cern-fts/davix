@@ -153,12 +153,13 @@ int parse_davix_options_generic(const std::string &opt_filter,
     }
 
 
-    if (optind < argc)
-    {
-        //std::cout << "  ARG " << argv[optind] << std::endl;
-        p.vec_arg.push_back(argv[optind]);
-        ret =0;
-    }else{
+   ret =-1;
+   for(int i = optind; i < argc; ++i){
+            p.vec_arg.push_back(argv[i]);
+            ret =0;
+    }
+
+    if(ret != 0){
         option_abort(argv);
     }
 
@@ -190,9 +191,14 @@ int parse_davix_ls_options(int argc, char** argv, OptParams & p, DavixError** er
         {0,         0,                 0,  0 }
      };
 
-    return parse_davix_options_generic(arg_tool_main, long_options,
+    if( parse_davix_options_generic(arg_tool_main, long_options,
                                        argc, argv,
-                                       p, err);
+                                       p, err) <0
+            || p.vec_arg.size() != 1){
+        option_abort(argv);
+        return -1;
+    }
+    return 0;
 }
 
 
@@ -204,9 +210,14 @@ int parse_davix_get_options(int argc, char** argv, OptParams & p, DavixError** e
         {0,         0,                 0,  0 }
      };
 
-    return parse_davix_options_generic(arg_tool_main, long_options,
+    if( parse_davix_options_generic(arg_tool_main, long_options,
                                        argc, argv,
-                                       p, err);
+                                       p, err) < 0
+            || p.vec_arg.size() != 1){
+        option_abort(argv);
+        return -1;
+    }
+    return 0;
 }
 
 int parse_davix_put_options(int argc, char** argv, OptParams & p, DavixError** err){
@@ -219,13 +230,17 @@ int parse_davix_put_options(int argc, char** argv, OptParams & p, DavixError** e
 
 
 
-    if( parse_davix_options_generic(arg_tool_main, long_options,
-                                       argc, argv,
-                                       p, err) < 0)
-        return -1;
+    if( parse_davix_options_generic(arg_tool_main,
+                                    long_options,
+                                    argc,
+                                    argv,
+                                    p, err) < 0
+        || p.vec_arg.size() != 2){
 
-    if( p.vec_arg.size() != 2)
         option_abort(argv);
+        return -1;
+    }
+    p.input_file_path = p.vec_arg[0];
     return 0;
 }
 
@@ -257,7 +272,7 @@ const std::string  & get_base_description_options(){
 }
 
 const std::string  & get_put_description_options(){
-    static const std::string s("Usage: %s [OPTIONS ...] <local_file> <url> \n"
+    static const std::string s("Usage: %s [OPTIONS ...] <local_file> <remote_file_url> \n"
             );
     return s;
 }

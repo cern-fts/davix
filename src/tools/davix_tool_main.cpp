@@ -44,17 +44,11 @@ static std::string help_msg(){
 }
 
 
-static int read_stream(HttpRequest* req, FILE* fstream, DavixError** err){
-    char buffer [READ_BLOCK_SIZE];
+static int read_stream(HttpRequest* req, int fd_out, DavixError** err){
 
-    dav_ssize_t s_read=1;
-    if(req->beginRequest(err) <0 )
+    if(req->beginRequest(err) <0
+       ||  req->readToFd(fd_out, err) < 0)
         return -1;
-    do{
-         if( (s_read = req->readBlock(buffer, READ_BLOCK_SIZE, err)) <0)
-             return -1;
-         fwrite(buffer, s_read, 1, fstream);
-   }while(s_read > 0);
    return req->endRequest(err);
 }
 
@@ -63,18 +57,18 @@ int main(int argc, char** argv){
     Tool::OptParams opts;
     DavixError* tmp_err=NULL;
     opts.help_msg = help_msg();
-    FILE* fstream;
+    int out_fd;
 
     if( (retcode= Tool::parse_davix_options(argc, argv, opts, &tmp_err)) ==0){
         Context c;
-        if( (fstream= Tool::configure_fstream(opts, scope_main, &tmp_err)) != NULL
+        if( (out_fd= Tool::get_output_fstream(opts, scope_main, &tmp_err)) > 0
             && (retcode = Tool::setup_credential(opts, &tmp_err)) == 0){
 
             HttpRequest req(c, opts.vec_arg[0], &tmp_err);
             if( tmp_err == NULL){
                 configure_req(req, opts);
-                retcode= read_stream(&req, fstream, &tmp_err);
-                fflush(stdout);
+                retcode= read_stream(&req, out_fd, &tmp_err);
+                close(out_fd);
             }else{
                 retcode =-1;
             }

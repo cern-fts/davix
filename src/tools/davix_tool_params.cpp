@@ -54,6 +54,7 @@ OptParams::OptParams() :
     help_msg(),
     cred_path(),
     output_file_path(),
+    input_file_path(),
     userlogpasswd(),
     req_content(),
     aws_auth()
@@ -208,7 +209,25 @@ int parse_davix_get_options(int argc, char** argv, OptParams & p, DavixError** e
                                        p, err);
 }
 
+int parse_davix_put_options(int argc, char** argv, OptParams & p, DavixError** err){
+    const std::string arg_tool_main= "E:o:vkV";
+    const struct option long_options[] = {
+        COMMON_LONG_OPTIONS,
+        SECURITY_LONG_OPTIONS,
+        {0,         0,                 0,  0 }
+     };
 
+
+
+    if( parse_davix_options_generic(arg_tool_main, long_options,
+                                       argc, argv,
+                                       p, err) < 0)
+        return -1;
+
+    if( p.vec_arg.size() != 2)
+        option_abort(argv);
+    return 0;
+}
 
 
 const std::string  & get_common_options(){
@@ -236,6 +255,13 @@ const std::string  & get_base_description_options(){
             );
     return s;
 }
+
+const std::string  & get_put_description_options(){
+    static const std::string s("Usage: %s [OPTIONS ...] <local_file> <url> \n"
+            );
+    return s;
+}
+
 
 
 }

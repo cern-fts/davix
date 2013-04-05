@@ -31,6 +31,8 @@ struct OptParams{
     std::string cred_path;
     // output file -o
     std::string output_file_path;
+    // input file path
+    std::string input_file_path;
     // user  login/passwd
     LoginPasswd userlogpasswd;
     // request content
@@ -43,14 +45,17 @@ int parse_davix_options(int argc, char** argv, OptParams & p, DavixError** err);
 
 int parse_davix_ls_options(int argc, char** argv, OptParams & p, DavixError** err);
 
-
 int parse_davix_get_options(int argc, char** argv, OptParams & p, DavixError** err);
+
+int parse_davix_put_options(int argc, char** argv, OptParams & p, DavixError** err);
 
 
 
 const std::string & get_common_options();
 
 const std::string & get_base_description_options();
+
+const std::string  & get_put_description_options();
 
 }
 

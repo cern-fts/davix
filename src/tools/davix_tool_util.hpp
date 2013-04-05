@@ -22,8 +22,12 @@ void err_display(DavixError ** err);
 int DavixToolsAuthCallbackLoginPassword(void* userdata, const SessionInfo & info, std::string & login, std::string & password,
                                         int count, DavixError** err);
 
-FILE* configure_fstream(const Tool::OptParams & opts, const std::string & scope, DavixError** err);
 
+// return output file descriptor
+int get_output_fstream(const Tool::OptParams & opts, const std::string & scope, DavixError** err);
+
+// return output file descriptor
+int get_input_fstream(const Tool::OptParams & opts, const std::string & scope, DavixError** err);
 
 }
 }

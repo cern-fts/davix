@@ -9,14 +9,8 @@
 
 
 #include "davixcontext.hpp"
-#include <request/httprequest.hpp>
-#include <xml/davpropxmlparser.hpp>
-#include <posix/davposix.hpp>
-
-namespace Davix{
 
 
 
-}
 
 #endif // DAVIX_STAT_H

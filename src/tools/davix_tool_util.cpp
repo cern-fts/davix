@@ -33,20 +33,31 @@ int setup_credential(OptParams & opts, DavixError** err){
     return 0;
 }
 
-FILE* configure_fstream(const Tool::OptParams & opts, const std::string & scope, DavixError** err){
+int get_output_fstream(const Tool::OptParams & opts, const std::string & scope, DavixError** err){
+    int fd = -1;
     if(opts.output_file_path.empty() == false){
-        FILE* f = fopen(opts.output_file_path.c_str(),"w");
-        if(f == NULL){
-            davix_errno_to_davix_error(errno, scope, std::string(" ").append(opts.output_file_path), err);
-            return NULL;
+        if((fd = open(opts.output_file_path.c_str(), O_WRONLY | O_TRUNC | O_CREAT)) <0  ){
+            davix_errno_to_davix_error(errno, scope, std::string("for destination file ").append(opts.output_file_path), err);
+            return -1;
         }
-
-        return f;
-
+    }else{
+        fd = fcntl(STDOUT_FILENO, F_DUPFD, 0);
     }
-    return stdout;
+    return fd;
 }
 
+int get_input_fstream(const Tool::OptParams & opts, const std::string & scope, DavixError** err){
+    int fd = -1;
+    if(opts.input_file_path.empty() == false){
+        if((fd = open(opts.output_file_path.c_str(), O_WRONLY | O_TRUNC | O_CREAT)) <0  ){
+            davix_errno_to_davix_error(errno, scope, std::string("for destination file ").append(opts.output_file_path), err);
+            return -1;
+        }
+    }else{
+        fd = fcntl(STDOUT_FILENO, F_DUPFD, 0);
+    }
+    return fd;
+}
 
 
 void err_display(DavixError ** err){
@@ -77,23 +88,22 @@ int DavixToolsAuthCallbackLoginPassword(void* userdata, const SessionInfo & info
         login = opts->userlogpasswd.first;
         password = opts->userlogpasswd.second;
         ret =0;
-    }else{
-        char l[1024];
-        char p[1024];
+    }else {
+        char l[1024] ={0};
+        char p[1024] ={0};
 
         if(count > 0)
             std::cout << "Authentication Failure, try again:\n";
         else
             std::cout << "Authentication needed:\n";
-        std::cout << "Login: ";
-        std::cout.flush();
+        (std::cout << "Login: ").flush();
         std::cin.getline(l, 1024);
         if( strlen(l) > 0){
             std::cout << "Password: ";
             std::cout.flush();
             if(simple_get_pass(p, 1024) > 0){
-                login = std::string(l);
-                password = std::string(p);
+                login.assign(l);
+                password.assign(p);
                 decimate_passwd(p);
                 decimate_passwd(l);
                 ret =0;

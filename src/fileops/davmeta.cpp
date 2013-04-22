@@ -185,6 +185,27 @@ int deleteResource(Context & c, const Uri & u, const RequestParams & params, Dav
     return ret;
 }
 
+
+int makeCollection(Context & c, const Uri & url, const RequestParams & params, DavixError** err){
+    DAVIX_DEBUG(" -> makeCollection");
+    int ret=-1;
+    DavixError* tmp_err=NULL;
+    HttpRequest req(c, url, &tmp_err);
+
+    if(tmp_err == NULL){
+        req.setParameters(params);
+        req.setRequestMethod("MKCOL");
+        if( (ret = req.executeRequest(&tmp_err)) == 0){
+            ret = davixRequestToFileStatus(&req, davix_scope_mkdir_str(), &tmp_err);
+        }
+
+        DAVIX_DEBUG(" makeCollection <-");
+    }
+    if(tmp_err)
+        DavixError::propagateError(err, tmp_err);
+    return ret;
+}
+
 } // Meta
 
 } // Davix

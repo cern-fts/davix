@@ -279,10 +279,11 @@ dav_ssize_t HttpIO::readToFd(int fd, dav_size_t read_size, DavixError** err){
         req.useCacheToken(_token.get());
         ret = req.beginRequest(&tmp_err);
         if(!tmp_err){
-            ret= req.readToFd(fd, read_size, &tmp_err);
-            if(!tmp_err && httpcodeIsValid(req.getRequestCode()) == false){
+            if(httpcodeIsValid(req.getRequestCode()) == false){
                 httpcodeToDavixCode(req.getRequestCode(),davix_scope_io_buff(),"read error: ", &tmp_err);
                 ret = -1;
+            }else{
+                ret= req.readToFd(fd, read_size, &tmp_err);
             }
         }
     }
@@ -308,12 +309,10 @@ dav_ssize_t HttpIO::writeFullFromFd(int fd, dav_size_t size, DavixError** err){
         req.useCacheToken(_token.get());
         req.setRequestBody(fd,0, size);
         ret = req.executeRequest(&tmp_err);
-        if(!tmp_err){
-            if(!tmp_err && httpcodeIsValid(req.getRequestCode()) == false){
-                httpcodeToDavixCode(req.getRequestCode(), davix_scope_io_buff(),
-                                    "read error: ", &tmp_err);
-                ret = -1;
-            }
+        if(!tmp_err && httpcodeIsValid(req.getRequestCode()) == false){
+            httpcodeToDavixCode(req.getRequestCode(), davix_scope_io_buff(),
+                                "read error: ", &tmp_err);
+            ret = -1;
         }
     }
 

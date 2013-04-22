@@ -302,24 +302,9 @@ int DavPosix::closedir(DAVIX_DIR * d, DavixError** err){
 
 int DavPosix::mkdir(const RequestParams * _params, const std::string &url, mode_t right, DavixError** err){
     DAVIX_DEBUG(" -> davix_mkdir");
-    int ret=-1;
-    DavixError* tmp_err=NULL;
     RequestParams params(_params);
-    HttpRequest req(*context, url, &tmp_err);
-
-    if(tmp_err == NULL){
-
-        req.setParameters(params);
-        req.setRequestMethod("MKCOL");
-
-        if( (ret = req.executeRequest(&tmp_err)) == 0){
-            ret = davixRequestToFileStatus(&req, davix_scope_mkdir_str(), &tmp_err);
-        }
-
-        DAVIX_DEBUG(" davix_mkdir <-");
-    }
-    if(tmp_err)
-        DavixError::propagateError(err, tmp_err);
+    int ret  = Meta::makeCollection(*context, url, params, err);
+    DAVIX_DEBUG(" davix_mkdir <-");
     return ret;
 }
 

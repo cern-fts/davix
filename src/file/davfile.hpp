@@ -23,7 +23,7 @@ typedef std::vector<Uri> ReplicaVec;
 class DavFile
 {
 public:
-    DavFile(Context & c, const Uri & u);
+    DavFile(Context & c, const Uri & url);
     virtual ~DavFile();
 
     ///
@@ -141,6 +141,17 @@ public:
     ///  @return 0 if success, or -1 if error occures
     ///
     int deletion(const RequestParams* params,
+                 DavixError** err);
+
+
+    ///
+    /// @brief create a collection ( directory or bucket) at the current file url
+    ///
+    ///  @param params: Davix request Parameters
+    ///  @param err: Davix Error report
+    ///  @return 0 if success, or -1 if error occures
+    ///
+    int makeCollection(const RequestParams* params,
                  DavixError** err);
 
 

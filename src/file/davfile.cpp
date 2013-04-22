@@ -81,4 +81,10 @@ int DavFile::putFromFd(const RequestParams* params,
 }
 
 
+int DavFile::makeCollection(const RequestParams *params, DavixError **err){
+    RequestParams _params(params);
+    return Meta::makeCollection(d_ptr->_c, d_ptr->_u, _params, err);
+}
+
+
 } //Davix

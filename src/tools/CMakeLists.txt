@@ -56,5 +56,5 @@ set_target_properties(davix_del_tool PROPERTIES
 add_dependencies(davix_del_tool libdavix)
 
 
-install(TARGETS davix_tool davix_ls_tool davix_get_tool davix_del_tool
+install(TARGETS davix_tool davix_ls_tool davix_get_tool davix_put_tool davix_del_tool
          DESTINATION ${BIN_INSTALL_DIR}/)

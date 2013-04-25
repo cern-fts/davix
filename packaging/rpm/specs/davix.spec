@@ -63,7 +63,7 @@ make
 make doc
 
 %check
-ctest -V
+ctest -V -T Test
 
 
 %install

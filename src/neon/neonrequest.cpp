@@ -103,7 +103,7 @@ NEONRequest::NEONRequest(NEONSessionFactory& f, const Uri & uri_req) :
     params(),
     _cache_info(),
     _neon_sess(),
-    _req_flag(0),
+    _req_flag(NEON_FLAG_IDEMPOTENT),
     _req(NULL),
     _current(uri_req),
     _orig(uri_req),

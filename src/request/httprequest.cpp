@@ -141,6 +141,19 @@ void HttpRequest::useCacheToken(const HttpCacheToken *token){
                     (token->getCachedRedirection().getString().c_str()));
 }
 
+/// set a HttpRequest flag
+void HttpRequest::setFlag(const RequestFlag::RequestFlag flag, bool value){
+    if(value)
+        d_ptr->_req_flag |=  flag;
+    else
+        d_ptr->_req_flag &= ~(flag);
+}
+
+/// get a HttpRequest flag value
+bool HttpRequest::getFlag(const RequestFlag::RequestFlag flag){
+    return d_ptr->_req_flag & ((int) flag);
+}
+
 
 ///////////////////////////////////////////////////
 ///// Simplified request GET

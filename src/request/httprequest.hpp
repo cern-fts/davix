@@ -42,6 +42,14 @@ typedef dav_ssize_t (*HttpBodyProvider)(void *userdata,
 class NEONRequest;
 class NEONSessionFactory;
 
+namespace RequestFlag{
+    enum RequestFlag{
+        SupportContinue100 = 0x01, /**< Enable support for 100 Continue code (default: OFF) */
+        IdempotentRequest  = 0x02  /**< Specifie the request as Idempotent ( default : ON) */
+    };
+
+}
+
 
 /// @class HTTPRequest
 /// @brief Http low level request interface
@@ -211,6 +219,12 @@ public:
     /// set a cache token associated with this request
     ///
     void useCacheToken(const HttpCacheToken* token);
+
+    /// set a HttpRequest flag
+    void setFlag(const RequestFlag::RequestFlag flag, bool value);
+
+    /// get a HttpRequest flag value
+    bool getFlag(const RequestFlag::RequestFlag flag);
 
 private:
     HttpRequest(const HttpRequest &req);

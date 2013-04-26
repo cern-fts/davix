@@ -100,10 +100,10 @@ void neon_simple_req_code_to_davix_code(int ne_status, ne_session* sess, const s
 
 
 NEONRequest::NEONRequest(NEONSessionFactory& f, const Uri & uri_req) :
+    _req_flag(RequestFlag::IdempotentRequest),
     params(),
     _cache_info(),
     _neon_sess(),
-    _req_flag(NEON_FLAG_IDEMPOTENT),
     _req(NULL),
     _current(uri_req),
     _orig(uri_req),
@@ -178,8 +178,8 @@ void NEONRequest::configure_req(){
         ne_add_request_header(_req, _headers_field[i].first.c_str(),  _headers_field[i].second.c_str());
     }
     // setup flags
-    ne_set_request_flag(_req, NE_REQFLAG_EXPECT100, _req_flag & NEON_FLAG_CONTINUE100);
-    ne_set_request_flag(_req, NE_REQFLAG_IDEMPOTENT, _req_flag & NEON_FLAG_IDEMPOTENT);
+    ne_set_request_flag(_req, NE_REQFLAG_EXPECT100, _req_flag & RequestFlag::SupportContinue100);
+    ne_set_request_flag(_req, NE_REQFLAG_IDEMPOTENT, _req_flag & RequestFlag::IdempotentRequest);
 
     if(_fd_content > 0){
         ne_set_request_body_fd(_req, _fd_content, _content_offset, _content_len);

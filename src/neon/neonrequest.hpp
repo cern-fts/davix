@@ -18,8 +18,7 @@
 namespace Davix {
 
 #define NEON_BUFFER_SIZE        65000
-#define NEON_FLAG_CONTINUE100   0x01
-#define NEON_FLAG_IDEMPOTENT    0x02
+
 
 class NEONSessionFactory;
 class NEONSession;
@@ -34,6 +33,8 @@ struct ContentProviderContext {
 
 class NEONRequest
 {
+public:
+    int _req_flag;
 public:
     NEONRequest(NEONSessionFactory& f, const Uri & uri_req);
     virtual ~NEONRequest();
@@ -116,15 +117,6 @@ public:
 
     bool getAnswerHeader(const std::string &header_name, std::string &value) const;
 
-    // set the status of the request
-    inline void setRequestFlags(int flags){
-        _req_flag = flags;
-    }
-
-    inline int getRequestFlags(){
-        return _req_flag;
-    }
-
     // auth method support
     int do_pkcs12_cert_authentification(const char * filename_pkcs12, const char* passwd, DavixError** err);
     int do_login_passwd_authentification(const char *login, const char *passwd, DavixError** err);
@@ -138,7 +130,7 @@ private:
     // neon internal field
     ScopedPtr<NEONSession>::type _neon_sess;
     // request options flag
-    int _req_flag;
+
 
     ne_request * _req;
     Uri  _current, _orig;

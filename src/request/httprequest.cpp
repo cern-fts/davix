@@ -174,6 +174,7 @@ PutRequest::PutRequest(Context & context, const Uri & uri, DavixError** err) :
     HttpRequest(context, uri, err)
 {
     setRequestMethod("PUT");
+    setFlag(RequestFlag::SupportContinue100, true);
 }
 
 ///////////////////////////////////////////////////

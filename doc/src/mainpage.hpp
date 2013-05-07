@@ -10,17 +10,26 @@ mailing list : davix-devel@cern.ch
 
 <h2> DAVIX </h2>
 
-Davix is a lightweight toolkit for remote file / object interactions
+Davix is a lightweight toolkit for remote file interactions
       with HTTP based protocols.
 
-Davix offers a multi-layer API for the end user :
+Davix aims to supports all the needed features for an efficient file access and file management
+in grid and clouds : SSL Session reuse,  X509 client auth, VOMS credential, S3 auth,
+Vector operations (Partial reads, multi-range, single range), Partial PUT / PATCH, Fail-over, Multi-streams ( Metalinks), 
+Redirection support for all operations, Redirections caching, Webdav parsing, Right Management (ACL), Meta-data functions ( mkdir, rmdir, unlink, etc.. ), Chunked transfert,
+etc....
 
-- High level POSIX file API, for convenience
-- High level Object API, REST like
-- Low level Request API, compose your own HTTP query like with curl. </br>
+Davix supports the protocols
+    - Http
+    - WebDAV
+    - Amazon S3
 
-Davix supports Http, Webdav ( and S3 ) </br>
-Davix integrate a Webdav / XML parser. </br>
+The Davix philosophy can be summarized as
+    - Just Access Files, don't loose time with the protocol tricks
+    - Keep It Simple Stupid
+    - Lightweight, only the minimum set of dependencies
+    - Portable
+
 
 <h2> DAVIX API :</h2>
 
@@ -34,7 +43,8 @@ No,
  it provides "protocol level" API, you compose your http queries mannually.
 
 - Davix offers a "file level" API. <br/>
- With Davix, you access to your data and do not have to care about the underlying queries
+ With Davix, you access and manage your data and do not have to know anything about Http and
+ how to tune queries.
  Davix tends to be of one level higher and provides a complete API for
  remote I/O and remote file management.
 
@@ -51,9 +61,8 @@ No,
             fd= p.open(NULL, "https://mywebdav-server.org/myfile.jpg", O_RDONLY, &tmp_err);
             p.read(fd, buffer, size, &tmp_err);
             p.pread(fd, buffer, size2, offset, &tmp_err);
+            p.close(fd);
             //
-            // directory creation
-            p.mkdir(NULL, "https://mywebdav-server.org/mnewdir");
  @endcode
 
 <h3> LOW LEVEL REQUEST API </h3>
@@ -63,6 +72,8 @@ No,
             Davix::HttpRequest req("https://restapi-server.org/rest")
             req.addHeaderField(...)
             req.setRequestMethod("PUT")
+            // .. configure ....
+            //
             //
             // execute your request
             req.executeRequest(...);
@@ -93,7 +104,7 @@ Davix is going to support soon :
 - Davix Dependencies :
    -  openssl
    -  libxml-2.0
-   -  Doxygen ( optional, for doc generation )
+   -  Doxygen ( optional, for documentation generation )
 
 - Davix Portability :
    - Should run on Windows and any POSIX compatible Operating system
@@ -134,15 +145,17 @@ Davix is going to support soon :
 
         -> davix-ls: file listing
         -> davix-get: download operations
+        -> davix-put: upload operations
         -> davix: low level query composition
 
-<h2> I wish to see XYZ feature in Davix : </h2>
+<h2> TODO in Davix : </h2>
 
-    Any suggestion is welcome.
+    - MacOSX portability check
+    - Kerberos support
+    - Metalink support
 
-    please contact us on davix-devel@cern.ch ( CERN e-group & mailing list ) or personnaly on adrien.devresse@cern.ch
+    please contact us on davix-devel@cern.ch ( CERN e-group & mailing list ) or  on adrien.devresse@cern.ch
 
-    Davix is an open source and free project and will stay like this.
     Any contribution is welcome
 
 <h2> Davix Website : </h2>

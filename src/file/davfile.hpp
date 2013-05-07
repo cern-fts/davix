@@ -13,6 +13,13 @@
 #endif
 
 
+///
+/// @file davfile.hpp
+/// @author Devresse Adrien
+///
+///  File API of Davix
+
+
 namespace Davix{
 
 struct DavFileInternal;
@@ -154,7 +161,15 @@ public:
     int makeCollection(const RequestParams* params,
                  DavixError** err);
 
-
+    ///
+    /// @brief execute a POSIX-like stat() query
+    ///
+    ///  @param params: Davix request Parameters
+    ///  @param st: stat struct
+    ///  @param err: Davix Error report
+    ///  @return 0 if success, or -1 if error occures
+    ///
+    int stat(const RequestParams* params, struct stat * st, DavixError** err);
 
 private:
     DavFileInternal* d_ptr;

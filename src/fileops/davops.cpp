@@ -15,6 +15,7 @@ static int DavOpsDelete(Context & c, const RequestParams & params, const Uri & u
         if(!tmp_err){
             if( (ret = ne_delete(s.get_ne_sess(), uri.getPathAndQuery().c_str())) != NE_OK){
                 neon_simple_req_code_to_davix_code(ret, s.get_ne_sess(), davix_scope_davOps_str(), &tmp_err);
+                ret = -1;
             }
         }
     }
@@ -36,9 +37,6 @@ int WebdavQuery::davDelete(const RequestParams * params, const Uri &uri, DavixEr
     RequestParams _params(params);
     return DavOpsDelete(_c, _params, uri, err);
 }
-
-
-
 
 
 

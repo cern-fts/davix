@@ -27,19 +27,24 @@ Davix supports the protocols
 The Davix philosophy can be summarized as
     - Just Access Files, don't loose time with the protocol tricks
     - Keep It Simple Stupid
-    - Lightweight, only the minimum set of dependencies
+    - Efficient
     - Portable
 
 
 <h2> DAVIX API :</h2>
 
-C++ API : \ref davix.hpp
+File API : Davix::DavFile
+
+Posix-like API : Davix::DavPosix
+
+Entry point API : \ref davix.hpp
+
 
 <h2> Davix is yet an other libcurl ? </h2>
 
-No,
+In short : No
 
-- libcurl defines itself as a "client side URL transfer". <br/>
+Libcurl defines itself as a "client side URL transfer". <br/>
  it provides "protocol level" API, you compose your http queries mannually.
 
 - Davix offers a "file level" API. <br/>
@@ -50,13 +55,76 @@ No,
 
 <h2> Examples : </h2>
 
-<h3> POSIX API </h3>
+<h3> File Usage </h3>
 
+Create a directory :
+ @code{.cpp}
+            DavixError* tmp_err=NULL;
+            DavFile f(context, url);
+            // creat directory
+            p.makeCollection(NULL, &tmp_err);
+ @endcode
+
+ Get a full file content:
+ @code{.cpp}
+
+            DavixError* tmp_err=NULL;
+            DavFile f(context, "http://mysite.org/file");
+            int fd = open("/tmp/local_file", O_WRONLY | O_CREAT);
+            // get full file
+            if( p.getToFd(NULL,fd, &tmp_err) < 0)
+                      std::cerr << "Error: " << tmp_err->getErrMsg() << std::endl;
+
+
+ @endcode
+
+Execute a partial GET :
+ @code{.cpp}
+
+            char buffer[255] = {0}
+            DavixError* tmp_err=NULL;
+            DavFile f(context, "http://mysite.org/file");
+            // get 100 bytes from http://mysite.org/file after an offset of 200 bytes
+            if( p.readPartial(NULL, buffer, 100, 200
+                      &tmp_err) <0 )
+                      std::cerr << "Error: " << tmp_err->getErrMsg() << std::endl;
+            else
+                std::cout << "Content: " << buffer << std::endl;
+
+ @endcode
+
+Execute a Vector Operation :
+ @code{.cpp}
+
+            char buffer[255] = {0}
+            DavixError* tmp_err=NULL;
+            DavFile f(context, "http://mysite.org/file");
+            DavIOVecInput in[3];
+            DavIOVecOutput ou[3];
+            // get 100 bytes from http://mysite.org/file after an offset of 200 bytes
+            if( p.readPartial(NULL, buffer, 100, 200
+                      &tmp_err) <0 )
+                      std::cerr << "Error: " << tmp_err->getErrMsg() << std::endl;
+            else
+                std::cout << "Content: " << buffer << std::endl;
+
+ @endcode
+
+<h3> POSIX Usage </h3>
+
+ Stat query : 
  @code{.cpp}
 
             Davix::DavPosix p;
+            // state quer
             p.stat("https://mywebdav-server.org/mydir/", &stat, &tmp_err);
-            //
+
+ @endcode
+ 
+ 
+ random I/O : 
+ @code{.cpp}
+             //
             // read ops
             fd= p.open(NULL, "https://mywebdav-server.org/myfile.jpg", O_RDONLY, &tmp_err);
             p.read(fd, buffer, size, &tmp_err);
@@ -65,7 +133,9 @@ No,
             //
  @endcode
 
-<h3> LOW LEVEL REQUEST API </h3>
+
+ 
+<h3> LOW LEVEL Usage </h3>
 
  @code{.cpp}
 
@@ -78,25 +148,6 @@ No,
             // execute your request
             req.executeRequest(...);
  @endcode
-
-<h2> What does Davix support ? </h2>
-
-Davix supports :
-    - all common posix operation ( stat/opendir/readdir/open/read/write/close/mkdir )
-    - Webdav and XML parsing
-    - remote random I/O
-    - client side credential in PEM and P12 format
-    - proxy certificate and voms extension
-    - transparent redirection
-    - third party copy with Webdav
-    - keep alive and session re-use.
-    - Basic authentication scheme
-
-Davix is going to support soon :
-    - transparent meta-link support with failover
-    - vector operations
-    - kerberos auth
-    - transparent caching
 
 
 <h2> How to compile : </h2>
@@ -114,9 +165,9 @@ Davix is going to support soon :
    - Tested with clang and GCC.
 
 - Compile :
-    - " 1.svn export http://svn.cern.ch/guest/lcgdm/davix/trunk davix "
-    - " 2.cd davix "
-    - " 3.mkdir build; cd build"
+    - " 1. git clone  http://git.cern.ch/pub/davix  "
+    - " 2. cd davix "
+    - " 3. mkdir build; cd build"
     - " 4. cmake ../"
     - " 5. make "
 
@@ -153,13 +204,16 @@ Davix is going to support soon :
     - MacOSX portability check
     - Kerberos support
     - Metalink support
+    - map S3 bucket operations
+    - ACL support
+    - (?) CDMI support
 
-    please contact us on davix-devel@cern.ch ( CERN e-group & mailing list ) or  on adrien.devresse@cern.ch
+    please contact us on davix-devel@cern.ch ( CERN e-group & mailing list ) or on adrien.devresse@cern.ch
 
     Any contribution is welcome
 
 <h2> Davix Website : </h2>
 
-        https://svnweb.cern.ch/trac/lcgutil/wiki
+        https://svnweb.cern.ch/trac/lcgutil/wiki/davix
 
 */

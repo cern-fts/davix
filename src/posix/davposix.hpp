@@ -16,7 +16,7 @@
   @file davposix.hpp
   @author Devresse Adrien
 
-  @brief POSIX-like API of davix C++
+  @brief POSIX-like API of davix 
 */
 
 #ifndef __DAVIX_INSIDE__
@@ -30,7 +30,7 @@ namespace Davix {
 /// @struct DavIOVecInput
 /// @brief input parameters for vector operations in Davix
 struct DAVIX_EXPORT DavIOVecInput{
-    void* diov_buffer;                    // buffer, in case of read : destination buffer, in case of write : source buffer
+    void* diov_buffer;                    //*< buffer, in case of read : destination buffer, in case of write : source buffer
     dav_off_t diov_offset;                // initial offset taken from the source
     dav_size_t diov_size;                 // size of the data requested
 };
@@ -62,69 +62,90 @@ public:
 
 
     /**
-      @brief stat call
-      behavior similar to the POSIX stat function
-      @param params : request options, can be NULL
-      @param str: string url
-      @param stat : stat struct to fill
+      @brief POSIX-like stat() call
+      
+      
+      behavior similar to the POSIX stat function, see man 3 stat
+      Supported by Webdav, Http and S3
+      Depending of the protocol, some struct stat field can be ignored.
+      
+      
+      @param params request options, can be NULL
+      @param str string url
+      @param st stat struct to fill
+      @param err Davix error report system
+      @return 0 if success, negative value if error
      **/
     int stat(const RequestParams* params, const std::string & str, struct stat * st, DavixError** err);
 
     /**
-      @brief execute an opendir function with Webdav
+      @brief open a directory for listing
+      
       behavior similar to the POSIX opendir function
+      Supported by Webdav
 
-      @param params : request options, can be NULL
-      @param url : url of the directory to list
-      @return DAVIX_DIR : davix readdir handle
-      @return
+      @param params request options, can be NULL
+      @param url url of the directory to list
+      @param err Davix error report system      
+      @return DAVIX_DIR davix readdir handle, NULL if error
     */
     DAVIX_DIR* opendir(const RequestParams* params, const std::string & url, DavixError** err);
 
     /**
-      @brief execute a readdir function with Webdav
+      @brief read an entry directory
+           
       behavior similar to the POSIX readdir function
 
-      @param params : request options, can be NULL
-      @param dir : directory handle
-      @param err: Davix Error report
+      @param params request options, can be NULL
+      @param dir directory handle
+      @param err Davix Error report
       @return dirent struct if success, or NULL if error
     */
     struct dirent* readdir(DAVIX_DIR* dir, DavixError** err);
     /**
-       close an existing file handle
-       @param  d : directory handle to close
-       @param err : Davix error report system
+       @brief close a directory handle
+       
+       @param  d directory handle to close
+       @param err Davix error report system
        @return 0 if success else a negative value and err is set.
     */
     int closedir(DAVIX_DIR* d, DavixError** err);
 
     /**
-      @brief execute an opendirpp function with Webdav
-           opendirpp/readdirpp/closedirpp function read a directory content with a struct stat associated to  each directory entry
+      @brief open a directory for listing with per entry meta-data informations
+      
+      Similar to \ref Davix::DavPosix::opendir but provide stat() informations for each entry
+      Supported by Webdav
 
-      @param params : request options, can be NULL
-      @param err : Davix error report system
-      @return DAVIX_DIR : davix readdir handle or NULL if error, in this case err is set.
+      @param params request options, can be NULL
+      @param url url of the directory to list      
+      @param err Davix error report system
+      @return DAVIX_DIR davix readdir handle or NULL if error, in this case err is set.
     */
     DAVIX_DIR* opendirpp(const RequestParams* params, const std::string & url, DavixError** err);
 
 
 
     /**
-      @brief execute a readdirpp function with Webdav
-           opendirpp and readdirpp function read a directory content with stat information for each directory entry
+      @brief execute an readdirpp function
+      
+      Similar to \ref Davix::DavPosix::readdir but provide stat() informations for each entry
+      Supported by Webdav
 
-      @param params : request options, can be NULL
-      @param dir : directory handle
+      @param params request options, can be NULL
+      @param dir directory handle
       @param stat struct to fill
-      @param err: Davix Error report
+      @param err Davix Error report
       @return dirent struct if success, or NULL if error
     */
     struct dirent* readdirpp(DAVIX_DIR* dir, struct stat * st, DavixError** err );
 
     /**
-      @brief close an existing file handle
+       @brief close a directory handle
+       
+       @param  d directory handle to close
+       @param err Davix error report system
+       @return 0 if success else a negative value and err is set.
     */
     int closedirpp(DAVIX_DIR*, DavixError** err );
 

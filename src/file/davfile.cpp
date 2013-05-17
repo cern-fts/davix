@@ -86,5 +86,9 @@ int DavFile::makeCollection(const RequestParams *params, DavixError **err){
     return Meta::makeCollection(d_ptr->_c, d_ptr->_u, _params, err);
 }
 
+int DavFile::stat(const RequestParams* params, struct stat * st, DavixError** err){
+    return (int) Meta::posixStat(d_ptr->_c, d_ptr->_u, params, st, NULL, err);
+}
+
 
 } //Davix

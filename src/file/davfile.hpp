@@ -38,9 +38,9 @@ public:
     ///
     /// Replicas are found using a corresponding meta-link file or Webdav extensions if supported
     ///
-    /// @param params: Davix Request parameters
-    /// @param vec : Replica vector
-    /// @param err : DavixError error report
+    /// @param params  Davix Request parameters
+    /// @param vec  Replica vector
+    /// @param err  DavixError error report
     /// @return  the number of replicas if found, -1 if error.
     dav_ssize_t getAllReplicas(const RequestParams* params,
                                ReplicaVec & vec,
@@ -52,11 +52,11 @@ public:
     ///        Use Http multi-part when supported by the server,
     ///        simulate a vector read operation in the other case
     ///
-    ///  @param params: Davix request Parameters
-    ///  @param input_vec : input vectors, parameters
-    ///  @param output_vec : output vectors, results
-    ///  @param count_vec : number of vector struct
-    ///  @param err: Davix Error report
+    ///  @param params Davix request Parameters
+    ///  @param input_vec input vectors, parameters
+    ///  @param ioutput_vec  output vectors, results
+    ///  @param count_vec  number of vector struct
+    ///  @param err Davix Error report
     ///  @return total number of bytes read, or -1 if error occures
     ///
     dav_ssize_t readPartialBufferVec(const RequestParams* params,
@@ -73,10 +73,10 @@ public:
     ///         simulate a ranged request when not  supported
     ///
     ///  @param params: Davix request Parameters
-    ///  @param buff : buffer
-    ///  @param count : maximum read size
-    ///  @param offset : start offset  for the read operation
-    ///  @param err: Davix Error report
+    ///  @param buff  buffer
+    ///  @param count  maximum read size
+    ///  @param offset  start offset  for the read operation
+    ///  @param err Davix Error report
     ///  @return total number of bytes read, or -1 if error occures
     ///
     dav_ssize_t readPartial(const RequestParams* params,
@@ -87,11 +87,11 @@ public:
 
 
     ///
-    ///  @brief Get Full content of the file and write it to fd
+    ///  @brief Get the full file content and write it to fd
     ///
-    ///  @param params: Davix request Parameters
-    ///  @param fd : file descriptor for write operation
-    ///  @param err: Davix Error report
+    ///  @param params Davix request Parameters
+    ///  @param fd  file descriptor for write operation
+    ///  @param err Davix Error report
     ///  @return total number of bytes read, or -1 if error occures
     ///
     dav_ssize_t getToFd(const RequestParams* params,
@@ -102,8 +102,9 @@ public:
     ///  @brief Get the first 'size_read' bytes of the file and write it to fd
     ///
     ///  @param params: Davix request Parameters
-    ///  @param fd : file descriptor for write operation
-    ///  @param err: Davix Error report
+    ///  @param fd file descriptor for write operation
+    ///  @param size_read number of bytes to read
+    ///  @param err Davix Error report
     ///  @return total number of bytes read, or -1 if error occures
     ///
     dav_ssize_t getToFd(const RequestParams* params,
@@ -112,11 +113,11 @@ public:
                             DavixError** err);
 
     ///
-    ///  @brief Get the file content
+    ///  @brief Get the full file content in a dynamically allocated buffer
     ///
-    ///  @param params: Davix request Parameters
-    ///  @param fd : file descriptor for write operation
-    ///  @param err: Davix Error report
+    ///  @param params Davix request Parameters
+    ///  @param buffer reference to a vector for the result
+    ///  @param err Davix Error report
     ///  @return total number of bytes read, or -1 if error occures
     ///
     dav_ssize_t getFull(const RequestParams* params,
@@ -124,17 +125,18 @@ public:
                             DavixError** err);
 
     ///
-    ///  @brief Create/replace the file with the content
+    ///  @brief create and replace the file with the content
     ///     of the file descriptor fd
     ///
-    ///  @param params: Davix request Parameters
-    ///  @param fd : file descriptor
-    ///  @param err: Davix Error report
+    ///  @param params Davix request Parameters
+    ///  @param fd file descriptor
+    ///  @param size_write number of bytes to write    
+    ///  @param err Davix Error report
     ///  @return 0 if success, or -1 if error occures
     ///
     int putFromFd(const RequestParams* params,
                   int fd,
-                  dav_size_t size,
+                  dav_size_t size_write,
                   DavixError** err);
 
 
@@ -143,8 +145,8 @@ public:
     ///  @brief Suppress the current entity.
     ///         able to suppress collection too
     ///
-    ///  @param params: Davix request Parameters
-    ///  @param err: Davix Error report
+    ///  @param params Davix request Parameters
+    ///  @param err Davix Error report
     ///  @return 0 if success, or -1 if error occures
     ///
     int deletion(const RequestParams* params,
@@ -154,8 +156,8 @@ public:
     ///
     /// @brief create a collection ( directory or bucket) at the current file url
     ///
-    ///  @param params: Davix request Parameters
-    ///  @param err: Davix Error report
+    ///  @param params Davix request Parameters
+    ///  @param err Davix Error report
     ///  @return 0 if success, or -1 if error occures
     ///
     int makeCollection(const RequestParams* params,
@@ -165,8 +167,8 @@ public:
     /// @brief execute a POSIX-like stat() query
     ///
     ///  @param params: Davix request Parameters
-    ///  @param st: stat struct
-    ///  @param err: Davix Error report
+    ///  @param st stat struct
+    ///  @param err Davix Error report
     ///  @return 0 if success, or -1 if error occures
     ///
     int stat(const RequestParams* params, struct stat * st, DavixError** err);

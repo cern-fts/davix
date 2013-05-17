@@ -27,7 +27,13 @@ struct DavFileInternal;
 
 typedef std::vector<Uri> ReplicaVec;
 
-class DavFile
+
+///
+/// @class DavFile
+/// @brief Davix File API
+///
+/// Davix File interface
+class DAVIX_EXPORT DavFile
 {
 public:
     DavFile(Context & c, const Uri & url);

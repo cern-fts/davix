@@ -1,11 +1,11 @@
 Name:				davix
 Version:			@VERSION_STRING@
-Release:			0.3%{?dist}
+Release:			1%{?dist}
 Summary:			Webdav file access and file management Library
 Group:				Applications/Internet
 License:			LGPLv2+
-URL:				https://svnweb.cern.ch/trac/lcgdm/wiki
-# svn export http://svn.cern.ch/guest/lcgdm/davix/trunk davix
+URL:				https://svnweb.cern.ch/trac/lcgutil/wiki/davix
+# git clone http://git.cern.ch/pub/davix
 Source0:			http://grid-deployment.web.cern.ch/grid-deployment/dms/lcgutil/tar/%{name}/%{name}-%{version}.tar.gz
 BuildRoot:			%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
@@ -16,8 +16,8 @@ BuildRequires:		libxml2-devel
 BuildRequires:		openssl-devel
 
 %description
-Davix is a toolkit for remote file operations
-with Webdav and Http based protocols.
+Davix is a toolkit designed for file operations
+with Http based protocols (WebDav, Amazon S3, ...).
 Davix provides an API and a set of command line tools.
 
 %package libs
@@ -25,8 +25,8 @@ Summary:			Development files for %{name}
 Group:				Applications/Internet
 
 %description libs
-Libraries for %{name}. Davix is a toolkit for remote
-file operations with Webdav and Http based protocols.
+Libraries for %{name}. Davix is a toolkit designed for file operations
+with Http based protocols (WebDav, Amazon S3, ...).
 
 
 %package devel
@@ -36,8 +36,8 @@ Requires:			%{name}-libs%{?_isa} = %{version}-%{release}
 Requires:			pkgconfig
 
 %description devel
-Development files for %{name}. Davix is a toolkit for remote
-file operations with Webdav and Http based protocols.
+Development files for %{name}. Davix is a toolkit designed for file operations
+with Http based protocols (WebDav, Amazon S3, ...).
 
 %package doc
 Summary:			Documentation for %{name}
@@ -45,8 +45,8 @@ Group:				Applications/Internet
 Requires:			%{name}%{?_isa} = %{version}-%{release}
 
 %description doc
-Documentation and examples for %{name}. Davix is a toolkit for remote
-file operations with Webdav and Http based protocols.
+Documentation and examples for %{name}. Davix is a toolkit designed for file operations
+with Http based protocols (WebDav, Amazon S3, ...).
 
 %clean
 rm -rf %{buildroot};

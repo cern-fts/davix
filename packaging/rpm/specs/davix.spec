@@ -1,7 +1,7 @@
 Name:				davix
 Version:			0.2.0
 Release:			1%{?dist}
-Summary:			Webdav file access and file management Library
+Summary:			Toolkit for Http-based file management
 Group:				Applications/Internet
 License:			LGPLv2+
 URL:				https://svnweb.cern.ch/trac/lcgutil/wiki/davix

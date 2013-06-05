@@ -81,6 +81,7 @@ make DESTDIR=%{buildroot} install
 %defattr (-,root,root)
 %{_libdir}/libdavix.so.*
 %{_docdir}/%{name}-%{version}/RELEASE-NOTES
+%{_docdir}/%{name}-%{version}/LICENSE
 
 %files devel
 %defattr (-,root,root)

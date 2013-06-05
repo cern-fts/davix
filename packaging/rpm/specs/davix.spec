@@ -45,8 +45,8 @@ Group:				Applications/Internet
 Requires:			%{name}%{?_isa} = %{version}-%{release}
 
 %description doc
-Documentation and examples for %{name}. Davix is a toolkit designed for file operations
-with Http based protocols (WebDav, Amazon S3, ...).
+Documentation and examples for %{name}. Davix is a toolkit designed 
+for file operations with Http based protocols (WebDav, Amazon S3, ...).
 
 %clean
 rm -rf %{buildroot};
@@ -75,6 +75,7 @@ make DESTDIR=%{buildroot} install
 %postun libs -p /sbin/ldconfig
 
 %files
+%defattr (-,root,root)
 %{_bindir}/*
 
 %files libs
@@ -95,5 +96,7 @@ make DESTDIR=%{buildroot} install
 %{_docdir}/%{name}-%{version}/html/*
 
 %changelog
-* Wed Jun 05 2013 Adrien Devresse <adevress at cern.ch>  - 0.2.0-1
+* Wed Jun 05 2013 Adrien Devresse <adevress at cern.ch> - 0.2.0-1
  - Initial EPEL release
+ 
+ 

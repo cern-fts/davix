@@ -1,0 +1,9 @@
+
+Version - 0.2.0
+- Initial Stable version
+- Support POSIX and FILE API
+- Remote I/O read only
+- support for S3
+- support for X509 / VOMS / Proxy credential
+- support for Vector IO
+- support for session reuse

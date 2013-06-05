@@ -1,5 +1,5 @@
 Name:				davix
-Version:			0.0.33
+Version:			0.2.0
 Release:			1%{?dist}
 Summary:			Webdav file access and file management Library
 Group:				Applications/Internet
@@ -94,9 +94,5 @@ make DESTDIR=%{buildroot} install
 %{_docdir}/%{name}-%{version}/html/*
 
 %changelog
-* Wed Feb 06 2013 Adrien Devresse <adevress at cern.ch> - 0.0.24-0.1
- - add cmd line tools
- - lot of dev work
-
-* Fri Jun 01 2012 Adrien Devresse <adevress at cern.ch> - 0.0.2-0.1-2012052812snap
- - initial preview
+* Wed Jun 05 2013 Adrien Devresse <adevress at cern.ch>  - 0.2.0-1
+ - Initial EPEL release

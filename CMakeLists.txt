@@ -70,6 +70,7 @@ add_definitions( -DDAVIX_VERSION="${VERSION_STRING}" )
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_FLAG_ENABLE}")
 
 include_directories( ${HTTPLIB_PKG_INCLUDE_DIRS} ${GLIB2_PKG_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/deps)
+include_directories( ${CMAKE_SOURCE_DIR}/include/davix )
 
 install(FILES RELEASE-NOTES LICENSE
 		DESTINATION ${DOC_INSTALL_DIR}/) # install release notes
@@ -78,6 +79,13 @@ add_subdirectory (src)
 add_subdirectory (doc)
 add_subdirectory (test)
 add_subdirectory (packaging)
+
+
+#############################################################################
+## headers
+
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/davix/
+                DESTINATION ${INCLUDE_INSTALL_DIR}/davix)
 
 
 #######################################################

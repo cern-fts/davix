@@ -1,4 +1,4 @@
-#include "davixauth.hpp"
+#include <auth/davixauth.hpp>
 #include <sstream>
 #include <base64/base64.hpp>
 #include <hmac_sha1/hmacsha1.hpp>

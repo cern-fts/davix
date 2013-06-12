@@ -12,7 +12,7 @@
 #include <xml/davpropxmlparser.hpp>
 #include <fileops/iobuffmap.hpp>
 
-#include "davposix.hpp"
+#include <posix/davposix.hpp>
 
 
 static const std::string simple_listing("<propfind xmlns=\"DAV:\"><prop><resourcetype><collection/></resourcetype></prop></propfind>");

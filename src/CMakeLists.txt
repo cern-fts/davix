@@ -13,24 +13,6 @@ FILE(GLOB src_davix_auth "auth/*.cpp")
 FILE(GLOB src_davix_file "file/*.cpp")
 FILE(GLOB src_davix_request "request/*.cpp")
 
-LIST(APPEND davix_headers "davix_types.h"  "davixcontext.hpp"
-             "davix.hpp" "davixuri.hpp" )
-
-LIST(APPEND davix_logger_header "logger/davix_logger.h")
-
-LIST(APPEND davix_posix_header "posix/davposix.hpp")
-
-LIST(APPEND davix_status_header "status/davixstatusrequest.hpp")
-
-LIST(APPEND davix_params_header "params/davixrequestparams.hpp" )
-
-LIST(APPEND davix_auth_header "auth/davixauth.hpp" "auth/davixx509cred.hpp" )
-
-LIST(APPEND davix_file_header "file/davfile.hpp")
-
-LIST(APPEND davix_request_header "request/httprequest.hpp" "request/httpcachetoken.hpp")
-
-
 include_directories("libs" ".")
 
 configure_file(config.in ${CMAKE_CURRENT_BINARY_DIR}/config.h @ONLY)
@@ -117,29 +99,4 @@ endif(static_library)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/davix.pc
         DESTINATION ${PKGCONFIG_FILES_DIR} )
 
-# install headers
-install( FILES ${davix_headers}
-         DESTINATION ${INCLUDE_INSTALL_DIR}/davix)
 
-install( FILES ${davix_logger_header}
-         DESTINATION ${INCLUDE_INSTALL_DIR}/davix/logger)
-
-install( FILES ${davix_posix_header}
-         DESTINATION ${INCLUDE_INSTALL_DIR}/davix/posix)
-
-
-install( FILES ${davix_status_header}
-         DESTINATION ${INCLUDE_INSTALL_DIR}/davix/status)
-
-install( FILES ${davix_params_header}
-         DESTINATION ${INCLUDE_INSTALL_DIR}/davix/params)
-
-
-install( FILES ${davix_auth_header}
-         DESTINATION ${INCLUDE_INSTALL_DIR}/davix/auth)
-
-install( FILES ${davix_file_header}
-         DESTINATION ${INCLUDE_INSTALL_DIR}/davix/file)
-
-install( FILES ${davix_request_header}
-         DESTINATION ${INCLUDE_INSTALL_DIR}/davix/request)

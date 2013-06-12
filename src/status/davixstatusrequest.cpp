@@ -1,6 +1,6 @@
 #include <config.h>
 #include <davix_types.h>
-#include "davixstatusrequest.hpp"
+#include <status/davixstatusrequest.hpp>
 
 
 

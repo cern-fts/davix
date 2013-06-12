@@ -4,7 +4,7 @@
 
 #include <neon/neonrequest.hpp>
 #include <davix_context_internal.hpp>
-#include "httprequest.hpp"
+#include <request/httprequest.hpp>
 
 namespace Davix {
 

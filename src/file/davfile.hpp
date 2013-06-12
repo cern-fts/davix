@@ -78,7 +78,7 @@ public:
     ///         Use Ranged request when supported by the server,
     ///         simulate a ranged request when not  supported
     ///
-    ///  @param params: Davix request Parameters
+    ///  @param params Davix request Parameters
     ///  @param buff  buffer
     ///  @param count  maximum read size
     ///  @param offset  start offset  for the read operation
@@ -107,7 +107,7 @@ public:
     ///
     ///  @brief Get the first 'size_read' bytes of the file and write it to fd
     ///
-    ///  @param params: Davix request Parameters
+    ///  @param params Davix request Parameters
     ///  @param fd file descriptor for write operation
     ///  @param size_read number of bytes to read
     ///  @param err Davix Error report
@@ -172,7 +172,7 @@ public:
     ///
     /// @brief execute a POSIX-like stat() query
     ///
-    ///  @param params: Davix request Parameters
+    ///  @param params Davix request Parameters
     ///  @param st stat struct
     ///  @param err Davix Error report
     ///  @return 0 if success, or -1 if error occures

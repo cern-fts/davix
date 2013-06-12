@@ -26,6 +26,9 @@ namespace Davix {
 
 
 namespace RequestProtocol{
+    ///
+    /// \brief Http based protocol to use for advanced queries
+    ///
     enum Protocol{
         // default
         Auto=0,
@@ -40,12 +43,18 @@ namespace RequestProtocol{
 
 
 struct RequestParamsInternal;
+///
+/// \brief string for Amazon private key
+///
 typedef std::string AwsSecretKey;
+///
+/// \brief string for Amazon public key
+///
 typedef std::string AwsAccessKey;
 
 ///
 /// @class RequestParams
-/// @brief Main container for HTTP/WebDAV request options
+/// @brief Main container for Davix request options
 ///
 /// RequestParams hold the davix request options :
 /// authentification parameters, timeouts, user-agents,...
@@ -94,10 +103,17 @@ public:
     /// return the current login/password callback and the associated user data
     std::pair<authCallbackLoginPasswordBasic,void*> getClientLoginPasswordCallback() const;
 
-    /// set S3 authorization keys
-    void setAwsAuthorizationKeys(const std::string & secret_key, const std::string & access_key);
+    ///
+    /// \brief define a Amazon S3 private key and public key
+    /// \param secret_key secret key
+    /// \param access_key public key
+    ///
+    void setAwsAuthorizationKeys(const AwsSecretKey & secret_key, const AwsAccessKey & access_key);
 
-    /// get S3 authorization keys
+    ///
+    /// \brief get Amazon S3 authentication tokens
+    /// \return pair of secret key and public key
+    ///
     const std::pair<AwsSecretKey, AwsAccessKey> & getAwsAutorizationKeys() const;
 
     /// add the CA certificate in the directory 'path' as trusted certificate

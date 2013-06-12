@@ -9,7 +9,7 @@
   @file davixstatusrequest.hpp
   @author Devresse Adrien, CERN
 
-  @brief C++ Error report system of davix
+  @brief Error report system of davix
 */
 
 #ifndef __DAVIX_INSIDE__
@@ -25,8 +25,8 @@ struct DavixErrorInternal;
 
 namespace StatusCode{
 
-/// @typedef StatusCode::Code
-/// @brief C++ Davix status codes
+/// @typedef davix_status_t Code
+/// @brief Davix error codes
 /// equal to davix_status_t
 ///
 typedef davix_status_t Code;
@@ -107,6 +107,7 @@ const Code FileExist = DAVIX_STATUS_FILE_EXIST;
 /// Invalid user argument
 const Code InvalidArgument = DAVIX_STATUS_INVALID_ARG;
 
+/// Invalid server answer
 const Code InvalidServerResponse = DAVIX_STATUS_INVALID_SERVER_RESPONSE;
 
 /// Unknow error
@@ -118,18 +119,19 @@ const Code UnknowError= DAVIX_STATUS_UNKNOW_ERROR;
 ///  @class DavixError
 ///  @brief Davix Error Handler
 ///
-/// Error report system of Davix
-/// DavixError has a similar behavior to the glib Error system GError
+/// Error report system of Davix, similar behavior to the Glib Error report
+/// Davix does not use C++ exception
+///
 ///
 /// Each function which takes a DavixError** as argument can take the value NULL
 ///
 /// Example :
 ///
 ///     DavixError *tmp_err = NULL;
-///     do_operation(arg1,arg2, &tmp_err)
-///     if(tmp_err){ /* test if error occures*/
+///     Davix::operation(arg1,arg2, &tmp_err)
+///     if(tmp_err){
 ///         std::cout << tmp_err->getErrMsg() << std::endl;
-///         clearError(&tmp_err); // clean error
+///         DavixError::clearError(&tmp_err); // clean error
 ///     }
 ///
 class DAVIX_EXPORT DavixError{
@@ -139,17 +141,30 @@ public:
     /// Construct a DavixError object
     ///
     /// @param scope : string parameter representing the scope of the error
-    /// @param errCode : Davix Error code, see \ref Davix::StatusCode::Code
+    /// @param errCode : Davix Error code, see  Davix::StatusCode::Code
     /// @param errMsg : String representation of the error
     DavixError(const std::string & scope, StatusCode::Code errCode, const std::string & errMsg);
+    ///
+    /// \brief copy constructor
+    /// \param e
+    ///
     DavixError(const DavixError & e);
+    ///
+    /// \brief assignment operator
+    /// \param e
+    /// \return
+    ///
     DavixError & operator=(const DavixError & e);
+    ///
+    /// \brief ~DavixError
+    ///
     virtual ~DavixError();
 
 
     ///
-    /// clone this error in a new dynamically allocated one
-    /// need to be delete
+    /// \brief clone Error
+    /// \return new dynamically allocated copy of the Error
+    ///
     DavixError* clone();
 
     ///
@@ -177,32 +192,48 @@ public:
     const std::string & getErrScope() const;
 
 
+
+    ///
+    /// \brief create a new DavixError
+    /// \param err pointer to a DavixError pointer
+    /// \param scope scope of the Error
+    /// \param errCode Error code
+    /// \param errMsg Error message
+    ///
     ///
     /// create a new dynamically allocated DavixError Object
-    /// if err is NULL, do nothing
-    ///
-    /// @param scope : string parameter representing the scope of the error
-    /// @param errCode : Davix Error code, see \ref Davix::StatusCode::Code
-    /// @param errMsg : String representation of the error
+    /// if err is NULL, silent suppress the error report
     static void setupError(DavixError** err, const std::string & scope, StatusCode::Code errCode, const std::string & errMsg);
 
     ///
     /// clear the content of the current error and set err to NULL
     static void clearError(DavixError** err);
 
+
+
     ///
-    /// propagate the Davix Error Object from oldErr to newErr
-    /// OldErr can be consider as free after this operation
-    /// erase the error message if newErr is NULL
+    /// \brief propagate an Error structure to an upper level
+    /// \param newErr
+    /// \param oldErr
+    ///
+    ///  propagate the Davix Error Object from oldErr to newErr
+    ///  OldErr can be consider as free after this operation
+    ///  erase the current error if newErr is not NULL
     ///
     static void propagateError(DavixError** newErr, DavixError* oldErr);
 
+
+
+
+    ///
+    /// \brief propagatePrefixedError
+    /// \param newErr
+    /// \param oldErr
+    /// \param prefix
     ///
     /// same than propagateError but add a string prefix in front of the error description
     ///
-    /// OldErr can be consider as free after this operation
-    /// erase the error message if newErr is NULL
-    ///
+    //////
     static void propagatePrefixedError(DavixError** newErr, DavixError* oldErr, const std::string & prefix);
 
 private:
@@ -210,9 +241,8 @@ private:
 };
 
 
+/// \cond PRIVATE_SYMBOLS
 ///
-/// scope of the davix stat part
-//
 DAVIX_EXPORT std::string davix_scope_stat_str();
 DAVIX_EXPORT std::string davix_scope_davOps_str();
 DAVIX_EXPORT std::string davix_scope_mkdir_str();
@@ -227,6 +257,8 @@ DAVIX_EXPORT std::string davix_scope_x509cred();
 
 //
 DAVIX_EXPORT void davix_errno_to_davix_error(int errcode, const std::string & scope, const std::string & msg, DavixError** newErr);
+
+/// \endcond PRIVATE_SYMBOLS
 
 } // namespace Davix
 

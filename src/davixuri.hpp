@@ -34,6 +34,11 @@ public:
     Uri(const std::string & uri_string);
     /// Copy constructor
     Uri(const Uri & uri);
+    ///
+    /// \brief assignment operator
+    /// \param orig
+    /// \return
+    ///
     Uri & operator=(const Uri & orig);
     virtual ~Uri();
 
@@ -70,17 +75,36 @@ public:
     /// @return StatusCode::OK if success or StatusCode::UriParsingError if error
     StatusCode::Code getStatus() const;
 
-    /// return True if the two Uri are equals
+    ///
+    /// \brief test if two URI are equals
+    /// \param u1
+    /// \return true if equal, else false
+    ///
     bool equal(const Uri & u1) const;
 
+    ///
+    /// \brief compare oepration
+    /// \param u2
+    /// \return true if u2 == current uri
+    ///
     bool operator==(const Uri & u2) const;
 
 
+    ///
+    /// \brief Escape string
+    /// \param str URL to escape
+    /// \return encoded string
+    ///
     static std::string escapeString(const std::string & str);
 
+    ///
+    /// \brief Unescape url
+    /// \param str URL to escape
+    /// \return unencoded string
+    ///
     static std::string unescapeString(const std::string & str);
 
-protected:
+private:
     UriPrivate* d_ptr;
     void _init();
 };

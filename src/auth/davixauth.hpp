@@ -18,7 +18,7 @@
 
 namespace Davix {
 
-///  @class
+///  @class SessionInfo
 ///  @brief server related info
 class DAVIX_EXPORT SessionInfo{
 public:
@@ -49,8 +49,9 @@ typedef int (*authCallbackLoginPasswordBasic)(void* userdata, const SessionInfo 
                                         int count, DavixError** err);
 
 
-
+/// \cond PRIVATE_SYMBOLS
 std::string getAwsAuthorizationField(const std::string & stringToSign, const std::string & private_key, const std::string & access_key);
+/// \endcond PRIVATE_SYMBOLS
 
 } // namespace Davix
 

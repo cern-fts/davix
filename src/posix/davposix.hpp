@@ -96,7 +96,6 @@ public:
            
       behavior similar to the POSIX readdir function
 
-      @param params request options, can be NULL
       @param dir directory handle
       @param err Davix Error report
       @return dirent struct if success, or NULL if error
@@ -132,9 +131,8 @@ public:
       Similar to \ref Davix::DavPosix::readdir but provide stat() informations for each entry
       Supported by Webdav
 
-      @param params request options, can be NULL
       @param dir directory handle
-      @param stat struct to fill
+      @param st struct to fill
       @param err Davix Error report
       @return dirent struct if success, or NULL if error
     */
@@ -147,43 +145,43 @@ public:
        @param err Davix error report system
        @return 0 if success else a negative value and err is set.
     */
-    int closedirpp(DAVIX_DIR*, DavixError** err );
+    int closedirpp(DAVIX_DIR* d, DavixError** err );
 
     /**
       @brief execute a mkdir function with Webdav
       behavior similar to the POSIX mkdir function
       @warning dependening of the server, implementation, mode_t parameter can be ignored
 
-      @param params : request options, can be NULL
-      @param url: url of the directory to create
-      @param right : default mode of the directory ( ignored for now )
-      @param err : Davix error report system
+      @param params request options, can be NULL
+      @param url url of the directory to create
+      @param right default mode of the directory ( ignored for now )
+      @param err Davix error report system
       @return 0 if success else a negative value and err is set.
 
     */
-    int mkdir(const RequestParams * _params, const std::string & url, mode_t right, DavixError** err);
+    int mkdir(const RequestParams* params, const std::string& url, mode_t right, DavixError** err);
 
     /**
       @brief execute a remove file operation
       behavior similar to the POSIX unlink function
 
-      @param params : request options, can be NULL
-      @param url: file to delete
-      @param err : Davix error report system
+      @param params request options, can be NULL
+      @param url file to delete
+      @param err Davix error report system
       @return 0 if success else a negative value and err is set.
     */
-    int unlink(const RequestParams * _params, const std::string &url, DavixError** err);
+    int unlink(const RequestParams* params, const std::string& url, DavixError** err);
 
     /**
       @brief execute a remove directory operation
       behavior similar to the POSIX rmdir function
 
-      @param params : request options, can be NULL
-      @param url: directory to delete
-      @param err : Davix error report system
+      @param params request options, can be NULL
+      @param url directory to delete
+      @param err Davix error report system
       @return 0 if success else a negative value and err is set.
     */
-    int rmdir(const RequestParams * _params, const std::string &url, DavixError** err);
+    int rmdir(const RequestParams* params, const std::string& url, DavixError** err);
 
 
     /**
@@ -191,61 +189,63 @@ public:
       behavior similar to the POSIX open function
       This operation is supported on plain HTTP servers.
 
-      @param params : request options, can be NULL
-      @param url : url of the HTTP file to open
-      @param flags : open flags, similar to the POSIX function open
-      @param err: Davix Error report
+      @param params request options, can be NULL
+      @param url url of the HTTP file to open
+      @param flags open flags, similar to the POSIX function open
+      @param err Davix Error report
       @return Davix file descriptor in case of success, or NULL if an error occures.
      */
-    DAVIX_FD* open(const RequestParams * _params, const std::string & url, int flags, DavixError** err);
+    DAVIX_FD* open(const RequestParams* params, const std::string & url, int flags, DavixError** err);
 
 
     /**
       @brief read a file in a POSIX-like approach with HTTP(S)
       behavior similar to the POSIX read function
-      @param fd : davix file descriptor
-      @param buf : buffer to fill
-      @param count : maximum number of bytes to read
-      @param err: Davix Error report
+      @param fd davix file descriptor
+      @param buffer buffer to fill
+      @param count maximum number of bytes to read
+      @param err Davix Error report
       @return the size of data or a negative value if an error occured
      */
-    ssize_t read(DAVIX_FD* fd, void* buf, size_t count, DavixError** err);
+    ssize_t read(DAVIX_FD* fd, void* buffer, size_t count, DavixError** err);
 
 
     /**
       @brief do a partial read of a file in a POSIX-like approach with HTTP(S)
       behavior similar to the POSIX pread function
-      @param fd : davix file descriptor
-      @param buf : buffer to fill
-      @param count : maximum number of bytes to read
-      @param offset : offset to use
-      @param err: Davix Error report
+      @param fd davix file descriptor
+      @param buffer buffer to fill
+      @param count maximum number of bytes to read
+      @param offset  offset to use
+      @param err Davix Error report
       @return the size of data or a negative value if an error occured
      */
-    ssize_t pread(DAVIX_FD* fd, void* buf, size_t count, off_t offset, DavixError** err);
+    ssize_t pread(DAVIX_FD* fd, void* buffer, size_t count, off_t offset, DavixError** err);
 
     /**
       @brief pread_vec a file in a POSIX-like approach with HTTP(S)
             Vector read operation
             Allow to do several read operations in one single request
-      @param fd : davix file descriptor
-      @param input_vec : input vectors, parameters
-      @param output_vec : output vectors, results
-      @param count_vec : number of vector struct
-      @param err: Davix Error report
+      @param fd davix file descriptor
+      @param input_vec input vectors, parameters
+      @param output_vec output vectors, results
+      @param count_vec number of vector struct
+      @param err Davix Error report
       @return total number of bytes read, or -1 if error occures
      */
     dav_ssize_t preadVec(DAVIX_FD* fd, const DavIOVecInput * input_vec,
-                          DavIOVecOuput * ioutput_vec,
+                          DavIOVecOuput * output_vec,
                           dav_size_t count_vec, DavixError** err);
 
     /**
       @brief write a file in a POSIX-like approach with HTTP(S)
       behavior similar to the POSIX write function
-      @param fd : davix file descriptor
-      @param buf : buffer with the write content
-      @param count : number of bytes to write
+      @param fd davix file descriptor
+      @param buf buffer with the write content
+      @param count number of bytes to write
+      @param err Davix Error report
       @return the size of the written data or a negative value if an error occured
+
      */
     ssize_t write(DAVIX_FD* fd, const void* buf, size_t count, DavixError** err);
 
@@ -253,9 +253,10 @@ public:
     /**
       @brief move the cursor a davix file with HTTP(S)
       behavior similar to the POSIX lseek function
-      @param fd : davix file descriptor
-      @param offset : offset in byte inside the file
-      @param flags : lseek flags, similar to the lseek function
+      @param fd davix file descriptor
+      @param offset offset in byte inside the file
+      @param flags lseek flags, similar to the lseek function
+      @param err Davix Error report
       @return the offset position or a negative value if an error occures
      */
     off_t lseek(DAVIX_FD* fd, off_t offset, int flags, DavixError** err);
@@ -265,8 +266,8 @@ public:
 
       Note : all file descriptors MUST be closed before the destruction of the parent davix context
 
-      @param fd : davix file descriptor
-      @param count : number of bytes to write
+      @param fd davix file descriptor
+      @param err Davix Error report
       @return 0 if success, negative value if error
      */
     int close(DAVIX_FD* fd, DavixError** err);

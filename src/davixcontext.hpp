@@ -26,17 +26,31 @@ class HttpRequest;
 class DavPosix;
 
 
-/// @brief Main entry point for Davix
-/// Each new davix context has its own session-reuse pool and set of parameters
-/// Any Method in a Davix::Context is thread-safe
+/// @brief Main handle for Davix
+///
+/// Each new davix context contains its own session-reuse pool and set of parameters
+/// a Context can execute multiple queries in parallels and is thread safe
 class DAVIX_EXPORT Context
 {
 public:
-    /// create a new context for Davix
+    ///
+    /// \brief Default constructor
+    ///
     Context();
+    ///
+    /// \brief copy constructor
+    /// \param c
+    ///
     Context(const Context & c);
+    ///
+    /// \brief assignment operator
+    /// \param c
+    /// \return
+    ///
     Context & operator=(const Context & c);
-
+    ///
+    /// \brief destructor
+    ///
     virtual ~Context();
 
     /// clone this instance to a new context dynamically allocated,

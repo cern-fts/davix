@@ -51,7 +51,7 @@ namespace RequestFlag{
 }
 
 
-/// @class HTTPRequest
+/// @class HttpRequest
 /// @brief Http low level request interface
 /// HTTPRequest is the main davix class for low level HTTP queries
 /// HTTPRequest objects are provided by Davix::Context
@@ -59,36 +59,57 @@ namespace RequestFlag{
 class DAVIX_EXPORT HttpRequest
 {
 public:
-    HttpRequest(NEONRequest* req);
-    HttpRequest(Context & context, const Uri & uri, DavixError** err);
+    ///
+    /// \brief HttpRequest constructor with a defined URL
+    /// \param context davix context
+    /// \param url URL of the resource
+    /// \param err Davix error report system
+    ///
+    HttpRequest(Context & context, const Uri & url, DavixError** err);
+
+    ///
+    /// \brief HttpRequest constructor with a defined URL from a string
+    /// \param context davix context
+    /// \param url URL of the resource
+    /// \param err Davix error report system
+    ///
     HttpRequest(Context & context, const std::string & url, DavixError** err);
+
+    ///
+    /// \brief HttpRequest internal usage
+    /// \param req
+    ///
+    HttpRequest(NEONRequest* req);
     virtual ~HttpRequest();
 
     ///  add a optional HTTP header request
     ///  replace an existing one if already exist
     ///  if the content of value of the header field is empty : remove an existing one
-    ///  @param field :  header field name
-    ///  @param value :  header field value
+    ///  @param field  header field name
+    ///  @param value header field value
     void addHeaderField(const std::string & field, const std::string & value);
 
     ///
-    /// set the request command to execute ( GET, POST, etc... )
-    /// DEFAULT : GET
-    void setRequestMethod(const std::string & request_str);
+    /// \brief set the request method ( "GET", "PUT", ... )
+    /// \param method request method
+    ///
+    void setRequestMethod(const std::string & method);
 
 
     ///
-    /// define HttpRequest parameter
-    /// see \ref RequestParams for more details
-    /// a copy of the object is done
+    /// \brief set the request parameter
+    /// \param parameters Davix Request parameters
     ///
-    void setParameters(const RequestParams &p );
+    ///  define the request parameters, can be used to define parameters
+    ///  like authentication scheme, timeout or user agent.
+    void setParameters(const RequestParams &parameters );
 
     ///   @brief execute this request completely
     ///
     ///   the answer is accessible with \ref Davix::HttpRequest::getAnswerContent
-    ///   @param err : davix error report
+    ///   @param err davix error report
     ///   @return 0 on success
+    ///
     int executeRequest(DavixError** err);
 
     ///
@@ -216,7 +237,10 @@ public:
     /// @return cache token or null pointer if not available
     HttpCacheToken* extractCacheToken() const;
 
-    /// set a cache token associated with this request
+    ///
+    /// \brief use the cache token of a previous request, enable request o
+    ///  optimizations ( session re-use, redirection caching, server operation support )
+    /// \param token
     ///
     void useCacheToken(const HttpCacheToken* token);
 
@@ -242,6 +266,12 @@ private:
 /// @brief Http low level request configured for GET operation
 class GetRequest : public HttpRequest{
 public:
+    ///
+    /// \brief Construct a HttpRequest for GET a operation
+    /// \param context
+    /// \param uri
+    /// \param err
+    ///
     GetRequest(Context & context, const Uri & uri, DavixError** err);
 };
 
@@ -249,6 +279,11 @@ public:
 /// @brief Http low level request configured for PUT operation
 class PutRequest : public HttpRequest{
 public:
+    ///
+    /// \brief Construct a HttpRequest for PUT a operation
+    /// \param context
+    /// \param uri
+    /// \param err
     PutRequest(Context & context, const Uri & uri, DavixError** err);
 };
 
@@ -256,6 +291,12 @@ public:
 /// @brief Http low level request configured for HEAD operation
 class HeadRequest : public HttpRequest{
 public:
+    ///
+    /// \brief Construct a HttpRequest for a HEAD operation
+    /// \param context
+    /// \param uri
+    /// \param err
+    ///
     HeadRequest(Context & context, const Uri & uri, DavixError** err);
 };
 
@@ -264,6 +305,12 @@ public:
 /// @brief Http low level request configured for DELETE operation
 class DeleteRequest : public HttpRequest{
 public:
+    ///
+    /// \brief  Construct a HttpRequest forfor a DELETE operation
+    /// \param context
+    /// \param uri
+    /// \param err
+    ///
     DeleteRequest(Context & context, const Uri & uri, DavixError** err);
 };
 
@@ -272,6 +319,12 @@ public:
 /// @brief Webdav low level request configured for PROPFIND operation
 class PropfindRequest : public HttpRequest{
 public:
+    ///
+    /// \brief  Construct a HttpRequest for a PROPFIND operation
+    /// \param context
+    /// \param uri
+    /// \param err
+    ///
     PropfindRequest(Context & context, const Uri & uri, DavixError** err);
 };
 

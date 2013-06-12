@@ -62,9 +62,21 @@ typedef std::string AwsAccessKey;
 class DAVIX_EXPORT RequestParams
 {
 public:
+    ///
+    /// \brief default constructor
+    ///
     RequestParams();
+    ///
+    /// \brief copy constructor
+    /// \param params
+    ///
     RequestParams(const RequestParams & params);
+    ///
+    /// \brief conveniencecopy constructor with NULL check
+    /// \param params
     RequestParams(const RequestParams* params);
+    /// \brief assignment operator
+    RequestParams & operator=(const RequestParams & _p);
 
     virtual ~RequestParams();
 
@@ -171,7 +183,7 @@ public:
     /// internal usage
     void* getParmState() const;
 
-    RequestParams & operator=(const RequestParams & _p);
+
 private:
 
    // dptr

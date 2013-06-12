@@ -24,19 +24,29 @@ namespace Davix{
 
 struct DavFileInternal;
 
-
+/// \typedef std::vector<Uri> ReplicaVec
+/// \brief Vector of the URL replicas of a resources
+///
 typedef std::vector<Uri> ReplicaVec;
 
 
 ///
 /// @class DavFile
-/// @brief Davix File API
+/// @brief Davix File Interface
 ///
 /// Davix File interface
 class DAVIX_EXPORT DavFile
 {
 public:
+    ///
+    /// \brief default constructor
+    /// \param c context
+    /// \param url Remote File URL
+    ///
     DavFile(Context & c, const Uri & url);
+    ///
+    /// \brief destructor
+    ///
     virtual ~DavFile();
 
     ///

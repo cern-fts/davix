@@ -22,6 +22,7 @@ namespace Davix {
 ///  @brief server related info
 class DAVIX_EXPORT SessionInfo{
 public:
+    /// \brief tada
     void* a;
 /// TODO: fill with server side infos
 

@@ -25,9 +25,19 @@ struct X509CredentialExtra;
 class DAVIX_EXPORT X509Credential
 {
 public:
+    ///
+    /// \brief default constructor
+    ///
     X509Credential();
+    ///
+    /// \brief copy constructor
+    ///
     X509Credential(const X509Credential & orig);
+    ///
+    /// \brief assignment operator
+    ///
     X509Credential & operator=(const X509Credential & orig);
+    /// \brief destructor
     ~X509Credential();
 
     /// load a credential from a PKCS12 file

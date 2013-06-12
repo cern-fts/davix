@@ -43,6 +43,10 @@ class NEONRequest;
 class NEONSessionFactory;
 
 namespace RequestFlag{
+    ///
+    /// \brief Request flag
+    ///
+    ///
     enum RequestFlag{
         SupportContinue100 = 0x01, /**< Enable support for 100 Continue code (default: OFF) */
         IdempotentRequest  = 0x02  /**< Specifie the request as Idempotent ( default : ON) */
@@ -329,11 +333,11 @@ public:
 };
 
 
-
+/// \cond PRIVATE_SYMBOLS
 DAVIX_EXPORT bool httpcodeIsValid(int code);
 
 DAVIX_EXPORT void httpcodeToDavixCode(int code, const std::string & scope, const std::string & end_message, DavixError** err);
-
+/// \endcond PRIVATE_SYMBOLS
 }
 
 #endif // DAVIX_HTTPREQUEST_H

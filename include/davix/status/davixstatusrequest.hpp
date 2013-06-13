@@ -127,12 +127,6 @@ const Code UnknowError= DAVIX_STATUS_UNKNOW_ERROR;
 ///
 /// Example :
 ///
-///     DavixError *tmp_err = NULL;
-///     Davix::operation(arg1,arg2, &tmp_err)
-///     if(tmp_err){
-///         std::cout << tmp_err->getErrMsg() << std::endl;
-///         DavixError::clearError(&tmp_err); // clean error
-///     }
 ///
 class DAVIX_EXPORT DavixError{
 public:

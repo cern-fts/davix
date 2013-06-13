@@ -147,14 +147,6 @@ public:
     ///  should be used for request with a large answer
     ///
     ///
-    ///  example :
-    ///   DavixError* tmp_err=NULL;
-    ///   beginRequest(&tmp_err) //
-    ///   do{
-    ///        ret= readBlock(buffer, size_read, &tmp_err);
-    ///   } while(ret > 0);
-    ///   endRequest(&tmp_err);
-    ///
     /// @param err : DavixError error report system
     /// @return return 0 if success, or a negative value if an error occures
     ///

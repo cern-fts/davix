@@ -1,5 +1,5 @@
 Name:				davix
-Version:			0.2.1
+Version:			0.2.2
 Release:			1%{?dist}
 Summary:			Toolkit for Http-based file management
 Group:				Applications/Internet
@@ -96,7 +96,7 @@ make DESTDIR=%{buildroot} install
 %{_docdir}/%{name}-%{version}/html/*
 
 %changelog
-* Wed Jun 05 2013 Adrien Devresse <adevress at cern.ch> - 0.2.0-1
+* Wed Jun 05 2013 Adrien Devresse <adevress at cern.ch> - 0.2.2-1
  - Initial EPEL release
  
  

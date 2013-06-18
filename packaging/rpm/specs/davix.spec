@@ -1,6 +1,6 @@
 Name:				davix
 Version:			0.2.2
-Release:			1%{?dist}
+Release:			2%{?dist}
 Summary:			Toolkit for Http-based file management
 Group:				Applications/Internet
 License:			LGPLv2+
@@ -59,7 +59,7 @@ make clean
 %cmake \
 -DDOC_INSTALL_DIR=%{_docdir}/%{name}-%{version} \
 -D UNIT_TESTS=TRUE .
-make
+make %{?_smp_mflags}
 make doc
 
 %check
@@ -93,10 +93,12 @@ make DESTDIR=%{buildroot} install
 
 %files doc
 %defattr (-,root,root)
+%dir %{_docdir}/%{name}-%{version}/
+%dir %{_docdir}/%{name}-%{version}/html/
 %{_docdir}/%{name}-%{version}/html/*
 
 %changelog
-* Wed Jun 05 2013 Adrien Devresse <adevress at cern.ch> - 0.2.2-1
+* Wed Jun 05 2013 Adrien Devresse <adevress at cern.ch> - 0.2.2-2
  - Initial EPEL release
  
  

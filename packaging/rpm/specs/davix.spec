@@ -42,7 +42,6 @@ with Http based protocols (WebDav, Amazon S3, ...).
 %package doc
 Summary:			Documentation for %{name}
 Group:				Applications/Internet
-Requires:			%{name}%{?_isa} = %{version}-%{release}
 
 %description doc
 Documentation and examples for %{name}. Davix is a toolkit designed 

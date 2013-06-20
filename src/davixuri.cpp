@@ -1,5 +1,7 @@
+#include <config.h>
 #include <davixuri.hpp>
 #include <ne_uri.h>
+#include <malloc.h>
 #include <cassert>
 #include <cstring>
 

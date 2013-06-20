@@ -77,6 +77,9 @@
 #cmakedefine HAVE_STRLCPY_H 1
 #include <strlcpy/strlcpy.h>
 
+// have gmtime_r
+#cmakedefine HAVE_GMTIME_R 1
+
 // readdir max name size
 #ifndef NAME_MAX
 #define NAME_MAX 256

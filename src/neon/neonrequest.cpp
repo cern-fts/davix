@@ -199,7 +199,12 @@ void NEONRequest::configureS3params(){
     char date[255];
     std::ostringstream ss;
     date[254]= '\0';
+#ifdef HAVE_GMTIME_R	
     gmtime_r(&t, &utc_current);
+#else
+	struct tm* p_utc = gmtime(&t);
+	memcpy(&utc_current, p_utc, sizeof(struct tm));
+#endif	
     strftime(date, 254, "%a, %d %b %Y %H:%M:%S %z", &utc_current);
     // add Date header
     addHeaderField("Date", date);

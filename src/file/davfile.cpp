@@ -1,3 +1,4 @@
+#include <config.h>
 #include <file/davfile.hpp>
 #include <fileops/davmeta.hpp>
 #include <fileops/iobuffmap.hpp>

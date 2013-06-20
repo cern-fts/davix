@@ -4,6 +4,7 @@
 #include <cstring>
 #include <cstdio>
 #include <cerrno>
+#include <fcntl.h>
 #include <simple_getpass/simple_get_pass.h>
 
 namespace Davix{
@@ -42,7 +43,7 @@ int get_output_fstream(const Tool::OptParams & opts, const std::string & scope, 
             return -1;
         }
     }else{
-        fd = fcntl(STDOUT_FILENO, F_DUPFD, 0);
+        fd = dup(STDOUT_FILENO);
     }
     return fd;
 }
@@ -55,7 +56,7 @@ int get_input_fstream(const Tool::OptParams & opts, const std::string & scope, D
             return -1;
         }
     }else{
-        fd = fcntl(STDOUT_FILENO, F_DUPFD, 0);
+        fd = dup(STDOUT_FILENO);
     }
     return fd;
 }

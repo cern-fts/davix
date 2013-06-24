@@ -159,26 +159,17 @@ int deleteResource(Context & c, const Uri & u, const RequestParams & params, Dav
     int ret=-1;
     RequestParams _params(params);
 
-    switch(_params.getProtocol()){
 
-        case RequestProtocol::AwsS3:
-        case RequestProtocol::Http:
-        {
-            DeleteRequest req(c,u, err);
-            req.setParameters(_params);
-            if(!tmp_err){
-                ret=req.executeRequest(&tmp_err);
-                if(!tmp_err && httpcodeIsValid(req.getRequestCode()) == false){
-                        httpcodeToDavixCode(req.getRequestCode(), davix_scope_stat_str(), u.getString() , &tmp_err);
-                        ret = -1;
-                 }
-            }
-        }
-            break;
-        default:
-            WebdavQuery q(c);
-            ret=  q.davDelete(&_params, u,  &tmp_err);
+    DeleteRequest req(c,u, err);
+    req.setParameters(_params);
+    if(!tmp_err){
+        ret=req.executeRequest(&tmp_err);
+        if(!tmp_err && httpcodeIsValid(req.getRequestCode()) == false){
+                httpcodeToDavixCode(req.getRequestCode(), davix_scope_stat_str(), u.getString() , &tmp_err);
+                ret = -1;
+         }
     }
+
 
     if(tmp_err)
         DavixError::propagateError(err, tmp_err);

@@ -96,10 +96,6 @@ int parse_davix_options_generic(const std::string &opt_filter,
                                long_options, &option_index)) > 0){
 
         switch(ret){
-            case 0:
-              /* If this option set a flag, do nothing else now. */
-              std::cout << " case 0 " << std::endl;
-              break;
             case DEBUG_OPT:
                 p.debug = true;
                 davix_set_log_level(DAVIX_LOG_ALL);

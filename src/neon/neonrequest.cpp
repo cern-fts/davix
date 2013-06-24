@@ -38,6 +38,7 @@ void neon_generic_error_mapper(int ne_status, StatusCode::Code & code, std::stri
         case NE_PROXYAUTH:
             code = StatusCode::AuthentificationError;
             str=  "Authentification failed on proxy";
+            break;
         case NE_CONNECT:
             code = StatusCode::ConnectionProblem;
             str= "Could not connect to server";
@@ -45,6 +46,7 @@ void neon_generic_error_mapper(int ne_status, StatusCode::Code & code, std::stri
         case NE_TIMEOUT:
             code = StatusCode::ConnectionTimeout;
             str= "Connection timed out";
+            break;
         case NE_FAILED:
             code = StatusCode::SessionCreationError;
             str=  "The precondition failed";

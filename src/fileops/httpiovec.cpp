@@ -40,7 +40,7 @@ void configure_iovec_range_header(HttpRequest& req, const DavIOVecInput * input_
 dav_ssize_t HttpVecOps::readPartialBufferVec(const DavIOVecInput * input_vec,
                           DavIOVecOuput * output_vec,
                           const dav_size_t count_vec, DavixError** err){
-       dav_ssize_t ret;
+       dav_ssize_t ret=-1;
        DavixError* tmp_err=NULL;
        DAVIX_TRACE(" -> Davix Vector operation");
        configure_iovec_range_header(_req, input_vec, count_vec);
@@ -57,7 +57,6 @@ dav_ssize_t HttpVecOps::readPartialBufferVec(const DavIOVecInput * input_vec,
                     break;
                 default:
                     httpcodeToDavixCode(_req.getRequestCode(),davix_scope_http_request(),", ", &tmp_err);
-                    ret = -1;
            }
        }
        if(tmp_err)

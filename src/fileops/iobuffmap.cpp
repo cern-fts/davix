@@ -337,8 +337,10 @@ int HttpIO::stat(struct stat* st, HttpCacheToken** token, DavixError** err){
 }
 
 void HttpIO::resetFullRead(){
-    if(_read_req)
+    if(_read_req){
         delete _read_req;
+        _read_req = NULL;
+    }
     _read_pos =0;
 }
 

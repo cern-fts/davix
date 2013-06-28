@@ -21,13 +21,13 @@ int main(int argc, char** argv){
     RequestParams  p;
     std::auto_ptr<Context> c( new Context());
     DavPosix pos(c.get());
+    p.setProtocol(RequestProtocol::Webdav);
 
     if(argc > 2){
         configure_grid_env(argv[2], p);
     }
 
     char buff[2048];
-
     generate_random_uri(argv[1], "davix_test_stat", buff, 2048);
 
     struct stat st;

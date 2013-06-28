@@ -30,6 +30,7 @@ int main(int argc, char** argv){
     ssize_t ret=1;
     RequestParams  p;
     std::auto_ptr<Context> c( new Context());
+  //  c->setSessionCaching(false);
     DavPosix pos(c.get());
 
     const size_t size_content = rand()/1000000+2;

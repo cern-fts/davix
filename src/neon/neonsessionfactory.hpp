@@ -28,17 +28,25 @@ public:
     */
     int storeNeonSession(ne_session *sess, DavixError** err);
 
+    inline void setSessionCaching(bool caching){
+        _session_caching = caching;
+    }
+
+    inline bool getSessionCaching() const {
+        return _session_caching;
+    }
+
 private:
     std::multimap<std::string, ne_session*> _sess_map;
     DppLock _sess_mut;
 
     void internal_release_session_handle(ne_session* sess);
 
-
-
     ne_session* create_session(const std::string & protocol, const std::string &host, unsigned int port);
 
     ne_session* create_recycled_session(const std::string & protocol, const std::string &host, unsigned int port);
+
+    bool _session_caching;
 };
 
 void parse_http_neon_url(const std::string & url, std::string & protocol,

@@ -27,6 +27,7 @@ int main(int argc, char** argv){
     RequestParams  p;
     struct stat st;
     int res =-1;
+    p.setProtocol(RequestProtocol::Webdav);
     DavixError* tmp_err=NULL;
     char * base_dir = argv[1];
     char * cert_path = argv[2];
@@ -52,6 +53,7 @@ int main(int argc, char** argv){
     Context c;
     DavPosix pos(&c);
     WebdavQuery query(c);
+
 
 
     std::cout << "verify that " << created_dir << "does not exist" << std::endl;

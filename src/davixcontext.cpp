@@ -6,13 +6,9 @@
 #include <memory/memoryutils.hpp>
 
 
-/**
- * @cond HIDDEN_SYMBOLS
- */
 
 static const std::string _version = DAVIX_VERSION;
 
-/// @internal
 
 namespace Davix{
 
@@ -20,70 +16,35 @@ namespace Davix{
 ///  Implementation f the core logic in davix
 struct ContextInternal
 {
-public:
-    ContextInternal(NEONSessionFactory * fsess);
+    ContextInternal(NEONSessionFactory * fsess):
+        _fsess(fsess),
+        _s_buff(65536),
+        _timeout(300),
+        _context_flags(0){}
+
+    ContextInternal(const ContextInternal & orig):
+        _fsess(new NEONSessionFactory()),
+        _s_buff(orig._s_buff),
+        _timeout(orig._timeout),
+        _context_flags(orig._context_flags)
+    {}
 
     virtual ~ContextInternal(){}
 
-    /**
-      implementation of getSessionFactory
-    */
-    NEONSessionFactory* getSessionFactory();
-
-
-     void setBufferSize(const dav_size_t value);
-
-
-    static ContextInternal* takeRef(ContextInternal* me){
-        DppLocker(me->l_counter);
-        (me->count_instance)++;
-        return me;
+    // implementation of getSessionFactory
+    inline NEONSessionFactory* getSessionFactory(){
+         return _fsess.get();
     }
 
-    static void releaseRef(ContextInternal* me){
-        {
-            DppLocker(me->l_counter);
-            (me->count_instance)--;
-        }
-        if(me->count_instance <=0)
-            delete me;
+    void setBufferSize(const dav_size_t value){
+      _s_buff = value;
     }
-
-
-
-    DAVIX_DIR* internal_opendirpp(const char * scope, const std::string & body, const std::string & url  );
 
     ScopedPtr<NEONSessionFactory>::type  _fsess;
     dav_size_t _s_buff;
     unsigned long _timeout;
-    DppLock l_counter;
-    volatile int count_instance;
+    bool _context_flags;
 };
-
-///////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
-
-
-ContextInternal::ContextInternal(NEONSessionFactory* fsess) :
-    _fsess(fsess),
-    _s_buff(65536),
-    _timeout(300),
-    l_counter(),
-    count_instance(1)
-{
-}
-
-
-NEONSessionFactory* ContextInternal::getSessionFactory(){
-    return _fsess.get();
-}
-
-void ContextInternal::setBufferSize(const dav_size_t value){
-    _s_buff = value;
-}
-
-
 
 ///////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
@@ -96,24 +57,33 @@ Context::Context() :
 }
 
 Context::Context(const Context &c) :
-    _intern(ContextInternal::takeRef(c._intern)){
+    _intern(new ContextInternal(*(c._intern))){
 }
 
 Context & Context::operator=(const Context & c){
-    if(this->_intern != NULL)
-        ContextInternal::releaseRef(this->_intern);
-    this->_intern = ContextInternal::takeRef(c._intern);
+    if( this != &c ){
+        if( _intern != NULL)
+            delete _intern;
+        _intern = new ContextInternal(*(c._intern));
+    }
     return *this;
 }
 
 Context::~Context(){
-    ContextInternal::releaseRef(_intern);
-
+    delete _intern;
 }
 
 Context* Context::clone(){
-
     return new Context(*this);
+}
+
+
+void Context::setSessionCaching(bool caching){
+    _intern->_fsess->setSessionCaching(caching);
+}
+
+bool Context::getSessionCaching() const{
+    return _intern->_fsess->getSessionCaching();
 }
 
 
@@ -139,55 +109,3 @@ const std::string & version(){
 
 } // End Davix
 
-
-
-/**
- * @endcond
- **/
-
-DAVIX_C_DECL_BEGIN
-
-/*
-int davix_auth_set_pkcs12_cli_cert(davix_auth_t token, const char* filename_pkcs, const char* passwd, davix_error_t* err){
-    Davix::NEONSession* req = (Davix::NEONSession*)(token);
-    Davix::DavixError* tmp_err=NULL;
-
-    if( req->do_pkcs12_cert_authentification(filename_pkcs, passwd, &tmp_err) <0){
-        Davix::DavixError::propagateError((Davix::DavixError**) err, tmp_err);
-        return -1;
-    }
-
-    return 0;
-}
-
-int davix_auth_set_login_passwd(davix_auth_t token, const char* login, const char* passwd, davix_error_t* err){
-    Davix::NEONSession* req = (Davix::NEONSession*)(token);
-    Davix::DavixError* tmp_err=NULL;
-
-    if(req->do_login_passwd_authentification(login, passwd, &tmp_err) <0){
-        Davix::DavixError::propagateError((Davix::DavixError**) err, tmp_err);
-        return -1;
-    }
-    return 0;
-}*/
-
-davix_sess_t davix_context_new(davix_error_t* err){
-    Davix::Context* comp = new Davix::Context();
-    return (davix_sess_t) comp;
-
-}
-
-davix_sess_t davix_context_copy(davix_sess_t sess){
-    return (davix_sess_t) new Davix::Context(*((Davix::Context*) sess));
-}
-
-
-
-void davix_context_free(davix_sess_t sess){
-    if(sess != NULL)
-        delete ((Davix::Context*)(sess));
-}
-
-DAVIX_C_DECL_END
-
-/// @endinternal

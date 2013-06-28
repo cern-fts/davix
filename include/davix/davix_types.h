@@ -47,13 +47,10 @@ typedef struct davix_request_params* davix_params_t;
 typedef uint64_t dav_off_t;
 typedef uint64_t dav_size_t;
 typedef int64_t dav_ssize_t;
-
 #else
-
 typedef off_t dav_off_t;
 typedef size_t dav_size_t;
 typedef ssize_t dav_ssize_t;
-
 #endif
 
 
@@ -62,8 +59,6 @@ typedef ssize_t dav_ssize_t;
 // block size
 #define DAVIX_BLOCK_SIZE 4096
 #define DAVIX_MAX_BLOCK_SIZE 16777216
-
-
 
 /// Davix status codes
 typedef enum davix_status_e {
@@ -93,7 +88,6 @@ typedef enum davix_status_e {
     DAVIX_STATUS_INVALID_ARG,
     DAVIX_STATUS_INVALID_SERVER_RESPONSE
 } davix_status_t;
-
 
 
 //

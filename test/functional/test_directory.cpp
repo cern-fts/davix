@@ -36,6 +36,7 @@ int main(int argc, char** argv){
     davix_set_log_level(DAVIX_LOG_ALL);
     generate_random_uri(base_dir, "rmdir_unlink_delete_test", buffer, 2048);
     std::string created_dir(buffer);
+    params.setProtocol(RequestProtocol::Webdav);
 
     Context c;
     DavFile f(c, std::string(buffer)), f2(c,std::string(buffer));

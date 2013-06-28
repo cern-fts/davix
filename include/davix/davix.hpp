@@ -24,6 +24,7 @@
 #define DAVIX_EXPORT
 #endif
 
+#include <davix_file_types.hpp>
 
 /// main context
 #include <davixcontext.hpp>
@@ -39,7 +40,6 @@
 
 /// davix uri parser
 #include <davixuri.hpp>
-
 
 /// file API, main API for remote I/O
 #include <file/davfile.hpp>

@@ -40,6 +40,9 @@ public:
     //
     void resetFullRead();
 
+    // give prefect info
+    void prefetch(off_t offset, dav_size_t size_read, advise_t adv);
+
     // position independant read operation,
     // similar to pread except that does not need open() before
     dav_ssize_t readPartialBuffer(void* buf, dav_size_t count, dav_off_t offset, DavixError** err);

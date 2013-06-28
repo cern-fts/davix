@@ -3,8 +3,7 @@
 
 #include <davixcontext.hpp>
 #include <params/davixrequestparams.hpp>
-#include <posix/davposix.hpp>
-#include <davix_types.h>
+#include <davix_file_types.hpp>
 
 
 

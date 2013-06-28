@@ -96,7 +96,7 @@ NEONSession::NEONSession(Context & c, const Uri & uri, const RequestParams & p, 
     _sess(NULL),
     _params(p),
     _last_error(NULL),
-    _session_recycling(true)
+    _session_recycling(_f.getSessionCaching())
 {
         _f.createNeonSession(uri, &_sess, err);
         if(_sess)
@@ -109,7 +109,7 @@ NEONSession::NEONSession(NEONSessionFactory & f, const Uri & uri, const RequestP
     _sess(NULL),
     _params(p),
     _last_error(NULL),
-    _session_recycling(true)
+    _session_recycling(_f.getSessionCaching())
 {
     _f.createNeonSession(uri, &_sess, err);
     if(_sess)

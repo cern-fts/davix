@@ -21,7 +21,8 @@ static void init_neon(){
 
 NEONSessionFactory::NEONSessionFactory() :
     _sess_map(),
-    _sess_mut()
+    _sess_mut(),
+    _session_caching(true)
 {
     neon_once.once(&init_neon);
 

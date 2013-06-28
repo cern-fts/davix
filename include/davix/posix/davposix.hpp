@@ -259,6 +259,18 @@ public:
      */
     int close(DAVIX_FD* fd, DavixError** err);
 
+    /**
+      @brief give advise about next file operation
+
+      similar to posix_fadvise, allow I/O optimizations
+      non-blocking asynchronous function
+
+      @param fd Davix file descriptor
+      @param offset offset of the next chunk to read
+      @param len size of the next chunk to read
+      @param advise type of pattern for I/O : sequential, random
+    */
+    void fadvise(DAVIX_FD* fd, dav_off_t offset, dav_size_t len, advise_t advice);
 
 private:
     DAVIX_DIR* internal_opendirpp(const RequestParams* params,  const char * scope, const std::string & body, const std::string & url, DavixError** err);

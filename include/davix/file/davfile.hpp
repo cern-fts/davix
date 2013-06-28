@@ -188,6 +188,19 @@ public:
     ///
     int stat(const RequestParams* params, struct stat * st, DavixError** err);
 
+
+    ///
+    /// @brief provide informations on the next file operation
+    ///
+    /// provide informations on the next file operations for optimizations
+    /// and prefetching
+    ///
+    /// @param offset
+    /// @param size_read
+    /// @param adv
+    ///
+    void prefetchInfo(off_t offset, dav_size_t size_read, advise_t adv);
+
 private:
     DavFileInternal* d_ptr;
     DavFile(const DavFile & f);

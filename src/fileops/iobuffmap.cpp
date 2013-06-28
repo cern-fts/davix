@@ -354,7 +354,8 @@ HttpIOBuffer::HttpIOBuffer(Context &c, const Uri &uri, const RequestParams *para
     _file_size(0),
     _file_exist(false),
     _pos(false),
-    _opened(false)
+    _opened(false),
+    _last_advise(AdviseAuto)
 {
 
 }
@@ -409,7 +410,7 @@ dav_ssize_t HttpIOBuffer::read(void *buf, dav_size_t count, DavixError **err){
 
     if(_pos ==0) // reset read ahead offset to default if try to read a full file
         resetFullRead();
-    if(_pos == _read_pos){
+    if(_pos == _read_pos && isAdviseFullRead()){
         // try read ahead strategie
         ret = readFullBuff(buf, count, &tmp_err);
     }else{ // fallback on partial read
@@ -421,6 +422,11 @@ dav_ssize_t HttpIOBuffer::read(void *buf, dav_size_t count, DavixError **err){
     if(tmp_err)
         DavixError::propagateError(err, tmp_err);
     return ret;
+}
+
+
+void HttpIOBuffer::prefetchInfo(off_t offset, dav_size_t size_read, advise_t adv){
+    _last_advise = adv;
 }
 
 

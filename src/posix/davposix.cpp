@@ -294,6 +294,12 @@ int DavPosix::closedir(DAVIX_DIR * d, DavixError** err){
     return closedirpp(d,err);
 }
 
+void DavPosix::fadvise(DAVIX_FD *fd, dav_off_t offset, dav_size_t len, advise_t advise){
+    if( fd==NULL)
+        return;
+    fd->io_handler->prefetchInfo(offset, len, advise);
+}
+
 
 ////////////////////////////////////////////////////
 //////////////////// Davix POSIX meta ops

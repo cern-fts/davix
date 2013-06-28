@@ -40,9 +40,6 @@ public:
     //
     void resetFullRead();
 
-    // give prefect info
-    void prefetch(off_t offset, dav_size_t size_read, advise_t adv);
-
     // position independant read operation,
     // similar to pread except that does not need open() before
     dav_ssize_t readPartialBuffer(void* buf, dav_size_t count, dav_off_t offset, DavixError** err);
@@ -101,6 +98,9 @@ public:
                           dav_size_t count_vec, DavixError** err);
 
 
+    // give information on the future operation for prefecting
+    void prefetchInfo(off_t offset, dav_size_t size_read, advise_t adv);
+
     //
     dav_ssize_t write(const void* buf, dav_size_t count, DavixError** err);
 
@@ -121,8 +121,13 @@ protected:
     bool _file_exist;
     dav_off_t _pos;
     bool _opened;
+    advise_t _last_advise;
 
 private:
+
+    inline bool isAdviseFullRead(){
+        return (_last_advise == AdviseAuto || _last_advise == AdviseSequential);
+    }
 
     HttpIOBuffer(const HttpIOBuffer & );
     HttpIOBuffer & operator=(const HttpIOBuffer & );

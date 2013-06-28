@@ -91,5 +91,9 @@ int DavFile::stat(const RequestParams* params, struct stat * st, DavixError** er
     return (int) Meta::posixStat(d_ptr->_c, d_ptr->_u, params, st, NULL, err);
 }
 
+void DavFile::prefetchInfo(off_t offset, dav_size_t size_read, advise_t adv){
+    // TODO
+}
+
 
 } //Davix

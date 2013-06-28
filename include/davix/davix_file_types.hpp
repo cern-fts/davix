@@ -32,10 +32,15 @@ struct DAVIX_EXPORT DavIOVecOuput{
 };
 
 
+/// @enum advise_t
+/// Information about the next type of operation executed
+/// AdviseAuto : default operation, no optimization
+/// AdviseSequentialRead : optimize next operation for sequential read/write
+/// AdviseRandomRead: optimize next operation for random position read/write
 enum DAVIX_EXPORT advise_t{
-    Auto=0x00,
-    SequentialRead,
-    RandomRead
+    AdviseAuto=0x00,
+    AdviseSequential,
+    AdviseRandom,
 
 };
 

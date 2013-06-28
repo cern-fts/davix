@@ -206,7 +206,8 @@ public:
     const char* getAnswerContent();
 
     /// get content length
-    dav_size_t getAnswerSize() const;
+    /// @return content size, return -1 if chunked
+    dav_ssize_t getAnswerSize() const;
 
     ///
     ///  clear the current result

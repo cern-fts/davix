@@ -136,17 +136,16 @@ dav_ssize_t posixStat(Context & c, const Uri & url, const RequestParams * _param
                       DavixError** err){
     RequestParams params(_params);
     DavixError* tmp_err=NULL;
-
     int ret =-1;
 
     switch(params.getProtocol()){
-         case RequestProtocol::Http:
-         case RequestProtocol::AwsS3:
-            ret = dav_stat_mapper_http(c, &params, url, st, token_ptr, &tmp_err);
-            break;
-        default:
+         case RequestProtocol::Webdav:
             ret = dav_stat_mapper_webdav(c, &params, url, st, token_ptr, &tmp_err);
             break;
+        default:
+            ret = dav_stat_mapper_http(c, &params, url, st, token_ptr, &tmp_err);
+            break;
+
     }
     DAVIX_DEBUG(" davix_stat <-");
     if(tmp_err)

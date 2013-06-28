@@ -126,7 +126,7 @@ const char* HttpRequest::getAnswerContent(){
 }
 
 /// get content length
-dav_size_t HttpRequest::getAnswerSize() const{
+dav_ssize_t HttpRequest::getAnswerSize() const{
     return d_ptr->getAnswerSize();
 }
 

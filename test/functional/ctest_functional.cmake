@@ -9,7 +9,7 @@ set(BASIC_PASSWD "tester")
 set(http_desy_base "http://sligo.desy.de:2880/pnfs/desy.de/data/dteam")
 set(http_desy_file "${http_desy_base}/fbxtest.txt")
 
-set(http_lcgdm_base "https://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam/")
+set(http_lcgdm_base "https://lxfsra10a01.cern.ch/dpm/cern.ch/home/dteam/")
 
 
 test_dav_endpoint_ronly( ${http_desy_base} "")

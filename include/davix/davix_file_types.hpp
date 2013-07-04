@@ -14,6 +14,15 @@
   @brief davix file related type declarations
 */
 
+
+// global file descriptor declaration
+typedef struct Davix_dir_handle DAVIX_DIR;
+typedef struct Davix_fd DAVIX_FD;
+
+struct Davix_fd;
+struct Davix_dir_handle;
+
+
 namespace Davix{
 
 /// @struct DavIOVecInput

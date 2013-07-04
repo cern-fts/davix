@@ -26,7 +26,6 @@ static const std::string stat_listing("<?xml version=\"1.0\" encoding=\"utf-8\" 
 
 
 struct Davix_fd{
-
     Davix_fd(Davix::HttpIOBuffer * buff) : io_handler(buff){}
     ScopedPtr<Davix::HttpIOBuffer>::type io_handler;
 };

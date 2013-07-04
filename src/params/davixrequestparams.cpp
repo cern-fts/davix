@@ -258,7 +258,7 @@ void RequestParams::setUserAgent(const std::string &user_agent){
 }
 
 
-const RequestProtocol::Protocol RequestParams::getProtocol() const {
+RequestProtocol::Protocol RequestParams::getProtocol() const {
     return d_ptr->_proto;
 }
 
@@ -275,7 +275,7 @@ void RequestParams::setKeepAlive(const bool keep_alive_flag){
 }
 
 
-const bool RequestParams::getKeepAlive() const{
+bool RequestParams::getKeepAlive() const{
     return d_ptr->_session_flag & SESSION_FLAG_KEEP_ALIVE;
 }
 

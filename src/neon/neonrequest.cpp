@@ -124,6 +124,11 @@ NEONRequest::NEONRequest(NEONSessionFactory& f, const Uri & uri_req) :
     req_running(false),
     _last_request_flag(0),
     _headers_field(){
+
+    if(davix_get_log_level() & DAVIX_LOG_DEBUG){
+        ne_debug_init(stderr, NE_DBG_HTTP | NE_DBG_HTTPAUTH | NE_DBG_HTTPPLAIN | NE_DBG_HTTPBODY | NE_DBG_SSL);
+    }
+
 }
 
 

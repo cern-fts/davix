@@ -367,17 +367,15 @@ HttpIOBuffer::~HttpIOBuffer(){
 bool HttpIOBuffer::open(int flags, DavixError **err){
     DavixError* tmp_err=NULL;
     bool res = false;
+    RequestParams p(_params);
     HttpCacheToken* token = NULL;
     if(_opened)
         return true;
-    // configure local cache
-    /*if( (flags & O_WRONLY) || (flags & O_RDWR)){
-        if(get_valid_cache_file(&_cache_stream, &tmp_err) !=0)
-            return -1;
-    }*/
 
     struct stat st;
-    if( stat(&st, &token, &tmp_err) ==0){
+
+    p.setProtocol(RequestProtocol::Http);
+    if( Meta::posixStat(_c, _uri, &p, &st, &token, &tmp_err) ==0){
         if(token)
             _token.reset(token);
         if( (flags & O_EXCL) && ( flags & O_CREAT)){
@@ -400,6 +398,9 @@ bool HttpIOBuffer::open(int flags, DavixError **err){
 
     if(tmp_err)
         DavixError::propagateError(err, tmp_err);
+    else{
+        DAVIX_TRACE("File open %s, size: %ld", _uri.getString().c_str(), _file_size);
+    }
     return res;
 }
 

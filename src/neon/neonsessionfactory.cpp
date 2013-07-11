@@ -25,11 +25,6 @@ NEONSessionFactory::NEONSessionFactory() :
     _session_caching(true)
 {
     neon_once.once(&init_neon);
-
-    if(davix_get_log_level() & DAVIX_LOG_DEBUG){
-        DAVIX_DEBUG("Enable Debug mode in NEON ...");
-        ne_debug_init(stderr, NE_DBG_HTTP | NE_DBG_HTTPAUTH | NE_DBG_HTTPPLAIN | NE_DBG_HTTPBODY | NE_DBG_SSL);
-    }
 }
 
 NEONSessionFactory::~NEONSessionFactory(){

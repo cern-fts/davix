@@ -78,7 +78,7 @@ private:
 };
 
 ///
-/// RW operation with buffering support
+/// RW operation with buffering support and POSIX like interface
 class HttpIOBuffer : public HttpIO{
 public:
     HttpIOBuffer(Context & c, const Uri & uri, const RequestParams * params);

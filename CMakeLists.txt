@@ -1,5 +1,5 @@
 
-## cmake build script for srm-ifce
+## cmake build script for davix
 project (davix)
 cmake_minimum_required (VERSION 2.6)
 
@@ -44,6 +44,7 @@ SET(SSL_BACKEND "OPENSSL"
 
 OPTION(ENABLE_IPV6 "enable or disable IPv6 support " "1")
 
+OPTION(ENABLE_THIRD_PARTY_COPY "enable or disable third party copy support")
 
 
 if(${SSL_BACKEND} STREQUAL "OPENSSL")

@@ -10,15 +10,23 @@ namespace Davix {
 
 struct X509CredentialInternal{
     X509CredentialInternal() :
-        _cred(NULL)
+        _cred(NULL), pemLoaded(false)
     {}
 
     X509CredentialInternal(const X509CredentialInternal & orig) :
-        _cred((orig._cred)?ne_ssl_dup_client_cert(orig._cred):NULL)
+        _cred((orig._cred)?ne_ssl_dup_client_cert(orig._cred):NULL),
+        x509_ucert(orig.x509_ucert), x509_ukey(orig.x509_ukey),
+        x509_passwd(orig.x509_passwd), pemLoaded(orig.pemLoaded)
     {}
 
     X509CredentialInternal & operator=(const X509CredentialInternal & orig){
         _cred= (orig._cred)?ne_ssl_dup_client_cert(orig._cred):NULL;
+
+        x509_ucert.assign(orig.x509_ucert);
+        x509_ukey.assign(orig.x509_ukey);
+        x509_passwd.assign(orig.x509_passwd);
+        pemLoaded = orig.pemLoaded;
+
         return *this;
     }
 
@@ -31,9 +39,19 @@ struct X509CredentialInternal{
             ne_ssl_clicert_free(_cred);
             _cred = NULL;
         }
+        pemLoaded = false;
+        x509_ucert.clear();
+        x509_ukey.clear();
+        x509_passwd.clear();
     }
 
     ne_ssl_client_cert * _cred;
+
+    // Remember pem location
+    std::string x509_ucert;
+    std::string x509_ukey;
+    std::string x509_passwd;
+    bool        pemLoaded;
 };
 
 X509Credential::X509Credential() :
@@ -86,6 +104,12 @@ int X509Credential::loadFromFilePEM(const std::string & filepath_priv_key, const
         d_ptr->clear_cert();
         return -1;
     }
+
+    d_ptr->x509_ucert  = filepath_cred;
+    d_ptr->x509_ukey   = filepath_priv_key;
+    d_ptr->x509_passwd = password;
+    d_ptr->pemLoaded   = true;
+
     return 0;
 }
 
@@ -96,6 +120,15 @@ bool X509Credential::hasCert() const{
 ne_ssl_client_cert* X509CredentialExtra::extract_ne_ssl_clicert(const X509Credential &cred)
 {
         return (cred.d_ptr->_cred);
+}
+
+bool X509CredentialExtra::get_x509_info(const X509Credential &cred,
+        std::string* ucert, std::string* ukey, std::string* passwd)
+{
+    ucert->assign(cred.d_ptr->x509_ucert);
+    ukey->assign(cred.d_ptr->x509_ukey);
+    passwd->assign(cred.d_ptr->x509_passwd);
+    return cred.d_ptr->pemLoaded;
 }
 
 } // namespace DAvix

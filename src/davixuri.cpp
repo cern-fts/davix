@@ -72,6 +72,7 @@ struct UriPrivate{
                 query_and_path = path;
             }
 
+            _uri_string = uri_string;
         }
     }
 

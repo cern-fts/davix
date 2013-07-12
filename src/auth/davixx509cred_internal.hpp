@@ -13,6 +13,9 @@ struct X509CredentialExtra{
 
     static ne_ssl_client_cert* extract_ne_ssl_clicert(const X509Credential & cred);
 
+    static bool get_x509_info(const X509Credential &cred,
+            std::string* ucert, std::string* ukey, std::string* passwd);
+
 };
 
 }

@@ -53,6 +53,11 @@
 /// logger features
 #include <logger/davix_logger.h>
 
+// third party copy
+// Note this is an extension supported
+// by a couple of http implementations only
+// i.e. lcgdm-dav
+#include <copy/davixcopy.hpp>
 
 
 #endif // DAVIX_HPP

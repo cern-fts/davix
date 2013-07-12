@@ -1,5 +1,5 @@
 Name:				davix
-Version:			0.2.2
+Version:			0.2.3
 Release:			2%{?dist}
 Summary:			Toolkit for Http-based file management
 Group:				Applications/Internet

@@ -42,5 +42,13 @@ IF (ENABLE_THIRD_PARTY_COPY)
     TARGET_LINK_LIBRARIES(davix_copy libdavix
                                      ${GSOAP_SSL_PKG_LIBRARIES}
                                      ${GRIDSITE_SSL_PKG_LIBRARIES})
+                                     
+    SET_TARGET_PROPERTIES(davix_copy PROPERTIES
+                            VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}
+                            SOVERSION ${VERSION_MAJOR}
+                            CLEAN_DIRECT_OUTPUT 1)
+
+    INSTALL(TARGETS davix_copy
+             DESTINATION ${LIB_INSTALL_DIR})                                   
 
 ENDIF (ENABLE_THIRD_PARTY_COPY)

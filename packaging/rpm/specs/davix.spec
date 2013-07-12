@@ -12,6 +12,8 @@ BuildRoot:			%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 #main lib dependencies
 BuildRequires:		cmake
 BuildRequires:		doxygen
+BuildRequires:		gridsite-devel
+BuildRequires:		gsoap-devel
 BuildRequires:		libxml2-devel
 BuildRequires:		openssl-devel
 
@@ -80,12 +82,14 @@ make DESTDIR=%{buildroot} install
 %files libs
 %defattr (-,root,root)
 %{_libdir}/libdavix.so.*
+%{_libdir}/libdavix_copy.so.*
 %{_docdir}/%{name}-%{version}/RELEASE-NOTES
 %{_docdir}/%{name}-%{version}/LICENSE
 
 %files devel
 %defattr (-,root,root)
 %{_libdir}/libdavix.so
+%{_libdir}/libdavix_copy.so
 %dir %{_includedir}/davix
 %{_includedir}/davix/*
 %{_libdir}/pkgconfig/*

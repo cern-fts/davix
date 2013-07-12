@@ -505,8 +505,7 @@ int NEONRequest::endRequest(DavixError** err){
     int status;
     if(_req  && req_running == true){
         req_running = false;
-        if(_last_read > 0) // if read content, discard it
-            ne_discard_response(_req);
+        ne_discard_response(_req);
         if( (status = ne_end_request(_req)) != NE_OK){
             DavixError* tmp_err=NULL;
             if(_neon_sess.get() != NULL)

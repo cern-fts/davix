@@ -116,6 +116,13 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
     do {
         nextSrc = _full_url(prevSrc, nextSrc);
         prevSrc = nextSrc;
+        if (request) {
+            request->endRequest(&internalError);
+            if (internalError) {
+                DavixError::propagatePrefixedError(error, internalError, __func__);
+                break;
+            }
+        }
         delete request;
 
         davix_logger(DAVIX_LOG_VERBOSE, "Hop: %s",
@@ -197,6 +204,7 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
 
     // Just wait for it to finish
     monitorPerformanceMarkers(request, error);
+    request->endRequest(error);
     delete request;
 }
 
@@ -276,7 +284,6 @@ void DavixCopyInternal::monitorPerformanceMarkers(Davix::HttpRequest *request,
             break;
         }
     }
-    request->endRequest(&daverr);
 }
 
 

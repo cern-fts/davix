@@ -29,8 +29,22 @@ std::string davix_delegate(const std::string &urlpp,
   size_t      err_aux;
 
   // Extract credentials
+  std::pair<authCallbackClientCertX509, void*> x509callback = params.getClientCertCallbackX509();
+  Davix::X509Credential credentials;
+
+  if (!x509callback.first) {
+      Davix::DavixError::setupError(err, COPY_SCOPE, DAVIX_STATUS_CREDENTIAL_NOT_FOUND,
+                                    "No callback set for getting credentials. Can not delegate");
+      return "";
+  }
+
+  x509callback.first(x509callback.second, SessionInfo(), &credentials, err);
+  if (err && *err)
+      return "";
+
+
   std::string ucert, ukey, passwd;
-  if (!X509CredentialExtra::get_x509_info(params.getClientCertX509(), &ucert, &ukey, &passwd)) {
+  if (!X509CredentialExtra::get_x509_info(credentials, &ucert, &ukey, &passwd)) {
       DavixError::setupError(err, COPY_SCOPE, DAVIX_STATUS_DELEGATION_ERROR,
               std::string("Third party copy only supports PEM certificates"));
       return "";

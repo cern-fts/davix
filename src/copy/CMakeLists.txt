@@ -46,9 +46,19 @@ IF (ENABLE_THIRD_PARTY_COPY)
     SET_TARGET_PROPERTIES(davix_copy PROPERTIES
                             VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}
                             SOVERSION ${VERSION_MAJOR}
-                            CLEAN_DIRECT_OUTPUT 1)
+                            CLEAN_DIRECT_OUTPUT 1
+                            OUTPUT_NAME "davix_copy")
 
     INSTALL(TARGETS davix_copy
-             DESTINATION ${LIB_INSTALL_DIR})                                   
+             DESTINATION ${LIB_INSTALL_DIR})
+             
+    add_PkgConfigFile_for_Library("davix_copy.pc" davix_copy
+                               HEADER_DIRS "davix"
+                               CFLAGS " -D_FILE_OFFSET_BITS=64 "
+                               DESCRIPTION "Davix, High level WebDav/HTTP library. Third party copy library."
+                               )
+                               
+    INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/davix_copy.pc
+            DESTINATION ${PKGCONFIG_FILES_DIR})
 
 ENDIF (ENABLE_THIRD_PARTY_COPY)

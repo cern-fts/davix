@@ -61,8 +61,9 @@ make clean
 %build
 %cmake \
 -DDOC_INSTALL_DIR=%{_docdir}/%{name}-%{version} \
--D ENABLE_THIRD_PARTY_COPY=TRUE
--D UNIT_TESTS=TRUE .
+-D ENABLE_THIRD_PARTY_COPY=TRUE \
+-D UNIT_TESTS=TRUE \
+.
 make %{?_smp_mflags}
 make doc
 

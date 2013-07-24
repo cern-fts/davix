@@ -12,10 +12,12 @@ BuildRoot:			%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 #main lib dependencies
 BuildRequires:		cmake
 BuildRequires:		doxygen
-BuildRequires:		gridsite-devel
-BuildRequires:		gsoap-devel
+BuildRequires:          gridsite-devel
+BuildRequires:          gsoap-devel
 BuildRequires:		libxml2-devel
 BuildRequires:		openssl-devel
+
+
 
 %description
 Davix is a toolkit designed for file operations
@@ -59,6 +61,7 @@ make clean
 %build
 %cmake \
 -DDOC_INSTALL_DIR=%{_docdir}/%{name}-%{version} \
+-D ENABLE_THIRD_PARTY_COPY=TRUE
 -D UNIT_TESTS=TRUE .
 make %{?_smp_mflags}
 make doc

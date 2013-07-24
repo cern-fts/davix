@@ -1,11 +1,33 @@
 #include <config.h>
 #include "httpiovec.hpp"
 #include <cstring>
+#include <cstddef>
 #include <logger/davix_logger_internal.h>
 #include <string_utils/stringutils.hpp>
 #include <deque>
 #include <functional>
+#include <algorithm>
+#include <sstream>
+
 #include <map>
+
+
+// remove trailing crlf
+template<class InputIterator>
+  dav_size_t trim_crlf (InputIterator first, InputIterator last, dav_size_t s)
+{
+  dav_size_t ret = s;
+  while (--last >= first) {
+      if(*last == '\n' || *last == '\r'){
+          *last = '\0';
+          ret--;
+      }else{
+          break;
+      }
+  }
+  return ret;
+}
+
 
 
 namespace Davix{
@@ -14,63 +36,113 @@ const std::string HttpIoVec_scope(){
     return "Davix::HttpVecOps";
 }
 
-typedef std::pair< const DavIOVecInput *, DavIOVecOuput *> PartPtr;
-typedef std::deque<PartPtr> PartPtrDeck;
-
-
-HttpVecOps::HttpVecOps(HttpRequest &req) :
-    _req(req)
-{
-
-}
-
-void configure_iovec_range_header(HttpRequest& req, const DavIOVecInput * input_vec, const dav_size_t count_vec){
-    dav_off_t offset_tab[count_vec];
-    dav_size_t size_tab[count_vec];
-
-    for(dav_size_t i =0; i < count_vec; ++i){
-        offset_tab[i] = input_vec[i].diov_offset;
-        size_tab[i] = input_vec[i].diov_size;
-    }
-    setup_offset_request(&req, offset_tab, size_tab, count_vec);
-}
-
-
-
-dav_ssize_t HttpVecOps::readPartialBufferVec(const DavIOVecInput * input_vec,
-                          DavIOVecOuput * output_vec,
-                          const dav_size_t count_vec, DavixError** err){
-       dav_ssize_t ret=-1;
-       DavixError* tmp_err=NULL;
-       DAVIX_TRACE(" -> Davix Vector operation");
-       configure_iovec_range_header(_req, input_vec, count_vec);
-       if( _req.beginRequest(&tmp_err)  == 0){
-           const int retcode = _req.getRequestCode();
-           switch(retcode){
-                case 206: // multipart req
-                    ret = parseMultipartRequest( input_vec,
-                                             output_vec, count_vec, &tmp_err);
-                    break;
-                case 200: // classical req, simulate vector ops
-                    // TODO
-                    ret = simulateMultiPartRequest(input_vec, output_vec, count_vec, &tmp_err);
-                    break;
-                default:
-                    httpcodeToDavixCode(_req.getRequestCode(),davix_scope_http_request(),", ", &tmp_err);
-           }
-       }
-       if(tmp_err)
-           DavixError::propagateError(err, tmp_err);
-       DAVIX_TRACE(" <- Davix Vector operation");
-       return ret;
-}
 
 void HttpIoVecSetupErrorMultiPart(DavixError** err){
     DavixError::setupError(err, HttpIoVec_scope(), StatusCode::InvalidServerResponse, "Invalid Multi-Part HTTP response");
 }
 
-inline bool isValidBoundaryChar(const char* p){
-    return ( *p != '\0' && *p != '"' && *p != '\t' && *p != '\n');
+void HttpIoVecSetupErrorMultiPartTooLong(DavixError** err){
+    DavixError::setupError(err, HttpIoVec_scope(), StatusCode::InvalidServerResponse, "Invalid Multi-Part HTTP, Multi-part header too long");
+}
+
+void HttpIoVecSetupErrorMultiPartBoundary(const std::string & boundary, DavixError** err){
+    DavixError::setupError(err, HttpIoVec_scope(), StatusCode::InvalidServerResponse, std::string("Invalid boundary for multipart http reponse :").append(boundary));
+}
+
+void HttpIoVecSetupErrorMultiPartSize( DavixError** err, dav_off_t req_offset, dav_size_t req_size, dav_off_t ans_offset, dav_size_t ans_size){
+    std::ostringstream ss;
+    ss << "Invalid server answer for multi part, request offset:"<< req_offset <<" size:"<< req_size << ", answer offset:"<< ans_offset<< " size:"<< ans_size;
+    DavixError::setupError(err, HttpIoVec_scope(), StatusCode::InvalidServerResponse, ss.str());
+}
+
+inline char* header_delimiter(char* buffer, dav_size_t len, DavixError** err){
+    char* p = std::find(buffer, buffer + len, ':');
+    return (p < buffer + len)?p:NULL;
+}
+
+// Vector operation option provider
+int davIOVecProvider(const DavIOVecInput *input_vec, dav_ssize_t & counter, dav_ssize_t number, dav_off_t & begin, dav_off_t & end){
+    if(counter < number){
+        begin = input_vec[counter].diov_offset;
+        end = begin + input_vec[counter].diov_size -1;
+        counter ++;
+        return counter;
+    }
+    return -1;
+}
+
+dav_ssize_t HttpVecOps::readPartialBufferVec(const DavIOVecInput * input_vec,
+                          DavIOVecOuput * output_vec,
+                          const dav_size_t count_vec, DavixError** err){
+
+    dav_ssize_t counter = 0;
+
+    // determine the Range header request in order to determine the number of request
+    stdx11::function<int (dav_off_t &, dav_off_t &)> offsetProvider( stdx11::bind(davIOVecProvider, input_vec, counter, (dav_ssize_t) count_vec,
+                         stdx11::placeholders::_1, stdx11::placeholders::_2));
+
+    std::vector< std::pair<dav_size_t, std::string> > vecRanges = generateRangeHeaders(8000, offsetProvider);
+
+    DavixError * tmp_err=NULL;
+    dav_ssize_t tmp_ret=-1, ret = 0;
+    ptrdiff_t p_diff=0;
+
+    if(count_vec ==0)
+        return 0;
+    DAVIX_DEBUG(" -> getPartialVec operation for %d vectors", count_vec);
+
+    for(std::vector< std::pair<dav_size_t, std::string> >::iterator it = vecRanges.begin(); it < vecRanges.end(); ++it){
+        DAVIX_DEBUG(" -> getPartialVec request for %ld chunks", it->first);
+        GetRequest req (_c,_url, &tmp_err);
+        if(tmp_err == NULL){
+            req.setParameters(_params);
+            req.useCacheToken(&_cacheToken);
+            req.addHeaderField(req_header_byte_range, it->second);
+            if( (tmp_ret = readPartialBufferVecRequest(req, input_vec+ p_diff, output_vec+ p_diff, it->first, &tmp_err)) <0){
+                ret = -1;
+                break;
+            }
+            p_diff += it->first;
+            ret += tmp_ret;
+        }else{
+            ret = -1;
+            break;
+        }
+
+    }
+
+
+    DAVIX_DEBUG(" <- getPartialVec operation for %d vectors", count_vec);
+    if(tmp_err)
+        DavixError::propagateError(err, tmp_err);
+    return ret;
+}
+
+dav_ssize_t HttpVecOps::readPartialBufferVecRequest(HttpRequest & _req,
+                          const DavIOVecInput * input_vec,
+                          DavIOVecOuput * output_vec,
+                          const dav_size_t count_vec, DavixError** err){
+    dav_ssize_t ret=-1;
+    DavixError* tmp_err=NULL;
+    DAVIX_TRACE(" -> Davix Vector operation");
+    if( _req.beginRequest(&tmp_err)  == 0){
+        const int retcode = _req.getRequestCode();
+        switch(retcode){
+             case 206: // multipart req
+                 ret = parseMultipartRequest(_req, input_vec,
+                                          output_vec, count_vec, &tmp_err);
+                 break;
+             case 200: // classical req, simulate vector ops
+                 ret = simulateMultiPartRequest(_req, input_vec, output_vec, count_vec, &tmp_err);
+                 break;
+             default:
+                 httpcodeToDavixCode(_req.getRequestCode(),davix_scope_http_request(),", ", &tmp_err);
+        }
+    }
+    if(tmp_err)
+        DavixError::propagateError(err, tmp_err);
+    DAVIX_TRACE(" <- Davix Vector operation");
+    return ret;
 }
 
 
@@ -92,7 +164,7 @@ int http_extract_boundary_from_content_type(const std::string & buffer, std::str
 }
 
 
-int check_multi_part_content_type(const HttpRequest& req, std::string & boundary, DavixError** err){
+int get_multi_part_info(const HttpRequest& req, std::string & boundary, DavixError** err){
 
     std::string buffer;
 
@@ -100,42 +172,20 @@ int check_multi_part_content_type(const HttpRequest& req, std::string & boundary
            && http_extract_boundary_from_content_type(buffer, boundary, err) == 0){
           return 0;
     }
-    HttpIoVecSetupErrorMultiPart(err);
+    HttpIoVecSetupErrorMultiPartBoundary(buffer, err);
     return -1;
 }
 
 
-bool is_a_start_boundary_part(char* buffer, dav_size_t s_buff, const std::string & boundary,
-                            DavixError** err){
-    if(s_buff > 3){
-        char * p = buffer;
-        if( *p == '-' && *(p+1)== '-'){
-            if( strcmp(buffer+2, boundary.c_str()) ==0){
-                return true;
-            }
-        }
-    }
-    DAVIX_TRACE("Invalid boundary delimitation");
-    HttpIoVecSetupErrorMultiPart(err);
-    return false;
-}
-
-inline char* header_delimiter(char* buffer, DavixError** err){
-    char* p;
-    if( (p =strchr(buffer, ':')) == NULL){
-      HttpIoVecSetupErrorMultiPart(err);
-    }
-    return p;
-}
 
 
 
 
 // analyze header and try to find size of the part
 // return 0 -> not a content length header, return -1 : not a header or error, return 1 : success
-int find_header_params(char* buffer, dav_size_t* part_size, dav_off_t* part_offset){
+int find_header_params(char* buffer, dav_size_t buffer_len, dav_size_t* part_size, dav_off_t* part_offset){
     static const std::string delimiter(" bytes-/\t");
-    char * p = header_delimiter(buffer, NULL);
+    char * p = header_delimiter(buffer, buffer_len, NULL);
     if(p == NULL)
         return -1;
     std::string header_type(buffer, p - buffer);
@@ -162,163 +212,135 @@ int find_header_params(char* buffer, dav_size_t* part_size, dav_off_t* part_offs
     return 1;
 }
 
-dav_ssize_t find_end_header_multi_part(HttpRequest& req, const std::string & boundary,
-                                       dav_ssize_t current_offset,
-                                       const dav_ssize_t request_size,
-                                       DavixError** err){
-    char buffer[DAVIX_READ_BLOCK_SIZE];
-    dav_ssize_t tmp_read_size =0;
-    while((tmp_read_size = req.readLine(buffer, DAVIX_READ_BLOCK_SIZE, err)) > 0
-          && (current_offset += tmp_read_size) < request_size);
-    if(tmp_read_size == 0) // CRLF FOUND !
-        return current_offset;
-    return -1;
+inline dav_ssize_t parse_multi_part_header_line(HttpRequest& req, char* buffer, DavixError** err){
+    dav_ssize_t ret =0;
+    if( (ret = req.readLine(buffer, DAVIX_READ_BLOCK_SIZE, err)) <0 ){
+        return -1;
+    }
+    ret=  trim_crlf(buffer, buffer + ret, ret);
+    return ret;
 }
 
-dav_ssize_t find_and_analyze_multi_part_headers(HttpRequest& req, const std::string & boundary,
-                                                dav_ssize_t current_offset,
-                                                const dav_ssize_t request_size,
-                                                dav_size_t* part_size,
-                                                dav_off_t* part_offset, DavixError** err){
-    dav_ssize_t tmp_read_size =0;
-    char buffer[DAVIX_READ_BLOCK_SIZE+1];
-    buffer[DAVIX_READ_BLOCK_SIZE]= '\0';
+int  parse_multi_part_header(HttpRequest& req, const std::string & boundary, ChunkInfo & info,
+                            int & n_try, DavixError** err){
+    dav_ssize_t ret =0;
+    char buffer[DAVIX_READ_BLOCK_SIZE+1] = {0};
 
-    while((tmp_read_size = req.readLine(buffer, DAVIX_READ_BLOCK_SIZE, err)) > 0
-          && (current_offset += tmp_read_size) < request_size){
-            int res = find_header_params(buffer, part_size,part_offset);
-            switch(res){
-                case 0:
-                    break;
-                case 1:
-                    return find_end_header_multi_part(req, boundary,
-                                                          current_offset,
-                                                          request_size,
-                                                           err);
-                    break;
-                default:
-                    HttpIoVecSetupErrorMultiPart (err);
-                    return -1;
-            }
-
+    if(n_try > 100){
+        HttpIoVecSetupErrorMultiPartTooLong(err);
+        return -1;
     }
+
+    if( (ret = parse_multi_part_header_line(req, buffer, err)) <0 ){
+        return -1;
+    }
+
+    if(!info.bounded){
+        if(ret == 0) // start with crlf
+            return parse_multi_part_header(req, boundary, info, ++n_try, err);
+
+        if( is_a_start_boundary_part(buffer, DAVIX_READ_BLOCK_SIZE, boundary, err) == false)
+            return -1;
+        info.bounded = true;
+        return parse_multi_part_header(req, boundary, info, ++n_try, err);
+    }
+
+    if( info.offset == 0 && info.size == 0){
+        if( find_header_params(buffer, ret, &(info.size), &(info.offset)) < 0)
+            return -1;
+        return parse_multi_part_header(req, boundary, info, ++n_try, err);
+    }
+    if(ret == 0) // end crlf
+        return 0;
     HttpIoVecSetupErrorMultiPart(err);
     return -1;
 }
 
+dav_ssize_t copyChunk(HttpRequest & req, const DavIOVecInput *i,
+                               DavIOVecOuput* o, DavixError** err){
 
-dav_ssize_t find_next_part(HttpRequest& req, const std::string & boundary,
-                                    dav_ssize_t current_offset,
-                                    const dav_ssize_t request_size,
-                                    dav_size_t* part_size,
-                                    dav_off_t* part_offset, DavixError** err){
-    dav_ssize_t tmp_read_size =0;
-    int n_try =0;
-    char buffer[DAVIX_READ_BLOCK_SIZE+1];
-    buffer[DAVIX_READ_BLOCK_SIZE]= '\0';
-
-    // read first line, check and try to find boundary pattern, ignore some empty line if present
-    while(n_try++ < 10 && tmp_read_size ==0){
-        if( (tmp_read_size = req.readLine(buffer, DAVIX_READ_BLOCK_SIZE, err)) <0 )
-            return -1;
+    DavixError* tmp_err=NULL;
+    dav_ssize_t ret;
+    DAVIX_DEBUG("Davix::parseMultipartRequest::copyChunk copy %ld bytes with offset %ld", i->diov_size, i->diov_offset);
+    if( ( ret = req.readSegment((char*)i->diov_buffer, i->diov_size, &tmp_err)) >0){
+        o->diov_buffer = i->diov_buffer;
+        o->diov_size = ret;
     }
-    if(n_try >= 10){
-        HttpIoVecSetupErrorMultiPart(err);
-        return -1;
+    if(tmp_err){
+        DavixError::propagateError(err, tmp_err);
+    }else{
+        DAVIX_DEBUG("Davix::parseMultipartRequest::copyChunk %ld bytes copied with success",ret);
     }
-
-
-    current_offset +=tmp_read_size;
-
-    if(tmp_read_size == DAVIX_READ_BLOCK_SIZE || current_offset >= request_size){
-        HttpIoVecSetupErrorMultiPart(err);
-        return -1;
-    }
-
-    if( is_a_start_boundary_part(buffer, tmp_read_size, boundary, err) == false)
-        return -1;
-    return find_and_analyze_multi_part_headers(req, boundary, current_offset,
-                                               request_size, part_size, part_offset, err);
-
+    return ret;
 }
 
 
-static bool find_corresponding_part(std::deque<PartPtr> & parts, dav_size_t part_size,
-                                       dav_off_t part_off_set, std::deque<PartPtr>::iterator & res, DavixError** err){
-    for(std::deque<PartPtr>::iterator it = parts.begin(); it != parts.end();it++){
-        if( (*it).first->diov_offset == part_off_set &&  (*it).first->diov_size == part_size){
-           res= it;
-           DAVIX_TRACE(" Match a vec io chunk offset: %ld size: %ld", part_off_set, part_size);
-           return true;
-        }
+dav_ssize_t HttpVecOps::parseMultipartRequest(HttpRequest & _req,
+                                            const DavIOVecInput *input_vec,
+                                            DavIOVecOuput * output_vec,
+                                            const dav_size_t count_vec, DavixError** err){
+    std::string boundary;
+    dav_ssize_t ret = 0, tmp_ret =0;
+    dav_size_t off=0;
+    DAVIX_TRACE("Davix::parseMultipartRequest multi part parsing");
 
+    if(get_multi_part_info(_req, boundary, err)  != 0 ){
+        DAVIX_TRACE("Invalid Header Content info for multi part request");
+        HttpIoVecSetupErrorMultiPart(err);
+        return -1;
     }
+    DAVIX_DEBUG("Davix::parseMultipartRequest multi-part boundary %s", boundary.c_str());
+
+    while(off < count_vec){
+       DAVIX_DEBUG("Davix::parseMultipartRequest try to find chunk offset:%ld size%ld", input_vec[off].diov_offset, input_vec[off].diov_size);
+       ChunkInfo infos;
+       int n_try = 0;
+       if( (tmp_ret = parse_multi_part_header(_req, boundary, infos,
+                                     n_try, err)) < 0){
+            return -1;
+       }
+
+       if(infos.offset == 0 &&  infos.size == 0 && infos.bounded == true){
+            DAVIX_DEBUG("Davix::parseMultipartRequest multi-part : end of the request found %ld chunks treated on %ld", off, count_vec);
+            return ret;
+       }
+
+       if( infos.offset != input_vec[off].diov_offset
+               || infos.size != input_vec[off].diov_size){
+            HttpIoVecSetupErrorMultiPartSize(err,
+                                            input_vec[off].diov_offset, input_vec[off].diov_size,
+                                             infos.offset, infos.size);
+            return -1;
+       }
+
+       if( (tmp_ret = copyChunk(_req, &input_vec[off], &output_vec[off], err)) <0 )
+           return -1;
+       ret += tmp_ret;
+       DAVIX_DEBUG("Davix::parseMultipartRequest chunk parsed with success, next chunk..");
+       off++;
+    }
+
+    DAVIX_TRACE("Davix::parseMultipartRequest end");
+    return ret;
+}
+
+
+bool is_a_start_boundary_part(char* buffer, dav_size_t s_buff, const std::string & boundary,
+                            DavixError** err){
+    if(s_buff > 3){
+        char * p = buffer;
+        if( *p == '-' && *(p+1)== '-'){
+            if( strcmp(buffer+2, boundary.c_str()) ==0){
+                return true;
+            }
+        }
+    }
+    DAVIX_TRACE("Invalid boundary delimitation");
     HttpIoVecSetupErrorMultiPart(err);
     return false;
 }
 
 
-dav_ssize_t copy_and_configure(HttpRequest & req, std::deque<PartPtr>::iterator & it, DavixError** err){
-    const DavIOVecInput* i = (*it).first;
-    DavIOVecOuput* o = (*it).second;
-    DavixError* tmp_err=NULL;
-    dav_ssize_t ret;
-    if( ( ret = read_segment_request(&req, i->diov_buffer, i->diov_size,  0, &tmp_err)) >0){
-        o->diov_buffer = i->diov_buffer;
-        o->diov_size = ret;
-    }
-    if(tmp_err){
-        // TODO : change error scope
-        DavixError::propagateError(err, tmp_err);
-    }
-    return ret;
-}
-
-dav_ssize_t HttpVecOps::parseMultipartRequest(const DavIOVecInput *input_vec,
-                                            DavIOVecOuput * output_vec,
-                              const dav_size_t count_vec, DavixError** err){
-    std::string boundary;
-    dav_ssize_t file_size = INT64_MAX;
-    dav_ssize_t current_offset=0;
-    dav_ssize_t ret = 0;
-    DAVIX_TRACE(" -> Davix multi part parsing");
-
-    if(check_multi_part_content_type(_req, boundary, err)  != 0 ){
-        DAVIX_TRACE("Invalid Header Content info for multi part request");
-        HttpIoVecSetupErrorMultiPart(err);
-        return -1;
-    }
-
-    if(_req.getAnswerSize() > 0 )
-        file_size= _req.getAnswerSize();
-
-    std::deque<PartPtr> parts;
-    for(dav_size_t i =0; i < count_vec; ++i)
-        parts.push_back(PartPtr(input_vec+i, output_vec+i));
-
-    while(ret >= 0 && parts.size() > 0){
-        dav_size_t part_size;
-        dav_off_t part_off_set;
-        dav_ssize_t tmp_ret;
-
-        if( ( current_offset = find_next_part(_req, boundary, current_offset, file_size, &part_size, &part_off_set, err)) < 0){
-            return -1;
-        }
-
-        std::deque<PartPtr>::iterator part;
-        if( find_corresponding_part(parts, part_size, part_off_set, part, err) == false){
-            return -1;
-        }
-
-        if( (tmp_ret = copy_and_configure(_req, part, err)) < 0)
-            return -1;
-        ret += tmp_ret;
-        parts.erase(part);
-    }
-
-    DAVIX_TRACE(" <- Davix multi part parsing");
-    return ret;
-}
 
 
 
@@ -347,7 +369,6 @@ typedef std::multimap<dav_off_t, ElemChunk> MapChunk;
 static void fill_map_chunk(MapChunk & m, const DavIOVecInput *input_vec,
                                     DavIOVecOuput * output_vec,
                                     const dav_size_t count_vec){
-
     for(dav_size_t s = 0; s < count_vec; s++){
         m.insert(PairChunk(input_vec[s].diov_offset, ElemChunk(&input_vec[s], &output_vec[s])));
     }
@@ -409,7 +430,7 @@ static dav_ssize_t sum_all_chunk_size(const MapChunk & cmap){
     return res;
 }
 
-dav_ssize_t HttpVecOps::simulateMultiPartRequest(const DavIOVecInput *input_vec,
+dav_ssize_t HttpVecOps::simulateMultiPartRequest(HttpRequest & _req, const DavIOVecInput *input_vec,
                                  DavIOVecOuput * output_vec,
                    const dav_size_t count_vec, DavixError** err){
     DAVIX_TRACE(" -> Davix vec : 200 full file, simulate vec io");

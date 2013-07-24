@@ -401,7 +401,7 @@ int DavPosix::rmdir(const RequestParams * params, const std::string &url, DavixE
 
 
 
-int davix_check_rw_fd(DAVIX_FD* fd, DavixError** err){
+inline int davix_check_rw_fd(DAVIX_FD* fd, DavixError** err){
     if(fd == NULL){
         DavixError::setupError(err, davix_scope_http_request(),StatusCode::InvalidFileHandle, "Invalid Davix file descriptor");
         return -1;

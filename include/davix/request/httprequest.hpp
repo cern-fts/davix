@@ -154,6 +154,8 @@ public:
 
     ///
     /// read a block of a maximum size bytes in the answer
+    /// can return < max_size bytes depending of the data available
+    ///
     /// @param buffer : buffer to fill
     /// @param max_size : maximum number of byte to read
     /// @param err : DavixError error report system
@@ -164,12 +166,25 @@ public:
 
     ///
     /// read a block of a maximum size bytes in the answer into buffer
+    /// can return < max_size bytes depending of the data available
+    ///
     /// @param buffer : vector to fill
     /// @param max_size : maximum number of byte to read
     /// @param err : DavixError error report system
     /// @return number of bytes readed
     ///
     dav_ssize_t readBlock(std::vector<char> & buffer, dav_size_t max_size, DavixError** err);
+
+    ///
+    /// read a segment of size bytes, return always max_size excepted if the end of the content is reached
+    ///
+    /// @param buffer : vector to fill
+    /// @param max_size : maximum number of byte to read
+    /// @param err : DavixError error report system
+    /// @return number of bytes readed
+    ///
+    dav_ssize_t readSegment(char* buffer, dav_size_t max_size, DavixError** err);
+
 
 
     ///

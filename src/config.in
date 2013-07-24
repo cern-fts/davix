@@ -36,11 +36,13 @@
 #if (defined HAVE_CXX011_FULL_SUPPORT) || (defined HAVE_CXX011_PARTIAL_SUPPORT)
 #   include <array>
 #   include <iostream>
+#   include <functional>
 
-#   define stdx11 std;
+#   define stdx11 std
 #else
 #   include <tr1/array>
-#   define stdx11 std::tr1;
+#   include <tr1/functional>
+#   define stdx11 std::tr1
 #endif
 
 #endif

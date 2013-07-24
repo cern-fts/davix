@@ -8,6 +8,8 @@ const std::string ans_header_content_type("Content-Type");
 const std::string ans_header_multi_part_value("multipart");
 const std::string ans_header_boundary_field("boundary=");
 const std::string ans_header_content_length("Content-Length");
+const std::string offset_value("bytes=");
+const std::string req_header_byte_range("Range");
 
 
 int davixRequestToFileStatus(HttpRequest* req, const std::string & scope, DavixError** err){
@@ -28,9 +30,8 @@ int davixRequestToFileStatus(HttpRequest* req, const std::string & scope, DavixE
 
 
 void setup_offset_request(HttpRequest* req, const dav_off_t *start_len, const dav_size_t *size_read, const dav_size_t number_ops){
-    static const std::string offset_value("bytes=");
-    static const std::string req_header_byte_range("Range");
-    std::ostringstream buffer;
+   std::ostringstream buffer;
+
     buffer << offset_value;
 
     for(size_t i = 0; i<number_ops; ++i){
@@ -44,6 +45,34 @@ void setup_offset_request(HttpRequest* req, const dav_off_t *start_len, const da
      }
      req->addHeaderField(req_header_byte_range, buffer.str());
 
+}
+
+std::vector< std::pair<dav_size_t, std::string> > generateRangeHeadersRec(std::vector< std::pair<dav_size_t, std::string> >  & range_rec, dav_size_t max_header_size, OffsetCallback & offset_provider){
+
+    range_rec.push_back(std::pair<dav_size_t,std::string >(0, std::string()));
+    std::string & current_range = range_rec.back().second;
+    dav_size_t & current_n = range_rec.back().first;
+    current_n=0;
+    current_range.reserve(max_header_size);
+    current_range.append(offset_value);
+    dav_off_t begin, end;
+    int ret;
+    while( ( ret = offset_provider(begin, end)) >= 0){
+       std::ostringstream buffer;
+       if(current_n > 0)
+           buffer << ',';
+       buffer << begin << '-' <<  end;
+       current_range.append(buffer.str());
+       current_n++;
+       if(current_range.length() >= max_header_size)
+           return generateRangeHeadersRec(range_rec, max_header_size, offset_provider);
+    }
+    return range_rec;
+}
+
+std::vector< std::pair<dav_size_t, std::string> > generateRangeHeaders(dav_size_t max_header_size, OffsetCallback & offset_provider){
+   std::vector< std::pair<dav_size_t, std::string> > res;
+   return generateRangeHeadersRec(res, max_header_size, offset_provider);
 }
 
 void fill_stat_from_fileproperties(struct stat* st, const  FileProperties & prop){

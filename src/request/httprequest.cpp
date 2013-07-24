@@ -93,8 +93,19 @@ dav_ssize_t HttpRequest::readBlock(std::vector<char> & buffer, dav_size_t max_si
     return ret;
 }
 
+dav_ssize_t HttpRequest::readSegment(char* buffer, dav_size_t max_size, DavixError** err){
+    return d_ptr->readSegment(buffer, max_size, err);
+}
+
 dav_ssize_t HttpRequest::readLine(char *buffer, dav_size_t max_size, DavixError **err){
-    return d_ptr->readLine(buffer, max_size, err);
+    DAVIX_DEBUG("Davix::Request::readLine want to read a line of max %lld chars", max_size);
+    const dav_ssize_t ret =  d_ptr->readLine(buffer, max_size, err);
+
+    if( ret >= 0){
+        DAVIX_DEBUG("Davix::Request::readLine got %lld chars", ret);
+        DAVIX_TRACE("Davix::Request::readLine content\n{{%.*s}}\n", ret, buffer);
+    }
+    return ret;
 }
 
 

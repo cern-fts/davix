@@ -83,6 +83,7 @@ public:
     */
     dav_ssize_t readBlock(char* buffer, dav_size_t max_size,DavixError** err);
 
+    dav_ssize_t readSegment(char* buffer, dav_size_t size_read,  DavixError**err);
 
     dav_ssize_t readLine(char* buffer, dav_size_t max_size, DavixError** err);
 
@@ -138,6 +139,7 @@ private:
     dav_ssize_t _last_read;
 
     std::vector<char> _vec;
+    std::vector<char> _vec_line;
 
     // request content;
     char* _content_ptr;

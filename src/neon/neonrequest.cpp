@@ -8,11 +8,16 @@
 #include <fileops/fileutils.hpp>
 #include <request/httpcachetoken_internal.hpp>
 #include <memory>
+#include <algorithm>
+#include <iterator>
 #include <sstream>
 #include <cstring>
 #include <limits>
 
+
 namespace Davix {
+
+
 
 static void neonrequest_eradicate_session(NEONSession& sess, DavixError ** err){
     if(err && *err && (*err)->getStatus() == StatusCode::ConnectionProblem){
@@ -111,6 +116,7 @@ NEONRequest::NEONRequest(NEONSessionFactory& f, const Uri & uri_req) :
     _orig(uri_req),
     _last_read(-1),
     _vec(),
+    _vec_line(),
     _content_ptr(),
     _content_len(0),
     _content_offset(0),
@@ -125,7 +131,7 @@ NEONRequest::NEONRequest(NEONSessionFactory& f, const Uri & uri_req) :
     _last_request_flag(0),
     _headers_field(){
 
-    if(davix_get_log_level() & DAVIX_LOG_DEBUG){
+    if(davix_get_log_level() & DAVIX_LOG_TRACE){
         ne_debug_init(stderr, NE_DBG_HTTP | NE_DBG_HTTPAUTH | NE_DBG_HTTPPLAIN | NE_DBG_HTTPBODY | NE_DBG_SSL);
     }
 
@@ -253,12 +259,11 @@ int NEONRequest::startRequest(DavixError **err){
             && httpCacheTokenIsValid(_orig, *(_cache_info.get()))
             && params.getTransparentRedirectionSupport() == true){
         // Try to connect directly to the cached redirection, if exist
-        int ret;
         DavixError * tmp_err=NULL;
         _current = _cache_info->getCachedRedirection();
         DAVIX_TRACE("Try to use cached redirection %s", _current.getString().c_str());
-        if( (ret = create_req(&tmp_err)) >= 0){
-            if((ret = negotiate_request(&tmp_err)) >= 0){
+        if( create_req(&tmp_err) >= 0){
+            if(negotiate_request(&tmp_err) >= 0){
                 if(httpcodeIsValid(getRequestCode())){
                     DAVIX_TRACE("use of %s with success", _current.getString().c_str());
                     return 0;
@@ -435,6 +440,25 @@ dav_ssize_t NEONRequest::readBlock(char* buffer, dav_size_t max_size, DavixError
         DavixError::setupError(err, davix_scope_http_request(), StatusCode::AlreadyRunning, "No request started");
         return -1;
     }
+
+    if(max_size ==0)
+        return 0;
+
+    // take from line buffer
+    if(_vec_line.size() > 0){
+       if( _vec_line.size() > max_size){
+        std::copy_n(_vec_line.begin(), max_size, buffer);
+        _vec_line.erase(_vec_line.begin(), _vec_line.begin() + max_size);
+        return max_size;
+       }else{
+           const dav_ssize_t n_bytes = _vec_line.size();
+           std::copy(_vec_line.begin(), _vec_line.end(), buffer);
+           _vec_line.clear();
+           read_status = readBlock(buffer + n_bytes, max_size -n_bytes, err);
+           return (read_status >= 0)?(read_status+n_bytes):(-1);
+       }
+    }
+
     _last_read= read_status= ne_read_response_block(_req, buffer, max_size );
     if(read_status <0){
        DavixError::setupError(err, davix_scope_http_request(), StatusCode::ConnectionProblem, "Invalid Read in request");
@@ -483,22 +507,65 @@ dav_ssize_t NEONRequest::readToFd(int fd, dav_size_t read_size, DavixError** err
 
 
 dav_ssize_t NEONRequest::readLine(char* buffer, dav_size_t max_size, DavixError** err){
-    dav_ssize_t read_sum=0, tmp_read_status;
-    char c;
-    while( (tmp_read_status= readBlock(&c,1, err)) ==1 && read_sum < (dav_ssize_t) max_size){
-        if(c == '\n'){
-            if( read_sum > 0 && buffer[read_sum-1] == '\r'){ // remove cr
-                buffer[--read_sum] = '\0';
-            }
-            break;
-        }
-        buffer[read_sum] = c;
-        read_sum += 1;
-    }
-    if(tmp_read_status < 0)
-        return -1;
+    dav_ssize_t ret=-1;
 
-    return read_sum;
+    if( _vec_line.size() > 0){
+       std::vector<char>::iterator it;
+       it = std::find(_vec_line.begin(), _vec_line.end(), '\n');
+
+       if( it  < _vec_line.end()){
+           it ++;
+           const dav_ssize_t read_size = it - _vec_line.begin();
+           std::copy(_vec_line.begin(), it, buffer);
+           _vec_line.erase(_vec_line.begin(), it);
+           return read_size;
+       }
+
+       std::copy(_vec_line.begin(), _vec_line.end(), buffer);
+       const dav_ssize_t n_bytes =  _vec_line.size();
+       _vec_line.clear();
+       ret = readLine(buffer + n_bytes, max_size - n_bytes, err);
+       return (ret >= 0)?(ret + n_bytes):-1;
+    }
+
+    if( ( ret = readSegment(buffer, max_size, err)) >= 0){
+        // search for crlf
+        char* p_endline;
+        p_endline = std::find(buffer, buffer+ret, '\n');
+        if( p_endline < buffer+ret) p_endline++;
+        _vec_line.reserve(ret - ( p_endline - buffer ));
+        std::copy(p_endline, buffer + ret, std::back_inserter(_vec_line));
+        *p_endline = '\0';
+        return  p_endline - buffer;
+    }
+    return -1;
+}
+
+
+dav_ssize_t NEONRequest::readSegment(char* p_buff, dav_size_t size_read,  DavixError**err){
+    DavixError* tmp_err=NULL;
+    dav_ssize_t ret, tmp_ret;
+    dav_size_t s_read= size_read;
+    ret = tmp_ret = 0;
+    DAVIX_TRACE("Davix::Request::readSegment: want to read %lld bytes ", size_read);
+
+    do{
+        tmp_ret= readBlock(p_buff, s_read, &tmp_err);
+        if(tmp_ret > 0){ // tmp_ret bytes readed
+            ret += tmp_ret;
+        }
+        if(ret > 0 && ret < (dav_ssize_t) size_read){
+            p_buff+= tmp_ret;
+            s_read -= tmp_ret;
+        }
+    }while( tmp_ret > 0
+            &&  ret < (dav_ssize_t) size_read);
+
+    if(tmp_err){
+        DavixError::propagateError(err, tmp_err);
+        return -1;
+    }
+    return ret;
 }
 
 int NEONRequest::endRequest(DavixError** err){

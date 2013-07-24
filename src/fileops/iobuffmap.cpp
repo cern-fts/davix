@@ -37,6 +37,7 @@ dav_ssize_t read_segment_request(HttpRequest* req, void* buffer, dav_size_t size
     dav_size_t s_read= size_read;
     ret = tmp_ret = 0;
 
+    DAVIX_TRACE("Davix::IOMap::readSegment: want to read %lld bytes ", size_read);
     do{
         tmp_ret= req->readBlock(p_buff, s_read, &tmp_err);
         if(tmp_ret > 0){ // tmp_ret bytes readed
@@ -53,6 +54,7 @@ dav_ssize_t read_segment_request(HttpRequest* req, void* buffer, dav_size_t size
         DavixError::propagateError(err, tmp_err);
         return -1;
     }
+    DAVIX_TRACE("Davix::IOMap::readSegment: got %lld bytes ", ret);
     return ret;
 }
 
@@ -242,30 +244,14 @@ dav_ssize_t HttpIO::readPartialBuffer(void *buf, dav_size_t count, dav_off_t off
 
 
 
-
-
 dav_ssize_t HttpIO::readPartialBufferVec(const DavIOVecInput * input_vec,
                       DavIOVecOuput * output_vec,
                       const dav_size_t count_vec, DavixError** err){
-    DavixError * tmp_err=NULL;
-    dav_ssize_t ret = -1;
-    if(count_vec ==0)
-        return 0;
-    DAVIX_DEBUG(" -> getPartialVec operation for %d vectors", count_vec);
-    GetRequest req (_c,_uri, &tmp_err);
-    if(tmp_err == NULL){
-        req.setParameters(_params);
-        req.useCacheToken(_token.get());
-        HttpVecOps vec(req);
-
-        ret = vec.readPartialBufferVec(input_vec, output_vec, count_vec, err);
-    }
-
-
-    DAVIX_DEBUG(" <- getPartialVec operation for %d vectors", count_vec);
-    if(tmp_err)
-        DavixError::propagateError(err, tmp_err);
-    return ret;
+    HttpVecOps vec(_c, _uri, _params, *_token);
+    return vec.readPartialBufferVec(input_vec,
+                                    output_vec,
+                                    count_vec,
+                                    err);
 }
 
 dav_ssize_t HttpIO::readToFd(int fd, dav_size_t read_size, DavixError** err){

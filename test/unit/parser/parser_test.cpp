@@ -3,6 +3,7 @@
 
 #include <davix.hpp>
 #include <fileops/httpiovec.hpp>
+#include <fileops/fileutils.hpp>
 #include <gtest/gtest.h>
 
 using namespace std;
@@ -14,23 +15,23 @@ TEST(IOVecMultiPartParser, headerParser){
     dav_off_t offset;
     header = "Content-type: application/xml"; // random generic header
 
-    int ret = find_header_params((char*) header.c_str(), &size, &offset);
+    int ret = find_header_params((char*) header.c_str(), header.size(), &size, &offset);
     ASSERT_EQ(ret,0);
 
     header = "big brother is wathing you";
 
-    ret = find_header_params((char*) header.c_str(), &size, &offset);
+    ret = find_header_params((char*) header.c_str(), header.size(), &size, &offset);
     ASSERT_EQ(ret,-1);
 
 
     header = "Content-Range: bytes 600-900/8000";
-    ret = find_header_params((char*) header.c_str(), &size, &offset);
+    ret = find_header_params((char*) header.c_str(), header.size(), &size, &offset);
     ASSERT_EQ(1,ret);
     ASSERT_EQ(301, size);
     ASSERT_EQ(600, offset);
 
     header = "conTent-range: bytes 600-900/8000"; // break case
-    ret = find_header_params((char*) header.c_str(), &size, &offset);
+    ret = find_header_params((char*) header.c_str(), header.size(), &size, &offset);
     ASSERT_EQ(1,ret);
     ASSERT_EQ(301, size);
     ASSERT_EQ(600, offset);
@@ -38,11 +39,11 @@ TEST(IOVecMultiPartParser, headerParser){
 
 
     header = "conTent-range: bytes 600ssss-9e00/8000"; // break case
-    ret = find_header_params((char*) header.c_str(), &size, &offset);
+    ret = find_header_params((char*) header.c_str(), header.size(),&size, &offset);
     ASSERT_EQ(ret,-1);
 
     header = "Content-Range: GalaticCreditStandard 600-900/8000";
-    ret = find_header_params((char*) header.c_str(), &size, &offset);
+    ret = find_header_params((char*) header.c_str(), header.size(), &size, &offset);
     ASSERT_EQ(-1,ret);
 
 }
@@ -107,3 +108,36 @@ TEST(IOVecMultiPartParser, BoundaryPart){
 
 
 }
+
+
+int numb_it=0;
+
+static int callback_offset_stupid(dav_off_t & begin, dav_off_t & end){
+    begin = numb_it*1000+100;
+    end=numb_it*1000+500;
+    numb_it++;
+    if(numb_it > 1000)
+        return -1;
+    return 0;
+}
+
+TEST(headerParser, generateRange){
+    std::string header;
+    dav_size_t size;
+    dav_off_t offset;
+    const dav_size_t max_header_size = rand()%8000+30;
+    OffsetCallback o(callback_offset_stupid);
+
+    std::vector<std::pair<dav_size_t,std::string> >  ranges;
+    ranges = generateRangeHeaders(max_header_size, o);
+    std::cout << " ranges size " << ranges.size() << std::endl;
+    for(std::vector<std::pair<dav_size_t,std::string> > ::iterator it = ranges.begin(); it < ranges.end(); it++){
+        ASSERT_LE(it->second.size(), max_header_size+20);
+        ASSERT_GE(it->first, 1);
+
+        std::cout << "NRange: " << (*it).first << std::endl;
+        std::cout << "Range: " << (*it).second << std::endl;
+    }
+    ASSERT_LE(2, ranges.size());
+}
+

@@ -45,6 +45,22 @@
 #   define stdx11 std::tr1
 #endif
 
+
+// gnu ext ++
+#cmakedefine HAVE_EXT_ALGORITHM 1
+
+#ifdef HAVE_EXT_ALGORITHM
+
+#define stdgnu __gnu_cxx
+
+#include <ext/algorithm>
+
+#else
+
+#define stdgnu std
+
+#endif
+
 #endif
 
 // default export

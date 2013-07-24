@@ -3,6 +3,7 @@
 
 
 INCLUDE (CheckIncludeFiles)
+include(CheckIncludeFileCXX)
 INCLUDE (CheckFunctionExists) 
 INCLUDE (CheckSymbolExists)
 INCLUDE (CheckTypeSize)
@@ -16,6 +17,8 @@ CHECK_INCLUDE_FILES(errno.h HAVE_ERRNO_H)
 CHECK_INCLUDE_FILES(stdlib.h HAVE_STDLIB_H)
 
 
+## C++ header files
+CHECK_INCLUDE_FILE_CXX(ext/algorithm HAVE_EXT_ALGORITHM)
 
 ## SYSTEM
 CHECK_INCLUDE_FILES(sys/time.h HAVE_SYSTIME_H)

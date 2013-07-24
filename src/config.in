@@ -49,7 +49,7 @@
 // gnu ext ++
 #cmakedefine HAVE_EXT_ALGORITHM 1
 
-#ifdef HAVE_EXT_ALGORITHM
+#if (defined HAVE_EXT_ALGORITHM) && !(defined HAVE_CXX011_FULL_SUPPORT) && !(defined HAVE_CXX011_PARTIAL_SUPPORT)
 
 #define stdgnu __gnu_cxx
 

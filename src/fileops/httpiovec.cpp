@@ -64,7 +64,7 @@ inline char* header_delimiter(char* buffer, dav_size_t len, DavixError** err){
 int davIOVecProvider(const DavIOVecInput *input_vec, dav_ssize_t & counter, dav_ssize_t number, dav_off_t & begin, dav_off_t & end){
     if(counter < number){
         begin = input_vec[counter].diov_offset;
-        end = begin + input_vec[counter].diov_size -1;
+        end = std::max<dav_off_t>(begin + input_vec[counter].diov_size -1, begin);
         counter ++;
         return counter;
     }
@@ -262,7 +262,16 @@ dav_ssize_t copyChunk(HttpRequest & req, const DavIOVecInput *i,
     DavixError* tmp_err=NULL;
     dav_ssize_t ret;
     DAVIX_DEBUG("Davix::parseMultipartRequest::copyChunk copy %ld bytes with offset %ld", i->diov_size, i->diov_offset);
-    if( ( ret = req.readSegment((char*)i->diov_buffer, i->diov_size, &tmp_err)) >0){
+    // if size ==0, request set to 1 byte due to server behavior, read the stupid byte and skip
+    if( i->diov_size ==0){
+        char trash[2];
+        if( (ret = req.readSegment(trash, 1, &tmp_err)) > 0){
+            o->diov_buffer = i->diov_buffer;
+            o->diov_size = 0;
+            ret = 0;
+        }
+
+    } else if( ( ret = req.readSegment((char*)i->diov_buffer, i->diov_size, &tmp_err)) >0){
         o->diov_buffer = i->diov_buffer;
         o->diov_size = ret;
     }
@@ -305,8 +314,9 @@ dav_ssize_t HttpVecOps::parseMultipartRequest(HttpRequest & _req,
             return ret;
        }
 
-       if( infos.offset != input_vec[off].diov_offset
-               || infos.size != input_vec[off].diov_size){
+       if( input_vec[off].diov_size !=0 &&
+               (infos.offset != input_vec[off].diov_offset
+               || infos.size != input_vec[off].diov_size )){
             HttpIoVecSetupErrorMultiPartSize(err,
                                             input_vec[off].diov_offset, input_vec[off].diov_size,
                                              infos.offset, infos.size);

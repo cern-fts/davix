@@ -247,11 +247,15 @@ dav_ssize_t HttpIO::readPartialBuffer(void *buf, dav_size_t count, dav_off_t off
 dav_ssize_t HttpIO::readPartialBufferVec(const DavIOVecInput * input_vec,
                       DavIOVecOuput * output_vec,
                       const dav_size_t count_vec, DavixError** err){
-    HttpVecOps vec(_c, _uri, _params, *_token);
+
+    HttpVecOps vec(_c, *this, _uri, _params, *_token);
     return vec.readPartialBufferVec(input_vec,
                                     output_vec,
                                     count_vec,
                                     err);
+
+
+
 }
 
 dav_ssize_t HttpIO::readToFd(int fd, dav_size_t read_size, DavixError** err){
@@ -360,7 +364,6 @@ bool HttpIOBuffer::open(int flags, DavixError **err){
 
     struct stat st;
 
-    p.setProtocol(RequestProtocol::Http);
     if( Meta::posixStat(_c, _uri, &p, &st, &token, &tmp_err) ==0){
         if(token)
             _token.reset(token);

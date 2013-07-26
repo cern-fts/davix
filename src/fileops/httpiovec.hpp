@@ -21,9 +21,11 @@ struct ChunkInfo {
 class HttpVecOps
 {
 public:
-    HttpVecOps(Context & c, const Uri & u, const RequestParams & params,
+    HttpVecOps(Context & c, HttpIO & io,
+               const Uri & u, const RequestParams & params,
                const HttpCacheToken & cacheToken) :
         _c(c),
+        _io(io),
         _url(u),
         _params(params),
         _cacheToken(cacheToken)
@@ -51,6 +53,7 @@ private:
                                          const dav_size_t count_vec, DavixError** tmp_err);
 private:
     Context &_c;
+    HttpIO &_io;
     const Uri &_url;
     const RequestParams &_params;
     const HttpCacheToken &_cacheToken;

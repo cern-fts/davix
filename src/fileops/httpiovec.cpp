@@ -75,38 +75,58 @@ dav_ssize_t HttpVecOps::readPartialBufferVec(const DavIOVecInput * input_vec,
                           DavIOVecOuput * output_vec,
                           const dav_size_t count_vec, DavixError** err){
 
-    dav_ssize_t counter = 0;
+    if(count_vec ==0)
+        return 0;
 
-    // determine the Range header request in order to determine the number of request
-    stdx11::function<int (dav_off_t &, dav_off_t &)> offsetProvider( stdx11::bind(davIOVecProvider, input_vec, counter, (dav_ssize_t) count_vec,
-                         stdx11::placeholders::_1, stdx11::placeholders::_2));
-
-    std::vector< std::pair<dav_size_t, std::string> > vecRanges = generateRangeHeaders(8000, offsetProvider);
 
     DavixError * tmp_err=NULL;
     dav_ssize_t tmp_ret=-1, ret = 0;
     ptrdiff_t p_diff=0;
+    dav_ssize_t counter = 0;
+    // determine the Range header request in order to determine the number of request
+    stdx11::function<int (dav_off_t &, dav_off_t &)> offsetProvider( stdx11::bind(davIOVecProvider, input_vec, counter, (dav_ssize_t) count_vec,
+                         stdx11::placeholders::_1, stdx11::placeholders::_2));
 
-    if(count_vec ==0)
-        return 0;
+    // header line need to be inferior to 8K on Apache2 / Ngix
+    // in Addition, some S3 implementation limit the total header size to 8k....
+    // 7900 bytes maximum for the range seems to be a ood compromise
+    std::vector< std::pair<dav_size_t, std::string> > vecRanges = generateRangeHeaders(7900, offsetProvider);
+
+
     DAVIX_DEBUG(" -> getPartialVec operation for %d vectors", count_vec);
 
     for(std::vector< std::pair<dav_size_t, std::string> >::iterator it = vecRanges.begin(); it < vecRanges.end(); ++it){
         DAVIX_DEBUG(" -> getPartialVec request for %ld chunks", it->first);
-        GetRequest req (_c,_url, &tmp_err);
-        if(tmp_err == NULL){
-            req.setParameters(_params);
-            req.useCacheToken(&_cacheToken);
-            req.addHeaderField(req_header_byte_range, it->second);
-            if( (tmp_ret = readPartialBufferVecRequest(req, input_vec+ p_diff, output_vec+ p_diff, it->first, &tmp_err)) <0){
+
+        if(it->first == 1){ // one chunk only : no need of multi part
+            if ( (tmp_ret = _io.readPartialBuffer(
+                      (input_vec + p_diff)->diov_buffer,
+                      (input_vec+p_diff)->diov_size,
+                      (input_vec+p_diff)->diov_offset, &tmp_err)) < 0){
                 ret = -1;
                 break;
             }
-            p_diff += it->first;
+            (output_vec+ p_diff)->diov_size = ret;
+            (output_vec+ p_diff)->diov_buffer = (input_vec + p_diff)->diov_buffer;
+            p_diff += 1;
             ret += tmp_ret;
+
         }else{
-            ret = -1;
-            break;
+            GetRequest req (_c,_url, &tmp_err);
+            if(tmp_err == NULL){
+                req.setParameters(_params);
+                req.useCacheToken(&_cacheToken);
+                req.addHeaderField(req_header_byte_range, it->second);
+                if( (tmp_ret = readPartialBufferVecRequest(req, input_vec+ p_diff, output_vec+ p_diff, it->first, &tmp_err)) <0){
+                    ret = -1;
+                    break;
+                }
+                p_diff += it->first;
+                ret += tmp_ret;
+            }else{
+                ret = -1;
+                break;
+            }
         }
 
     }

@@ -4,7 +4,7 @@ IF (ENABLE_THIRD_PARTY_COPY)
     INCLUDE     (CheckLibraryExists)
 
     pkg_check_modules(GSOAP_SSL_PKG    REQUIRED "gsoapssl++")
-    pkg_check_modules(GRIDSITE_SSL_PKG REQUIRED "gridsite-openssl>=1.7.25")
+    find_package(GRIDSITE REQUIRED)
     
     FIND_PACKAGE(gSOAP REQUIRED)
     MESSAGE(STATUS "Using gsoapssl flags ${GSOAP_SSL_PKG_CFLAGS}")
@@ -25,12 +25,12 @@ IF (ENABLE_THIRD_PARTY_COPY)
                         
     # Includes
     INCLUDE_DIRECTORIES (${CMAKE_CURRENT_BINARY_DIR}
-                         ${GRIDSITE_SSL_PKG_INCLUDE_DIRS}
+                         ${GRIDSITE_INCLUDE_DIR}
                          ${GSOAP_INCLUDE_DIR})
                          
     # link
     LINK_DIRECTORIES( ${DAVIX_PKG_LIBRARY_DIRS})
-    ADD_DEFINITIONS(${GSOAP_SSL_PKG_CFLAGS})
+    ADD_DEFINITIONS(${GSOAP_SSL_PKG_CFLAGS} ${GRIDSITE_DEFINITIONS})
     
     # Build third party copy as a static library
     FILE(GLOB src_copy "*.cpp")
@@ -41,7 +41,7 @@ IF (ENABLE_THIRD_PARTY_COPY)
                                    
     TARGET_LINK_LIBRARIES(davix_copy libdavix
                                      ${GSOAP_SSL_PKG_LIBRARIES}
-                                     ${GRIDSITE_SSL_PKG_LIBRARIES})
+                                     ${GRIDSITE_LIBRARIES})
                                      
     SET_TARGET_PROPERTIES(davix_copy PROPERTIES
                             VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}

@@ -47,7 +47,7 @@ public:
     const std::string & getString() const;
 
     /// get the port number
-    /// @return return the  port number of 0 if error
+    /// @return return the prot number of 0 if unspecified
     int getPort() const;
 
     /// get the protocol scheme
@@ -116,6 +116,11 @@ private:
 /// @param err : Davix Error report object
 /// @return true if the uri is valid, or false and setup err with a string expression
 bool DAVIX_EXPORT uriCheckError(const Uri & uri, DavixError ** err);
+
+
+/// return associated std port for this request
+/// return default http port or default SSL port if not precised
+unsigned int DAVIX_EXPORT httpUriGetPort(const Uri & uri);
 
 } // namespace Davix
 

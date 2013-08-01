@@ -12,6 +12,7 @@ FILE(GLOB src_davix_params "params/*.cpp")
 FILE(GLOB src_davix_auth "auth/*.cpp")
 FILE(GLOB src_davix_file "file/*.cpp")
 FILE(GLOB src_davix_request "request/*.cpp")
+FILE(GLOB src_davix_utils "utils/*.cpp")
 
 include_directories("libs" ".")
 
@@ -32,7 +33,7 @@ add_subdirectory(neon)
 SET(SRC_HTTP ${src_neon})
 
 LIST(APPEND SRC_DAVIX_FULL ${src_davix} ${src_davix_request} ${SRC_HTTP}  ${src_xmlparser} ${src_logger} ${src_datetime}
-                           ${src_lockers} ${src_davix_posix} ${src_davix_status} ${src_davix_fileops}
+                           ${src_lockers} ${src_davix_posix} ${src_davix_status} ${src_davix_fileops} ${src_davix_utils}
                            ${src_davix_params} ${src_davix_auth} ${src_davix_file} ${SRC_STRPTIME} ${SRC_MEMPCPY}
                            ${SRC_STRLCPY} ${SRC_STRING_UTILS_CPP} ${SRC_BASE64} ${SRC_HMACSHA1})
 

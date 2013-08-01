@@ -11,6 +11,7 @@
 #include <request/httprequest.hpp>
 #include <fileops/fileutils.hpp>
 #include <fileops/davops.hpp>
+#include <utils/davix_utils_internal.hpp>
 
 
 namespace Davix{
@@ -131,19 +132,20 @@ int dav_stat_mapper_http(Context& context, const RequestParams* params, const Ur
 }
 
 
-dav_ssize_t posixStat(Context & c, const Uri & url, const RequestParams * _params,
+dav_ssize_t posixStat(Context & c, const Uri & url, const RequestParams * params,
                       struct stat* st, HttpCacheToken** token_ptr,
                       DavixError** err){
-    RequestParams params(_params);
+    RequestParams _params(params);
     DavixError* tmp_err=NULL;
     int ret =-1;
+    configureRequestParamsProto(url, _params);
 
-    switch(params.getProtocol()){
+    switch(_params.getProtocol()){
          case RequestProtocol::Webdav:
-            ret = dav_stat_mapper_webdav(c, &params, url, st, token_ptr, &tmp_err);
+            ret = dav_stat_mapper_webdav(c, &_params, url, st, token_ptr, &tmp_err);
             break;
         default:
-            ret = dav_stat_mapper_http(c, &params, url, st, token_ptr, &tmp_err);
+            ret = dav_stat_mapper_http(c, &_params, url, st, token_ptr, &tmp_err);
             break;
 
     }
@@ -153,18 +155,18 @@ dav_ssize_t posixStat(Context & c, const Uri & url, const RequestParams * _param
     return ret;
 }
 
-int deleteResource(Context & c, const Uri & u, const RequestParams & params, DavixError** err){
+int deleteResource(Context & c, const Uri & url, const RequestParams & params, DavixError** err){
     DavixError* tmp_err=NULL;
     int ret=-1;
     RequestParams _params(params);
+    configureRequestParamsProto(url, _params);
 
-
-    DeleteRequest req(c,u, err);
+    DeleteRequest req(c,url, err);
     req.setParameters(_params);
     if(!tmp_err){
         ret=req.executeRequest(&tmp_err);
         if(!tmp_err && httpcodeIsValid(req.getRequestCode()) == false){
-                httpcodeToDavixCode(req.getRequestCode(), davix_scope_stat_str(), u.getString() , &tmp_err);
+                httpcodeToDavixCode(req.getRequestCode(), davix_scope_stat_str(), url.getString() , &tmp_err);
                 ret = -1;
          }
     }
@@ -180,6 +182,9 @@ int makeCollection(Context & c, const Uri & url, const RequestParams & params, D
     DAVIX_DEBUG(" -> makeCollection");
     int ret=-1;
     DavixError* tmp_err=NULL;
+    RequestParams _params(params);
+    configureRequestParamsProto(url, _params);
+
     HttpRequest req(c, url, &tmp_err);
 
     if(tmp_err == NULL){

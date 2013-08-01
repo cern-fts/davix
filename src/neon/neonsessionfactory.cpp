@@ -34,17 +34,31 @@ NEONSessionFactory::~NEONSessionFactory(){
     }
 }
 
-
+inline std::string davix_session_uri_rewrite(const Uri & u){
+    std::string proto = u.getProtocol();
+    if(proto.compare(0,4, "http") ==0
+            || proto.compare(0,2, "s3") == 0
+            || proto.compare(0,3, "dav") == 0){
+        proto.assign("http");
+        if(*(u.getProtocol().rbegin()) == 's')
+            proto.append("s");
+        return proto;
+    }
+    return std::string();
+}
 
 int NEONSessionFactory::createNeonSession(const Uri & uri, ne_session** sess, DavixError **err){
     if(uri.getStatus() == StatusCode::OK){
         if(sess != NULL){
-            *sess = create_recycled_session(uri.getProtocol(), uri.getHost(),uri.getPort());
-            return 0;
+            std::string scheme = davix_session_uri_rewrite(uri);
+            if(scheme.size() > 0){
+                *sess = create_recycled_session(scheme, uri.getHost(), httpUriGetPort(uri));
+                return 0;
+            }
         }
-    }else{
-        DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, "impossible to parse " + uri.getString() + " ,not a valid HTTP or Webdav URL");
     }
+
+    DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, "impossible to parse " + uri.getString() + ", not a valid HTTP, S3 or Webdav URL");
     return -1;
 }
 

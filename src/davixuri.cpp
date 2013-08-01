@@ -51,16 +51,6 @@ struct UriPrivate{
                || my_uri.host ==NULL)
                 return;
 
-            // fix a neon parser bug when port != number
-            if(my_uri.port == 0 && strcasecmp(my_uri.scheme, "http") ==0)
-                my_uri.port = 80;
-
-            if(my_uri.port == 0 && strcasecmp(my_uri.scheme, "https") ==0)
-                my_uri.port = 443;
-
-            if(my_uri.port == 0)
-                return;
-
             code = StatusCode::OK;
             proto = my_uri.scheme;
             path = my_uri.path;
@@ -71,9 +61,8 @@ struct UriPrivate{
             }else{
                 query_and_path = path;
             }
-
-            _uri_string = uri_string;
         }
+        _uri_string = uri_string;
     }
 
     ne_uri my_uri;
@@ -189,6 +178,18 @@ bool uriCheckError(const Uri &uri, DavixError **err){
 }
 
 
+
+unsigned int httpUriGetPort(const Uri & uri){
+    int port = uri.getPort();
+    if( port ==0){
+        const std::string & scheme = uri.getProtocol();
+        if(*scheme.rbegin() == 's') // davs, https or s3s
+            port = 443;
+        else
+            port =80;
+    }
+    return port;
+}
 
 
 } // namespace Davix

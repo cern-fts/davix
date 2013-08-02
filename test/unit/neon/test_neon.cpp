@@ -15,7 +15,7 @@ static const char* list_urls[] = {
 static const size_t list_port[]={
     80,
     0,
-    80,
+    0,
     80
 };
 

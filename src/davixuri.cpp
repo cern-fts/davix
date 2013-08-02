@@ -45,10 +45,14 @@ struct UriPrivate{
     }
 
     void parsing(const std::string & uri_string){
+        _uri_string = uri_string;
         if(ne_uri_parse(uri_string.c_str(), &(my_uri)) == 0){
             if(my_uri.scheme == NULL
                || my_uri.path == NULL
                || my_uri.host ==NULL)
+                return;
+
+            if(my_uri.port == UINT_MAX)
                 return;
 
             code = StatusCode::OK;
@@ -62,7 +66,6 @@ struct UriPrivate{
                 query_and_path = path;
             }
         }
-        _uri_string = uri_string;
     }
 
     ne_uri my_uri;

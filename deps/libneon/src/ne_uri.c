@@ -218,6 +218,8 @@ int ne_uri_parse(const char *uri, ne_uri *parsed)
         } else if (p + 1 != pa) {
             /* => p = colon */
             parsed->port = atoi(p + 1);
+            if(parsed->port == 0)
+                parsed->port = UINT_MAX;
         }
         parsed->host = ne_strndup(s, p - s);
         

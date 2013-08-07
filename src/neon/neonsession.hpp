@@ -26,7 +26,7 @@ public:
     }
 
     inline void disable_session_reuse(){
-        DAVIX_DEBUG(" Connection problem.....eradicate session ");
+        DAVIX_DEBUG("Disable Session recycling.....");
         _session_recycling = false;
     }
 

@@ -21,6 +21,7 @@ namespace Davix {
 
 static void neonrequest_eradicate_session(NEONSession& sess, DavixError ** err){
     if(err && *err && (*err)->getStatus() == StatusCode::ConnectionProblem){
+        DAVIX_DEBUG("Connexion problem: eradicate session.....");
         sess.disable_session_reuse();
     }
 }
@@ -193,6 +194,10 @@ void NEONRequest::configure_req(){
     // setup flags
     ne_set_request_flag(_req, NE_REQFLAG_EXPECT100, _req_flag & RequestFlag::SupportContinue100);
     ne_set_request_flag(_req, NE_REQFLAG_IDEMPOTENT, _req_flag & RequestFlag::IdempotentRequest);
+
+    // configure connexion parameters for PUT request
+    if( (_req_flag & RequestFlag::SupportContinue100) == true)
+        _neon_sess->disable_session_reuse();
 
     if(_fd_content > 0){
         ne_set_request_body_fd(_req, _fd_content, _content_offset, _content_len);

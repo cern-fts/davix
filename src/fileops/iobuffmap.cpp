@@ -145,6 +145,12 @@ dav_ssize_t HttpIO::readFullBuff(void *buffer, dav_size_t size_read, DavixError 
                 _read_req = NULL;
 
         }
+        if(tmp_err){
+            delete _read_req;
+            _read_req = NULL;
+            ret = -1;
+        }
+
     }
 
     if(_read_req != NULL){ // valid request -> proceed to read

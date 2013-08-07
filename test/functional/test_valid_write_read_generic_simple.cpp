@@ -81,6 +81,12 @@ int main(int argc, char** argv){
             && (size_t) offset_buffer  < size_content){
         offset_buffer += ret;
     }
+
+    if(tmp_err){
+        std::cerr << " error while readding file " << tmp_err->getErrMsg() << " code :" << (int) tmp_err->getStatus() << std::endl;
+        return -1;
+    }
+
     buff_output[size_content] ='\0';
     if(strncmp(buff_input, buff_output, size_content) !=0){
         std::cerr << "content are different : FATAL ! " << std::endl;
@@ -88,10 +94,7 @@ int main(int argc, char** argv){
     }
 
 
-    if(tmp_err){
-        std::cerr << " error while readding file " << tmp_err->getErrMsg() << " code :" << (int) tmp_err->getStatus() << std::endl;
-        return -1;
-    }
+
 
     // try partial read
     memset(buff_output, 0, sizeof(size_content));

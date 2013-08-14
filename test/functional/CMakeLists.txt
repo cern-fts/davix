@@ -28,7 +28,7 @@ set( src_test_valid_write_read_vector_simple "test_valid_write_read_vector_simpl
 set( src_tool_read_vector_simple "tool_read_vector_simple.cpp")
 
 add_executable(test_request ${src_test_req} )
-target_link_libraries(test_request davix ${GLIB2_PKG_LIBRARIES} )
+target_link_libraries(test_request davix  )
 
 add_executable(tool_read_vector_simple ${src_tool_read_vector_simple} ${src_davix_test_lib})
 target_link_libraries(tool_read_vector_simple davix )
@@ -36,53 +36,53 @@ target_link_libraries(tool_read_vector_simple davix )
 
 
 add_executable(test_prop ${src_test_prop} ${src_davix_test_lib} )
-target_link_libraries(test_prop davix ${GLIB2_PKG_LIBRARIES} )
+target_link_libraries(test_prop davix  )
 
 add_executable(test_stat ${src_test_stat} ${src_davix_test_lib})
-target_link_libraries(test_stat davix ${GLIB2_PKG_LIBRARIES} )
+target_link_libraries(test_stat davix  )
 
 add_executable(test_stat_auto_check ${src_test_auto_stat_mkdir_check} ${src_davix_test_lib})
-target_link_libraries(test_stat_auto_check davix ${GLIB2_PKG_LIBRARIES} )
+target_link_libraries(test_stat_auto_check davix  )
 
 add_executable(test_mkdir ${src_test_mkdir} ${src_davix_test_lib})
-target_link_libraries(test_mkdir davix ${GLIB2_PKG_LIBRARIES} )
+target_link_libraries(test_mkdir davix  )
 
 add_executable(test_auto_rmdir_unlink_delete ${src_test_auto_rmdir_unlink_delete} ${src_davix_test_lib})
-target_link_libraries(test_auto_rmdir_unlink_delete davix ${GLIB2_PKG_LIBRARIES} )
+target_link_libraries(test_auto_rmdir_unlink_delete davix  )
 
 add_executable(test_stat_session ${src_test_stat_session} ${src_davix_test_lib})
-target_link_libraries(test_stat_session davix ${GLIB2_PKG_LIBRARIES} )
+target_link_libraries(test_stat_session davix  )
 
 
 add_executable(test_rw ${src_test_rw} ${src_davix_test_lib})
-target_link_libraries(test_rw davix ${GLIB2_PKG_LIBRARIES} )
+target_link_libraries(test_rw davix  )
 
 add_executable(test_opendir ${src_test_opendir} ${src_davix_test_lib} )
-target_link_libraries(test_opendir davix ${GLIB2_PKG_LIBRARIES} )
+target_link_libraries(test_opendir davix  )
 
 add_executable(test_directory ${src_test_directory} ${src_davix_test_lib} )
-target_link_libraries(test_directory davix ${GLIB2_PKG_LIBRARIES} )
+target_link_libraries(test_directory davix  )
 
 #add_executable(test_opendir_c ${src_test_opendir_c} ${src_davix_test_lib})
-#target_link_libraries(test_opendir_c davix ${GLIB2_PKG_LIBRARIES} )
+#target_link_libraries(test_opendir_c davix  )
 
 add_executable(test_opendir_partial ${src_test_opendir_partial} ${src_davix_test_lib})
-target_link_libraries(test_opendir_partial davix ${GLIB2_PKG_LIBRARIES} )
+target_link_libraries(test_opendir_partial davix  )
 
 add_executable(test_opendirpp ${src_test_opendirpp} ${src_davix_test_lib})
-target_link_libraries(test_opendirpp davix ${GLIB2_PKG_LIBRARIES} )
+target_link_libraries(test_opendirpp davix  )
 
 #add_executable(test_stat_c ${src_test_stat_c} ${src_davix_test_lib})
-#target_link_libraries(test_stat_c davix ${GLIB2_PKG_LIBRARIES} )
+#target_link_libraries(test_stat_c davix  )
 
 add_executable(test_valid_read_generic_simple ${src_test_valid_read_generic_simple} ${src_davix_test_lib})
-target_link_libraries(test_valid_read_generic_simple davix ${GLIB2_PKG_LIBRARIES} )
+target_link_libraries(test_valid_read_generic_simple davix  )
 
 add_executable(test_valid_write_read_generic_simple ${src_test_valid_write_read_generic_simple} ${src_davix_test_lib})
-target_link_libraries(test_valid_write_read_generic_simple davix ${GLIB2_PKG_LIBRARIES} )
+target_link_libraries(test_valid_write_read_generic_simple davix  )
 
 add_executable(test_valid_write_read_vector_simple ${src_test_valid_write_read_vector_simple} ${src_davix_test_lib})
-target_link_libraries(test_valid_write_read_vector_simple davix ${GLIB2_PKG_LIBRARIES} )
+target_link_libraries(test_valid_write_read_vector_simple davix  )
 
 
 function(test_dav_endpoint_ronly name cred)

@@ -9,6 +9,7 @@
 #include <ne_redirect.h>
 #include <libs/time_utils.h>
 #include <auth/davixx509cred_internal.hpp>
+#include <string_utils/stringutils.hpp>
 
 const char* davix_neon_key="davix_key";
 
@@ -77,11 +78,11 @@ int NEONSession::provide_login_passwd_fn(void *userdata, const char *realm, int 
               DavixError::propagateError(&(req->_last_error), tmp_err);
               return -1;
          }
-         strlcpy(username, tmp_login.c_str(), NE_ABUFSIZ);
-         strlcpy(password, tmp_password.c_str(), NE_ABUFSIZ);
+         copy_std_string_to_buff(username, NE_ABUFSIZ, tmp_login.c_str());
+         copy_std_string_to_buff(password, NE_ABUFSIZ, tmp_password.c_str());
      }else if(id.first.empty() == false){
-        strlcpy(username, id.first.c_str(), NE_ABUFSIZ);
-        strlcpy(password, id.second.c_str(), NE_ABUFSIZ);
+         copy_std_string_to_buff(username, NE_ABUFSIZ, id.first.c_str());
+         copy_std_string_to_buff(password, NE_ABUFSIZ, id.second.c_str());
      }
 
     DAVIX_DEBUG("NEONSession > get login/password with success...try server submission ");

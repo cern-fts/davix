@@ -78,9 +78,7 @@
 #cmakedefine HAVE_MEMPCPY_H 1
 #include <mempcpy/mempcpy.h>
 
-// has strlcpy
 #cmakedefine HAVE_STRLCPY_H 1
-#include <strlcpy/strlcpy.h>
 
 // poll
 #cmakedefine HAVE_POLL_H 1

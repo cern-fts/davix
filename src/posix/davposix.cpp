@@ -11,7 +11,7 @@
 #include <fileops/davmeta.hpp>
 #include <xml/davpropxmlparser.hpp>
 #include <fileops/iobuffmap.hpp>
-
+#include <string_utils/stringutils.hpp>
 #include <posix/davposix.hpp>
 
 
@@ -81,7 +81,7 @@ DavPosix::~DavPosix(){
 
 
 static void fill_dirent_from_filestat(struct dirent * d, const FileProperties & f){
-    strlcpy(d->d_name, f.filename.c_str(), NAME_MAX);
+    copy_std_string_to_buff(d->d_name, NAME_MAX, f.filename);
 }
 
 int incremental_propfind_listdir_parsing(HttpRequest* req, DavPropXMLParser * parser, size_t s_buff, const char* scope, DavixError** err){

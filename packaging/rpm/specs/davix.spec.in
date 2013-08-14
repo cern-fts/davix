@@ -1,3 +1,7 @@
+# unversionned doc dir F20 change https://fedoraproject.org/wiki/Changes/UnversionedDocdirs
+%{!?_pkgdocdir: %global _pkgdocdir %{_docdir}/%{name}-%{version}}
+
+
 Name:				davix
 Version:			@VERSION_STRING@
 Release:			2%{?dist}
@@ -10,12 +14,15 @@ Source0:			http://grid-deployment.web.cern.ch/grid-deployment/dms/lcgutil/tar/%{
 BuildRoot:			%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 #main lib dependencies
-BuildRequires:		cmake
-BuildRequires:		doxygen
-BuildRequires:          gridsite-devel
-BuildRequires:          gsoap-devel
-BuildRequires:		libxml2-devel
-BuildRequires:		openssl-devel
+BuildRequires:                  cmake
+BuildRequires:                  doxygen
+BuildRequires:                  gridsite-devel
+BuildRequires:                  gsoap-devel
+BuildRequires:                  libxml2-devel
+BuildRequires:                  openssl-devel
+
+
+Requires:                       %{name}-libs%{?_isa} = %{version}-%{release}
 
 
 
@@ -45,7 +52,10 @@ with Http based protocols (WebDav, Amazon S3, ...).
 
 %package doc
 Summary:			Documentation for %{name}
-Group:				Applications/Internet
+Group:				Documentation
+%if %{?fedora}%{!?fedora:0} >= 10 || %{?rhel}%{!?rhel:0} >= 6
+BuildArch:	noarch
+%endif
 
 %description doc
 Documentation and examples for %{name}. Davix is a toolkit designed 
@@ -60,9 +70,9 @@ make clean
 
 %build
 %cmake \
--DDOC_INSTALL_DIR=%{_docdir}/%{name}-%{version} \
--D ENABLE_THIRD_PARTY_COPY=TRUE \
--D UNIT_TESTS=TRUE \
+-DDOC_INSTALL_DIR=%{_pkgdocdir} \
+-DENABLE_THIRD_PARTY_COPY=TRUE \
+-DUNIT_TESTS=TRUE \
 .
 make %{?_smp_mflags}
 make doc
@@ -87,8 +97,7 @@ make DESTDIR=%{buildroot} install
 %defattr (-,root,root)
 %{_libdir}/libdavix.so.*
 %{_libdir}/libdavix_copy.so.*
-%{_docdir}/%{name}-%{version}/RELEASE-NOTES
-%{_docdir}/%{name}-%{version}/LICENSE
+
 
 %files devel
 %defattr (-,root,root)
@@ -100,9 +109,10 @@ make DESTDIR=%{buildroot} install
 
 %files doc
 %defattr (-,root,root)
-%dir %{_docdir}/%{name}-%{version}/
-%dir %{_docdir}/%{name}-%{version}/html/
-%{_docdir}/%{name}-%{version}/html/*
+%{_pkgdocdir}/LICENSE
+%{_pkgdocdir}/RELEASE-NOTES
+%{_pkgdocdir}/html/
+
 
 %changelog
 * Wed Jun 05 2013 Adrien Devresse <adevress at cern.ch> - 0.2.2-2

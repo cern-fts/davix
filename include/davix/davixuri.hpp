@@ -124,5 +124,6 @@ unsigned int DAVIX_EXPORT httpUriGetPort(const Uri & uri);
 
 } // namespace Davix
 
+std::ostream& operator<< (std::ostream& stream, const Davix::Uri & _u);
 
 #endif // DAVIX_DAVIXURI_HPP

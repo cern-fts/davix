@@ -198,4 +198,9 @@ unsigned int httpUriGetPort(const Uri & uri){
 } // namespace Davix
 
 
+std::ostream& operator<< (std::ostream& stream, const Davix::Uri & _u){
+	stream << _u.getString();
+	return stream;
+}
+
 

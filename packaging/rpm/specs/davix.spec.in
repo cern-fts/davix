@@ -21,6 +21,8 @@ BuildRequires:                  openssl-devel
 # davix-copy dependencies
 BuildRequires:                  gridsite-devel
 BuildRequires:                  gsoap-devel
+# unit tests
+BuildRequires:                  gtest-devel
 
 
 Requires:                       %{name}-libs%{?_isa} = %{version}-%{release}
@@ -68,10 +70,14 @@ make clean
 
 %prep
 %setup -q
+# remove useless embedded component
+rm -rf test/gtest-1.6.0/
+rm -rf test/pywebdav/
 
 %build
 %cmake \
 -DDOC_INSTALL_DIR=%{_pkgdocdir} \
+-DGTEST_EXTERNAL=TRUE \
 -DENABLE_THIRD_PARTY_COPY=TRUE \
 -DUNIT_TESTS=TRUE \
 .

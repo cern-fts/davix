@@ -42,7 +42,7 @@ add_definitions(${HTTPLIB_PKG_CFLAGS} )
 
 if(shared_library)
 add_library(libdavix  SHARED ${SRC_DAVIX_FULL})
-add_dependencies(libdavix neon_static)
+add_dependencies(libdavix neon)
 
 
 target_link_libraries(libdavix  ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES}

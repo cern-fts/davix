@@ -11,6 +11,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <sstream>
 
 
 using namespace Davix;
@@ -41,10 +42,14 @@ void configure_grid_env(char * cert_path, RequestParams&  p){
 
     if(strcmp(cert_path, "proxy") == 0){ // VOMS PROXY MODE
         X509Credential x;
-        char * proxy_path = getenv("X509_USER_PROXY");
-        if(!proxy_path){
-            std::cerr << "No user proxy defined, please setup X509_USER_PROXY"<< std::endl;
-            exit(-1);
+        std::string proxy_path;
+        char* p_str;
+        if ( (p_str = getenv("X509_USER_PROXY") ) != NULL ){
+            proxy_path = p_str;
+        }else{
+            std::ostringstream ss;
+            ss << "/tmp/x509up_u" << getuid();
+            proxy_path = ss.str();
         }
         x.loadFromFilePEM(proxy_path,proxy_path,"", NULL);
         p.setClientCertX509(x);

@@ -1,3 +1,21 @@
+Version - 0.2.5
+- support for S3 auth tokens
+- add external gtest support
+- simplify build system
+- remove strlcpy dependency
+- add several Meta-data operation support
+- support for very large Vector IO query ( > 1000 chunks )
+- support for IO prefecthing
+- add initial tools
+- bug fixe in the session reuse system
+- bug fixe in the redirection system
+- add stream support for Davix Uri
+- clean and re-organize headers
+- add support for dav:// davs:// s3:// and s3s:// schemes
+- several warnings correction from coverity scan
+- resolve several packaging issues
+- Inclusion of the prototype davix_copy feature: third party copy based on HTTP
+
 
 Version - 0.2.0
 - Initial Stable version

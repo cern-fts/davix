@@ -3,8 +3,8 @@
 
 
 Name:				davix
-Version:			0.2.5
-Release:			4%{?dist}
+Version:			0.2.6
+Release:			1%{?dist}
 Summary:			Toolkit for Http-based file management
 Group:				Applications/Internet
 License:			LGPLv2+
@@ -122,6 +122,10 @@ make DESTDIR=%{buildroot} install
 
 
 %changelog
+* Tue Sep 03 2013 Adrien Devresse <adevress at cern.ch> - 0.2.6-1
+ - Release 0.2.6 of davix, see RELEASE-NOTES for details
+
+
 * Wed Jun 05 2013 Adrien Devresse <adevress at cern.ch> - 0.2.2-2
  - Initial EPEL release
  

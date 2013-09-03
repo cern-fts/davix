@@ -5,7 +5,7 @@ SET(UNIT_TESTS FALSE
 
 if(UNIT_TESTS)
 
-include_directories(${PROJECT_SOURCE_DIR}/src ".")
+include_directories(${PROJECT_SOURCE_DIR}/src "." ${GTEST_INCLUDE_DIRS})
 
 
 file(GLOB src_neon neon/*.cpp)

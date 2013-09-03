@@ -46,6 +46,8 @@ OPTION(ENABLE_IPV6 "enable or disable IPv6 support " "1")
 
 OPTION(ENABLE_THIRD_PARTY_COPY "enable or disable third party copy support" FALSE)
 
+option(GTEST_EXTERNAL "Use external gtest framework" FALSE)
+
 
 if(${SSL_BACKEND} STREQUAL "OPENSSL")
 pkg_search_module(LIBSSL_PKG REQUIRED libssl)

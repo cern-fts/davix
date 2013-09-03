@@ -4,7 +4,7 @@
 
 Name:				davix
 Version:			0.2.5
-Release:			3%{?dist}
+Release:			4%{?dist}
 Summary:			Toolkit for Http-based file management
 Group:				Applications/Internet
 License:			LGPLv2+
@@ -16,10 +16,11 @@ BuildRoot:			%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 #main lib dependencies
 BuildRequires:                  cmake
 BuildRequires:                  doxygen
-BuildRequires:                  gridsite-devel
-BuildRequires:                  gsoap-devel
 BuildRequires:                  libxml2-devel
 BuildRequires:                  openssl-devel
+# davix-copy dependencies
+BuildRequires:                  gridsite-devel
+BuildRequires:                  gsoap-devel
 
 
 Requires:                       %{name}-libs%{?_isa} = %{version}-%{release}
@@ -62,7 +63,7 @@ Documentation and examples for %{name}. Davix is a toolkit designed
 for file operations with Http based protocols (WebDav, Amazon S3, ...).
 
 %clean
-rm -rf %{buildroot};
+rm -rf %{buildroot}
 make clean
 
 %prep

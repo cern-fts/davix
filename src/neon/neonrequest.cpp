@@ -376,8 +376,8 @@ int NEONRequest::redirect_request(DavixError **err){
     ne_free(dst_uri);
 
     // recycle old request and session
-    _neon_sess.reset(NULL);
     free_request();
+    _neon_sess.reset(NULL);
 
     // renew request
     req_started = false;

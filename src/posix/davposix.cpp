@@ -466,6 +466,13 @@ ssize_t DavPosix::pread(DAVIX_FD* fd, void* buf, size_t count, off_t offset, Dav
     return ret;
 }
 
+
+ssize_t DavPosix::pwrite(DAVIX_FD* fd, const void* buf, size_t count, off_t offset, DavixError** err){
+    DAVIX_DEBUG(" -> davix_pwrite");
+    DAVIX_DEBUG(" davix_pwrite <-");
+    return -1;
+}
+
 dav_ssize_t DavPosix::preadVec(DAVIX_FD* fd, const DavIOVecInput * input_vec,
                       DavIOVecOuput * output_vec,
                       dav_size_t count_vec, DavixError** err){

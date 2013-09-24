@@ -210,6 +210,18 @@ public:
     ssize_t pread(DAVIX_FD* fd, void* buffer, size_t count, off_t offset, DavixError** err);
 
     /**
+      @brief do a partial write of a file in a POSIX-like approach with HTTP(S)
+      behavior similar to the POSIX pwrite function
+      @param fd davix file descriptor
+      @param buffer buffer to fill
+      @param count maximum number of bytes to write
+      @param offset  offset to use
+      @param err Davix Error report
+      @return the size of data written or a negative value if an error occured
+     */
+    ssize_t pwrite(DAVIX_FD* fd, const void* buffer, size_t count, off_t offset, DavixError** err);
+
+    /**
       @brief pread_vec a file in a POSIX-like approach with HTTP(S)
             Vector read operation
             Allow to do several read operations in one single request

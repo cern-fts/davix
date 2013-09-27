@@ -1,11 +1,18 @@
 #include "dpponce.hpp"
 
 DppOnce::DppOnce() :
-    once_locker(PTHREAD_ONCE_INIT)
+    state(0),
+    l()
 {
 }
 
 
-int DppOnce::once(void (*func)()){
-    return pthread_once(&once_locker, func);
+void DppOnce::once(void (*func)()){
+    if(!state){
+        DppLocker locker(l);
+        if(!state){
+            state = 1;
+            func();
+        }
+    }
 }

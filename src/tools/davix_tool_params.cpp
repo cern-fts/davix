@@ -30,7 +30,7 @@ const std::string scope_params = "Davix::Tools::Params";
 {"help", no_argument,0,'?'}
 
 #define SECURITY_LONG_OPTIONS \
-{"cert",  no_argument,       0, 'E' }, \
+{"cert",  required_argument,       0, 'E' }, \
 {"capath",  required_argument, 0, CAPATH_OPT }, \
 {"userlogin", required_argument, 0, USER_LOGIN}, \
 {"userpass", required_argument, 0, USER_PASSWORD}, \

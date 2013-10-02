@@ -1047,7 +1047,7 @@ ne_ssl_client_cert *ne__ssl_clicert_exkey_import(const unsigned char *der,
 
     populate_cert(&cc->cert, x5);
 
-    return cc;    
+    return cc;
 }
 #endif
 

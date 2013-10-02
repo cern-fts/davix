@@ -10,8 +10,6 @@ extern "C" {
 int simple_get_pass(char* passwd, size_t max_size);
 
 
-void decimate_passwd(char* p);
-
 #ifdef __cplusplus
 }
 #endif

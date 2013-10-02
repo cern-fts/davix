@@ -13,13 +13,14 @@ namespace Tool{
 const std::string scope_params = "Davix::Tools::Params";
 
 
-#define CAPATH_OPT      1000
-#define DEBUG_OPT       1001
-#define USER_LOGIN      1002
-#define USER_PASSWORD   1003
-#define DATA_CONTENT    1004
-#define S3_SECRET_KEY   1005
-#define S3_ACCESS_KEY   1006
+#define CAPATH_OPT          1000
+#define DEBUG_OPT           1001
+#define USER_LOGIN          1002
+#define USER_PASSWORD       1003
+#define DATA_CONTENT        1004
+#define S3_SECRET_KEY       1005
+#define S3_ACCESS_KEY       1006
+#define X509_PRIVATE_KEY    1007
 
 // LONG OPTS
 
@@ -32,6 +33,7 @@ const std::string scope_params = "Davix::Tools::Params";
 #define SECURITY_LONG_OPTIONS \
 {"cert",  required_argument,       0, 'E' }, \
 {"capath",  required_argument, 0, CAPATH_OPT }, \
+{"key", required_argument, 0, X509_PRIVATE_KEY}, \
 {"userlogin", required_argument, 0, USER_LOGIN}, \
 {"userpass", required_argument, 0, USER_PASSWORD}, \
 {"s3secretkey", required_argument, 0, S3_SECRET_KEY}, \
@@ -116,6 +118,9 @@ int parse_davix_options_generic(const std::string &opt_filter,
                 break;
             case USER_LOGIN:
                 p.userlogpasswd.first = optarg;
+                break;
+            case X509_PRIVATE_KEY:
+                p.priv_key = optarg;
                 break;
             case USER_PASSWORD:
                 p.userlogpasswd.second = optarg;
@@ -252,6 +257,7 @@ const std::string  & get_common_options(){
             "  Security Options:\n"
             "\t--capath CA_path:         Add an additional certificate authority directory\n"
             "\t--cred, -E cred_path:     Client Certificate in PEM format\n"
+            "\t--key priv_path:          Private key in PEM format\n"
             "\t--insecure, -k:           Disable SSL credential checks\n"
             "\t--userlogin:              User login for login/password authentication\n"
             "\t--userpass:               User password for login/password authentication\n"

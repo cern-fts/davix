@@ -61,10 +61,3 @@ int simple_get_pass(char* passwd, size_t max_size){
 
 
 
-
-void decimate_passwd(char* p){
-    int i=0;
-    const int s_size = strlen(p);
-    for( i =0; i < s_size;i++)
-            p[i] = '0';
-}

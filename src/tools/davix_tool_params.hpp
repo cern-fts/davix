@@ -29,6 +29,8 @@ struct OptParams{
     std::string help_msg;
     // credential path
     std::string cred_path;
+    // priv key path
+    std::string priv_key;
     // output file -o
     std::string output_file_path;
     // input file path

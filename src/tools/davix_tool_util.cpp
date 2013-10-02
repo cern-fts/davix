@@ -12,11 +12,36 @@ namespace Davix{
 namespace Tool{
 
 
+size_t ask_user_login(std::string & login){
+    char l[1024] ={0};
+    (std::cout << "Login: ").flush();
+    std::cin.getline(l, 1023);
+    login.assign(l);
+    memset(l, '\0', 1024);     // erase buffer, simple security
+    return login.size();
+}
+
+
+size_t ask_user_passwd(std::string & passwd){
+    char p[1024] ={0};
+    std::cout << "Password: ";
+    std::cout.flush();
+    if(simple_get_pass(p, 1023) > 0){
+        passwd.assign(p);
+        memset(p, '\0', 1024);
+        return passwd.size();
+    }
+    return 0;
+}
+
 int setup_credential(OptParams & opts, DavixError** err){
     // setup client side credential
     if(opts.cred_path.empty() == false){
         X509Credential cred;
-        if( cred.loadFromFilePEM(opts.cred_path, opts.cred_path, "", err) <0){
+        if( cred.loadFromFilePEM( ((opts.priv_key.empty()== false)?(opts.priv_key):(opts.cred_path)),
+                                  opts.cred_path,
+                                  "",
+                                  err) <0){
             return -1;
         }
         opts.params.setClientCertX509(cred);
@@ -82,6 +107,9 @@ std::string mode_to_stringmode(mode_t mode){
     return std::string(res);
 }
 
+
+
+
 int DavixToolsAuthCallbackLoginPassword(void* userdata, const SessionInfo & info, std::string & login, std::string & password,
                                         int count, DavixError** err){
     OptParams* opts = (OptParams*) userdata;
@@ -91,26 +119,14 @@ int DavixToolsAuthCallbackLoginPassword(void* userdata, const SessionInfo & info
         password = opts->userlogpasswd.second;
         ret =0;
     }else {
-        char l[1024] ={0};
-        char p[1024] ={0};
-
         if(count > 0)
             std::cout << "Authentication Failure, try again:\n";
         else
             std::cout << "Authentication needed:\n";
-        (std::cout << "Login: ").flush();
-        std::cin.getline(l, 1024);
-        if( strlen(l) > 0){
-            std::cout << "Password: ";
-            std::cout.flush();
-            if(simple_get_pass(p, 1024) > 0){
-                login.assign(l);
-                password.assign(p);
-                decimate_passwd(p);
-                decimate_passwd(l);
+        if( ask_user_login(login) > 0){
+            if(ask_user_passwd(password) > 0){
                 ret =0;
             }
-
         }
     }
     std::cout << std::endl;

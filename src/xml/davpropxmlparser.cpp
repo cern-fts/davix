@@ -33,10 +33,6 @@ const char* parser_elem_list_start[] = { prop_pattern };
 namespace Davix {
 
 
-
-
-
-
 /**
   check if the current element origin match the pattern
   if it is the case, force the scope_bool -> TRUE, if already to TRUE -> error

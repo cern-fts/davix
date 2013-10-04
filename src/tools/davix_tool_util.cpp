@@ -1,9 +1,7 @@
 #include "davix_tool_util.hpp"
 
 #include <string>
-#include <cstring>
-#include <cstdio>
-#include <cerrno>
+#include <algorithm>
 #include <fcntl.h>
 #include <simple_getpass/simple_get_pass.h>
 
@@ -17,7 +15,7 @@ size_t ask_user_login(std::string & login){
     (std::cout << "Login: ").flush();
     std::cin.getline(l, 1023);
     login.assign(l);
-    memset(l, '\0', 1024);     // erase buffer, simple security
+    std::fill(l, l+1024,'\0');
     return login.size();
 }
 
@@ -28,7 +26,7 @@ size_t ask_user_passwd(std::string & passwd){
     std::cout.flush();
     if(simple_get_pass(p, 1023) > 0){
         passwd.assign(p);
-        memset(p, '\0', 1024);
+        std::fill(p, p+1024,'\0');
         return passwd.size();
     }
     return 0;
@@ -98,7 +96,7 @@ std::string mode_to_stringmode(mode_t mode){
     mode_t tmp_mode = mode;
     //static const char * strv= "xwrxwrxwr";
     char res[11];
-    memset(res,'-', sizeof(10));
+    std::fill(res, res+10, '-');
     res[10]='\0';
     for(int i=0; i <9; i++){
         res[9-i] = ( mode = (tmp_mode >> 1)) & 0x01;

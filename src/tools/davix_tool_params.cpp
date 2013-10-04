@@ -55,6 +55,7 @@ OptParams::OptParams() :
     header_args(),
     help_msg(),
     cred_path(),
+    priv_key(),
     output_file_path(),
     input_file_path(),
     userlogpasswd(),

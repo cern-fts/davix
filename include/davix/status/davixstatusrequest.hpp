@@ -113,7 +113,11 @@ const Code InvalidServerResponse = DAVIX_STATUS_INVALID_SERVER_RESPONSE;
 /// Unknow error
 const Code UnknowError= DAVIX_STATUS_UNKNOW_ERROR;
 
+/// SSL related error
+const Code SSLError = DAVIX_STATUS_SSL_ERROR;
 
+/// SSL credential decryption problem
+const Code CredDecryptionError = DAVIX_STATUS_DECRYPTION_ERROR;
 }
 
 ///  @class DavixError

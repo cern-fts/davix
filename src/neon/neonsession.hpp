@@ -1,12 +1,13 @@
 #ifndef NEONSESSION_HPP
 #define NEONSESSION_HPP
 
-#include <pthread.h>
-#include <davixcontext.hpp>
+
+#include <davix_context_internal.hpp>
 #include <params/davixrequestparams.hpp>
 #include <neon/neonsessionfactory.hpp>
-#include <logger/davix_logger_internal.h>
 
+
+#include <pthread.h>
 #include <ne_session.h>
 
 namespace Davix{

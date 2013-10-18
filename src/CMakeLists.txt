@@ -4,7 +4,6 @@
 FILE(GLOB src_davix "*.cpp")
 
 FILE(GLOB src_neon "neon/*.cpp")
-FILE(GLOB src_logger "logger/*.c")
 FILE(GLOB src_davix_posix "posix/*.cpp")
 FILE(GLOB src_davix_status "status/*.cpp")
 FILE(GLOB src_davix_fileops "fileops/*.cpp")
@@ -25,7 +24,6 @@ link_directories(${HTTPLIB_PKG_LIBRARY_DIR} ${CRYPTO_PKG_LIBRARY_DIR}
 add_subdirectory(copy)
 add_subdirectory(libs)
 add_subdirectory(datetime)
-add_subdirectory(logger)
 add_subdirectory(xml)
 add_subdirectory(tools)
 

@@ -29,13 +29,6 @@
 
 #include <stdio.h>
 
-#include <openssl/ssl.h>
-#include <openssl/err.h>
-#include <openssl/pkcs12.h>
-#include <openssl/x509v3.h>
-#include <openssl/rand.h>
-#include <openssl/opensslv.h>
-
 #ifdef NE_HAVE_TS_SSL
 #include <stdlib.h> /* for abort() */
 #include <pthread.h>
@@ -48,6 +41,7 @@
 
 #include "ne_private.h"
 #include "ne_privssl.h"
+#include "ne_openssl_internal.h"
 
 /* OpenSSL 0.9.6 compatibility */
 #if OPENSSL_VERSION_NUMBER < 0x0090700fL
@@ -64,25 +58,6 @@ typedef unsigned char ne_d2i_uchar;
 typedef const unsigned char ne_d2i_uchar;
 #endif
 
-struct ne_ssl_dname_s {
-    X509_NAME *dn;
-};
-
-struct ne_ssl_certificate_s {
-    ne_ssl_dname subj_dn, issuer_dn;
-    X509 *subject;
-    STACK_OF(X509) *chain;
-    ne_ssl_certificate *issuer;
-    char *identity;
-};
-
-struct ne_ssl_client_cert_s {
-    PKCS12 *p12;
-    int decrypted; /* non-zero if successfully decrypted. */
-    ne_ssl_certificate cert;
-    EVP_PKEY *pkey;
-    char *friendly_name;
-};
 
 #define NE_SSL_UNHANDLED (0x20) /* failure bit for unhandled case. */
 
@@ -345,7 +320,7 @@ static int check_identity(const ne_uri *server, X509 *cert, char **identity)
 }
 
 /* Populate an ne_ssl_certificate structure from an X509 object. */
-static ne_ssl_certificate *populate_cert(ne_ssl_certificate *cert, X509 *x5)
+ne_ssl_certificate *populate_cert(ne_ssl_certificate *cert, X509 *x5)
 {
     cert->subj_dn.dn = X509_get_subject_name(x5);
     cert->issuer_dn.dn = X509_get_issuer_name(x5);

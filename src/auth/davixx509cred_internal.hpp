@@ -7,6 +7,9 @@
 namespace Davix{
 
 
+// SSL Ops
+ne_ssl_client_cert *SSL_X509_Pem_Read(const std::string & pkeyfile, const std::string & credfile,
+                                      const std::string & password, DavixError** err);
 
 
 struct X509CredentialExtra{

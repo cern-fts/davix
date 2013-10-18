@@ -31,6 +31,10 @@
 
 NE_BEGIN_DECLS
 
+
+
+///
+
 /* A "distinguished name"; a unique name for some entity. */
 typedef struct ne_ssl_dname_s ne_ssl_dname;
 

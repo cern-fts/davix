@@ -49,11 +49,9 @@ OPTION(ENABLE_THIRD_PARTY_COPY "enable or disable third party copy support" FALS
 option(GTEST_EXTERNAL "Use external gtest framework" FALSE)
 
 
-if(${SSL_BACKEND} STREQUAL "OPENSSL")
 pkg_search_module(LIBSSL_PKG REQUIRED libssl)
 set(HAVE_OPENSSL 1)
 set(NE_HAVE_SSL 1)
-endif(${SSL_BACKEND} STREQUAL "OPENSSL")
 
 # libs checks
 find_package(Threads)

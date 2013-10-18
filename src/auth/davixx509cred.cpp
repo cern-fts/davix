@@ -10,7 +10,11 @@ namespace Davix {
 
 struct X509CredentialInternal{
     X509CredentialInternal() :
-        _cred(NULL), pemLoaded(false)
+        _cred(NULL),
+        x509_ucert(),
+        x509_ukey(),
+        x509_passwd(),
+        pemLoaded(false)
     {}
 
     X509CredentialInternal(const X509CredentialInternal & orig) :
@@ -98,19 +102,14 @@ int X509Credential::loadFromFileP12(const std::string &p12_cred, const std::stri
 int X509Credential::loadFromFilePEM(const std::string & filepath_priv_key, const std::string & filepath_cred,
                                     const std::string & password, DavixError** err){
     d_ptr->clear_cert();
-    if( (d_ptr->_cred = ne_ssl_clicert_pem_read(filepath_priv_key.c_str(), filepath_cred.c_str(),
-                                                (password.size() == 0)?NULL:password.c_str())) == NULL){
-        Davix::DavixError::setupError(err, davix_scope_x509cred(), StatusCode::CredentialNotFound, std::string("Impossible to load PEM credential : ") + filepath_priv_key + " " + filepath_cred);
-        d_ptr->clear_cert();
-        return -1;
+    if( (d_ptr->_cred = SSL_X509_Pem_Read(filepath_priv_key, filepath_cred, password, err)) != NULL){
+        d_ptr->x509_ucert  = filepath_cred;
+        d_ptr->x509_ukey   = filepath_priv_key;
+        d_ptr->x509_passwd = password;
+        d_ptr->pemLoaded   = true;
+        return 0;
     }
-
-    d_ptr->x509_ucert  = filepath_cred;
-    d_ptr->x509_ukey   = filepath_priv_key;
-    d_ptr->x509_passwd = password;
-    d_ptr->pemLoaded   = true;
-
-    return 0;
+    return -1;
 }
 
 bool X509Credential::hasCert() const{

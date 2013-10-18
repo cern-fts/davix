@@ -4,8 +4,6 @@
 #include <config.h>
 #include <string>
 #include <cstring>
-#include <logger/davix_logger_internal.h>
-#include <davix_context_internal.hpp>
 #include <ne_redirect.h>
 #include <libs/time_utils.h>
 #include <auth/davixx509cred_internal.hpp>

@@ -8,7 +8,7 @@ set(BASIC_PASSWD "tester")
 
 set(http_desy_base "https://lcg-lrz-dc66.grid.lrz.de/pnfs/lrz-muenchen.de/data/dteam/davix-tests" CACHE STRING "dCache test instance to use")
 set(http_desy_file "${http_desy_base}/fbxtest.txt" CACHE STRING "dCache file to sue for read only tests")
-set(http_lcgdm_base "https://lxfsra10a01.cern.ch/dpm/cern.ch/home/dteam/" CACHE STRING "DPM test instance to use" )
+set(http_lcgdm_base "https://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam/" CACHE STRING "DPM test instance to use" )
 
 
 test_dav_endpoint_ronly( ${http_desy_base} "proxy")

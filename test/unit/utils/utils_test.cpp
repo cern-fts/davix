@@ -25,11 +25,12 @@ TEST(StringUtils, splitok){
     ASSERT_STREQ("90", res.at(1).c_str());
     ASSERT_STREQ("15872", res.at(2).c_str());
 
-
-    str="      ";
-    delimiter=" ";
+    str = " Obi;wan Kenobi.droid*pass$*";
+    delimiter=" ;.*$ù^°=";
     res = stringTokSplit(str, delimiter);
-    ASSERT_EQ(0, res.size());
+    ASSERT_EQ(5, res.size());
+    ASSERT_STREQ("Obi", res.at(0).c_str());
+    ASSERT_STREQ("Kenobi", res.at(2).c_str());
 }
 
 

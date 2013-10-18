@@ -70,10 +70,6 @@
 // has unistd
 #cmakedefine HAVE_UNISTD_H 1
 
-// has strtok
-#cmakedefine HAVE_STRTOK_R
-#cmakedefine HAVE_STRTOK_S
-
 // openssl backend
 #cmakedefine HAVE_OPENSSL 1
 

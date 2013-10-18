@@ -5,7 +5,7 @@
 #include <string>
 #include <cstring>
 
-// split a string following an array of delimiter ( similar to strtok )
+// split a string following an array of delimiter ( strtok like )
 std::vector<std::string> stringTokSplit(const std::string & str, const std::string & delimiter);
 
 // compre two C++ string case insensitive

@@ -1,6 +1,7 @@
 #include <config.h>
 #include "stringutils.hpp"
 #include <cstring>
+#include <algorithm>
 
 
 #if !(defined HAVE_STRTOK_R) && !(defined HAVE_STRTOK_S)
@@ -42,26 +43,13 @@ static char* __internal_strtok_r(
 
 
 std::vector<std::string> stringTokSplit(const std::string & str, const std::string & delimiter){
-    const size_t s_str = str.size();
-    char * token, *input, *state;
     std::vector<std::string> res;
-    char buffer[s_str +1];
-    memcpy(buffer, str.c_str(), s_str);
-    buffer[s_str] ='\0';
-
-
-    for(input = buffer; ; input = NULL){
-#if defined HAVE_STRTOK_R
-        token = strtok_r(input, delimiter.c_str(), &state);
-#elif defined HAVE_STRTOK_S
-        token = strtok_s(input, delimiter.c_str(), &state);
-
-#else
-        token = __internal_strtok_r(input, delimiter.c_str(), &state);
-#endif
-        if(!token)
-            break;
-        res.push_back(token);
+    std::string::const_iterator it_prev, it_cur;
+    for(it_prev = it_cur = str.begin(); it_cur < str.end(); ((it_prev != str.end())?(it_prev++):(it_prev))){
+        it_cur = std::find_first_of(it_prev, str.end(), delimiter.begin(), delimiter.end());
+        if(it_prev != it_cur)
+            res.push_back(std::string(it_prev,it_cur));
+        it_prev = it_cur;
     }
     return res;
 }

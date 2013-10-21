@@ -75,8 +75,8 @@
 #endif
 
 // has mempcpy
-#cmakedefine HAVE_MEMPCPY_H 1
-#include <mempcpy/mempcpy.h>
+//#cmakedefine HAVE_MEMPCPY_H 1
+//#include <mempcpy/mempcpy.h>
 
 #cmakedefine HAVE_STRLCPY_H 1
 

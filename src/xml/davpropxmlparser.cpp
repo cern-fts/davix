@@ -3,6 +3,7 @@
 #include <status/davixstatusrequest.hpp>
 #include <cstdlib>
 #include <datetime/datetime_utils.h>
+#include <string_utils/stringutils.hpp>
 #include "davpropxmlparser.hpp"
 
 
@@ -222,22 +223,15 @@ int DavPropXMLParser::check_href(const char* c_name){
     if(response_section &&
             href_section && char_buffer.empty() == false){
         DAVIX_DEBUG(" href/filename found -> parse it");
-        size_t s_name = strlen(c_name);
-        char buff_name[s_name+1];
-        char * p_end= (char*)mempcpy(buff_name, c_name, s_name);
-        *p_end = '\0';
-         p_end--;
-
-       while(p_end >  buff_name && *p_end == '/' ){
-           *p_end = '\0';
-            p_end--;
-       }
-       if( (p_end = strrchr((char*)buff_name, '/')) != NULL){
-           last_filename = p_end+1;
-       }else{
-           last_filename = buff_name;
+        std::string _href(c_name);
+        rtrim(_href, isslash); // remove trailing slash
+        std::string::reverse_iterator it = std::find(_href.rbegin(), _href.rend(), '/');
+        if( it == _href.rend()){
+            std::swap(_href, last_filename);
+        }else{
+            last_filename.assign(it.base(), _href.end());
         }
-       DAVIX_DEBUG(" href/filename found -> %s ", last_filename.c_str() );
+       DAVIX_DEBUG(" href/filename parsed -> %s ", last_filename.c_str() );
     }
     return 0;
 }
@@ -246,26 +240,19 @@ int DavPropXMLParser::check_status(const char* name){
     if(response_section &&
             propname_section && status_section ){
         DAVIX_DEBUG(" status found -> parse it");
-        char * p1, *p2 = (char*) name;
-        while(*p2 == ' ')
-            ++p2;
-        p1 = strchr(p2,' ');
-        if(p1){ // find number field
-           p1++;
-           p2=p1;
-           while(*p2 != ' ' && *p2 != '\0')
-               ++p2;
-           char buff[p2-p1+1];
-
-           *((char*) mempcpy(buff, p1, p2-p1)) = '\0';
-           unsigned long res = strtoul(buff, NULL, 10);
-           if(res != ULONG_MAX){
-              DAVIX_DEBUG(" status value : %ld", res);
-              _last_response_status = res;
-              return 0;
-           }
-
-
+        std::string str_status(name);
+        ltrim(str_status, static_cast<int (*)(int)>(std::isspace));
+        std::string::iterator it1, it2;
+        it1 = std::find(str_status.begin(), str_status.end(), ' ');
+        if( it1 != str_status.end()){
+            it2 = std::find(it1+1, str_status.end(), ' ');
+            std::string str_status_parsed(it1+1, it2);
+            unsigned long res = strtoul(str_status_parsed.c_str(), NULL, 10);
+            if(res != ULONG_MAX){
+               DAVIX_DEBUG(" status value : %ld", res);
+               _last_response_status = res;
+               return 0;
+            }
         }
         DavixError::setupError(&err, davix_scope_xml_parser(), StatusCode::WebDavPropertiesParsingError, " Invalid dav status field value");
         errno =0;

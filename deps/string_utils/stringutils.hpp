@@ -42,7 +42,7 @@ inline std::string &rtrim(std::string &s, Func pred = std::isspace) {
         return s;
 }
 
-// trim from both ends
+// trim from both
 template <typename Func>
 inline std::string &trim(std::string &s, Func pred = std::isspace) {
         return ltrim<Func>(rtrim<Func>(s));

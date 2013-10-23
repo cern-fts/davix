@@ -147,8 +147,8 @@ int DavPropXMLParser::check_last_modified(const char* name){
         DAVIX_DEBUG(" getlastmodified found -> parse it ");
         time_t t = parse_standard_date(name);
         if(t == -1){
-            DavixError::setupError(&err, davix_scope_xml_parser(), StatusCode::WebDavPropertiesParsingError, "Invalid last modified date format");
-            return -1;
+            DAVIX_LOG(DAVIX_LOG_WARNING, " getlastmodified parsing error : corrupted value ... ignored");
+            t = 0;
         }
         DAVIX_DEBUG(" getlastmodified found -> value %ld ", t);
         _current_props.mtime = t;
@@ -162,8 +162,8 @@ int DavPropXMLParser::check_creation_date(const char* name){
         DAVIX_DEBUG("creationdate found -> parse it");
         time_t t = parse_standard_date(name);
         if(t == -1){
-            DavixError::setupError(&err, davix_scope_xml_parser(), StatusCode::WebDavPropertiesParsingError, "Invalid creation date format");
-           return -1;
+            DAVIX_LOG(DAVIX_LOG_WARNING," creationdate parsing error : corrupted value ... ignored");
+            t = 0;
         }
         DAVIX_DEBUG(" creationdate found -> value %ld ", t);
         _current_props.ctime = t;

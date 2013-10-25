@@ -48,7 +48,7 @@ static std::string _full_delegation_endpoint(const std::string& ref,
 {
     std::string final = _full_url(ref, uri);
     if (final.substr(7).compare("http://") == 0) {
-        DavixError::setupError(err, COPY_SCOPE, DAVIX_STATUS_OPERATION_NOT_SUPPORTED,
+        DavixError::setupError(err, COPY_SCOPE, StatusCode::OperationNonSupported,
                                std::string("Plain http can not be used for delegation: ") + uri);
         final.clear();
     }
@@ -178,21 +178,21 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
     if (!*error) {
         int responseStatus = request->getRequestCode();
         if (responseStatus == 404) {
-            DavixError::setupError(error, COPY_SCOPE, DAVIX_STATUS_FILE_NOT_FOUND,
+            DavixError::setupError(error, COPY_SCOPE, StatusCode::FileNotFound,
                                    "Could not COPY. File not found");
         }
         else if (responseStatus == 403) {
-            DavixError::setupError(error, COPY_SCOPE, DAVIX_STATUS_PERMISSION_REFUSED,
+            DavixError::setupError(error, COPY_SCOPE, StatusCode::PermissionRefused,
                                    "Could not COPY. Permission denied.");
         }
         else if (responseStatus == 501) {
-            DavixError::setupError(error, COPY_SCOPE, DAVIX_STATUS_OPERATION_NOT_SUPPORTED,
+            DavixError::setupError(error, COPY_SCOPE, StatusCode::OperationNonSupported,
                                    "Could not COPY. The source service does not support it");
         }
         else if (responseStatus >= 300) {
             std::ostringstream msg;
             msg << "Could not COPY. Unknown error code: " << responseStatus;
-            DavixError::setupError(error, COPY_SCOPE, DAVIX_STATUS_UNKNOW_ERROR,
+            DavixError::setupError(error, COPY_SCOPE, StatusCode::UnknowError,
                                    msg.str());
         }
     }
@@ -269,19 +269,19 @@ void DavixCopyInternal::monitorPerformanceMarkers(Davix::HttpRequest *request,
         }
         else if (strncasecmp("aborted", p, 7) == 0)
         {
-            Davix::DavixError::setupError(error, COPY_SCOPE, DAVIX_STATUS_CANCELED,
+            Davix::DavixError::setupError(error, COPY_SCOPE, StatusCode::Canceled,
                     "Transfer aborted in the remote end");
             break;
         }
         else if (strncasecmp("failed", p, 6) == 0)
         {
-            Davix::DavixError::setupError(error, COPY_SCOPE, DAVIX_STATUS_REMOTE_ERROR,
+            Davix::DavixError::setupError(error, COPY_SCOPE, StatusCode::RemoteError,
                     std::string("Transfer failed: ") + p);
             break;
         }
         else
         {
-            Davix::DavixError::setupError(error, COPY_SCOPE, DAVIX_STATUS_SYSTEM_ERROR,
+            Davix::DavixError::setupError(error, COPY_SCOPE, StatusCode::SystemError,
                     std::string("Unexpected message from remote host: ") + p);
             break;
         }

@@ -108,6 +108,16 @@ enum Code {
 
     /// Impossible to decrypt client credential for usage
     CredDecryptionError = 0x019,
+    
+    /// Operation canceled
+    Canceled = 0x020,
+    
+    /// Delegation error
+    DelegationError = 0x021,
+    
+    /// Remote error. Used for third party copies: it means the
+    /// destination failed.
+    RemoteError = 0x022,
 
     /// Undefined error
     UnknowError = 0x100

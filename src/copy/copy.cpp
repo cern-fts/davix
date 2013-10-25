@@ -117,7 +117,9 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
         nextSrc = _full_url(prevSrc, nextSrc);
         prevSrc = nextSrc;
         if (request) {
-            request->endRequest(&internalError);
+            request->discardBody(&internalError);
+            if (!internalError)
+                request->endRequest(&internalError);
             if (internalError) {
                 DavixError::propagatePrefixedError(error, internalError, __func__);
                 break;

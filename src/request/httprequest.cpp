@@ -108,7 +108,13 @@ dav_ssize_t HttpRequest::readLine(char *buffer, dav_size_t max_size, DavixError 
     return ret;
 }
 
-
+void HttpRequest::discardBody(DavixError** err){
+    char buffer[1024];
+    dav_ssize_t read;
+    do {
+        read = d_ptr->readSegment(buffer, sizeof(buffer), err);
+    } while (read > 0 && *err == NULL);
+}
 
 dav_ssize_t HttpRequest::readToFd(int fd, DavixError** err){
     return d_ptr->readToFd(fd, 0, err);

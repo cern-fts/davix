@@ -212,6 +212,11 @@ public:
     /// @return number of bytes readed, if return == max_size -> the line too big
     ///
     dav_ssize_t readLine(char* buffer, dav_size_t max_size, DavixError** err);
+    
+    ///
+    /// discard the response body
+    /// @param err: DavixError error report system
+    void discardBody(DavixError** err);
 
     ///
     /// finish a request stated with beginRequest

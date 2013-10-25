@@ -286,6 +286,8 @@ void httpcodeToDavixCode(int code, const std::string & scope, const std::string 
         case 301:           /* Moved Permanently */
         case 300:           /* Multiple Choices */
         case 302:           /* Found */
+            dav_code = StatusCode::RedirectionNeeded;
+            str_msg = "Redirection requested, transparent redirection disabled";
         case 305:           /* Use Proxy */
         case 306:           /* (Unused) */
         case 307:           /* Temporary Redirect */

@@ -108,7 +108,6 @@ TEST(DavixErrorTest, CreateDelete){
     Davix::DavixError err("test_dav_scope", Davix::StatusCode::IsNotADirectory, " problem");
     ASSERT_EQ(err.getErrMsg(), " problem");
     ASSERT_EQ(err.getStatus(), Davix::StatusCode::IsNotADirectory);
-    ASSERT_EQ(err.getStatus(), DAVIX_STATUS_IS_NOT_A_DIRECTORY);
 
     Davix::DavixError * err2=NULL;
     Davix::DavixError::setupError(&err2,"test_dav_scope2", Davix::StatusCode::ConnectionProblem, "connexion problem");

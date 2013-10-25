@@ -55,7 +55,7 @@ TEST(testNeon, testParsing){
     for(size_t i=0; i < len_list; ++i){
         Uri uri(list_urls[i]);
         if(failure[i] == false){
-            ASSERT_EQ(DAVIX_STATUS_OK, uri.getStatus());
+            ASSERT_EQ(StatusCode::OK, uri.getStatus());
             ASSERT_STREQ(list_proto[i], uri.getProtocol().c_str() );
             ASSERT_STREQ(list_host[i], uri.getHost().c_str());
             ASSERT_STREQ(list_path[i], uri.getPath().c_str());

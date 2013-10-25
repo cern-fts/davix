@@ -25,99 +25,95 @@ struct DavixErrorInternal;
 
 namespace StatusCode{
 
-/// @typedef davix_status_t Code
-/// @brief Davix error codes
-/// equal to davix_status_t
+
+
+/// Common Error code of Davix
+/// See \ref DavixError for more details
 ///
-typedef davix_status_t Code;
+enum Code {
+    /// No Error report
+    OK = 0x000,
 
-//
-// Davix::statusCode and davix_status_t are
-// the same error codes.
-//
-// Davix::statusCode is provided for C++ programmer
-// convenience
-//
-/// No Error report
-const Code OK = DAVIX_STATUS_OK;
+    /// Request executed partially
+    PartialDone = 0x001,
 
-/// Request executed partially
-const Code PartialDone = DAVIX_STATUS_PARTIAL_DONE;
+    /// Error in the Webdav properties parsing
+    WebDavPropertiesParsingError = 0x002,
 
-/// Error in the Webdav properties parsing
-const Code WebDavPropertiesParsingError = DAVIX_STATUS_WEBDAV_PROPERTIES_PARSING_ERROR;
+    /// Error in the Webdav properties parsing
+    UriParsingError = 0x003,
 
-/// Wrong Uri, impossible to parse
-const Code UriParsingError = DAVIX_STATUS_URI_PARSING_ERROR;
+    /// impossible to create a session
+    SessionCreationError = 0x004,
 
-/// impossible to create a session
-const Code SessionCreationError = DAVIX_STATUS_SESSION_CREATION_ERROR;
+    /// DNS resolution failure
+    NameResolutionFailure= 0x005,
 
-/// DNS resolution failure
-const Code NameResolutionFailure= DAVIX_STATUS_NAME_RESOLUTION_FAILURE;
+    /// Impossible to connect, host down or network problem
+    ConnectionProblem = 0x006,
 
-/// Impossible to connect, host down or network problem
-const Code ConnectionProblem = DAVIX_STATUS_CONNECTION_PROBLEM;
+    /// redirection is needed manually
+    RedirectionNeeded = 0x007,
 
-/// redirection is needed manually
-const Code RedirectionNeeded = DAVIX_STATUS_REDIRECTION_NEEDED;
+    /// Impossible to connect, host down or network problem
+    ConnectionTimeout = 0x008,
 
-/// Connexion timeout
-const Code ConnectionTimeout= DAVIX_STATUS_CONNECTION_TIMEOUT;
+    /// operation timeout
+    OperationTimeout = 0x009,
 
-/// operation timeout
-const Code OperationTimeout= DAVIX_STATUS_OPERATION_TIMEOUT;
+    /// this operation is not supported
+    OperationNonSupported= 0x00a,
 
-/// this operation is not supported
-const Code OperationNonSupported= DAVIX_STATUS_OPERATION_NOT_SUPPORTED;
+    /// Action impossible, is a directory or a collection
+    IsNotADirectory = 0x00b,
 
-/// this file is not a directory
-const Code IsNotADirectory = DAVIX_STATUS_IS_NOT_A_DIRECTORY;
+    /// Invalid file descriptor
+    InvalidFileHandle = 0x00c,
 
-/// Invalid file descriptor
-const Code InvalidFileHandle = DAVIX_STATUS_INVALID_FILE_HANDLE;
+    /// Request already running
+    AlreadyRunning = 0x00d,
 
-/// Request already running
-const Code AlreadyRunning = DAVIX_STATUS_ALREADY_RUNNING;
+    /// Authentication Error
+    AuthenticationError= 0x00e,
 
-/// Authentication Error
-const Code AuthentificationError = DAVIX_STATUS_AUTHENTIFICATION_ERROR;
+    /// Wrong Login and/or Password
+    LoginPasswordError = 0x00f,
 
-/// Wrong Login and/or Password
-const Code LoginPasswordError = DAVIX_STATUS_LOGIN_PASSWORD_ERROR;
+    /// Impossible to find specified credential
+    CredentialNotFound = 0x010,
 
-/// Impossible to find specified credential
-const Code CredentialNotFound = DAVIX_STATUS_CREDENTIAL_NOT_FOUND;
+    /// Permission deny, Authorisation problem ( EACCESS, EPERM )
+    PermissionRefused = 0x011,
 
-/// Permission deny
-const Code PermissionRefused = DAVIX_STATUS_PERMISSION_REFUSED;
+    /// File not found (ENOENT )
+    FileNotFound = 0x012,
 
-/// No such file, no such directoy, no such remote entity
-const Code FileNotFound = DAVIX_STATUS_FILE_NOT_FOUND;
+    /// This file is not a regular file but a directory ( EISDIR )
+    IsADirectory = 0x013,
 
-/// Action impossible, is a directory or a collection
-const Code IsADirectory = DAVIX_STATUS_IS_A_DIRECTORY;
+    /// System call related error
+    SystemError = 0x014,
 
-/// System related error
-const Code SystemError = DAVIX_STATUS_SYSTEM_ERROR;
+    /// File already exist ( EEXIST )
+    FileExist = 0x015,
 
-/// File already exist, impossible to create
-const Code FileExist = DAVIX_STATUS_FILE_EXIST;
+    /// Invalid argument from user ( EINVAL )
+    InvalidArgument = 0x016,
 
-/// Invalid user argument
-const Code InvalidArgument = DAVIX_STATUS_INVALID_ARG;
+    /// Server answer problem ( > 500 )
+    InvalidServerResponse = 0x017,
 
-/// Invalid server answer
-const Code InvalidServerResponse = DAVIX_STATUS_INVALID_SERVER_RESPONSE;
+    /// SSL/TLS layer Error
+    SSLError = 0x018,
 
-/// Unknow error
-const Code UnknowError= DAVIX_STATUS_UNKNOW_ERROR;
+    /// Impossible to decrypt client credential for usage
+    CredDecryptionError = 0x019,
 
-/// SSL related error
-const Code SSLError = DAVIX_STATUS_SSL_ERROR;
+    /// Undefined error
+    UnknowError = 0x100
 
-/// SSL credential decryption problem
-const Code CredDecryptionError = DAVIX_STATUS_DECRYPTION_ERROR;
+};
+
 }
 
 ///  @class DavixError
@@ -255,6 +251,17 @@ DAVIX_EXPORT std::string davix_scope_x509cred();
 
 //
 DAVIX_EXPORT void davix_errno_to_davix_error(int errcode, const std::string & scope, const std::string & msg, DavixError** newErr);
+
+// !!!!!!!!!!!!!!!!!!!
+// Warning: Deprecated symbols, do not use anymore
+// /////////////////////////////////////////////////
+// Deprecated, do not use, API compability only
+namespace StatusCode{
+const Code AuthentificationError = AuthenticationError;
+}
+
+typedef enum StatusCode::Code davix_status_t;
+
 
 /// \endcond PRIVATE_SYMBOLS
 

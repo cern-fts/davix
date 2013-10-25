@@ -1,11 +1,6 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-// cpp common
-
-
-
-
 // POSIX inclusion
 #include <sys/types.h>
 #include <sys/stat.h>

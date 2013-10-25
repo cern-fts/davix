@@ -2,6 +2,7 @@
 #define DAVIX_TOOL_UTIL_HPP
 
 #include <cstdio>
+#include <cerrno>
 #include <davix.hpp>
 #include <tools/davix_tool_params.hpp>
 

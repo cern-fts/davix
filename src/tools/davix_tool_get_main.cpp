@@ -3,8 +3,6 @@
 #include <davix.hpp>
 #include <tools/davix_tool_params.hpp>
 #include <tools/davix_tool_util.hpp>
-#include <cstdio>
-#include <errno.h>
 
 
 // @author : Devresse Adrien

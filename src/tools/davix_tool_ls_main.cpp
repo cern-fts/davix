@@ -1,6 +1,4 @@
 
-
-#include <cstdio>
 #include <davix.hpp>
 #include <tools/davix_tool_params.hpp>
 #include <tools/davix_tool_util.hpp>

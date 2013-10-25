@@ -1,5 +1,5 @@
 #include "davix_tool_util.hpp"
-
+#include <config.h>
 #include <string>
 #include <algorithm>
 #include <fcntl.h>

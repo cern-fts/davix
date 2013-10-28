@@ -1,6 +1,15 @@
 Trunk :
  - Prototype for pwrite
 
+Version - 0.2.7
+- remove several GNU ext dependency
+- first version stable for TDavixFile/TDavixSystem
+- include prefetching support
+- several minor bug fixes
+- fix a problem related to stat() mode flag in plain http mode
+- clean of old C error code system
+
+
 Version - 0.2.5
 - support for S3 auth tokens
 - add external gtest support

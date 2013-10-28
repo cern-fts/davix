@@ -116,7 +116,7 @@ int dav_stat_mapper_http(Context& context, const RequestParams* params, const Ur
                 memset(st, 0, sizeof(struct stat));
                 const dav_ssize_t s = req.getAnswerSize();
                 st->st_size = (size_t) (s <0)?0:s;
-                st->st_mode = 0755;
+                st->st_mode = 0755 | S_IFREG;
                 ret = 0;
                 if(token_ptr)
                     *token_ptr = req.extractCacheToken();

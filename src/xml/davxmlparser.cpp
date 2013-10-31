@@ -22,7 +22,7 @@ struct InternalDavParser{
 };
 
 int davParserNotImplemented(Davix::DavixError** err){
-    Davix::DavixError::setupError(err, davix_scope_xml_parser(), StatusCode::OperationNonSupported, "the parser callbacks not are not setup properly");
+    Davix::DavixError::setupError(err, davix_scope_xml_parser(), StatusCode::OperationNonSupported, "the parser callbacks are not setup properly");
     return -1;
 }
 

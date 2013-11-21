@@ -82,6 +82,12 @@ DavPosix::~DavPosix(){
 
 static void fill_dirent_from_filestat(struct dirent * d, const FileProperties & f){
     copy_std_string_to_buff(d->d_name, NAME_MAX, f.filename);
+    if (S_ISDIR(f.mode))
+        d->d_type = DT_DIR;
+    else if (S_ISLNK(f.mode))
+        d->d_type = DT_LNK;
+    else
+        d->d_type = DT_REG;
 }
 
 int incremental_propfind_listdir_parsing(HttpRequest* req, DavPropXMLParser * parser, size_t s_buff, const char* scope, DavixError** err){

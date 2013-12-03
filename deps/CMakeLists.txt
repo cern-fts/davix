@@ -20,6 +20,9 @@ SET(SRC_BASE64 "${CMAKE_CURRENT_SOURCE_DIR}/base64/base64.cpp" PARENT_SCOPE)
 #hmac sha1
 SET(SRC_HMACSHA1 "${CMAKE_CURRENT_SOURCE_DIR}/hmac_sha1/hmacsha1.cpp" PARENT_SCOPE)
 
+#json parser
+SET(HEADER_RAPIDJSON "${CMAKE_CURRENT_SOURCE_DIR}/rapidjson/include" PARENT_SCOPE)
+
 add_subdirectory(libneon)
 
 

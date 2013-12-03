@@ -6,6 +6,7 @@ SET(UNIT_TESTS FALSE
 if(UNIT_TESTS)
 
 include_directories(${PROJECT_SOURCE_DIR}/src "." ${GTEST_INCLUDE_DIRS})
+include_directories(${HEADER_RAPIDJSON})
 
 
 file(GLOB src_neon neon/*.cpp)

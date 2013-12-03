@@ -5,6 +5,9 @@
 #include <fileops/httpiovec.hpp>
 #include <fileops/fileutils.hpp>
 #include <gtest/gtest.h>
+#include <rapidjson/document.h>
+#include <rapidjson/prettywriter.h>
+#include <rapidjson/filestream.h>
 
 using namespace std;
 using namespace Davix;
@@ -140,4 +143,84 @@ TEST(headerParser, generateRange){
     }
     ASSERT_LE(2, ranges.size());
 }
+
+
+// JSON parser tutorial test
+TEST(ParserJSONTestTuto, JSONTuto){
+
+
+
+        ////////////////////////////////////////////////////////////////////////////
+        // 1. Parse a JSON text string to a document.
+
+        const char json[] = " { \"hello\" : \"world\", \"t\" : true , \"f\" : false, \"n\": null, \"i\":123, \"pi\": 3.1416, \"a\":[1, 2, 3, 4] } ";
+        printf("Original JSON:\n %s\n", json);
+
+        rapidjson::Document document;	// Default template parameter uses UTF8 and MemoryPoolAllocator.
+
+    #if 0
+        // "normal" parsing, decode strings to new buffers. Can use other input stream via ParseStream().
+        if (document.Parse<0>(json).HasParseError())
+            ASSERT_TRUE(false);
+    #else
+        // In-situ parsing, decode strings directly in the source string. Source must be string.
+        char buffer[sizeof(json)];
+        memcpy(buffer, json, sizeof(json));
+        if (document.ParseInsitu<0>(buffer).HasParseError())
+            ASSERT_TRUE(false);
+    #endif
+
+        printf("\nParsing to document succeeded.\n");
+
+
+}
+
+
+// JSON parser tutorial test
+TEST(ParserJSONTestTuto, JSONReplicaParsing){
+
+
+
+        ////////////////////////////////////////////////////////////////////////////
+        // 1. Parse a JSON text string to a document.
+
+        const char json[] = "["
+                "{"
+                "\"server\"    : \"datagrid.lbl.gov\","
+                "\"rfn\"       : \"http://datagrid.lbl.gov/testdata//R/test01.data\","
+                "\"atime\"     : 1384793007,"
+                "\"status\"    : \"-\","
+                "\"type\"      : \"V\","
+                "\"ltime\"     : 1385397803,"
+                "\"extra\": {}"
+                "}"
+                "]";
+        printf("Original JSON:\n %s\n", json);
+
+        rapidjson::Document document;	// Default template parameter uses UTF8 and MemoryPoolAllocator.
+
+    #if 0
+        // "normal" parsing, decode strings to new buffers. Can use other input stream via ParseStream().
+        if (document.Parse<0>(json).HasParseError())
+            ASSERT_TRUE(false);
+    #else
+        // In-situ parsing, decode strings directly in the source string. Source must be string.
+        char buffer[sizeof(json)];
+        memcpy(buffer, json, sizeof(json));
+        if (document.ParseInsitu<0>(buffer).HasParseError())
+            ASSERT_TRUE(false);
+    #endif
+
+        printf("\nParsing to replicas with success. \n");
+
+        ASSERT_TRUE(document.IsArray());
+        ASSERT_EQ(document.Size(),1);
+        ASSERT_TRUE(document[static_cast<rapidjson::SizeType>(0)].IsObject());
+        ASSERT_FALSE(document[static_cast<rapidjson::SizeType>(0)].HasMember("test_random"));
+        ASSERT_TRUE(document[static_cast<rapidjson::SizeType>(0)].HasMember("rfn"));
+        ASSERT_STREQ("http://datagrid.lbl.gov/testdata//R/test01.data", document[static_cast<rapidjson::SizeType>(0)]["rfn"].GetString());
+        ASSERT_STREQ("datagrid.lbl.gov", document[static_cast<rapidjson::SizeType>(0)]["server"].GetString());
+}
+
+
 

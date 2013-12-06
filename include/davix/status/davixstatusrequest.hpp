@@ -119,8 +119,12 @@ enum Code {
     /// destination failed.
     RemoteError = 0x022,
 
+    /// Generic Parsing Error
+    ParsingError = 0x23,
+
     /// Undefined error
     UnknowError = 0x100
+
 
 };
 

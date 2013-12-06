@@ -5,6 +5,7 @@
 #include <davix.hpp>
 #include <xml/davxmlparser.hpp>
 #include <xml/davpropxmlparser.hpp>
+#include <xml/metalinkparser.hpp>
 #include <status/davixstatusrequest.hpp>
 #include <gtest/gtest.h>
 #include <string.h>
@@ -282,10 +283,47 @@ const char* recursive_listing =
 const char* list_item[] = { "g2", "generated", "test", "speed_test2", "speed_test", "speed_test3", "testwrite", "test_dir",
                             "testgfgfgfdg9999tw3", "UGRtest", "ugrtest", "fbxtest.txt", "testdir", "testdir8888", "testdir8889" };
 
+
+const char metalink_item_lcgdm[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+        "<metalink version=\"3.0\" xmlns=\"http://www.metalinker.org/\" xmlns:lcgdm=\"LCGDM:\" generator=\"lcgdm-dav\" pubdate=\"Tue, 13 Feb 2007 20:17:47 GMT\">"
+        "<files>"
+        "<file name=\"/emidem\">"
+        "	<size>494391600</size>"
+        "	<resources>"
+        "		<url type=\"https\">http://datagrid.lbl.gov/testdata//L/test02.data</url>"
+        "	</resources>"
+        "</file>"
+        "</files>"
+        "</metalink>";
+
+
+const char metalink_item_generic[]= " "
+        "<metalink version=\"3.0\" xmlns=\"http://www.metalinker.org/\">"
+        "    <files>"
+        "      <file name=\"example.ext\">"
+        "      <verification>"
+        "        <hash type=\"md5\">example-md5-hash</hash>"
+        "        <hash type=\"sha1\">example-sha1-hash</hash>"
+        "      </verification>"
+        "      <resources>"
+        "        <url type=\"ftp\">ftp://ftp.example1.com/example.ext</url>"
+        "        <url type=\"ftp\">ftp://ftp.example2.com/example.ext</url>"
+        "        <url type=\"http\">http://www.example1.com/example.ext</url> "
+        "        <url type=\"http\">http://www.example2.com/example.ext</url>"
+        "        <url type=\"http\">http://www.example3.com/example.ext</url> "
+        "        <url type=\"bittorrent\">http://www.ex.com/example.ext.torrent</url>"
+        "        <url type=\"magnet\"/>"
+        "        <url type=\"ed2k\"/>"
+        "      </resources>"
+        "      </file>"
+        "    </files>"
+        "  </metalink>";
+
+
 TEST(XmlParserInstance, createParser){
-    Davix::DavXMLParser * parser = new Davix::DavXMLParser();
+    Davix::XMLSAXParser * parser = new Davix::XMLSAXParser();
     Davix::DavixError* last_error = parser->getLastErr();
-    ASSERT_EQ(Davix::StatusCode::OK,last_error->getStatus());
+    ASSERT_TRUE(last_error == NULL);
     delete parser;
     Davix::DavixError::clearError(&last_error);
 }
@@ -372,7 +410,43 @@ TEST(XmlPaserInstance, destroyPartial){
 }
 
 
+TEST(XmlMetalinkParserTest, parserMetalinkSimpl){
+    Davix::MetalinkParser parser;
+    int ret = parser.parseChuck(metalink_item_lcgdm, strlen(metalink_item_lcgdm));
+    ASSERT_EQ(0, ret);
+    ASSERT_TRUE( parser.getLastErr() == NULL);
 
+    const Davix::ReplicaVec& r = parser.getReplicas();
+    const Davix::Properties& p = parser.getProps();
+    ASSERT_EQ(1, r.size());
+    Davix::Uri u = r[0].uri;
+    ASSERT_EQ(Davix::StatusCode::OK, u.getStatus());
+    ASSERT_STREQ("http://datagrid.lbl.gov/testdata//L/test02.data", u.getString().c_str());
+    ASSERT_EQ(1, p.size());
+    ASSERT_EQ(typeid(Davix::FileInfoSize), p[0]->getType());
+}
+
+
+TEST(XmlMetalinkParserTest, parserMetalinkGeneric){
+    Davix::MetalinkParser parser;
+    int ret = parser.parseChuck(metalink_item_generic, strlen(metalink_item_generic));
+    //std::cout << parser.getLastErr()->getErrMsg();
+    ASSERT_EQ(0, ret);
+    ASSERT_TRUE( parser.getLastErr() == NULL);
+
+    const Davix::ReplicaVec& r = parser.getReplicas();
+    const Davix::Properties& p = parser.getProps();
+    ASSERT_EQ(8, r.size());
+    Davix::Uri u = r[0].uri;
+    ASSERT_EQ(Davix::StatusCode::OK, u.getStatus());
+    ASSERT_STREQ("ftp://ftp.example1.com/example.ext", u.getString().c_str());
+    ASSERT_EQ(1, r[0].props.size());
+    ASSERT_EQ(typeid(Davix::FileInfoProtocolType), r[0].props[0]->getType());
+    u = r[1].uri;
+    ASSERT_STREQ("ftp://ftp.example2.com/example.ext", u.getString().c_str());
+    ASSERT_EQ(1, r[1].props.size());
+    ASSERT_EQ(typeid(Davix::FileInfoProtocolType), r[1].props[0]->getType());
+}
 
 
 

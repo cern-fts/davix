@@ -9,7 +9,7 @@
 
 namespace Davix {
 
-class DavPropXMLParser : public DavXMLParser
+class DavPropXMLParser : public XMLSAXParser
 {
 public:
     DavPropXMLParser();

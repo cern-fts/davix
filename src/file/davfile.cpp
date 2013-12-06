@@ -26,8 +26,8 @@ DavFile::~DavFile(){
 }
 
 
-dav_ssize_t DavFile::getAllReplicas(const RequestParams* params, ReplicaVec &vec, DavixError **err){
-    return (dav_ssize_t) Meta::getAllReplicas(d_ptr->_c, d_ptr->_u, *params, vec, err);
+dav_ssize_t DavFile::getAllReplicas(const RequestParams* params, ReplicaVec & v, DavixError **err){
+    return (dav_ssize_t) Meta::getAllReplicas(d_ptr->_c, d_ptr->_u, *params, v, err);
 }
 
 

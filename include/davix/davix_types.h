@@ -1,10 +1,17 @@
 #ifndef DAVIX_TYPES_H
 #define DAVIX_TYPES_H
 
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <sys/stat.h>
+#include <dirent.h>
+#include <fcntl.h>
+
+
+
 
 /**
   @file davix_types.h
@@ -34,6 +41,7 @@ typedef struct Davix_error* davix_error_t;
 typedef struct davix_file_desc_s* davix_file_desc_t;
 typedef struct davix_auth_st* davix_auth_t;
 typedef struct davix_request_params* davix_params_t;
+
 
 // Davix Large File Support
 #if  ( __WORDSIZE == 32 ) || \

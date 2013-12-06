@@ -23,13 +23,29 @@ static const std::string propfind_request_replicas("<D:propfind xmlns:D=\"DAV:\"
                                                    "<D:prop><L:replicas/></D:prop>"
                                                    "</D:propfind>");
 
+/*
+int davix_file_get_all_replicas_metalink( Context & c, const Uri & uri,
+                                 const RequestParams & params, DavixError** err){
+      ReplicaVec v;
+      HeadRequest req(c, uri, &tmp_err);
+      if(tmp_err == NULL){
+          req.setParameters(params);
+          req.setRequestBody(propfind_request_replicas);
+          if( req.executeRequest(&tmp_err) == 0){
+
+          }
+      }
+}*/
+
+
 
 // get all reps from webdav queries
-dav_ssize_t getAllReplicas(Context & c, const Uri & uri,
-                              const RequestParams & params, ReplicaVec & vec, DavixError** err){
-    dav_ssize_t ret =-1;
+int getAllReplicas(Context & c, const Uri & uri,
+                              const RequestParams & params,
+                                ReplicaVec & vec, DavixError** err){
+    int ret = -1;
     DavixError* tmp_err=NULL;
-    PropfindRequest req(c, uri, &tmp_err);
+    HeadRequest req(c, uri, &tmp_err);
     if(tmp_err == NULL){
         req.setParameters(params);
         req.setRequestBody(propfind_request_replicas);
@@ -79,7 +95,10 @@ int dav_stat_mapper_webdav(Context &context, const RequestParams* params, const 
         const char * res = req_webdav_propfind(&req, &tmp_err);
         if(!tmp_err){
             if( (ret = parser.parseChuck((const char*) res, strlen(res)) ) < 0){
-                DavixError::propagateError(err, parser.getLastErr());
+                DavixError* tmp_err = parser.getLastErr();
+                if(tmp_err == NULL)
+                    DavixError::setupError(&tmp_err, "Davix::Meta", StatusCode::ParsingError, "Unknow Parsing Error");
+                DavixError::propagateError(err, tmp_err);
                 return -1;
             }
 

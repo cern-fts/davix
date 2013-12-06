@@ -7,16 +7,16 @@
 
 namespace Davix {
 
-class DavXMLParser
+class XMLSAXParser
 {
 public:
-    DavXMLParser();
-    virtual ~DavXMLParser();
+    XMLSAXParser();
+    virtual ~XMLSAXParser();
 
     //
     // parse a block of character with a maximum size of 'len' characters
     // return negative value if failure or 0 if success
-    virtual int parseChuck(const char * partial_string, size_t len);
+    int parseChuck(const char * partial_string, size_t len);
 
 
     // return last error, dnamically allocated, need to be free
@@ -29,8 +29,8 @@ protected:
     /// callback to reimplement in subclass for parsing
     /// codes :
     ///  retcode < 0  -> error
-    ///  retcode == 0 -> ok
-    ///  retcode > 0 -> skip this element
+    ///  retcode == 0 -> skip this element
+    ///  retcode > 0 -> accept this element
 
     /// start element callback
     virtual int parserStartElemCb(int parent,
@@ -46,8 +46,8 @@ protected:
                                 const char *nspace, const char *name);
 
 private:
-    DavXMLParser(const DavXMLParser &);
-    DavXMLParser & operator=(const DavXMLParser &);
+    XMLSAXParser(const XMLSAXParser &);
+    XMLSAXParser & operator=(const XMLSAXParser &);
 
     ne_xml_parser*  _ne_parser;
     friend struct InternalDavParser;

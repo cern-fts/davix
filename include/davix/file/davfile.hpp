@@ -3,7 +3,7 @@
 
 #include <davixcontext.hpp>
 #include <params/davixrequestparams.hpp>
-#include <davix_file_types.hpp>
+#include <file/davix_file_info.hpp>
 
 
 
@@ -23,10 +23,6 @@ namespace Davix{
 
 struct DavFileInternal;
 
-/// \typedef std::vector<Uri> ReplicaVec
-/// \brief Vector of the URL replicas of a resources
-///
-typedef std::vector<Uri> ReplicaVec;
 
 
 ///
@@ -34,7 +30,7 @@ typedef std::vector<Uri> ReplicaVec;
 /// @brief Davix File Interface
 ///
 /// Davix File interface
-class DAVIX_EXPORT DavFile
+class DAVIX_EXPORT DavFile : NonCopyable
 {
 public:
     ///
@@ -54,12 +50,11 @@ public:
     /// Replicas are found using a corresponding meta-link file or Webdav extensions if supported
     ///
     /// @param params  Davix Request parameters
-    /// @param vec  Replica vector
+    /// @param vec
     /// @param err  DavixError error report
-    /// @return  the number of replicas if found, -1 if error.
+    /// @return  Replica vector, if error is found return 0 and set err properly
     dav_ssize_t getAllReplicas(const RequestParams* params,
-                               ReplicaVec & vec,
-                               DavixError** err);
+                                    ReplicaVec & vec, DavixError** err);
 
     ///
     ///  @brief Vector read operation

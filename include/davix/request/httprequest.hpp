@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <unistd.h>
-#include <davix_types.h>
+#include <utils/davix_types.hpp>
 #include <davixuri.hpp>
 #include <status/davixstatusrequest.hpp>
 #include <params/davixrequestparams.hpp>
@@ -60,7 +60,7 @@ namespace RequestFlag{
 /// HTTPRequest is the main davix class for low level HTTP queries
 /// HTTPRequest objects are provided by Davix::Context
 ///
-class DAVIX_EXPORT HttpRequest
+class DAVIX_EXPORT HttpRequest : NonCopyable
 {
 public:
     ///

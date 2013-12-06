@@ -1,10 +1,15 @@
 #ifndef DAVIX_FILE_TYPES_HPP
 #define DAVIX_FILE_TYPES_HPP
 
+#include <vector>
+#include <deque>
+#include <string>
+#include <typeinfo>
 #include <sys/stat.h>
 #include <dirent.h>
 #include <fcntl.h>
-#include <davix_types.h>
+#include <utils/davix_types.hpp>
+#include <davixuri.hpp>
 
 /**
   @file davix_file_types.hpp
@@ -24,6 +29,8 @@ struct Davix_dir_handle;
 
 
 namespace Davix{
+
+
 
 /// @struct DavIOVecInput
 /// @brief input parameters for vector operations in Davix
@@ -52,6 +59,7 @@ enum DAVIX_EXPORT advise_t{
     AdviseRandom,
 
 };
+
 
 } // Davix
 

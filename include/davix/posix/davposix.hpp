@@ -37,7 +37,7 @@ class DavPosixInternal;
 /// to a POSIX like interface.
 ///
 /// DavPosix and all associated method are Thread safe.
-class DAVIX_EXPORT DavPosix
+class DAVIX_EXPORT DavPosix : NonCopyable
 {
 public:
     ///

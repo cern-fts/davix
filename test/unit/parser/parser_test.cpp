@@ -154,7 +154,7 @@ TEST(ParserJSONTestTuto, JSONTuto){
         // 1. Parse a JSON text string to a document.
 
         const char json[] = " { \"hello\" : \"world\", \"t\" : true , \"f\" : false, \"n\": null, \"i\":123, \"pi\": 3.1416, \"a\":[1, 2, 3, 4] } ";
-        printf("Original JSON:\n %s\n", json);
+        //printf("Original JSON:\n %s\n", json);
 
         rapidjson::Document document;	// Default template parameter uses UTF8 and MemoryPoolAllocator.
 
@@ -170,7 +170,7 @@ TEST(ParserJSONTestTuto, JSONTuto){
             ASSERT_TRUE(false);
     #endif
 
-        printf("\nParsing to document succeeded.\n");
+       // printf("\nParsing to document succeeded.\n");
 
 
 }
@@ -195,7 +195,7 @@ TEST(ParserJSONTestTuto, JSONReplicaParsing){
                 "\"extra\": {}"
                 "}"
                 "]";
-        printf("Original JSON:\n %s\n", json);
+        //printf("Original JSON:\n %s\n", json);
 
         rapidjson::Document document;	// Default template parameter uses UTF8 and MemoryPoolAllocator.
 
@@ -211,7 +211,7 @@ TEST(ParserJSONTestTuto, JSONReplicaParsing){
             ASSERT_TRUE(false);
     #endif
 
-        printf("\nParsing to replicas with success. \n");
+        //printf("\nParsing to replicas with success. \n");
 
         ASSERT_TRUE(document.IsArray());
         ASSERT_EQ(document.Size(),1);

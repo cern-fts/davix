@@ -12,8 +12,8 @@ namespace Meta{
 
 
 // get all reps from webdav queries
-dav_ssize_t getAllReplicas(Context & c, const Uri & r,
-                              const RequestParams & params, ReplicaVec & vec, DavixError** err);
+int getAllReplicas(Context & c, const Uri & r,
+                              const RequestParams & params,  ReplicaVec & vec, DavixError** err);
 
 dav_ssize_t posixStat(Context & c, const Uri & url, const RequestParams * _params,
                       struct stat* st, HttpCacheToken** token_ptr,

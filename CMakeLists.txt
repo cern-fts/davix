@@ -41,7 +41,7 @@ SET(NEON_EMBEDED TRUE
 SET(SSL_BACKEND "OPENSSL"
     CACHE STRING "set the default SSL backend openssl or gnutls ( default : openssl ) ")
 
-OPTION(ENABLE_IPV6 "enable or disable IPv6 support " "1")
+OPTION(ENABLE_IPV6 "enable or disable IPv6 support " TRUE)
 
 OPTION(ENABLE_THIRD_PARTY_COPY "enable or disable third party copy support" FALSE)
 

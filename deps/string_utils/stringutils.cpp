@@ -3,45 +3,6 @@
 #include <cstring>
 #include <algorithm>
 
-
-#if !(defined HAVE_STRTOK_R) && !(defined HAVE_STRTOK_S)
-
-static char* __internal_strtok_r(
-    char *str,
-    const char *delim,
-    char **nextp)
-{
-    char *ret;
-
-    if (str == NULL)
-    {
-        str = *nextp;
-    }
-
-    str += strspn(str, delim);
-
-    if (*str == '\0')
-    {
-        return NULL;
-    }
-
-    ret = str;
-
-    str += strcspn(str, delim);
-
-    if (*str)
-    {
-        *str++ = '\0';
-    }
-
-    *nextp = str;
-
-    return ret;
-}
-
-#endif
-
-
 std::vector<std::string> stringTokSplit(const std::string & str, const std::string & delimiter){
     std::vector<std::string> res;
     std::string::const_iterator it_prev, it_cur;

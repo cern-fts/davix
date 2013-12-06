@@ -60,7 +60,7 @@ namespace RequestFlag{
 /// HTTPRequest is the main davix class for low level HTTP queries
 /// HTTPRequest objects are provided by Davix::Context
 ///
-class DAVIX_EXPORT HttpRequest : NonCopyable
+class DAVIX_EXPORT HttpRequest : private NonCopyable
 {
 public:
     ///

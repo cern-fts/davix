@@ -5,6 +5,7 @@
 #include <fileops/httpiovec.hpp>
 #include <fileops/fileutils.hpp>
 #include <gtest/gtest.h>
+#include <rapidjson/rapidjson.h>
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/filestream.h>

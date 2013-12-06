@@ -435,7 +435,7 @@ TEST(XmlMetalinkParserTest, parserMetalinkGeneric){
     ASSERT_TRUE( parser.getLastErr() == NULL);
 
     const Davix::ReplicaVec& r = parser.getReplicas();
-    const Davix::Properties& p = parser.getProps();
+   // const Davix::Properties& p = parser.getProps();
     ASSERT_EQ(8, r.size());
     Davix::Uri u = r[0].uri;
     ASSERT_EQ(Davix::StatusCode::OK, u.getStatus());

@@ -99,6 +99,7 @@ typedef unsigned SizeType;
 // RAPIDJSON_STATIC_ASSERT
 
 // Adopt from boost
+#ifdef RAPIDJSON_DEBUG
 #ifndef RAPIDJSON_STATIC_ASSERT
 namespace rapidjson {
 template <bool x> struct STATIC_ASSERTION_FAILURE;
@@ -113,6 +114,9 @@ template<int x> struct StaticAssertTest {};
 #define RAPIDJSON_STATIC_ASSERT(x) typedef ::rapidjson::StaticAssertTest<\
 	sizeof(::rapidjson::STATIC_ASSERTION_FAILURE<bool(x) >)>\
 	RAPIDJSON_JOIN(StaticAssertTypedef, __LINE__)
+#endif
+#else
+#define RAPIDJSON_STATIC_ASSERT(x)
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////

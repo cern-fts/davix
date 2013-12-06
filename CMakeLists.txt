@@ -9,9 +9,10 @@ option(static_library  "generate static library" FALSE)
 
 
 # build type
-if(NOT DEFINED CMAKE_BUILD_TYPE)
-set(CMAKE_BUILD_TYPE RelWithDebInfo)
-endif(NOT DEFINED CMAKE_BUILD_TYPE)
+if(NOT CMAKE_BUILD_TYPE)
+    message(STATUS "No build type selected, default to RelWithDebInfo")
+    set(CMAKE_BUILD_TYPE "RelWithDebInfo")
+endif(NOT CMAKE_BUILD_TYPE)
 
 # load module
 include(DefineInstallationPaths REQUIRED)

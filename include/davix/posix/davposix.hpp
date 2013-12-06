@@ -291,10 +291,6 @@ private:
     long _timeout;
     long _s_buff;
 
-
-    DavPosix(const DavPosix &);
-    DavPosix & operator=(DavPosix &);
-
     DavPosixInternal* d_ptr;
 
 };

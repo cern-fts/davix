@@ -26,10 +26,11 @@ enum MetalinkParserTag{
 typedef  std::vector<MetalinkTag::MetalinkParserTag>  MetalinkStack;
 
 
-class MetalinkParser : public XMLSAXParser, NonCopyable
+class MetalinkParser : public XMLSAXParser
 {
 public:
     MetalinkParser();
+    MetalinkParser(ReplicaVec & reps, Properties & props);
     virtual ~MetalinkParser();
 
     const ReplicaVec & getReplicas();
@@ -51,8 +52,6 @@ private:
     ReplicaVec* rep;
     Properties* fileProperties;
     MetalinkStack tagStack;
-    MetalinkParser(const MetalinkParser &);
-    MetalinkParser & operator =(const MetalinkParser &);
 };
 
 

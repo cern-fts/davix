@@ -268,9 +268,6 @@ public:
     bool getFlag(const RequestFlag::RequestFlag flag);
 
 private:
-    HttpRequest(const HttpRequest &req);
-    HttpRequest & operator=(const HttpRequest &);
-
     NEONRequest* d_ptr;
 
     friend class NEONRequest;

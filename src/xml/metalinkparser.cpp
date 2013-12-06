@@ -49,6 +49,13 @@ MetalinkParser::MetalinkParser() :
     tagStack.reserve(5);
 }
 
+MetalinkParser::MetalinkParser(ReplicaVec &reps, Properties &props) :
+    rep(&reps),
+    fileProperties(&props)
+{
+     tagStack.reserve(5);
+}
+
 MetalinkParser::~MetalinkParser(){
     delete rep;
     delete fileProperties;

@@ -7,7 +7,7 @@
 
 namespace Davix {
 
-class XMLSAXParser
+class XMLSAXParser : NonCopyable
 {
 public:
     XMLSAXParser();
@@ -46,9 +46,6 @@ protected:
                                 const char *nspace, const char *name);
 
 private:
-    XMLSAXParser(const XMLSAXParser &);
-    XMLSAXParser & operator=(const XMLSAXParser &);
-
     ne_xml_parser*  _ne_parser;
     friend struct InternalDavParser;
 };

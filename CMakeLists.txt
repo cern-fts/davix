@@ -20,7 +20,6 @@ include(CMakeGeneratePkgConfig REQUIRED)
 include(MacroAddDoxygen REQUIRED)
 include(PortabilityGNUCheck REQUIRED)
 include(CMakeCXX11Support REQUIRED)
-find_package(PkgConfig REQUIRED)
 
 #enable testing
 INCLUDE(CTest)
@@ -48,16 +47,22 @@ OPTION(ENABLE_THIRD_PARTY_COPY "enable or disable third party copy support" FALS
 
 option(GTEST_EXTERNAL "Use external gtest framework" FALSE)
 
-
-pkg_search_module(LIBSSL_PKG REQUIRED libssl)
 set(HAVE_OPENSSL 1)
 set(NE_HAVE_SSL 1)
 
 # libs checks
 find_package(Threads)
-add_subdirectory(deps)
 
-pkg_check_modules(CRYPTO_PKG REQUIRED libcrypto)
+# openssl
+find_package(OpenSSL)
+SET(LIBSSL_PKG_LIBRARIES "${OPENSSL_LIBRARIES}")
+SET(CRYPTO_PKG "")
+SET(LIBSSL_PKG_INCLUDE_DIRS "${OPENSSL_INCLUDE_DIR}")
+
+find_package(LibXml2)
+set(LIBXML2_INCLUDE_DIRS ${LIBXML2_INCLUDE_DIR})
+
+add_subdirectory(deps)
 
 
 

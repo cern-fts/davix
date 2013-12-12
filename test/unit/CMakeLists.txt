@@ -1,8 +1,5 @@
 # main file for src
 
-SET(UNIT_TESTS FALSE
-    CACHE STRING " enable or disable the unit tests")
-
 if(UNIT_TESTS)
 
 include_directories(${PROJECT_SOURCE_DIR}/src "." ${GTEST_INCLUDE_DIRS})

@@ -1,8 +1,5 @@
 # main file for src
 
-SET(FUNCTIONAL_TESTS FALSE
-    CACHE STRING " enable or disable the functional tests")
-
 
 if(FUNCTIONAL_TESTS)
 

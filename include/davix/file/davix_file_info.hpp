@@ -111,7 +111,7 @@ typedef std::vector<FileInfoInterface*> Properties;
 ///
 /// @struct Replica
 /// @brief Replica of a resource
-class DAVIX_EXPORT Replica: NonCopyable{
+class DAVIX_EXPORT Replica {
 public:
     Replica() :
         uri(),

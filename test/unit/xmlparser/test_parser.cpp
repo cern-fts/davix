@@ -1,3 +1,5 @@
+#include <typeinfo>
+#include <gtest/gtest.h>
 #include <config.h>
 #include <stdbool.h>
 #include <ctime>
@@ -7,7 +9,6 @@
 #include <xml/davpropxmlparser.hpp>
 #include <xml/metalinkparser.hpp>
 #include <status/davixstatusrequest.hpp>
-#include <gtest/gtest.h>
 #include <string.h>
 
 
@@ -423,7 +424,7 @@ TEST(XmlMetalinkParserTest, parserMetalinkSimpl){
     ASSERT_EQ(Davix::StatusCode::OK, u.getStatus());
     ASSERT_STREQ("http://datagrid.lbl.gov/testdata//L/test02.data", u.getString().c_str());
     ASSERT_EQ(1, p.size());
-    ASSERT_EQ(typeid(Davix::FileInfoSize), p[0]->getType());
+    ASSERT_TRUE(typeid(Davix::FileInfoSize) == p[0]->getType());
 }
 
 
@@ -441,11 +442,11 @@ TEST(XmlMetalinkParserTest, parserMetalinkGeneric){
     ASSERT_EQ(Davix::StatusCode::OK, u.getStatus());
     ASSERT_STREQ("ftp://ftp.example1.com/example.ext", u.getString().c_str());
     ASSERT_EQ(1, r[0].props.size());
-    ASSERT_EQ(typeid(Davix::FileInfoProtocolType), r[0].props[0]->getType());
+    ASSERT_TRUE(typeid(Davix::FileInfoProtocolType) == r[0].props[0]->getType());
     u = r[1].uri;
     ASSERT_STREQ("ftp://ftp.example2.com/example.ext", u.getString().c_str());
     ASSERT_EQ(1, r[1].props.size());
-    ASSERT_EQ(typeid(Davix::FileInfoProtocolType), r[1].props[0]->getType());
+    ASSERT_TRUE(typeid(Davix::FileInfoProtocolType) == r[1].props[0]->getType());
 }
 
 

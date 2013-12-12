@@ -1,5 +1,6 @@
 #include "neonrequest.hpp"
 
+#include <config.h>
 #include <logger/davix_logger_internal.h>
 #include <libs/time_utils.h>
 #include <ne_redirect.h>
@@ -8,7 +9,7 @@
 #include <fileops/fileutils.hpp>
 #include <request/httpcachetoken_internal.hpp>
 #include <memory>
-#include <ext/algorithm>
+#include <algorithm>
 #include <iterator>
 #include <sstream>
 #include <cstring>

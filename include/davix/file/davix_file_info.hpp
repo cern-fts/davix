@@ -10,6 +10,8 @@
   @author Devresse Adrien
 
   @brief davix file Meta-data class
+
+  @warning Unstable API for preview only now, subject to changes.
 */
 
 namespace Davix{

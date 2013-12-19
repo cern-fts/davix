@@ -1720,10 +1720,11 @@ int ne_sock_connect_ssl(ne_socket *sock, ne_ssl_context *ctx, void *userdata)
 
     /* If runtime library version differs from compile-time version
      * number in major/minor/fix level, abort soon. */
-    if ((SSLeay() ^ OPENSSL_VERSION_NUMBER) & 0xFFFFF000) {
+    // disabled -> harmfull in case of version mismatch
+  /*  if ((SSLeay() ^ OPENSSL_VERSION_NUMBER) & 0xFFFFF000) {
         set_error(sock, _("SSL disabled due to library version mismatch"));
         return NE_SOCK_ERROR;
-    }
+    }*/
 
     sock->ssl = ssl = SSL_new(ctx->ctx);
     if (!ssl) {

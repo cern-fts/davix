@@ -1,0 +1,11 @@
+<version>
+    @VERSION_STRING@
+</version>
+
+<headers>
+    @CMAKE_SOURCE_DIR@/include/davix/
+</headers>
+
+<libs>
+    @CMAKE_BINARY_DIR@/src/
+</libs>

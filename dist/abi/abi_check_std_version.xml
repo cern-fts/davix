@@ -1,0 +1,12 @@
+<version>
+    stdversion
+</version>
+
+<headers>
+    /usr/include/davix/
+</headers>
+
+<libs>
+    /usr/lib/
+    /usr/lib64/
+</libs>

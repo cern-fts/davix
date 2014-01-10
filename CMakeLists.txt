@@ -87,6 +87,7 @@ include_directories( ${CMAKE_SOURCE_DIR}/include/davix )
 
 add_subdirectory (src)
 add_subdirectory (doc)
+add_subdirectory (dist)
 add_subdirectory (test)
 add_subdirectory (packaging)
 

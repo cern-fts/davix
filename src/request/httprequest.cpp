@@ -192,6 +192,7 @@ PutRequest::PutRequest(Context & context, const Uri & uri, DavixError** err) :
 {
     setRequestMethod("PUT");
     setFlag(RequestFlag::SupportContinue100, true);
+    setFlag(RequestFlag::IdempotentRequest, false);
 }
 
 ///////////////////////////////////////////////////
@@ -212,6 +213,7 @@ HeadRequest::HeadRequest(Context & context, const Uri & uri, DavixError** err) :
 DeleteRequest::DeleteRequest(Context & context, const Uri & uri, DavixError** err) :
     HttpRequest(context, uri, err)
 {
+    setFlag(RequestFlag::IdempotentRequest, false);
     setRequestMethod("DELETE");
 }
 

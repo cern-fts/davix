@@ -14,6 +14,8 @@ typedef std::pair<std::string, std::string> HeaderParam;
 typedef std::pair<std::string, std::string> LoginPasswd;
 typedef std::vector<HeaderParam> HeaderVec;
 
+#define LONG_LISTING_FLAG 0x01
+
 struct OptParams{
     OptParams();
     RequestParams params;
@@ -41,6 +43,8 @@ struct OptParams{
     std::string req_content;
     // s3 auth
     std::pair<std::string, std::string> aws_auth;
+    // presentation flag
+    int pres_flag;
 };
 
 int parse_davix_options(int argc, char** argv, OptParams & p, DavixError** err);

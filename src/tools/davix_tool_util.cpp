@@ -1,13 +1,26 @@
 #include "davix_tool_util.hpp"
 #include <config.h>
 #include <string>
+#include <sstream>
 #include <algorithm>
 #include <fcntl.h>
+#include <ctime>
 #include <simple_getpass/simple_get_pass.h>
 
 namespace Davix{
 
 namespace Tool{
+
+std::string string_from_ptime(const time_t & t){
+    char b[255];
+    b[sizeof(b)-1]= '\0';
+
+    struct tm local_time={0};
+    (void) localtime_r(&t, &local_time);
+    strftime(b, 254, "%F %T", &local_time);
+    return std::string(b);
+}
+
 
 
 size_t ask_user_login(std::string & login){
@@ -134,6 +147,28 @@ int DavixToolsAuthCallbackLoginPassword(void* userdata, const SessionInfo & info
                                "No valid login/password provided");
     return ret;
 }
+
+
+std::string string_from_mode(mode_t mode){
+    const char* rmask ="xwr";
+    std::string str(10,'-');
+
+    str[0] = (S_ISDIR(mode))?'d':'-';
+    for(size_t i=0; i < 9; ++i){
+        str[9-i] = (( mode & (0x01 << i))?(rmask[i%3]):'-');
+    }
+    return str;
+}
+
+
+std::string string_from_size_t(size_t number, size_t size_string){
+    unsigned int digit= static_cast<unsigned int>(log10(static_cast<double>(number)));
+    std::ostringstream ss;
+    ss << number;
+    ss << std::string(((digit < size_string)?(size_string - digit):0), ' ');
+    return ss.str();
+}
+
 
 }
 }

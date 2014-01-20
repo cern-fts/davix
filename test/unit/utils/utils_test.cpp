@@ -2,6 +2,7 @@
 
 #include <davix.hpp>
 #include <string_utils/stringutils.hpp>
+#include <tools/davix_tool_util.hpp>
 #include <base64/base64.hpp>
 #include <hmac_sha1/hmacsha1.hpp>
 #include <gtest/gtest.h>
@@ -87,6 +88,17 @@ TEST(testS3, test_hash_s3){
 
     ASSERT_STREQ(res.c_str(), prod.c_str());
 
+}
+
+TEST(testStringMode, test_mode){
+    mode_t m = 0755;
+    string m_str = Tool::string_from_mode(m);
+    //std::cout << m_str << std::endl;
+    ASSERT_STREQ("-rwxr-xr-x", m_str.c_str());
+
+    m =  040777;
+    m_str = Tool::string_from_mode(m);
+    ASSERT_STREQ("drwxrwxrwx", m_str.c_str());
 }
 
 

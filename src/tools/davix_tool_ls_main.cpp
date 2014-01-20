@@ -1,4 +1,6 @@
 
+#include <sstream>
+#include <ostream>
 #include <davix.hpp>
 #include <tools/davix_tool_params.hpp>
 #include <tools/davix_tool_util.hpp>
@@ -12,8 +14,15 @@ using namespace Davix;
 using namespace std;
 
 
+static const std::string  & get_base_listing_options(){
+    static const std::string s("  Listing Options:\n"
+                               "\t-l --long-list:                  long Listing mode\n");
+    return s;
+}
+
 static std::string help_msg(){
     return Tool::get_base_description_options() +
+           get_base_listing_options() +
            Tool::get_common_options()+ "\n";
 }
 
@@ -23,10 +32,17 @@ static void display_dirent_entry(struct dirent* d, const Tool::OptParams & opts,
     fputs("\n",filestream);
 }
 
-/*
+
 static void display_long_dirent_entry(struct dirent* d, struct stat* st, const Tool::OptParams & opts, FILE* filestream){
-    fprintf(filestream, "%s %d\t %d\t %s",d->d_name, st->st_nlink, st->st_size, )
-}*/
+    std::ostringstream ss;
+    ss << Tool::string_from_mode(st->st_mode) << " ";
+    ss << Tool::string_from_size_t(static_cast<size_t>(st->st_nlink),4) << " ";
+    ss << Tool::string_from_size_t(st->st_size, 9) << " ";
+    ss << Tool::string_from_ptime(st->st_ctime) << " ";
+    ss << d->d_name << "\n";
+
+    fputs(ss.str().c_str(), filestream);
+}
 
 static void display_path(const std::string & str, FILE* filestream){
     fputs(str.c_str(), filestream);
@@ -42,7 +58,11 @@ static int listing(const Tool::OptParams & opts, FILE* filestream, DavixError** 
     if( (fd = pos.opendirpp(&opts.params, opts.vec_arg[0], err)) == NULL)
         return -1;
     while( (d = pos.readdirpp(fd, &st, err)) != NULL ){
-        display_dirent_entry(d, opts, filestream);
+        if(opts.pres_flag & LONG_LISTING_FLAG){
+            display_long_dirent_entry(d, &st, opts, filestream);
+        }else{
+            display_dirent_entry(d, opts, filestream);
+        }
     }
     pos.closedirpp(fd, NULL);
     return (err && *err)?(-1):0;

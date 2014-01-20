@@ -9,6 +9,9 @@ namespace Davix{
 
 void configureRequestParamsProto(const Uri & uri, RequestParams & params);
 
+
+
+
 }
 
 #endif // DAVIX_UTILS_INTERNAL_HPP

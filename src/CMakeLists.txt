@@ -88,10 +88,7 @@ install(TARGETS libdavix_static
 
 endif(static_library)
 
-
-
-
-# install lib
+SET(davix_tool_common_src "${davix_tool_common_src_up}" PARENT_SCOPE)
 
 
 #install pkgconfig

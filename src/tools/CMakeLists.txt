@@ -10,12 +10,13 @@ LIST(APPEND davix_get_main_src "davix_tool_get_main.cpp")
 LIST(APPEND davix_put_main_src "davix_tool_put_main.cpp")
 LIST(APPEND davix_del_main_src "davix_tool_del_main.cpp")
 LIST(APPEND davix_copy_main_src "davix_tool_copy_main.cpp")
-LIST(APPEND davix_tool_common_src "davix_tool_params.cpp" "davix_tool_util.cpp")
+LIST(APPEND davix_tool_common_src "${CMAKE_CURRENT_SOURCE_DIR}/davix_tool_params.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/davix_tool_util.cpp" "${SRC_SIMPLE_GET_PASS}")
+SET(davix_tool_common_src_up "${davix_tool_common_src}" PARENT_SCOPE)
 
 link_directories(${PROJECT_BINARY_DIR}/src/)
 
 ## davix cmd line
-add_executable(davix_tool ${davix_main_src} ${davix_tool_common_src} ${SRC_SIMPLE_GET_PASS})
+add_executable(davix_tool ${davix_main_src} ${davix_tool_common_src} )
 
 target_link_libraries(davix_tool davix)
 set_target_properties(davix_tool PROPERTIES
@@ -23,7 +24,7 @@ set_target_properties(davix_tool PROPERTIES
 add_dependencies(davix_tool libdavix)
 
 ## davix ls cmd line
-add_executable(davix_ls_tool ${davix_ls_main_src} ${davix_tool_common_src} ${SRC_SIMPLE_GET_PASS})
+add_executable(davix_ls_tool ${davix_ls_main_src} ${davix_tool_common_src} )
 
 target_link_libraries(davix_ls_tool davix)
 set_target_properties(davix_ls_tool PROPERTIES
@@ -32,7 +33,7 @@ add_dependencies(davix_ls_tool libdavix)
 
 
 ## davix get cmd line
-add_executable(davix_get_tool ${davix_get_main_src} ${davix_tool_common_src} ${SRC_SIMPLE_GET_PASS})
+add_executable(davix_get_tool ${davix_get_main_src} ${davix_tool_common_src} )
 
 target_link_libraries(davix_get_tool davix)
 set_target_properties(davix_get_tool PROPERTIES
@@ -40,7 +41,7 @@ set_target_properties(davix_get_tool PROPERTIES
 add_dependencies(davix_get_tool libdavix)
 
 ## davix put cmd line
-add_executable(davix_put_tool ${davix_put_main_src} ${davix_tool_common_src} ${SRC_SIMPLE_GET_PASS})
+add_executable(davix_put_tool ${davix_put_main_src} ${davix_tool_common_src} )
 
 target_link_libraries(davix_put_tool davix)
 set_target_properties(davix_put_tool PROPERTIES

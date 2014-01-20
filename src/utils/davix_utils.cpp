@@ -1,4 +1,6 @@
 #include "davix_utils_internal.hpp"
+#include <sstream>
+#include <string>
 
 
 namespace Davix{
@@ -15,18 +17,6 @@ void configureRequestParamsProto(const Uri &uri, RequestParams &params){
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }

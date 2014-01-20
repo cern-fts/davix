@@ -5,27 +5,43 @@
 @author Devresse Adrien ( adrien.devresse@cern.ch )
 
 From CERN IT-GT-DMS ( lcgutil-support@cern.ch )
-mailing list : davix-devel@cern.ch
+
+
+Mailing list : davix-devel@cern.ch
 
 
 <h2> DAVIX </h2>
 
-Davix is a lightweight toolkit for remote file interactions
-      with HTTP based protocols.
+Davix is a lightweight toolkit for file access and file management with HTTP Based protocols.
+Davix aims to be an easy-to-use, reliable and performant I/O layer for Cloud and Grid Storages.
 
-Davix aims to supports all the needed features for an efficient file access and file management
-in grid and clouds : SSL Session reuse,  X509 client auth, VOMS credential, S3 auth,
-Vector operations (Partial reads, multi-range, single range), Partial PUT / PATCH, Fail-over, Multi-streams ( Metalinks), 
-Redirection support for all operations, Redirections caching, Webdav parsing, Right Management (ACL), Meta-data functions ( mkdir, rmdir, unlink, etc.. ), Chunked transfert,
-etc....
+
+Davix supports:
+- SSL/TLS
+- HTTP and SSL session reuse
+- X509 client auth
+- VOMS credential
+- S3 auth,
+- Vector operations (Partial reads, multi-range, single range)
+- Partial PUT / PATCH *
+- Fail-over
+- Multi-streams ( Metalinks), *
+- Redirection support for all operations
+- Redirections caching
+- Webdav parsing
+- Right Management (ACL)
+- Meta-data functions ( mkdir, rmdir, unlink, etc.. )
+- Chunked transfert
+
+ (*) still under development
 
 Davix supports the protocols
     - Http
     - WebDAV
-    - Amazon S3
+    - Aws S3
 
 The Davix philosophy can be summarized as
-    - Just Access Files, don't loose time with the protocol tricks
+    - Just access files, don't loose time with the protocol details
     - Keep It Simple Stupid
     - Efficient
     - Portable
@@ -33,11 +49,11 @@ The Davix philosophy can be summarized as
 
 <h2> DAVIX API :</h2>
 
-File API : Davix::DavFile
+File API : Davix::DavFile  </br>
 
-Posix-like API : Davix::DavPosix
+Posix-like API : Davix::DavPosix </br>
 
-Entry point API : \ref davix.hpp
+Entry point API : \ref davix.hpp  </br>
 
 
 <h2> Davix is yet an other libcurl ? </h2>
@@ -135,7 +151,7 @@ Execute a Vector Operation :
 
 
  
-<h3> LOW LEVEL Usage </h3>
+<h3> Query Usage </h3>
 
  @code{.cpp}
 

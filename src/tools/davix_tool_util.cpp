@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <fcntl.h>
 #include <ctime>
+#include <cmath>
 #include <simple_getpass/simple_get_pass.h>
 
 namespace Davix{

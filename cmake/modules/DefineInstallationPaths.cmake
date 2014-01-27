@@ -4,16 +4,19 @@ if (UNIX)
     SET(APPLICATION_NAME ${PROJECT_NAME})
   ENDIF (NOT APPLICATION_NAME)
 
-# Suffix for Linux
-	IF (CMAKE_SIZEOF_VOID_P EQUAL 4)
-		SET(LIB_SUFFIX ""
-		CACHE STRING "Suffix of the lib")
-		SET (PKG_ARCH "i386")
-	ELSE (CMAKE_SIZEOF_VOID_P EQUAL 4)
-		SET(LIB_SUFFIX "64"
-		CACHE STRING "Suffix of the lib")
-		SET (PKG_ARCH "x86_64")
-	ENDIF (CMAKE_SIZEOF_VOID_P EQUAL 4)
+# detect lib suffix
+
+
+IF(EXISTS "/usr/lib64")
+	SET(LIB_SUFFIX "64"
+	CACHE STRING "Suffix of the lib")
+	SET (PKG_ARCH "x86_64")
+ELSE(EXISTS "/usr/lib64" )
+SET(LIB_SUFFIX ""
+CACHE STRING "Suffix of the lib")
+SET (PKG_ARCH "i386")
+ENDIF(EXISTS "/usr/lib64" )
+
 
 #  correct cmake netpath issue with cmake 2.8
   IF("${CMAKE_INSTALL_PREFIX}" STREQUAL "/")
@@ -134,7 +137,7 @@ if (WIN32)
     "${CMAKE_INSTALL_PREFIX}/etc"
     CACHE PATH "The ${APPLICATION_NAME} sysconfig install dir (default prefix/etc)"
   )  
-  SET(PKGCONFIG_FILES_DIR ²"${EXEC_INSTALL_PREFIX}/lib/pkgconfig/"
+  SET(PKGCONFIG_FILES_DIR "${EXEC_INSTALL_PREFIX}/lib/pkgconfig/"
     CACHE PATH "subdirectory relative to the install prefix where pkgconfig files (.pc) will be installed"
   )  
   set(PLUGIN_INSTALL_DIR "${EXEC_INSTALL_PREFIX}/bin/plugins" CACHE PATH "-")

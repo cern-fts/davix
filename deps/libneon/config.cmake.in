@@ -35,11 +35,17 @@
 // ipv6 support
 #cmakedefine HAVE_IPV6 1
 
+// tcp no delay
+#cmakedefine TCP_NODELAY 1
+
 // has system time
 #cmakedefine HAVE_SYSTIME_H 1
 
 // has system socket
 #cmakedefine HAVE_SYSSOCKET_H 1
+
+// has setsockopt
+#cmakedefine HAVE_SETSOCKOPT 1
 
 // has signal support
 #cmakedefine HAVE_SIGNAL_H 1

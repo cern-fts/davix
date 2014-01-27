@@ -21,8 +21,7 @@ set(HAVE_LIBXML 1)
 endif(LIBXML2_INCLUDE_DIR)
 
 set(HAVE_IPV6 ${ENABLE_IPV6})
-
-
+set(TCP_NODELAY ${ENABLE_TCP_NODELAY})
 
 configure_file(config.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/config.h @ONLY)
 

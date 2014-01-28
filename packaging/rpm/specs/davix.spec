@@ -3,8 +3,8 @@
 
 
 Name:				davix
-Version:			0.2.8
-Release:			2%{?dist}
+Version:			0.2.10
+Release:			1%{?dist}
 Summary:			Toolkit for Http-based file management
 Group:				Applications/Internet
 License:			LGPLv2+
@@ -70,7 +70,7 @@ make clean
 
 %prep
 %setup -q
-# remove useless embedded component
+# remove useless embedded components
 rm -rf test/gtest-1.6.0/
 rm -rf test/pywebdav/
 
@@ -122,6 +122,9 @@ make DESTDIR=%{buildroot} install
 
 
 %changelog
+* Tue Jan 28 2014 Adrien Devresse <adevress at cern.ch> - 0.2.10-1
+ - davix 0.2.10 release, see RELEASE-NOTES for details
+
 * Mon Oct 28 2013 Adrien Devresse <adevress at cern.ch> - 0.2.7-3
  - New update of davix, see RELEASE-NOTES for details
 

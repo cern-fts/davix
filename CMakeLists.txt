@@ -34,11 +34,6 @@ set(VERSION_STRING ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 
 #compilation mode
-SET(HTTP_LIB "NEON") # http backend can be NEON
-SET(UNIT_TESTS FALSE
-    CACHE STRING "enable or disable unit test compilation")
-SET(NEON_EMBEDED TRUE
-    CACHE STRING "enable or disable unit test compilation")
 SET(SSL_BACKEND "OPENSSL"
     CACHE STRING "set the default SSL backend openssl or gnutls ( default : openssl ) ")
 
@@ -48,14 +43,8 @@ OPTION(ENABLE_THIRD_PARTY_COPY "enable or disable third party copy support" FALS
 
 # tests
 option(UNIT_TESTS "enable or disable the unit tests" FALSE)
-
 option(FUNCTIONAL_TESTS "enable or disable the functional tests" FALSE)
-
-
 option(GTEST_EXTERNAL "Use external gtest framework" FALSE)
-
-set(HAVE_OPENSSL 1)
-set(NE_HAVE_SSL 1)
 
 # libs checks
 find_package(Threads)
@@ -68,6 +57,12 @@ SET(LIBSSL_PKG_INCLUDE_DIRS "${OPENSSL_INCLUDE_DIR}")
 
 find_package(LibXml2)
 set(LIBXML2_INCLUDE_DIRS ${LIBXML2_INCLUDE_DIR})
+
+
+#const
+set(HAVE_OPENSSL 1)
+set(NE_HAVE_SSL 1)
+
 
 add_subdirectory(deps)
 

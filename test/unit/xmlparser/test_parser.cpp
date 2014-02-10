@@ -10,6 +10,7 @@
 #include <xml/metalinkparser.hpp>
 #include <status/davixstatusrequest.hpp>
 #include <string.h>
+#include <xml/davix_ptree.hpp>
 
 
 const char* simple_stat_propfind_content =
@@ -450,4 +451,27 @@ TEST(XmlMetalinkParserTest, parserMetalinkGeneric){
 }
 
 
+TEST(XmlPTreeTest, testPTreeBase){
+    using namespace Davix::Xml;
+    XmlPTree base(Attribute,"start", XmlPTree::ChildrenList(1, XmlPTree(Attribute, "hello", XmlPTree::ChildrenList(1, XmlPTree(CData, "BoB")))));
+    XmlPTree baseItem(Attribute, "start");
+    XmlPTree randomItem(Attribute, "no");
+
+    XmlPTree elem1(CData, "1"), elem2(CData, "2"), elemBob(CData, "BoB");
+    XmlPTree::ChildrenList l;
+    l.push_back(elem1); l.push_back(elem2); l.push_back(elemBob);
+    XmlPTree hello(Attribute, "hello", l), nihao(Attribute, "你好", XmlPTree::ChildrenList(1, elem1));
+    XmlPTree tree(Attribute, "start", XmlPTree::ChildrenList(1, hello));
+
+    ASSERT_TRUE( base.compareKey(baseItem));
+    ASSERT_TRUE( baseItem.compareKey(randomItem));
+    ASSERT_TRUE(base.compareNode(baseItem));
+    ASSERT_FALSE( randomItem.compareNode(baseItem));
+    ASSERT_FALSE(elemBob.compareNode(elem1));
+
+
+    ASSERT_TRUE( tree.matchTree(base));
+    ASSERT_FALSE( base.matchTree(tree));
+    ASSERT_FALSE( tree.matchTree(nihao));
+}
 

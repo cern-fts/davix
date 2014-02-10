@@ -1,7 +1,5 @@
 #include "metalinkparser.hpp"
 #include <cstring>
-#include <algorithm>
-#include <functional>
 #include <logger/davix_logger_internal.h>
 
 namespace Davix{

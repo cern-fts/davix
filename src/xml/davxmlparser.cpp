@@ -76,4 +76,21 @@ int XMLSAXParser::parserEndElemCb(int state, const char *nspace, const char *nam
 }
 
 
+int XMLSAXParser::startElemCb(const Chunk & data,
+                             const std::vector<XMLSAXParser::Chunk> & attrs){
+    return 0;
+}
+
+int XMLSAXParser::cdataCb(const Chunk & data){
+    return 0;
+}
+
+int XMLSAXParser::endElemCb(const Chunk & data){
+    return 0;
+}
+
+int XMLSAXParser::commentCb(const Chunk & data){
+    return 0;
+}
+
 } // namespace Davix

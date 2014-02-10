@@ -2,14 +2,22 @@
 #define DAVIX_DAVXMLPARSER_H
 
 
+#include <utils/davix_types.hpp>
+#include <status/davixstatusrequest.hpp>
 #include <ne_xml.h>
-#include <davix.hpp>
+
 
 namespace Davix {
+
 
 class XMLSAXParser : NonCopyable
 {
 public:
+    typedef std::string::iterator startIterChunk;
+    typedef std::string::iterator endIterChunk;
+    typedef std::pair<startIterChunk, endIterChunk> Chunk;
+
+
     XMLSAXParser();
     virtual ~XMLSAXParser();
 
@@ -20,10 +28,10 @@ public:
 
 
     // return last error, dnamically allocated, need to be free
-    Davix::DavixError* getLastErr();
+    DavixError* getLastErr();
 
 protected:
-    Davix::DavixError * err;
+    DavixError * err;
 
     ///
     /// callback to reimplement in subclass for parsing
@@ -37,13 +45,27 @@ protected:
                                    const char *nspace, const char *name,
                                    const char **atts);
 
+
+
    /// cdata element callback
    virtual int parserCdataCb(int state,
                                 const char *cdata, size_t len);
 
+
+
     /// end element callback
     virtual int parserEndElemCb(int state,
                                 const char *nspace, const char *name);
+
+    /// start element callback
+    virtual int startElemCb(const Chunk & data,
+                                   const std::vector<Chunk> & attrs);
+
+    virtual int cdataCb(const Chunk & data);
+
+    virtual int endElemCb(const Chunk & data);
+
+    virtual int commentCb(const Chunk & data);
 
 private:
     ne_xml_parser*  _ne_parser;

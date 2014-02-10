@@ -1,6 +1,5 @@
 #include <config.h>
 #include <davixuri.hpp>
-#include <ne_uri.h>
 #include <cassert>
 #include <cstring>
 #include <cstdlib>

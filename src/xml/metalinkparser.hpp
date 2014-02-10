@@ -1,10 +1,9 @@
 #ifndef METALINKPARSER_HPP
 #define METALINKPARSER_HPP
 
+#include <file/davix_file_info.hpp>
 #include <xml/davxmlparser.hpp>
-#include <davix_file_types.hpp>
-#include <vector>
-#include <stack>
+
 
 
 namespace Davix{

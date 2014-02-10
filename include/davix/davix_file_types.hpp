@@ -1,13 +1,6 @@
 #ifndef DAVIX_FILE_TYPES_HPP
 #define DAVIX_FILE_TYPES_HPP
 
-#include <vector>
-#include <deque>
-#include <string>
-#include <typeinfo>
-#include <sys/stat.h>
-#include <dirent.h>
-#include <fcntl.h>
 #include <utils/davix_types.hpp>
 #include <davixuri.hpp>
 

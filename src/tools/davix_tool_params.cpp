@@ -265,7 +265,7 @@ const std::string  & get_common_options(){
             "\t--version, -V:            Display version\n"
             "  Security Options:\n"
             "\t--capath CA_path:         Add an additional certificate authority directory\n"
-            "\t--cred, -E cred_path:     Client Certificate in PEM format\n"
+            "\t--cert, -E cred_path:     Client Certificate in PEM format\n"
             "\t--key priv_path:          Private key in PEM format\n"
             "\t--insecure, -k:           Disable SSL credential checks\n"
             "\t--userlogin:              User login for login/password authentication\n"

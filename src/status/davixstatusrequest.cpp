@@ -191,6 +191,10 @@ const char* DavixException::scope() const throw(){
     return e.getErrScope().c_str();
 }
 
+void DavixException::toDavixError(DavixError **err){
+    DavixError::propagateError(err, &this->e);
+}
+
 
 std::string davix_scope_stat_str(){
     return "Davix::Posix::stat";

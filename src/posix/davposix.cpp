@@ -99,13 +99,11 @@ int incremental_propfind_listdir_parsing(HttpRequest* req, DavPropXMLParser * pa
     if(ret_s_buff >= 0){
         buffer[ret_s_buff]= '\0';
         DAVIX_DEBUG("chunk parse : result content : %s", buffer);
-        if( parser->parseChuck(buffer, ret_s_buff) < 0){
-            DavixError* tmp_err= parser->getLastErr();
-            if(tmp_err == NULL)
-                DavixError::setupError(&tmp_err, "Davix::Meta", StatusCode::ParsingError, "Unknow Parsing Error");
-            DavixError::propagateError(err, tmp_err);
+        TRY_DAVIX{
+            parser->parseChuck(buffer, ret_s_buff);
+        }CATCH_DAVIX(&tmp_err)
+        if(tmp_err != NULL)
             return -1;
-        }
     }
 
     //std::cout << "time 3 post-parse" << time(NULL) << std::endl;

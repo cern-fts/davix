@@ -323,11 +323,11 @@ const char metalink_item_generic[]= " "
 
 
 TEST(XmlParserInstance, createParser){
+
+    ASSERT_NO_THROW({
     Davix::XMLSAXParser * parser = new Davix::XMLSAXParser();
-    Davix::DavixError* last_error = parser->getLastErr();
-    ASSERT_TRUE(last_error == NULL);
     delete parser;
-    Davix::DavixError::clearError(&last_error);
+    });
 }
 
 
@@ -335,9 +335,10 @@ TEST(XmlParserInstance, parseOneStat){
     davix_set_log_level(DAVIX_LOG_ALL);
     Davix::DavPropXMLParser parser;
 
+    ASSERT_NO_THROW({
+
     int ret = parser.parseChuck(simple_stat_propfind_content, strlen(simple_stat_propfind_content));
     if( ret !=0){
-        std::cerr << " error : " << parser.getLastErr()->getErrMsg() << std::endl;
         ASSERT_TRUE(false);
     }
     ASSERT_EQ(1u, parser.getProperties().size());
@@ -350,15 +351,18 @@ TEST(XmlParserInstance, parseOneStat){
     ASSERT_STREQ("dteam",f.filename.c_str());
  //q   ASSERT_EQ(f.mtime, 1350892251L);
 
+    });
+
 }
 
 
 TEST(XMLParserInstance,ParseList){
     Davix::DavPropXMLParser parser;
 
+    ASSERT_NO_THROW({
+
     int ret = parser.parseChuck(recursive_listing, strlen(recursive_listing));
     if( ret !=0){
-        std::cerr << " error : " << parser.getLastErr()->getErrMsg() << std::endl;
         ASSERT_TRUE(false);
     }
     ASSERT_EQ(16u, parser.getProperties().size());
@@ -379,22 +383,23 @@ TEST(XMLParserInstance,ParseList){
 
     // test the children stats
 
-
+    });
 }
 
 TEST(XmlParserInstance,parserNonWebdav){
     Davix::DavPropXMLParser parser;
 
-    int ret = parser.parseChuck(simple_bad_content_http, strlen(simple_bad_content_http));
-    parser.parseChuck(NULL, 0);
+    try{
+        parser.parseChuck(simple_bad_content_http, strlen(simple_bad_content_http));
+        parser.parseChuck(NULL, 0);
+        ASSERT_TRUE(false);
+    }catch(Davix::DavixException & e){
 
-    ASSERT_EQ(-1, ret);
-    Davix::DavixError * last_error = parser.getLastErr();
-    std::cerr << "error : " << last_error->getErrMsg();
-    ASSERT_EQ(0u, parser.getProperties().size());
-    ASSERT_TRUE(NULL != last_error);
-    ASSERT_EQ(Davix::StatusCode::WebDavPropertiesParsingError, last_error->getStatus());
-    Davix::DavixError::clearError(&last_error);
+        std::cerr << "error : " << e.what();
+        ASSERT_EQ(0u, parser.getProperties().size());
+        ASSERT_TRUE(Davix::StatusCode::OK != e.code());
+        ASSERT_EQ(Davix::StatusCode::WebDavPropertiesParsingError, e.code());
+    }
 }
 
 
@@ -402,39 +407,44 @@ TEST(XmlPaserInstance, destroyPartial){
     davix_set_log_level(DAVIX_LOG_ALL);
     Davix::DavPropXMLParser* parser = new Davix::DavPropXMLParser();
 
-    int ret = parser->parseChuck(simple_stat_propfind_content, strlen(simple_stat_propfind_content)/2);
-    if( ret !=0){
-        std::cerr << " error : " << parser->getLastErr()->getErrMsg() << std::endl;
-        ASSERT_TRUE(false);
-    }
-    // destroy the parser with still parsing on the stack
+    ASSERT_NO_THROW({
+
+        int ret = parser->parseChuck(simple_stat_propfind_content, strlen(simple_stat_propfind_content)/2);
+        if( ret !=0){
+            ASSERT_TRUE(false);
+        }
+        // destroy the parser with still parsing on the stack
+        });
     delete parser;
 }
 
 
 TEST(XmlMetalinkParserTest, parserMetalinkSimpl){
-    Davix::MetalinkParser parser;
-    int ret = parser.parseChuck(metalink_item_lcgdm, strlen(metalink_item_lcgdm));
-    ASSERT_EQ(0, ret);
-    ASSERT_TRUE( parser.getLastErr() == NULL);
 
-    const Davix::ReplicaVec& r = parser.getReplicas();
-    const Davix::Properties& p = parser.getProps();
-    ASSERT_EQ(1, r.size());
-    Davix::Uri u = r[0].uri;
-    ASSERT_EQ(Davix::StatusCode::OK, u.getStatus());
-    ASSERT_STREQ("http://datagrid.lbl.gov/testdata//L/test02.data", u.getString().c_str());
-    ASSERT_EQ(1, p.size());
-    ASSERT_TRUE(typeid(Davix::FileInfoSize) == p[0]->getType());
+    ASSERT_NO_THROW({
+        Davix::MetalinkParser parser;
+        int ret = parser.parseChuck(metalink_item_lcgdm, strlen(metalink_item_lcgdm));
+        ASSERT_EQ(0, ret);
+
+        const Davix::ReplicaVec& r = parser.getReplicas();
+        const Davix::Properties& p = parser.getProps();
+        ASSERT_EQ(1, r.size());
+        Davix::Uri u = r[0].uri;
+        ASSERT_EQ(Davix::StatusCode::OK, u.getStatus());
+        ASSERT_STREQ("http://datagrid.lbl.gov/testdata//L/test02.data", u.getString().c_str());
+        ASSERT_EQ(1, p.size());
+        ASSERT_TRUE(typeid(Davix::FileInfoSize) == p[0]->getType());
+    });
 }
 
 
 TEST(XmlMetalinkParserTest, parserMetalinkGeneric){
+
+    ASSERT_NO_THROW({
     Davix::MetalinkParser parser;
     int ret = parser.parseChuck(metalink_item_generic, strlen(metalink_item_generic));
     //std::cout << parser.getLastErr()->getErrMsg();
     ASSERT_EQ(0, ret);
-    ASSERT_TRUE( parser.getLastErr() == NULL);
 
     const Davix::ReplicaVec& r = parser.getReplicas();
    // const Davix::Properties& p = parser.getProps();
@@ -448,6 +458,8 @@ TEST(XmlMetalinkParserTest, parserMetalinkGeneric){
     ASSERT_STREQ("ftp://ftp.example2.com/example.ext", u.getString().c_str());
     ASSERT_EQ(1, r[1].props.size());
     ASSERT_TRUE(typeid(Davix::FileInfoProtocolType) == r[1].props[0]->getType());
+
+    });
 }
 
 

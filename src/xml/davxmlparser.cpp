@@ -21,12 +21,12 @@ struct InternalDavParser{
 
 };
 
-int davParserNotImplemented(Davix::DavixError** err){
-    Davix::DavixError::setupError(err, davix_scope_xml_parser(), StatusCode::OperationNonSupported, "the parser callbacks are not setup properly");
+int davParserNotImplemented(){
+    throw Davix::DavixException(davix_scope_xml_parser(), StatusCode::OperationNonSupported, "the parser callbacks are not configured properly");
     return -1;
 }
 
-XMLSAXParser::XMLSAXParser() :  err(NULL), _ne_parser(ne_xml_create())
+XMLSAXParser::XMLSAXParser() :  _ne_parser(ne_xml_create())
 {
     ne_xml_push_handler(_ne_parser,
                         &InternalDavParser::dav_xml_parser_ne_xml_startelm_cb,
@@ -37,7 +37,6 @@ XMLSAXParser::XMLSAXParser() :  err(NULL), _ne_parser(ne_xml_create())
 
 XMLSAXParser::~XMLSAXParser(){
     ne_xml_destroy(_ne_parser);
-    Davix::DavixError::clearError(&err);
 }
 
 
@@ -47,32 +46,25 @@ int XMLSAXParser::parseChuck(const char *partial_string, size_t length){
         if(ret > 0){
             ret =-1;
             const char* ne_parser_err = ne_xml_get_error(_ne_parser);
-            DavixError::setupError(&err, davix_scope_xml_parser(), StatusCode::WebDavPropertiesParsingError, "XML Parsing Error: " + std::string((ne_parser_err)?ne_parser_err:"Unknow ne error"));
+            throw Davix::DavixException(davix_scope_xml_parser(), StatusCode::WebDavPropertiesParsingError, "XML Parsing Error: " + std::string((ne_parser_err)?ne_parser_err:"Unknow ne error"));
         }
-        if(!err){
-             DavixError::setupError(&err, davix_scope_xml_parser(), StatusCode::WebDavPropertiesParsingError, "Unknow XML parsing error ");
-        }
+        throw Davix::DavixException(davix_scope_xml_parser(), StatusCode::WebDavPropertiesParsingError, "Unknow XML parsing error ");
     }
     return ret;
 }
 
 
-Davix::DavixError* XMLSAXParser::getLastErr(){
-
-    return ((err)?(err->clone()):(NULL));
-}
-
 int XMLSAXParser::parserStartElemCb(int parent, const char *nspace, const char *name, const char **atts){
-    return davParserNotImplemented(&err);
+    return davParserNotImplemented();
 }
 
 
 int XMLSAXParser::parserCdataCb(int state, const char *cdata, size_t len){
-    return davParserNotImplemented(&err);
+    return davParserNotImplemented();
 }
 
 int XMLSAXParser::parserEndElemCb(int state, const char *nspace, const char *name){
-    return davParserNotImplemented(&err);
+    return davParserNotImplemented();
 }
 
 

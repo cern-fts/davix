@@ -92,27 +92,24 @@ int dav_stat_mapper_webdav(Context &context, const RequestParams* params, const 
     if( tmp_err == NULL){
         req.setParameters(params);
 
-        const char * res = req_webdav_propfind(&req, &tmp_err);
-        if(!tmp_err){
-            if( (ret = parser.parseChuck((const char*) res, strlen(res)) ) < 0){
-                DavixError* tmp_err = parser.getLastErr();
-                if(tmp_err == NULL)
-                    DavixError::setupError(&tmp_err, "Davix::Meta", StatusCode::ParsingError, "Unknow Parsing Error");
-                DavixError::propagateError(err, tmp_err);
-                return -1;
-            }
+        TRY_DAVIX{
+            const char * res = req_webdav_propfind(&req, &tmp_err);
+            if(!tmp_err){
+               parser.parseChuck((const char*) res, strlen(res));
 
-            std::deque<FileProperties> & props = parser.getProperties();
-            if( props.size() < 1){
-                DavixError::setupError(&tmp_err, davix_scope_stat_str(), Davix::StatusCode::WebDavPropertiesParsingError, "Parsing Error : properties number < 1");
-                ret =-1;
-            }else{
-                fill_stat_from_fileproperties(st, props.front());
-                ret =0;
-                if(token_ptr)
-                    *token_ptr = req.extractCacheToken();
-        }
-        }
+                std::deque<FileProperties> & props = parser.getProperties();
+                if( props.size() < 1){
+                    throw DavixException(davix_scope_stat_str(), Davix::StatusCode::WebDavPropertiesParsingError, "Parsing Error : properties number < 1");
+                }else{
+                    fill_stat_from_fileproperties(st, props.front());
+                    ret =0;
+                    if(token_ptr)
+                        *token_ptr = req.extractCacheToken();
+                }
+            }
+        }CATCH_DAVIX(&tmp_err)
+        if(tmp_err != NULL)
+            ret = -1;
     }
     if(tmp_err)
         DavixError::propagateError(err, tmp_err);

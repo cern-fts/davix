@@ -27,12 +27,7 @@ public:
     // return negative value if failure or 0 if success
     int parseChuck(const char * partial_string, size_t len);
 
-
-    // return last error, dnamically allocated, need to be free
-    DavixError* getLastErr();
-
 protected:
-    DavixError * err;
 
     ///
     /// callback to reimplement in subclass for parsing

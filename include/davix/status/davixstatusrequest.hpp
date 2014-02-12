@@ -249,7 +249,7 @@ private:
 };
 
 
-class DavixException : public std::exception{
+class DAVIX_EXPORT DavixException : public std::exception{
     struct DavixExceptionIntern;
 public:
     DavixException(const std::string & scope, StatusCode::Code c, const std::string & msg) throw();
@@ -260,10 +260,23 @@ public:
     virtual StatusCode::Code code() const throw();
     virtual const char*  what() const throw();
 
+    void toDavixError(DavixError** err);
+
 protected:
     DavixError e;
     DavixExceptionIntern* d_ptr;
 };
+
+
+#define TRY_DAVIX try
+#define CATCH_DAVIX(err) catch(DavixException & e){ \
+        e.toDavixError(err); \
+    }catch(std::exception & e){ \
+        DavixError::setupError(err, " ", StatusCode::SystemError, std::string("System Error ").append(e.what())); \
+    }catch(...){ \
+        DavixError::setupError(err, " ", StatusCode::UnknowError, std::string("Unknow Error .... report this")); \
+    }
+
 
 /// \cond PRIVATE_SYMBOLS
 ///

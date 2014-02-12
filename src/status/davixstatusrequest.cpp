@@ -156,6 +156,42 @@ void davix_errno_to_davix_error(int errcode, const std::string & scope, const st
     DavixError::setupError(newErr, scope, c, msg_final);
 }
 
+
+// extension
+struct DavixException::DavixExceptionIntern{
+
+};
+
+
+DavixException::DavixException(const std::string &scope, StatusCode::Code c, const std::string &msg) throw() :
+    std::exception(),
+    e(scope, c, msg),
+    d_ptr(NULL){
+
+}
+
+DavixException::DavixException(const DavixException &orig) throw() : e(orig.e), d_ptr(orig.d_ptr)
+{
+
+}
+
+DavixException::~DavixException() throw(){
+    delete d_ptr;
+}
+
+const char* DavixException::what() const throw() {
+    return e.getErrMsg().c_str();
+}
+
+StatusCode::Code DavixException::code() const throw(){
+    return e.getStatus();
+}
+
+const char* DavixException::scope() const throw(){
+    return e.getErrScope().c_str();
+}
+
+
 std::string davix_scope_stat_str(){
     return "Davix::Posix::stat";
 }

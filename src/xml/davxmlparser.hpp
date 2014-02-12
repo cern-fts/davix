@@ -4,6 +4,7 @@
 
 #include <utils/davix_types.hpp>
 #include <status/davixstatusrequest.hpp>
+#include <xml/davix_ptree.hpp>
 #include <ne_xml.h>
 
 

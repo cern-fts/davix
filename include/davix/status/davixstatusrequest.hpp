@@ -249,6 +249,22 @@ private:
 };
 
 
+class DavixException : public std::exception{
+    struct DavixExceptionIntern;
+public:
+    DavixException(const std::string & scope, StatusCode::Code c, const std::string & msg) throw();
+    DavixException(const DavixException & orig) throw();
+    virtual ~DavixException() throw();
+
+    virtual const char* scope() const throw();
+    virtual StatusCode::Code code() const throw();
+    virtual const char*  what() const throw();
+
+protected:
+    DavixError e;
+    DavixExceptionIntern* d_ptr;
+};
+
 /// \cond PRIVATE_SYMBOLS
 ///
 DAVIX_EXPORT std::string davix_scope_stat_str();
@@ -265,6 +281,26 @@ DAVIX_EXPORT std::string davix_scope_x509cred();
 
 //
 DAVIX_EXPORT void davix_errno_to_davix_error(int errcode, const std::string & scope, const std::string & msg, DavixError** newErr);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // !!!!!!!!!!!!!!!!!!!
 // Warning: Deprecated symbols, do not use anymore

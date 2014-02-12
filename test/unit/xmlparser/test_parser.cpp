@@ -475,3 +475,56 @@ TEST(XmlPTreeTest, testPTreeBase){
     ASSERT_FALSE( tree.matchTree(nihao));
 }
 
+
+TEST(XmlPTreeTest, testPTreeChain){
+    using namespace Davix::Xml;
+    XmlPTree base(Attribute,"start", XmlPTree::ChildrenList(1, XmlPTree(Attribute, "hello", XmlPTree::ChildrenList(1, XmlPTree(CData, "BoB")))));
+
+    XmlPTree baseItem(Attribute, "start");
+    XmlPTree randomItem(Attribute, "no");
+    XmlPTree helloItem(Attribute, "hello");
+    XmlPTree bobItem(CData, "BoB");
+
+    std::vector<XmlPTree> vec_node;
+    std::vector<XmlPTree::ptr_type> res;
+    res = base.findChain(vec_node);
+    ASSERT_EQ(0, res.size());
+    vec_node.clear();
+
+
+    vec_node.push_back(baseItem);
+    res = base.findChain(vec_node);
+    ASSERT_EQ(1, res.size());
+    ASSERT_TRUE(res.at(0)->compareNode(baseItem));
+    ASSERT_EQ(res.at(0), &(base));
+    vec_node.clear();
+
+
+    // invalid nodes
+    vec_node.push_back(randomItem);
+    res = base.findChain(vec_node);
+    ASSERT_EQ(0, res.size());
+    vec_node.clear();
+
+
+    vec_node.push_back(baseItem);
+    vec_node.push_back(helloItem);
+    vec_node.push_back(bobItem);
+    res = base.findChain(vec_node);
+    ASSERT_EQ(3, res.size());
+    ASSERT_TRUE(res.at(0)->compareNode(baseItem));
+    ASSERT_TRUE(res.at(1)->compareNode(helloItem));
+    ASSERT_TRUE(res.at(2)->compareNode(bobItem));
+    ASSERT_EQ(res.at(0), &(base));
+    ASSERT_EQ(res.at(1), &(*base.beginChildren()));
+    ASSERT_EQ(res.at(2), &(*base.beginChildren()->beginChildren()));
+    vec_node.clear();
+
+    vec_node.push_back(base);
+    res = baseItem.findChain(vec_node);
+    ASSERT_EQ(1, res.size());
+    ASSERT_TRUE(res.at(0)->compareNode(baseItem));
+    vec_node.clear();
+
+
+}

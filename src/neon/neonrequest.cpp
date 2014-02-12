@@ -321,6 +321,7 @@ int NEONRequest::negotiate_request(DavixError** err){
         switch(code){
             case 301:
             case 302:
+            case 303:
             case 307:
                 if( (end_status = processRedirection(status, err)) <0){
                    DAVIX_DEBUG(" Davix negociate request ... <-");

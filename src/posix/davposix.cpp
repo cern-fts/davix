@@ -95,7 +95,7 @@ int incremental_propfind_listdir_parsing(HttpRequest* req, DavPropXMLParser * pa
     DavixError* tmp_err=NULL;
 
     char buffer[s_buff+1];
-    const ssize_t ret_s_buff= req->readBlock(buffer, s_buff, &tmp_err);
+    const ssize_t ret_s_buff= req->readSegment(buffer, s_buff, &tmp_err);
     if(ret_s_buff >= 0){
         buffer[ret_s_buff]= '\0';
         DAVIX_DEBUG("chunk parse : result content : %s", buffer);
@@ -151,7 +151,7 @@ DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char
 
                        prop_size = parser->getProperties().size();
                        if(s_resu < _s_buff && prop_size <1){ // verify request status : if req done + no data -> error
-                           DavixError::setupError(&tmp_err, davix_scope_directory_listing_str(), StatusCode::WebDavPropertiesParsingError, "request answer incorrect, not a valid webdav request");
+                           DavixError::setupError(&tmp_err, davix_scope_directory_listing_str(), StatusCode::WebDavPropertiesParsingError, "bad server answer, not a valid WebDav PROPFIND answer");
                            break;
                        }
                        if(timestamp_timeout < time(NULL)){

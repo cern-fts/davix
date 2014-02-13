@@ -281,6 +281,10 @@ const char* recursive_listing =
         "            </D:response>"
         "            </D:multistatus>";
 
+const char * caldav_item = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>"
+        "<d:multistatus xmlns:cs=\"http://calendarserver.org/ns/\" xmlns:d=\"DAV:\" xmlns:cal=\"urn:ietf:params:xml:ns:caldav\" xmlns:card=\"urn:ietf:params:xml:ns:carddav\"><d:response><d:href>/dteam/</d:href><d:propstat><d:prop><d:getcontentlength/><d:getlastmodified>Wed, 18 Dec 2013 14:41:52 GMT</d:getlastmodified><d:resourcetype><d:collection/></d:resourcetype><d:displayname>dteam</d:displayname><d:creationdate>2013-12-18T14:41:52Z</d:creationdate></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat><d:propstat><d:prop><mode/></d:prop><d:status>HTTP/1.1 404 Not Found</d:status></d:propstat></d:response><d:response><d:href>/dteam/foo2.txt</d:href><d:propstat><d:prop><d:getcontentlength>12</d:getcontentlength><d:getlastmodified>Sat, 16 Jul 2011 17:03:02 GMT</d:getlastmodified><d:resourcetype/><d:displayname>foo2.txt</d:displayname><d:creationdate>2011-07-16T17:03:02Z</d:creationdate></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat><d:propstat><d:prop><mode/></d:prop><d:status>HTTP/1.1 404 Not Found</d:status></d:propstat></d:response><d:response><d:href>/dteam/foo.txt</d:href><d:propstat><d:prop><d:getcontentlength>12</d:getcontentlength><d:getlastmodified>Sat, 16 Jul 2011 06:30:51 GMT</d:getlastmodified><d:resourcetype/><d:displayname>foo.txt</d:displayname><d:creationdate>2011-07-16T06:30:51Z</d:creationdate></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat><d:propstat><d:prop><mode/></d:prop><d:status>HTTP/1.1 404 Not Found</d:status></d:propstat></d:response><d:response><d:href>/dteam/EA-check-file-N_1-1311262879444</d:href><d:propstat><d:prop><d:getcontentlength>0</d:getcontentlength><d:getlastmodified>Thu, 21 Jul 2011 15:41:19 GMT</d:getlastmodified><d:resourcetype/><d:displayname>EA-check-file-N_1-1311262879444</d:displayname><d:creationdate>2011-07-21T15:41:19Z</d:creationdate></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat><d:propstat><d:prop><mode/></d:prop><d:status>HTTP/1.1 404 Not Found</d:status></d:propstat></d:response><d:response><d:href>/dteam/fpalapzorp</d:href><d:propstat><d:prop><d:getcontentlength>1286144</d:getcontentlength><d:getlastmodified>Wed, 14 Sep 2011 11:43:41 GMT</d:getlastmodified><d:resourcetype/><d:displayname>fpalapzorp</d:displayname><d:creationdate>2011-09-14T11:43:41Z</d:creationdate></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat><d:propstat><d:prop><mode/></d:prop><d:status>HTTP/1.1 404 Not Found</d:status></d:propstat></d:response><d:response><d:href>/dteam/EA-check-file-N_1-1314125987590</d:href><d:propstat><d:prop><d:getcontentlength>0</d:getcontentlength><d:getlastmodified>Tue, 23 Aug 2011 18:59:47 GMT</d:getlastmodified><d:resourcetype/><d:displayname>EA-check-file-N_1-1314125987590</d:displayname><d:creationdate>2011-08-23T18:59:47Z</d:creationdate></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat><d:propstat><d:prop><mode/></d:prop><d:status>HTTP/1.1 404 Not Found</d:status></d:propstat></d:response><d:response><d:href>/dteam/somefilename</d:href><d:propstat><d:prop><d:getcontentlength>1286144</d:getcontentlength><d:getlastmodified>Wed, 14 Sep 2011 14:16:03 GMT</d:getlastmodified><d:resourcetype/><d:displayname>somefilename</d:displayname><d:creationdate>2011-09-14T14:16:03Z</d:creationdate></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat><d:propstat><d:prop><mode/></d:prop><d:status>HTTP/1.1 404 Not Found</d:status></d:propstat></d:response><d:response><d:href>/dteam/generated</d:href><d:propstat><d:prop><d:getcontentlength/><d:getlastmodified>Sat, 26 Feb 2011 14:39:48 GMT</d:getlastmodified><d:resourcetype><d:collection/></d:resourcetype><d:displayname>generated</d:displayname><d:creationdate>2011-02-26T14:39:48Z</d:creationdate></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat><d:propstat><d:prop><mode/></d:prop><d:status>HTTP/1.1 404 Not Found</d:status></d:propstat></d:response></d:multistatus>";
+
+
 
 const char* list_item[] = { "g2", "generated", "test", "speed_test2", "speed_test", "speed_test3", "testwrite", "test_dir",
                             "testgfgfgfdg9999tw3", "UGRtest", "ugrtest", "fbxtest.txt", "testdir", "testdir8888", "testdir8889" };
@@ -357,31 +361,48 @@ TEST(XmlParserInstance, parseOneStat){
 
 
 TEST(XMLParserInstance,ParseList){
-    Davix::DavPropXMLParser parser;
+
 
     ASSERT_NO_THROW({
+        Davix::DavPropXMLParser parser;
+        int ret = parser.parseChuck(recursive_listing, strlen(recursive_listing));
+        if( ret !=0){
+            ASSERT_TRUE(false);
+        }
+        ASSERT_EQ(16u, parser.getProperties().size());
+        parser.parseChuck(NULL, 0);
+        ASSERT_EQ(16u, parser.getProperties().size());
 
-    int ret = parser.parseChuck(recursive_listing, strlen(recursive_listing));
-    if( ret !=0){
-        ASSERT_TRUE(false);
-    }
-    ASSERT_EQ(16u, parser.getProperties().size());
-    parser.parseChuck(NULL, 0);
-    ASSERT_EQ(16u, parser.getProperties().size());
+        // test the parent directory stats
+        Davix::FileProperties f = parser.getProperties().at(0);
+        ASSERT_TRUE(S_ISDIR(f.mode));
+        ASSERT_FALSE(S_ISLNK(f.mode));
+        ASSERT_STREQ("dteam",f.filename.c_str());
 
-    // test the parent directory stats
-    Davix::FileProperties f = parser.getProperties().at(0);
-    ASSERT_TRUE(S_ISDIR(f.mode));
-    ASSERT_FALSE(S_ISLNK(f.mode));
-    ASSERT_STREQ("dteam",f.filename.c_str());
+        for(int i =1; i < 16; ++i){
+            Davix::FileProperties f_local = parser.getProperties()[i];
+            ASSERT_STREQ(list_item[i-1], f_local.filename.c_str());
+            ASSERT_TRUE( f_local.size > 0 || S_ISDIR(f.mode));
+        }
 
-    for(int i =1; i < 16; ++i){
-        Davix::FileProperties f_local = parser.getProperties()[i];
-        ASSERT_STREQ(list_item[i-1], f_local.filename.c_str());
-        ASSERT_TRUE( f_local.size > 0 || S_ISDIR(f.mode));
-    }
+        // test the children stats
 
-    // test the children stats
+    });
+}
+
+
+TEST(XMLParserInstance, ParseCalDav){
+
+
+    ASSERT_NO_THROW({
+        davix_set_log_level(DAVIX_LOG_ALL);
+        Davix::DavPropXMLParser parser;
+
+        int ret = parser.parseChuck(caldav_item, strlen(caldav_item));
+        if( ret !=0){
+            ASSERT_TRUE(false);
+        }
+        ASSERT_GT(parser.getProperties().size(),0);
 
     });
 }

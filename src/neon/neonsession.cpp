@@ -14,6 +14,16 @@ const char* davix_neon_key="davix_key";
 namespace Davix{
 
 
+static std::pair<std::string, std::string> userInfo_to_auth(const std::string & userInfo){
+    std::pair<std::string , std::string > id;
+    std::string::const_iterator it = std::find(userInfo.begin(), userInfo.end(), ':');
+    id.first = std::string(userInfo.begin(), it);
+    it = ((it != userInfo.end())?(it+1):(it));
+    id.second = std::string(it, userInfo.end());
+    return id;
+}
+
+
 static int validate_all_certificate(void *userdata, int failures,
                                 const ne_ssl_certificate *cert){
     return 0;
@@ -64,8 +74,18 @@ int NEONSession::provide_login_passwd_fn(void *userdata, const char *realm, int 
      }
 
      const std::pair<authCallbackLoginPasswordBasic, void*> retcallback(req->_params.getClientLoginPasswordCallback());
-     const std::pair<std::string , std::string > id(req->_params.getClientLoginPassword());
-     if(retcallback.first != NULL){
+     std::pair<std::string , std::string > id;
+
+     if(req->_u.getUserInfo().size() > 0){
+        id = userInfo_to_auth(req->_u.getUserInfo());
+     }else{
+        id = req->_params.getClientLoginPassword();
+     }
+
+     if(id.first.empty() == false){
+              copy_std_string_to_buff(username, NE_ABUFSIZ, id.first.c_str());
+              copy_std_string_to_buff(password, NE_ABUFSIZ, id.second.c_str());
+     }else if(retcallback.first != NULL){
          DAVIX_DEBUG("NEONSession > Try callback for login/passwd for %d time", attempt+1);
          SessionInfo infos;
          std::string tmp_login, tmp_password;
@@ -78,9 +98,6 @@ int NEONSession::provide_login_passwd_fn(void *userdata, const char *realm, int 
          }
          copy_std_string_to_buff(username, NE_ABUFSIZ, tmp_login.c_str());
          copy_std_string_to_buff(password, NE_ABUFSIZ, tmp_password.c_str());
-     }else if(id.first.empty() == false){
-         copy_std_string_to_buff(username, NE_ABUFSIZ, id.first.c_str());
-         copy_std_string_to_buff(password, NE_ABUFSIZ, id.second.c_str());
      }
 
     DAVIX_DEBUG("NEONSession > get login/password with success...try server submission ");
@@ -95,11 +112,12 @@ NEONSession::NEONSession(Context & c, const Uri & uri, const RequestParams & p, 
     _sess(NULL),
     _params(p),
     _last_error(NULL),
-    _session_recycling(_f.getSessionCaching())
+    _session_recycling(_f.getSessionCaching()),
+    _u(uri)
 {
         _f.createNeonSession(uri, &_sess, err);
         if(_sess)
-            configureSession(_sess, p, &NEONSession::provide_login_passwd_fn, this, &NEONSession::provide_clicert_fn, this);
+            configureSession(_sess, _u, p, &NEONSession::provide_login_passwd_fn, this, &NEONSession::provide_clicert_fn, this);
 }
 
 
@@ -108,11 +126,12 @@ NEONSession::NEONSession(NEONSessionFactory & f, const Uri & uri, const RequestP
     _sess(NULL),
     _params(p),
     _last_error(NULL),
-    _session_recycling(_f.getSessionCaching())
+    _session_recycling(_f.getSessionCaching()),
+    _u(uri)
 {
     _f.createNeonSession(uri, &_sess, err);
     if(_sess)
-        configureSession(_sess, p, &NEONSession::provide_login_passwd_fn, this, &NEONSession::provide_clicert_fn, this);
+        configureSession(_sess, _u, p, &NEONSession::provide_login_passwd_fn, this, &NEONSession::provide_clicert_fn, this);
 }
 
 
@@ -129,7 +148,7 @@ NEONSession::~NEONSession(){
 }
 
 
-void configureSession(ne_session *_sess, const RequestParams &params, ne_auth_creds lp_callback, void* lp_userdata,
+void configureSession(ne_session *_sess, const Uri & _u, const RequestParams &params, ne_auth_creds lp_callback, void* lp_userdata,
                       ne_ssl_provide_fn cred_callback,  void* cred_userdata){
 
     void* state = ne_get_session_private(_sess,davix_neon_key);
@@ -153,6 +172,7 @@ void configureSession(ne_session *_sess, const RequestParams &params, ne_auth_cr
 
         // if authentification for login/password
         if( params.getClientLoginPassword().first.empty() == false
+                || _u.getUserInfo().size() > 0
                 || params.getClientLoginPasswordCallback().first != NULL){
             DAVIX_DEBUG("NEONSession : enable login/password authentication");
             ne_set_server_auth(_sess, lp_callback, lp_userdata);

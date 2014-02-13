@@ -109,6 +109,10 @@ const std::string & Uri::getProtocol() const {
     return d_ptr->proto;
 }
 
+const std::string & Uri::getUserInfo() const{
+    return d_ptr->userinfo;
+}
+
 const std::string & Uri::getPath() const {
     return d_ptr->path;
 }

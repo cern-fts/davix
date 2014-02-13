@@ -62,6 +62,10 @@ public:
     /// @return return the path of the Uri or an empty string if error
     const std::string & getPath()const;
 
+    /// gextract user information from the URI
+    /// @return return the path of the Uri or an empty string if error
+    const std::string & getUserInfo() const;
+
     /// get a concatenation of the path and the query argument of the URI
     /// @return return a path + query arguments concatenation or an empty string if error
     const std::string & getPathAndQuery() const;

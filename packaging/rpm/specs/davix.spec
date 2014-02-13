@@ -4,11 +4,11 @@
 
 Name:				davix
 Version:			0.2.11
-Release:			1%{?dist}
+Release:			2%{?dist}
 Summary:			Toolkit for Http-based file management
 Group:				Applications/Internet
 License:			LGPLv2+
-URL:				https://svnweb.cern.ch/trac/lcgutil/wiki/davix
+URL:				http://dmc.web.cern.ch/projects/davix/home
 # git clone http://git.cern.ch/pub/davix
 Source0:			http://grid-deployment.web.cern.ch/grid-deployment/dms/lcgutil/tar/%{name}/%{name}-%{version}.tar.gz
 BuildRoot:			%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)

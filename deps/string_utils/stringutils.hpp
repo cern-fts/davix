@@ -25,8 +25,6 @@ inline size_t copy_std_string_to_buff(char* buffer, size_t max_size, const std::
 }
 
 
-
-
 // trim from start
 template <typename Func>
 inline std::string &ltrim(std::string &s, Func  pred = static_cast<int (*)(int)>(std::isspace)) {
@@ -45,7 +43,7 @@ inline std::string &rtrim(std::string &s, Func pred = std::isspace) {
 // trim from both
 template <typename Func>
 inline std::string &trim(std::string &s, Func pred = std::isspace) {
-        return ltrim<Func>(rtrim<Func>(s));
+        return ltrim<Func>(rtrim<Func>(s, pred), pred);
 }
 
 inline int isslash(int c){

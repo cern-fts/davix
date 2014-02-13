@@ -21,28 +21,31 @@
 
 namespace Davix{
 
-struct DavFileInternal;
-
-
 
 ///
 /// @class DavFile
 /// @brief Davix File Interface
 ///
 /// Davix File interface
-class DAVIX_EXPORT DavFile : NonCopyable
+class DAVIX_EXPORT DavFile
 {
 public:
+    struct DavFileInternal;
     ///
     /// \brief default constructor
     /// \param c context
     /// \param url Remote File URL
     ///
     DavFile(Context & c, const Uri & url);
+    DavFile(const DavFile & orig);
     ///
     /// \brief destructor
     ///
     virtual ~DavFile();
+
+    /// @brief return Uri of the current file
+    ///
+    const Uri & getUri() const;
 
     ///
     /// @brief return all replicas associated to this file
@@ -50,11 +53,9 @@ public:
     /// Replicas are found using a corresponding meta-link file or Webdav extensions if supported
     ///
     /// @param params  Davix Request parameters
-    /// @param vec
     /// @param err  DavixError error report
-    /// @return  Replica vector, if error is found return 0 and set err properly
-    dav_ssize_t getAllReplicas(const RequestParams* params,
-                                    ReplicaVec & vec, DavixError** err);
+    /// @return  Replica vector, if error is found return empty vector and set err properly
+    std::vector<DavFile> getReplicas(const RequestParams* params, DavixError** err);
 
     ///
     ///  @brief Vector read operation
@@ -198,13 +199,14 @@ public:
 
 private:
     DavFileInternal* d_ptr;
-    DavFile(const DavFile & f);
-    DavFile & operator=(const DavFile & f);
 
+public:
+    /// @deprecated deprecated, will be removed in 1.0
+    dav_ssize_t getAllReplicas(const RequestParams* params,
+                                    ReplicaVec & vec, DavixError** err);
 };
 
-
-
+typedef DavFile File;
 
 } // Davix
 

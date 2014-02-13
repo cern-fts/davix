@@ -39,7 +39,7 @@ int main(int argc, char** argv){
     params.setProtocol(RequestProtocol::Webdav);
 
     Context c;
-    DavFile f(c, std::string(buffer)), f2(c,std::string(buffer));
+    File f(c, std::string(buffer)), f2(c,std::string(buffer));
 
     // delete unexisting dir, should fail
    res = f.deletion(&params, &tmp_err);

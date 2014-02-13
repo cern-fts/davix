@@ -1,26 +1,22 @@
 #include "metalinkparser.hpp"
 #include <cstring>
 #include <logger/davix_logger_internal.h>
+#include <string_utils/stringutils.hpp>
 
 namespace Davix{
 
 const std::string MetalinkScope = "MetalinkParser";
-
 
 const std::string tags_string[] = { "metalink", "files", "file",  "size", "resources", "url" };
 const size_t tags_string_size = 6;
 
 const MetalinkTag::MetalinkParserTag url_stack[] = { MetalinkTag::Metalink3,
                                             MetalinkTag::Files, MetalinkTag::File, MetalinkTag::Resources, MetalinkTag::Url };
-const size_t url_stack_size= 5;
+const size_t url_stack_size= (sizeof(url_stack))/(sizeof(MetalinkTag::MetalinkParserTag));
 
 const MetalinkTag::MetalinkParserTag size_stack[] = { MetalinkTag::Metalink3,
                                             MetalinkTag::Files, MetalinkTag::File, MetalinkTag::Size };
-const size_t size_stack_size= 4;
-/*
-static bool isMatching(MetalinkTag::MetalinkParserTag tag, const char* name){
-    return (tags_string[static_cast<int>(tag)].compare( name) ==0);
-}*/
+const size_t size_stack_size= (sizeof(size_stack))/(sizeof(MetalinkTag::MetalinkParserTag));
 
 static MetalinkTag::MetalinkParserTag getTag(const std::string & str){
     const std::string* p =  std::find(tags_string, tags_string + tags_string_size, str);
@@ -38,84 +34,91 @@ static bool matchStack(const MetalinkStack & s1, const MetalinkTag::MetalinkPars
 
 
 
-MetalinkParser::MetalinkParser() :
-    rep(new ReplicaVec()),
-    fileProperties(new Properties()),
-    tagStack()
+struct MetalinkParser::MetalinkParserIntern{
+    MetalinkParserIntern(Context & c, std::vector<DavFile> & fvec) : _c(c), _fvec(fvec), _tagStack(), _filesize(0){
+        _tagStack.reserve(5);
+    }
+
+
+    inline int startElem(const std::string & name){
+
+        DAVIX_TRACE("MetalinkParser: <tag> %s", name.c_str());
+        const MetalinkTag::MetalinkParserTag t = getTag(name);
+        if( t == MetalinkTag::Invalid){
+            return 0;
+        }
+        _tagStack.push_back(t);
+        return 1;
+    }
+
+    inline int dataElem(const char* data, size_t len){
+        _buffer.reserve(_buffer.size()+len+1);
+        std::copy(data, data+len, std::back_inserter(_buffer));
+        return 0;
+    }
+
+
+    inline int endElem(const std::string & name){
+        const MetalinkTag::MetalinkParserTag t = getTag(name);
+        std::string & replic = _buffer;
+
+        if(matchStack(_tagStack, url_stack, url_stack_size)){
+            DAVIX_TRACE("MetalinkParser: Replica URL %s", replic.c_str());
+            _fvec.push_back(File(_c, Uri(trim<int (*)(int)>(replic, std::isspace))));
+        }
+        if(matchStack(_tagStack, size_stack, size_stack_size)){
+            DAVIX_TRACE("MetalinkParser: Replica size %d", replic.c_str());
+            _filesize = static_cast<dav_size_t>(strtoul(replic.c_str(), NULL, 10));
+        }
+
+        _buffer.clear();
+
+        if(t == _tagStack.back())
+            _tagStack.pop_back();
+        return 0;
+    }
+
+    Context & _c;
+    std::vector<DavFile> & _fvec;
+    MetalinkStack _tagStack;
+    dav_size_t _filesize;
+    std::string _buffer;
+};
+
+
+MetalinkParser::MetalinkParser(Context & u, std::vector<DavFile> & vec) : d_ptr(new MetalinkParserIntern(u, vec))
 {
-    //rep.reserve(5);
-    tagStack.reserve(5);
+
 }
 
-MetalinkParser::MetalinkParser(ReplicaVec &reps, Properties &props) :
-    rep(&reps),
-    fileProperties(&props)
-{
-     tagStack.reserve(5);
-}
+
 
 MetalinkParser::~MetalinkParser(){
-    delete rep;
-    delete fileProperties;
+    delete d_ptr;
 }
 
-const ReplicaVec & MetalinkParser::getReplicas(){
-    return *rep;
+
+dav_size_t MetalinkParser::getSize() const{
+    return d_ptr->_filesize;
 }
 
-const Properties & MetalinkParser::getProps(){
-    return *fileProperties;
-}
 
 int MetalinkParser::parserStartElemCb(int parent,
                                const char *nspace, const char *name,
                                const char **atts){
-    DAVIX_TRACE("MetalinkParser: <tag> %s", name);
-    const MetalinkTag::MetalinkParserTag t = getTag(std::string(name));
-    if( t == MetalinkTag::Invalid){
-        return 0;
-    }
-    tagStack.push_back(t);
-    if(t == MetalinkTag::Url){
-        // create new replicas
-        rep->resize(rep->size()+1);
-        // get replicas type
-        for(const char** p = atts; *p != NULL; p+=2){
-            if( *(p+1) == NULL)
-                break;
-            if( strcmp(*p,"type") == 0){
-                DAVIX_TRACE("MetalinkParser: URL type %s=%s", *p, *(p+1));
-                rep->back().props.push_back(new FileInfoProtocolType(*(p+1)));
-                break;
-            }
-        }
-    }
-    return 1;
+    return d_ptr->startElem(name);
 }
 
 int MetalinkParser::parserCdataCb(int state,
                             const char *cdata, size_t len){
 
-    if(matchStack(tagStack, url_stack, url_stack_size)){
-        std::string replic(cdata, len);
-        DAVIX_TRACE("MetalinkParser: Replica URL %s", replic.c_str());
-        rep->back().uri = replic;
-    }
-    if(matchStack(tagStack, size_stack, size_stack_size)){
-        const std::string replic_size(cdata, len);
-        DAVIX_TRACE("MetalinkParser: Replica size %d", replic_size.c_str());
-        fileProperties->push_back( new FileInfoSize(strtoul(replic_size.c_str(), NULL, 10)));
-    }
-    return 0;
+    return d_ptr->dataElem(cdata, len);
 }
 
 int MetalinkParser::parserEndElemCb(int state,
                             const char *nspace, const char *name){
 
-    const MetalinkTag::MetalinkParserTag t = getTag(std::string(name));
-    if(t == tagStack.back())
-        tagStack.pop_back();
-    return 0;
+    return d_ptr->endElem(name);
 }
 
 

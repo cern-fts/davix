@@ -1,7 +1,7 @@
 #ifndef METALINKPARSER_HPP
 #define METALINKPARSER_HPP
 
-#include <file/davix_file_info.hpp>
+#include <file/davfile.hpp>
 #include <xml/davxmlparser.hpp>
 
 
@@ -28,14 +28,12 @@ typedef  std::vector<MetalinkTag::MetalinkParserTag>  MetalinkStack;
 class MetalinkParser : public XMLSAXParser
 {
 public:
-    MetalinkParser();
-    MetalinkParser(ReplicaVec & reps, Properties & props);
+    struct MetalinkParserIntern;
+
+    MetalinkParser(Context & c, std::vector<DavFile> & vec);
     virtual ~MetalinkParser();
 
-    const ReplicaVec & getReplicas();
-
-    const Properties & getProps();
-
+    dav_size_t getSize() const;
 
 protected:
 
@@ -48,9 +46,7 @@ protected:
                                 const char *nspace, const char *name);
 
 private:
-    ReplicaVec* rep;
-    Properties* fileProperties;
-    MetalinkStack tagStack;
+    MetalinkParserIntern* d_ptr;
 };
 
 

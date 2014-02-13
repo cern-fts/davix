@@ -443,18 +443,17 @@ TEST(XmlPaserInstance, destroyPartial){
 TEST(XmlMetalinkParserTest, parserMetalinkSimpl){
 
     ASSERT_NO_THROW({
-        Davix::MetalinkParser parser;
+        Davix::Context c;
+        std::vector<Davix::File> r;
+        Davix::MetalinkParser parser(c, r);
         int ret = parser.parseChuck(metalink_item_lcgdm, strlen(metalink_item_lcgdm));
         ASSERT_EQ(0, ret);
 
-        const Davix::ReplicaVec& r = parser.getReplicas();
-        const Davix::Properties& p = parser.getProps();
         ASSERT_EQ(1, r.size());
-        Davix::Uri u = r[0].uri;
+        Davix::Uri u = r[0].getUri();
         ASSERT_EQ(Davix::StatusCode::OK, u.getStatus());
         ASSERT_STREQ("http://datagrid.lbl.gov/testdata//L/test02.data", u.getString().c_str());
-        ASSERT_EQ(1, p.size());
-        ASSERT_TRUE(typeid(Davix::FileInfoSize) == p[0]->getType());
+        ASSERT_EQ(494391600, parser.getSize());
     });
 }
 
@@ -462,24 +461,21 @@ TEST(XmlMetalinkParserTest, parserMetalinkSimpl){
 TEST(XmlMetalinkParserTest, parserMetalinkGeneric){
 
     ASSERT_NO_THROW({
-    Davix::MetalinkParser parser;
+    Davix::Context c;
+    std::vector<Davix::File> r;
+    Davix::MetalinkParser parser(c, r);
     int ret = parser.parseChuck(metalink_item_generic, strlen(metalink_item_generic));
     //std::cout << parser.getLastErr()->getErrMsg();
     ASSERT_EQ(0, ret);
 
-    const Davix::ReplicaVec& r = parser.getReplicas();
    // const Davix::Properties& p = parser.getProps();
     ASSERT_EQ(8, r.size());
-    Davix::Uri u = r[0].uri;
+    Davix::Uri u = r[0].getUri();
     ASSERT_EQ(Davix::StatusCode::OK, u.getStatus());
     ASSERT_STREQ("ftp://ftp.example1.com/example.ext", u.getString().c_str());
-    ASSERT_EQ(1, r[0].props.size());
-    ASSERT_TRUE(typeid(Davix::FileInfoProtocolType) == r[0].props[0]->getType());
-    u = r[1].uri;
+    u = r[1].getUri();
     ASSERT_STREQ("ftp://ftp.example2.com/example.ext", u.getString().c_str());
-    ASSERT_EQ(1, r[1].props.size());
-    ASSERT_TRUE(typeid(Davix::FileInfoProtocolType) == r[1].props[0]->getType());
-
+    ASSERT_STREQ("ftp",u.getProtocol().c_str());
     });
 }
 

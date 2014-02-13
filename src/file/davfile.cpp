@@ -6,9 +6,11 @@
 
 namespace Davix{
 
-struct DavFileInternal{
+struct DavFile::DavFileInternal{
     DavFileInternal(Context & c, const Uri & u) :
         _c(c), _u(u) {}
+
+    DavFileInternal(const DavFileInternal & orig) : _c(orig._c), _u(orig._u) {}
 
     Context & _c;
     Uri _u;
@@ -21,15 +23,32 @@ DavFile::DavFile(Context &c, const Uri &u) :
 
 }
 
+DavFile::DavFile(const DavFile & orig): d_ptr(new DavFileInternal(*orig.d_ptr)){
+
+}
+
 DavFile::~DavFile(){
     delete d_ptr;
 }
 
 
-dav_ssize_t DavFile::getAllReplicas(const RequestParams* params, ReplicaVec & v, DavixError **err){
-    return (dav_ssize_t) Meta::getAllReplicas(d_ptr->_c, d_ptr->_u, *params, v, err);
+const Uri &  DavFile::getUri() const{
+    return d_ptr->_u;
 }
 
+
+std::vector<DavFile> DavFile::getReplicas(const RequestParams *_params, DavixError **err){
+    std::vector<DavFile> res;
+    RequestParams params(_params);
+    Meta::getReplicas(d_ptr->_c,d_ptr->_u, params, res, err);
+    return res;
+}
+
+
+dav_ssize_t DavFile::getAllReplicas(const RequestParams* params, ReplicaVec & v, DavixError **err){
+    Davix::DavixError::setupError(err, davix_scope_http_request(), StatusCode::OperationNonSupported, " GetAllReplicas Function not supported, please use GetReplicas()");
+    return -1;
+}
 
 dav_ssize_t DavFile::readPartialBufferVec(const RequestParams *params, const DavIOVecInput * input_vec,
                       DavIOVecOuput * output_vec,

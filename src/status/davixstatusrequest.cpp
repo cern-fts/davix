@@ -212,6 +212,10 @@ std::string davix_scope_http_request(){
     return "Davix::HttpRequest";
 }
 
+std::string davix_scope_meta(){
+    return "Davix::MetaDataOps";
+}
+
 std::string davix_scope_xml_parser(){
     return "Davix::XMLParser";
 }

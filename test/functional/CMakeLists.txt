@@ -23,6 +23,7 @@ set( src_test_valid_read_generic_simple "test_valid_read_generic_simple.cpp")
 set( src_test_valid_write_read_generic_simple "test_valid_write_read_generic_simple.cpp")
 set( src_test_valid_write_read_vector_simple "test_valid_write_read_vector_simple.cpp")
 set( src_tool_read_vector_simple "tool_read_vector_simple.cpp")
+set( src_tool_get_replicas "tool_get_replica_simple.cpp")
 
 add_executable(test_request ${src_test_req} )
 target_link_libraries(test_request davix  )
@@ -82,6 +83,9 @@ add_executable(test_valid_write_read_vector_simple ${src_test_valid_write_read_v
 target_link_libraries(test_valid_write_read_vector_simple davix  )
 
 
+add_executable(tool_get_replicas ${src_tool_get_replicas} ${src_davix_test_lib})
+target_link_libraries(tool_get_replicas davix  )
+
 function(test_dav_endpoint_ronly name cred)
 
     add_test(test_stat_${name} test_stat ${name} ${cred})
@@ -120,6 +124,10 @@ function(test_valid_write_read_generic url cred)
     add_test(test_valid_write_read_generic_simple_${url} test_valid_write_read_generic_simple ${url} ${cred})
     add_test(test_valid_write_read_vector_simple_${url} test_valid_write_read_vector_simple ${url} ${cred})
 endfunction(test_valid_write_read_generic url cred)
+
+function(test_replica_listing_existing url cred)
+   add_test(tool_get_replicas_${url} tool_get_replicas ${url} ${cred})
+endfunction(test_replica_listing_existing url cred)
 
 include(ctest_functional.cmake)
 

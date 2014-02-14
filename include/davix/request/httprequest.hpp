@@ -55,6 +55,9 @@ namespace RequestFlag{
 }
 
 
+typedef std::vector< std::pair <std::string, std::string> > HeaderVec;
+
+
 /// @class HttpRequest
 /// @brief Http low level request interface
 /// HTTPRequest is the main davix class for low level HTTP queries
@@ -245,6 +248,13 @@ public:
     /// @param value : reference of the string to set
     /// @return true if this header exist or false if it does not
     bool getAnswerHeader(const std::string & header_name, std::string & value) const;
+
+
+    ///
+    /// get all the headers associated with this answer
+    /// @param value : vector of headers
+    /// @return true if this header exist or false if it does not
+    size_t getAnswerHeaders( HeaderVec & vec_headers) const;
 
     ///
     /// @brief Extract a cache token from this Request

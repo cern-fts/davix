@@ -118,6 +118,10 @@ public:
 
     bool getAnswerHeader(const std::string &header_name, std::string &value) const;
 
+    size_t getAnswerHeaders( std::vector<std::pair<std::string, std::string > > & vec_headers) const;
+
+
+
     // auth method support
     int do_pkcs12_cert_authentification(const char * filename_pkcs12, const char* passwd, DavixError** err);
     int do_login_passwd_authentification(const char *login, const char *passwd, DavixError** err);

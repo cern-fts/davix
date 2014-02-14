@@ -25,7 +25,7 @@ public:
     //
     // parse a block of character with a maximum size of 'len' characters
     // return negative value if failure or 0 if success
-    int parseChuck(const char * partial_string, size_t len);
+    int parseChuck(const char * partial_string, dav_size_t len);
 
 protected:
 

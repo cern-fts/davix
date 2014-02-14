@@ -14,6 +14,7 @@
 #include <sstream>
 #include <cstring>
 #include <limits>
+#include <utility>
 
 
 namespace Davix {
@@ -638,6 +639,18 @@ bool NEONRequest::getAnswerHeader(const std::string &header_name, std::string &v
         }
     }
     return false;
+}
+
+
+size_t NEONRequest::getAnswerHeaders( HeaderVec & vec_headers) const{
+    if(_req){
+        void * handle = NULL;
+        const char* name=NULL, *value=NULL;
+        while( (handle = ne_response_header_iterate(_req, handle, &name, &value)) != NULL){
+            vec_headers.push_back(std::pair<std::string, std::string>(name, value));
+        }
+    }
+    return vec_headers.size();
 }
 
 

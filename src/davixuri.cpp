@@ -1,5 +1,7 @@
 #include <config.h>
 #include <sstream>
+#include <functional>
+#include <algorithm>
 #include <davixuri.hpp>
 #include <cassert>
 #include <cstring>
@@ -172,6 +174,14 @@ std::string Uri::unescapeString(const std::string & str){
 Uri Uri::fromRelativePath(const Uri &uri, const std::string &relPath){
     std::ostringstream ss;
     if(relPath.size() >= 2){
+        // test if not absolute
+        std::string::const_iterator it;
+        if( ( it = std::find(relPath.begin(), relPath.end(), '/')) != relPath.end()
+                && it != relPath.begin() && *(it-1) == ':'
+                && (it+1) != relPath.end() && *(it+1) == '/'){
+            return Uri(relPath);
+        }
+
         // RFC 3986 network-path reference”
         if(relPath[0] == '/' && relPath[1] == '/'){
 

@@ -39,7 +39,6 @@ struct MetalinkParser::MetalinkParserIntern{
         _tagStack.reserve(5);
     }
 
-
     inline int startElem(const std::string & name){
 
         DAVIX_TRACE("MetalinkParser: <tag> %s", name.c_str());

@@ -12,7 +12,7 @@ namespace Meta{
 
 
 // get all reps from webdav queries
-int getReplicas(Context & c, const Uri & r,
+void getReplicas(Context & c, const Uri & r,
                               const RequestParams & params,  std::vector<DavFile> & vec, DavixError** err);
 
 dav_ssize_t posixStat(Context & c, const Uri & url, const RequestParams * _params,
@@ -31,6 +31,12 @@ int makeCollection(Context & c, const Uri & uri, const RequestParams & params, D
     @return vector of characters of the query content
   */
 const char* req_webdav_propfind(HttpRequest* req, DavixError** err);
+
+
+// utilities
+int davix_metalink_header_parser(const std::string & header_key, const std::string & header_value,
+                                 const Uri & u_original,
+                                 Uri & metalink);
 
 
 } // Meta

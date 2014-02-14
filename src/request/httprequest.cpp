@@ -138,6 +138,10 @@ bool HttpRequest::getAnswerHeader(const std::string &header_name, std::string &v
     return d_ptr->getAnswerHeader(header_name, value);
 }
 
+size_t HttpRequest::getAnswerHeaders( HeaderVec & vec_headers) const{
+    return d_ptr->getAnswerHeaders(vec_headers);
+}
+
 const char* HttpRequest::getAnswerContent(){
     return d_ptr->getAnswerContent();
 }

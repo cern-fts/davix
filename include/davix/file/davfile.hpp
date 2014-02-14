@@ -50,7 +50,7 @@ public:
     ///
     /// @brief return all replicas associated to this file
     ///
-    /// Replicas are found using a corresponding meta-link file or Webdav extensions if supported
+    /// Replicas are found using a corresponding The MetaLink standard ( rfc5854, rfc6249 )
     ///
     /// @param params  Davix Request parameters
     /// @param err  DavixError error report

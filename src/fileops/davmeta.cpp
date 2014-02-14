@@ -117,6 +117,7 @@ int davix_file_get_all_replicas_metalink( Context & c, const Uri & uri,
         return static_cast<int>(vec.size());
 
     }
+    throw DavixException(davix_scope_meta(), StatusCode::OperationNonSupported, "Server does not support Metalink standard");
     return 0;
 }
 

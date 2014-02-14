@@ -192,7 +192,7 @@ const char* DavixException::scope() const throw(){
 }
 
 void DavixException::toDavixError(DavixError **err){
-    DavixError::propagateError(err, &this->e);
+    DavixError::propagateError(err, new DavixError(this->e));
 }
 
 

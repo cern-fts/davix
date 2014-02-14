@@ -11,7 +11,7 @@ namespace Davix{
 
 namespace MetalinkTag{
 enum MetalinkParserTag{
-    Metalink3 = 0x00,
+    Metalink = 0x00,
     Files = 0x01,
     File = 0x02,
     Size = 0x03,

@@ -8,15 +8,21 @@ namespace Davix{
 const std::string MetalinkScope = "MetalinkParser";
 
 const std::string tags_string[] = { "metalink", "files", "file",  "size", "resources", "url" };
-const size_t tags_string_size = 6;
+const size_t tags_string_size = (sizeof(tags_string))/((sizeof(std::string )));
 
-const MetalinkTag::MetalinkParserTag url_stack[] = { MetalinkTag::Metalink3,
+const MetalinkTag::MetalinkParserTag url_stack[] = { MetalinkTag::Metalink,
                                             MetalinkTag::Files, MetalinkTag::File, MetalinkTag::Resources, MetalinkTag::Url };
 const size_t url_stack_size= (sizeof(url_stack))/(sizeof(MetalinkTag::MetalinkParserTag));
 
-const MetalinkTag::MetalinkParserTag size_stack[] = { MetalinkTag::Metalink3,
+const MetalinkTag::MetalinkParserTag url_stack_meta4[] = { MetalinkTag::Metalink, MetalinkTag::File, MetalinkTag::Url };
+const size_t url_stack_size_meta4= (sizeof(url_stack_meta4))/(sizeof(MetalinkTag::MetalinkParserTag));
+
+const MetalinkTag::MetalinkParserTag size_stack[] = { MetalinkTag::Metalink,
                                             MetalinkTag::Files, MetalinkTag::File, MetalinkTag::Size };
 const size_t size_stack_size= (sizeof(size_stack))/(sizeof(MetalinkTag::MetalinkParserTag));
+
+const MetalinkTag::MetalinkParserTag size_stack_meta4[] = { MetalinkTag::Metalink, MetalinkTag::File, MetalinkTag::Size };
+const size_t size_stack_size_meta4= (sizeof(size_stack_meta4))/(sizeof(MetalinkTag::MetalinkParserTag));
 
 static MetalinkTag::MetalinkParserTag getTag(const std::string & str){
     const std::string* p =  std::find(tags_string, tags_string + tags_string_size, str);
@@ -61,12 +67,23 @@ struct MetalinkParser::MetalinkParserIntern{
         const MetalinkTag::MetalinkParserTag t = getTag(name);
         std::string & replic = _buffer;
 
+        // metalink 3.0
         if(matchStack(_tagStack, url_stack, url_stack_size)){
-            DAVIX_TRACE("MetalinkParser: Replica URL %s", replic.c_str());
+            DAVIX_TRACE("MetalinkParser 3.0 : Replica URL %s", replic.c_str());
             _fvec.push_back(File(_c, Uri(trim<int (*)(int)>(replic, std::isspace))));
         }
         if(matchStack(_tagStack, size_stack, size_stack_size)){
-            DAVIX_TRACE("MetalinkParser: Replica size %d", replic.c_str());
+            DAVIX_TRACE("MetalinkParser 3.0 : Replica size %d", replic.c_str());
+            _filesize = static_cast<dav_size_t>(strtoul(replic.c_str(), NULL, 10));
+        }
+
+        // metalink 4.0
+        if(matchStack(_tagStack, url_stack_meta4, url_stack_size_meta4)){
+            DAVIX_TRACE("MetalinkParser 4.0 : Replica URL %s", replic.c_str());
+            _fvec.push_back(File(_c, Uri(trim<int (*)(int)>(replic, std::isspace))));
+        }
+        if(matchStack(_tagStack, size_stack_meta4, size_stack_size_meta4)){
+            DAVIX_TRACE("MetalinkParser 4.0 : Replica size %d", replic.c_str());
             _filesize = static_cast<dav_size_t>(strtoul(replic.c_str(), NULL, 10));
         }
 

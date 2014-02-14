@@ -225,3 +225,27 @@ TEST(ParserJSONTestTuto, JSONReplicaParsing){
 
 
 
+
+// JSON parser tutorial test
+TEST(UriTests, testRelativeUri){
+    Davix::Uri u("http://datagrid.lbl.gov/testdata/R/test01.data");
+    std::string proto_rel("//example.org/test"), abs_path("/hello/world/"), rel_path("blabla/test");
+
+    Davix::Uri res = Uri::fromRelativePath(u, proto_rel);
+    ASSERT_EQ(StatusCode::OK, res.getStatus());
+    ASSERT_STREQ("http://example.org/test", res.getString().c_str());
+
+    res = Uri::fromRelativePath(u, abs_path);
+    ASSERT_EQ(StatusCode::OK, res.getStatus());
+    ASSERT_STREQ("http://datagrid.lbl.gov/hello/world/", res.getString().c_str());
+
+    res = Uri::fromRelativePath(u, rel_path);
+    ASSERT_EQ(StatusCode::OK, res.getStatus());
+    ASSERT_STREQ("http://datagrid.lbl.gov/testdata/R/test01.data/blabla/test", res.getString().c_str());
+
+}
+
+
+
+
+

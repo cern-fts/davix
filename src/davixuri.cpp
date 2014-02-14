@@ -1,4 +1,5 @@
 #include <config.h>
+#include <sstream>
 #include <davixuri.hpp>
 #include <cassert>
 #include <cstring>
@@ -164,6 +165,47 @@ std::string Uri::escapeString(const std::string & str){
 
 std::string Uri::unescapeString(const std::string & str){
     return davix_path_unescape(str);
+}
+
+
+// FIX IT : does not manage properly ../
+Uri Uri::fromRelativePath(const Uri &uri, const std::string &relPath){
+    std::ostringstream ss;
+    if(relPath.size() >= 2){
+        // RFC 3986 network-path reference”
+        if(relPath[0] == '/' && relPath[1] == '/'){
+
+            ss << uri.getProtocol() << ":" << relPath;
+            return Uri(ss.str());
+        }
+
+        // RFC 3986 relative ”
+        if(relPath[0] == '.' && relPath[1] == '/'){
+            ss << uri.getString() << "/";
+            std::copy(relPath.begin()+2,relPath.end(), std::ostreambuf_iterator<char>(ss));
+            return Uri(ss.str());
+        }
+    }
+
+    // RFC 3986 abs path ”
+    if( relPath.size() >= 1){
+        if(relPath[0] == '/'){
+            ss << uri.getProtocol() << "://";
+            if(uri.getUserInfo().size() >0){
+                ss << uri.getUserInfo() << '@';
+            }
+            ss << uri.getHost();
+            if(uri.getPort() != 0){
+                ss << ':' << uri.getPort();
+            }
+            ss << relPath;
+            return Uri(ss.str());
+        }
+
+    }
+
+    ss << uri.getString() <<'/'<< relPath;
+    return Uri(ss.str());
 }
 
 bool uriCheckError(const Uri &uri, DavixError **err){

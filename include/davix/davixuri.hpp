@@ -102,11 +102,20 @@ public:
     static std::string escapeString(const std::string & str);
 
     ///
-    /// \brief Unescape url
+    /// \brief Unescape urI
     /// \param str URL to escape
     /// \return unencoded string
     ///
     static std::string unescapeString(const std::string & str);
+
+    ///
+    /// \brief create a new Uri from URI and a relative associated path
+    /// \param uri original URI
+    /// \param relPath relative path
+    /// \return new URI from this path
+    ///
+    static Uri fromRelativePath(const Uri & uri, const std::string & relPath);
+
 
 private:
     UriPrivate* d_ptr;

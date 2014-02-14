@@ -247,7 +247,7 @@ int NEONRequest::processRedirection(int neonCode, DavixError **err){
             neon_to_davix_code(neonCode, _neon_sess->get_ne_sess(), davix_scope_http_request(),err);
             return -1;
         }
-       _last_read=  ne_discard_response(_req);              // Get a valid redirection, drop request content
+        ne_discard_response(_req);              // Get a valid redirection, drop request content
         end_status = ne_end_request(_req);      // submit the redirection
         if(redirect_request(err) <0){           // accept redirection
             return -1;
@@ -330,7 +330,7 @@ int NEONRequest::negotiate_request(DavixError** err){
                 }
                 break;
             case 401: // authentification requested, do retry
-                _last_read= ne_discard_response(_req);
+                ne_discard_response(_req);
                 end_status = ne_end_request(_req);
 
                 if( end_status != NE_RETRY){
@@ -395,6 +395,7 @@ int NEONRequest::redirect_request(DavixError **err){
 int NEONRequest::executeRequest(DavixError** err){
     dav_ssize_t read_status=1;
     _last_request_flag =0;
+    _vec.clear();
 
     DAVIX_DEBUG(" -> NEON start synchronous  request... ");
     if( startRequest(err) < 0){
@@ -415,7 +416,9 @@ int NEONRequest::executeRequest(DavixError** err){
 
     }
     // push a last NULL char for safety
+    _ans_size = _vec.size();
     _vec.push_back('\0');
+
 
     if(read_status < 0){
         if(err && *err == NULL)
@@ -449,7 +452,7 @@ dav_ssize_t NEONRequest::readBlock(char* buffer, dav_size_t max_size, DavixError
         return -1;
     }
 
-    if(max_size ==0)
+    if(max_size ==0 || _last_read ==0)
         return 0;
 
     // take from line buffer

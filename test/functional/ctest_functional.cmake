@@ -10,7 +10,9 @@ set(http_desy_base "https://lcg-lrz-dc66.grid.lrz.de/pnfs/lrz-muenchen.de/data/d
 set(http_desy_file "${http_desy_base}/fbxtest.txt" CACHE STRING "dCache file to sue for read only tests")
 set(http_lcgdm_base "https://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam" CACHE STRING "DPM test instance to use" )
 set(http_lcgdm_file "${http_lcgdm_base}/gfal2-tests/testread0011")
-set(metalink_url "https://mirrors.fedoraproject.org/metalink?repo=epel-debug-6&amp;arch=x86_64")
+set(metalink_url "http://download.documentfoundation.org/libreoffice/stable/4.2.0/deb/x86_64/LibreOffice_4.2.0_Linux_x86-64_deb.tar.gz")
+set(metalink3_url "http://download.documentfoundation.org/libreoffice/stable/4.2.0/deb/x86_64/LibreOffice_4.2.0_Linux_x86-64_deb_langpack_fr.tar.gz.metalink")
+set(metalink_url_direct "http://download.documentfoundation.org/libreoffice/stable/4.2.0/deb/x86_64/LibreOffice_4.2.0_Linux_x86-64_deb_langpack_fr.tar.gz.meta4")
 
 test_dav_endpoint_ronly( ${http_desy_base} "proxy")
 
@@ -52,3 +54,5 @@ test_valid_write_read_generic("${http_desy_base}" "proxy")
 # test replicas listing
 test_replica_listing_existing("${http_lcgdm_file}" "proxy")
 test_replica_listing_existing("${metalink_url}" "proxy")
+test_replica_listing_existing("${metalink3_url}" "proxy")
+test_replica_listing_existing("${metalink_url_direct}" "proxy")

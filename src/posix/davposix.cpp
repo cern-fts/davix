@@ -90,17 +90,17 @@ static void fill_dirent_from_filestat(struct dirent * d, const FileProperties & 
         d->d_type = DT_REG;
 }
 
-int incremental_propfind_listdir_parsing(HttpRequest* req, DavPropXMLParser * parser, size_t s_buff, const char* scope, DavixError** err){
+dav_ssize_t incremental_propfind_listdir_parsing(HttpRequest* req, DavPropXMLParser * parser, dav_size_t s_buff, const char* scope, DavixError** err){
   //  std::cout << "time 1 pre-fecth" << time(NULL) << std::endl;
     DavixError* tmp_err=NULL;
 
     char buffer[s_buff+1];
-    const ssize_t ret_s_buff= req->readSegment(buffer, s_buff, &tmp_err);
-    if(ret_s_buff >= 0){
-        buffer[ret_s_buff]= '\0';
+    const dav_size_t ret = req->readSegment(buffer, s_buff, &tmp_err);
+    if(ret >= 0){
+        buffer[ret]= '\0';
         DAVIX_DEBUG("chunk parse : result content : %s", buffer);
         TRY_DAVIX{
-            parser->parseChuck(buffer, ret_s_buff);
+            parser->parseChuck(buffer, ret);
         }CATCH_DAVIX(&tmp_err)
         if(tmp_err != NULL)
             return -1;
@@ -109,7 +109,7 @@ int incremental_propfind_listdir_parsing(HttpRequest* req, DavPropXMLParser * pa
     //std::cout << "time 3 post-parse" << time(NULL) << std::endl;
     if(tmp_err)
         DavixError::propagateError(err, tmp_err);
-    return ret_s_buff;
+    return ret;
 }
 
 
@@ -120,7 +120,7 @@ void configure_req_for_listdir(HttpRequest* req){
 }
 
 DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char * scope, const std::string & body, const std::string & url, DavixError** err ){
-    ssize_t s_resu;
+    dav_ssize_t s_resu;
     DAVIX_DIR* r = NULL;
     int ret =-1;
     DavixError* tmp_err=NULL;

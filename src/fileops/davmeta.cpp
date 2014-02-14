@@ -94,7 +94,7 @@ int davix_file_get_metalink_to_vfile(Context & c, const Uri & metalink_uri,
     MetalinkParser parser(c, vec);
 
     req.setParameters(_params);
-    req.addHeaderField("Content-type", "application/metalink4+xml");
+    req.addHeaderField("Accept", "application/metalink4+xml");
 
     DAVIX_TRACE("Executing query for %s Metalink content", metalink_uri.getString().c_str());
     if(tmp_err != NULL || (req.executeRequest(&tmp_err) <0) )

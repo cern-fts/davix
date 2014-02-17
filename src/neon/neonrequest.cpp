@@ -40,11 +40,11 @@ void neon_generic_error_mapper(int ne_status, StatusCode::Code & code, std::stri
              str= "Domain name resolution failed";
              break;
         case NE_AUTH:
-            code = StatusCode::AuthentificationError;
+            code = StatusCode::AuthenticationError;
             str=  "Authentification failed on server";
             break;
         case NE_PROXYAUTH:
-            code = StatusCode::AuthentificationError;
+            code = StatusCode::AuthenticationError;
             str=  "Authentification failed on proxy";
             break;
         case NE_CONNECT:

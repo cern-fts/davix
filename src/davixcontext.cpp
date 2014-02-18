@@ -3,7 +3,7 @@
 #include <davixuri.hpp>
 #include <neon/neonsessionfactory.hpp>
 #include <davix_context_internal.hpp>
-#include <memory/memoryutils.hpp>
+#include <boost/scoped_ptr.hpp>
 
 
 
@@ -40,7 +40,7 @@ struct ContextInternal
       _s_buff = value;
     }
 
-    ScopedPtr<NEONSessionFactory>::type  _fsess;
+    boost::scoped_ptr<NEONSessionFactory>  _fsess;
     dav_size_t _s_buff;
     unsigned long _timeout;
     bool _context_flags;

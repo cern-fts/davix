@@ -15,12 +15,12 @@ DAVIX_C_DECL_BEGIN
 
 /// set the davix log mask
 /// everything that is not coverred by the mask is dropped
-DAVIX_EXPORT void davix_set_log_level(int log_mask);
+extern DAVIX_EXPORT void davix_set_log_level(int log_mask);
 
 /// get current log mask
-DAVIX_EXPORT int davix_get_log_level();
+extern DAVIX_EXPORT int davix_get_log_level();
 
-DAVIX_EXPORT void davix_logger(int log_mask, const char * msg, ...);
+extern DAVIX_EXPORT void davix_logger(int log_mask, const char * msg, ...);
 
 /// @brief setup a log handler
 ///
@@ -29,7 +29,7 @@ DAVIX_EXPORT void davix_logger(int log_mask, const char * msg, ...);
 ///
 /// @param fhandler : log handler callback
 /// @param userdata : callback userdata
-DAVIX_EXPORT void davix_set_log_handler( void (*fhandler)(void* userdata, int mgs_level, const char* msg), void* userdata);
+extern DAVIX_EXPORT void davix_set_log_handler( void (*fhandler)(void* userdata, int mgs_level, const char* msg), void* userdata);
 
 DAVIX_C_DECL_END
 

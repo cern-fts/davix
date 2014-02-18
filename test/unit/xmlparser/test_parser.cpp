@@ -3,7 +3,7 @@
 #include <config.h>
 #include <stdbool.h>
 #include <ctime>
-#include <datetime/datetime_utils.h>
+#include <datetime/datetime_utils.hpp>
 #include <davix.hpp>
 #include <xml/davxmlparser.hpp>
 #include <xml/davpropxmlparser.hpp>

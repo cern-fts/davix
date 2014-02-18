@@ -1,5 +1,5 @@
-#ifndef DATETIME_UTILS_H
-#define DATETIME_UTILS_H
+#ifndef DATETIME_UTILS_HPP
+#define DATETIME_UTILS_HPP
 
 #include <string.h>
 #include <time.h>
@@ -7,10 +7,6 @@
 #define DATETIME_UTILS_PARSE_ERROR 1
 #define DATETIME_UTILS_CONV_ERROR 2
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 
 /**
   parse an http standard date to a posix time
@@ -34,8 +30,5 @@ time_t parse_iso8601date(const char* http_date);
 */
 time_t parse_standard_date(const char* http_date);
 
-#ifdef __cplusplus
-}
-#endif
 
-#endif // DATETIME_UTILS_H
+#endif // DATETIME_UTILS_HPP

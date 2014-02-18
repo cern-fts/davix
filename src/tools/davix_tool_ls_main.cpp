@@ -27,26 +27,21 @@ static std::string help_msg(){
 }
 
 
-static void display_dirent_entry(struct dirent* d, const Tool::OptParams & opts, FILE* filestream){
-    fputs(d->d_name, filestream);
+static void display_file_entry(const std::string & filename, const Tool::OptParams & opts, FILE* filestream){
+    fputs(filename.c_str(), filestream);
     fputs("\n",filestream);
 }
 
 
-static void display_long_dirent_entry(struct dirent* d, struct stat* st, const Tool::OptParams & opts, FILE* filestream){
+static void display_long_file_entry(const std::string & filename,  struct stat* st, const Tool::OptParams & opts, FILE* filestream){
     std::ostringstream ss;
     ss << Tool::string_from_mode(st->st_mode) << " ";
     ss << Tool::string_from_size_t(static_cast<size_t>(st->st_nlink),4) << " ";
     ss << Tool::string_from_size_t(st->st_size, 9) << " ";
     ss << Tool::string_from_ptime(st->st_ctime) << " ";
-    ss << d->d_name << "\n";
+    ss << filename << "\n";
 
     fputs(ss.str().c_str(), filestream);
-}
-
-static void display_path(const std::string & str, FILE* filestream){
-    fputs(str.c_str(), filestream);
-    fputs("\n",filestream);
 }
 
 static int listing(const Tool::OptParams & opts, FILE* filestream, DavixError** err ){
@@ -59,9 +54,9 @@ static int listing(const Tool::OptParams & opts, FILE* filestream, DavixError** 
         return -1;
     while( (d = pos.readdirpp(fd, &st, err)) != NULL ){
         if(opts.pres_flag & LONG_LISTING_FLAG){
-            display_long_dirent_entry(d, &st, opts, filestream);
+            display_long_file_entry(d->d_name, &st, opts, filestream);
         }else{
-            display_dirent_entry(d, opts, filestream);
+            display_file_entry(d->d_name, opts, filestream);
         }
     }
     pos.closedirpp(fd, NULL);
@@ -70,10 +65,14 @@ static int listing(const Tool::OptParams & opts, FILE* filestream, DavixError** 
 
 static int get_info(const Tool::OptParams & opts, FILE* filestream, DavixError** err ){
     Context c;
-    DavPosix pos(&c);
+    File f(c, opts.vec_arg[0]);
     struct stat st;
-    if( pos.stat(&opts.params, opts.vec_arg[0], &st, err) == 0){
-        display_path(opts.vec_arg[0], filestream);
+    if( f.stat(&opts.params, &st, err) == 0){
+        if(opts.pres_flag & LONG_LISTING_FLAG){
+            display_long_file_entry(opts.vec_arg[0], &st, opts, filestream);
+        }else{
+            display_file_entry(opts.vec_arg[0], opts, filestream);
+        }
         return 0;
     }
     return -1;

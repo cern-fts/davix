@@ -1,7 +1,6 @@
 #ifndef DAVIX_PTREE_HPP
 #define DAVIX_PTREE_HPP
 
-#include <deque>
 #include <algorithm>
 #include <functional>
 #include <iostream>
@@ -14,7 +13,7 @@ class BasicPtree{
 public:
     typedef BasicPtree<KeyType, DataType, PredEqualKey, PredEqualData> tree_type;
     typedef tree_type* ptr_type;
-    typedef std::deque<tree_type> ChildrenList;
+    typedef std::vector<tree_type> ChildrenList;
     typedef typename ChildrenList::const_iterator const_iterator;
     typedef typename ChildrenList::iterator iterator;
 

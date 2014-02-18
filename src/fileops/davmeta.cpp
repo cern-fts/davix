@@ -203,7 +203,7 @@ int dav_stat_mapper_http(Context& context, const RequestParams* params, const Ur
             if(httpcodeIsValid(req.getRequestCode()) ){
                 memset(st, 0, sizeof(struct stat));
                 const dav_ssize_t s = req.getAnswerSize();
-                st->st_size = (size_t) (s <0)?0:s;
+                st->st_size = static_cast<size_t>(std::max<dav_ssize_t>(0,s));
                 st->st_mode = 0755 | S_IFREG;
                 ret = 0;
                 if(token_ptr)

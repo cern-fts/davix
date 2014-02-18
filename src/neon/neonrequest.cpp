@@ -393,7 +393,7 @@ int NEONRequest::redirect_request(DavixError **err){
 }
 
 int NEONRequest::executeRequest(DavixError** err){
-    dav_ssize_t read_status=1;
+    dav_ssize_t read_status=1, total_read=0;
     _last_request_flag =0;
     _vec.clear();
 
@@ -410,21 +410,25 @@ int NEONRequest::executeRequest(DavixError** err){
         size_t s = _vec.size();
         _vec.resize(s + NEON_BUFFER_SIZE);
         read_status= readBlock(&(_vec[s]), NEON_BUFFER_SIZE, err);
-        if( read_status >= 0 && read_status != NEON_BUFFER_SIZE){
-           _vec.resize(s +  read_status);
+        if( read_status >= 0){
+            if(read_status != NEON_BUFFER_SIZE){
+                _vec.resize(s +  read_status);
+            }
+           total_read += read_status;
         }
 
     }
-    // push a last NULL char for safety
-    _ans_size = _vec.size();
-    _vec.push_back('\0');
-
 
     if(read_status < 0){
         if(err && *err == NULL)
             neon_to_davix_code(read_status, _neon_sess->get_ne_sess(), davix_scope_http_request(), err);
         return -1;
     }
+    _vec.push_back('\0');
+
+   /* if(getAnswerSize() < 0){
+        _ans_size = total_read;
+    }*/
 
    if( endRequest(err) < 0){
        return -1;
@@ -624,7 +628,7 @@ dav_ssize_t NEONRequest::getAnswerSizeFromHeaders() const{
        DAVIX_TRACE("Bad server answer: %s Invalid, impossible to determine answer size", ans_header_content_length.c_str());
        size = -1;
     }
-    return (dav_ssize_t) size;
+    return static_cast<dav_ssize_t>(size);
 }
 
 dav_ssize_t NEONRequest::getAnswerSize() const{

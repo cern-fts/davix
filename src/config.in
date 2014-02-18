@@ -26,38 +26,6 @@
 #cmakedefine HAVE_CXX011_FULL_SUPPORT 1
 #cmakedefine HAVE_CXX011_PARTIAL_SUPPORT 1
 
-#ifdef __cplusplus
-
-#if (defined HAVE_CXX011_FULL_SUPPORT) || (defined HAVE_CXX011_PARTIAL_SUPPORT)
-#   include <array>
-#   include <iostream>
-#   include <functional>
-
-#   define stdx11 std
-#else
-#   include <tr1/array>
-#   include <tr1/functional>
-#   define stdx11 std::tr1
-#endif
-
-
-// gnu ext ++
-#cmakedefine HAVE_EXT_ALGORITHM 1
-
-#if (defined HAVE_EXT_ALGORITHM) && !(defined HAVE_CXX011_FULL_SUPPORT) && !(defined HAVE_CXX011_PARTIAL_SUPPORT)
-
-#define stdgnu __gnu_cxx
-
-#include <ext/algorithm>
-
-#else
-
-#define stdgnu std
-
-#endif
-
-#endif
-
 // default export
 #undef DAVIX_EXPORT
 #define DAVIX_EXPORT

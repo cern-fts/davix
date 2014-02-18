@@ -462,7 +462,7 @@ dav_ssize_t NEONRequest::readBlock(char* buffer, dav_size_t max_size, DavixError
     // take from line buffer
     if(_vec_line.size() > 0){
        if( _vec_line.size() > max_size){
-        stdgnu::copy_n(_vec_line.begin(), max_size, buffer);
+        std::copy(_vec_line.begin(), _vec_line.begin() + max_size, buffer);
         _vec_line.erase(_vec_line.begin(), _vec_line.begin() + max_size);
         return max_size;
        }else{

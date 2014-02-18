@@ -3,6 +3,7 @@
 
 #include <davix.hpp>
 #include <fileproperties.hpp>
+#include <boost/function.hpp>
 
 namespace Davix {
 
@@ -25,7 +26,7 @@ void fill_stat_from_fileproperties(struct stat* st, const  FileProperties & prop
 
 
 
-typedef stdx11::function<int (dav_off_t &, dav_off_t &)> OffsetCallback;
+typedef boost::function<int (dav_off_t &, dav_off_t &)> OffsetCallback;
 
 std::vector< std::pair<dav_size_t, std::string> > generateRangeHeaders(dav_size_t max_header_size, OffsetCallback & offset_provider);
 

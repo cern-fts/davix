@@ -1,6 +1,7 @@
 #include <config.h>
 #include "httpiovec.hpp"
 #include <cstring>
+#include <boost/bind.hpp>
 #include <cstddef>
 #include <logger/davix_logger_internal.h>
 #include <string_utils/stringutils.hpp>
@@ -84,8 +85,8 @@ dav_ssize_t HttpVecOps::readPartialBufferVec(const DavIOVecInput * input_vec,
     ptrdiff_t p_diff=0;
     dav_ssize_t counter = 0;
     // determine the Range header request in order to determine the number of request
-    stdx11::function<int (dav_off_t &, dav_off_t &)> offsetProvider( stdx11::bind(davIOVecProvider, input_vec, counter, (dav_ssize_t) count_vec,
-                         stdx11::placeholders::_1, stdx11::placeholders::_2));
+    boost::function<int (dav_off_t &, dav_off_t &)> offsetProvider( boost::bind(davIOVecProvider, input_vec, counter, (dav_ssize_t) count_vec,
+                         _1, _2));
 
     // header line need to be inferior to 8K on Apache2 / Ngix
     // in Addition, some S3 implementation limit the total header size to 8k....

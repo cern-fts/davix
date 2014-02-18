@@ -127,8 +127,6 @@ static int callback_offset_stupid(dav_off_t & begin, dav_off_t & end){
 
 TEST(headerParser, generateRange){
     std::string header;
-    dav_size_t size;
-    dav_off_t offset;
     const dav_size_t max_header_size = rand()%8000+30;
     OffsetCallback o(callback_offset_stupid);
 

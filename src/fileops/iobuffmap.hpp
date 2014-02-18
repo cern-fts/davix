@@ -2,7 +2,7 @@
 #ifndef DAVIX_IOBUFFMAP_HPP
 #define DAVIX_IOBUFFMAP_HPP
 
-#include <memory/memoryutils.hpp>
+#include <boost/scoped_ptr.hpp>
 #include <davix.hpp>
 #include <libs/lockers/dpplocker.hpp>
 #include <fileops/fileutils.hpp>
@@ -66,7 +66,7 @@ protected:
     bool _read_endfile;
 
     // cache token
-    ScopedPtr<HttpCacheToken>::type _token;
+    boost::scoped_ptr<HttpCacheToken> _token;
 private:
     HttpRequest * _read_req;
 

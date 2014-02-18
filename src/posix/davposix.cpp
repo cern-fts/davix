@@ -2,7 +2,7 @@
 #include <ostream>
 #include <sstream>
 
-#include <memory/memoryutils.hpp>
+#include <boost/scoped_ptr.hpp>
 #include <logger/davix_logger_internal.h>
 #include <status/davixstatusrequest.hpp>
 #include <fileops/fileutils.hpp>
@@ -27,7 +27,7 @@ static const std::string stat_listing("<?xml version=\"1.0\" encoding=\"utf-8\" 
 
 struct Davix_fd{
     Davix_fd(Davix::HttpIOBuffer * buff) : io_handler(buff){}
-    ScopedPtr<Davix::HttpIOBuffer>::type io_handler;
+    boost::scoped_ptr<Davix::HttpIOBuffer> io_handler;
 };
 
 
@@ -121,7 +121,7 @@ void configure_req_for_listdir(HttpRequest* req){
 
 DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char * scope, const std::string & body, const std::string & url, DavixError** err ){
     dav_ssize_t s_resu;
-    DAVIX_DIR* r = NULL;
+    DIR_handle* res = NULL;
     int ret =-1;
     DavixError* tmp_err=NULL;
     RequestParams params(_params);
@@ -130,7 +130,7 @@ DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char
     // create a new connexion + parser for this opendir
     if(tmp_err == NULL){
         configure_req_for_listdir(http_req);
-        ScopedPtr<DIR_handle>::type res(  new DIR_handle(http_req, new DavPropXMLParser()));
+         res=  new DIR_handle(http_req, new DavPropXMLParser());
         time_t timestamp_timeout = time(NULL) + _timeout;
 
         http_req->setParameters(params);
@@ -166,16 +166,18 @@ DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char
                              DavixError::setupError(&tmp_err, davix_scope_directory_listing_str(), StatusCode::IsNotADirectory, url + " is not a collection or a directory, impossible to list");
                         }else{
                             parser->getProperties().pop_front(); // suppress the parent directory infos...
-                            r = res.release(); // success : take ownership of the pointer
                         }
                     }
             }
         }
     }
 
-    if(tmp_err)
+    if(tmp_err){
         DavixError::propagateError(err, tmp_err);
-    return (DAVIX_DIR*) r;
+        delete res;
+        return 0;
+    }
+    return (DAVIX_DIR*) res;
 }
 
 

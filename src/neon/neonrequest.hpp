@@ -9,8 +9,7 @@
 #include <ne_request.h>
 #include <ne_auth.h>
 #include <neon/neonsessionfactory.hpp>
-#include <memory/memoryutils.hpp>
-
+#include <boost/scoped_ptr.hpp>
  
 #include <request/httprequest.hpp>
 #include <neon/neonsession.hpp>
@@ -131,9 +130,9 @@ private:
     // request parameters
     RequestParams params;
     // cache parameters
-    ScopedPtr<HttpCacheToken>::type _cache_info;
+    boost::scoped_ptr<HttpCacheToken> _cache_info;
     // neon internal field
-    ScopedPtr<NEONSession>::type _neon_sess;
+    boost::scoped_ptr<NEONSession> _neon_sess;
     // request options flag
 
 

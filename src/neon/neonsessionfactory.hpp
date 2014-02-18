@@ -40,6 +40,7 @@ private:
     std::multimap<std::string, ne_session*> _sess_map;
     DppLock _sess_mut;
 
+
     void internal_release_session_handle(ne_session* sess);
 
     ne_session* create_session(const std::string & protocol, const std::string &host, unsigned int port);

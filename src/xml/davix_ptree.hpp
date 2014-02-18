@@ -13,8 +13,8 @@ template <class KeyType, class DataType, class PredEqualKey = std::equal_to<KeyT
 class BasicPtree{
 public:
     typedef BasicPtree<KeyType, DataType, PredEqualKey, PredEqualData> tree_type;
-    typedef BasicPtree* ptr_type;
-    typedef typename std::deque<tree_type > ChildrenList;
+    typedef tree_type* ptr_type;
+    typedef std::deque<tree_type> ChildrenList;
     typedef typename ChildrenList::const_iterator const_iterator;
     typedef typename ChildrenList::iterator iterator;
 

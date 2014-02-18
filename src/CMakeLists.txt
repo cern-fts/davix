@@ -23,7 +23,6 @@ link_directories(${HTTPLIB_PKG_LIBRARY_DIR} ${CRYPTO_PKG_LIBRARY_DIR}
 
 add_subdirectory(copy)
 add_subdirectory(libs)
-add_subdirectory(datetime)
 add_subdirectory(xml)
 add_subdirectory(tools)
 

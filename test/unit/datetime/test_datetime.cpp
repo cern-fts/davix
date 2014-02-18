@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <ctime>
-#include <datetime/datetime_utils.h>
+#include <datetime/datetime_utils.hpp>
 
 TEST(DateTimeTest, testConvert){
     time_t res, t = time(NULL);

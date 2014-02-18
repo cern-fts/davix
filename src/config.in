@@ -6,11 +6,11 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <pthread.h>
-//
-#include <string.h>
-#include <limits.h>
-//
-#include <errno.h>
+
+// C++ C mapping
+#include <cstring>
+#include <climits>
+#include <cerrno>
 
 // davix parameters
 #define DAVIX_BUFFER_SIZE 2048

@@ -1,7 +1,7 @@
 # libs CMakefile for third party deps
 
 
-add_subdirectory(containers)
+add_subdirectory(adevpp)
 add_subdirectory(lockers)
 add_subdirectory(logger)
 

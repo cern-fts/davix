@@ -23,6 +23,10 @@ SET(SRC_HMACSHA1 "${CMAKE_CURRENT_SOURCE_DIR}/hmac_sha1/hmacsha1.cpp" PARENT_SCO
 #json parser
 SET(HEADER_RAPIDJSON "${CMAKE_CURRENT_SOURCE_DIR}/rapidjson/include" PARENT_SCOPE)
 
+
+## boost
+SET(BOOST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boost_internal" PARENT_SCOPE)
+
 add_subdirectory(libneon)
 
 

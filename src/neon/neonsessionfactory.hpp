@@ -5,7 +5,8 @@
 #include <davixuri.hpp>
  
 #include <neon/neonrequest.hpp>
-#include <libs/lockers/dpplocker.hpp>
+#include <boost/thread/locks.hpp>
+#include <boost/thread/mutex.hpp>
 
 namespace Davix {
 
@@ -38,7 +39,7 @@ public:
 
 private:
     std::multimap<std::string, ne_session*> _sess_map;
-    DppLock _sess_mut;
+    boost::mutex _sess_mut;
 
 
     void internal_release_session_handle(ne_session* sess);

@@ -28,7 +28,7 @@ NEONSessionFactory::NEONSessionFactory() :
 }
 
 NEONSessionFactory::~NEONSessionFactory(){
-    DppLocker lock(_sess_mut);
+    boost::lock_guard<boost::mutex> lock(_sess_mut);
     for(std::multimap<std::string, ne_session*>::iterator it = _sess_map.begin(); it != _sess_map.end(); ++it){
         ne_session_destroy(it->second);
     }
@@ -81,7 +81,7 @@ ne_session* NEONSessionFactory::create_recycled_session(const std::string &proto
 
     ne_session* se= NULL;
     {
-        DppLocker lock(_sess_mut);
+        boost::lock_guard<boost::mutex> lock(_sess_mut);
         std::multimap<std::string, ne_session*>::iterator it;
         if( (it = _sess_map.find(create_map_keys_from_URL(protocol, host, port))) != _sess_map.end()){
             DAVIX_DEBUG("cached ne_session found ! taken from cache ");
@@ -99,7 +99,7 @@ void NEONSessionFactory::internal_release_session_handle(ne_session* sess){
     // clear sensitive data
     // none
     //
-    DppLocker lock(_sess_mut);
+    boost::lock_guard<boost::mutex> lock(_sess_mut);
     std::multimap<std::string, ne_session*>::iterator it;
     std::string sess_key;
     sess_key.append(ne_get_scheme(sess)).append(ne_get_server_hostport(sess));

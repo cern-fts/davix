@@ -22,7 +22,8 @@ static void init_neon(){
 NEONSessionFactory::NEONSessionFactory() :
     _sess_map(),
     _sess_mut(),
-    _session_caching(true)
+    _session_caching(true),
+    _redirCache(256)
 {
     neon_once.once(&init_neon);
 }
@@ -107,6 +108,42 @@ void NEONSessionFactory::internal_release_session_handle(ne_session* sess){
     DAVIX_DEBUG("add old session to cache %s", sess_key.c_str());
 
     _sess_map.insert(std::pair<std::string, ne_session*>(sess_key, sess));
+}
+
+static std::string redirectionCreateKey(const std::string & method, const Uri & origin){
+    static const std::string head_method("HEAD");
+    std::string res;
+
+    res.reserve(method.size() + origin.getString().size() +3);
+    res.append( ((method.compare("GET") ==0)?(head_method):(method))); // cache HEAD and GET on same key
+    res.append("_").append(origin.getString());
+    return res;
+}
+
+void NEONSessionFactory::addRedirection( const std::string & method, const Uri & origin, boost::shared_ptr<Uri> dest){
+    DAVIX_DEBUG("Cache redirection <%s %s %s>", method.c_str(), origin.getString().c_str(), dest->getString().c_str());
+    _redirCache.insert(redirectionCreateKey(method, origin), dest);
+}
+
+boost::shared_ptr<Uri> NEONSessionFactory::redirectionResolve(const std::string & method, const Uri & origin){
+    boost::shared_ptr<Uri> res =  _redirCache.find(redirectionCreateKey(method, origin));
+
+    if(res.get() != NULL){
+        DAVIX_DEBUG("Cached redirection found <%s %s %s>", method.c_str(), origin.getString().c_str(), res->getString().c_str());
+        boost::shared_ptr<Uri> res_rec = redirectionResolve(method, *res);
+        if(res_rec.get() != NULL)
+            return res_rec;
+    }
+    return res;
+}
+
+void NEONSessionFactory::redirectionClean(const std::string & method, const Uri & origin){
+    boost::shared_ptr<Uri> res = redirectionResolve(method, origin);
+    if(res.get() != NULL){
+        redirectionClean(method, *res);
+    }
+    DAVIX_DEBUG("Delete Cached redirections for <%s %s>", method.c_str(), origin.getString().c_str());
+    _redirCache.erase(redirectionCreateKey(method, origin));
 }
 
 

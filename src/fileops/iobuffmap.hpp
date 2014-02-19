@@ -35,7 +35,6 @@ public:
 
     // execute a plain HTTP stat method for file info
     int stat(struct stat* st, DavixError** err);
-    int stat(struct stat* st, HttpCacheToken** token, DavixError** err);
 
     //
     void resetFullRead();
@@ -65,8 +64,6 @@ protected:
     dav_off_t _read_pos; //curent read file offset
     bool _read_endfile;
 
-    // cache token
-    boost::scoped_ptr<HttpCacheToken> _token;
 private:
     HttpRequest * _read_req;
 

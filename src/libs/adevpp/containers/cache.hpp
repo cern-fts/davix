@@ -25,6 +25,8 @@ public:
     Cache(size_t max_size = std::numeric_limits<size_t>::max()) :
         cmp(CompareT()), map(cmp), _max_size(max_size), _m(){}
 
+    ~Cache(){}
+
     shrPtr_type insert(const Key & key, Value* value){
         return insert(key, shrPtr_type(value));
     }

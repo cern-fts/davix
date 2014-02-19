@@ -153,7 +153,7 @@ std::string davix_delegate(const std::string &urlpp,
   soap_get->keep_alive = 1;
 
   if (soap_ssl_client_context(soap_get, SOAP_SSL_DEFAULT, keycert, passwd.c_str(),
-                              NULL, capath.c_str(), NULL) == 0) {
+                              ucert.c_str(), capath.c_str(), NULL) == 0) {
     soap_call_tns__getNewProxyReq(soap_get,
                                   url,
                                   "http://www.gridsite.org/namespaces/delegation-1",
@@ -170,7 +170,7 @@ std::string davix_delegate(const std::string &urlpp,
         soap_put = soap_new();
 
         if (soap_ssl_client_context(soap_put, SOAP_SSL_DEFAULT, keycert, "",
-                              NULL, capath.c_str(), NULL) == 0) {
+                ucert.c_str(), capath.c_str(), NULL) == 0) {
             soap_call_tns__putProxy(soap_put,
                                     url,
                                     "http://www.gridsite.org/namespaces/delegation-1",

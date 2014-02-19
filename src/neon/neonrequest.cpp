@@ -7,7 +7,6 @@
 #include <ne_request.h>
 #include <neon/neonsession.hpp>
 #include <fileops/fileutils.hpp>
-#include <request/httpcachetoken_internal.hpp>
 #include <memory>
 #include <algorithm>
 #include <iterator>
@@ -112,11 +111,10 @@ void neon_simple_req_code_to_davix_code(int ne_status, ne_session* sess, const s
 NEONRequest::NEONRequest(NEONSessionFactory& f, const Uri & uri_req) :
     _req_flag(RequestFlag::IdempotentRequest),
     params(),
-    _cache_info(),
     _neon_sess(),
     _req(NULL),
-    _current(uri_req),
-    _orig(uri_req),
+    _current( new Uri(uri_req)),
+    _orig(_current),
     _last_read(-1),
     _vec(),
     _vec_line(),
@@ -159,10 +157,15 @@ int NEONRequest::create_req(DavixError** err){
        reqReset();
     }
 
+    boost::shared_ptr<Uri> redir_url = _f.redirectionResolve(_request_type, *_current);
+    if(redir_url.get() != NULL){
+        _current.swap(redir_url);
+    }
+
     if( pick_sess(err) < 0)
         return -1;
 
-    _req= ne_request_create(_neon_sess->get_ne_sess(), _request_type.c_str(), _current.getPathAndQuery().c_str());
+    _req= ne_request_create(_neon_sess->get_ne_sess(), _request_type.c_str(), _current->getPathAndQuery().c_str());
     configure_req();
 
     return 0;
@@ -170,7 +173,7 @@ int NEONRequest::create_req(DavixError** err){
 
 int NEONRequest::pick_sess(DavixError** err){
     DavixError * tmp_err=NULL;
-    _neon_sess.reset(new NEONSession(_f, _current, params, &tmp_err) );
+    _neon_sess.reset(new NEONSession(_f, *_current, params, &tmp_err) );
     if(tmp_err){
         _neon_sess.reset(NULL);
         DavixError::propagateError(err, tmp_err);
@@ -233,7 +236,7 @@ void NEONRequest::configureS3params(){
        << "\n"          // TODO : implement Content-type and md5 parser
        << "\n"
        << date << "\n"
-       << _current.getPath();
+       << _current->getPath();
     addHeaderField("Authorization", getAwsAuthorizationField(ss.str(), params.getAwsAutorizationKeys().first, params.getAwsAutorizationKeys().second));
 }
 
@@ -262,25 +265,6 @@ int NEONRequest::processRedirection(int neonCode, DavixError **err){
 
 
 int NEONRequest::startRequest(DavixError **err){
-    if( _cache_info.get() != NULL
-            && httpCacheTokenIsValid(_orig, *(_cache_info.get()))
-            && params.getTransparentRedirectionSupport() == true){
-        // Try to connect directly to the cached redirection, if exist
-        DavixError * tmp_err=NULL;
-        _current = _cache_info->getCachedRedirection();
-        DAVIX_TRACE("Try to use cached redirection %s", _current.getString().c_str());
-        if( create_req(&tmp_err) >= 0){
-            if(negotiate_request(&tmp_err) >= 0){
-                if(httpcodeIsValid(getRequestCode())){
-                    DAVIX_TRACE("use of %s with success", _current.getString().c_str());
-                    return 0;
-                }
-            }
-        }
-        DavixError::clearError(&tmp_err);
-        endRequest(NULL);
-        _current = _orig;
-    }
     if( create_req(err) < 0)
             return -1;
     return negotiate_request(err);
@@ -314,6 +298,7 @@ int NEONRequest::negotiate_request(DavixError** err){
             req_started= req_running == false;
             neon_to_davix_code(status, _neon_sess->get_ne_sess(), davix_scope_http_request(),err);
             neonrequest_eradicate_session(*_neon_sess, err);
+            _f.redirectionClean(_request_type, *_orig);
             DAVIX_DEBUG(" Davix negociate request ... <-");
             return -1;
         }
@@ -342,6 +327,15 @@ int NEONRequest::negotiate_request(DavixError** err){
                     }else{
                         neon_to_davix_code(status, _neon_sess->get_ne_sess(), davix_scope_http_request(),err);
                     }
+                    // cleanup redirection
+                    _f.redirectionClean(_request_type, *_orig);
+                    if(_current != _orig){ // cancel redirect, maybe outdated ? retry
+                        DAVIX_DEBUG(" ->  Auth problem after redirect: cancel redirect and try again");
+                        n++;
+                        _current = _orig;
+                        end_status = NE_RETRY;
+                        break;
+                    }
                     return -1;
                 }
                 DAVIX_DEBUG(" ->   NEON receive %d code, %d .... request again ... ", code, end_status);
@@ -364,6 +358,7 @@ int NEONRequest::negotiate_request(DavixError** err){
 }
 
 int NEONRequest::redirect_request(DavixError **err){
+    boost::shared_ptr<Uri> old_uri;
     const ne_uri * new_uri = ne_redirect_location(_neon_sess->get_ne_sess());
     if(!new_uri){
         DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, "Impossible to get the new redirected destination");
@@ -371,12 +366,14 @@ int NEONRequest::redirect_request(DavixError **err){
     }
 
     char* dst_uri = ne_uri_unparse(new_uri);
-    DAVIX_DEBUG("redirection from %s://%s/%s to %s", ne_get_scheme(_neon_sess->get_ne_sess()),
-                      ne_get_server_hostport(_neon_sess->get_ne_sess()), _current.getPathAndQuery().c_str(), dst_uri);
+    DAVIX_DEBUG("redirection from %s to %s", _current->getString().c_str(), dst_uri);
 
     // setup new path & session target
-    _current= Uri(dst_uri);
+    old_uri = _current;
+    _current= boost::shared_ptr<Uri>(new Uri(dst_uri));
     ne_free(dst_uri);
+    _f.addRedirection(_request_type, *old_uri, _current);
+
 
     // recycle old request and session
     free_request();
@@ -691,11 +688,6 @@ void NEONRequest::setRequestBody(HttpBodyProvider provider, dav_size_t len, void
     _content_provider.udata    = udata;
 }
 
-HttpCacheToken* NEONRequest::extractCacheToken() const {
-    if(_last_request_flag ==0)
-        return NULL;
-    return HttpCacheTokenAccessor::createCacheToken(_orig, _current);
-}
 
 void NEONRequest::free_request(){
     if(_req != NULL){

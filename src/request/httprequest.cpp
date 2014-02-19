@@ -152,14 +152,10 @@ dav_ssize_t HttpRequest::getAnswerSize() const{
 }
 
 HttpCacheToken* HttpRequest::extractCacheToken()const{
-    return d_ptr->extractCacheToken();
+    return NULL;
 }
 
 void HttpRequest::useCacheToken(const HttpCacheToken *token){
-    d_ptr->useCacheToken(token);
-    if(token)
-        DAVIX_DEBUG("import redirection %s",
-                    (token->getCachedRedirection().getString().c_str()));
 }
 
 /// set a HttpRequest flag

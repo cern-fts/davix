@@ -10,6 +10,7 @@
 #include <ne_auth.h>
 #include <neon/neonsessionfactory.hpp>
 #include <boost/scoped_ptr.hpp>
+#include <boost/shared_ptr.hpp>
  
 #include <request/httprequest.hpp>
 #include <neon/neonsession.hpp>
@@ -30,7 +31,7 @@ struct ContentProviderContext {
 };
 
 
-class NEONRequest
+class NEONRequest : protected NonCopyable
 {
 public:
     int _req_flag;
@@ -106,13 +107,6 @@ public:
     */
     void clearAnswerContent();
 
-    void useCacheToken(const HttpCacheToken * c){
-       _cache_info.reset((c)?(new HttpCacheToken(*c)):NULL);
-    }
-
-    HttpCacheToken* extractCacheToken() const;
-    //ake
-
     int getRequestCode();
 
     bool getAnswerHeader(const std::string &header_name, std::string &value) const;
@@ -129,15 +123,13 @@ private:
 
     // request parameters
     RequestParams params;
-    // cache parameters
-    boost::scoped_ptr<HttpCacheToken> _cache_info;
     // neon internal field
     boost::scoped_ptr<NEONSession> _neon_sess;
     // request options flag
 
 
     ne_request * _req;
-    Uri  _current, _orig;
+    boost::shared_ptr<Uri>  _current, _orig;
     // read info
     dav_ssize_t _last_read;
 

@@ -3,7 +3,6 @@
 
 #include <davixcontext.hpp>
 #include <params/davixrequestparams.hpp>
-#include <request/httpcachetoken.hpp>
 #include <file/davfile.hpp>
 
 namespace Davix{
@@ -16,7 +15,7 @@ void getReplicas(Context & c, const Uri & r,
                               const RequestParams & params,  std::vector<DavFile> & vec, DavixError** err);
 
 dav_ssize_t posixStat(Context & c, const Uri & url, const RequestParams * _params,
-                      struct stat* st, HttpCacheToken** token_ptr,
+                      struct stat* st,
                       DavixError** err);
 
 

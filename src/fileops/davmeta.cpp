@@ -154,7 +154,7 @@ const char* req_webdav_propfind(HttpRequest* req, DavixError** err){
 }
 
 
-int dav_stat_mapper_webdav(Context &context, const RequestParams* params, const Uri & url, struct stat* st, HttpCacheToken** token_ptr,
+int dav_stat_mapper_webdav(Context &context, const RequestParams* params, const Uri & url, struct stat* st,
                            DavixError** err){
     int ret =-1;
 
@@ -175,8 +175,6 @@ int dav_stat_mapper_webdav(Context &context, const RequestParams* params, const 
                 }else{
                     fill_stat_from_fileproperties(st, props.front());
                     ret =0;
-                    if(token_ptr)
-                        *token_ptr = req.extractCacheToken();
                 }
             }
         }CATCH_DAVIX(&tmp_err)
@@ -189,7 +187,7 @@ int dav_stat_mapper_webdav(Context &context, const RequestParams* params, const 
 }
 
 
-int dav_stat_mapper_http(Context& context, const RequestParams* params, const Uri & uri, struct stat* st, HttpCacheToken** token_ptr,
+int dav_stat_mapper_http(Context& context, const RequestParams* params, const Uri & uri, struct stat* st,
                          DavixError** err){
     int ret = -1;
     DavixError * tmp_err=NULL;
@@ -206,8 +204,6 @@ int dav_stat_mapper_http(Context& context, const RequestParams* params, const Ur
                 st->st_size = static_cast<size_t>(std::max<dav_ssize_t>(0,s));
                 st->st_mode = 0755 | S_IFREG;
                 ret = 0;
-                if(token_ptr)
-                    *token_ptr = req.extractCacheToken();
             }else{
                 httpcodeToDavixCode(req.getRequestCode(), davix_scope_http_request(), uri.getString() , &tmp_err);
                 ret = -1;
@@ -221,8 +217,7 @@ int dav_stat_mapper_http(Context& context, const RequestParams* params, const Ur
 
 
 dav_ssize_t posixStat(Context & c, const Uri & url, const RequestParams * params,
-                      struct stat* st, HttpCacheToken** token_ptr,
-                      DavixError** err){
+                      struct stat* st, DavixError** err){
     RequestParams _params(params);
     DavixError* tmp_err=NULL;
     int ret =-1;
@@ -230,10 +225,10 @@ dav_ssize_t posixStat(Context & c, const Uri & url, const RequestParams * params
 
     switch(_params.getProtocol()){
          case RequestProtocol::Webdav:
-            ret = dav_stat_mapper_webdav(c, &_params, url, st, token_ptr, &tmp_err);
+            ret = dav_stat_mapper_webdav(c, &_params, url, st, &tmp_err);
             break;
         default:
-            ret = dav_stat_mapper_http(c, &_params, url, st, token_ptr, &tmp_err);
+            ret = dav_stat_mapper_http(c, &_params, url, st, &tmp_err);
             break;
 
     }

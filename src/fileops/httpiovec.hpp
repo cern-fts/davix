@@ -22,14 +22,11 @@ class HttpVecOps
 {
 public:
     HttpVecOps(Context & c, HttpIO & io,
-               const Uri & u, const RequestParams & params,
-               const HttpCacheToken & cacheToken) :
+               const Uri & u, const RequestParams & params) :
         _c(c),
         _io(io),
         _url(u),
-        _params(params),
-        _cacheToken(cacheToken)
-    {}
+        _params(params){}
 
     dav_ssize_t readPartialBufferVec(const DavIOVecInput * input_vec,
                               DavIOVecOuput * output_vec,
@@ -55,8 +52,7 @@ private:
     Context &_c;
     HttpIO &_io;
     const Uri &_url;
-    const RequestParams &_params;
-    const HttpCacheToken &_cacheToken;
+    const RequestParams & _params;
 };
 
 

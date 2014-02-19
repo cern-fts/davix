@@ -70,7 +70,7 @@ DavPosix::DavPosix(Context* _context) :
     d_ptr(NULL)
 
 {
-
+    (void ) d_ptr; // silence warning
 }
 
 DavPosix::~DavPosix(){
@@ -327,7 +327,7 @@ int DavPosix::stat(const RequestParams * params, const std::string & url, struct
     DAVIX_DEBUG(" -> davix_stat");
     DavixError* tmp_err=NULL;
 
-    int ret = Meta::posixStat(*context, Uri(url), params, st, NULL, &tmp_err);
+    int ret = Meta::posixStat(*context, Uri(url), params, st, &tmp_err);
 
     DAVIX_DEBUG(" davix_stat <-");
     if(tmp_err)

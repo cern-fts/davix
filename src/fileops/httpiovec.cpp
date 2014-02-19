@@ -116,7 +116,6 @@ dav_ssize_t HttpVecOps::readPartialBufferVec(const DavIOVecInput * input_vec,
             GetRequest req (_c,_url, &tmp_err);
             if(tmp_err == NULL){
                 req.setParameters(_params);
-                req.useCacheToken(&_cacheToken);
                 req.addHeaderField(req_header_byte_range, it->second);
                 if( (tmp_ret = readPartialBufferVecRequest(req, input_vec+ p_diff, output_vec+ p_diff, it->first, &tmp_err)) <0){
                     ret = -1;

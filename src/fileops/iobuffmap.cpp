@@ -116,7 +116,6 @@ HttpIO::HttpIO(Context &c, const Uri &uri, const RequestParams *params) :
     _rwlock(),
     _read_pos(0),
     _read_endfile(false),
-    _token(),
     _read_req(NULL)
 {
 
@@ -137,7 +136,6 @@ dav_ssize_t HttpIO::readFullBuff(void *buffer, dav_size_t size_read, DavixError 
             && (_read_req = new HttpRequest(_c,_uri, &tmp_err)) != NULL
             && tmp_err == NULL ){
         _read_req->setParameters(_params);
-        _read_req->useCacheToken(_token.get());
         if(_read_req->beginRequest(&tmp_err) ==0
             && (_read_req->getRequestCode() != 200)){
                 httpcodeToDavixCode(_read_req->getRequestCode(),davix_scope_http_request(),", while  readding", &tmp_err);
@@ -184,7 +182,6 @@ dav_ssize_t HttpIO::readFull(std::vector<char> & buffer, DavixError** err){
     GetRequest req (_c,_uri, &tmp_err);
     if(!tmp_err){
         req.setParameters(_params);
-        req.useCacheToken(_token.get());
         ret = req.beginRequest(&tmp_err);
         if(!tmp_err){
             const dav_size_t s_chunk = (req.getAnswerSize() > 0)?(req.getAnswerSize()):DAVIX_BLOCK_SIZE;
@@ -224,7 +221,6 @@ dav_ssize_t HttpIO::readPartialBuffer(void *buf, dav_size_t count, dav_off_t off
     HttpRequest req(_c, _uri, &tmp_err);
     if(tmp_err == NULL){
         req.setParameters(_params);
-        req.useCacheToken(_token.get());
         setup_offset_request(&req, &offset, &count,1);
         if(req.beginRequest(&tmp_err) ==0){
             if(req.getRequestCode() == 416 ){ // out of file, end of file
@@ -254,7 +250,7 @@ dav_ssize_t HttpIO::readPartialBufferVec(const DavIOVecInput * input_vec,
                       DavIOVecOuput * output_vec,
                       const dav_size_t count_vec, DavixError** err){
 
-    HttpVecOps vec(_c, *this, _uri, _params, *_token);
+    HttpVecOps vec(_c, *this, _uri, _params);
     return vec.readPartialBufferVec(input_vec,
                                     output_vec,
                                     count_vec,
@@ -272,7 +268,6 @@ dav_ssize_t HttpIO::readToFd(int fd, dav_size_t read_size, DavixError** err){
     GetRequest req (_c,_uri, &tmp_err);
     if(!tmp_err){
         req.setParameters(_params);
-        req.useCacheToken(_token.get());
         ret = req.beginRequest(&tmp_err);
         if(!tmp_err){
             if(httpcodeIsValid(req.getRequestCode()) == false){
@@ -302,7 +297,6 @@ dav_ssize_t HttpIO::writeFullFromFd(int fd, dav_size_t size, DavixError** err){
     PutRequest req (_c,_uri, &tmp_err);
     if(!tmp_err){
         req.setParameters(_params);
-        req.useCacheToken(_token.get());
         req.setRequestBody(fd,0, size);
         ret = req.executeRequest(&tmp_err);
         if(!tmp_err && httpcodeIsValid(req.getRequestCode()) == false){
@@ -319,17 +313,11 @@ dav_ssize_t HttpIO::writeFullFromFd(int fd, dav_size_t size, DavixError** err){
     return ret;
 }
 
-
-
-int HttpIO::stat(struct stat *st, DavixError **err){
-    return stat( st, NULL, err);
-}
-
-int HttpIO::stat(struct stat* st, HttpCacheToken** token, DavixError** err){
+int HttpIO::stat(struct stat* st, DavixError** err){
     RequestParams p(_params);
     if(p.getProtocol()== RequestProtocol::Auto) // default -> switch to http mode
         p.setProtocol(RequestProtocol::Http);
-    return Meta::posixStat(_c, _uri, &p, st, token, err);
+    return Meta::posixStat(_c, _uri, &p, st, err);
 }
 
 void HttpIO::resetFullRead(){
@@ -364,15 +352,12 @@ bool HttpIOBuffer::open(int flags, DavixError **err){
     DavixError* tmp_err=NULL;
     bool res = false;
     RequestParams p(_params);
-    HttpCacheToken* token = NULL;
     if(_opened)
         return true;
 
     struct stat st;
 
-    if( Meta::posixStat(_c, _uri, &p, &st, &token, &tmp_err) ==0){
-        if(token)
-            _token.reset(token);
+    if( Meta::posixStat(_c, _uri, &p, &st, &tmp_err) ==0){
         if( (flags & O_EXCL) && ( flags & O_CREAT)){
             DavixError::setupError(&tmp_err, davix_scope_io_buff(),
                                    StatusCode::FileExist, "file exist and O_EXCL flag usedin open");

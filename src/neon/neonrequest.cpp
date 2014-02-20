@@ -289,10 +289,17 @@ int NEONRequest::negotiate_request(DavixError** err){
         DAVIX_DEBUG(" ->   NEON start internal request ... ");
 
         if( (status = ne_begin_request(_req)) != NE_OK && status != NE_REDIRECT){
-            if( status == NE_ERROR && strstr(ne_get_error(_neon_sess->get_ne_sess()), "Could not") != NULL ){ // bugfix against neon keepalive problem
-               DAVIX_DEBUG("Connexion close, retry...");
-               n++;
-               continue;
+            if( status == NE_ERROR   ){ // bugfix against neon keepalive problem, protection against buggy servers
+                if(strstr(ne_get_error(_neon_sess->get_ne_sess()), "Could not") != NULL
+                   || strstr(ne_get_error(_neon_sess->get_ne_sess()), "Connection reset by peer") != NULL){
+                   DAVIX_DEBUG("KeepAlive Server problem detected, retry");
+                   n++;
+                   _neon_sess->disable_session_reuse();
+                   _f.redirectionClean(_request_type, *_orig);
+                   if( create_req(err) < 0)
+                       return -1;
+                   continue;
+                }
             }
 
             req_started= req_running == false;
@@ -423,9 +430,9 @@ int NEONRequest::executeRequest(DavixError** err){
     }
     _vec.push_back('\0');
 
-   /* if(getAnswerSize() < 0){
+    if(getAnswerSize() < 0){
         _ans_size = total_read;
-    }*/
+    }
 
    if( endRequest(err) < 0){
        return -1;
@@ -453,23 +460,29 @@ dav_ssize_t NEONRequest::readBlock(char* buffer, dav_size_t max_size, DavixError
         return -1;
     }
 
-    if(max_size ==0 || _last_read ==0)
+    if(max_size ==0)
         return 0;
 
     // take from line buffer
     if(_vec_line.size() > 0){
-       if( _vec_line.size() > max_size){
+       if( _vec_line.size() >= max_size){
         std::copy(_vec_line.begin(), _vec_line.begin() + max_size, buffer);
         _vec_line.erase(_vec_line.begin(), _vec_line.begin() + max_size);
+        DAVIX_TRACE("NEONRequest::readBlock read %ld bytes (from buffer)", max_size);
         return max_size;
        }else{
            const dav_ssize_t n_bytes = _vec_line.size();
            std::copy(_vec_line.begin(), _vec_line.end(), buffer);
            _vec_line.clear();
            read_status = readBlock(buffer + n_bytes, max_size -n_bytes, err);
-           return (read_status >= 0)?(read_status+n_bytes):(-1);
+           const dav_ssize_t ret_value = (read_status >= 0)?(read_status+n_bytes):(-1);
+           DAVIX_TRACE("NEONRequest::readBlock read %ld bytes(from partially)", ret_value);
+           return ret_value;
        }
     }
+
+    if(_last_read ==0)
+        return 0;
 
     _last_read= read_status= ne_read_response_block(_req, buffer, max_size );
     if(read_status <0){
@@ -477,6 +490,7 @@ dav_ssize_t NEONRequest::readBlock(char* buffer, dav_size_t max_size, DavixError
        req_running = false;
        return -1;
     }
+    DAVIX_TRACE("NEONRequest::readBlock read %ld bytes", read_status);
     return read_status;
 }
 

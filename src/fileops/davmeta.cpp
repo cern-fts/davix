@@ -51,7 +51,6 @@ bool davix_metalink_header_content_type(const std::string & header_key, const st
     return (string_compare_ncase(header_key, "Content-type") ==0 &&  header_value.find("application/metalink") !=std::string::npos);
 }
 
-
 int davix_get_metalink_url( Context & c, const Uri & uri,
                             const RequestParams & _params, Uri & metalink){
     DavixError* tmp_err = NULL;
@@ -97,14 +96,24 @@ int davix_file_get_metalink_to_vfile(Context & c, const Uri & metalink_uri,
     req.addHeaderField("Accept", "application/metalink4+xml");
 
     DAVIX_TRACE("Executing query for %s Metalink content", metalink_uri.getString().c_str());
-    if(tmp_err != NULL || (req.executeRequest(&tmp_err) <0) )
+    if(tmp_err != NULL || (req.beginRequest(&tmp_err) <0) )
         throw DavixException(davix_scope_meta(), tmp_err->getStatus(), tmp_err->getErrMsg());
     if(httpcodeIsValid(req.getRequestCode()) == false){
         std::ostringstream ss;
         ss << "Unable to get Metalink file, error HTTP " << req.getRequestCode();
         throw DavixException(davix_scope_meta(), StatusCode::InvalidServerResponse, ss.str());
     }
-    parser.parseChuck(req.getAnswerContent(), req.getAnswerSize());
+
+    dav_ssize_t read_size;
+    do{
+        char buffer[2049];
+        buffer[2048] = '\0';
+        if( (read_size = req.readSegment(buffer, 2048, &tmp_err)) < 0)
+            throw DavixException(davix_scope_meta(), tmp_err->getStatus(), tmp_err->getErrMsg());
+        parser.parseChuck(buffer, read_size);
+    }while(read_size > 0);
+
+    req.endRequest(NULL);
     return vec.size();
 }
 

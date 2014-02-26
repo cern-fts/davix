@@ -2,6 +2,7 @@
 #include <cassert>
 #include <logger/davix_logger_internal.h>
 #include <params/davixrequestparams.hpp>
+#include <algorithm>
 #include <libs/time_utils.h>
 
 
@@ -299,6 +300,10 @@ std::vector< std::pair<std::string,std::string> > &RequestParams::getHeaders() {
 void* RequestParams::getParmState() const{
 
     return (void*) (d_ptr->_state_uid);
+}
+
+void RequestParams::swap(RequestParams & p){
+    std::swap(d_ptr, p.d_ptr);
 }
 
 

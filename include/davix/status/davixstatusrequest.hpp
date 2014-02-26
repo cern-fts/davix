@@ -231,6 +231,9 @@ public:
     static void propagateError(DavixError** newErr, DavixError* oldErr);
 
 
+    void swap(DavixError & err);
+
+
 
 
     ///

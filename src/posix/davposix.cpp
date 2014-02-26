@@ -184,7 +184,11 @@ DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char
 DAVIX_DIR* DavPosix::opendir(const RequestParams* params, const std::string &url, DavixError** err){
 
     DAVIX_DEBUG(" -> davix_opendir");
-    DAVIX_DIR* r = internal_opendirpp(params, "Core::opendir",simple_listing, url, err);
+    DAVIX_DIR* r  = NULL;
+
+    TRY_DAVIX{
+        r =  internal_opendirpp(params, "Core::opendir",simple_listing, url, err);
+    }CATCH_DAVIX(err)
 
     DAVIX_DEBUG(" <- davix_opendir");
     return (DAVIX_DIR*) r;
@@ -193,7 +197,11 @@ DAVIX_DIR* DavPosix::opendir(const RequestParams* params, const std::string &url
 DAVIX_DIR* DavPosix::opendirpp(const RequestParams* params, const std::string &url, DavixError** err){
 
     DAVIX_DEBUG(" -> davix_opendirpp");
-    DAVIX_DIR* r = internal_opendirpp(params, "Core::opendir",stat_listing, url, err);
+    DAVIX_DIR* r  = NULL;
+
+    TRY_DAVIX{
+        r =  internal_opendirpp(params, "Core::opendir",stat_listing, url, err);
+    }CATCH_DAVIX(err)
 
     DAVIX_DEBUG(" <- davix_opendirpp");
     return (DAVIX_DIR*) r;
@@ -201,40 +209,41 @@ DAVIX_DIR* DavPosix::opendirpp(const RequestParams* params, const std::string &u
 
 
 struct dirent* DavPosix::readdir(DAVIX_DIR * d, DavixError** err){
-    DIR_handle* handle = static_cast<DIR_handle*>(d);
-    DavixError* tmp_err=NULL;
     DAVIX_DEBUG(" -> davix_readdir");
+    DavixError* tmp_err=NULL;
+    DIR_handle* handle = static_cast<DIR_handle*>(d);
 
-    if( d==NULL){
-        DavixError::setupError(err, davix_scope_directory_listing_str(), StatusCode::InvalidFileHandle,  "Invalid file descriptor for DAVIX_DIR*");
-        return NULL;
-    }
+    TRY_DAVIX{
 
+        if( d==NULL){
+            throw DavixException(davix_scope_directory_listing_str(), StatusCode::InvalidFileHandle,  "Invalid file descriptor for DAVIX_DIR*");
+        }
 
-    HttpRequest *req = handle->request; // setup env again
-    DavPropXMLParser* parser = handle->parser;
-    off_t read_offset = handle->dir_offset+1;
-    size_t prop_size = parser->getProperties().size();
-    ssize_t s_resu = _s_buff;
+        HttpRequest *req = handle->request; // setup env again
+        DavPropXMLParser* parser = handle->parser;
+        off_t read_offset = handle->dir_offset+1;
+        size_t prop_size = parser->getProperties().size();
+        ssize_t s_resu = _s_buff;
 
-    while( prop_size == 0
-          && s_resu > 0){ // request not complete and current data too smalls
-        // continue the parsing until one more result
-       if( (s_resu = incremental_propfind_listdir_parsing(req, parser, this->_s_buff, "Davix::readdir", &tmp_err)) <0)
-           break;
+        while( prop_size == 0
+              && s_resu > 0){ // request not complete and current data too smalls
+            // continue the parsing until one more result
+           if( (s_resu = incremental_propfind_listdir_parsing(req, parser, this->_s_buff, "Davix::readdir", &tmp_err)) <0)
+               break;
 
-       prop_size = parser->getProperties().size();
-    }
-    if(!tmp_err){
-        if(prop_size == 0) // end of the request, end of the story
-            return NULL;
-        fill_dirent_from_filestat(handle->dir_info, parser->getProperties().front());
-        handle->dir_offset = read_offset;
-        parser->getProperties().pop_front(); // clean the current element
-        DAVIX_DEBUG(" <- davix_readdir");
-        return handle->dir_info;
-    }
+           prop_size = parser->getProperties().size();
+        }
 
+        if(!tmp_err){
+            if(prop_size == 0) // end of the request, end of the story
+                return NULL;
+            fill_dirent_from_filestat(handle->dir_info, parser->getProperties().front());
+            handle->dir_offset = read_offset;
+            parser->getProperties().pop_front(); // clean the current element
+            DAVIX_DEBUG(" <- davix_readdir");
+            return handle->dir_info;
+        }
+    }CATCH_DAVIX(&tmp_err)
 
     if(tmp_err)
         DavixError::propagateError(err, tmp_err);
@@ -243,43 +252,46 @@ struct dirent* DavPosix::readdir(DAVIX_DIR * d, DavixError** err){
 
 struct dirent* DavPosix::readdirpp(DAVIX_DIR * d, struct stat *st, DavixError** err){
     DAVIX_DEBUG(" -> davix_readdirpp");
-
-    if( d==NULL){
-        DavixError::setupError(err, davix_scope_directory_listing_str(), StatusCode::InvalidFileHandle,  "Invalid file descriptor for DAVIX_DIR*");
-        return NULL;
-    }
-
-    DIR_handle* handle = static_cast<DIR_handle*>(d);
-    struct dirent* ret = NULL;
     DavixError* tmp_err=NULL;
+    struct dirent* ret = NULL;
+    DIR_handle* handle = static_cast<DIR_handle*>(d);
 
-    HttpRequest* req = handle->request; // setup env again
-    DavPropXMLParser* parser = handle->parser;
-    off_t read_offset = handle->dir_offset+1;
-    size_t prop_size = parser->getProperties().size();
-    ssize_t s_resu = _s_buff;
+    TRY_DAVIX{
 
-    while( prop_size == 0
-          && s_resu > 0){ // request not complete and current data too smalls
-        // continue the parsing until one more result
-       if( (s_resu = incremental_propfind_listdir_parsing(req, parser, this->_s_buff, "Davix::readdirpp", &tmp_err)) <0)
-           break;
-
-       prop_size = parser->getProperties().size();
-    }
-
-    if(!tmp_err){
-        if(prop_size == 0){
-            ret= NULL; // end of the request, end of the story
-        }else{
-            fill_dirent_from_filestat(handle->dir_info, parser->getProperties().front());
-            handle->dir_offset = read_offset;
-            fill_stat_from_fileproperties(st, parser->getProperties().front());
-            parser->getProperties().pop_front(); // clean the current element
-            ret= handle->dir_info;
+        if( d==NULL){
+            throw DavixException(davix_scope_directory_listing_str(), StatusCode::InvalidFileHandle,  "Invalid file descriptor for DAVIX_DIR*");
         }
-        DAVIX_DEBUG(" <- davix_readdirpp");
-    }
+
+
+        HttpRequest* req = handle->request; // setup env again
+        DavPropXMLParser* parser = handle->parser;
+        off_t read_offset = handle->dir_offset+1;
+        size_t prop_size = parser->getProperties().size();
+        ssize_t s_resu = _s_buff;
+
+        while( prop_size == 0
+              && s_resu > 0){ // request not complete and current data too smalls
+            // continue the parsing until one more result
+           if( (s_resu = incremental_propfind_listdir_parsing(req, parser, this->_s_buff, "Davix::readdirpp", &tmp_err)) <0)
+               break;
+
+           prop_size = parser->getProperties().size();
+        }
+
+        if(!tmp_err){
+            if(prop_size == 0){
+                ret= NULL; // end of the request, end of the story
+            }else{
+                fill_dirent_from_filestat(handle->dir_info, parser->getProperties().front());
+                handle->dir_offset = read_offset;
+                fill_stat_from_fileproperties(st, parser->getProperties().front());
+                parser->getProperties().pop_front(); // clean the current element
+                ret= handle->dir_info;
+            }
+            DAVIX_DEBUG(" <- davix_readdirpp");
+        }
+
+    }CATCH_DAVIX(&tmp_err)
 
     if(tmp_err)
         DavixError::propagateError(err, tmp_err);
@@ -289,12 +301,17 @@ struct dirent* DavPosix::readdirpp(DAVIX_DIR * d, struct stat *st, DavixError** 
 
 int DavPosix::closedirpp(DAVIX_DIR * d, DavixError** err){
     int ret =-1;
-    if( d==NULL){
-        Davix::DavixError::setupError(err,davix_scope_directory_listing_str(),Davix::StatusCode::InvalidFileHandle, "Invalid file descriptor for DAVIX_DIR*");
-   }else{
-        delete (static_cast<DIR_handle*>(d));
-        ret =0;
-    }
+
+    TRY_DAVIX{
+        if( d==NULL){
+            throw DavixException(davix_scope_directory_listing_str(), Davix::StatusCode::InvalidFileHandle, "Invalid file descriptor for DAVIX_DIR*");
+       }else{
+            delete (static_cast<DIR_handle*>(d));
+            ret =0;
+        }
+
+    }CATCH_DAVIX(err)
+
     return ret;
 }
 
@@ -303,9 +320,16 @@ int DavPosix::closedir(DAVIX_DIR * d, DavixError** err){
 }
 
 void DavPosix::fadvise(DAVIX_FD *fd, dav_off_t offset, dav_size_t len, advise_t advise){
-    if( fd==NULL)
-        return;
-    fd->io_handler->prefetchInfo(offset, len, advise);
+    try{
+        if( fd==NULL)
+            return;
+        fd->io_handler->prefetchInfo(offset, len, advise);
+
+    }catch(DavixException & e){
+        DAVIX_LOG(DAVIX_LOG_WARNING, "[DavPosix::fadvise] error %s", e.what());
+    }catch(...){
+        DAVIX_LOG(DAVIX_LOG_WARNING, "[DavPosix::fadvise] Unknown error, aborted");
+    }
 }
 
 
@@ -317,7 +341,12 @@ void DavPosix::fadvise(DAVIX_FD *fd, dav_off_t offset, dav_size_t len, advise_t 
 int DavPosix::mkdir(const RequestParams * _params, const std::string &url, mode_t right, DavixError** err){
     DAVIX_DEBUG(" -> davix_mkdir");
     RequestParams params(_params);
-    int ret  = Meta::makeCollection(*context, url, params, err);
+    int ret=-1;
+
+    TRY_DAVIX{
+        ret =  Meta::makeCollection(*context, url, params, err);
+    }CATCH_DAVIX(err)
+
     DAVIX_DEBUG(" davix_mkdir <-");
     return ret;
 }
@@ -326,8 +355,11 @@ int DavPosix::mkdir(const RequestParams * _params, const std::string &url, mode_
 int DavPosix::stat(const RequestParams * params, const std::string & url, struct stat* st, DavixError** err){
     DAVIX_DEBUG(" -> davix_stat");
     DavixError* tmp_err=NULL;
+    int ret = -1;
 
-    int ret = Meta::posixStat(*context, Uri(url), params, st, &tmp_err);
+    TRY_DAVIX{
+        ret = Meta::posixStat(*context, Uri(url), params, st, &tmp_err);
+    }CATCH_DAVIX(&tmp_err)
 
     DAVIX_DEBUG(" davix_stat <-");
     if(tmp_err)
@@ -339,37 +371,42 @@ int DavPosix::stat(const RequestParams * params, const std::string & url, struct
 int davix_remove_posix(DavPosix & p, Context* c, const RequestParams * params, const std::string & url, bool directory, DavixError** err){
     DavixError* tmp_err = NULL;
     int ret = -1;
-    Uri uri(url);
-    WebdavQuery query(*c);
 
-    if(params && params->getProtocol() == RequestProtocol::Http){ // pure protocol http : ignore posix semantic, execute a simple delete
-        ret = query.davDelete(params, uri, &tmp_err);
-    }else{ // full posix semantic support
-        struct stat st;
-        ret = p.stat(params, url, &st, &tmp_err);
-        if( ret ==0){
-            if( S_ISDIR(st.st_mode)){ // directory : impossible to delete if not empty
-                if(directory == true){
-                    // ignore non empty dir check for now
-                    ret = query.davDelete(params, uri, &tmp_err);
-                }else{
-                    ret = -1;
-                    std::ostringstream ss;
-                    ss << " " << url << " is not a directory, impossible to unlink"<< std::endl;
-                    DavixError::setupError(&tmp_err, davix_scope_davOps_str(), StatusCode::IsADirectory, ss.str());
-                }
-            }else{ // file, rock & roll
-                if(directory == false){
-                    ret = query.davDelete(params, uri, &tmp_err);
-                }else{
-                    ret = -1;
-                    std::ostringstream ss;
-                    ss << " " << url << " is not a directory, impossible to rmdir"<< std::endl;
-                    DavixError::setupError(&tmp_err, davix_scope_davOps_str(), StatusCode::IsNotADirectory, ss.str());
+    TRY_DAVIX{
+        Uri uri(url);
+        WebdavQuery query(*c);
+
+        if(params && params->getProtocol() == RequestProtocol::Http){ // pure protocol http : ignore posix semantic, execute a simple delete
+            ret = query.davDelete(params, uri, &tmp_err);
+        }else{
+            // full posix semantic support
+            struct stat st;
+            ret = p.stat(params, url, &st, &tmp_err);
+            if( ret ==0){
+                if( S_ISDIR(st.st_mode)){ // directory : impossible to delete if not empty
+                    if(directory == true){
+                        // ignore non empty dir check for now
+                        ret = query.davDelete(params, uri, &tmp_err);
+                    }else{
+                        ret = -1;
+                        std::ostringstream ss;
+                        ss << " " << url << " is not a directory, impossible to unlink"<< std::endl;
+                        DavixError::setupError(&tmp_err, davix_scope_davOps_str(), StatusCode::IsADirectory, ss.str());
+                    }
+                }else{ // file, rock & roll
+                    if(directory == false){
+                        ret = query.davDelete(params, uri, &tmp_err);
+                    }else{
+                        ret = -1;
+                        std::ostringstream ss;
+                        ss << " " << url << " is not a directory, impossible to rmdir"<< std::endl;
+                        DavixError::setupError(&tmp_err, davix_scope_davOps_str(), StatusCode::IsNotADirectory, ss.str());
+                    }
                 }
             }
         }
-    }
+    }CATCH_DAVIX(&tmp_err)
+
     if(tmp_err)
         DavixError::propagateError(err, tmp_err);
     return ret;
@@ -382,7 +419,10 @@ int DavPosix::unlink(const RequestParams * params, const std::string &url, Davix
     int ret=-1;
     DavixError* tmp_err=NULL;
 
-    ret = davix_remove_posix(*this, context, params, url, false, &tmp_err);
+    TRY_DAVIX{
+        ret = davix_remove_posix(*this, context, params, url, false, &tmp_err);
+    }CATCH_DAVIX(&tmp_err)
+
     DAVIX_DEBUG(" davix_unlink <-");
     if(tmp_err)
         DavixError::propagatePrefixedError(err, tmp_err, "DavPosix::unlink ");
@@ -395,7 +435,10 @@ int DavPosix::rmdir(const RequestParams * params, const std::string &url, DavixE
     int ret=-1;
     DavixError* tmp_err=NULL;
 
-    ret = davix_remove_posix(*this, context, params, url, true, &tmp_err);
+    TRY_DAVIX{
+        ret = davix_remove_posix(*this, context, params, url, true, &tmp_err);
+    }CATCH_DAVIX(&tmp_err)
+
     DAVIX_DEBUG(" davix_rmdir <-");
     if(tmp_err)
         DavixError::propagatePrefixedError(err, tmp_err, "DavPosix::rmdir ");
@@ -423,14 +466,17 @@ DAVIX_FD* DavPosix::open(const RequestParams * _params, const std::string & url,
     DAVIX_DEBUG(" -> davix_open");
     DavixError* tmp_err=NULL;
     Davix_fd* fd = NULL;
-    Uri uri(url);
 
-    if(uri.getStatus() == StatusCode::OK){
+
+    TRY_DAVIX{
+        Uri uri(url);
+
+        if(uri.getStatus() != StatusCode::OK){
+            throw DavixException(davix_scope_http_request(), uri.getStatus(), " Uri invalid in Davix::Open");
+        }
         fd = new Davix_fd( new HttpIOBuffer(*context, uri, _params));
         fd->io_handler->open( flags, &tmp_err);
-    }else{
-        DavixError::setupError(&tmp_err, davix_scope_http_request(), uri.getStatus(), " Uri invalid in Davix::Open");
-    }
+    }CATCH_DAVIX(&tmp_err)
 
     if(tmp_err){
         DavixError::propagateError(err, tmp_err);
@@ -447,10 +493,11 @@ ssize_t DavPosix::read(DAVIX_FD* fd, void* buf, size_t count, Davix::DavixError*
     ssize_t ret =-1;
     DavixError* tmp_err=NULL;
 
-    if( davix_check_rw_fd(fd, &tmp_err) ==0){
-        ret = (ssize_t) fd->io_handler->read(buf, (dav_size_t) count, &tmp_err);
-    }
-
+    TRY_DAVIX{
+        if( davix_check_rw_fd(fd, &tmp_err) ==0){
+            ret = (ssize_t) fd->io_handler->read(buf, (dav_size_t) count, &tmp_err);
+        }
+    }CATCH_DAVIX(&tmp_err)
 
     if(tmp_err)
         DavixError::propagateError(err, tmp_err);
@@ -464,10 +511,11 @@ ssize_t DavPosix::pread(DAVIX_FD* fd, void* buf, size_t count, off_t offset, Dav
     ssize_t ret =-1;
     DavixError* tmp_err=NULL;
 
-    if( davix_check_rw_fd(fd, &tmp_err) ==0){
-        ret = (ssize_t) fd->io_handler->pread(buf, (dav_size_t)  count, (dav_off_t) offset, &tmp_err);
-    }
-
+    TRY_DAVIX{
+        if( davix_check_rw_fd(fd, &tmp_err) ==0){
+            ret = (ssize_t) fd->io_handler->pread(buf, (dav_size_t)  count, (dav_off_t) offset, &tmp_err);
+        }
+    }CATCH_DAVIX(&tmp_err)
 
     if(tmp_err)
         DavixError::propagateError(err, tmp_err);
@@ -489,10 +537,11 @@ dav_ssize_t DavPosix::preadVec(DAVIX_FD* fd, const DavIOVecInput * input_vec,
     ssize_t ret =-1;
     DavixError* tmp_err=NULL;
 
-    if( davix_check_rw_fd(fd, &tmp_err) ==0){
-        ret = fd->io_handler->preadVec(input_vec, output_vec, count_vec, &tmp_err);
-    }
-
+    TRY_DAVIX{
+        if( davix_check_rw_fd(fd, &tmp_err) ==0){
+            ret = fd->io_handler->preadVec(input_vec, output_vec, count_vec, &tmp_err);
+        }
+    }CATCH_DAVIX(&tmp_err)
 
     if(tmp_err)
         DavixError::propagateError(err, tmp_err);
@@ -505,10 +554,11 @@ ssize_t DavPosix::write(DAVIX_FD* fd, const void* buf, size_t count, Davix::Davi
     ssize_t ret =-1;
     DavixError* tmp_err=NULL;
 
-    if( davix_check_rw_fd(fd, &tmp_err) ==0){
-        ret = (ssize_t) fd->io_handler->write(buf, (dav_size_t) count, &tmp_err);
-    }
-
+    TRY_DAVIX{
+        if( davix_check_rw_fd(fd, &tmp_err) ==0){
+            ret = (ssize_t) fd->io_handler->write(buf, (dav_size_t) count, &tmp_err);
+        }
+    }CATCH_DAVIX(&tmp_err)
 
     if(tmp_err)
         DavixError::propagateError(err, tmp_err);
@@ -523,10 +573,11 @@ off_t DavPosix::lseek(DAVIX_FD* fd, off_t offset, int flags, Davix::DavixError**
     ssize_t ret =-1;
     DavixError* tmp_err=NULL;
 
-    if( davix_check_rw_fd(fd, &tmp_err) ==0){
-        ret = (off_t) fd->io_handler->lseek( (dav_off_t) offset, flags, &tmp_err);
-    }
-
+    TRY_DAVIX{
+        if( davix_check_rw_fd(fd, &tmp_err) ==0){
+            ret = (off_t) fd->io_handler->lseek( (dav_off_t) offset, flags, &tmp_err);
+        }
+    }CATCH_DAVIX(&tmp_err)
 
     if(tmp_err)
         DavixError::propagateError(err, tmp_err);
@@ -536,9 +587,11 @@ off_t DavPosix::lseek(DAVIX_FD* fd, off_t offset, int flags, Davix::DavixError**
 
 
 int DavPosix::close(DAVIX_FD* fd, Davix::DavixError** err){
-    if(fd){
-        delete fd;
-    }
+    TRY_DAVIX{
+        if(fd){
+            delete fd;
+        }
+    }CATCH_DAVIX(err)
     return 0;
 }
 

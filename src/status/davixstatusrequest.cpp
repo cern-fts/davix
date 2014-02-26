@@ -95,6 +95,9 @@ void DavixError::propagateError(DavixError **newErr, DavixError *oldErr){
 }
 
 void DavixError::propagatePrefixedError(DavixError **newErr, DavixError *oldErr, const std::string &prefix){
+    if(!oldErr)
+        return;
+
     if(newErr){
         if(*newErr != NULL){
             std::cerr << "***ERROR*** in propagateError, *newErr is not NULL impossible to overwrite ... "

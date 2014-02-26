@@ -231,6 +231,10 @@ public:
     static void propagateError(DavixError** newErr, DavixError* oldErr);
 
 
+    ////
+    /// \brief swap the two error content
+    /// \param err
+    ///
     void swap(DavixError & err);
 
 

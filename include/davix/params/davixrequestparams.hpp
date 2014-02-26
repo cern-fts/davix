@@ -184,6 +184,8 @@ public:
     void* getParmState() const;
 
 
+    void swap(RequestParams & params);
+
 private:
 
    // dptr

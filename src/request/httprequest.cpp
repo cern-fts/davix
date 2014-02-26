@@ -74,22 +74,34 @@ int HttpRequest::getRequestCode(){
 }
 
 int HttpRequest::executeRequest(DavixError **err){
-    return d_ptr->executeRequest(err);
+    TRY_DAVIX{
+        return d_ptr->executeRequest(err);
+    }CATCH_DAVIX(err)
+    return -1;
 }
 
 int HttpRequest::beginRequest(DavixError **err){
-    return d_ptr->beginRequest(err);
+    TRY_DAVIX{
+        return d_ptr->beginRequest(err);
+    }CATCH_DAVIX(err)
+    return -1;
 }
 
 dav_ssize_t HttpRequest::readBlock(char *buffer, dav_size_t max_size, DavixError **err){
-    return d_ptr->readBlock(buffer, max_size, err);
+    TRY_DAVIX{
+        return d_ptr->readBlock(buffer, max_size, err);
+    }CATCH_DAVIX(err)
+    return -1;
 }
 
 dav_ssize_t HttpRequest::readBlock(std::vector<char> & buffer, dav_size_t max_size, DavixError **err){
-    dav_ssize_t ret, v_size = (dav_ssize_t) buffer.size();
-    buffer.resize(v_size + max_size);
-    ret = readBlock(((char*) &buffer[0])+ v_size, max_size, err);
-    buffer.resize(v_size + ( (ret > 0)?ret:0));
+    dav_ssize_t ret=-1, v_size = (dav_ssize_t) buffer.size();
+    TRY_DAVIX{
+
+        buffer.resize(v_size + max_size);
+        ret = readBlock(((char*) &buffer[0])+ v_size, max_size, err);
+        buffer.resize(v_size + ( (ret > 0)?ret:0));
+    }CATCH_DAVIX(err)
     return ret;
 }
 
@@ -99,34 +111,46 @@ dav_ssize_t HttpRequest::readSegment(char* buffer, dav_size_t max_size, DavixErr
 
 dav_ssize_t HttpRequest::readLine(char *buffer, dav_size_t max_size, DavixError **err){
     DAVIX_DEBUG("Davix::Request::readLine want to read a line of max %lld chars", max_size);
-    const dav_ssize_t ret =  d_ptr->readLine(buffer, max_size, err);
-
-    if( ret >= 0){
-        DAVIX_DEBUG("Davix::Request::readLine got %lld chars", ret);
-        DAVIX_TRACE("Davix::Request::readLine content\n{{%.*s}}\n", ret, buffer);
-    }
+    dav_ssize_t ret= -1;
+    TRY_DAVIX{
+        if( (ret =  d_ptr->readLine(buffer, max_size, err)) >= 0){
+            DAVIX_DEBUG("Davix::Request::readLine got %lld chars", ret);
+            DAVIX_TRACE("Davix::Request::readLine content\n{{%.*s}}\n", ret, buffer);
+        }
+    }CATCH_DAVIX(err)
     return ret;
 }
 
 void HttpRequest::discardBody(DavixError** err){
     char buffer[1024];
     dav_ssize_t read;
-    do {
-        read = d_ptr->readSegment(buffer, sizeof(buffer), err);
-    } while (read > 0 && *err == NULL);
+    TRY_DAVIX{
+        do {
+            read = d_ptr->readSegment(buffer, sizeof(buffer), err);
+        } while (read > 0 && *err == NULL);
+    }CATCH_DAVIX(err)
 }
 
 dav_ssize_t HttpRequest::readToFd(int fd, DavixError** err){
-    return d_ptr->readToFd(fd, 0, err);
+    TRY_DAVIX{
+        return d_ptr->readToFd(fd, 0, err);
+    }CATCH_DAVIX(err)
+    return -1;
 }
 
 
 dav_ssize_t HttpRequest::readToFd(int fd, dav_size_t read_size, DavixError** err){
-    return d_ptr->readToFd(fd, read_size, err);
+    TRY_DAVIX{
+        return d_ptr->readToFd(fd, read_size, err);
+    }CATCH_DAVIX(err)
+    return -1;
 }
 
 int HttpRequest::endRequest(DavixError **err){
-    return d_ptr->endRequest(err);
+    TRY_DAVIX{
+        return d_ptr->endRequest(err);
+    }CATCH_DAVIX(err)
+    return -1;
 }
 
 

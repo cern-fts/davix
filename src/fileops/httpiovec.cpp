@@ -91,7 +91,7 @@ dav_ssize_t HttpVecOps::readPartialBufferVec(const DavIOVecInput * input_vec,
     // header line need to be inferior to 8K on Apache2 / Ngix
     // in Addition, some S3 implementation limit the total header size to 8k....
     // 7900 bytes maximum for the range seems to be a ood compromise
-    std::vector< std::pair<dav_size_t, std::string> > vecRanges = generateRangeHeaders(7900, offsetProvider);
+    std::vector< std::pair<dav_size_t, std::string> > vecRanges = generateRangeHeaders(400, offsetProvider);
 
 
     DAVIX_DEBUG(" -> getPartialVec operation for %d vectors", count_vec);
@@ -471,7 +471,7 @@ dav_ssize_t HttpVecOps::simulateMultiPartRequest(HttpRequest & _req, const DavIO
     fill_map_chunk(cmap, input_vec, output_vec, count_vec);
     MapChunk::iterator it_start=cmap.begin(),it_end = cmap.begin();
     while( (tmp_read_size = _req.readBlock(buffer, DAVIX_READ_BLOCK_SIZE, err)) >0){
-        balance_iterator_windows(cmap, it_start, it_end, total_read_size, tmp_read_size); // re-balance the itnerested windows
+        balance_iterator_windows(cmap, it_start, it_end, total_read_size, tmp_read_size); // re-balance the interested windows
         fill_concerned_chunk_buffer(cmap, it_start, it_end, buffer, tmp_read_size, total_read_size); // fill the interested window
         total_read_size += tmp_read_size;
     }

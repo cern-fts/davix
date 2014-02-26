@@ -354,6 +354,19 @@ int NEONRequest::negotiate_request(DavixError** err){
                 }
                 DAVIX_DEBUG(" ->   NEON receive %d code, %d .... request again ... ", code, end_status);
                 break;
+            // dCache token redirection
+            case 501:
+            // cleanup redirection
+            _f.redirectionClean(_request_type, *_orig);
+            if(_current != _orig){ // cancel redirect, maybe outdated ? retry
+                DAVIX_DEBUG(" ->  Auth problem after redirect: cancel redirect and try again");
+                n++;
+                _current = _orig;
+                end_status = NE_RETRY;
+                break;
+            }
+            return -1;
+
             default:
                 end_status = 0;
                 break;

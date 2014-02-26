@@ -12,7 +12,7 @@ namespace Meta{
 
 // get all reps from webdav queries
 void getReplicas(Context & c, const Uri & r,
-                              const RequestParams & params,  std::vector<DavFile> & vec, DavixError** err);
+                              const RequestParams & params,  std::vector<DavFile> & vec);
 
 dav_ssize_t posixStat(Context & c, const Uri & url, const RequestParams * _params,
                       struct stat* st,

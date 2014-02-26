@@ -59,7 +59,6 @@ struct UriPrivate{
         query_and_path(NULL){ }
 
     ~UriPrivate() {
-        delete query_and_path;
     }
 
     void parsing(const std::string & uri_string){
@@ -87,7 +86,7 @@ struct UriPrivate{
     std::string proto, userinfo, path, host, query, fragment;
     unsigned int port;
     std::string _uri_string;
-    std::string* query_and_path;
+    boost::scoped_ptr<std::string> query_and_path;
 
 };
 
@@ -136,11 +135,11 @@ const std::string & Uri::getPath() const {
 }
 
 const std::string & Uri::getPathAndQuery() const {
-    if(d_ptr->query_and_path == NULL){
+    if(d_ptr->query_and_path.get() == NULL){
         if(d_ptr->query.size() > 0){
-            d_ptr->query_and_path = new std::string(d_ptr->path + "?" + d_ptr->query);
+            d_ptr->query_and_path.reset(new std::string(d_ptr->path + "?" + d_ptr->query));
         }else{
-            d_ptr->query_and_path = new std::string(d_ptr->path);
+            d_ptr->query_and_path.reset(new std::string(d_ptr->path));
         }
     }
     return *(d_ptr->query_and_path);

@@ -39,9 +39,8 @@ DavixError::DavixError(const DavixError & e) :
 }
 
 DavixError & DavixError::operator =(const DavixError & e){
-    if(d_ptr)
-        delete d_ptr;
-    d_ptr = new DavixErrorInternal(*(e.d_ptr));
+    DavixError tmp(e);
+    this->swap(tmp);
     return *this;
 }
 
@@ -109,6 +108,10 @@ void DavixError::propagatePrefixedError(DavixError **newErr, DavixError *oldErr,
         }
     }
 
+}
+
+void DavixError::swap(DavixError &err){
+    std::swap(d_ptr, err.d_ptr);
 }
 
 void DavixError::clearError(DavixError **err){

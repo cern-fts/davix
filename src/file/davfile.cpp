@@ -55,32 +55,47 @@ dav_ssize_t DavFile::getAllReplicas(const RequestParams* params, ReplicaVec & v,
 dav_ssize_t DavFile::readPartialBufferVec(const RequestParams *params, const DavIOVecInput * input_vec,
                       DavIOVecOuput * output_vec,
                       const dav_size_t count_vec, DavixError** err){
-    HttpIOBuffer io(d_ptr->_c, d_ptr->_u, params);
-    return (dav_ssize_t) io.readPartialBufferVec(input_vec, output_vec, count_vec, err);
+    TRY_DAVIX{
+        HttpIOBuffer io(d_ptr->_c, d_ptr->_u, params);
+        return (dav_ssize_t) io.readPartialBufferVec(input_vec, output_vec, count_vec, err);
+    }CATCH_DAVIX(err)
+    return -1;
 }
 
 
 dav_ssize_t DavFile::readPartial(const RequestParams *params, void* buff, dav_size_t count, dav_off_t offset, DavixError** err){
-    HttpIOBuffer io(d_ptr->_c, d_ptr->_u, params);
-    return (dav_ssize_t) io.readPartialBuffer(buff, count, offset, err);
+    TRY_DAVIX{
+        HttpIOBuffer io(d_ptr->_c, d_ptr->_u, params);
+        return (dav_ssize_t) io.readPartialBuffer(buff, count, offset, err);
+    }CATCH_DAVIX(err)
+    return -1;
 }
 
 int DavFile::deletion(const RequestParams *params, DavixError **err){
-    return Meta::deleteResource(d_ptr->_c, d_ptr->_u, params, err);
+    TRY_DAVIX{
+        return Meta::deleteResource(d_ptr->_c, d_ptr->_u, params, err);
+    }CATCH_DAVIX(err)
+    return -1;
 }
 
 dav_ssize_t DavFile::getToFd(const RequestParams* params,
                         int fd,
                         DavixError** err){
-    return DavFile::getToFd(params, fd, 0, err);
+    TRY_DAVIX{
+        return DavFile::getToFd(params, fd, 0, err);
+    }CATCH_DAVIX(err)
+    return -1;
 }
 
 dav_ssize_t DavFile::getToFd(const RequestParams* params,
                         int fd,
                         dav_size_t size_read,
                         DavixError** err){
-    HttpIOBuffer io(d_ptr->_c, d_ptr->_u, params);
-    return io.readToFd(fd, size_read, err);
+    TRY_DAVIX{
+        HttpIOBuffer io(d_ptr->_c, d_ptr->_u, params);
+        return io.readToFd(fd, size_read, err);
+    }CATCH_DAVIX(err)
+    return -1;
 }
 
 
@@ -88,8 +103,11 @@ dav_ssize_t DavFile::getToFd(const RequestParams* params,
 dav_ssize_t DavFile::getFull(const RequestParams* params,
                         std::vector<char> & buffer,
                         DavixError** err){
-    HttpIOBuffer io(d_ptr->_c, d_ptr->_u, params);
-    return io.readFull(buffer, err);
+    TRY_DAVIX{
+        HttpIOBuffer io(d_ptr->_c, d_ptr->_u, params);
+        return io.readFull(buffer, err);
+    }CATCH_DAVIX(err)
+    return -1;
 }
 
 
@@ -97,19 +115,28 @@ int DavFile::putFromFd(const RequestParams* params,
               int fd,
               dav_size_t size,
               DavixError** err){
-    HttpIOBuffer io(d_ptr->_c, d_ptr->_u, params);
-    const dav_ssize_t s = io.writeFullFromFd(fd, size, err);
-    return (s >= 0)?0:-1;
+    TRY_DAVIX{
+        HttpIOBuffer io(d_ptr->_c, d_ptr->_u, params);
+        const dav_ssize_t s = io.writeFullFromFd(fd, size, err);
+        return (s >= 0)?0:-1;
+    }CATCH_DAVIX(err)
+    return -1;
 }
 
 
 int DavFile::makeCollection(const RequestParams *params, DavixError **err){
     RequestParams _params(params);
-    return Meta::makeCollection(d_ptr->_c, d_ptr->_u, _params, err);
+    TRY_DAVIX{
+        return Meta::makeCollection(d_ptr->_c, d_ptr->_u, _params, err);
+    }CATCH_DAVIX(err)
+    return -1;
 }
 
 int DavFile::stat(const RequestParams* params, struct stat * st, DavixError** err){
-    return (int) Meta::posixStat(d_ptr->_c, d_ptr->_u, params, st, err);
+    TRY_DAVIX{
+        return (int) Meta::posixStat(d_ptr->_c, d_ptr->_u, params, st, err);
+    }CATCH_DAVIX(err)
+    return -1;
 }
 
 void DavFile::prefetchInfo(off_t offset, dav_size_t size_read, advise_t adv){

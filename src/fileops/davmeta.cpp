@@ -134,10 +134,8 @@ int davix_file_get_all_replicas_metalink( Context & c, const Uri & uri,
 // get all reps from webdav queries
 void getReplicas(Context & c, const Uri & uri,
                               const RequestParams & params,
-                                std::vector<DavFile> & vec, DavixError** err){
-    TRY_DAVIX{
-        davix_file_get_all_replicas_metalink(c, uri, params, vec);
-    }CATCH_DAVIX(err)
+                                std::vector<DavFile> & vec){
+    davix_file_get_all_replicas_metalink(c, uri, params, vec);
 }
 
 

@@ -40,7 +40,9 @@ const Uri &  DavFile::getUri() const{
 std::vector<DavFile> DavFile::getReplicas(const RequestParams *_params, DavixError **err){
     std::vector<DavFile> res;
     RequestParams params(_params);
-    Meta::getReplicas(d_ptr->_c,d_ptr->_u, params, res, err);
+    TRY_DAVIX{
+        Meta::getReplicas(d_ptr->_c,d_ptr->_u, params, res);
+    }CATCH_DAVIX(err)
     return res;
 }
 

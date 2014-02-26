@@ -1,12 +1,8 @@
+#include <davix_internal.hpp>
 #include "neonsessionfactory.hpp"
 
 #include <lockers/dpponce.hpp>
 #include <logger/davix_logger_internal.h>
-#include <string>
-#include <sstream>
-
-
-#include <cstring>
 
 namespace Davix {
 

@@ -5,7 +5,6 @@
 #include <tools/davix_tool_util.hpp>
 #include <cstdio>
 
-
 // @author : Devresse Adrien
 // main file for davix-put operation
 

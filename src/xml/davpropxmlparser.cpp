@@ -1,8 +1,8 @@
-#include <config.h>
+#include <davix_internal.hpp>
 #include "davpropxmlparser.hpp"
+
 #include <logger/davix_logger_internal.h>
 #include <status/davixstatusrequest.hpp>
-#include <cstdlib>
 #include <datetime/datetime_utils.hpp>
 #include <string_utils/stringutils.hpp>
 #include <lockers/dpponce.hpp>

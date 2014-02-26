@@ -1,3 +1,4 @@
+#include <davix_internal.hpp>
 #include "davxmlparser.hpp"
 
 namespace Davix {

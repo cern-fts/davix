@@ -1,3 +1,4 @@
+#include <davix_internal.hpp>
 #include "davops.hpp"
 #include <neon/neonsession.hpp>
 #include <ne_basic.h>

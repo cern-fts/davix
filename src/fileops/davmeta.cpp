@@ -1,11 +1,5 @@
+#include <davix_internal.hpp>
 #include "davmeta.hpp"
-#include <memory>
-#include <ostream>
-#include <sstream>
-#include <string>
-#include <cstring>
-#include <cstdlib>
-#include <deque>
 #include <xml/davpropxmlparser.hpp>
 #include <logger/davix_logger_internal.h>
 #include <request/httprequest.hpp>

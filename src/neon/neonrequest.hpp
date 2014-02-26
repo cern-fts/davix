@@ -5,7 +5,7 @@
 #include <utility>
 #include <memory>
 #include <string>
-#include <queue>
+
 #include <ne_request.h>
 #include <ne_auth.h>
 #include <neon/neonsessionfactory.hpp>

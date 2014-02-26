@@ -1,6 +1,4 @@
-#include <config.h>
-#include <sstream>
-#include <ostream>
+#include <davix_internal.hpp>
 
 #include <neon/neonrequest.hpp>
 #include <davix_context_internal.hpp>

@@ -1,19 +1,14 @@
+#include <davix_internal.hpp>
 #include "neonrequest.hpp"
 
-#include <config.h>
 #include <logger/davix_logger_internal.h>
 #include <libs/time_utils.h>
 #include <ne_redirect.h>
 #include <ne_request.h>
 #include <neon/neonsession.hpp>
 #include <fileops/fileutils.hpp>
-#include <memory>
-#include <algorithm>
-#include <iterator>
-#include <sstream>
-#include <cstring>
-#include <limits>
-#include <utility>
+
+
 
 
 namespace Davix {

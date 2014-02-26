@@ -1,9 +1,10 @@
-#include <config.h>
+#include <davix_internal.hpp>
 #include <davixcontext.hpp>
+
 #include <davixuri.hpp>
 #include <neon/neonsessionfactory.hpp>
 #include <davix_context_internal.hpp>
-#include <boost/scoped_ptr.hpp>
+
 
 
 

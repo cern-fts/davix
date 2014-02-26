@@ -1,4 +1,4 @@
-#include <config.h>
+#include <davix_internal.hpp>
 #include <davix_types.h>
 #include <status/davixstatusrequest.hpp>
 

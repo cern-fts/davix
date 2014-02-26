@@ -1,11 +1,7 @@
+#include <davix_internal.hpp>
 #include "davix_tool_util.hpp"
-#include <config.h>
-#include <string>
-#include <sstream>
-#include <algorithm>
-#include <fcntl.h>
-#include <ctime>
-#include <cmath>
+
+
 #include <simple_getpass/simple_get_pass.h>
 
 namespace Davix{

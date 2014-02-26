@@ -34,6 +34,7 @@ template< int I > struct arg
     template< class T > arg( T const & /* t */ )
     {
         // static assert I == is_placeholder<T>::value
+#pragma GCC diagnostic ignored "-Wunused-local-typedefs"
         typedef char T_must_be_placeholder[ I == is_placeholder<T>::value? 1: -1 ];
     }
 };

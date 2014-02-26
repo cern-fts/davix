@@ -1,5 +1,6 @@
+#include <davix_internal.hpp>
+
 #include "metalinkparser.hpp"
-#include <cstring>
 #include <logger/davix_logger_internal.h>
 #include <string_utils/stringutils.hpp>
 

@@ -1,11 +1,6 @@
-#include <config.h>
-#include <sstream>
-#include <functional>
-#include <algorithm>
+#include <davix_internal.hpp>
 #include <davixuri.hpp>
-#include <cassert>
-#include <cstring>
-#include <cstdlib>
+
 
 namespace Davix {
 

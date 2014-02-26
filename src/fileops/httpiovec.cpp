@@ -1,14 +1,8 @@
-#include <config.h>
+#include <davix_internal.hpp>
 #include "httpiovec.hpp"
-#include <cstring>
-#include <boost/bind.hpp>
-#include <cstddef>
 #include <logger/davix_logger_internal.h>
 #include <string_utils/stringutils.hpp>
-#include <deque>
-#include <functional>
-#include <algorithm>
-#include <sstream>
+
 
 #include <map>
 

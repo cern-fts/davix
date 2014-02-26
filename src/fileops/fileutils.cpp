@@ -1,5 +1,6 @@
+#include <davix_internal.hpp>
 #include "fileutils.hpp"
-#include <sstream>
+
 namespace Davix {
 
 

@@ -1,6 +1,5 @@
-#include <config.h>
+#include <davix_internal.hpp>
 #include <ne_ssl.h>
-#include <cassert>
 
 #include "davixx509cred_internal.hpp"
 

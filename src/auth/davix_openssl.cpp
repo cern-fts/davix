@@ -1,4 +1,4 @@
-#include <sstream>
+#include <davix_internal.hpp>
 
 #include <auth/davixauth.hpp>
 #include <status/davixstatusrequest.hpp>

@@ -1,9 +1,5 @@
+#include <davix_internal.hpp>
 #include "neonsession.hpp"
-
-
-#include <config.h>
-#include <string>
-#include <cstring>
 #include <ne_redirect.h>
 #include <libs/time_utils.h>
 #include <auth/davixx509cred_internal.hpp>

@@ -1,8 +1,7 @@
+#include <davix_internal.hpp>
 #include "davix_tool_params.hpp"
 #include "davix_tool_util.hpp"
 #include <getopt.h>
-#include <cstdlib>
-#include <iostream>
 #include <logger/davix_logger.h>
 
 namespace Davix{

@@ -180,6 +180,11 @@ public:
     /// get the keep alive value of this request params
     bool getKeepAlive() const;
 
+
+    /// Add a custom header line that has to be included in the requests
+    void addHeader(std::string &key, std::string &val);
+    std::vector< std::pair<std::string,std::string> > &getHeaders();
+
     /// internal usage
     void* getParmState() const;
 
@@ -188,6 +193,7 @@ private:
 
    // dptr
     RequestParamsInternal* d_ptr;
+
 
 };
 

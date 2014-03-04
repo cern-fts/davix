@@ -100,6 +100,9 @@ struct RequestParamsInternal{
     // proto
     RequestProtocol::Protocol  _proto;
 
+    /// additional custom header lines
+    std::vector< std::pair<std::string,std::string> > _customhdr;
+
     // session flag
     int _session_flag;
 
@@ -277,6 +280,18 @@ void RequestParams::setKeepAlive(const bool keep_alive_flag){
 
 bool RequestParams::getKeepAlive() const{
     return d_ptr->_session_flag & SESSION_FLAG_KEEP_ALIVE;
+}
+
+
+
+void RequestParams::addHeader(std::string &key, std::string &val) {
+
+  d_ptr->_customhdr.push_back( std::pair<std::string,std::string>(key, val) );
+
+
+}
+std::vector< std::pair<std::string,std::string> > &RequestParams::getHeaders() {
+  return d_ptr->_customhdr;
 }
 
 // suppress useless warning

@@ -202,8 +202,7 @@ int dav_stat_mapper_webdav(Context &context, const RequestParams* params, const 
         if(tmp_err != NULL)
             ret = -1;
     }
-    if(tmp_err)
-        DavixError::propagateError(err, tmp_err);
+    DavixError::propagateError(err, tmp_err);
     return ret;
 }
 
@@ -231,8 +230,7 @@ int dav_stat_mapper_http(Context& context, const RequestParams* params, const Ur
             }
         }
     }
-    if(tmp_err)
-        DavixError::propagateError(err, tmp_err);
+    DavixError::propagateError(err, tmp_err);
     return ret;
 }
 
@@ -254,8 +252,8 @@ dav_ssize_t posixStat(Context & c, const Uri & url, const RequestParams * params
 
     }
     DAVIX_DEBUG(" davix_stat <-");
-    if(tmp_err)
-        DavixError::propagatePrefixedError(err, tmp_err, "stat ops : ");
+
+    DavixError::propagatePrefixedError(err, tmp_err, "stat ops : ");
     return ret;
 }
 
@@ -276,8 +274,7 @@ int deleteResource(Context & c, const Uri & url, const RequestParams & params, D
     }
 
 
-    if(tmp_err)
-        DavixError::propagateError(err, tmp_err);
+    DavixError::propagateError(err, tmp_err);
     return ret;
 }
 
@@ -300,8 +297,8 @@ int makeCollection(Context & c, const Uri & url, const RequestParams & params, D
 
         DAVIX_DEBUG(" makeCollection <-");
     }
-    if(tmp_err)
-        DavixError::propagateError(err, tmp_err);
+
+    DavixError::propagateError(err, tmp_err);
     return ret;
 }
 

@@ -147,8 +147,7 @@ dav_ssize_t HttpVecOps::readPartialBufferVec(const DavIOVecInput * input_vec,
 
 
     DAVIX_DEBUG(" <- getPartialVec operation for %d vectors", count_vec);
-    if(tmp_err)
-        DavixError::propagateError(err, tmp_err);
+    DavixError::propagateError(err, tmp_err);
     return ret;
 }
 
@@ -173,8 +172,8 @@ dav_ssize_t HttpVecOps::readPartialBufferVecRequest(HttpRequest & _req,
                  httpcodeToDavixCode(_req.getRequestCode(),davix_scope_http_request(),", ", &tmp_err);
         }
     }
-    if(tmp_err)
-        DavixError::propagateError(err, tmp_err);
+
+    DavixError::propagateError(err, tmp_err);
     DAVIX_TRACE(" <- Davix Vector operation");
     return ret;
 }
@@ -227,7 +226,7 @@ int find_header_params(char* buffer, dav_size_t buffer_len, dav_size_t* part_siz
         return 0;
 
     std::vector<std::string> tokens = stringTokSplit(std::string(p+1),delimiter);     // parse header
-    if(tokens.size() != 3)
+    if(tokens.size() < 2)
         return -1;
 
     long chunk_size[2];

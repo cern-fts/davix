@@ -41,8 +41,7 @@ static int DavOpsDelete(Context & c, const RequestParams & params, const Uri & u
         }
     }
 
-    if(tmp_err)
-        DavixError::propagatePrefixedError(err,tmp_err, "delete ops : ");
+    DavixError::propagatePrefixedError(err,tmp_err, "delete ops : ");
     return ret;
 }
 

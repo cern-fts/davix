@@ -4,7 +4,7 @@
 
 Name:				davix
 Version:			0.2.11
-Release:			4%{?dist}
+Release:			5%{?dist}
 Summary:			Toolkit for Http-based file management
 Group:				Applications/Internet
 License:			LGPLv2+

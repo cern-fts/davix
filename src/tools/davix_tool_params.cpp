@@ -59,6 +59,9 @@ const std::string scope_params = "Davix::Tools::Params";
 {"s3accesskey", required_argument, 0, S3_ACCESS_KEY}, \
 {"insecure", no_argument, 0,  'k' }
 
+#define GET_OPTIONS \
+{"stdout", no_argument, 0,  'O'}
+
 #define REQUEST_LONG_OPTIONS \
 {"header",  required_argument, 0,  'H' }, \
 {"request",  required_argument, 0,  'X' }, \
@@ -83,7 +86,8 @@ OptParams::OptParams() :
     userlogpasswd(),
     req_content(),
     aws_auth(),
-    pres_flag()
+    pres_flag(0),
+    shell_flag(0)
 {
 
 }
@@ -164,6 +168,9 @@ int parse_davix_options_generic(const std::string &opt_filter,
             case 'o':
                 p.output_file_path = optarg;
                 break;
+            case 'O':
+                p.shell_flag |= SHELL_STDOUT;
+                break;
             case 'V':
                 display_version();
                 return 1;
@@ -232,19 +239,30 @@ int parse_davix_ls_options(int argc, char** argv, OptParams & p, DavixError** er
 
 
 int parse_davix_get_options(int argc, char** argv, OptParams & p, DavixError** err){
-    const std::string arg_tool_main= "E:o:vkV";
+    const std::string arg_tool_main= "E:o:OvkV";
     const struct option long_options[] = {
         COMMON_LONG_OPTIONS,
         SECURITY_LONG_OPTIONS,
+        GET_OPTIONS,
         {0,         0,                 0,  0 }
      };
 
     if( parse_davix_options_generic(arg_tool_main, long_options,
                                        argc, argv,
                                        p, err) < 0
-            || p.vec_arg.size() != 1){
+            || p.vec_arg.size() > 2){
         option_abort(argv);
         return -1;
+    }
+
+    // test if stdout mode
+    if(p.vec_arg.size() > 1 && p.shell_flag & SHELL_STDOUT){
+        std::cerr << "--stdout, -O forbidde a second argument" << std::endl;
+        option_abort(argv);
+    }
+
+    if(p.vec_arg.size() == 2){
+        p.output_file_path = p.vec_arg[1];
     }
     return 0;
 }
@@ -279,7 +297,7 @@ const std::string  & get_common_options(){
             "  Common Options:\n"
             "\t--debug:                  Debug mode\n"
             "\t--help, -h:               Display this help message\n"
-            "\t--output, -o file:        Redirect output to file\n"
+            "\t--stdout, -O:             Redirect output to stdout\n"
             "\t--verbose:                Verbose mode\n"
             "\t--version, -V:            Display version\n"
             "  Security Options:\n"
@@ -298,7 +316,7 @@ const std::string  & get_common_options(){
 
 
 const std::string  & get_base_description_options(){
-    static const std::string s("Usage: %s [OPTIONS ...] <url> \n"
+    static const std::string s("Usage: %s [OPTIONS ...] <url> <local_file> \n       davix-get [OPTIONS ...] <url> \n"
             );
     return s;
 }

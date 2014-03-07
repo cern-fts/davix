@@ -115,7 +115,7 @@ void DavixError::propagateError(DavixError **newErr, DavixError *oldErr){
 }
 
 void DavixError::propagatePrefixedError(DavixError **newErr, DavixError *oldErr, const std::string &prefix){
-    if(!oldErr)
+    if(oldErr== NULL)
         return;
 
     if(newErr){

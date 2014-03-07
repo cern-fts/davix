@@ -27,7 +27,6 @@
 
 
 
-
 static const std::string _version = DAVIX_VERSION;
 
 

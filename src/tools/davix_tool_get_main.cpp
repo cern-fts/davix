@@ -52,6 +52,25 @@ static int execute_get(const Tool::OptParams & opts, int out_fd, DavixError** er
 
 
 
+int get_output_get_fstream(const Tool::OptParams & opts,  const std::string & scope, DavixError** err){
+    int fd = -1;
+    Uri origin(opts.vec_arg[0]);
+
+    if(opts.shell_flag & SHELL_STDOUT){ // print on stdout
+        return dup(STDOUT_FILENO);
+    }
+
+    if(opts.output_file_path.empty() == false){
+        if((fd = open(opts.output_file_path.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0777)) <0  ){
+            davix_errno_to_davix_error(errno, scope, std::string("for destination file ").append(opts.output_file_path), err);
+            return -1;
+        }
+    }else{
+        DavixError::setupError(err, scope, StatusCode::InvalidArgument, std::string("Impossible to create local file"));
+    }
+    return fd;
+}
+
 
 int main(int argc, char** argv){
     int retcode=-1;
@@ -63,7 +82,7 @@ int main(int argc, char** argv){
     if( (retcode= Tool::parse_davix_get_options(argc, argv, opts, &tmp_err)) ==0
         && (retcode = Tool::setup_credential(opts, &tmp_err)) == 0){
 
-        if( ( out_fd = Tool::get_output_fstream(opts, scope_get, &tmp_err)) > 0){
+        if( ( out_fd = get_output_get_fstream(opts, scope_get, &tmp_err)) > 0){
             retcode = execute_get(opts, out_fd, &tmp_err);
             close(out_fd);
         }

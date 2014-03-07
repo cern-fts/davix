@@ -187,5 +187,12 @@ std::string string_from_size_t(size_t number, size_t size_string){
 }
 
 
+std::string filename_from_uri(const std::string & current_dir, const Uri & uri){
+    if(uri.getStatus() == StatusCode::OK){
+
+    }
+    return std::string();
+}
+
 }
 }

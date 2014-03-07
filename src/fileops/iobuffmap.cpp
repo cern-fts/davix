@@ -187,8 +187,7 @@ dav_ssize_t HttpIO::readFullBuff(void *buffer, dav_size_t size_read, DavixError 
         _read_req = NULL;
     }
 
-    if(tmp_err)
-        DavixError::propagateError(err, tmp_err);
+    DavixError::propagateError(err, tmp_err);
     return ret;
 }
 
@@ -218,8 +217,7 @@ dav_ssize_t HttpIO::readFull(std::vector<char> & buffer, DavixError** err){
     }
 
     DAVIX_DEBUG(" <- readFull on vector");
-    if(tmp_err)
-        DavixError::propagateError(err, tmp_err);
+    DavixError::propagateError(err, tmp_err);
     return (ret>0)?total:-1;
 }
 
@@ -258,8 +256,7 @@ dav_ssize_t HttpIO::readPartialBuffer(void *buf, dav_size_t count, dav_off_t off
         req.endRequest(NULL);
     }
     DAVIX_DEBUG(" end getOps operation for %s <- ",_uri.getString().c_str());
-    if(tmp_err)
-        DavixError::propagateError(err, tmp_err);
+    DavixError::propagateError(err, tmp_err);
     return ret;
 }
 
@@ -301,8 +298,7 @@ dav_ssize_t HttpIO::readToFd(int fd, dav_size_t read_size, DavixError** err){
 
 
     DAVIX_DEBUG(" <- readToFd for size %ld", read_size);
-    if(tmp_err)
-        DavixError::propagateError(err, tmp_err);
+    DavixError::propagateError(err, tmp_err);
     return ret;
 }
 
@@ -328,8 +324,7 @@ dav_ssize_t HttpIO::writeFullFromFd(int fd, dav_size_t size, DavixError** err){
 
 
     DAVIX_DEBUG(" <- writeFromFd for size %ld", size);
-    if(tmp_err)
-        DavixError::propagateError(err, tmp_err);
+    DavixError::propagateError(err, tmp_err);
     return ret;
 }
 
@@ -420,8 +415,7 @@ dav_ssize_t HttpIOBuffer::read(void *buf, dav_size_t count, DavixError **err){
     if(ret > 0)
         _pos += ret;
 
-    if(tmp_err)
-        DavixError::propagateError(err, tmp_err);
+    DavixError::propagateError(err, tmp_err);
     return ret;
 }
 
@@ -436,8 +430,7 @@ dav_ssize_t HttpIOBuffer::pread(void *buf, dav_size_t count, dav_off_t offset, D
     DavixError* tmp_err = NULL;
     dav_ssize_t ret = readPartialBuffer(buf, count, offset, &tmp_err);
 
-    if(tmp_err)
-        DavixError::propagateError(err, tmp_err);
+    DavixError::propagateError(err, tmp_err);
     return ret;
 }
 
@@ -500,8 +493,7 @@ dav_ssize_t HttpIOBuffer::write(const void *buf, dav_size_t count, DavixError **
             req.endRequest(NULL);
         }
     }
-    if(tmp_err)
-        DavixError::propagateError(err, tmp_err);
+    DavixError::propagateError(err, tmp_err);
     return ret;
 }
 

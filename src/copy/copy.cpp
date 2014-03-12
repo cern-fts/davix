@@ -16,10 +16,7 @@ static std::string _full_url(const std::string ref,
 {
     std::string final;
 
-    if (uri.substr(0, 7).compare("http://") == 0) {
-        final = uri;
-    }
-    else if (uri.substr(0, 8).compare("https://") == 0) {
+    if (uri.find("://") != std::string::npos) {
         final = uri;
     }
     else if (uri[0] == '/') {
@@ -190,7 +187,7 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
                                    "Could not COPY. The source service does not support it");
         }
         else if (responseStatus >= 405) {
-            DavuxError::setupError(error, COPY_SCOPE, StatusCode::OperationNonSupported,
+            DavixError::setupError(error, COPY_SCOPE, StatusCode::OperationNonSupported,
                                    "Could not COPY. The source service does not allow it");
         }
         else if (responseStatus >= 300) {

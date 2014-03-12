@@ -21,7 +21,12 @@ int get_timestamp_from_asn1(ASN1_TIME* asn1)
 
     memset(&time_tm, 0, sizeof(struct tm));
 
-    if (len == 13
+    if (len == 11
+            && sscanf(data, "%02d%02d%02d%02d%02d%c", &(time_tm.tm_year),
+                      &(time_tm.tm_mon), &(time_tm.tm_mday), &(time_tm.tm_hour),
+                      &(time_tm.tm_min), &zone) != 7) {
+    }
+    else if (len == 13
             && sscanf(data, "%02d%02d%02d%02d%02d%02d%c", &(time_tm.tm_year),
                     &(time_tm.tm_mon), &(time_tm.tm_mday), &(time_tm.tm_hour),
                     &(time_tm.tm_min), &(time_tm.tm_sec), &zone) != 7) {

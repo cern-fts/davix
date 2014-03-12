@@ -189,6 +189,10 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
             DavixError::setupError(error, COPY_SCOPE, StatusCode::OperationNonSupported,
                                    "Could not COPY. The source service does not support it");
         }
+        else if (responseStatus >= 405) {
+            DavuxError::setupError(error, COPY_SCOPE, StatusCode::OperationNonSupported,
+                                   "Could not COPY. The source service does not allow it");
+        }
         else if (responseStatus >= 300) {
             std::ostringstream msg;
             msg << "Could not COPY. Unknown error code: " << responseStatus;

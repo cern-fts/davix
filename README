@@ -1,47 +1,51 @@
    		=== DAVIX ===
 
-        Davix is a lightweight toolkit for remote file / object interactions
+        Davix provides a share library and tools for advanced file I/O
               with HTTP based protocols.
 
-        Davix offers a multi-layer API for the end user :
+       Davix is composed of a shared library, libdavix and of a set of utility tools for data management
 
-            - High level POSIX file API, for convenience
-            - High level Object API, REST like
-            - Low Level API, compose your own HTTP query like with curl.
+       Libdavix offers a high level C++ File API allowing resource manipulation with abstraction of the protocol.
+
+       Libdavix has been design with the following objectives in mind :
+        - Simplicity
+        - High performances with no compromise
+        - Reliability
+        - Portability
 
 
-       Davix supports Http, Webdav ( and S3 )
-       Davix integrate a Webdav / XML parser.
+       Davix supports plain-Http (http(s)://), Webdav (dav(s)://) and Amazon S3 (s3(s)://) types of URL.
 
-   * Davix is yet an other libcurl ?
+   * Davix and libdavix Website and documentation link :
 
-	No, 
+            http://dmc.web.cern.ch/projects/davix/home
 
-	- libcurl is defined as a "client side URL transfer".
-		 it provides "protocol level" API, you compose your queries
 
-	- Davix offers a "file level" API and aims 
-		to provide a complete API for remote file / object operations
+   * Is Davix is an other HTTP Library ?
+
+        No, Davix targets file and resources interactions.
+        It provides a high level abstraction of the underlying HTTP protocol mechanisms
 		
 
    * What does Davix support ?
 
         Davix supports :
+            - all common file manipulation operations ( Stat, read, write,  copy, delete, rename  )
             - all common posix operation ( stat/opendir/readdir/open/read/write/close/mkdir )
             - Webdav and XML parsing
             - remote random I/O
-            - client side credential in PEM and P12 format
-            - proxy certificate and voms extension
-            - transparent redirection
-            - third party copy with Webdav
-            - keep alive and session re-use.
+            - client side credential in PEM, P12 format, VOMS proxy, RFC proxy with support of VOMS extensions
+            - transparent redirection caching
+            - third party copy Server to Server
+            - Session reuse for both SSL and HTTP
             - Basic authentication scheme
+            - S3 authentication
+            - bulk operations
+            - metalinks
 
         Davix is going to support soon :
             - transparent meta-link support with failover
-            - vector operations
             - kerberos auth
-            - transparent caching
 
 
    * How to compile :
@@ -49,8 +53,7 @@
     - Davix Dependencies :
        -  openssl
        -  libxml-2.0
-       -  glib-2.0 ( will be removed )
-       -  Doxygen ( optional, for doc generation )
+       -  doxygen ( optional, for doc generation )
 
 
     - Compile :
@@ -75,16 +78,25 @@
         - " 5. . ../test/setup_test_env.sh
         - " 5.  make; make test"
 
-    - make RPMS :
+    - create SRPM :
         - ./packaging/bin/packager_rpm.sh ./packaging/rpm/specs/ ./
         - mock -r [mycfg] RPMS/davix-[...].src.rpm
 
-    * Play with davix command line tool : 
-        davix has a set of command line tool for Http/Webdav common operations
+    * How to use
 
-            -> davix ( Low level and general purpose command line tool for HTTP Request, similar to curl )
+        * Libdavix, please follow the comments in the doxygen generated documentation
 
-     * I wish to see XYZ feature in Davix :
+        * Command line tools
+            davix-ls: listing and meta-data
+            davix-del: delete existing resource or collection
+            davix-get: download and display the content of a resource
+            davix-put: upload the content of a resource
+            davix-cp: copy, support 3rd party copy
+            davix-mk: create collection or resource.
+
+
+
+     * Davix Support or information :
 
      	Any suggestion is welcome.
 
@@ -93,6 +105,4 @@
         Davix is an open source and free project and will stay like this.
         Any contribution is welcome
 
-     * Davix Website :
 
-	https://svnweb.cern.ch/trac/lcgutil/wiki

@@ -4,8 +4,11 @@
 @mainpage Davix Documentation
 @author Devresse Adrien ( adrien.devresse@cern.ch )
 
-From CERN IT-GT-DMS ( lcgutil-support@cern.ch )
+Developped in CERN IT-SDC-ID 
 
+Official WebSite: http://dmc.web.cern.ch/projects/davix/home 
+
+User Documentation: http://dmc.web.cern.ch/projects/davix/documentation 
 
 Mailing list : davix-devel@cern.ch
 
@@ -49,11 +52,11 @@ The Davix philosophy can be summarized as
 
 <h2> DAVIX API :</h2>
 
-File API : Davix::DavFile  </br>
+File API : Davix::DavFile  <br/>
 
-Posix-like API : Davix::DavPosix </br>
+Posix-like API : Davix::DavPosix <br/>
 
-Entry point API : \ref davix.hpp  </br>
+Entry point API : \ref davix.hpp  <br/>
 
 
 <h2> Davix is yet an other libcurl ? </h2>
@@ -227,9 +230,5 @@ Execute a Vector Operation :
     please contact us on davix-devel@cern.ch ( CERN e-group & mailing list ) or on adrien.devresse@cern.ch
 
     Any contribution is welcome
-
-<h2> Davix Website : </h2>
-
-        https://svnweb.cern.ch/trac/lcgutil/wiki/davix
 
 */

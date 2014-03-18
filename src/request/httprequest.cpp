@@ -305,7 +305,10 @@ void httpcodeToDavixCode(int code, const std::string & scope, const std::string 
             str_msg = "HTTP Operation timeout";
             break;
         case 409:
-            dav_code = StatusCode::FileExist;
+            if (scope == davix_scope_mkdir_str())
+                dav_code = StatusCode::FileNotFound;
+            else
+                dav_code = StatusCode::FileExist;
             str_msg = "HTTP Conflict";
             break;
         case 423:           /* Locked */

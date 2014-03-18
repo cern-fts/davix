@@ -44,10 +44,15 @@ void opensslErrorMapper(const std::string & msg, DavixError** err){
 }
 
 static int SSL_pem_passwd_cb(char *buffer, int size, int rwflag, void *userdata){
-    if(userdata != NULL){
-        std::copy(buffer, buffer + size, static_cast<char*>(userdata));
-        buffer[size - 1] = '\0';
-        return(strlen(buffer));
+    if(userdata != NULL) {
+        const char* passwd = static_cast<const char*>(userdata);
+        int passwd_len = strlen(passwd);
+
+        if (passwd_len == 0 || passwd_len > size)
+            return 0;
+
+        strncpy(buffer, passwd, size);
+        return passwd_len;
     }
     return 0;
 }

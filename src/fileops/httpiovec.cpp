@@ -105,7 +105,7 @@ dav_ssize_t HttpVecOps::readPartialBufferVec(const DavIOVecInput * input_vec,
     // header line need to be inferior to 8K on Apache2 / Ngix
     // in Addition, some S3 implementation limit the total header size to 8k....
     // 7900 bytes maximum for the range seems to be a ood compromise
-    std::vector< std::pair<dav_size_t, std::string> > vecRanges = generateRangeHeaders(7900, offsetProvider);
+    std::vector< std::pair<dav_size_t, std::string> > vecRanges = generateRangeHeaders(3900, offsetProvider);
 
 
     DAVIX_DEBUG(" -> getPartialVec operation for %d vectors", count_vec);

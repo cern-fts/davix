@@ -90,8 +90,11 @@ void neon_to_davix_code(int ne_status, ne_session* sess, const std::string & sco
     std::string str;
     switch(ne_status){
         case NE_ERROR:
-             str = std::string("Neon error : ").append(ne_get_error(sess));
-             code = StatusCode::ConnectionProblem;
+             str = std::string("Neon error: ").append(ne_get_error(sess));
+             if (str.find("SSL handshake failed") == std::string::npos)
+                 code = StatusCode::ConnectionProblem;
+             else
+                 code = StatusCode::SSLError;
              break;
         default:
             neon_generic_error_mapper(ne_status, code, str);

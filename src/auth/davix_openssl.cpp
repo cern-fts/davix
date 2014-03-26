@@ -33,7 +33,8 @@ void opensslErrorMapper(const std::string & msg, DavixError** err){
         case PEM_R_BAD_DECRYPT:
         case PEM_R_BAD_PASSWORD_READ:
         case PEM_R_PROBLEMS_GETTING_PASSWORD:
-            c= StatusCode::CredDecryptionError;
+            c = StatusCode::CredDecryptionError;
+            break;
         default:
             c = StatusCode::SSLError;
     }

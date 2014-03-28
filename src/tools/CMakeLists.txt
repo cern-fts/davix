@@ -20,7 +20,7 @@ add_executable(davix_tool ${davix_main_src} ${davix_tool_common_src} )
 
 target_link_libraries(davix_tool davix)
 set_target_properties(davix_tool PROPERTIES
-                                OUTPUT_NAME "davix")
+                                OUTPUT_NAME "davix-http")
 add_dependencies(davix_tool libdavix)
 
 ## davix ls cmd line

@@ -33,18 +33,22 @@ set(VERSION_PATCH 11)
 set(VERSION_STRING ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 
+# dependency mode
+option(BOOST_EXTERNAL "Enable the usage of an external boost dependency" TRUE)
+option(GTEST_EXTERNAL "Enable the usage of an external gtest framework" FALSE)
+
 #compilation mode
 SET(SSL_BACKEND "OPENSSL"
     CACHE STRING "set the default SSL backend openssl or gnutls ( default : openssl ) ")
 
-OPTION(ENABLE_IPV6 "enable or disable IPv6 support " TRUE)
-OPTION(ENABLE_TCP_NODELAY "enable or disable tcp_nodelay" TRUE)
-OPTION(ENABLE_THIRD_PARTY_COPY "enable or disable third party copy support" FALSE)
+option(ENABLE_IPV6 "enable or disable IPv6 support " TRUE)
+option(ENABLE_TCP_NODELAY "enable or disable tcp_nodelay" TRUE)
+option(ENABLE_THIRD_PARTY_COPY "enable or disable third party copy support" FALSE)
 
 # tests
 option(UNIT_TESTS "enable or disable the unit tests" FALSE)
 option(FUNCTIONAL_TESTS "enable or disable the functional tests" FALSE)
-option(GTEST_EXTERNAL "Use external gtest framework" FALSE)
+
 
 # libs checks
 find_package(Threads)
@@ -58,6 +62,9 @@ SET(LIBSSL_PKG_INCLUDE_DIRS "${OPENSSL_INCLUDE_DIR}")
 find_package(LibXml2)
 set(LIBXML2_INCLUDE_DIRS ${LIBXML2_INCLUDE_DIR})
 
+if(BOOST_EXTERNAL)
+find_package(Boost 1.41.0 COMPONENTS system thread)
+endif(BOOST_EXTERNAL)
 
 #const
 set(HAVE_OPENSSL 1)

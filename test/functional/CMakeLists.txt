@@ -46,7 +46,7 @@ add_executable(test_mkdir ${src_test_mkdir} ${src_davix_test_lib})
 target_link_libraries(test_mkdir davix  )
 
 add_executable(test_auto_rmdir_unlink_delete ${src_test_auto_rmdir_unlink_delete} ${src_davix_test_lib})
-target_link_libraries(test_auto_rmdir_unlink_delete davix  )
+target_link_libraries(test_auto_rmdir_unlink_delete davix  ${Boost_LIBRARIES})
 
 add_executable(test_stat_session ${src_test_stat_session} ${src_davix_test_lib})
 target_link_libraries(test_stat_session davix  )

@@ -64,6 +64,7 @@ set(LIBXML2_INCLUDE_DIRS ${LIBXML2_INCLUDE_DIR})
 
 if(BOOST_EXTERNAL)
 find_package(Boost 1.41.0 COMPONENTS system thread)
+message("boost lib ${Boost_LIBRARIES}")
 endif(BOOST_EXTERNAL)
 
 #const

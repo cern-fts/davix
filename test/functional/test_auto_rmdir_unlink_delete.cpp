@@ -7,7 +7,6 @@
 #include <string>
 #include <sstream>
 #include <cmath>
-#include <string.h>
 #include <cassert>
 
 #include "davix_test_lib.h"
@@ -91,13 +90,13 @@ int main(int argc, char** argv){
     assert(tmp_err == NULL);
     DavixError::clearError(&tmp_err);
 
-    std::cout << " verify that unlink() does not delete directory " << std::endl;
+    std::cout << "verify that unlink() does not delete directory " << std::endl;
     res = pos.unlink(&p, created_dir, &tmp_err);
     assert( res != 0);
     assert(tmp_err && tmp_err->getStatus() == StatusCode::IsADirectory);
     DavixError::clearError(&tmp_err);
 
-    std::cout << " remove dir with rmdir() " << std::endl;
+    std::cout << "remove dir with rmdir() " << std::endl;
     res = pos.rmdir(&p, created_dir, &tmp_err);
     assert( res == 0);
     assert(tmp_err == NULL);

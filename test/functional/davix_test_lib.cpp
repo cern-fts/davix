@@ -1,6 +1,5 @@
 
 #include "davix_test_lib.h"
-#include "davix_test_lib_c.h"
 
 #include <string.h>
 #include <stdio.h>

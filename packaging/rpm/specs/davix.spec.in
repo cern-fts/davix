@@ -1,6 +1,11 @@
 # unversionned doc dir F20 change https://fedoraproject.org/wiki/Changes/UnversionedDocdirs
 %{!?_pkgdocdir: %global _pkgdocdir %{_docdir}/%{name}-%{version}}
-
+# boost bindings for EPEL5
+%if 0%{?el5}
+%global boost_cmake_flags -DBOOST_INCLUDEDIR=/usr/include/boost141 -DBOOST_LIBRARYDIR=%{_libdir}/boost141
+%else
+%global boost_cmake_flags -DBOOST_INCLUDEDIR=/usr/include
+%endif
 
 Name:				davix
 Version:			@VERSION_STRING@
@@ -14,10 +19,16 @@ Source0:			http://grid-deployment.web.cern.ch/grid-deployment/dms/lcgutil/tar/%{
 BuildRoot:			%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 #main lib dependencies
+%if 0%{?el5}
+BuildRequires:                  boost141-devel
+%else
+BuildRequires:                  boost-devel
+%endif
 BuildRequires:                  cmake
 BuildRequires:                  doxygen
 BuildRequires:                  libxml2-devel
 BuildRequires:                  openssl-devel
+
 # davix-copy dependencies
 BuildRequires:                  gridsite-devel
 BuildRequires:                  gsoap-devel
@@ -73,6 +84,7 @@ make clean
 # remove useless embedded components
 rm -rf test/gtest-1.6.0/
 rm -rf test/pywebdav/
+rm -rf deps/boost_internal/
 
 %build
 %cmake \
@@ -80,6 +92,7 @@ rm -rf test/pywebdav/
 -DGTEST_EXTERNAL=TRUE \
 -DENABLE_THIRD_PARTY_COPY=TRUE \
 -DUNIT_TESTS=TRUE \
+%{boost_cmake_flags} \
 .
 make %{?_smp_mflags}
 make doc

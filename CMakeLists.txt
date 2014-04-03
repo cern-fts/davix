@@ -70,7 +70,6 @@ endif(BOOST_EXTERNAL)
 set(HAVE_OPENSSL 1)
 set(NE_HAVE_SSL 1)
 
-
 add_subdirectory(deps)
 
 

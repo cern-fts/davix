@@ -194,5 +194,24 @@ std::string filename_from_uri(const std::string & current_dir, const Uri & uri){
     return std::string();
 }
 
+bool isShell(int fd){
+    if(isatty(fd) ==1)
+        return true;
+    errno =0;
+    return false;
+}
+
+void flushFinalLineShell(int fd){
+    if(isShell(fd)){
+        while(1){
+            if( write(fd, "\n",1) <0 && errno == EINTR){
+                errno =0;
+                continue;
+            }
+            break;
+        }
+    }
+}
+
 }
 }

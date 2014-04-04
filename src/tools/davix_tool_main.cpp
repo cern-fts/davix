@@ -87,6 +87,7 @@ int main(int argc, char** argv){
             if( tmp_err == NULL){
                 configure_req(req, opts);
                 retcode= read_stream(&req, out_fd, &tmp_err);
+                Tool::flushFinalLineShell(out_fd);
                 close(out_fd);
             }else{
                 retcode =-1;

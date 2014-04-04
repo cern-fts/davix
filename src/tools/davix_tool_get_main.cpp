@@ -56,17 +56,13 @@ int get_output_get_fstream(const Tool::OptParams & opts,  const std::string & sc
     int fd = -1;
     Uri origin(opts.vec_arg[0]);
 
-    if(opts.shell_flag & SHELL_STDOUT){ // print on stdout
-        return dup(STDOUT_FILENO);
-    }
-
     if(opts.output_file_path.empty() == false){
         if((fd = open(opts.output_file_path.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0777)) <0  ){
             davix_errno_to_davix_error(errno, scope, std::string("for destination file ").append(opts.output_file_path), err);
             return -1;
         }
     }else{
-        DavixError::setupError(err, scope, StatusCode::InvalidArgument, std::string("Impossible to create local file"));
+        fd = dup(STDOUT_FILENO);
     }
     return fd;
 }
@@ -84,6 +80,7 @@ int main(int argc, char** argv){
 
         if( ( out_fd = get_output_get_fstream(opts, scope_get, &tmp_err)) > 0){
             retcode = execute_get(opts, out_fd, &tmp_err);
+            Tool::flushFinalLineShell(out_fd);
             close(out_fd);
         }
     }

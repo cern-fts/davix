@@ -51,15 +51,18 @@ int get_output_fstream(const Tool::OptParams & opts, const std::string & scope, 
 // return output file descriptor
 int get_input_fstream(const Tool::OptParams & opts, const std::string & scope, DavixError** err);
 
+// string utils
 std::string string_from_mode(mode_t mode);
-
 std::string string_from_ptime(const time_t &t);
 
 // print a string in a minimum of size_string char, fill it with white-space if inferior to this
 std::string string_from_size_t(size_t number, size_t size_string);
 
-
 std::string filename_from_uri(const std::string & current_dir, const Uri & uri);
+
+// shell related utils
+bool isShell(int fd);
+void flushFinalLineShell(int fd);
 
 }
 }

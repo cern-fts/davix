@@ -38,10 +38,6 @@ typedef std::vector<HeaderParam> HeaderVec;
 // pres flag
 #define LONG_LISTING_FLAG 0x01
 
-
-// shell flag
-#define SHELL_STDOUT 0x01
-
 struct OptParams{
     OptParams();
     RequestParams params;

@@ -59,9 +59,6 @@ const std::string scope_params = "Davix::Tools::Params";
 {"s3accesskey", required_argument, 0, S3_ACCESS_KEY}, \
 {"insecure", no_argument, 0,  'k' }
 
-#define GET_OPTIONS \
-{"stdout", no_argument, 0,  'O'}
-
 #define REQUEST_LONG_OPTIONS \
 {"header",  required_argument, 0,  'H' }, \
 {"request",  required_argument, 0,  'X' }, \
@@ -168,9 +165,6 @@ int parse_davix_options_generic(const std::string &opt_filter,
             case 'o':
                 p.output_file_path = optarg;
                 break;
-            case 'O':
-                p.shell_flag |= SHELL_STDOUT;
-                break;
             case 'V':
                 display_version();
                 return 1;
@@ -243,7 +237,6 @@ int parse_davix_get_options(int argc, char** argv, OptParams & p, DavixError** e
     const struct option long_options[] = {
         COMMON_LONG_OPTIONS,
         SECURITY_LONG_OPTIONS,
-        GET_OPTIONS,
         {0,         0,                 0,  0 }
      };
 
@@ -253,12 +246,6 @@ int parse_davix_get_options(int argc, char** argv, OptParams & p, DavixError** e
             || p.vec_arg.size() > 2){
         option_abort(argv);
         return -1;
-    }
-
-    // test if stdout mode
-    if(p.vec_arg.size() > 1 && p.shell_flag & SHELL_STDOUT){
-        std::cerr << "--stdout, -O forbidde a second argument" << std::endl;
-        option_abort(argv);
     }
 
     if(p.vec_arg.size() == 2){
@@ -297,7 +284,6 @@ const std::string  & get_common_options(){
             "  Common Options:\n"
             "\t--debug:                  Debug mode\n"
             "\t--help, -h:               Display this help message\n"
-            "\t--stdout, -O:             Redirect output to stdout\n"
             "\t--verbose:                Verbose mode\n"
             "\t--version, -V:            Display version\n"
             "  Security Options:\n"

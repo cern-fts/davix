@@ -9,6 +9,7 @@ set( src_test_req "test_request.cpp")
 set( src_test_prop "test_propfind.cpp")
 set( src_test_stat "test_stat.cpp" )
 set( src_test_mkdir "test_mkdir.cpp")
+set( src_test_checksum "test_checksum.cpp")
 set( src_test_stat_session "test_stat_session.cpp")
 set( src_test_rw "davix_rw_test.cpp")
 set( src_test_opendir "test_opendir.cpp")
@@ -42,6 +43,9 @@ target_link_libraries(test_stat_auto_check davix  )
 
 add_executable(test_mkdir ${src_test_mkdir} ${src_davix_test_lib})
 target_link_libraries(test_mkdir davix  )
+
+add_executable(test_checksum ${src_test_checksum} ${src_davix_test_lib})
+target_link_libraries(test_checksum davix  )
 
 add_executable(test_auto_rmdir_unlink_delete ${src_test_auto_rmdir_unlink_delete} ${src_davix_test_lib})
 target_link_libraries(test_auto_rmdir_unlink_delete davix  ${Boost_LIBRARIES})

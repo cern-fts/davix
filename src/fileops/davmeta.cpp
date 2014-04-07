@@ -28,7 +28,7 @@
 #include <utils/davix_utils_internal.hpp>
 #include <string_utils/stringutils.hpp>
 #include <xml/metalinkparser.hpp>
-
+#include <base64/base64.hpp>
 
 namespace Davix{
 
@@ -300,6 +300,54 @@ int makeCollection(Context & c, const Uri & url, const RequestParams & params, D
 
     DavixError::propagateError(err, tmp_err);
     return ret;
+}
+
+
+int checksum(Context & c, const Uri & url, const RequestParams *params, std::string & checksm, const std::string & chk_algo){
+    DAVIX_DEBUG(" -> checksum");
+    int ret=-1;
+    DavixError* tmp_err=NULL;
+    RequestParams _params(params);
+    configureRequestParamsProto(url, _params);
+
+    HeadRequest req(c, url, &tmp_err);
+
+    if(tmp_err == NULL){
+        // add Digest file, support for other digest, extended format
+        req.addHeaderField("Want-Digest", chk_algo);
+        req.setParameters(params);
+        if( (ret = req.executeRequest(&tmp_err)) == 0
+            && (ret = davixRequestToFileStatus(&req, davix_scope_mkdir_str(), &tmp_err)) >=0){
+
+            // try simple MD5 ( standard )
+            if(string_compare_ncase(chk_algo, "MD5") == 0){
+                std::string  chk;
+                if(req.getAnswerHeader("Content-MD5", chk) == true){
+                    DAVIX_TRACE("Extract MD5 checksum in base64 %s", chk.c_str());
+                    chk= Base64::base64_decode(chk);
+                    std::swap(checksm, chk);
+                }
+            }
+
+            // fallback on extension for checksum
+            std::string digest;
+            req.getAnswerHeader("Digest", digest);
+            if (digest.empty())
+                throw DavixException(davix_scope_meta(), StatusCode::OperationNonSupported, "Checksum calculation not supported by server");
+
+            size_t valueOffset = digest.find('=');
+            if (valueOffset == std::string::npos
+                    || string_compare_ncase(digest,0, valueOffset, chk_algo.c_str()) !=0)
+                throw DavixException(davix_scope_meta(), StatusCode::InvalidServerResponse, "Invalid server checksum answer");
+
+            digest.erase(digest.begin(), digest.begin()+valueOffset+1);
+            std::swap(checksm, digest);
+
+            DAVIX_DEBUG(" checksum <-");
+            return 0;
+        }
+    }
+    throw DavixException(&tmp_err);
 }
 
 } // Meta

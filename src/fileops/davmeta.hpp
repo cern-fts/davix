@@ -44,6 +44,9 @@ int deleteResource(Context & c, const Uri & u, const RequestParams & params, Dav
 
 int makeCollection(Context & c, const Uri & uri, const RequestParams & params, DavixError** err);
 
+
+int checksum(Context & c, const Uri & uri, const RequestParams *params, std::string & checksm, const std::string & chk_algo);
+
 /*
   retrieve a webdav propfind stat request to the given url
     @param req : http request where to executethe query

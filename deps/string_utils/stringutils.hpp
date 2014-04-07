@@ -9,6 +9,11 @@
 #include <locale>
 #include <cstring>
 
+// predicates
+inline bool charEqCase(char c1, char c2){
+    return (c1 == c2 || ::tolower(c1) == ::tolower(c2));
+}
+
 // split a string following an array of delimiter ( strtok like )
 std::vector<std::string> stringTokSplit(const std::string & str, const std::string & delimiter);
 

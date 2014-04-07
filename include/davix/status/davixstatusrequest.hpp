@@ -258,8 +258,6 @@ public:
     void swap(DavixError & err);
 
 
-
-
     ///
     /// \brief propagatePrefixedError
     /// \param newErr
@@ -280,6 +278,7 @@ class DAVIX_EXPORT DavixException : public std::exception{
     struct DavixExceptionIntern;
 public:
     DavixException(const std::string & scope, StatusCode::Code c, const std::string & msg) throw();
+    DavixException(DavixError** err);
     DavixException(const DavixException & orig) throw();
     virtual ~DavixException() throw();
 

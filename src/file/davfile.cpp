@@ -163,6 +163,13 @@ int DavFile::stat(const RequestParams* params, struct stat * st, DavixError** er
     return -1;
 }
 
+int DavFile::checksum(const RequestParams *params, std::string & checksm, const std::string & chk_algo, DavixError **err) throw(){
+    TRY_DAVIX{
+        return (int) Meta::checksum(d_ptr->_c, d_ptr->_u, params, checksm, chk_algo);
+    }CATCH_DAVIX(err)
+    return -1;
+}
+
 void DavFile::prefetchInfo(off_t offset, dav_size_t size_read, advise_t adv){
     // TODO
 }

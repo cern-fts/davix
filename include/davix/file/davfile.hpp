@@ -205,6 +205,7 @@ public:
     int stat(const RequestParams* params, struct stat * st, DavixError** err);
 
 
+    int checksum(const RequestParams *params, std::string & checksm, const std::string & chk_algo, DavixError **err) throw();
     ///
     /// @brief provide informations on the next file operation
     ///

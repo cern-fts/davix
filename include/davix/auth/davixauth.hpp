@@ -23,7 +23,9 @@
 
 
 #include <string>
+#include <vector>
 
+#include <utils/davix_types.hpp>
 #include <auth/davixx509cred.hpp>
 
 
@@ -38,14 +40,18 @@
 
 namespace Davix {
 
+class SessionInfoInternal;
+
 ///  @class SessionInfo
 ///  @brief server related info
-class DAVIX_EXPORT SessionInfo{
+class DAVIX_EXPORT SessionInfo: NonCopyable {
 public:
-    /// \brief tada
-    void* a;
-/// TODO: fill with server side infos
+    std::vector<std::string> & getReadableDN() const;
 
+private:
+    SessionInfo();
+    SessionInfoInternal* data;
+    friend class NEONSession;
 };
 
 ///

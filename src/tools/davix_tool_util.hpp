@@ -22,9 +22,8 @@
 #ifndef DAVIX_TOOL_UTIL_HPP
 #define DAVIX_TOOL_UTIL_HPP
 
-#include <cstdio>
-#include <cerrno>
 #include <davix.hpp>
+#include <davix_internal.hpp>
 #include <tools/davix_tool_params.hpp>
 
 
@@ -33,23 +32,20 @@ namespace Davix{
 namespace Tool{
 
 
-int setup_credential(OptParams & opts, DavixError** err);
+int configureAuth(OptParams & opts, DavixError** err);
 
+void errorPrint(DavixError ** err);
 
-
-
-void err_display(DavixError ** err);
-
-
-int DavixToolsAuthCallbackLoginPassword(void* userdata, const SessionInfo & info, std::string & login, std::string & password,
+int authCallbackLoginPassword(void* userdata, const SessionInfo & info, std::string & login, std::string & password,
                                         int count, DavixError** err);
 
+int authCallbackCert(void* userdata, const SessionInfo & info, X509Credential* cert, DavixError** err);
 
 // return output file descriptor
-int get_output_fstream(const Tool::OptParams & opts, const std::string & scope, DavixError** err);
+int getOutFd(const Tool::OptParams & opts, const std::string & scope, DavixError** err);
 
 // return output file descriptor
-int get_input_fstream(const Tool::OptParams & opts, const std::string & scope, DavixError** err);
+int getInFd(const Tool::OptParams & opts, const std::string & scope, DavixError** err);
 
 // string utils
 std::string string_from_mode(mode_t mode);

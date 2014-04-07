@@ -54,12 +54,12 @@ int main(int argc, char** argv){
 
     if( (retcode= Tool::parse_davix_options(argc, argv, opts, &tmp_err)) ==0){
         Context c;
-        if( (retcode = Tool::setup_credential(opts, &tmp_err)) == 0){
+        if( (retcode = Tool::configureAuth(opts, &tmp_err)) == 0){
             DavFile f(c,opts.vec_arg[0]);
             f.deletion(&opts.params, &tmp_err);
         }
     }
-    Tool::err_display(&tmp_err);
+    Tool::errorPrint(&tmp_err);
     return retcode;
 }
 

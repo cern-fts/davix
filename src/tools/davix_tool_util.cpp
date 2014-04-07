@@ -62,21 +62,11 @@ size_t ask_user_passwd(std::string & passwd){
     return 0;
 }
 
-int setup_credential(OptParams & opts, DavixError** err){
+int configureAuth(OptParams & opts, DavixError** err){
     // setup client side credential
-    if(opts.cred_path.empty() == false){
-        X509Credential cred;
-        if( cred.loadFromFilePEM( ((opts.priv_key.empty()== false)?(opts.priv_key):(opts.cred_path)),
-                                  opts.cred_path,
-                                  "",
-                                  err) <0){
-            return -1;
-        }
-        opts.params.setClientCertX509(cred);
-    }
-
+    opts.params.setClientCertCallbackX509(&authCallbackCert, &opts);
     // setup client login / password
-    opts.params.setClientLoginPasswordCallback(&DavixToolsAuthCallbackLoginPassword, &opts);
+    opts.params.setClientLoginPasswordCallback(&authCallbackLoginPassword, &opts);
 
     //setup aws creds
     if(opts.aws_auth.first.empty() == false){
@@ -87,7 +77,7 @@ int setup_credential(OptParams & opts, DavixError** err){
     return 0;
 }
 
-int get_output_fstream(const Tool::OptParams & opts, const std::string & scope, DavixError** err){
+int getOutFd(const Tool::OptParams & opts, const std::string & scope, DavixError** err){
     int fd = -1;
 
     if(opts.output_file_path.empty() == false){
@@ -101,7 +91,7 @@ int get_output_fstream(const Tool::OptParams & opts, const std::string & scope, 
     return fd;
 }
 
-int get_input_fstream(const Tool::OptParams & opts, const std::string & scope, DavixError** err){
+int getInFd(const Tool::OptParams & opts, const std::string & scope, DavixError** err){
     int fd = -1;
     if(opts.input_file_path.empty() == false){
         if((fd = open(opts.input_file_path.c_str(), O_RDONLY)) <0  ){
@@ -115,7 +105,7 @@ int get_input_fstream(const Tool::OptParams & opts, const std::string & scope, D
 }
 
 
-void err_display(DavixError ** err){
+void errorPrint(DavixError ** err){
     if(err && *err){
         std::cerr << "("<< (*err)->getErrScope() <<") Error: "<< (*err)->getErrMsg() << std::endl;
         DavixError::clearError(err);
@@ -138,9 +128,9 @@ std::string mode_to_stringmode(mode_t mode){
 
 
 
-int DavixToolsAuthCallbackLoginPassword(void* userdata, const SessionInfo & info, std::string & login, std::string & password,
+int authCallbackLoginPassword(void* userdata, const SessionInfo & info, std::string & login, std::string & password,
                                         int count, DavixError** err){
-    OptParams* opts = (OptParams*) userdata;
+    OptParams* opts = static_cast<OptParams*>(userdata);
     int ret = -1;
     if(opts->userlogpasswd.first.empty() == false){
         login = opts->userlogpasswd.first;
@@ -163,6 +153,41 @@ int DavixToolsAuthCallbackLoginPassword(void* userdata, const SessionInfo & info
                                StatusCode::LoginPasswordError,
                                "No valid login/password provided");
     return ret;
+}
+
+int authCallbackCert(void* userdata, const SessionInfo & info, X509Credential* cert, DavixError** err){
+    OptParams* opts = static_cast<OptParams*>(userdata);
+    int ret = -1;
+    const std::string key_path(opts->priv_key), cred_path(opts->cred_path);
+
+
+    if(cred_path.empty() == false){
+        if( cert->loadFromFilePEM( ((key_path.empty()== false)?(key_path):(cred_path)),
+                                  cred_path,
+                                  "",
+                                  err) <0){
+
+            // FIX IT : Neon SSL API does not allow to know if error is bad path  or wrong password, try again with password
+            std::string password;
+            if( ask_user_passwd(password) <0
+                    || cert->loadFromFilePEM(key_path, cred_path, password, err) <0 ){
+                if(err && *err == NULL){
+                    DavixError::setupError(err, "Davix::Tool::Auth",
+                                           StatusCode::LoginPasswordError,
+                                           "Impossible to use client credential");
+                }
+                return -1;
+             }
+        }
+        std::cout << std::endl;
+        return 0;
+    }
+    if(ret < 0)
+        DavixError::setupError(err, "Davix::Tool::Auth",
+                               StatusCode::LoginPasswordError,
+                               "No valid client credential provided");
+    return -1;
+
 }
 
 

@@ -76,7 +76,7 @@ int main(int argc, char** argv){
     int out_fd= -1;
 
     if( (retcode= Tool::parse_davix_get_options(argc, argv, opts, &tmp_err)) ==0
-        && (retcode = Tool::setup_credential(opts, &tmp_err)) == 0){
+        && (retcode = Tool::configureAuth(opts, &tmp_err)) == 0){
 
         if( ( out_fd = get_output_get_fstream(opts, scope_get, &tmp_err)) > 0){
             retcode = execute_get(opts, out_fd, &tmp_err);
@@ -84,7 +84,7 @@ int main(int argc, char** argv){
             close(out_fd);
         }
     }
-    Tool::err_display(&tmp_err);
+    Tool::errorPrint(&tmp_err);
     return retcode;
 }
 

@@ -48,7 +48,7 @@ static int validate_all_certificate(void *userdata, int failures,
 const int n_max_auth = 20;
 
 
-void NEONSession::provide_clicert_fn(void *userdata, ne_session *sess,
+void NEONSession::authNeonCliCertMapper(void *userdata, ne_session *sess,
                                          const ne_ssl_dname *const *dnames,
                                          int dncount){
 
@@ -133,7 +133,7 @@ NEONSession::NEONSession(Context & c, const Uri & uri, const RequestParams & p, 
 {
         _f.createNeonSession(uri, &_sess, err);
         if(_sess)
-            configureSession(_sess, _u, p, &NEONSession::provide_login_passwd_fn, this, &NEONSession::provide_clicert_fn, this);
+            configureSession(_sess, _u, p, &NEONSession::provide_login_passwd_fn, this, &NEONSession::authNeonCliCertMapper, this);
 }
 
 
@@ -147,7 +147,7 @@ NEONSession::NEONSession(NEONSessionFactory & f, const Uri & uri, const RequestP
 {
     _f.createNeonSession(uri, &_sess, err);
     if(_sess)
-        configureSession(_sess, _u, p, &NEONSession::provide_login_passwd_fn, this, &NEONSession::provide_clicert_fn, this);
+        configureSession(_sess, _u, p, &NEONSession::provide_login_passwd_fn, this, &NEONSession::authNeonCliCertMapper, this);
 }
 
 

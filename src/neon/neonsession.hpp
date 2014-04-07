@@ -65,7 +65,7 @@ private:
 
     // auth callback mapper
     //
-    static void provide_clicert_fn(void *userdata, ne_session *sess,
+    static void authNeonCliCertMapper(void *userdata, ne_session *sess,
                                              const ne_ssl_dname *const *dnames,
                                              int dncount);
 

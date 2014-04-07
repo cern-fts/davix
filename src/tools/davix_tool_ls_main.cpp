@@ -107,7 +107,7 @@ int main(int argc, char** argv){
     FILE* fstream = stdout;
 
     if( (retcode= Tool::parse_davix_ls_options(argc, argv, opts, &tmp_err)) ==0){
-        if( (retcode = Tool::setup_credential(opts, &tmp_err)) == 0){
+        if( (retcode = Tool::configureAuth(opts, &tmp_err)) == 0){
             retcode = listing(opts, fstream, &tmp_err);
             if(retcode < 0 && tmp_err->getStatus() == StatusCode::IsNotADirectory){
                 DavixError::clearError(&tmp_err);
@@ -115,7 +115,7 @@ int main(int argc, char** argv){
             }
         }
     }
-    Tool::err_display(&tmp_err);
+    Tool::errorPrint(&tmp_err);
     return retcode;
 }
 

@@ -80,8 +80,8 @@ int main(int argc, char** argv){
 
     if( (retcode= Tool::parse_davix_options(argc, argv, opts, &tmp_err)) ==0){
         Context c;
-        if( (out_fd= Tool::get_output_fstream(opts, scope_main, &tmp_err)) > 0
-            && (retcode = Tool::setup_credential(opts, &tmp_err)) == 0){
+        if( (out_fd= Tool::getOutFd(opts, scope_main, &tmp_err)) > 0
+            && (retcode = Tool::configureAuth(opts, &tmp_err)) == 0){
 
             HttpRequest req(c, opts.vec_arg[0], &tmp_err);
             if( tmp_err == NULL){
@@ -94,7 +94,7 @@ int main(int argc, char** argv){
             }
         }
     }
-    Tool::err_display(&tmp_err);
+    Tool::errorPrint(&tmp_err);
     return retcode;
 }
 

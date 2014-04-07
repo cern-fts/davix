@@ -34,13 +34,13 @@ int main(int argc, char** argv){
 
     if( (retcode= Tool::parse_davix_options(argc, argv, opts, &tmp_err)) ==0){
         Context c;
-        if( (retcode = Tool::setup_credential(opts, &tmp_err)) == 0){
+        if( (retcode = Tool::configureAuth(opts, &tmp_err)) == 0){
             DavixCopy copy(c, &opts.params);
             copy.setPerformanceCallback(performanceCallback, NULL);
             copy.copy(opts.vec_arg[0], opts.vec_arg[1],
                       1, &tmp_err);
         }
     }
-    Tool::err_display(&tmp_err);
+    Tool::errorPrint(&tmp_err);
     return retcode;
 }

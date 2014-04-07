@@ -12,4 +12,15 @@ std::string getAwsAuthorizationField(const std::string & stringToSign, const std
     return ss.str();
 }
 
+std::vector<std::string> v;
+
+SessionInfo::SessionInfo(){
+
+}
+
+std::vector<std::string> & SessionInfo::getReadableDN() const{
+    // TODO: implement proper DN mapping
+    return v;
+}
+
 }

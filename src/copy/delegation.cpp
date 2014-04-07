@@ -93,7 +93,9 @@ std::string DavixCopyInternal::davix_delegate(const std::string &urlpp,
       return "";
   }
 
-  x509callback.first(x509callback.second, SessionInfo(), &credentials, err);
+  SessionInfo sess;
+
+  x509callback.first(x509callback.second, sess, &credentials, err);
   if (err && *err)
       return "";
 

@@ -5,10 +5,6 @@
 
 extern const std::string COPY_SCOPE;
 
-// Delegation
-std::string davix_delegate(const std::string &urlpp,
-                           const Davix::RequestParams& params,
-                           Davix::DavixError** err);
 
 // Internal struct to hold data
 class Davix::DavixCopyInternal
@@ -33,9 +29,15 @@ protected:
 
     void monitorPerformanceMarkers(Davix::HttpRequest *request, Davix::DavixError **error);
 
+    // Delegation
+    static std::string davix_delegate(const std::string &urlpp,
+                               const Davix::RequestParams& params,
+                               Davix::DavixError** err);
+
 private:
     DavixCopyInternal(const DavixCopyInternal&);
     DavixCopyInternal& operator = (const DavixCopyInternal&);
+
 };
 
 

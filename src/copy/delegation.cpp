@@ -67,7 +67,7 @@ int get_cert_remaining_life(const std::string& cert)
 }
 
 /// Do the delegation
-std::string davix_delegate(const std::string &urlpp,
+std::string DavixCopyInternal::davix_delegate(const std::string &urlpp,
                            const RequestParams& params,
                            DavixError** err)
 {

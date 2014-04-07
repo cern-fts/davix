@@ -302,7 +302,7 @@ const std::string  & get_common_options(){
 
 
 const std::string  & get_base_description_options(){
-    static const std::string s("Usage: %s [OPTIONS ...] <url> <local_file> \n       davix-get [OPTIONS ...] <url> \n"
+    static const std::string s("Usage: %s [OPTIONS ...] <url>\n"
             );
     return s;
 }

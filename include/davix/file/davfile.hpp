@@ -185,7 +185,7 @@ public:
 
 
     ///
-    /// @brief create a collection ( directory or bucket) at the current file url
+    /// @brief create a collection ( directory or bucket) at the current url
     ///
     ///  @param params Davix request Parameters
     ///  @param err Davix Error report

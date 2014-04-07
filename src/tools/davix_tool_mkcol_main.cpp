@@ -26,7 +26,7 @@
 
 
 // @author : Devresse Adrien
-// main file for davix low level cmd line tool
+// main file for davix make collection cmd line tool
 
 
 using namespace Davix;
@@ -35,7 +35,7 @@ using namespace std;
 #define READ_BLOCK_SIZE 4096
 
 
-const std::string scope_main = "Davix::Tools::davix-del";
+const std::string scope_main = "Davix::Tools::davix-mkcol";
 
 
 
@@ -56,7 +56,7 @@ int main(int argc, char** argv){
         Context c;
         if( (retcode = Tool::configureAuth(opts, &tmp_err)) == 0){
             DavFile f(c,opts.vec_arg[0]);
-            f.deletion(&opts.params, &tmp_err);
+            f.makeCollection(&opts.params, &tmp_err);
         }
     }
     Tool::errorPrint(&tmp_err);

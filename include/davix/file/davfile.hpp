@@ -24,6 +24,7 @@
 #include <davixcontext.hpp>
 #include <params/davixrequestparams.hpp>
 #include <file/davix_file_info.hpp>
+#include <compat/deprecated.hpp>
 
 
 

@@ -28,7 +28,6 @@
 #include <davixuri.hpp>
 #include <status/davixstatusrequest.hpp>
 #include <params/davixrequestparams.hpp>
-#include <request/httpcachetoken.hpp>
 
 #ifndef __DAVIX_INSIDE__
 #error "Only davix.h or davix.hpp should be included."
@@ -62,6 +61,7 @@ typedef dav_ssize_t (*HttpBodyProvider)(void *userdata,
 
 class NEONRequest;
 class NEONSessionFactory;
+class HttpCacheToken;
 
 namespace RequestFlag{
     ///
@@ -277,19 +277,11 @@ public:
     /// @return true if this header exist or false if it does not
     size_t getAnswerHeaders( HeaderVec & vec_headers) const;
 
-    ///
-    /// @brief Extract a cache token from this Request
-    ///
-    /// a cache token allows to optimize future request
-    /// cache tokens are dynamically allocated and need to be free
-    /// @return cache token or null pointer if not available
+
+    /// @deprecated not in use anymore
     HttpCacheToken* extractCacheToken() const;
 
-    ///
-    /// \brief use the cache token of a previous request, enable request o
-    ///  optimizations ( session re-use, redirection caching, server operation support )
-    /// \param token
-    ///
+    /// @deprecated not in use anymore
     void useCacheToken(const HttpCacheToken* token);
 
     /// set a HttpRequest flag

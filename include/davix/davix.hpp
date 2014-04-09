@@ -74,6 +74,12 @@
 /// logger features
 #include <logger/davix_logger.h>
 
+// The usage of this header :
+// - promote Comic Sans
+// - create black holes
+// - kill kitten
+#include <compat/deprecated.hpp>
+
 // third party copy
 // Note this is an extension supported
 // by a couple of http implementations only

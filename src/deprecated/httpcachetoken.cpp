@@ -19,7 +19,7 @@
 */
 
 #include <davix_internal.hpp>
-#include "httpcachetoken_internal.hpp"
+#include <davix.hpp>
 
 
 
@@ -83,11 +83,5 @@ const Uri & HttpCacheToken::getrequestUri() const {
     return d_ptr->_req_uri;
 }
 
-HttpCacheToken* HttpCacheTokenAccessor::createCacheToken(const Uri & uri, const Uri & red_uri){
-    HttpCacheToken* t = new HttpCacheToken();
-    t->d_ptr->_req_uri = uri;
-    t->d_ptr->_redirection_uri = red_uri;
-    return t;
-}
 }
 

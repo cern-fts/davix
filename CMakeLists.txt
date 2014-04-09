@@ -36,10 +36,7 @@ set(VERSION_STRING ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 # dependency mode
 option(BOOST_EXTERNAL "Enable the usage of an external boost dependency" TRUE)
 
-#compilation mode
-SET(SSL_BACKEND "OPENSSL"
-    CACHE STRING "set the default SSL backend openssl or gnutls ( default : openssl ) ")
-
+# features
 option(ENABLE_IPV6 "enable or disable IPv6 support " TRUE)
 option(ENABLE_TCP_NODELAY "enable or disable tcp_nodelay" TRUE)
 option(ENABLE_THIRD_PARTY_COPY "enable or disable third party copy support" FALSE)

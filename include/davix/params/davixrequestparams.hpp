@@ -203,8 +203,8 @@ public:
 
 
     /// Add a custom header line that has to be included in the requests
-    void addHeader(std::string &key, std::string &val);
-    std::vector< std::pair<std::string,std::string> > &getHeaders();
+    void addHeader(const std::string &key, const std::string &val);
+    std::vector< std::pair<std::string,std::string> > & getHeaders();
 
     /// internal usage
     void* getParmState() const;

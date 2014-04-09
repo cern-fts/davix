@@ -60,7 +60,7 @@
 #include <params/davixrequestparams.hpp>
 
 /// davix uri parser
-#include <davixuri.hpp>
+#include <utils/davix_uri.hpp>
 
 /// file API, main API for remote I/O
 #include <file/davfile.hpp>

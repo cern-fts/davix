@@ -24,7 +24,7 @@
 #include <memory>
 
 #include <davixcontext.hpp>
-#include <davixuri.hpp>
+#include <utils/davix_uri.hpp>
 #include <params/davixrequestparams.hpp>
 
 #include <neon/neonsession.hpp>

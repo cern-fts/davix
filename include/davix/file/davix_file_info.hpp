@@ -23,7 +23,7 @@
 
 
 #include <davix_file_types.hpp>
-#include <davixuri.hpp>
+#include <utils/davix_uri.hpp>
 
 /**
   @file davix_file_info.hpp

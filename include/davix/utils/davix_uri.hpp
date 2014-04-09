@@ -28,7 +28,7 @@
 
 
 /**
-  @file davixuri.hpp
+  @file davix_uri.hpp
   @author Devresse Adrien
   @brief URI utilities functions for davix
  */

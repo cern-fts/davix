@@ -25,7 +25,7 @@
 #include <vector>
 #include <unistd.h>
 #include <utils/davix_types.hpp>
-#include <davixuri.hpp>
+#include <utils/davix_uri.hpp>
 #include <status/davixstatusrequest.hpp>
 #include <params/davixrequestparams.hpp>
 

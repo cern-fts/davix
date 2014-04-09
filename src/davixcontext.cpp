@@ -21,7 +21,7 @@
 #include <davix_internal.hpp>
 #include <davixcontext.hpp>
 
-#include <davixuri.hpp>
+#include <utils/davix_uri.hpp>
 #include <neon/neonsessionfactory.hpp>
 #include <davix_context_internal.hpp>
 

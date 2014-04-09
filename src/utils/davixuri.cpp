@@ -19,7 +19,7 @@
 */
 
 #include <davix_internal.hpp>
-#include <davixuri.hpp>
+#include <utils/davix_uri.hpp>
 
 
 namespace Davix {

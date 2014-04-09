@@ -25,7 +25,7 @@
 #include <string>
 #include <status/davixstatusrequest.hpp>
 
-#include <davixuri.hpp>
+#include <utils/davix_uri.hpp>
 
 #ifndef __DAVIX_INSIDE__
 #error "Only davix.h or davix.hpp should be included."

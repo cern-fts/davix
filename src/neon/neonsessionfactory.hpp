@@ -22,7 +22,7 @@
 #define DAVIX_NEONSESSIONFACTORY_H
 
 #include <map>
-#include <davixuri.hpp>
+#include <utils/davix_uri.hpp>
  
 #include <neon/neonrequest.hpp>
 #include <boost/thread/locks.hpp>

@@ -21,7 +21,7 @@
 #include <davix_internal.hpp>
 #include <cstdio>
 #include <cstdarg>
-#include <logger/davix_logger.h>
+#include <utils/davix_logger.hpp>
 
 
 const int BUFFER_SIZE =4096;

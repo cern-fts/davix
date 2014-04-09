@@ -19,7 +19,7 @@
 */
 
 #include <davix_internal.hpp>
-#include <davix_types.h>
+#include <utils/davix_types.hpp>
 #include <status/davixstatusrequest.hpp>
 
 

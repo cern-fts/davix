@@ -3,7 +3,6 @@
 
 add_subdirectory(adevpp)
 add_subdirectory(lockers)
-add_subdirectory(logger)
 add_subdirectory(datetime)
 
 
@@ -13,5 +12,4 @@ add_subdirectory(datetime)
 SET(src_vector_chunk ${src_vector_chunk} PARENT_SCOPE)
 SET(src_crypto ${src_crypto} PARENT_SCOPE)
 SET(src_lockers ${src_lockers} PARENT_SCOPE)
-SET(src_logger ${src_logger} PARENT_SCOPE)
 SET(src_datetime ${src_datetime} PARENT_SCOPE)

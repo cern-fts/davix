@@ -20,7 +20,7 @@
 
 #include <davix_internal.hpp>
 
-#include <logger/davix_logger_internal.h>
+#include <utils/davix_logger_internal.hpp>
 #include <status/davixstatusrequest.hpp>
 #include <fileops/fileutils.hpp>
 #include <fileops/fileutils.hpp>

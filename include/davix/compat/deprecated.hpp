@@ -2,7 +2,7 @@
 #define DAVIX_DEPRECATED
 
 #include <vector>
-#include <davix_types.h>
+#include <utils/davix_types.hpp>
 #include <utils/davix_uri.hpp>
 
 #ifndef __DAVIX_INSIDE__

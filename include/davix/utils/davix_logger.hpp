@@ -19,10 +19,10 @@
 */
 
 
-#ifndef DAVIX_LOGGER_H
-#define DAVIX_LOGGER_H
+#ifndef DAVIX_LOGGER_HPP
+#define DAVIX_LOGGER_HPP
 
-#include <davix_types.h>
+#include <utils/davix_types.hpp>
 
 DAVIX_C_DECL_BEGIN
 

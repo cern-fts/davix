@@ -21,9 +21,9 @@
 #include <config.h>
 #include "iobuffmap.hpp"
 
-#include <davix_types.h>
+#include <utils/davix_types.hpp>
 #include <request/httprequest.hpp>
-#include <logger/davix_logger_internal.h>
+#include <utils/davix_logger_internal.hpp>
 #include <http_util/http_util.hpp>
 #include <fileops/httpiovec.hpp>
 #include <fileops/davmeta.hpp>

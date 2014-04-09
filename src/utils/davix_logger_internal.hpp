@@ -1,8 +1,8 @@
-#ifndef DAVIX_LOGGER_INTERNAL_H
-#define DAVIX_LOGGER_INTERNAL_H
+#ifndef DAVIX_LOGGER_INTERNAL_HPP
+#define DAVIX_LOGGER_INTERNAL_HPP
 
-#include <davix_types.h>
-#include <logger/davix_logger.h>
+#include <utils/davix_types.hpp>
+#include <utils/davix_logger.hpp>
 
 DAVIX_C_DECL_BEGIN
 
@@ -33,4 +33,4 @@ DAVIX_C_DECL_BEGIN
 
 DAVIX_C_DECL_END
 
-#endif // DAVIX_LOGGER_INTERNAL_H
+#endif // DAVIX_LOGGER_INTERNAL_HPP

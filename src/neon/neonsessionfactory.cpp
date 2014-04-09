@@ -22,7 +22,7 @@
 #include "neonsessionfactory.hpp"
 
 #include <lockers/dpponce.hpp>
-#include <logger/davix_logger_internal.h>
+#include <utils/davix_logger_internal.hpp>
 
 namespace Davix {
 

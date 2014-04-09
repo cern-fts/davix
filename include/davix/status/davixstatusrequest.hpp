@@ -22,7 +22,7 @@
 #define DAVIX_DAVIXSTATUSREQUEST_HPP
 
 #include <string>
-#include <davix_types.h>
+#include <utils/davix_types.hpp>
 #include <iostream>
 
 /**

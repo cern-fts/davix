@@ -22,7 +22,7 @@
 #include "davix_tool_params.hpp"
 #include "davix_tool_util.hpp"
 #include <getopt.h>
-#include <logger/davix_logger.h>
+#include <utils/davix_logger.hpp>
 
 namespace Davix{
 

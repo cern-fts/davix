@@ -21,7 +21,7 @@
 #include <davix_internal.hpp>
 #include "neonrequest.hpp"
 
-#include <logger/davix_logger_internal.h>
+#include <utils/davix_logger_internal.hpp>
 #include <libs/time_utils.h>
 #include <ne_redirect.h>
 #include <ne_request.h>

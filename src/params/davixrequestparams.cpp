@@ -20,7 +20,7 @@
 
 #include <davix_internal.hpp>
 
-#include <logger/davix_logger_internal.h>
+#include <utils/davix_logger_internal.hpp>
 #include <params/davixrequestparams.hpp>
 #include <libs/time_utils.h>
 

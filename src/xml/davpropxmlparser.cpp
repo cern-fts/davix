@@ -21,7 +21,7 @@
 #include <davix_internal.hpp>
 #include "davpropxmlparser.hpp"
 
-#include <logger/davix_logger_internal.h>
+#include <utils/davix_logger_internal.hpp>
 #include <status/davixstatusrequest.hpp>
 #include <datetime/datetime_utils.hpp>
 #include <string_utils/stringutils.hpp>

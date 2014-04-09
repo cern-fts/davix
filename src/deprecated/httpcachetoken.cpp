@@ -83,5 +83,22 @@ const Uri & HttpCacheToken::getrequestUri() const {
     return d_ptr->_req_uri;
 }
 
+
+// Deprecated replicas
+// created for Abi compatibility
+void deprecated_abi_calls(){
+    Replica* r = new Replica();
+    ReplicaVec* v = new ReplicaVec();
+    v->resize(1);
+
+    FileInfo<FileInfoProtocolType>* t = new FileInfo<FileInfoProtocolType>();
+    delete (t->getClone());
+    delete t;
+    FileInfoSize* s = new FileInfoSize();
+    delete s;
+    delete r;
+    delete v;
+}
+
 }
 

@@ -2,6 +2,7 @@
 #define DAVIX_DEPRECATED
 
 #include <vector>
+#include <string>
 #include <utils/davix_types.hpp>
 #include <utils/davix_uri.hpp>
 
@@ -147,6 +148,61 @@ public:
 };
 
 typedef std::deque<Replica> ReplicaVec;
+
+
+
+struct HookIntern;
+
+///
+/// \brief The HookTraits class
+///
+///  Base class for Daivx Hook functions
+///
+struct HookTraits{
+    HookTraits();
+    virtual ~HookTraits();
+
+    virtual std::type_info & getType() =0;
+
+    // internal
+    HookIntern* d_ptr;
+};
+
+
+template <class T>
+struct Hook: HookTraits{
+    virtual std::type_info & getType(){
+        return typeid(*static_cast<T>(this));
+    }
+};
+
+class HttpRequest;
+
+typedef void (*CallbackHeader)(HttpRequest &, const std::string &, std::string &);
+
+
+struct HookSendHeader : public Hook<HookSendHeader>{
+    CallbackHeader hook;
+};
+
+
+struct HookReceiveHeader : public Hook<HookReceiveHeader>{
+    CallbackHeader hook;
+};
+
+
+typedef void (*CallbackRequestExec)(HttpRequest &);
+
+
+
+struct HookRequestPreExec : public Hook<HookRequestPreExec>{
+    CallbackRequestExec hook;
+};
+
+
+struct HookRequestPostExec : public Hook<HookRequestPostExec>{
+    CallbackRequestExec hook;
+};
 
 } // namespace Davix
 

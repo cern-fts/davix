@@ -4,16 +4,6 @@
 namespace Davix{
 
 
-HookTraits::HookTraits() : d_ptr(NULL){
-
-}
-
-HookTraits::~HookTraits(){
-
-}
-
-
-
 
 
 

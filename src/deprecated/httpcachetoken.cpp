@@ -100,5 +100,18 @@ void deprecated_abi_calls(){
     delete v;
 }
 
+
+
+HookTraits::HookTraits() : d_ptr(NULL){
+
+}
+
+HookTraits::~HookTraits(){
+
+}
+
+
+
+
 }
 

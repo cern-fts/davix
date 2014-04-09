@@ -35,7 +35,6 @@ set(VERSION_STRING ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 # dependency mode
 option(BOOST_EXTERNAL "Enable the usage of an external boost dependency" TRUE)
-option(GTEST_EXTERNAL "Enable the usage of an external gtest framework" FALSE)
 
 #compilation mode
 SET(SSL_BACKEND "OPENSSL"

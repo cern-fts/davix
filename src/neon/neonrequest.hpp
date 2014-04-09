@@ -56,7 +56,7 @@ class NEONRequest : protected NonCopyable
 public:
     int _req_flag;
 public:
-    NEONRequest(NEONSessionFactory& f, const Uri & uri_req);
+    NEONRequest(Context& f, const Uri & uri_req);
     virtual ~NEONRequest();
 
     /**
@@ -169,6 +169,7 @@ private:
     // Request string
     std::string _request_type;
     NEONSessionFactory& _f;
+    Context& _c;
     bool req_started, req_running;
     int _last_request_flag;
 
@@ -209,6 +210,8 @@ private:
     NEONRequest & operator=(const NEONRequest & req);
 
 	static ssize_t neon_body_content_provider(void* userdata, char* buffer, size_t buflen);
+
+    friend class HttpRequest;
 };
 
 

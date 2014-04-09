@@ -34,7 +34,7 @@ HttpRequest::HttpRequest(NEONRequest* req) : d_ptr(req)
 }
 
 HttpRequest::HttpRequest(Context & context, const Uri & uri, DavixError** err) :
-    d_ptr(new NEONRequest(ContextExplorer::SessionFactoryFromContext(context),uri)){
+    d_ptr(new NEONRequest(context,uri)){
 
     if(uri.getStatus() != StatusCode::OK){
         DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, "impossible to parse " + uri.getString() + " ,not a valid HTTP or Webdav URL");
@@ -44,7 +44,7 @@ HttpRequest::HttpRequest(Context & context, const Uri & uri, DavixError** err) :
 HttpRequest::HttpRequest(Context & context, const std::string & url, DavixError** err) :
     d_ptr(NULL){
     Uri uri(url);
-    d_ptr= new NEONRequest(ContextExplorer::SessionFactoryFromContext(context), uri);
+    d_ptr= new NEONRequest(context, uri);
     if(uri.getStatus() != StatusCode::OK){
         DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, "impossible to parse " + uri.getString() + " ,not a valid HTTP or Webdav URL");
     }
@@ -93,6 +93,11 @@ int HttpRequest::getRequestCode(){
 
 int HttpRequest::executeRequest(DavixError **err){
     TRY_DAVIX{
+        // triggers Hooks
+        hookRequestPreRun h =  (hookRequestPreRun)(d_ptr->_c.getHookById(DAVIX_HOOK_REQUEST_PRE_RUN));
+        if(h)
+            (h)(d_ptr->params, *this, *(d_ptr->_orig));
+
         return d_ptr->executeRequest(err);
     }CATCH_DAVIX(err)
     return -1;
@@ -100,6 +105,11 @@ int HttpRequest::executeRequest(DavixError **err){
 
 int HttpRequest::beginRequest(DavixError **err){
     TRY_DAVIX{
+        // triggers Hooks
+        hookRequestPreRun h = (hookRequestPreRun)(d_ptr->_c.getHookById(DAVIX_HOOK_REQUEST_PRE_RUN));
+        if(h)
+            (h)(d_ptr->params, *this, *(d_ptr->_orig));
+
         return d_ptr->beginRequest(err);
     }CATCH_DAVIX(err)
     return -1;

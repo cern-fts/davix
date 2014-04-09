@@ -40,14 +40,21 @@ struct ContextInternal
         _fsess(fsess),
         _s_buff(65536),
         _timeout(300),
-        _context_flags(0){}
+        _context_flags(0),
+        _hooks()
+    {
+        std::fill(_hooks, _hooks+ DAVIX_HOOk_REQUEST_NUM, static_cast<void*>(NULL));
+    }
 
     ContextInternal(const ContextInternal & orig):
         _fsess(new NEONSessionFactory()),
         _s_buff(orig._s_buff),
         _timeout(orig._timeout),
-        _context_flags(orig._context_flags)
-    {}
+        _context_flags(orig._context_flags),
+        _hooks()
+    {
+        std::copy(orig._hooks, orig._hooks+ DAVIX_HOOk_REQUEST_NUM, _hooks);
+    }
 
     virtual ~ContextInternal(){}
 
@@ -64,6 +71,7 @@ struct ContextInternal
     dav_size_t _s_buff;
     unsigned long _timeout;
     bool _context_flags;
+    void* _hooks[DAVIX_HOOk_REQUEST_NUM];
 };
 
 ///////////////////////////////////////////////////////////////
@@ -116,6 +124,17 @@ HttpRequest* Context::createRequest(const Uri &uri, DavixError **err){
     return new HttpRequest(*this, uri, err);
 }
 
+
+void Context::setHookById(int id, void* hook){
+    if(id >0 && id < DAVIX_HOOk_REQUEST_NUM)
+        _intern->_hooks[id] = hook;
+}
+
+void* Context::getHookById(int id){
+    if(id >0 && id < DAVIX_HOOk_REQUEST_NUM)
+        return _intern->_hooks[id];
+    return NULL;
+}
 
 NEONSessionFactory & ContextExplorer::SessionFactoryFromContext(Context & c){
     return *static_cast<NEONSessionFactory*>(c._intern->getSessionFactory());

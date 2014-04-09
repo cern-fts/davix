@@ -22,12 +22,19 @@
 #ifndef DAVIX_HOOKS_HPP
 #define DAVIX_HOOKS_HPP
 
-#include <typeinfo>
 #include <request/httprequest.hpp>
 
 namespace Davix{
 
+class HttpRequest;
+class RequestParams;
+class Uri;
 
+#define DAVIX_HOOK_NULL 0x00
+#define DAVIX_HOOK_REQUEST_PRE_RUN 0x01
+#define DAVIX_HOOk_REQUEST_NUM  0x02
+
+typedef void (*hookRequestPreRun)(RequestParams& p, HttpRequest & req, Uri & u);
 
 
 

@@ -25,6 +25,7 @@
 #include <libs/time_utils.h>
 #include <ne_redirect.h>
 #include <ne_request.h>
+#include <davix_context_internal.hpp>
 #include <neon/neonsession.hpp>
 #include <fileops/fileutils.hpp>
 
@@ -126,7 +127,7 @@ void neon_simple_req_code_to_davix_code(int ne_status, ne_session* sess, const s
 }
 
 
-NEONRequest::NEONRequest(NEONSessionFactory& f, const Uri & uri_req) :
+NEONRequest::NEONRequest(Context& context, const Uri & uri_req) :
     _req_flag(RequestFlag::IdempotentRequest),
     params(),
     _neon_sess(),
@@ -144,7 +145,8 @@ NEONRequest::NEONRequest(NEONSessionFactory& f, const Uri & uri_req) :
     _content_provider(),
     _ans_size(-1),
     _request_type("GET"),
-    _f(f),
+    _f(ContextExplorer::SessionFactoryFromContext(context)),
+    _c(context),
     req_started(false),
     req_running(false),
     _last_request_flag(0),
@@ -289,7 +291,7 @@ int NEONRequest::processRedirection(int neonCode, DavixError **err){
 }
 
 
-int NEONRequest::startRequest(DavixError **err){
+int NEONRequest::startRequest(DavixError **err){        
     if( create_req(err) < 0)
             return -1;
     return negotiate_request(err);

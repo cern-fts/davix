@@ -24,7 +24,7 @@
 
 #include <string>
 #include <status/davixstatusrequest.hpp>
-
+#include <hooks/davix_hooks.hpp>
 #include <utils/davix_uri.hpp>
 
 #ifndef __DAVIX_INSIDE__
@@ -77,12 +77,22 @@ public:
     Context* clone();
 
 
+    void setHookById(int id, void* hook);
+
+    void* getHookById(int id);
 
     ///  enable or disablet the session caching
     void setSessionCaching(bool caching);
 
     bool getSessionCaching() const;
 
+private:
+    // internal context
+    ContextInternal* _intern;
+
+    friend class DavPosix;
+    friend struct ContextExplorer;
+public:
 
     /// @deprecated
     HttpRequest* createRequest(const Uri & uri, DavixError** err);
@@ -92,11 +102,7 @@ public:
     DavPosix* createDavPosix();
 
 private:
-    // internal context
-    ContextInternal* _intern;
 
-    friend class DavPosix;
-    friend struct ContextExplorer;
 };
 
 

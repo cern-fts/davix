@@ -74,6 +74,9 @@
 /// logger features
 #include <utils/davix_logger.hpp>
 
+/// hooks for extensions
+#include <hooks/davix_hooks.hpp>
+
 // The usage of this header :
 // - promote Comic Sans
 // - create black holes

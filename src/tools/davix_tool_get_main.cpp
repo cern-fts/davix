@@ -46,6 +46,7 @@ static std::string help_msg(){
 
 static int execute_get(const Tool::OptParams & opts, int out_fd, DavixError** err){
         Context c;
+        configureContext(c, opts);
         DavFile f(c, opts.vec_arg[0]);
         return f.getToFd(&opts.params, out_fd, err);
 }

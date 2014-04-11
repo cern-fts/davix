@@ -3,16 +3,13 @@
 
 #include <vector>
 #include <string>
+#include <sstream>
 #include <algorithm>
 #include <functional>
 #include <cctype>
 #include <locale>
 #include <cstring>
 
-// predicates
-inline bool charEqCase(char c1, char c2){
-    return (c1 == c2 || ::tolower(c1) == ::tolower(c2));
-}
 
 // split a string following an array of delimiter ( strtok like )
 std::vector<std::string> stringTokSplit(const std::string & str, const std::string & delimiter);
@@ -51,9 +48,45 @@ inline std::string &trim(std::string &s, Func pred = static_cast<int (*)(int)>(s
     return ltrim<Func>(rtrim<Func>(s, static_cast<int (*)(int)>(pred)), static_cast<int (*)(int)>(pred));
 }
 
+namespace strUtil{
+
+typedef std::vector<std::string> stringVec;
+
+inline std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &res) {
+    std::stringstream ss(s);
+    std::string item;
+    item.reserve(s.size());
+    while (std::getline(ss, item, delim)) {
+        res.push_back(item);
+    }
+    return res;
+}
+
+
 inline int isslash(int c){
     return ( c == '/');
 }
+
+inline int isCrLf(int c){
+    return ( c == '\n') || (c == '\n');
+}
+
+inline std::string & remove(std::string & str, char c){
+    std::string::iterator it = std::remove(str.begin(), str.end(), c);
+    str.erase(it, str.end());
+    return str;
+}
+
+
+// predicates
+inline bool charEqCase(char c1, char c2){
+    return (c1 == c2 || ::tolower(c1) == ::tolower(c2));
+}
+
+
+}
+
+
 
 
 #endif // STRINGUTILS_HPP

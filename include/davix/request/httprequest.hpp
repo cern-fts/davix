@@ -293,6 +293,9 @@ public:
 private:
     NEONRequest* d_ptr;
 
+    void runPreRunHook();
+    void runRegisterHooks();
+
     friend class NEONRequest;
     friend class NEONSessionFactory;
 

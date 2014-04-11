@@ -19,14 +19,33 @@
 */
 
 #include <davix_internal.hpp>
+#include <string_utils/stringutils.hpp>
 #include "davix_tool_util.hpp"
 
 
 #include <simple_getpass/simple_get_pass.h>
 
+
 namespace Davix{
 
 namespace Tool{
+
+using namespace strUtil;
+
+dav_ssize_t writeToFd(int fd, const void* buffer, dav_size_t s_buff){
+    while(1){
+        ssize_t ret;
+        errno =0;
+        if((ret= write(fd, buffer, static_cast<size_t>(s_buff))) <0 && errno == EINTR){
+            continue;
+        }
+        return static_cast<dav_ssize_t>(ret);
+    }
+}
+
+dav_ssize_t writeToFd(int fd, const std::string & str){
+    return writeToFd(fd, str.c_str(), str.size());
+}
 
 std::string string_from_ptime(const time_t & t){
     char b[255];
@@ -62,6 +81,12 @@ size_t ask_user_passwd(std::string & passwd){
     return 0;
 }
 
+void writeConsoleLine(int fd, char symbol,  const std::string & msg){
+    std::ostringstream ss;
+    ss << symbol << " " << msg << "\n";
+    writeToFd(fd, ss.str());
+}
+
 int configureAuth(OptParams & opts, DavixError** err){
     // setup client side credential
     opts.params.setClientCertCallbackX509(&authCallbackCert, &opts);
@@ -75,6 +100,36 @@ int configureAuth(OptParams & opts, DavixError** err){
     }
 
     return 0;
+}
+
+
+static void printHookHeaders(char symbol, const std::string & first_msg, const std::string & start_line){
+    std::string req_header(start_line);
+    strUtil::remove(req_header, '\r');
+    rtrim(req_header, strUtil::isCrLf);
+    std::vector<std::string> res;
+    split(req_header, '\n', res);
+
+    writeConsoleLine(STDOUT_FILENO, '*', first_msg);
+    for(stringVec::iterator it =res.begin(); it != res.end(); ++it){
+          writeConsoleLine(STDOUT_FILENO, symbol, *it);
+    }
+}
+
+void hook_davix_tool_pre_send(HttpRequest& req, const std::string & start_line, void* userdata){
+    printHookHeaders('>', "Send request", start_line);
+}
+
+void hook_davix_tool_pre_rec(HttpRequest& req, const std::string & start_line, void* userdata){
+    printHookHeaders('<', "Receive answer", start_line);
+}
+
+
+void configureContext(Context &context, const OptParams & opts){
+    if(opts.pres_flag & DISPLAY_HEADERS){
+        context.setHookById(DAVIX_HOOK_REQUEST_PRE_SEND, (void*) hook_davix_tool_pre_send, NULL);
+        context.setHookById(DAVIX_HOOK_REQUEST_PRE_RECVE, (void*)hook_davix_tool_pre_rec, NULL);
+    }
 }
 
 int getOutFd(const Tool::OptParams & opts, const std::string & scope, DavixError** err){
@@ -228,13 +283,7 @@ bool isShell(int fd){
 
 void flushFinalLineShell(int fd){
     if(isShell(fd)){
-        while(1){
-            if( write(fd, "\n",1) <0 && errno == EINTR){
-                errno =0;
-                continue;
-            }
-            break;
-        }
+        writeToFd(fd, "\n", 1);
     }
 }
 

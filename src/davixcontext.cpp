@@ -71,7 +71,7 @@ struct ContextInternal
     dav_size_t _s_buff;
     unsigned long _timeout;
     bool _context_flags;
-    void* _hooks[DAVIX_HOOk_REQUEST_NUM];
+    void* _hooks[DAVIX_HOOk_REQUEST_NUM*2];
 };
 
 ///////////////////////////////////////////////////////////////
@@ -125,15 +125,17 @@ HttpRequest* Context::createRequest(const Uri &uri, DavixError **err){
 }
 
 
-void Context::setHookById(int id, void* hook){
+void Context::setHookById(int id, void* hook, void* userdata){
     if(id >0 && id < DAVIX_HOOk_REQUEST_NUM)
-        _intern->_hooks[id] = hook;
+        _intern->_hooks[2*id] = hook;
+        _intern->_hooks[2*id+1] = userdata;
 }
 
-void* Context::getHookById(int id){
-    if(id >0 && id < DAVIX_HOOk_REQUEST_NUM)
-        return _intern->_hooks[id];
-    return NULL;
+std::pair<void*,void*> Context::getHookById(int id){
+    if(id >0 && id < DAVIX_HOOk_REQUEST_NUM){
+        return std::pair<void*,void*>(_intern->_hooks[2*id], _intern->_hooks[2*id+1]);
+    }
+    return std::pair<void*,void*>(NULL,NULL);
 }
 
 NEONSessionFactory & ContextExplorer::SessionFactoryFromContext(Context & c){

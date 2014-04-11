@@ -40,6 +40,7 @@ const std::string scope_params = "Davix::Tools::Params";
 #define S3_SECRET_KEY       1005
 #define S3_ACCESS_KEY       1006
 #define X509_PRIVATE_KEY    1007
+#define HEADERS_OPTIONS     1008
 
 // LONG OPTS
 
@@ -47,7 +48,8 @@ const std::string scope_params = "Davix::Tools::Params";
 {"verbose", no_argument, 0,  0 }, \
 {"debug", no_argument, 0,  DEBUG_OPT }, \
 {"version", no_argument, 0, 'V'}, \
-{"help", no_argument,0,'?'}
+{"help", no_argument,0,'?'}, \
+{"headers", no_argument, 0, HEADERS_OPTIONS }
 
 #define SECURITY_LONG_OPTIONS \
 {"cert",  required_argument,       0, 'E' }, \
@@ -168,10 +170,12 @@ int parse_davix_options_generic(const std::string &opt_filter,
             case 'V':
                 display_version();
                 return 1;
-
+            case HEADERS_OPTIONS:
+                p.pres_flag |= DISPLAY_HEADERS;
+                break;
             case 'X':
                 p.req_type = std::string(optarg, 0, 255);
-            break;
+                break;
             case '?':
             printf(p.help_msg.c_str(), argv[0]);
                 return -1;
@@ -283,6 +287,7 @@ const std::string  & get_common_options(){
     static const std::string s(
             "  Common Options:\n"
             "\t--debug:                  Debug mode\n"
+            "\t--headers:                Display all HTTP queries headers\n"
             "\t--help, -h:               Display this help message\n"
             "\t--verbose:                Verbose mode\n"
             "\t--version, -V:            Display version\n"

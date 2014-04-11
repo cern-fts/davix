@@ -26,6 +26,9 @@
 
 namespace Davix {
 
+
+
+
 /////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +37,7 @@ HttpRequest::HttpRequest(NEONRequest* req) : d_ptr(req)
 }
 
 HttpRequest::HttpRequest(Context & context, const Uri & uri, DavixError** err) :
-    d_ptr(new NEONRequest(context,uri)){
+    d_ptr(new NEONRequest(*this, context,uri)){
 
     if(uri.getStatus() != StatusCode::OK){
         DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, "impossible to parse " + uri.getString() + " ,not a valid HTTP or Webdav URL");
@@ -44,7 +47,7 @@ HttpRequest::HttpRequest(Context & context, const Uri & uri, DavixError** err) :
 HttpRequest::HttpRequest(Context & context, const std::string & url, DavixError** err) :
     d_ptr(NULL){
     Uri uri(url);
-    d_ptr= new NEONRequest(context, uri);
+    d_ptr= new NEONRequest(*this, context, uri);
     if(uri.getStatus() != StatusCode::OK){
         DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, "impossible to parse " + uri.getString() + " ,not a valid HTTP or Webdav URL");
     }
@@ -54,9 +57,6 @@ HttpRequest::~HttpRequest()
 {
     delete d_ptr;
 }
-
-
-
 
 void HttpRequest::setRequestMethod(const std::string &request_str){
     d_ptr->setRequestMethod(request_str);
@@ -93,11 +93,7 @@ int HttpRequest::getRequestCode(){
 
 int HttpRequest::executeRequest(DavixError **err){
     TRY_DAVIX{
-        // triggers Hooks
-        hookRequestPreRun h =  (hookRequestPreRun)(d_ptr->_c.getHookById(DAVIX_HOOK_REQUEST_PRE_RUN));
-        if(h)
-            (h)(d_ptr->params, *this, *(d_ptr->_orig));
-
+        runPreRunHook();
         return d_ptr->executeRequest(err);
     }CATCH_DAVIX(err)
     return -1;
@@ -106,10 +102,7 @@ int HttpRequest::executeRequest(DavixError **err){
 int HttpRequest::beginRequest(DavixError **err){
     TRY_DAVIX{
         // triggers Hooks
-        hookRequestPreRun h = (hookRequestPreRun)(d_ptr->_c.getHookById(DAVIX_HOOK_REQUEST_PRE_RUN));
-        if(h)
-            (h)(d_ptr->params, *this, *(d_ptr->_orig));
-
+        runPreRunHook();
         return d_ptr->beginRequest(err);
     }CATCH_DAVIX(err)
     return -1;
@@ -221,6 +214,16 @@ void HttpRequest::setFlag(const RequestFlag::RequestFlag flag, bool value){
 /// get a HttpRequest flag value
 bool HttpRequest::getFlag(const RequestFlag::RequestFlag flag){
     return d_ptr->_req_flag & ((int) flag);
+}
+
+
+
+void HttpRequest::runPreRunHook(){
+    // triggers Hooks
+    std::pair<void*, void*> pair(d_ptr->_c.getHookById(DAVIX_HOOK_REQUEST_PRE_RUN));
+    hookRequestPreRun hook = (hookRequestPreRun) (pair.first);
+    if(hook)
+        hook(d_ptr->params, *this, *(d_ptr->_orig), pair.second);
 }
 
 

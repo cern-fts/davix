@@ -31,10 +31,17 @@ namespace Davix{
 
 namespace Tool{
 
+dav_ssize_t writeToFd(int fd, const void* buffer, dav_size_t s_buff);
+
+dav_ssize_t writeToFd(int fd, const std::string & str);
 
 int configureAuth(OptParams & opts, DavixError** err);
 
+void configureContext(Context &context, const OptParams & opts);
+
 void errorPrint(DavixError ** err);
+
+void writeConsoleLine(int fd, char symbol, const std::string & msg);
 
 int authCallbackLoginPassword(void* userdata, const SessionInfo & info, std::string & login, std::string & password,
                                         int count, DavixError** err);

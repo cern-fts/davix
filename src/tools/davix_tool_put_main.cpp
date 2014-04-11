@@ -47,6 +47,7 @@ static int execute_put(const Tool::OptParams & opts, int fd, DavixError** err){
         const std::string &  src_file = opts.input_file_path;
         const std::string &  dst_file = opts.vec_arg[1];
         Context c;
+        configureContext(c, opts);
         DavFile f(c, dst_file);
         struct stat st;
         if( fstat(fd, &st) != 0){

@@ -65,6 +65,7 @@ static void display_long_file_entry(const std::string & filename,  struct stat* 
 static int listing(const Tool::OptParams & opts, FILE* filestream, DavixError** err ){
     DAVIX_DIR* fd = NULL;
     Context c;
+    configureContext(c, opts);
     DavPosix pos(&c);
     struct stat st;
     struct dirent* d;
@@ -83,6 +84,7 @@ static int listing(const Tool::OptParams & opts, FILE* filestream, DavixError** 
 
 static int get_info(const Tool::OptParams & opts, FILE* filestream, DavixError** err ){
     Context c;
+    configureContext(c, opts);
     File f(c, opts.vec_arg[0]);
     struct stat st;
     if( f.stat(&opts.params, &st, err) == 0){

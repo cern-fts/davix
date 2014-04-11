@@ -80,6 +80,7 @@ int main(int argc, char** argv){
 
     if( (retcode= Tool::parse_davix_options(argc, argv, opts, &tmp_err)) ==0){
         Context c;
+        configureContext(c, opts);
         if( (out_fd= Tool::getOutFd(opts, scope_main, &tmp_err)) > 0
             && (retcode = Tool::configureAuth(opts, &tmp_err)) == 0){
 

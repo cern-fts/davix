@@ -36,7 +36,8 @@ typedef std::pair<std::string, std::string> LoginPasswd;
 typedef std::vector<HeaderParam> HeaderVec;
 
 // pres flag
-#define LONG_LISTING_FLAG 0x01
+#define LONG_LISTING_FLAG   0x01
+#define DISPLAY_HEADERS     0x02
 
 struct OptParams{
     OptParams();

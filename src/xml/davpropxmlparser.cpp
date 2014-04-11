@@ -141,7 +141,7 @@ static void check_mode_ext(DavPropXMLParser::DavxPropXmlIntern & par, const std:
 
 static void check_href(DavPropXMLParser::DavxPropXmlIntern & par,  const std::string & name){
     std::string _href(name);
-    rtrim(_href, isslash); // remove trailing slash
+    rtrim(_href, strUtil::isslash); // remove trailing slash
     std::string::reverse_iterator it = std::find(_href.rbegin(), _href.rend(), '/');
     if( it == _href.rend()){
         par._last_filename.assign(_href);

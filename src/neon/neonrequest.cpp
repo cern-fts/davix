@@ -127,7 +127,8 @@ void neon_simple_req_code_to_davix_code(int ne_status, ne_session* sess, const s
 }
 
 
-NEONRequest::NEONRequest(Context& context, const Uri & uri_req) :
+
+NEONRequest::NEONRequest(HttpRequest & h, Context& context, const Uri & uri_req) :
     _req_flag(RequestFlag::IdempotentRequest),
     params(),
     _neon_sess(),
@@ -145,6 +146,7 @@ NEONRequest::NEONRequest(Context& context, const Uri & uri_req) :
     _content_provider(),
     _ans_size(-1),
     _request_type("GET"),
+    _h(h),
     _f(ContextExplorer::SessionFactoryFromContext(context)),
     _c(context),
     req_started(false),
@@ -240,6 +242,8 @@ void NEONRequest::configure_req(){
       }
 
 
+    ne_hook_pre_send(_neon_sess->get_ne_sess(), neon_hook_pre_send, (void*)this);
+    ne_hook_post_headers(_neon_sess->get_ne_sess(), neon_hook_pre_rec, (void*) this);
 }
 
 
@@ -749,5 +753,35 @@ void NEONRequest::free_request(){
         _req=NULL;
     }
 }
+
+void NEONRequest::neon_hook_pre_send(ne_request *r, void *userdata,
+                   ne_buffer *header){
+    NEONRequest* req = (NEONRequest*) userdata;
+    std::pair<void*, void*> p = req->_c.getHookById(DAVIX_HOOK_REQUEST_PRE_SEND);
+    hookRequestPreSend hook = (hookRequestPreSend)  (p.first);
+    if(hook){
+        std::string header_line(header->data, (header->used)-1);
+        hook(req->_h, header_line, p.second);
+    }
+}
+
+void NEONRequest::neon_hook_pre_rec(ne_request *r, void *userdata,
+                                    const ne_status *status){
+    NEONRequest* req = (NEONRequest*) userdata;
+    std::pair<void*, void*> p = req->_c.getHookById(DAVIX_HOOK_REQUEST_PRE_RECVE);
+    hookRequestPreRece hook = (hookRequestPreRece)  (p.first);
+    if(hook){
+        std::ostringstream header_line;
+        HeaderVec headers;
+        req->getAnswerHeaders(headers);
+        header_line << "HTTP/"<< status->major_version << status->minor_version << '.'
+                    << ' ' << status->code << ' ' << status->reason_phrase << '\n';
+        for(HeaderVec::iterator it = headers.begin(); it != headers.end(); ++it){
+            header_line << it->first << ": " << it->second << '\n';
+        }
+        hook(req->_h, header_line.str(), p.second);
+    }
+}
+
 
 } // namespace Davix

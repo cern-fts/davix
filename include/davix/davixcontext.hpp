@@ -77,9 +77,11 @@ public:
     Context* clone();
 
 
-    void setHookById(int id, void* hook);
+    /// define a new hook for Davix
+    void setHookById(int id, void* hook, void* userdata);
 
-    void* getHookById(int id);
+    /// get an existing hook for Davix in the form pair(hook,userdata)
+    std::pair<void*, void*> getHookById(int id);
 
     ///  enable or disablet the session caching
     void setSessionCaching(bool caching);

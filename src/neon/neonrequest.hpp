@@ -42,6 +42,7 @@ namespace Davix {
 
 class NEONSessionFactory;
 class NEONSession;
+class HttpRequest;
 
 
 struct ContentProviderContext {
@@ -56,7 +57,7 @@ class NEONRequest : protected NonCopyable
 public:
     int _req_flag;
 public:
-    NEONRequest(Context& f, const Uri & uri_req);
+    NEONRequest(HttpRequest &h, Context& f, const Uri & uri_req);
     virtual ~NEONRequest();
 
     /**
@@ -168,6 +169,7 @@ private:
     mutable dav_ssize_t _ans_size;
     // Request string
     std::string _request_type;
+    HttpRequest & _h;
     NEONSessionFactory& _f;
     Context& _c;
     bool req_started, req_running;
@@ -210,6 +212,12 @@ private:
     NEONRequest & operator=(const NEONRequest & req);
 
 	static ssize_t neon_body_content_provider(void* userdata, char* buffer, size_t buflen);
+
+    static void neon_hook_pre_send(ne_request *req, void *userdata,
+                                           ne_buffer *header);
+
+    static void neon_hook_pre_rec(ne_request *req, void *userdata,
+                                        const ne_status *status);
 
     friend class HttpRequest;
 };

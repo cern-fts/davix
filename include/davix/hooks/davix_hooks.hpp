@@ -33,7 +33,7 @@ class Uri;
 #define DAVIX_HOOK_REQUEST_PRE_RUN 0x00
 #define DAVIX_HOOK_REQUEST_PRE_SEND 0x01
 #define DAVIX_HOOK_REQUEST_PRE_RECVE 0x02
-#define DAVIX_HOOk_REQUEST_NUM  0x04
+#define DAVIX_HOOK_REQUEST_NUM  0x04
 
 /// Hook called before processing any request
 typedef void (*hookRequestPreRun)(RequestParams& p, HttpRequest & req, Uri & u, void* userdata);

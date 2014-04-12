@@ -135,7 +135,7 @@ std::pair<void*,void*> Context::getHookById(int id){
     if(id >0 && id < DAVIX_HOOk_REQUEST_NUM){
         return std::pair<void*,void*>(_intern->_hooks[2*id], _intern->_hooks[2*id+1]);
     }
-    return std::pair<void*,void*>(NULL,NULL);
+    return std::pair<void*,void*>(static_cast<void*>(NULL),static_cast<void*>(NULL));
 }
 
 NEONSessionFactory & ContextExplorer::SessionFactoryFromContext(Context & c){

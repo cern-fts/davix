@@ -31,8 +31,7 @@
 #include <algorithm>
 #include <functional>
 
-#include <cstdbool>
-#include <cstdint>
+#include <stdint.h>
 #include <sys/types.h>
 
 #include <unistd.h>

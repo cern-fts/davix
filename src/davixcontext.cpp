@@ -43,7 +43,7 @@ struct ContextInternal
         _context_flags(0),
         _hooks()
     {
-        std::fill(_hooks, _hooks+ DAVIX_HOOK_REQUEST_NUM, static_cast<void*>(NULL));
+        std::fill(_hooks, _hooks+ DAVIX_HOOK_REQUEST_NUM*2, static_cast<void*>(NULL));
     }
 
     ContextInternal(const ContextInternal & orig):
@@ -53,7 +53,7 @@ struct ContextInternal
         _context_flags(orig._context_flags),
         _hooks()
     {
-        std::copy(orig._hooks, orig._hooks+ DAVIX_HOOK_REQUEST_NUM, _hooks);
+        std::copy(orig._hooks, orig._hooks+ DAVIX_HOOK_REQUEST_NUM*2, _hooks);
     }
 
     virtual ~ContextInternal(){}
@@ -126,13 +126,13 @@ HttpRequest* Context::createRequest(const Uri &uri, DavixError **err){
 
 
 void Context::setHookById(int id, void* hook, void* userdata){
-    if(id >0 && id < DAVIX_HOOK_REQUEST_NUM)
+    if(id >=0 && id < DAVIX_HOOK_REQUEST_NUM)
         _intern->_hooks[2*id] = hook;
         _intern->_hooks[2*id+1] = userdata;
 }
 
 std::pair<void*,void*> Context::getHookById(int id){
-    if(id >0 && id < DAVIX_HOOK_REQUEST_NUM){
+    if(id >=0 && id < DAVIX_HOOK_REQUEST_NUM){
         return std::pair<void*,void*>(_intern->_hooks[2*id], _intern->_hooks[2*id+1]);
     }
     return std::pair<void*,void*>(static_cast<void*>(NULL),static_cast<void*>(NULL));

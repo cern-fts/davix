@@ -26,7 +26,9 @@ SET(HEADER_RAPIDJSON "${CMAKE_CURRENT_SOURCE_DIR}/rapidjson/include" PARENT_SCOP
 
 ## boost
 if(NOT Boost_FOUND)
-SET(Boost_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boost_internal" PARENT_SCOPE)
+SET(Boost_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boost_intern" PARENT_SCOPE)
+
+add_subdirectory(boost_intern/src)
 endif(NOT Boost_FOUND)
 
 add_subdirectory(libneon)

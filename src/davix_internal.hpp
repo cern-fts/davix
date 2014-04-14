@@ -47,7 +47,7 @@
 // boost
 #include <boost/scoped_ptr.hpp>
 #include <boost/bind.hpp>
-#include <boost/foreach.hpp>
+#include <boost/thread.hpp>
 
 // C includes
 #include <cstddef>

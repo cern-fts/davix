@@ -32,7 +32,7 @@ namespace Davix {
 const Xml::XmlPTree prop_node(Xml::ElementStart, "propstat");
 const Xml::XmlPTree prop_collection(Xml::ElementStart, "collection");
 static Xml::XmlPTree* webDavTree = NULL;
-static DppOnce _l_init;
+static boost::once_flag _l_init = BOOST_ONCE_INIT;
 
 struct DavPropXMLParser::DavxPropXmlIntern{
     DavxPropXmlIntern() : _stack(),
@@ -198,7 +198,7 @@ void init_webdavTree(){
 DavPropXMLParser::DavPropXMLParser() :
     d_ptr(new DavxPropXmlIntern())
 {
-    _l_init.once(init_webdavTree);
+    boost::call_once(init_webdavTree, _l_init);
 }
 
 DavPropXMLParser::~DavPropXMLParser(){

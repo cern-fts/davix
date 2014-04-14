@@ -34,18 +34,18 @@ SET(SRC_HTTP ${src_neon})
 LIST(APPEND SRC_DAVIX_FULL ${src_davix} ${src_davix_request} ${SRC_HTTP}  ${src_xmlparser} ${src_datetime}
                            ${src_lockers} ${src_davix_posix} ${src_davix_status} ${src_davix_fileops} ${src_davix_utils}
                            ${src_davix_params} ${src_davix_auth} ${src_davix_file} ${src_davix_deprecated} ${SRC_STRPTIME} ${SRC_MEMPCPY}
-                           ${SRC_STRLCPY} ${SRC_STRING_UTILS_CPP} ${SRC_BASE64} ${SRC_HMACSHA1})
+                           ${SRC_STRLCPY} ${SRC_STRING_UTILS_CPP} ${SRC_BASE64} ${SRC_HMACSHA1} )
 
 
 add_definitions(${HTTPLIB_PKG_CFLAGS} )
 
 if(shared_library)
-add_library(libdavix  SHARED ${SRC_DAVIX_FULL})
+add_library(libdavix  SHARED ${SRC_DAVIX_FULL} )
 add_dependencies(libdavix neon)
 
 
 target_link_libraries(libdavix  ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES}
-                                ${CMAKE_THREAD_LIBS_INIT} ${SOCKET_PKG_LIBRARIES} ${Boost_LIBRARIES})
+                                ${CMAKE_THREAD_LIBS_INIT} ${SOCKET_PKG_LIBRARIES} ${Boost_LIBRARIES} boost_static_internal)
 
 
 set_target_properties(libdavix PROPERTIES

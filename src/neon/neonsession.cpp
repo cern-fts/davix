@@ -137,20 +137,6 @@ NEONSession::NEONSession(Context & c, const Uri & uri, const RequestParams & p, 
 }
 
 
-NEONSession::NEONSession(NEONSessionFactory & f, const Uri & uri, const RequestParams & p, DavixError** err) :
-    _f(f),
-    _sess(NULL),
-    _params(p),
-    _last_error(NULL),
-    _session_recycling(_f.getSessionCaching()),
-    _u(uri)
-{
-    _f.createNeonSession(uri, &_sess, err);
-    if(_sess)
-        configureSession(_sess, _u, p, &NEONSession::provide_login_passwd_fn, this, &NEONSession::authNeonCliCertMapper, this);
-}
-
-
 NEONSession::~NEONSession(){
 #   ifndef _DISABLE_SESSION_REUSE
         if(_sess){

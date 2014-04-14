@@ -34,6 +34,25 @@
 
 namespace Davix {
 
+class NEONSessionExtended : public NEONSession{
+public:
+    NEONSessionExtended(NEONRequest* r, const Uri &uri, const RequestParams &p, DavixError **err)
+        : NEONSession(r->_c, uri, p, err), _r(r)
+    {
+
+        ne_hook_pre_send(get_ne_sess(), NEONRequest::neon_hook_pre_send, (void*)r);
+        ne_hook_post_headers(get_ne_sess(), NEONRequest::neon_hook_pre_rec, (void*) r);
+    }
+
+    virtual ~NEONSessionExtended(){
+        ne_unhook_pre_send(get_ne_sess(), NEONRequest::neon_hook_pre_send, (void*)_r);
+        ne_unhook_post_headers(get_ne_sess(), NEONRequest::neon_hook_pre_rec, (void*) _r);
+    }
+
+private:
+    NEONRequest* _r;
+};
+
 
 
 static void neonrequest_eradicate_session(NEONSession& sess, DavixError ** err){
@@ -147,7 +166,6 @@ NEONRequest::NEONRequest(HttpRequest & h, Context& context, const Uri & uri_req)
     _ans_size(-1),
     _request_type("GET"),
     _h(h),
-    _f(ContextExplorer::SessionFactoryFromContext(context)),
     _c(context),
     req_started(false),
     req_running(false),
@@ -179,7 +197,7 @@ int NEONRequest::create_req(DavixError** err){
        reqReset();
     }
 
-    boost::shared_ptr<Uri> redir_url = _f.redirectionResolve(_request_type, *_current);
+    boost::shared_ptr<Uri> redir_url = ContextExplorer::SessionFactoryFromContext(_c).redirectionResolve(_request_type, *_current);
     if(redir_url.get() != NULL){
         _current.swap(redir_url);
     }
@@ -195,7 +213,7 @@ int NEONRequest::create_req(DavixError** err){
 
 int NEONRequest::pick_sess(DavixError** err){
     DavixError * tmp_err=NULL;
-    _neon_sess.reset(new NEONSession(_f, *_current, params, &tmp_err) );
+    _neon_sess.reset(static_cast<NEONSession*>(new NEONSessionExtended(this, *_current, params, &tmp_err)));
     if(tmp_err){
         _neon_sess.reset(NULL);
         DavixError::propagateError(err, tmp_err);
@@ -240,10 +258,6 @@ void NEONRequest::configure_req(){
          i != h.end(); i++) {
         this->addHeaderField(i->first, i->second);
       }
-
-
-    ne_hook_pre_send(_neon_sess->get_ne_sess(), neon_hook_pre_send, (void*)this);
-    ne_hook_post_headers(_neon_sess->get_ne_sess(), neon_hook_pre_rec, (void*) this);
 }
 
 
@@ -326,7 +340,7 @@ int NEONRequest::negotiate_request(DavixError** err){
                    DAVIX_DEBUG("KeepAlive Server problem detected, retry");
                    n++;
                    _neon_sess->disable_session_reuse();
-                   _f.redirectionClean(_request_type, *_orig);
+                   ContextExplorer::SessionFactoryFromContext(_c).redirectionClean(_request_type, *_orig);
                    if( create_req(err) < 0)
                        return -1;
                    continue;
@@ -336,7 +350,7 @@ int NEONRequest::negotiate_request(DavixError** err){
             req_started= req_running == false;
             neon_to_davix_code(status, _neon_sess->get_ne_sess(), davix_scope_http_request(),err);
             neonrequest_eradicate_session(*_neon_sess, err);
-            _f.redirectionClean(_request_type, *_orig);
+            ContextExplorer::SessionFactoryFromContext(_c).redirectionClean(_request_type, *_orig);
             DAVIX_DEBUG(" Davix negociate request ... <-");
             return -1;
         }
@@ -366,7 +380,7 @@ int NEONRequest::negotiate_request(DavixError** err){
                         neon_to_davix_code(status, _neon_sess->get_ne_sess(), davix_scope_http_request(),err);
                     }
                     // cleanup redirection
-                    _f.redirectionClean(_request_type, *_orig);
+                    ContextExplorer::SessionFactoryFromContext(_c).redirectionClean(_request_type, *_orig);
                     if(_current != _orig){ // cancel redirect, maybe outdated ? retry
                         DAVIX_DEBUG(" ->  Auth problem after redirect: cancel redirect and try again");
                         n++;
@@ -381,7 +395,7 @@ int NEONRequest::negotiate_request(DavixError** err){
             // dCache token redirection
             case 501:
             // cleanup redirection
-            _f.redirectionClean(_request_type, *_orig);
+            ContextExplorer::SessionFactoryFromContext(_c).redirectionClean(_request_type, *_orig);
             if(_current != _orig){ // cancel redirect, maybe outdated ? retry
                 DAVIX_DEBUG(" ->  Auth problem after redirect: cancel redirect and try again");
                 n++;
@@ -423,7 +437,7 @@ int NEONRequest::redirect_request(DavixError **err){
     old_uri = _current;
     _current= boost::shared_ptr<Uri>(new Uri(dst_uri));
     ne_free(dst_uri);
-    _f.addRedirection(_request_type, *old_uri, _current);
+    ContextExplorer::SessionFactoryFromContext(_c).addRedirection(_request_type, *old_uri, _current);
 
 
     // recycle old request and session

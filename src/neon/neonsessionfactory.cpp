@@ -21,7 +21,6 @@
 #include <davix_internal.hpp>
 #include "neonsessionfactory.hpp"
 
-#include <lockers/dpponce.hpp>
 #include <utils/davix_logger_internal.hpp>
 
 namespace Davix {
@@ -29,7 +28,7 @@ namespace Davix {
 const char* proto_support[] = { "http", "https", NULL };
 const unsigned int ports[] = { 80 ,443 , 0};
 
-static DppOnce neon_once;
+static boost::once_flag neon_once = BOOST_ONCE_INIT;
 
 static void init_neon(){
     ne_sock_init();
@@ -41,7 +40,7 @@ NEONSessionFactory::NEONSessionFactory() :
     _session_caching(true),
     _redirCache(256)
 {
-    neon_once.once(&init_neon);
+    boost::call_once(&init_neon, neon_once);
 }
 
 NEONSessionFactory::~NEONSessionFactory(){

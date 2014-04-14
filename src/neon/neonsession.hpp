@@ -38,7 +38,6 @@ class NEONSession
 {
 public:
     NEONSession(Context & c, const Uri & uri, const RequestParams & p, DavixError** err);
-    NEONSession(NEONSessionFactory & f, const Uri & uri, const RequestParams & p, DavixError** err);
     virtual ~NEONSession();
 
 

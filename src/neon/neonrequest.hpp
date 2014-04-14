@@ -43,7 +43,7 @@ namespace Davix {
 class NEONSessionFactory;
 class NEONSession;
 class HttpRequest;
-
+class NEONSessionExtended;
 
 struct ContentProviderContext {
     ContentProviderContext(): callback(NULL), udata(NULL) {}
@@ -170,7 +170,6 @@ private:
     // Request string
     std::string _request_type;
     HttpRequest & _h;
-    NEONSessionFactory& _f;
     Context& _c;
     bool req_started, req_running;
     int _last_request_flag;
@@ -220,6 +219,7 @@ private:
                                         const ne_status *status);
 
     friend class HttpRequest;
+    friend class NEONSessionExtended;
 };
 
 

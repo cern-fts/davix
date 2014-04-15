@@ -162,7 +162,7 @@ struct HookTraits{
     HookTraits();
     virtual ~HookTraits();
 
-    virtual std::type_info & getType() =0;
+    virtual const std::type_info & getType() =0;
 
     // internal
     HookIntern* d_ptr;
@@ -171,7 +171,7 @@ struct HookTraits{
 
 template <class T>
 struct Hook: HookTraits{
-    virtual std::type_info & getType(){
+    virtual const std::type_info & getType(){
         return typeid(*static_cast<T>(this));
     }
 };

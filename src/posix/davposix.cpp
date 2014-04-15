@@ -31,6 +31,8 @@
 #include <string_utils/stringutils.hpp>
 #include <posix/davposix.hpp>
 
+using namespace StrUtil;
+
 
 static const std::string simple_listing("<propfind xmlns=\"DAV:\"><prop><resourcetype><collection/></resourcetype></prop></propfind>");
 

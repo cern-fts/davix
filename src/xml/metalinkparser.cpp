@@ -26,6 +26,9 @@
 
 namespace Davix{
 
+
+using namespace StrUtil;
+
 const std::string MetalinkScope = "MetalinkParser";
 
 const std::string tags_string[] = { "metalink", "files", "file",  "size", "resources", "url" };

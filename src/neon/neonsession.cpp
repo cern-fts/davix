@@ -27,6 +27,8 @@
 
 const char* davix_neon_key="davix_key";
 
+using namespace StrUtil;
+
 namespace Davix{
 
 

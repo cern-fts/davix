@@ -30,7 +30,7 @@ namespace Davix{
 
 namespace Tool{
 
-using namespace strUtil;
+using namespace StrUtil;
 
 dav_ssize_t writeToFd(int fd, const void* buffer, dav_size_t s_buff){
     while(1){
@@ -105,8 +105,8 @@ int configureAuth(OptParams & opts, DavixError** err){
 
 static void printHookHeaders(char symbol, const std::string & first_msg, const std::string & start_line){
     std::string req_header(start_line);
-    strUtil::remove(req_header, '\r');
-    rtrim(req_header, strUtil::isCrLf);
+    StrUtil::remove(req_header, '\r');
+    rtrim(req_header, StrUtil::isCrLf);
     std::vector<std::string> res;
     split(req_header, '\n', res);
 

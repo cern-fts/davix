@@ -23,9 +23,9 @@
 #include <utils/davix_logger_internal.hpp>
 #include <string_utils/stringutils.hpp>
 
-
 #include <map>
 
+using namespace StrUtil;
 
 // remove trailing crlf
 template<class InputIterator>
@@ -183,7 +183,7 @@ int http_extract_boundary_from_content_type(const std::string & buffer, std::str
     dav_size_t pos_bound;
     static const std::string delimiter = "\";";
     if( (pos_bound= buffer.find(ans_header_boundary_field)) != std::string::npos){
-        std::vector<std::string> tokens = stringTokSplit(buffer.substr(pos_bound + ans_header_boundary_field.size()), delimiter);
+        std::vector<std::string> tokens = tokenSplit(buffer.substr(pos_bound + ans_header_boundary_field.size()), delimiter);
         if( tokens.size() >= 1
             && tokens[0].size() > 0
             && tokens[0].size() <= 70){
@@ -222,10 +222,10 @@ int find_header_params(char* buffer, dav_size_t buffer_len, dav_size_t* part_siz
     if(p == NULL)
         return -1;
     std::string header_type(buffer, p - buffer);
-    if( string_compare_ncase(ans_header_byte_range, 0, p - buffer, buffer) !=0) // check header type
+    if( compare_ncase(ans_header_byte_range, 0, p - buffer, buffer) !=0) // check header type
         return 0;
 
-    std::vector<std::string> tokens = stringTokSplit(std::string(p+1),delimiter);     // parse header
+    std::vector<std::string> tokens = tokenSplit(std::string(p+1),delimiter);     // parse header
     if(tokens.size() < 2)
         return -1;
 

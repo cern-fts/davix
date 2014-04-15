@@ -30,6 +30,9 @@
 #include <xml/metalinkparser.hpp>
 #include <base64/base64.hpp>
 
+
+using namespace StrUtil;
+
 namespace Davix{
 
 namespace Meta{
@@ -45,7 +48,7 @@ int davix_metalink_header_parser(const std::string & header_key, const std::stri
                                  Uri & metalink){
     DAVIX_TRACE("Parse headers for metalink %s %s", header_key.c_str(), header_value.c_str());
 
-    if(string_compare_ncase(header_key, "Link") ==0 && header_value.find("application/metalink") != std::string::npos){
+    if(compare_ncase(header_key, "Link") ==0 && header_value.find("application/metalink") != std::string::npos){
         std::string::const_iterator it1, it2;
         if( ( it1 = std::find(header_value.begin(), header_value.end(), '<')) != header_value.end()
                 && ( it2 = std::find(it1, header_value.end(), '>')) != header_value.end()){
@@ -62,7 +65,7 @@ int davix_metalink_header_parser(const std::string & header_key, const std::stri
 }
 
 bool davix_metalink_header_content_type(const std::string & header_key, const std::string & header_value){
-    return (string_compare_ncase(header_key, "Content-type") ==0 &&  header_value.find("application/metalink") !=std::string::npos);
+    return (compare_ncase(header_key, "Content-type") ==0 &&  header_value.find("application/metalink") !=std::string::npos);
 }
 
 int davix_get_metalink_url( Context & c, const Uri & uri,
@@ -320,7 +323,7 @@ int checksum(Context & c, const Uri & url, const RequestParams *params, std::str
             && (ret = davixRequestToFileStatus(&req, davix_scope_mkdir_str(), &tmp_err)) >=0){
 
             // try simple MD5 ( standard )
-            if(string_compare_ncase(chk_algo, "MD5") == 0){
+            if(compare_ncase(chk_algo, "MD5") == 0){
                 std::string  chk;
                 if(req.getAnswerHeader("Content-MD5", chk) == true){
                     DAVIX_TRACE("Extract MD5 checksum in base64 %s", chk.c_str());
@@ -337,7 +340,7 @@ int checksum(Context & c, const Uri & url, const RequestParams *params, std::str
 
             size_t valueOffset = digest.find('=');
             if (valueOffset == std::string::npos
-                    || string_compare_ncase(digest,0, valueOffset, chk_algo.c_str()) !=0)
+                    || compare_ncase(digest,0, valueOffset, chk_algo.c_str()) !=0)
                 throw DavixException(davix_scope_meta(), StatusCode::InvalidServerResponse, "Invalid server checksum answer");
 
             digest.erase(digest.begin(), digest.begin()+valueOffset+1);

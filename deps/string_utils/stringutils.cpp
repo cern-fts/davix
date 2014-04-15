@@ -3,7 +3,9 @@
 #include <cstring>
 #include <algorithm>
 
-std::vector<std::string> stringTokSplit(const std::string & str, const std::string & delimiter){
+namespace StrUtil{
+
+std::vector<std::string> tokenSplit(const std::string & str, const std::string & delimiter){
     std::vector<std::string> res;
     std::string::const_iterator it_prev, it_cur;
     for(it_prev = it_cur = str.begin(); it_cur < str.end(); ((it_prev != str.end())?(it_prev++):(it_prev))){
@@ -16,11 +18,14 @@ std::vector<std::string> stringTokSplit(const std::string & str, const std::stri
 }
 
 
-int string_compare_ncase(const std::string & str1, const std::string & str2){
+int compare_ncase(const std::string & str1, const std::string & str2){
     return strcasecmp(str1.c_str(), str2.c_str());
 }
 
 
-int string_compare_ncase(const std::string & str1, off_t offset, size_t size, const char* cstr2){
+int compare_ncase(const std::string & str1, off_t offset, size_t size, const char* cstr2){
      return strncasecmp(str1.c_str(), cstr2+ offset, size);
+}
+
+
 }

@@ -18,6 +18,7 @@
  *
 */
 
+#include <davix.hpp>
 #include <davix_internal.hpp>
 #include <string_utils/stringutils.hpp>
 #include "davix_tool_util.hpp"

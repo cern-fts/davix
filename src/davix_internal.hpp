@@ -28,6 +28,8 @@
 // configuration
 #include <config.h>
 
+#include <davix.hpp>
+
 // C++ includes
 #include <sstream>
 #include <ostream>
@@ -44,10 +46,13 @@
 #include <limits>
 #include <utility>
 
+#ifndef NO_BOOST_INCLUDE
 // boost
 #include <boost/scoped_ptr.hpp>
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
+
+#endif
 
 // C includes
 #include <cstddef>

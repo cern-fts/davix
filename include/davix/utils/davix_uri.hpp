@@ -24,7 +24,9 @@
 #define DAVIX_DAVIXURI_HPP
 
 #include <string>
+#include <utils/davix_types.hpp>
 #include <status/davixstatusrequest.hpp>
+
 
 
 /**

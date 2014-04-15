@@ -46,7 +46,7 @@
 
 // type decl
 #ifndef DAVIX_EXPORT
-#define DAVIX_EXPORT
+#define DAVIX_EXPORT __attribute__((visibility("default")))
 #endif
 
 struct Davix_context;

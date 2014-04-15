@@ -16,6 +16,8 @@ SET(davix_tool_common_src_up "${davix_tool_common_src}" PARENT_SCOPE)
 
 link_directories(${PROJECT_BINARY_DIR}/src/)
 
+
+add_definitions(-DNO_BOOST_INCLUDE)
 ## davix cmd line
 add_executable(davix_tool ${davix_main_src} ${davix_tool_common_src} )
 

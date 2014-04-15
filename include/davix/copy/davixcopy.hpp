@@ -79,7 +79,7 @@ public:
     void setPerformanceCallback(PerformanceCallback callback, void *udata);
 
 private:
-    struct DavixCopyInternal *d_ptr;
+    class DavixCopyInternal *d_ptr;
 
     DavixCopy(const DavixCopy&);
     DavixCopy& operator = (const DavixCopy&);

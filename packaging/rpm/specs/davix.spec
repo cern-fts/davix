@@ -21,9 +21,9 @@ BuildRoot:			%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 #main lib dependencies
 %if 0%{?el5}
 BuildRequires:                  boost141-devel
+BuildRequires:                  cmake28
 %else
 BuildRequires:                  boost-devel
-%endif
 BuildRequires:                  cmake
 BuildRequires:                  doxygen
 BuildRequires:                  libxml2-devel

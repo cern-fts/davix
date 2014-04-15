@@ -60,7 +60,7 @@ std::string string_from_ptime(const time_t & t){
 
 
 
-size_t ask_user_login(std::string & login){
+dav_ssize_t ask_user_login(std::string & login){
     char l[1024] ={0};
     (std::cout << "Login: ").flush();
     std::cin.getline(l, 1023);
@@ -70,7 +70,7 @@ size_t ask_user_login(std::string & login){
 }
 
 
-size_t ask_user_passwd(std::string & passwd){
+dav_ssize_t ask_user_passwd(std::string & passwd){
     char p[1024] ={0};
     std::cout << "Password: ";
     std::cout.flush();

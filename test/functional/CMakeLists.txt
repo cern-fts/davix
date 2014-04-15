@@ -48,7 +48,7 @@ add_executable(test_checksum ${src_test_checksum} ${src_davix_test_lib})
 target_link_libraries(test_checksum davix  )
 
 add_executable(test_auto_rmdir_unlink_delete ${src_test_auto_rmdir_unlink_delete} ${src_davix_test_lib})
-target_link_libraries(test_auto_rmdir_unlink_delete davix  ${Boost_LIBRARIES} boost_static_internal)
+target_link_libraries(test_auto_rmdir_unlink_delete davix  ${Boost_LIBRARIES})
 
 add_executable(test_stat_session ${src_test_stat_session} ${src_davix_test_lib})
 target_link_libraries(test_stat_session davix  )

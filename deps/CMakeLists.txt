@@ -29,6 +29,7 @@ if(NOT Boost_FOUND)
 SET(Boost_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boost_intern" PARENT_SCOPE)
 
 add_subdirectory(boost_intern/src)
+set(Boost_LIBRARIES boost_static_internal PARENT_SCOPE)
 endif(NOT Boost_FOUND)
 
 add_subdirectory(libneon)

@@ -30,7 +30,7 @@ namespace Davix {
 
 
 
-const char * default_agent = "libdavix/0.0.9";
+const char * default_agent = "libdavix/" DAVIX_VERSION;
 volatile int state_value =0;
 
 inline int get_requeste_uid(){

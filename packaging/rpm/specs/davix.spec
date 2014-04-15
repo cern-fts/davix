@@ -25,6 +25,7 @@ BuildRequires:                  cmake28
 %else
 BuildRequires:                  boost-devel
 BuildRequires:                  cmake
+%endif
 BuildRequires:                  doxygen
 BuildRequires:                  libxml2-devel
 BuildRequires:                  openssl-devel

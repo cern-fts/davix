@@ -25,7 +25,6 @@
 #include <status/davixstatusrequest.hpp>
 #include <datetime/datetime_utils.hpp>
 #include <string_utils/stringutils.hpp>
-#include <lockers/dpponce.hpp>
 
 namespace Davix {
 

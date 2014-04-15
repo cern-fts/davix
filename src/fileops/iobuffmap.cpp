@@ -400,7 +400,7 @@ bool HttpIOBuffer::open(int flags, DavixError **err){
 }
 
 dav_ssize_t HttpIOBuffer::read(void *buf, dav_size_t count, DavixError **err){
-    DppLocker l(_rwlock);
+    boost::mutex::scoped_lock l(_rwlock);
     DavixError* tmp_err = NULL;
     dav_ssize_t ret =-1;
 
@@ -426,7 +426,7 @@ void HttpIOBuffer::prefetchInfo(off_t offset, dav_size_t size_read, advise_t adv
 
 
 dav_ssize_t HttpIOBuffer::pread(void *buf, dav_size_t count, dav_off_t offset, DavixError **err){
-    DppLocker l(_rwlock);
+    boost::mutex::scoped_lock l(_rwlock);
     DavixError* tmp_err = NULL;
     dav_ssize_t ret = readPartialBuffer(buf, count, offset, &tmp_err);
 
@@ -452,7 +452,7 @@ dav_ssize_t HttpIOBuffer::preadVec(const DavIOVecInput * input_vec,
 
 
 dav_off_t HttpIOBuffer::lseek(dav_off_t offset, int flags, DavixError **err){
-    DppLocker l(_rwlock);
+    boost::mutex::scoped_lock l(_rwlock);
     switch(flags){
         case SEEK_CUR:
             _pos += offset;
@@ -470,7 +470,7 @@ dav_off_t HttpIOBuffer::lseek(dav_off_t offset, int flags, DavixError **err){
 }
 
 dav_ssize_t HttpIOBuffer::write(const void *buf, dav_size_t count, DavixError **err){
-    DppLocker l(_rwlock);
+    boost::mutex::scoped_lock l(_rwlock);
     dav_ssize_t ret =-1;
     DavixError* tmp_err=NULL;
 

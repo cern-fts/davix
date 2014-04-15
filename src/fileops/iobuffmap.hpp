@@ -22,9 +22,7 @@
 #ifndef DAVIX_IOBUFFMAP_HPP
 #define DAVIX_IOBUFFMAP_HPP
 
-#include <boost/scoped_ptr.hpp>
-#include <davix.hpp>
-#include <libs/lockers/dpplocker.hpp>
+#include <davix_internal.hpp>
 #include <fileops/fileutils.hpp>
 
 
@@ -79,7 +77,7 @@ protected:
     Context & _c;
     Uri _uri;
     RequestParams _params;
-    DppLock _rwlock;
+    boost::mutex _rwlock;
 
     dav_off_t _read_pos; //curent read file offset
     bool _read_endfile;

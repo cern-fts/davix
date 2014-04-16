@@ -230,6 +230,20 @@ public:
 
 typedef DavFile File;
 
+
+
+struct StatInfo{
+    // size
+    dav_size_t size;
+    dav_ssize_t n_link;
+    // rights
+    mode_t mode;
+    // time
+    time_t atime;
+    time_t mtime;
+    time_t ctime;
+};
+
 } // Davix
 
 #endif // DAVFILE_HPP

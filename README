@@ -1,7 +1,7 @@
    		=== DAVIX ===
 
         Davix provides a share library and tools for advanced file I/O
-              with HTTP based protocols.
+              with HTTP based protocols. It is compatible WebDav, S3, HTTP
 
        Davix is composed of a shared library, libdavix and of a set of utility tools for data management
 
@@ -9,12 +9,10 @@
 
        Libdavix has been design with the following objectives in mind :
         - Simplicity
-        - High performances with no compromise
+        - High performances
         - Reliability
         - Portability
 
-
-       Davix supports plain-Http (http(s)://), Webdav (dav(s)://) and Amazon S3 (s3(s)://) types of URL.
 
    * Davix and libdavix Website and documentation link :
 
@@ -53,15 +51,19 @@
     - Davix Dependencies :
        -  openssl
        -  libxml-2.0
+       -  boost  (available as submodule)
        -  doxygen ( optional, for doc generation )
+       -  gtest ( optional, unit tests only )
 
 
     - Compile :
-        - " 1.svn export http://svn.cern.ch/guest/lcgdm/davix/trunk davix "
-        - " 2.cd davix "
-        - " 3.mkdir build; cd build"
-        - " 4. cmake ../"
-        - " 5. make "
+        $ git clone http://git.cern.ch/pub/davix davix
+        $ cd davix
+        $ # For static boost linking only (eg MacOSX, Windows )
+        $ # git submodule update --recursive --init
+        $ mkdir build; cd build
+        $ cmake ../
+        $ make 
 
     - Generate doc :
         - * run cmake

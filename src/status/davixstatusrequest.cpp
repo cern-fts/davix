@@ -203,9 +203,16 @@ DavixException::DavixException(const DavixException &orig) throw() : e(orig.e), 
 
 DavixException::DavixException(DavixError **err) :
 std::exception(),
-  e( (err != NULL && *err != NULL)?(DavixError("Davix::Error", StatusCode::UnknowError, "Error, no valid DavixError triggered")):(**err) ),
+  e( (err == NULL || *err == NULL)?(DavixError("Davix::Error", StatusCode::UnknowError, "Error, no valid DavixError triggered")):(**err) ),
 d_ptr(NULL){
     DavixError::clearError(err);
+}
+
+
+void checkDavixError(DavixError **err){
+    if(err && *err){
+        throw DavixException(err);
+    }
 }
 
 

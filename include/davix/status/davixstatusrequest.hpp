@@ -293,6 +293,8 @@ protected:
     DavixExceptionIntern* d_ptr;
 };
 
+void checkDavixError(DavixError** err);
+
 
 #define TRY_DAVIX try
 #define CATCH_DAVIX(err) catch(DavixException & e){ \

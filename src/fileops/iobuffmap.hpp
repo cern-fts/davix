@@ -24,6 +24,7 @@
 
 #include <davix_internal.hpp>
 #include <fileops/fileutils.hpp>
+#include <fileops/httpiochain.hpp>
 
 
 
@@ -37,54 +38,28 @@ namespace Davix {
 
 
 /// RW operation mapped to pure HTTP ops
-class HttpIO{
+class HttpIO : public HttpIOChain{
 public:
-    HttpIO(Context & c, const Uri & uri, const RequestParams * params);
+    HttpIO();
     virtual ~HttpIO();
 
-    // full sequential read of a file from begining to the end
-    dav_ssize_t readFullBuff(void* buf, dav_size_t count, DavixError** err);
 
     // read to dynamically allocated buffer
-    dav_ssize_t readFull(std::vector<char> & buffer, DavixError** err);
+    virtual dav_ssize_t readFull(std::vector<char> & buffer);
 
-    // read to dynamically allocated buffer
-    dav_ssize_t readFull(std::string & buffer , DavixError** err);
-
-
-    // execute a plain HTTP stat method for file info
-    int stat(struct stat* st, DavixError** err);
-
-    //
-    void resetFullRead();
 
     // position independant read operation,
     // similar to pread except that does not need open() before
-    dav_ssize_t readPartialBuffer(void* buf, dav_size_t count, dav_off_t offset, DavixError** err);
-
-    // vec read
-    dav_ssize_t readPartialBufferVec(const DavIOVecInput * input_vec,
-                          DavIOVecOuput * ioutput_vec,
-                          const dav_size_t count_vec, DavixError** err);
+    virtual dav_ssize_t pread(void* buf, dav_size_t count, dav_off_t offset);
 
     // read to fd
-    dav_ssize_t readToFd(int fd, dav_size_t size, DavixError** err);
+    virtual dav_ssize_t readToFd(int fd, dav_size_t size);
 
     // position independant write operation,
     // similar to pwrite do not need open() before
-    dav_ssize_t writeFullFromFd(int fd, dav_size_t size, DavixError** err);
-
-protected:
-    Context & _c;
-    Uri _uri;
-    RequestParams _params;
-    boost::mutex _rwlock;
-
-    dav_off_t _read_pos; //curent read file offset
-    bool _read_endfile;
+    virtual dav_ssize_t writeFromFd(int fd, dav_size_t size);
 
 private:
-    HttpRequest * _read_req;
 
 
     HttpIO(const HttpIO & );
@@ -95,41 +70,30 @@ private:
 
 ///
 /// RW operation with buffering support and POSIX like interface
-class HttpIOBuffer : public HttpIO{
+class HttpIOBuffer : public HttpIOChain{
 public:
-    HttpIOBuffer(Context & c, const Uri & uri, const RequestParams * params);
+    HttpIOBuffer();
     virtual ~HttpIOBuffer();
 
     // open the file associated with the davix IOBuffMap
     // do a simple check if the file exist and try to anticipate the next ops
-    bool open(int flags, DavixError** err);
+    virtual bool open(int flags);
 
     //
-    dav_ssize_t read(void* buf, dav_size_t count, DavixError** err);
-
-    dav_ssize_t pread(void* buf, dav_size_t count, dav_off_t offset, DavixError** err);
-
-    dav_ssize_t preadVec(const DavIOVecInput * input_vec,
-                          DavIOVecOuput * ioutput_vec,
-                          dav_size_t count_vec, DavixError** err);
+    virtual dav_ssize_t read(void* buf, dav_size_t count);
 
 
     // give information on the future operation for prefecting
-    void prefetchInfo(off_t offset, dav_size_t size_read, advise_t adv);
+    virtual void prefetchInfo(off_t offset, dav_size_t size_read, advise_t adv);
 
     //
-    dav_ssize_t write(const void* buf, dav_size_t count, DavixError** err);
-
-
-    //
-    dav_ssize_t pwrite(const void* buf, dav_size_t count, dav_off_t offset, DavixError** err);
-
+    virtual dav_ssize_t write(const void* buf, dav_size_t count);
 
     //
-    dav_off_t lseek(dav_off_t offset, int flags, DavixError** err);
+    virtual dav_off_t lseek(dav_off_t offset, int flags);
 
-    // commit any pending operation on the file descriptor
-    int commit(DavixError** err);
+    //
+    virtual void resetIO();
 
 protected:
 
@@ -139,11 +103,21 @@ protected:
     bool _opened;
     advise_t _last_advise;
 
+    //
+
+    boost::mutex _rwlock;
+
+    dav_off_t _read_pos; //curent read file offset
+    bool _read_endfile;
+    HttpRequest * _read_req;
+
 private:
 
     inline bool isAdviseFullRead(){
         return (_last_advise == AdviseAuto || _last_advise == AdviseSequential);
     }
+
+    dav_ssize_t readInternal(void *buffer, dav_size_t size_read);
 
     HttpIOBuffer(const HttpIOBuffer & );
     HttpIOBuffer & operator=(const HttpIOBuffer & );

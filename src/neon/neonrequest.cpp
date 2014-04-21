@@ -39,14 +39,17 @@ public:
     NEONSessionExtended(NEONRequest* r, const Uri &uri, const RequestParams &p, DavixError **err)
         : NEONSession(r->_c, uri, p, err), _r(r)
     {
-
-        ne_hook_pre_send(get_ne_sess(), NEONRequest::neon_hook_pre_send, (void*)r);
-        ne_hook_post_headers(get_ne_sess(), NEONRequest::neon_hook_pre_rec, (void*) r);
+        if(get_ne_sess() != NULL){
+            ne_hook_pre_send(get_ne_sess(), NEONRequest::neon_hook_pre_send, (void*)r);
+            ne_hook_post_headers(get_ne_sess(), NEONRequest::neon_hook_pre_rec, (void*) r);
+        }
     }
 
     virtual ~NEONSessionExtended(){
-        ne_unhook_pre_send(get_ne_sess(), NEONRequest::neon_hook_pre_send, (void*)_r);
-        ne_unhook_post_headers(get_ne_sess(), NEONRequest::neon_hook_pre_rec, (void*) _r);
+        if(get_ne_sess() != NULL){
+            ne_unhook_pre_send(get_ne_sess(), NEONRequest::neon_hook_pre_send, (void*)_r);
+            ne_unhook_post_headers(get_ne_sess(), NEONRequest::neon_hook_pre_rec, (void*) _r);
+        }
     }
 
 private:

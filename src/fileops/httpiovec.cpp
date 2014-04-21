@@ -48,7 +48,7 @@ template<class InputIterator>
 namespace Davix{
 
 const std::string HttpIoVec_scope(){
-    return "Davix::HttpVecOps";
+    return "Davix::HttpIOVecOps";
 }
 
 
@@ -86,12 +86,20 @@ int davIOVecProvider(const DavIOVecInput *input_vec, dav_ssize_t & counter, dav_
     return -1;
 }
 
-dav_ssize_t HttpVecOps::readPartialBufferVec(const DavIOVecInput * input_vec,
+dav_ssize_t HttpIOVecOps::preadVec(const DavIOVecInput * input_vec,
                           DavIOVecOuput * output_vec,
-                          const dav_size_t count_vec, DavixError** err){
+                          const dav_size_t count_vec){
 
     if(count_vec ==0)
         return 0;
+
+    if(count_vec ==1){ // one offset read request, no need of multi part
+            const dav_ssize_t res= _start->pread(input_vec->diov_buffer, input_vec->diov_size, input_vec->diov_offset);
+            output_vec->diov_buffer = input_vec->diov_buffer;
+            output_vec->diov_size= res;
+            return res;
+    }
+
 
 
     DavixError * tmp_err=NULL;
@@ -114,22 +122,26 @@ dav_ssize_t HttpVecOps::readPartialBufferVec(const DavIOVecInput * input_vec,
         DAVIX_DEBUG(" -> getPartialVec request for %ld chunks", it->first);
 
         if(it->first == 1){ // one chunk only : no need of multi part
-            if ( (tmp_ret = _io.readPartialBuffer(
-                      (input_vec + p_diff)->diov_buffer,
-                      (input_vec+p_diff)->diov_size,
-                      (input_vec+p_diff)->diov_offset, &tmp_err)) < 0){
-                ret = -1;
-                break;
-            }
+            TRY_DAVIX{
+                if ( (tmp_ret = _start->pread(
+                          (input_vec + p_diff)->diov_buffer,
+                          (input_vec+p_diff)->diov_size,
+                          (input_vec+p_diff)->diov_offset)) < 0){
+                    ret = -1;
+                    break;
+                }
+            }CATCH_DAVIX(&tmp_err);
+
             (output_vec+ p_diff)->diov_size = ret;
             (output_vec+ p_diff)->diov_buffer = (input_vec + p_diff)->diov_buffer;
             p_diff += 1;
             ret += tmp_ret;
 
         }else{
-            GetRequest req (_c,_url, &tmp_err);
+            GetRequest req (getParams()._context, getParams()._uri, &tmp_err);
             if(tmp_err == NULL){
-                req.setParameters(_params);
+                RequestParams request_params(getParams()._reqparams);
+                req.setParameters(request_params);
                 req.addHeaderField(req_header_byte_range, it->second);
                 if( (tmp_ret = readPartialBufferVecRequest(req, input_vec+ p_diff, output_vec+ p_diff, it->first, &tmp_err)) <0){
                     ret = -1;
@@ -147,11 +159,11 @@ dav_ssize_t HttpVecOps::readPartialBufferVec(const DavIOVecInput * input_vec,
 
 
     DAVIX_DEBUG(" <- getPartialVec operation for %d vectors", count_vec);
-    DavixError::propagateError(err, tmp_err);
+    checkDavixError(&tmp_err);
     return ret;
 }
 
-dav_ssize_t HttpVecOps::readPartialBufferVecRequest(HttpRequest & _req,
+dav_ssize_t HttpIOVecOps::readPartialBufferVecRequest(HttpRequest & _req,
                           const DavIOVecInput * input_vec,
                           DavIOVecOuput * output_vec,
                           const dav_size_t count_vec, DavixError** err){
@@ -317,7 +329,7 @@ dav_ssize_t copyChunk(HttpRequest & req, const DavIOVecInput *i,
 }
 
 
-dav_ssize_t HttpVecOps::parseMultipartRequest(HttpRequest & _req,
+dav_ssize_t HttpIOVecOps::parseMultipartRequest(HttpRequest & _req,
                                             const DavIOVecInput *input_vec,
                                             DavIOVecOuput * output_vec,
                                             const dav_size_t count_vec, DavixError** err){
@@ -473,7 +485,7 @@ static dav_ssize_t sum_all_chunk_size(const MapChunk & cmap){
     return res;
 }
 
-dav_ssize_t HttpVecOps::simulateMultiPartRequest(HttpRequest & _req, const DavIOVecInput *input_vec,
+dav_ssize_t HttpIOVecOps::simulateMultiPartRequest(HttpRequest & _req, const DavIOVecInput *input_vec,
                                  DavIOVecOuput * output_vec,
                    const dav_size_t count_vec, DavixError** err){
     DAVIX_TRACE(" -> Davix vec : 200 full file, simulate vec io");

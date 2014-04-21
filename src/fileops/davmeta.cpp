@@ -35,6 +35,7 @@ using namespace StrUtil;
 
 namespace Davix{
 
+
 namespace Meta{
 
 
@@ -354,5 +355,44 @@ int checksum(Context & c, const Uri & url, const RequestParams *params, std::str
 }
 
 } // Meta
+
+HttpMetaOps::HttpMetaOps(): HttpIOChain(){}
+
+HttpMetaOps::~HttpMetaOps(){}
+
+
+void HttpMetaOps::checksum(std::string &checksm, const std::string &chk_algo){
+    Meta::checksum(getParams()._context,getParams()._uri, getParams()._reqparams, checksm, chk_algo);
+}
+
+std::vector<DavFile>& HttpMetaOps::getReplicas(std::vector<DavFile> &vec){
+    Meta::getReplicas(getParams()._context, getParams()._uri, getParams()._reqparams, vec);
+    return vec;
+}
+
+void HttpMetaOps::makeCollection(){
+    DavixError* tmp_err=NULL;
+    Meta::makeCollection(getParams()._context, getParams()._uri, getParams()._reqparams, &tmp_err);
+    checkDavixError(&tmp_err);
+}
+
+void HttpMetaOps::deleteResource(){
+    DavixError* tmp_err=NULL;
+    Meta::deleteResource(getParams()._context, getParams()._uri, getParams()._reqparams, &tmp_err);
+    checkDavixError(&tmp_err);
+}
+
+StatInfo & HttpMetaOps::statInfo(StatInfo &st_info){
+    DavixError* tmp_err=NULL;
+    struct stat st;
+    memset(&st, 0, sizeof(struct stat));
+    if( Meta::posixStat(getParams()._context, getParams()._uri, getParams()._reqparams, &st, &tmp_err) ==0){
+        st_info.fromPosixStat(st);
+    }
+    checkDavixError(&tmp_err);
+    return st_info;
+}
+
+
 
 } // Davix

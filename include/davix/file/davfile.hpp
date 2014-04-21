@@ -179,10 +179,12 @@ public:
     ///
     ///  @param params Davix request Parameters
     ///  @param err Davix Error report
+    ///  @throw  @class DavixException if error occurs
     ///  @return 0 if success, or -1 if error occures
-    ///
+    void deletion(const RequestParams* params = NULL);
+
     int deletion(const RequestParams* params,
-                 DavixError** err);
+                 DavixError** err) throw();
 
 
     ///
@@ -190,10 +192,17 @@ public:
     ///
     ///  @param params Davix request Parameters
     ///  @param err Davix Error report
+    ///  @throw  @class DavixException if error occurs
     ///  @return 0 if success, or -1 if error occures
     ///
+    ///
+    void makeCollection(const RequestParams *params = NULL);
+
+    /// exception safe version
     int makeCollection(const RequestParams* params,
-                 DavixError** err);
+                       DavixError** err) throw();
+
+
 
     ///
     /// @brief execute a POSIX-like stat() query
@@ -206,7 +215,19 @@ public:
     int stat(const RequestParams* params, struct stat * st, DavixError** err);
 
 
+    ///
+    /// @brief compute checksum of the file with the given algorithm (MD5, CRC32, ADLER32)
+    ///
+    /// @param params request parameters
+    /// @param checksm buffer
+    /// @param chk_algo string of the algorithm (eg: "MD5"  )
+    /// @throw  @class DavixException if error occurs
+    /// @return buffer to string if sucesful
+    std::string & checksum(const RequestParams *params, std::string &checksm, const std::string &chk_algo);
+
+    /// exception safe version
     int checksum(const RequestParams *params, std::string & checksm, const std::string & chk_algo, DavixError **err) throw();
+
     ///
     /// @brief provide informations on the next file operation
     ///
@@ -235,13 +256,34 @@ typedef DavFile File;
 struct StatInfo{
     // size
     dav_size_t size;
-    dav_ssize_t n_link;
+    dav_ssize_t nlink;
     // rights
     mode_t mode;
     // time
     time_t atime;
     time_t mtime;
     time_t ctime;
+
+    // inline struct converter
+    // avoid ABI problems due to LFS support
+    inline void fromPosixStat(const struct stat & st){
+        mode = static_cast<mode_t>(st.st_mode);
+        atime = static_cast<time_t>(st.st_atime);
+        mtime = static_cast<time_t>(st.st_mtime);
+        ctime = static_cast<time_t>(st.st_ctime);
+        size =  static_cast<dav_size_t>(st.st_size);
+        nlink = static_cast<dav_size_t>(st.st_nlink);
+    }
+
+    inline struct stat & toPosixStat(struct stat & st){
+        st.st_mode = static_cast<mode_t>(mode);
+        st.st_atime = static_cast<time_t>(atime);
+        st.st_mtime = static_cast<time_t>(mtime);
+        st.st_ctime = static_cast<time_t>(ctime);
+        st.st_size =  static_cast<off_t>(size);
+        st.st_nlink = static_cast<nlink_t>(nlink);
+        return st;
+    }
 };
 
 } // Davix

@@ -33,7 +33,7 @@ target_link_libraries(tool_read_vector_simple davix )
 
 
 add_executable(test_prop ${src_test_prop} ${src_davix_test_lib} )
-target_link_libraries(test_prop davix  )
+target_link_libraries(test_prop davix   ${Boost_LIBRARIES})
 
 add_executable(test_stat ${src_test_stat} ${src_davix_test_lib})
 target_link_libraries(test_stat davix  )

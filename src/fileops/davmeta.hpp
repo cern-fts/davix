@@ -24,32 +24,36 @@
 #include <davixcontext.hpp>
 #include <params/davixrequestparams.hpp>
 #include <file/davfile.hpp>
+#include <fileops/httpiochain.hpp>
 
 namespace Davix{
 
 
+class HttpMetaOps : public HttpIOChain{
+public:
+    HttpMetaOps();
+    virtual ~HttpMetaOps();
+
+    // calculate hecksum
+    virtual void checksum(std::string & checksm, const std::string & chk_algo);
+
+    // calc replica
+    virtual std::vector<DavFile> & getReplicas(std::vector<DavFile> & vec);
+
+    // delete resource
+    virtual void deleteResource();
+
+    // make collection
+    virtual void makeCollection();
+
+    // get statInfo
+    virtual StatInfo & statInfo(StatInfo & st_info);
+
+};
+
+
 namespace Meta{
 
-
-
-
-
-// get all reps from webdav queries
-void getReplicas(Context & c, const Uri & r,
-                              const RequestParams & params,  std::vector<DavFile> & vec);
-
-dav_ssize_t posixStat(Context & c, const Uri & url, const RequestParams * _params,
-                      struct stat* st,
-                      DavixError** err);
-
-
-int deleteResource(Context & c, const Uri & u, const RequestParams & params, DavixError** err);
-
-
-int makeCollection(Context & c, const Uri & uri, const RequestParams & params, DavixError** err);
-
-
-int checksum(Context & c, const Uri & uri, const RequestParams *params, std::string & checksm, const std::string & chk_algo);
 
 /*
   retrieve a webdav propfind stat request to the given url
@@ -64,6 +68,8 @@ int davix_metalink_header_parser(const std::string & header_key, const std::stri
                                  const Uri & u_original,
                                  Uri & metalink);
 
+dav_ssize_t posixStat(Context & c, const Uri & url, const RequestParams * params,
+                      struct stat* st, DavixError** err);
 
 } // Meta
 

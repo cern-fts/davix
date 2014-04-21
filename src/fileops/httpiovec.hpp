@@ -23,6 +23,7 @@
 
 #include <davix.hpp>
 #include <fileops/iobuffmap.hpp>
+#include <fileops/httpiochain.hpp>
 
 namespace Davix{
 
@@ -38,19 +39,15 @@ struct ChunkInfo {
 };
 
 
-class HttpVecOps
+class HttpIOVecOps : public HttpIOChain
 {
 public:
-    HttpVecOps(Context & c, HttpIO & io,
-               const Uri & u, const RequestParams & params) :
-        _c(c),
-        _io(io),
-        _url(u),
-        _params(params){}
+    HttpIOVecOps(){}
+    virtual ~HttpIOVecOps(){}
 
-    dav_ssize_t readPartialBufferVec(const DavIOVecInput * input_vec,
+    dav_ssize_t preadVec(const DavIOVecInput * input_vec,
                               DavIOVecOuput * output_vec,
-                              const dav_size_t count_vec, DavixError** err);
+                              const dav_size_t count_vec);
 
 private:
 
@@ -68,11 +65,7 @@ private:
                                          const DavIOVecInput *input_vec,
                                          DavIOVecOuput * output_vec,
                                          const dav_size_t count_vec, DavixError** tmp_err);
-private:
-    Context &_c;
-    HttpIO &_io;
-    const Uri &_url;
-    const RequestParams & _params;
+
 };
 
 

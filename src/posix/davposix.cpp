@@ -26,6 +26,7 @@
 #include <fileops/fileutils.hpp>
 #include <fileops/davops.hpp>
 #include <fileops/davmeta.hpp>
+#include <fileops/httpiovec.hpp>
 #include <xml/davpropxmlparser.hpp>
 #include <fileops/iobuffmap.hpp>
 #include <string_utils/stringutils.hpp>
@@ -41,14 +42,6 @@ static const std::string stat_listing("<?xml version=\"1.0\" encoding=\"utf-8\" 
                                       "<D:resourcetype><D:collection/></D:resourcetype><L:mode/>"
                                       "</D:prop>"
                                       "</D:propfind>");
-
-
-
-struct Davix_fd{
-    Davix_fd(Davix::HttpIOBuffer * buff) : io_handler(buff){}
-    boost::scoped_ptr<Davix::HttpIOBuffer> io_handler;
-};
-
 
 struct Davix_dir_handle{
 
@@ -81,6 +74,24 @@ private:
 typedef Davix_dir_handle DIR_handle;
 
 namespace Davix {
+
+static HttpIOChain & getIOChain(HttpIOChain & chain, Context & context, const Uri & uri, const RequestParams* params){
+    chain.add(new HttpMetaOps())->add(new HttpIOBuffer())->add(new HttpIO())->add(new HttpIOVecOps());
+    chain.configure(context, uri, params);
+    return chain;
+}
+
+struct Davix_fd{
+    Davix_fd(Context & context, const Uri & uri, const RequestParams * params) : _uri(uri), _params(params){
+        getIOChain(io_handler, context, _uri, &_params);
+    }
+    Uri _uri;
+    RequestParams _params;
+    Davix::HttpIOChain io_handler;
+};
+
+
+
 
 DavPosix::DavPosix(Context* _context) :
     context(_context),
@@ -339,7 +350,7 @@ void DavPosix::fadvise(DAVIX_FD *fd, dav_off_t offset, dav_size_t len, advise_t 
     try{
         if( fd==NULL)
             return;
-        fd->io_handler->prefetchInfo(offset, len, advise);
+        fd->io_handler.prefetchInfo(offset, len, advise);
 
     }catch(DavixException & e){
         DAVIX_LOG(DAVIX_LOG_WARNING, "[DavPosix::fadvise] error %s", e.what());
@@ -356,11 +367,13 @@ void DavPosix::fadvise(DAVIX_FD *fd, dav_off_t offset, dav_size_t len, advise_t 
 
 int DavPosix::mkdir(const RequestParams * _params, const std::string &url, mode_t right, DavixError** err){
     DAVIX_DEBUG(" -> davix_mkdir");
-    RequestParams params(_params);
     int ret=-1;
 
     TRY_DAVIX{
-        ret =  Meta::makeCollection(*context, url, params, err);
+        HttpIOChain chain;
+        Uri uri(url);
+        getIOChain(chain, *context, uri, _params).makeCollection();
+        ret = 0;
     }CATCH_DAVIX(err)
 
     DAVIX_DEBUG(" davix_mkdir <-");
@@ -374,7 +387,8 @@ int DavPosix::stat(const RequestParams * params, const std::string & url, struct
     int ret = -1;
 
     TRY_DAVIX{
-        ret = Meta::posixStat(*context, Uri(url), params, st, &tmp_err);
+        File f(*context, url);
+        ret = f.stat(params, st, err);
     }CATCH_DAVIX(&tmp_err)
 
     DAVIX_DEBUG(" davix_stat <-");
@@ -383,40 +397,42 @@ int DavPosix::stat(const RequestParams * params, const std::string & url, struct
 
 }
 
-int davix_remove_posix(DavPosix & p, Context* c, const RequestParams * params, const std::string & url, bool directory, DavixError** err){
+int davix_remove_posix(DavPosix & p, Context* context, const RequestParams * params, const std::string & url, bool directory, DavixError** err){
     DavixError* tmp_err = NULL;
     int ret = -1;
+    Uri uri(url);
 
     TRY_DAVIX{
-        Uri uri(url);
-        WebdavQuery query(*c);
-
         if(params && params->getProtocol() == RequestProtocol::Http){ // pure protocol http : ignore posix semantic, execute a simple delete
-            ret = query.davDelete(params, uri, &tmp_err);
+            HttpIOChain chain;
+            getIOChain(chain, *context, uri, params).deleteResource();
+            ret = 0;
         }else{
             // full posix semantic support
-            struct stat st;
-            ret = p.stat(params, url, &st, &tmp_err);
-            if( ret ==0){
-                if( S_ISDIR(st.st_mode)){ // directory : impossible to delete if not empty
-                    if(directory == true){
-                        // ignore non empty dir check for now
-                        ret = query.davDelete(params, uri, &tmp_err);
-                    }else{
-                        ret = -1;
-                        std::ostringstream ss;
-                        ss << " " << url << " is not a directory, impossible to unlink"<< std::endl;
-                        DavixError::setupError(&tmp_err, davix_scope_davOps_str(), StatusCode::IsADirectory, ss.str());
-                    }
-                }else{ // file, rock & roll
-                    if(directory == false){
-                        ret = query.davDelete(params, uri, &tmp_err);
-                    }else{
-                        ret = -1;
-                        std::ostringstream ss;
-                        ss << " " << url << " is not a directory, impossible to rmdir"<< std::endl;
-                        DavixError::setupError(&tmp_err, davix_scope_davOps_str(), StatusCode::IsNotADirectory, ss.str());
-                    }
+            HttpIOChain chain;
+            struct StatInfo infos;
+
+            getIOChain(chain, *context, uri, params).statInfo(infos);
+
+            if( S_ISDIR(infos.mode)){ // directory : impossible to delete if not empty
+                if(directory == true){
+                    chain.deleteResource();
+                    ret =0;
+                }else{
+                    ret = -1;
+                    std::ostringstream ss;
+                    ss << " " << uri << " is not a directory, impossible to unlink"<< std::endl;
+                    throw DavixException(davix_scope_davOps_str(), StatusCode::IsADirectory, ss.str());
+                }
+            }else{ // file, rock & roll
+                if(directory == false){
+                    chain.deleteResource();
+                    ret =0;
+                }else{
+                    ret = -1;
+                    std::ostringstream ss;
+                    ss << " " << uri << " is not a directory, impossible to rmdir"<< std::endl;
+                    throw DavixError(davix_scope_davOps_str(), StatusCode::IsNotADirectory, ss.str());
                 }
             }
         }
@@ -428,13 +444,13 @@ int davix_remove_posix(DavPosix & p, Context* c, const RequestParams * params, c
 }
 
 
-int DavPosix::unlink(const RequestParams * params, const std::string &url, DavixError** err){
+int DavPosix::unlink(const RequestParams * params, const std::string &uri, DavixError** err){
     DAVIX_DEBUG(" -> davix_unlink");
     int ret=-1;
     DavixError* tmp_err=NULL;
 
     TRY_DAVIX{
-        ret = davix_remove_posix(*this, context, params, url, false, &tmp_err);
+        ret = davix_remove_posix(*this, context, params, uri, false, &tmp_err);
     }CATCH_DAVIX(&tmp_err)
 
     DAVIX_DEBUG(" davix_unlink <-");
@@ -443,13 +459,13 @@ int DavPosix::unlink(const RequestParams * params, const std::string &url, Davix
 }
 
 
-int DavPosix::rmdir(const RequestParams * params, const std::string &url, DavixError** err){
+int DavPosix::rmdir(const RequestParams * params, const std::string &uri, DavixError** err){
     DAVIX_DEBUG(" -> davix_rmdir");
     int ret=-1;
     DavixError* tmp_err=NULL;
 
     TRY_DAVIX{
-        ret = davix_remove_posix(*this, context, params, url, true, &tmp_err);
+        ret = davix_remove_posix(*this, context, params, uri, true, &tmp_err);
     }CATCH_DAVIX(&tmp_err)
 
     DAVIX_DEBUG(" davix_rmdir <-");
@@ -486,8 +502,8 @@ DAVIX_FD* DavPosix::open(const RequestParams * _params, const std::string & url,
         if(uri.getStatus() != StatusCode::OK){
             throw DavixException(davix_scope_http_request(), uri.getStatus(), " Uri invalid in Davix::Open");
         }
-        fd = new Davix_fd( new HttpIOBuffer(*context, uri, _params));
-        fd->io_handler->open( flags, &tmp_err);
+        fd = new Davix_fd(*context, uri, _params);
+        fd->io_handler.open( flags);
     }CATCH_DAVIX(&tmp_err)
 
     if(tmp_err){
@@ -507,7 +523,7 @@ ssize_t DavPosix::read(DAVIX_FD* fd, void* buf, size_t count, Davix::DavixError*
 
     TRY_DAVIX{
         if( davix_check_rw_fd(fd, &tmp_err) ==0){
-            ret = (ssize_t) fd->io_handler->read(buf, (dav_size_t) count, &tmp_err);
+            ret = (ssize_t) fd->io_handler.read(buf, (dav_size_t) count);
         }
     }CATCH_DAVIX(&tmp_err)
 
@@ -524,7 +540,7 @@ ssize_t DavPosix::pread(DAVIX_FD* fd, void* buf, size_t count, off_t offset, Dav
 
     TRY_DAVIX{
         if( davix_check_rw_fd(fd, &tmp_err) ==0){
-            ret = (ssize_t) fd->io_handler->pread(buf, (dav_size_t)  count, (dav_off_t) offset, &tmp_err);
+            ret = (ssize_t) fd->io_handler.pread(buf, (dav_size_t)  count, (dav_off_t) offset);
         }
     }CATCH_DAVIX(&tmp_err)
 
@@ -549,7 +565,7 @@ dav_ssize_t DavPosix::preadVec(DAVIX_FD* fd, const DavIOVecInput * input_vec,
 
     TRY_DAVIX{
         if( davix_check_rw_fd(fd, &tmp_err) ==0){
-            ret = fd->io_handler->preadVec(input_vec, output_vec, count_vec, &tmp_err);
+            ret = fd->io_handler.preadVec(input_vec, output_vec, count_vec);
         }
     }CATCH_DAVIX(&tmp_err)
 
@@ -565,7 +581,7 @@ ssize_t DavPosix::write(DAVIX_FD* fd, const void* buf, size_t count, Davix::Davi
 
     TRY_DAVIX{
         if( davix_check_rw_fd(fd, &tmp_err) ==0){
-            ret = (ssize_t) fd->io_handler->write(buf, (dav_size_t) count, &tmp_err);
+            ret = (ssize_t) fd->io_handler.write(buf, (dav_size_t) count);
         }
     }CATCH_DAVIX(&tmp_err)
 
@@ -583,7 +599,7 @@ off_t DavPosix::lseek(DAVIX_FD* fd, off_t offset, int flags, Davix::DavixError**
 
     TRY_DAVIX{
         if( davix_check_rw_fd(fd, &tmp_err) ==0){
-            ret = (off_t) fd->io_handler->lseek( (dav_off_t) offset, flags, &tmp_err);
+            ret = (off_t) fd->io_handler.lseek( (dav_off_t) offset, flags);
         }
     }CATCH_DAVIX(&tmp_err)
 

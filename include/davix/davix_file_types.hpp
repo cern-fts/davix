@@ -38,12 +38,10 @@
 struct Davix_dir_handle;
 struct Davix_fd;
 
-
-
-namespace Davix{
-
 typedef struct Davix_dir_handle DAVIX_DIR;
 typedef struct Davix_fd DAVIX_FD;
+
+namespace Davix{
 
 
 /// @struct DavIOVecInput

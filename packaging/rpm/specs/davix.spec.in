@@ -1,10 +1,13 @@
 # unversionned doc dir F20 change https://fedoraproject.org/wiki/Changes/UnversionedDocdirs
 %{!?_pkgdocdir: %global _pkgdocdir %{_docdir}/%{name}-%{version}}
-# boost bindings for EPEL5
+
+# EL5 compat for boost, cmake
 %if 0%{?el5}
 %global boost_cmake_flags -DBOOST_INCLUDEDIR=/usr/include/boost141 -DBOOST_LIBRARYDIR=%{_libdir}/boost141
+%global davix_cmake %cmake28
 %else
 %global boost_cmake_flags -DBOOST_INCLUDEDIR=/usr/include
+%global davix_cmake %cmake
 %endif
 
 Name:				davix
@@ -88,7 +91,7 @@ rm -rf test/pywebdav/
 rm -rf deps/boost_internal/
 
 %build
-%cmake \
+%davix_cmake \
 -DDOC_INSTALL_DIR=%{_pkgdocdir} \
 -DGTEST_EXTERNAL=TRUE \
 -DENABLE_THIRD_PARTY_COPY=TRUE \

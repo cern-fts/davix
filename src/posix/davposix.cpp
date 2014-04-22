@@ -35,6 +35,21 @@
 using namespace StrUtil;
 
 
+
+namespace Davix{
+
+
+
+static HttpIOChain & getIOChain(HttpIOChain & chain, Context & context, const Uri & uri, const RequestParams* params){
+    chain.add(new HttpMetaOps())->add(new HttpIOBuffer())->add(new HttpIO())->add(new HttpIOVecOps());
+    chain.configure(context, uri, params);
+    return chain;
+}
+
+
+
+}
+
 static const std::string simple_listing("<propfind xmlns=\"DAV:\"><prop><resourcetype><collection/></resourcetype></prop></propfind>");
 
 static const std::string stat_listing("<?xml version=\"1.0\" encoding=\"utf-8\" ?><D:propfind xmlns:D=\"DAV:\" xmlns:L=\"LCGDM:\"><D:prop>"
@@ -71,27 +86,17 @@ private:
 
 
 
-typedef Davix_dir_handle DIR_handle;
-
-namespace Davix {
-
-static HttpIOChain & getIOChain(HttpIOChain & chain, Context & context, const Uri & uri, const RequestParams* params){
-    chain.add(new HttpMetaOps())->add(new HttpIOBuffer())->add(new HttpIO())->add(new HttpIOVecOps());
-    chain.configure(context, uri, params);
-    return chain;
-}
-
 struct Davix_fd{
-    Davix_fd(Context & context, const Uri & uri, const RequestParams * params) : _uri(uri), _params(params){
-        getIOChain(io_handler, context, _uri, &_params);
+    Davix_fd(Davix::Context & context, const Davix::Uri & uri, const Davix::RequestParams * params) : _uri(uri), _params(params){
+        Davix::getIOChain(io_handler, context, _uri, &_params);
     }
-    Uri _uri;
-    RequestParams _params;
+    Davix::Uri _uri;
+    Davix::RequestParams _params;
     Davix::HttpIOChain io_handler;
 };
 
 
-
+namespace Davix {
 
 DavPosix::DavPosix(Context* _context) :
     context(_context),
@@ -150,7 +155,7 @@ void configure_req_for_listdir(HttpRequest* req){
 
 DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char * scope, const std::string & body, const std::string & url, DavixError** err ){
     dav_ssize_t s_resu;
-    DIR_handle* res = NULL;
+    DAVIX_DIR* res = NULL;
     int ret =-1;
     DavixError* tmp_err=NULL;
     RequestParams params(_params);
@@ -159,7 +164,7 @@ DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char
     // create a new connexion + parser for this opendir
     if(tmp_err == NULL){
         configure_req_for_listdir(http_req);
-         res=  new DIR_handle(http_req, new DavPropXMLParser());
+         res=  new DAVIX_DIR(http_req, new DavPropXMLParser());
         time_t timestamp_timeout = time(NULL) + _timeout;
 
         http_req->setParameters(params);
@@ -240,7 +245,7 @@ DAVIX_DIR* DavPosix::opendirpp(const RequestParams* params, const std::string &u
 struct dirent* DavPosix::readdir(DAVIX_DIR * d, DavixError** err){
     DAVIX_DEBUG(" -> davix_readdir");
     DavixError* tmp_err=NULL;
-    DIR_handle* handle = static_cast<DIR_handle*>(d);
+    DAVIX_DIR* handle = static_cast<DAVIX_DIR*>(d);
 
     TRY_DAVIX{
 
@@ -282,7 +287,7 @@ struct dirent* DavPosix::readdirpp(DAVIX_DIR * d, struct stat *st, DavixError** 
     DAVIX_DEBUG(" -> davix_readdirpp");
     DavixError* tmp_err=NULL;
     struct dirent* ret = NULL;
-    DIR_handle* handle = static_cast<DIR_handle*>(d);
+    DAVIX_DIR* handle = static_cast<DAVIX_DIR*>(d);
 
     TRY_DAVIX{
 
@@ -333,7 +338,7 @@ int DavPosix::closedirpp(DAVIX_DIR * d, DavixError** err){
         if( d==NULL){
             throw DavixException(davix_scope_directory_listing_str(), Davix::StatusCode::InvalidFileHandle, "Invalid file descriptor for DAVIX_DIR*");
        }else{
-            delete (static_cast<DIR_handle*>(d));
+            delete (static_cast<DAVIX_DIR*>(d));
             ret =0;
         }
 

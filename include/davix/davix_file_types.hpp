@@ -34,17 +34,17 @@
 */
 
 
-// global file descriptor declaration
-typedef struct Davix_dir_handle DAVIX_DIR;
-
+// file descriptor declaration
 struct Davix_dir_handle;
+struct Davix_fd;
+
 
 
 namespace Davix{
 
-
-struct Davix_fd;
+typedef struct Davix_dir_handle DAVIX_DIR;
 typedef struct Davix_fd DAVIX_FD;
+
 
 /// @struct DavIOVecInput
 /// @brief input parameters for vector operations in Davix

@@ -149,8 +149,11 @@ private:
     // request options flag
 
 
+
     ne_request * _req;
     boost::shared_ptr<Uri>  _current, _orig;
+    // req info
+    size_t _number_try;
     // read info
     dav_ssize_t _last_read;
 
@@ -200,6 +203,9 @@ private:
 
     // redirection logic
     int redirect_request(DavixError** err);
+
+    // redirecttion caching cleaning function
+    bool redirect_cleanup();
 
     void free_request();
     /**

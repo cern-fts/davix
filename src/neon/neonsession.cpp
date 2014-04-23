@@ -196,14 +196,14 @@ void configureSession(ne_session *_sess, const Uri & _u, const RequestParams &pa
         }
 
         if( timespec_isset(params.getOperationTimeout())){
-            DAVIX_DEBUG("NEONSession : define operation timeout to %d", params.getOperationTimeout());
-            ne_set_read_timeout(_sess, (int) params.getOperationTimeout()->tv_sec);
+            const int timeout = static_cast<int>(params.getOperationTimeout()->tv_sec);
+            DAVIX_DEBUG("NEONSession : define operation timeout to %d", timeout);
+            ne_set_read_timeout(_sess, timeout);
         }
         if(timespec_isset(params.getConnectionTimeout())){
-            DAVIX_DEBUG("NEONSession : define connection timeout to %d", params.getConnectionTimeout());
-    #ifndef _NEON_VERSION_0_25
-            ne_set_connect_timeout(_sess, (int) params.getConnectionTimeout()->tv_sec);
-    #endif
+            const int timeout = static_cast<int>(params.getConnectionTimeout()->tv_sec);
+            DAVIX_DEBUG("NEONSession : define connection timeout to %d" , timeout);
+            ne_set_connect_timeout(_sess, timeout);
         }
 
         for(std::vector<std::string>::const_iterator it = params.listCertificateAuthorityPath().begin(); it < params.listCertificateAuthorityPath().end(); it++){

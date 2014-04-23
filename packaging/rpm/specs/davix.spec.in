@@ -4,15 +4,13 @@
 # EL5 compat for boost, cmake
 %if 0%{?el5}
 %global boost_cmake_flags -DBOOST_INCLUDEDIR=/usr/include/boost141 -DBOOST_LIBRARYDIR=%{_libdir}/boost141
-%global davix_cmake %cmake28
 %else
 %global boost_cmake_flags -DBOOST_INCLUDEDIR=/usr/include
-%global davix_cmake %cmake
 %endif
 
 Name:				davix
 Version:			@VERSION_STRING@
-Release:			10%{?dist}
+Release:			11%{?dist}
 Summary:			Toolkit for Http-based file management
 Group:				Applications/Internet
 License:			LGPLv2+
@@ -24,11 +22,10 @@ BuildRoot:			%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 #main lib dependencies
 %if 0%{?el5}
 BuildRequires:                  boost141-devel
-BuildRequires:                  cmake28
 %else
 BuildRequires:                  boost-devel
-BuildRequires:                  cmake
 %endif
+BuildRequires:                  cmake
 BuildRequires:                  doxygen
 BuildRequires:                  libxml2-devel
 BuildRequires:                  openssl-devel
@@ -86,12 +83,10 @@ make clean
 %prep
 %setup -q
 # remove useless embedded components
-rm -rf test/gtest-1.6.0/
 rm -rf test/pywebdav/
-rm -rf deps/boost_internal/
 
 %build
-%davix_cmake \
+%cmake \
 -DDOC_INSTALL_DIR=%{_pkgdocdir} \
 -DGTEST_EXTERNAL=TRUE \
 -DENABLE_THIRD_PARTY_COPY=TRUE \

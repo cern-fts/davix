@@ -330,8 +330,14 @@ void httpcodeToDavixCode(int code, const std::string & scope, const std::string 
             str_msg = "HTTP Permission refused";
             break;
         break;
-        case 400:           /* Bad Request */
         case 405:           /* Method Not Allowed */
+            if (scope == davix_scope_mkdir_str())
+                dav_code = StatusCode::FileExist;
+            else
+                dav_code = StatusCode::PermissionRefused; // Technically is a EPERM
+            str_msg = "Method Not Allowed";
+            break;
+        case 400:           /* Bad Request */
         case 411:           /* Length Required */
         case 412:           /* Precondition Failed */
         case 414:           /* Request-URI Too Long */

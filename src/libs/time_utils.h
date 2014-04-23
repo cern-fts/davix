@@ -35,7 +35,7 @@
 
 
 #define timespec_isset(a)                                                    \
-  ( !((a)->tv_sec == 0 && (a)->tv_nsec == 0) )
+  ( ((a)->tv_sec != 0 || (a)->tv_nsec != 0) )
 
 
 #define timespec_copy(a,b)                                                    \

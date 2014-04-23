@@ -157,6 +157,7 @@ NEONRequest::NEONRequest(HttpRequest & h, Context& context, const Uri & uri_req)
     _req(NULL),
     _current( new Uri(uri_req)),
     _orig(_current),
+    _number_try(0),
     _last_read(-1),
     _vec(),
     _vec_line(),
@@ -322,7 +323,6 @@ int NEONRequest::negotiate_request(DavixError** err){
 
     const int n_limit = 10;
     int code, status, end_status = NE_RETRY;
-    int n =0;
 
     DAVIX_DEBUG(" ->   Davix negociate request ... ");
     if(req_started){
@@ -333,7 +333,7 @@ int NEONRequest::negotiate_request(DavixError** err){
 
     req_started = req_running= true;
 
-    while(end_status == NE_RETRY && n < n_limit){
+    while(end_status == NE_RETRY && _number_try < n_limit){
         DAVIX_DEBUG(" ->   NEON start internal request ... ");
 
         if( (status = ne_begin_request(_req)) != NE_OK && status != NE_REDIRECT){
@@ -341,7 +341,7 @@ int NEONRequest::negotiate_request(DavixError** err){
                 if(strstr(ne_get_error(_neon_sess->get_ne_sess()), "Could not") != NULL
                    || strstr(ne_get_error(_neon_sess->get_ne_sess()), "Connection reset by peer") != NULL){
                    DAVIX_DEBUG("KeepAlive Server problem detected, retry");
-                   n++;
+                   _number_try++;
                    _neon_sess->disable_session_reuse();
                    ContextExplorer::SessionFactoryFromContext(_c).redirectionClean(_request_type, *_orig);
                    if( create_req(err) < 0)
@@ -382,15 +382,12 @@ int NEONRequest::negotiate_request(DavixError** err){
                     }else{
                         neon_to_davix_code(status, _neon_sess->get_ne_sess(), davix_scope_http_request(),err);
                     }
-                    // cleanup redirection
-                    ContextExplorer::SessionFactoryFromContext(_c).redirectionClean(_request_type, *_orig);
-                    if(_current != _orig){ // cancel redirect, maybe outdated ? retry
-                        DAVIX_DEBUG(" ->  Auth problem after redirect: cancel redirect and try again");
-                        n++;
-                        _current = _orig;
-                        end_status = NE_RETRY;
-                        break;
+                    _number_try++;
+                    if (redirect_cleanup()){
+                        endRequest(NULL);
+                        return startRequest(err);
                     }
+
                     return -1;
                 }
                 DAVIX_DEBUG(" ->   NEON receive %d code, %d .... request again ... ", code, end_status);
@@ -398,14 +395,13 @@ int NEONRequest::negotiate_request(DavixError** err){
             // dCache token redirection
             case 501:
             // cleanup redirection
-            ContextExplorer::SessionFactoryFromContext(_c).redirectionClean(_request_type, *_orig);
-            if(_current != _orig){ // cancel redirect, maybe outdated ? retry
-                DAVIX_DEBUG(" ->  Auth problem after redirect: cancel redirect and try again");
-                n++;
-                _current = _orig;
-                end_status = NE_RETRY;
-                break;
+            _number_try++;
+            if( redirect_cleanup()){
+                // recursive call, restart request
+                endRequest(NULL);
+                return startRequest(err);
             }
+
             return -1;
 
             default:
@@ -413,16 +409,28 @@ int NEONRequest::negotiate_request(DavixError** err){
                 break;
 
         }
-        n++;
+        _number_try++;
     }
 
-    if(n >= n_limit){
+    if(_number_try >= n_limit){
         DavixError::setupError(err,davix_scope_http_request(),StatusCode::AuthentificationError,
                                "Maximum number of retrial reached.");
         return -2;
     }
     DAVIX_DEBUG(" Davix negociate request ... <-");
     return 0;
+}
+
+
+bool NEONRequest::redirect_cleanup(){
+    // cleanup redirection
+    ContextExplorer::SessionFactoryFromContext(_c).redirectionClean(_request_type, *_orig);
+    if(_current != _orig){ // cancel redirect, maybe outdated ? retry
+        DAVIX_DEBUG(" ->  Auth problem after redirect: cancel redirect and try again");
+        _current = _orig;
+        return true;
+    }
+    return false;
 }
 
 int NEONRequest::redirect_request(DavixError **err){

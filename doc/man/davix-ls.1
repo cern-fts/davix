@@ -1,0 +1,188 @@
+.\" @(#)$RCSfile: davix-http.man,v $ $Revision: 1 $ $Date: 2014/05/24 $ CERN Adrien Devresse
+.\" Copyright (C) 2014 by CERN
+.\" All rights reserved
+.\"
+.TH DAVIX-HTTP 1 "$Date: 2014/05/24 $" davix "HTTP Request tool"
+.SH NAME
+davix-http \- File listing with HTTP based protocol
+.SH SYNOPSIS
+.PP		
+	    davix-ls [options]... url
+.PP	
+	              
+.SH DESCRIPTION
+\fBdavix-ls\fR is a tool for resources (files) listing over HTTP based protocols.
+.br
+The command supports the WebDav protocol (dav(s)://), AWS S3 protocol (s3(s)://).
+.br
+.PP	
+davix-ls is powered by libdavix for all HTTP protocol related feature. See libdavix(3) for details.
+
+.br
+
+.SH OPTIONS
+.PP
+
+\fBListing Options:\fR
+.PP
+
+.RS 2
+\fB\-l --long-list:\fR
+.RE
+.RS 5
+long Listing mode
+.RE
+.PP     
+
+
+\fBCommon Options:\fR
+.PP
+.RS 2	
+\fB\--debug\fR
+.RE
+.RS 5
+Debug mode
+.RE
+.PP
+
+.RS 2	
+\fB\--header, -H\fR
+.RE
+.RS 5
+Add a header field to the request (eg: -H "Depth: 1" )  
+.RE
+.PP
+
+.RS 2	
+\fB\--help, -h\fR
+.RE
+.RS 5
+Display this help message  
+.RE
+.PP
+
+.RS 2	
+\fB\--trace-headers\fR
+.RE
+.RS 5
+Trace all HTTP queries headers  
+.RE
+.PP
+ 
+.RS 2
+\fB\--verbose\fR
+.RE
+.RS 5
+Verbose mode 
+.RE
+.PP
+
+.RS 2
+\fB\--version\fR
+.RE
+.RS 5
+Display version  
+.RE
+.PP
+
+          
+\fBSecurity Options:\fR
+.PP
+
+.RS 2
+\fB\--capath CA_path\fR
+.RE
+.RS 5
+Add an additional certificate authority directory  
+.RE
+.PP
+
+.RS 2
+\fB\--cert, -E cred_path\fR
+.RE
+.RS 5
+Client Certificate in PEM format 
+.RE
+.PP
+
+.RS 2
+\fB\--key priv_path\fR
+.RE
+.RS 5
+Private key in PEM format  
+.RE
+.PP
+   
+.RS 2
+\fB\--insecure, -k\fR
+.RE
+.RS 5
+Disable SSL credential checks 
+.RE
+.PP
+
+.RS 2
+\fB\--userlogin\fR
+.RE
+.RS 5
+User login for login/password authentication  
+.RE
+.PP
+
+.RS 2
+\fB\--userpass\fR
+.RE
+.RS 5
+User password for login/password authentication 
+.RE
+.PP
+    
+.RS 2
+\fB\--s3secretkey\fR
+.RE
+.RS 5
+AWS S3 authentication: secret key
+.RE
+.PP         
+
+.RS 2
+\fB\--s3accesskey\fR
+.RE
+.RS 5
+AWS S3 authentication: access key 
+.RE
+.PP
+
+  
+	   
+.SH EXAMPLES
+.PP
+\fBWebDav directory file listing
+.BR
+        davix-ls dav://example.org/dir1/dir2/
+.BR
+.PP
+\fBAWS S3 bucket listing
+.BR
+        davix-ls s3://bucket.example.org/collection/
+.BR
+.PP
+\fBLong listing with WebDav with VOMS authentication in a Grid environment
+.BR
+        davix-ls davs://grid-storage.example.org/dir1/dir2/ -E $X509_USER_PROXY --capath $X509_CERT_DIR
+
+\fBLong listing with WebDav + TLS directory file listing
+.BR
+        davix-ls -l davs://example.org/dir1/dir2/
+.BR
+
+.SH SEE ALSO
+.BR libdavix(3), davix-get(1), davix-put(1),
+.BR
+
+.SH LINKS
+.BR http://dmc.web.cern.ch/projects/davix/home
+
+
+.SH AUTHORS
+Adrien Devresse <adrien.devresse@cern.ch>, IT-SDC-ID, CERN

@@ -102,6 +102,11 @@ install(FILES RELEASE-NOTES LICENSE
                 DESTINATION ${DOC_INSTALL_DIR}/) # install release notes
 
 
+FILE(GLOB man_page ${CMAKE_CURRENT_SOURCE_DIR}/doc/man/*)
+install(FILES ${man_page}
+                        DESTINATION ${MAN_INSTALL_DIR}/man1/)
+
+
 #######################################################
 # Configure an 'uninstall' target
 CONFIGURE_FILE(

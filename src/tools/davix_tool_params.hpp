@@ -48,8 +48,6 @@ struct OptParams{
     int debug;
     // request command
     std::string req_type;
-    // request header
-    HeaderVec header_args;
     // help msg
     std::string help_msg;
     // credential path

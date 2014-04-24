@@ -43,10 +43,6 @@ static void configure_req(HttpRequest& req, Tool::OptParams & opts){
     if(opts.req_type.empty() == false)
         req.setRequestMethod(opts.req_type);
 
-    for(Tool::HeaderVec::iterator it = opts.header_args.begin(); it < opts.header_args.end(); it++){
-            req.addHeaderField(it->first, it->second);
-    }
-
     req.setRequestBody(opts.req_content);
 
 }
@@ -56,7 +52,6 @@ static std::string help_msg(){
             Tool::get_common_options() +
            "  Request Options: \n"
            "\t--data                    Content of the request\n"
-           "\t--header, -H:             Add a header field to the request (ex: \"Depth: 1\") \n"
            "\t--request, -X:            Request operation to use (ex : GET, PUT, PROPFIND, etc..)\n"
            "\n"
                        ;

@@ -68,9 +68,6 @@ int davix_metalink_header_parser(const std::string & header_key, const std::stri
                                  const Uri & u_original,
                                  Uri & metalink);
 
-dav_ssize_t posixStat(Context & c, const Uri & url, const RequestParams * params,
-                      struct stat* st, DavixError** err);
-
 } // Meta
 
 } // Davix

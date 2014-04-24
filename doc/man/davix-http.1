@@ -1,0 +1,189 @@
+.\" @(#)$RCSfile: davix-http.man,v $ $Revision: 1 $ $Date: 2014/05/24 $ CERN Adrien Devresse
+.\" Copyright (C) 2014 by CERN
+.\" All rights reserved
+.\"
+.TH DAVIX-HTTP 1 "$Date: 2014/05/24 $" davix "HTTP Request tool"
+.SH NAME
+davix-http \- HTTP query tool for Davix
+.SH SYNOPSIS
+.PP		
+	    davix-http [options]... url
+.PP	
+	              
+.SH DESCRIPTION
+\fBdavix-http\fR is a tool to execute HTTP protocol queries. The command is designed to support an advanced request tuning.
+.br
+It can be used to interact with a RESTful web-services for instance.
+.br
+.PP	
+davix-http is powered by libdavix for all HTTP protocol related feature. See libdavix(3) for details.
+
+.br
+
+.SH OPTIONS
+.PP
+
+\fBRequest Options:\fR
+.PP
+.RS 2
+\fB\--data\fR
+.RE
+.RS 5
+Content of the request
+.RE
+.PP     
+
+.RS 2
+\fB\--request, -X\fR
+.RE
+.RS 5
+Request method to use (ex : GET, PUT, PROPFIND, etc..)
+.RE
+.PP 
+  
+\fBCommon Options:\fR
+.PP
+.RS 2	
+\fB\--debug\fR
+.RE
+.RS 5
+Debug mode
+.RE
+.PP
+
+.RS 2	
+\fB\--header, -H\fR
+.RE
+.RS 5
+Add a header field to the request (eg: -H "Depth: 1" )  
+.RE
+.PP
+
+.RS 2	
+\fB\--help, -h\fR
+.RE
+.RS 5
+Display this help message  
+.RE
+.PP
+
+.RS 2	
+\fB\--trace-headers\fR
+.RE
+.RS 5
+Trace all HTTP queries headers  
+.RE
+.PP
+ 
+.RS 2
+\fB\--verbose\fR
+.RE
+.RS 5
+Verbose mode 
+.RE
+.PP
+
+.RS 2
+\fB\--version\fR
+.RE
+.RS 5
+Display version  
+.RE
+.PP
+
+          
+\fBSecurity Options:\fR
+.PP
+
+.RS 2
+\fB\--capath CA_path\fR
+.RE
+.RS 5
+Add an additional certificate authority directory  
+.RE
+.PP
+
+.RS 2
+\fB\--cert, -E cred_path\fR
+.RE
+.RS 5
+Client Certificate in PEM format 
+.RE
+.PP
+
+.RS 2
+\fB\--key priv_path\fR
+.RE
+.RS 5
+Private key in PEM format  
+.RE
+.PP
+   
+.RS 2
+\fB\--insecure, -k\fR
+.RE
+.RS 5
+Disable SSL credential checks 
+.RE
+.PP
+
+.RS 2
+\fB\--userlogin\fR
+.RE
+.RS 5
+User login for login/password authentication  
+.RE
+.PP
+
+.RS 2
+\fB\--userpass\fR
+.RE
+.RS 5
+User password for login/password authentication 
+.RE
+.PP
+    
+.RS 2
+\fB\--s3secretkey\fR
+.RE
+.RS 5
+AWS S3 authentication: secret key
+.RE
+.PP         
+
+.RS 2
+\fB\--s3accesskey\fR
+.RE
+.RS 5
+AWS S3 authentication: access key 
+.RE
+.PP
+
+
+	   
+.SH EXAMPLES
+.PP
+\fB Execute a GET Query in HTTP
+.BR
+        davix-http http://example.org/
+.PP
+\fB Execute a HEAD Query in HTTP + TLS with User auth
+.BR
+        davix-http -X HEAD https://login:password@example.org
+.BR
+.PP
+\fB Execute a PUT Query with S3 over https and a basic content
+.BR
+        davix-http -X PUT s3s://bucket.example.org/mifile -d "Hello World"
+.BR
+
+.SH SEE ALSO
+.BR libdavix(3), davix-ls(1), davix-get(1), davix-put(1),
+.BR
+
+.SH LINKS
+.BR http://dmc.web.cern.ch/projects/davix/home
+
+
+.SH AUTHORS
+Adrien Devresse <adrien.devresse@cern.ch>, IT-SDC-ID, CERN

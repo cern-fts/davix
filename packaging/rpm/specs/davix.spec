@@ -111,6 +111,7 @@ make DESTDIR=%{buildroot} install
 %files
 %defattr (-,root,root)
 %{_bindir}/*
+%{_mandir}/man1/*
 
 %files libs
 %defattr (-,root,root)

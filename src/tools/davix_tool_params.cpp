@@ -49,7 +49,8 @@ const std::string scope_params = "Davix::Tools::Params";
 {"debug", no_argument, 0,  DEBUG_OPT }, \
 {"version", no_argument, 0, 'V'}, \
 {"help", no_argument,0,'?'}, \
-{"headers", no_argument, 0, HEADERS_OPTIONS }
+{"header",  required_argument, 0,  'H' }, \
+{"trace-headers", no_argument, 0, HEADERS_OPTIONS }
 
 #define SECURITY_LONG_OPTIONS \
 {"cert",  required_argument,       0, 'E' }, \
@@ -62,7 +63,6 @@ const std::string scope_params = "Davix::Tools::Params";
 {"insecure", no_argument, 0,  'k' }
 
 #define REQUEST_LONG_OPTIONS \
-{"header",  required_argument, 0,  'H' }, \
 {"request",  required_argument, 0,  'X' }, \
 {"data", required_argument, 0, DATA_CONTENT}, \
 {"verbose", no_argument, 0,  0 }
@@ -76,7 +76,6 @@ OptParams::OptParams() :
     verbose(false),
     debug(false),
     req_type(),
-    header_args(),
     help_msg(),
     cred_path(),
     priv_key(),
@@ -109,7 +108,7 @@ static int set_header_field(const std::string & arg, OptParams & p, DavixError**
         DavixError::setupError(err, scope_params, StatusCode::InvalidArgument, " Invalid header field argument");
         return -1;
     }
-    p.header_args.push_back(HeaderParam(arg.substr(0,pos), arg.substr(pos+1)));
+    p.params.addHeader(arg.substr(0,pos), arg.substr(pos+1));
     return 0;
 }
 
@@ -217,7 +216,7 @@ int parse_davix_options(int argc, char** argv, OptParams & p, DavixError** err){
 
 
 int parse_davix_ls_options(int argc, char** argv, OptParams & p, DavixError** err){
-    const std::string arg_tool_main= "E:vkVl";
+    const std::string arg_tool_main= "H:E:vkVl";
     const struct option long_options[] = {
         COMMON_LONG_OPTIONS,
         SECURITY_LONG_OPTIONS,
@@ -237,7 +236,7 @@ int parse_davix_ls_options(int argc, char** argv, OptParams & p, DavixError** er
 
 
 int parse_davix_get_options(int argc, char** argv, OptParams & p, DavixError** err){
-    const std::string arg_tool_main= "E:o:OvkV";
+    const std::string arg_tool_main= "H:E:o:OvkV";
     const struct option long_options[] = {
         COMMON_LONG_OPTIONS,
         SECURITY_LONG_OPTIONS,
@@ -259,7 +258,7 @@ int parse_davix_get_options(int argc, char** argv, OptParams & p, DavixError** e
 }
 
 int parse_davix_put_options(int argc, char** argv, OptParams & p, DavixError** err){
-    const std::string arg_tool_main= "E:o:vkV";
+    const std::string arg_tool_main= "H:E:o:vkV";
     const struct option long_options[] = {
         COMMON_LONG_OPTIONS,
         SECURITY_LONG_OPTIONS,
@@ -287,8 +286,9 @@ const std::string  & get_common_options(){
     static const std::string s(
             "  Common Options:\n"
             "\t--debug:                  Debug mode\n"
-            "\t--headers:                Display all HTTP queries headers\n"
+            "\t--header, -H:             Add a header field to the request (ex: \"Depth: 1\") \n"
             "\t--help, -h:               Display this help message\n"
+            "\t--trace-headers:          Trace all HTTP queries headers\n"
             "\t--verbose:                Verbose mode\n"
             "\t--version, -V:            Display version\n"
             "  Security Options:\n"

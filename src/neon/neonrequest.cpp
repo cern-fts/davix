@@ -260,10 +260,10 @@ void NEONRequest::configure_req(){
         ne_set_request_body_buffer(_req, _content_ptr, _content_len);       
     }
 
-    std::vector< std::pair<std::string, std::string> > h = params.getHeaders();
-    for (std::vector< std::pair<std::string,std::string> >::iterator i = h.begin();
+    const HeaderVec &  h  = params.getHeaders();
+    for (HeaderVec::const_iterator i = h.begin();
          i != h.end(); i++) {
-        this->addHeaderField(i->first, i->second);
+        ne_add_request_header(_req, i->first.c_str(), i->second.c_str());
       }
 }
 

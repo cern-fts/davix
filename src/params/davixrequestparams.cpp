@@ -57,6 +57,7 @@ struct RequestParamsInternal{
         connexion_timeout(),
         agent_string(default_agent),
         _proto(RequestProtocol::Auto),
+        _customhdr(),
         _session_flag(SESSION_FLAG_KEEP_ALIVE),
         _state_uid(get_requeste_uid())
     {
@@ -89,6 +90,7 @@ struct RequestParamsInternal{
         connexion_timeout(),
         agent_string(param_private.agent_string),
         _proto(param_private._proto),
+        _customhdr(param_private._customhdr),
         _session_flag(param_private._session_flag),
         _state_uid(param_private._state_uid){
 
@@ -121,7 +123,7 @@ struct RequestParamsInternal{
     RequestProtocol::Protocol  _proto;
 
     /// additional custom header lines
-    std::vector< std::pair<std::string,std::string> > _customhdr;
+    HeaderVec _customhdr;
 
     // session flag
     int _session_flag;
@@ -310,7 +312,7 @@ void RequestParams::addHeader(const std::string &key, const std::string &val) {
 
 
 }
-std::vector< std::pair<std::string,std::string> > &RequestParams::getHeaders() {
+const HeaderVec & RequestParams::getHeaders() const{
   return d_ptr->_customhdr;
 }
 

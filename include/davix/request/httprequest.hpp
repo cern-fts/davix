@@ -75,10 +75,6 @@ namespace RequestFlag{
 
 }
 
-
-typedef std::vector< std::pair <std::string, std::string> > HeaderVec;
-
-
 /// @class HttpRequest
 /// @brief Http low level request interface
 /// HTTPRequest is the main davix class for low level HTTP queries

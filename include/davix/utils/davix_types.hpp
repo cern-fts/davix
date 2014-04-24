@@ -59,6 +59,13 @@ typedef struct davix_file_desc_s* davix_file_desc_t;
 typedef struct davix_auth_st* davix_auth_t;
 typedef struct davix_request_params* davix_params_t;
 
+namespace Davix{
+    // Davix namespace declaration
+    typedef std::vector< std::pair <std::string, std::string> > HeaderVec;
+
+} // Davix
+
+
 
 // Davix Large File Support
 #if  ( __WORDSIZE == 32 ) || \
@@ -105,7 +112,5 @@ private:  // emphasize the following members are private
    NonCopyable( const NonCopyable& );
    const NonCopyable& operator=( const NonCopyable& );
 };
-
-
 
 #endif // DAVIX_TYPES_HPP

@@ -44,6 +44,8 @@ void setup_offset_request(HttpRequest* req, const dav_off_t *start_len, const da
 
 void fill_stat_from_fileproperties(struct stat* st, const  FileProperties & prop);
 
+StatInfo &  fill_fileinfo_from_fileproperties(const  FileProperties & prop, struct StatInfo & st);
+
 
 
 typedef boost::function<int (dav_off_t &, dav_off_t &)> OffsetCallback;

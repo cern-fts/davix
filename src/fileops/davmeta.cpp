@@ -179,8 +179,7 @@ const char* req_webdav_propfind(HttpRequest* req, DavixError** err){
 }
 
 
-int dav_stat_mapper_webdav(Context &context, const RequestParams* params, const Uri & url, struct stat* st,
-                           DavixError** err){
+int dav_stat_mapper_webdav(Context &context, const RequestParams* params, const Uri & url, struct StatInfo& st_info){
     int ret =-1;
 
     DavPropXMLParser parser;
@@ -198,7 +197,7 @@ int dav_stat_mapper_webdav(Context &context, const RequestParams* params, const 
                 if( props.size() < 1){
                     throw DavixException(davix_scope_stat_str(), Davix::StatusCode::WebDavPropertiesParsingError, "Parsing Error : properties number < 1");
                 }else{
-                    fill_stat_from_fileproperties(st, props.front());
+                    fill_fileinfo_from_fileproperties( props.front(), st_info);
                     ret =0;
                 }
             }
@@ -206,13 +205,12 @@ int dav_stat_mapper_webdav(Context &context, const RequestParams* params, const 
         if(tmp_err != NULL)
             ret = -1;
     }
-    DavixError::propagateError(err, tmp_err);
+    checkDavixError(&tmp_err);
     return ret;
 }
 
 
-int dav_stat_mapper_http(Context& context, const RequestParams* params, const Uri & uri, struct stat* st,
-                         DavixError** err){
+int dav_stat_mapper_http(Context& context, const RequestParams* params, const Uri & uri, struct StatInfo& st_info){
     int ret = -1;
     DavixError * tmp_err=NULL;
     HeadRequest req(context, uri, &tmp_err);
@@ -223,10 +221,10 @@ int dav_stat_mapper_http(Context& context, const RequestParams* params, const Ur
 
         if(!tmp_err){
             if(httpcodeIsValid(req.getRequestCode()) ){
-                memset(st, 0, sizeof(struct stat));
+                memset(&st_info, 0, sizeof(struct StatInfo));
                 const dav_ssize_t s = req.getAnswerSize();
-                st->st_size = static_cast<size_t>(std::max<dav_ssize_t>(0,s));
-                st->st_mode = 0755 | S_IFREG;
+                st_info.size = std::max<dav_ssize_t>(0,s);
+                st_info.mode = 0755 | S_IFREG;
                 ret = 0;
             }else{
                 httpcodeToDavixCode(req.getRequestCode(), davix_scope_http_request(), uri.getString() , &tmp_err);
@@ -234,30 +232,27 @@ int dav_stat_mapper_http(Context& context, const RequestParams* params, const Ur
             }
         }
     }
-    DavixError::propagateError(err, tmp_err);
+    checkDavixError(&tmp_err);
     return ret;
 }
 
 
-dav_ssize_t posixStat(Context & c, const Uri & url, const RequestParams * params,
-                      struct stat* st, DavixError** err){
+dav_ssize_t getStatInfo(Context & c, const Uri & url, const RequestParams * params,
+                      struct StatInfo& st_info){
     RequestParams _params(params);
-    DavixError* tmp_err=NULL;
     int ret =-1;
     configureRequestParamsProto(url, _params);
 
     switch(_params.getProtocol()){
          case RequestProtocol::Webdav:
-            ret = dav_stat_mapper_webdav(c, &_params, url, st, &tmp_err);
+            ret = dav_stat_mapper_webdav(c, &_params, url, st_info);
             break;
         default:
-            ret = dav_stat_mapper_http(c, &_params, url, st, &tmp_err);
+            ret = dav_stat_mapper_http(c, &_params, url, st_info);
             break;
 
     }
     DAVIX_DEBUG(" davix_stat <-");
-
-    DavixError::propagatePrefixedError(err, tmp_err, "stat ops : ");
     return ret;
 }
 
@@ -386,9 +381,7 @@ StatInfo & HttpMetaOps::statInfo(StatInfo &st_info){
     DavixError* tmp_err=NULL;
     struct stat st;
     memset(&st, 0, sizeof(struct stat));
-    if( Meta::posixStat(getParams()._context, getParams()._uri, getParams()._reqparams, &st, &tmp_err) ==0){
-        st_info.fromPosixStat(st);
-    }
+    Meta::getStatInfo(getParams()._context, getParams()._uri, getParams()._reqparams, st_info);
     checkDavixError(&tmp_err);
     return st_info;
 }

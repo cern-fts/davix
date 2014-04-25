@@ -56,18 +56,26 @@
        -  gtest ( optional, unit tests only )
 
 
-    - Compile :
+    - Compile  :
+        $ #  For Mac OSX and grid usage, see Compile Davix in embedded mode 
         $ git clone http://git.cern.ch/pub/davix davix
         $ cd davix
-        $ # For static boost linking only (eg MacOSX, Windows )
-        $ # git submodule update --recursive --init
         $ mkdir build; cd build
         $ cmake ../
         $ make 
+          
 
     - Generate doc :
         - * run cmake
         - make doc
+        
+    - Compile Davix in embedded mode ( no dependencies ) :
+        $ git clone http://git.cern.ch/pub/davix davix
+        $ cd davix
+        $ git submodule update --recursive --init
+        $ mkdir build; cd build
+        $ cmake -D BOOST_EXTERNAL=NO ../
+        $ make               
 
     - Compile and run unit tests :
         - cmake -DUNIT_TESTS=TRUE ../

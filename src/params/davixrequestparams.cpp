@@ -57,6 +57,7 @@ struct RequestParamsInternal{
         connexion_timeout(),
         agent_string(default_agent),
         _proto(RequestProtocol::Auto),
+        _metalink_mode(MetalinkMode::Auto),
         _customhdr(),
         _session_flag(SESSION_FLAG_KEEP_ALIVE),
         _state_uid(get_requeste_uid())
@@ -90,6 +91,7 @@ struct RequestParamsInternal{
         connexion_timeout(),
         agent_string(param_private.agent_string),
         _proto(param_private._proto),
+        _metalink_mode(param_private._metalink_mode),
         _customhdr(param_private._customhdr),
         _session_flag(param_private._session_flag),
         _state_uid(param_private._state_uid){
@@ -121,8 +123,9 @@ struct RequestParamsInternal{
 
     // proto
     RequestProtocol::Protocol  _proto;
+    MetalinkMode::MetalinkMode _metalink_mode;
 
-    /// additional custom header lines
+    // additional custom header lines
     HeaderVec _customhdr;
 
     // session flag
@@ -290,6 +293,15 @@ RequestProtocol::Protocol RequestParams::getProtocol() const {
 void RequestParams::setProtocol(const RequestProtocol::Protocol proto){
     d_ptr->_proto = proto;
 }
+
+const MetalinkMode::MetalinkMode RequestParams::getMetalinkMode() const{
+    return d_ptr->_metalink_mode;
+}
+
+void RequestParams::setMetalinkMode(const MetalinkMode::MetalinkMode mode){
+    d_ptr->_metalink_mode = mode;
+}
+
 
 void RequestParams::setKeepAlive(const bool keep_alive_flag){
     d_ptr->regenerateStateUid();

@@ -62,6 +62,19 @@ namespace RequestProtocol{
     };
 }
 
+namespace MetalinkMode{
+    enum MetalinkMode{
+        // default mode = failover
+        Auto=0,
+        // Disable Metalink Support
+        Disable,
+        // Use only for failover purpose
+        FailOver,
+        // Enable parallel DL
+        XStream
+    };
+}
+
 
 struct RequestParamsInternal;
 ///
@@ -195,6 +208,14 @@ public:
     /// get the current value of the request protocol
     RequestProtocol::Protocol getProtocol() const;
 
+    /// Enable or disable the usage of the Metalink
+    ///  (RFC-5854 and RFC-6249) with libdavix
+    /// Metalink can be used for fail-over purpose, or multi-source download
+    void setMetalinkMode( const MetalinkMode::MetalinkMode mode);
+
+    /// get the Current Metalink mode
+    const MetalinkMode::MetalinkMode getMetalinkMode() const;
+
     /// set the keep alive value of the associated session
     void setKeepAlive(const bool keep_alive_flag);
 
@@ -219,6 +240,7 @@ private:
 
 
 };
+
 
 
 } // namespace Davix

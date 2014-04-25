@@ -21,7 +21,7 @@
 
 #include <config.h>
 #include "simple_get_pass.h"
-
+#include <cstdio>
 #include <iostream>
 
 #if defined HAVE_TERMIOS_H

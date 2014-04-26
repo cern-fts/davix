@@ -27,7 +27,6 @@
 #include <fileops/davmeta.hpp>
 #include <fileops/iobuffmap.hpp>
 #include <fileops/httpiovec.hpp>
-#include <fileops/davops.hpp>
 
 namespace Davix{
 

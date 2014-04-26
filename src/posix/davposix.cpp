@@ -24,7 +24,6 @@
 #include <status/davixstatusrequest.hpp>
 #include <fileops/fileutils.hpp>
 #include <fileops/fileutils.hpp>
-#include <fileops/davops.hpp>
 #include <fileops/davmeta.hpp>
 #include <fileops/httpiovec.hpp>
 #include <xml/davpropxmlparser.hpp>

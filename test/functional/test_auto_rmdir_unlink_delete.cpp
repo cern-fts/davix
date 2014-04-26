@@ -2,8 +2,6 @@
 #include <davixcontext.hpp>
 
 #include <posix/davposix.hpp>
-#include <fileops/davops.hpp>
-
 #include <string>
 #include <sstream>
 #include <cmath>
@@ -51,7 +49,7 @@ int main(int argc, char** argv){
 
     Context c;
     DavPosix pos(&c);
-    WebdavQuery query(c);
+
 
 
 
@@ -74,7 +72,8 @@ int main(int argc, char** argv){
     DavixError::clearError(&tmp_err);
 
     std::cout << " verify that WebdavQuery::davDelete() return enoent on not existing dir" << std::endl;
-    res = query.davDelete(&p, created_dir, &tmp_err);
+    File f(c, created_dir);
+     res = f.deletion(&p, &tmp_err);
     assert( res != 0);
     assert(tmp_err && tmp_err->getStatus() == StatusCode::FileNotFound);
     DavixError::clearError(&tmp_err);

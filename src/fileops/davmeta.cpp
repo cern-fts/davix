@@ -20,11 +20,11 @@
 
 #include <davix_internal.hpp>
 #include "davmeta.hpp"
+
 #include <xml/davpropxmlparser.hpp>
 #include <utils/davix_logger_internal.hpp>
 #include <request/httprequest.hpp>
 #include <fileops/fileutils.hpp>
-#include <fileops/davops.hpp>
 #include <utils/davix_utils_internal.hpp>
 #include <string_utils/stringutils.hpp>
 #include <xml/metalinkparser.hpp>

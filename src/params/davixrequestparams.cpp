@@ -321,9 +321,8 @@ bool RequestParams::getKeepAlive() const{
 void RequestParams::addHeader(const std::string &key, const std::string &val) {
 
   d_ptr->_customhdr.push_back( std::pair<std::string,std::string>(key, val) );
-
-
 }
+
 const HeaderVec & RequestParams::getHeaders() const{
   return d_ptr->_customhdr;
 }

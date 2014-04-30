@@ -192,7 +192,9 @@ NEONRequest::~NEONRequest(){
 
 
 void NEONRequest::reqReset(){
-    if(req_running) endRequest(NULL);
+    if(req_running) {
+        endRequest(NULL);
+    }
     free_request();
 }
 
@@ -300,6 +302,7 @@ int NEONRequest::processRedirection(int neonCode, DavixError **err){
             return -1;
         }
         ne_discard_response(_req);              // Get a valid redirection, drop request content
+        _last_read =0;
         end_status = ne_end_request(_req);      // submit the redirection
         if(redirect_request(err) <0){           // accept redirection
             return -1;
@@ -323,6 +326,7 @@ int NEONRequest::negotiate_request(DavixError** err){
 
     const int n_limit = 10;
     int code, status, end_status = NE_RETRY;
+    _last_read = -1;
 
     DAVIX_DEBUG(" ->   Davix negociate request ... ");
     if(req_started){
@@ -331,22 +335,19 @@ int NEONRequest::negotiate_request(DavixError** err){
         return -1;
     }
 
-    req_started = req_running= true;
+    req_started = req_running = true;
 
     while(end_status == NE_RETRY && _number_try < n_limit){
         DAVIX_DEBUG(" ->   NEON start internal request ... ");
 
         if( (status = ne_begin_request(_req)) != NE_OK && status != NE_REDIRECT){
-            if( status == NE_ERROR   ){ // bugfix against neon keepalive problem, protection against buggy servers
+            if( status == NE_ERROR ){ // bugfix against neon keepalive problem, protection against buggy servers
                 if(strstr(ne_get_error(_neon_sess->get_ne_sess()), "Could not") != NULL
                    || strstr(ne_get_error(_neon_sess->get_ne_sess()), "Connection reset by peer") != NULL){
                    DAVIX_DEBUG("KeepAlive Server problem detected, retry");
                    _number_try++;
                    _neon_sess->disable_session_reuse();
-                   ContextExplorer::SessionFactoryFromContext(_c).redirectionClean(_request_type, *_orig);
-                   if( create_req(err) < 0)
-                       return -1;
-                   continue;
+                   return startRequest(err);
                 }
             }
 
@@ -358,6 +359,7 @@ int NEONRequest::negotiate_request(DavixError** err){
             return -1;
         }
 
+        _last_read =1;
         code = getRequestCode();
         switch(code){
             case 301:
@@ -371,6 +373,7 @@ int NEONRequest::negotiate_request(DavixError** err){
                 break;
             case 401: // authentification requested, do retry
                 ne_discard_response(_req);
+                _last_read =0;
                 end_status = ne_end_request(_req);
 
                 if( end_status != NE_RETRY){
@@ -384,6 +387,7 @@ int NEONRequest::negotiate_request(DavixError** err){
                     }
                     _number_try++;
                     if (redirect_cleanup()){
+                        DavixError::clearError(err);
                         endRequest(NULL);
                         return startRequest(err);
                     }
@@ -667,8 +671,10 @@ int NEONRequest::endRequest(DavixError** err){
     int status;
     if(_req  && req_running == true){
         req_running = false;
-        if(_last_read > 0) // if read content, discard it
+        if(_last_read > 0){ // if read content, discard it
             ne_discard_response(_req);
+            _last_read =0;
+        }
         if( (status = ne_end_request(_req)) != NE_OK){
             DavixError* tmp_err=NULL;
             if(_neon_sess.get() != NULL)

@@ -359,4 +359,5 @@ typedef enum StatusCode::Code davix_status_t;
 
 } // namespace Davix
 
+
 #endif // DAVIX_DAVIXSTATUSREQUEST_H

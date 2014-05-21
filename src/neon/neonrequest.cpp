@@ -612,7 +612,7 @@ dav_ssize_t NEONRequest::readLine(char* buffer, dav_size_t max_size, DavixError*
        std::vector<char>::iterator it;
        it = std::find(_vec_line.begin(), _vec_line.end(), '\n');
 
-       if( it  < _vec_line.end()){
+       if( it  != _vec_line.end()){
            it ++;
            const dav_ssize_t read_size = it - _vec_line.begin();
            std::copy(_vec_line.begin(), it, buffer);

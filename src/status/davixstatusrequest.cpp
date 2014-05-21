@@ -121,7 +121,7 @@ void DavixError::propagatePrefixedError(DavixError **newErr, DavixError *oldErr,
     if(newErr){
         if(*newErr != NULL){
             std::cerr << "***ERROR*** in propagateError, *newErr is not NULL impossible to overwrite ... "
-                     " old error wass" << ((oldErr)?(oldErr->getErrMsg()):"<NULL>") << std::endl;
+                     " old error was" << oldErr->getErrMsg()<< std::endl;
         }else{
             *newErr = oldErr;
             if(*newErr && prefix.empty() == false){
@@ -203,9 +203,12 @@ DavixException::DavixException(const DavixException &orig) throw() : e(orig.e), 
 
 DavixException::DavixException(DavixError **err) :
 std::exception(),
-  e( (err == NULL || *err == NULL)?(DavixError("Davix::Error", StatusCode::UnknowError, "Error, no valid DavixError triggered")):(**err) ),
+  e( "Davix::Error", StatusCode::UnknowError, "Error, no valid DavixError triggered"),
 d_ptr(NULL){
-    DavixError::clearError(err);
+    if(err != NULL && *err != NULL){
+        e.swap(**err);
+        DavixError::clearError(err);
+    }
 }
 
 

@@ -65,7 +65,7 @@ inline int isslash(int c){
 }
 
 inline int isCrLf(int c){
-    return ( c == '\n') || (c == '\n');
+    return (( c == '\n') || (c == '\r'));
 }
 
 inline std::string & remove(std::string & str, char c){

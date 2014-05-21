@@ -37,9 +37,6 @@ public:
     // calculate hecksum
     virtual void checksum(std::string & checksm, const std::string & chk_algo);
 
-    // calc replica
-    virtual std::vector<DavFile> & getReplicas(std::vector<DavFile> & vec);
-
     // delete resource
     virtual void deleteResource();
 
@@ -62,11 +59,6 @@ namespace Meta{
   */
 const char* req_webdav_propfind(HttpRequest* req, DavixError** err);
 
-
-// utilities
-int davix_metalink_header_parser(const std::string & header_key, const std::string & header_value,
-                                 const Uri & u_original,
-                                 Uri & metalink);
 
 } // Meta
 

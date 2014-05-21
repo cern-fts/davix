@@ -18,6 +18,12 @@ public:
     virtual std::vector<File> & getReplicas(std::vector<File> & vec);
 };
 
+// utilities
+int davix_metalink_header_parser(const std::string & header_key, const std::string & header_value,
+                                 const Uri & u_original,
+                                 Uri & metalink);
+
+
 }
 
 #endif // METALINKOPS_HPP

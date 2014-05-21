@@ -27,6 +27,7 @@
 #include <fileops/davmeta.hpp>
 #include <fileops/iobuffmap.hpp>
 #include <fileops/httpiovec.hpp>
+#include <fileops/metalinkops.hpp>
 
 namespace Davix{
 
@@ -39,7 +40,7 @@ struct DavFile::DavFileInternal{
     Context & _c;
     Uri _u;
     HttpIOChain & getIOChain(HttpIOChain & c, const RequestParams *params){
-        c.add(new HttpMetaOps())->add(new HttpIO())->add(new HttpIOVecOps());
+        c.add(new HttpMetaOps())->add(new MetalinkOps())->add(new HttpIO())->add(new HttpIOVecOps());
         c.configure(_c, _u, params);
         return c;
     }

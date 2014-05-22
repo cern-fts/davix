@@ -14,7 +14,11 @@
 <skip_symbols>
 <!-- typeinfo symbol, ignore this, false positive due to clang change -->
 _ZN5Davix4HookINS_17HookReceiveHeaderEE7getTypeEPS2_
+_ZN5Davix4HookINS_17HookReceiveHeaderEE7getTypeEv
 _ZN5Davix4HookINS_19HookRequestPostExecEE7getTypeEPS2_
+_ZN5Davix4HookINS_19HookRequestPostExecEE7getTypeEv
 _ZN5Davix4HookINS_18HookRequestPreExecEE7getTypeEPS2_
+_ZN5Davix4HookINS_18HookRequestPreExecEE7getTypeEv
 _ZN5Davix4HookINS_14HookSendHeaderEE7getTypeEPS2_
+_ZN5Davix4HookINS_14HookSendHeaderEE7getTypeEv
 </skip_symbols>

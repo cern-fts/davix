@@ -27,7 +27,7 @@
 
 
 
-static const std::string _version = DAVIX_VERSION;
+static const std::string _version = DAVIX_VERSION "-" DAVIX_VERSION_TAG;
 
 
 namespace Davix{

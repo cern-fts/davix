@@ -29,8 +29,9 @@ INCLUDE(CTest)
 set(OUTPUT_NAME_DAVIX "davix")
 set(VERSION_MAJOR 0)
 set(VERSION_MINOR 2)
-set(VERSION_PATCH 11)
+set(VERSION_PATCH 90)
 set(VERSION_STRING ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
+set(VERSION_TAG "atlas")
 
 
 # dependency mode
@@ -75,7 +76,6 @@ add_subdirectory(deps)
 add_definitions( -D_GNU_SOURCE)              # GNU source, import LFS, etc...
 add_definitions( -D__DAVIX_INSIDE__)         # protection flag
 add_definitions( -D__STDC_LIMIT_MACROS )     # C99 limit macros
-add_definitions( -DDAVIX_VERSION="${VERSION_STRING}" )
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_FLAG_ENABLE}")
 
 include_directories( ${HTTPLIB_PKG_INCLUDE_DIRS} ${GLIB2_PKG_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/deps ${CMAKE_CURRENT_SOURCE_DIR}/deps/libneon/src/ )

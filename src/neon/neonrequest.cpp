@@ -480,7 +480,7 @@ int NEONRequest::executeRequest(DavixError** err){
     }
 
     if(getAnswerSize() > 0)
-        _vec.reserve(getAnswerSize());
+        _vec.reserve(std::min<size_t>(getAnswerSize(), 4194304));
 
     while(read_status > 0){
         DAVIX_DEBUG(" -> NEON Read data flow... ");
@@ -503,7 +503,7 @@ int NEONRequest::executeRequest(DavixError** err){
     }
     _vec.push_back('\0');
 
-    if(getAnswerSize() < 0){
+    if(_ans_size < 0){
         _ans_size = total_read;
     }
 

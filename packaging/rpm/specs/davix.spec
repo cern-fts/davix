@@ -9,8 +9,8 @@
 %endif
 
 Name:				davix
-Version:			0.2.90
-Release:			1%{?dist}
+Version:			0.2.13
+Release:			2%{?dist}
 Summary:			Toolkit for Http-based file management
 Group:				Applications/Internet
 License:			LGPLv2+

@@ -34,13 +34,25 @@ static void init_neon(){
     ne_sock_init();
 }
 
+static bool sessionCachingDisabled(){
+    return ( getenv("DAVIX_DISABLE_SESSION_CACHING") != NULL);
+}
+
+static bool redirCachingDisabled(){
+    return ( getenv("DAVIX_DISABLE_REDIRECT_CACHING") != NULL);
+}
+
+
 NEONSessionFactory::NEONSessionFactory() :
     _sess_map(),
     _sess_mut(),
-    _session_caching(true),
+    _session_caching(!sessionCachingDisabled()),
+    _redir_caching(!redirCachingDisabled()),
     _redirCache(256)
 {
     boost::call_once(&init_neon, neon_once);
+    DAVIX_TRACE("HTTP/SSL Session caching %s", (_session_caching?"ENABLED":"DISABLED"));
+    DAVIX_TRACE("Redirection Session caching %s", (_redir_caching?"ENABLED":"DISABLED"));
 }
 
 NEONSessionFactory::~NEONSessionFactory(){
@@ -111,6 +123,10 @@ ne_session* NEONSessionFactory::create_recycled_session(const std::string &proto
     return create_session(protocol, host, port);
 }
 
+void NEONSessionFactory::setSessionCaching(bool caching){
+    _session_caching = caching && !sessionCachingDisabled();
+}
+
 void NEONSessionFactory::internal_release_session_handle(ne_session* sess){
     // clear sensitive data
     // none
@@ -136,8 +152,10 @@ static std::string redirectionCreateKey(const std::string & method, const Uri & 
 }
 
 void NEONSessionFactory::addRedirection( const std::string & method, const Uri & origin, boost::shared_ptr<Uri> dest){
-    DAVIX_DEBUG("Cache redirection <%s %s %s>", method.c_str(), origin.getString().c_str(), dest->getString().c_str());
-    _redirCache.insert(redirectionCreateKey(method, origin), dest);
+    if(_redir_caching){
+        DAVIX_DEBUG("Cache redirection <%s %s %s>", method.c_str(), origin.getString().c_str(), dest->getString().c_str());
+        _redirCache.insert(redirectionCreateKey(method, origin), dest);
+    }
 }
 
 boost::shared_ptr<Uri> NEONSessionFactory::redirectionResolve(const std::string & method, const Uri & origin){

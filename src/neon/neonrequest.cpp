@@ -346,7 +346,7 @@ int NEONRequest::negotiate_request(DavixError** err){
                    || strstr(ne_get_error(_neon_sess->get_ne_sess()), "Connection reset by peer") != NULL){
                    DAVIX_DEBUG("KeepAlive Server problem detected, retry");
                    _number_try++;
-                   _neon_sess->disable_session_reuse();
+                   redirect_cleanup();
                    return startRequest(err);
                 }
             }
@@ -429,7 +429,11 @@ int NEONRequest::negotiate_request(DavixError** err){
 bool NEONRequest::redirect_cleanup(){
     // cleanup redirection
     ContextExplorer::SessionFactoryFromContext(_c).redirectionClean(_request_type, *_orig);
-    if(_current != _orig){ // cancel redirect, maybe outdated ? retry
+    // disable recycling
+    // server supporting broken pipelining will trigger if reused
+    _neon_sess->disable_session_reuse();
+    // cancel redirect, maybe outdated ? retry
+    if(_current != _orig){
         DAVIX_DEBUG(" ->  Auth problem after redirect: cancel redirect and try again");
         _current = _orig;
         return true;
@@ -672,6 +676,7 @@ int NEONRequest::endRequest(DavixError** err){
     if(_req  && req_running == true){
         req_running = false;
         if(_last_read > 0){ // if read content, discard it
+            DAVIX_TRACE("Discard remaining content....");
             ne_discard_response(_req);
             _last_read =0;
         }

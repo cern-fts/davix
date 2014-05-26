@@ -346,7 +346,7 @@ dav_ssize_t HttpIOVecOps::parseMultipartRequest(HttpRequest & _req,
     DAVIX_DEBUG("Davix::parseMultipartRequest multi-part boundary %s", boundary.c_str());
 
     while(off < count_vec){
-       DAVIX_DEBUG("Davix::parseMultipartRequest try to find chunk offset:%ld size%ld", input_vec[off].diov_offset, input_vec[off].diov_size);
+       DAVIX_DEBUG("Davix::parseMultipartRequest try to find chunk offset:%ld size %ld", input_vec[off].diov_offset, input_vec[off].diov_size);
        ChunkInfo infos;
        int n_try = 0;
        if( (tmp_ret = parse_multi_part_header(_req, boundary, infos,
@@ -375,7 +375,7 @@ dav_ssize_t HttpIOVecOps::parseMultipartRequest(HttpRequest & _req,
        off++;
     }
 
-    DAVIX_TRACE("Davix::parseMultipartRequest end");
+    DAVIX_TRACE("Davix::parseMultipartRequest end %d %d", off, count_vec);
     return ret;
 }
 

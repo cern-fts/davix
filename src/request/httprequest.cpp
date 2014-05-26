@@ -39,6 +39,7 @@ HttpRequest::HttpRequest(NEONRequest* req) : d_ptr(req)
 HttpRequest::HttpRequest(Context & context, const Uri & uri, DavixError** err) :
     d_ptr(new NEONRequest(*this, context,uri)){
 
+    DAVIX_DEBUG("Creat HttpRequest for %s", uri.getString().c_str());
     if(uri.getStatus() != StatusCode::OK){
         DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, "impossible to parse " + uri.getString() + " ,not a valid HTTP or Webdav URL");
     }
@@ -55,6 +56,7 @@ HttpRequest::HttpRequest(Context & context, const std::string & url, DavixError*
 
 HttpRequest::~HttpRequest()
 {
+    DAVIX_DEBUG("Destroy HttpRequest");
     delete d_ptr;
 }
 

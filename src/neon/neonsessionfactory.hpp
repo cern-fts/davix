@@ -50,9 +50,7 @@ public:
     */
     int storeNeonSession(ne_session *sess, DavixError** err);
 
-    inline void setSessionCaching(bool caching){
-        _session_caching = caching;
-    }
+    void setSessionCaching(bool caching);
 
     inline bool getSessionCaching() const {
         return _session_caching;
@@ -62,7 +60,7 @@ private:
     // session pool
     std::multimap<std::string, ne_session*> _sess_map;
     boost::mutex _sess_mut;
-    bool _session_caching;
+    bool _session_caching, _redir_caching;
 
     void internal_release_session_handle(ne_session* sess);
 

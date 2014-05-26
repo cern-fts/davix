@@ -1,22 +1,22 @@
-.\" @(#)$RCSfile: davix-http.man,v $ $Revision: 1 $ $Date: 2014/05/24 $ CERN Adrien Devresse
+.\" @(#)$RCSfile: davix-ls.man,v $ $Revision: 1 $ $Date: 2014/05/24 $ CERN Adrien Devresse
 .\" Copyright (C) 2014 by CERN
 .\" All rights reserved
 .\"
-.TH DAVIX-HTTP 1 "$Date: 2014/05/24 $" davix "HTTP Request tool"
+.TH DAVIX-LS 1 "$Date: 2014/05/24 $" davix "listing tool"
 .SH NAME
-davix-http \- File listing with HTTP based protocol
+davix-ls \- Listing operations tool for http, webdav, s3.
 .SH SYNOPSIS
 .PP		
 	    davix-ls [options]... url
 .PP	
 	              
 .SH DESCRIPTION
-\fBdavix-ls\fR is a tool for resources (files) listing over HTTP based protocols.
+\fBdavix-ls\fR is a tool for collection listing with http based protocols.
 .br
-The command supports the WebDav protocol (dav(s)://), AWS S3 protocol (s3(s)://).
+The command supports the WebDav (dav(s)://) and S3 (s3(s)://).
 .br
 .PP	
-davix-ls is powered by libdavix for all HTTP protocol related feature. See libdavix(3) for details.
+davix-ls is powered by libdavix. See libdavix(3) for details.
 
 .br
 

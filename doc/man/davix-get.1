@@ -1,39 +1,28 @@
-.\" @(#)$RCSfile: davix-ls.man,v $ $Revision: 1 $ $Date: 2014/05/24 $ CERN Adrien Devresse
+.\" @(#)$RCSfile: davix-get.man,v $ $Revision: 1 $ $Date: 2014/05/24 $ CERN Adrien Devresse
 .\" Copyright (C) 2014 by CERN
 .\" All rights reserved
 .\"
-.TH DAVIX-LS 1 "$Date: 2014/05/24 $" davix "listing tool"
+.TH DAVIX-GET 1 "$Date: 2014/05/24 $" davix "download tool"
 .SH NAME
-davix-ls \- Listing tool based on libdavix
+davix-get \- Download tool based on libdavix
 .SH SYNOPSIS
 .PP		
-	    davix-ls [options]... url
+	    davix-get [options]... url
+	    davix-get [options]... url local_file
 .PP	
 	              
 .SH DESCRIPTION
-\fBdavix-ls\fR is a tool to list resources in directories or collection with HTTP, Webdav or REST compatible services.
+\fBdavix-get\fR is a tool to download resources from HTTP, Webdav or REST compatible services.
 .br
-The command supports the WebDav (dav(s)://) and S3 (s3(s)://).
+The command supports the protocol Http (http(s)://), WebDav (dav(s)://) and S3 (s3(s)://). 
 .br
 .PP	
-davix-ls is powered by libdavix. See libdavix(3) for details.
+davix-get is powered by libdavix. See libdavix(3) for details.
 
 .br
 
 .SH OPTIONS
 .PP
-
-\fBListing Options:\fR
-.PP
-
-.RS 2
-\fB\-l --long-list:\fR
-.RE
-.RS 5
-long Listing mode
-.RE
-.PP     
-
 
 \fBCommon Options:\fR
 .PP
@@ -157,23 +146,23 @@ AWS S3 authentication: access key
 	   
 .SH EXAMPLES
 .PP
-\fBWebDav directory file listing
+\fBDownload content and print it on stdout
 .BR
-        davix-ls dav://example.org/dir1/dir2/
-.BR
-.PP
-\fBAWS S3 bucket listing
-.BR
-        davix-ls s3://bucket.example.org/collection/
+        davix-get http://example.org/dir1/dir2/file1
 .BR
 .PP
-\fBLong listing with WebDav with VOMS authentication in a Grid environment
+\fBDownload content to a local file
 .BR
-        davix-ls -E $X509_USER_PROXY --capath $X509_CERT_DIR davs://grid-storage.example.org/dir1/dir2/
+        davix-get s3://bucket.example.org/collection/file2 /tmp/file2
+.BR
+.PP
+\fBDownload content to a local file with VOMS authentication in a Grid environment
+.BR
+        davix-get -E $X509_USER_PROXY --capath $X509_CERT_DIR davs://grid-storage.example.org/dir1/file1 /tmp/file1
 
-\fBLong listing with WebDav + TLS directory file listing
+\fBDownload content and print it to stdout, using a OAuth token
 .BR
-        davix-ls -l davs://example.org/dir1/dir2/
+        davix-get https://example.org/dir1/tmpfile -H "Authorization: Bearer mytoken"
 .BR
 
 .SH SEE ALSO

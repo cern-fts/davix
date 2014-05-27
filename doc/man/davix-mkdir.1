@@ -1,38 +1,27 @@
-.\" @(#)$RCSfile: davix-ls.man,v $ $Revision: 1 $ $Date: 2014/05/24 $ CERN Adrien Devresse
+.\" @(#)$RCSfile: davix-mkdir.man,v $ $Revision: 1 $ $Date: 2014/05/24 $ CERN Adrien Devresse
 .\" Copyright (C) 2014 by CERN
 .\" All rights reserved
 .\"
-.TH DAVIX-LS 1 "$Date: 2014/05/24 $" davix "listing tool"
+.TH DAVIX-MKDIR 1 "$Date: 2014/05/24 $" davix "listing tool"
 .SH NAME
-davix-ls \- Listing tool based on libdavix
+davix-mkdir \- Directory creation tool based on libdavix.
 .SH SYNOPSIS
 .PP		
-	    davix-ls [options]... url
+	    davix-mkdir [options]... url
 .PP	
 	              
 .SH DESCRIPTION
-\fBdavix-ls\fR is a tool to list resources in directories or collection with HTTP, Webdav or REST compatible services.
+\fBdavix-mkdir\fR is a tool to creat directories or collections with HTTP, Webdav or REST compatible services.
 .br
-The command supports the WebDav (dav(s)://) and S3 (s3(s)://).
+The command supports the protocol Http (http(s)://), WebDav (dav(s)://) and S3 (s3(s)://). 
 .br
 .PP	
-davix-ls is powered by libdavix. See libdavix(3) for details.
+davix-mkdir is powered by libdavix. See libdavix(3) for details.
 
 .br
 
 .SH OPTIONS
 .PP
-
-\fBListing Options:\fR
-.PP
-
-.RS 2
-\fB\-l --long-list:\fR
-.RE
-.RS 5
-long Listing mode
-.RE
-.PP     
 
 
 \fBCommon Options:\fR
@@ -157,27 +146,20 @@ AWS S3 authentication: access key
 	   
 .SH EXAMPLES
 .PP
-\fBWebDav directory file listing
-.BR
-        davix-ls dav://example.org/dir1/dir2/
 .BR
 .PP
-\fBAWS S3 bucket listing
+\fBCreat a directory over WebDav
 .BR
-        davix-ls s3://bucket.example.org/collection/
+        davix-mkdir dav://webdav.example.org/dir/directory_to_create
 .BR
 .PP
-\fBLong listing with WebDav with VOMS authentication in a Grid environment
+\fBCreat a directory on a Grid Storage with VOMS authentication
 .BR
-        davix-ls -E $X509_USER_PROXY --capath $X509_CERT_DIR davs://grid-storage.example.org/dir1/dir2/
-
-\fBLong listing with WebDav + TLS directory file listing
-.BR
-        davix-ls -l davs://example.org/dir1/dir2/
+        davix-mkdir -E $X509_USER_PROXY --capath $X509_CERT_DIR davs://grid-storage.example.org/dir1/directory_to_create
 .BR
 
 .SH SEE ALSO
-.BR libdavix(3), davix-get(1), davix-put(1),
+.BR libdavix(3), davix-rm(1), davix-put(1),
 .BR
 
 .SH LINKS

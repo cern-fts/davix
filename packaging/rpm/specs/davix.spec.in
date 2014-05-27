@@ -117,6 +117,7 @@ make DESTDIR=%{buildroot} install
 %defattr (-,root,root)
 %{_libdir}/libdavix.so.*
 %{_libdir}/libdavix_copy.so.*
+%{_mandir}/man3/*
 
 
 %files devel

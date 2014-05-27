@@ -21,7 +21,7 @@ int davix_metalink_header_parser(const std::string & header_key, const std::stri
         if( ( it1 = std::find(header_value.begin(), header_value.end(), '<')) != header_value.end()
                 && ( it2 = std::find(it1, header_value.end(), '>')) != header_value.end()){
             std::string metalink_url(it1+1, it2);
-            metalink =  Uri::fromRelativePath(u_original, trim<int (*)(int)>(metalink_url));
+            metalink =  Uri::fromRelativePath(u_original, trim(metalink_url));
             if(metalink.getStatus() == StatusCode::OK){
                 DAVIX_TRACE("Valid metalink URI found %s", metalink.getString().c_str());
                 return 1;

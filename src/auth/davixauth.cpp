@@ -14,7 +14,7 @@ std::string getAwsAuthorizationField(const std::string & stringToSign, const std
 
 std::vector<std::string> v;
 
-SessionInfo::SessionInfo(){
+SessionInfo::SessionInfo() : data(NULL){
 
 }
 

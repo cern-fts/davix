@@ -15,6 +15,20 @@ typedef std::vector<std::string> stringVec;
 
 namespace StrUtil{
 
+
+inline bool isslash(int c){
+    return ( c == '/');
+}
+
+inline bool isCrLf(int c){
+    return (( c == '\n') || (c == '\r'));
+}
+
+inline bool isSpace(int c){
+    std::locale loc;
+    return static_cast<bool>(std::isspace(c, loc));
+}
+
 // split a string following an array of delimiter ( strtok like )
 std::vector<std::string> tokenSplit(const std::string & str, const std::string & delimiter);
 
@@ -31,22 +45,35 @@ inline size_t copy_std_string_to_buff(char* buffer, size_t max_size, const std::
 
 // trim from start
 template <typename Func>
-inline std::string &ltrim(std::string &s, Func  pred = static_cast<int (*)(int)>(std::isspace)) {
-        s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(pred))));
+inline std::string &ltrim(std::string &s, Func  pred) {
+        s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, bool>(pred))));
         return s;
+}
+
+
+inline std::string &ltrim(std::string &s) {
+        return ltrim(s, isSpace);
 }
 
 // trim from end
 template <typename Func>
-inline std::string &rtrim(std::string &s, Func pred = static_cast<int (*)(int)>(std::isspace)) {
-        s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(pred))).base(), s.end());
+inline std::string &rtrim(std::string &s, Func pred) {
+        s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, bool>(pred))).base(), s.end());
         return s;
+}
+
+inline std::string &rtrim(std::string &s) {
+    return rtrim(s, isSpace);
 }
 
 // trim from both
 template <typename Func>
-inline std::string &trim(std::string &s, Func pred = static_cast<int (*)(int)>(std::isspace)) {
-    return ltrim<Func>(rtrim<Func>(s, static_cast<int (*)(int)>(pred)), static_cast<int (*)(int)>(pred));
+inline std::string &trim(std::string &s, Func pred) {
+    return ltrim<Func>(rtrim<Func>(s, pred), pred);
+}
+
+inline std::string &trim(std::string &s) {
+    return ltrim(rtrim(s));
 }
 
 inline std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &res) {
@@ -59,14 +86,6 @@ inline std::vector<std::string> &split(const std::string &s, char delim, std::ve
     return res;
 }
 
-
-inline int isslash(int c){
-    return ( c == '/');
-}
-
-inline int isCrLf(int c){
-    return (( c == '\n') || (c == '\r'));
-}
 
 inline std::string & remove(std::string & str, char c){
     std::string::iterator it = std::remove(str.begin(), str.end(), c);

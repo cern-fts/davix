@@ -36,9 +36,6 @@ using namespace StrUtil;
 namespace Davix{
 
 
-namespace Meta{
-
-
 
 
 
@@ -140,7 +137,7 @@ dav_ssize_t getStatInfo(Context & c, const Uri & url, const RequestParams * para
     return ret;
 }
 
-int deleteResource(Context & c, const Uri & url, const RequestParams & params, DavixError** err){
+int internal_deleteResource(Context & c, const Uri & url, const RequestParams & params, DavixError** err){
     DavixError* tmp_err=NULL;
     int ret=-1;
     RequestParams _params(params);
@@ -162,7 +159,7 @@ int deleteResource(Context & c, const Uri & url, const RequestParams & params, D
 }
 
 
-int makeCollection(Context & c, const Uri & url, const RequestParams & params, DavixError** err){
+int internal_makeCollection(Context & c, const Uri & url, const RequestParams & params, DavixError** err){
     DAVIX_DEBUG(" -> makeCollection");
     int ret=-1;
     DavixError* tmp_err=NULL;
@@ -186,7 +183,7 @@ int makeCollection(Context & c, const Uri & url, const RequestParams & params, D
 }
 
 
-int checksum(Context & c, const Uri & url, const RequestParams *params, std::string & checksm, const std::string & chk_algo){
+int internal_checksum(Context & c, const Uri & url, const RequestParams *params, std::string & checksm, const std::string & chk_algo){
     DAVIX_DEBUG(" -> checksum");
     int ret=-1;
     DavixError* tmp_err=NULL;
@@ -233,7 +230,6 @@ int checksum(Context & c, const Uri & url, const RequestParams *params, std::str
     throw DavixException(&tmp_err);
 }
 
-} // Meta
 
 HttpMetaOps::HttpMetaOps(): HttpIOChain(){}
 
@@ -241,18 +237,18 @@ HttpMetaOps::~HttpMetaOps(){}
 
 
 void HttpMetaOps::checksum(std::string &checksm, const std::string &chk_algo){
-    Meta::checksum(getParams()._context,getParams()._uri, getParams()._reqparams, checksm, chk_algo);
+    internal_checksum(getParams()._context,getParams()._uri, getParams()._reqparams, checksm, chk_algo);
 }
 
 void HttpMetaOps::makeCollection(){
     DavixError* tmp_err=NULL;
-    Meta::makeCollection(getParams()._context, getParams()._uri, getParams()._reqparams, &tmp_err);
+    internal_makeCollection(getParams()._context, getParams()._uri, getParams()._reqparams, &tmp_err);
     checkDavixError(&tmp_err);
 }
 
 void HttpMetaOps::deleteResource(){
     DavixError* tmp_err=NULL;
-    Meta::deleteResource(getParams()._context, getParams()._uri, getParams()._reqparams, &tmp_err);
+    internal_deleteResource(getParams()._context, getParams()._uri, getParams()._reqparams, &tmp_err);
     checkDavixError(&tmp_err);
 }
 
@@ -260,7 +256,7 @@ StatInfo & HttpMetaOps::statInfo(StatInfo &st_info){
     DavixError* tmp_err=NULL;
     struct stat st;
     memset(&st, 0, sizeof(struct stat));
-    Meta::getStatInfo(getParams()._context, getParams()._uri, getParams()._reqparams, st_info);
+    getStatInfo(getParams()._context, getParams()._uri, getParams()._reqparams, st_info);
     checkDavixError(&tmp_err);
     return st_info;
 }

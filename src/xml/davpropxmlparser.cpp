@@ -155,7 +155,7 @@ static void check_href(DavPropXMLParser::DavxPropXmlIntern & par,  const std::st
 static void check_status(DavPropXMLParser::DavxPropXmlIntern & par, const std::string & name){
     DAVIX_DEBUG(" status found -> parse it");
     std::string str_status(name);
-    ltrim(str_status, static_cast<int (*)(int)>(std::isspace));
+    ltrim(str_status, StrUtil::isSpace);
     std::string::iterator it1, it2;
     it1 = std::find(str_status.begin(), str_status.end(), ' ');
     if( it1 != str_status.end()){

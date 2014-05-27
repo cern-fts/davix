@@ -199,7 +199,7 @@ int http_extract_boundary_from_content_type(const std::string & buffer, std::str
         if( tokens.size() >= 1
             && tokens[0].size() > 0
             && tokens[0].size() <= 70){
-            DAVIX_TRACE("Multi part content type : %s", boundary.c_str());
+            DAVIX_TRACE("Multi part boundary: %s", boundary.c_str());
             std::swap(boundary,tokens[0]);
             return 0;
         }

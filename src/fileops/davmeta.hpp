@@ -49,9 +49,6 @@ public:
 };
 
 
-namespace Meta{
-
-
 /*
   retrieve a webdav propfind stat request to the given url
     @param req : http request where to executethe query
@@ -60,7 +57,6 @@ namespace Meta{
 const char* req_webdav_propfind(HttpRequest* req, DavixError** err);
 
 
-} // Meta
 
 } // Davix
 

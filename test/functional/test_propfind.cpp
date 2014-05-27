@@ -29,7 +29,7 @@ int main(int argc, char** argv){
     r.setParameters(params);
     r.addHeaderField("Depth", "1");
 
-    std::string v(Meta::req_webdav_propfind(&r, &tmp_err));
+    std::string v(req_webdav_propfind(&r, &tmp_err));
 
     std::cout << "content "<< v << std::endl;
     if(tmp_err){

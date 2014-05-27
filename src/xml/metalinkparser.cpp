@@ -94,7 +94,7 @@ struct MetalinkParser::MetalinkParserIntern{
         // metalink 3.0
         if(matchStack(_tagStack, url_stack, url_stack_size)){
             DAVIX_TRACE("MetalinkParser 3.0 : Replica URL %s", replic.c_str());
-            _fvec.push_back(File(_c, Uri(trim<int (*)(int)>(replic, std::isspace))));
+            _fvec.push_back(File(_c, Uri(trim(replic, StrUtil::isSpace))));
         }
         if(matchStack(_tagStack, size_stack, size_stack_size)){
             DAVIX_TRACE("MetalinkParser 3.0 : Replica size %d", replic.c_str());
@@ -104,7 +104,7 @@ struct MetalinkParser::MetalinkParserIntern{
         // metalink 4.0
         if(matchStack(_tagStack, url_stack_meta4, url_stack_size_meta4)){
             DAVIX_TRACE("MetalinkParser 4.0 : Replica URL %s", replic.c_str());
-            _fvec.push_back(File(_c, Uri(trim<int (*)(int)>(replic, std::isspace))));
+            _fvec.push_back(File(_c, Uri(trim(replic, StrUtil::isSpace))));
         }
         if(matchStack(_tagStack, size_stack_meta4, size_stack_size_meta4)){
             DAVIX_TRACE("MetalinkParser 4.0 : Replica size %d", replic.c_str());

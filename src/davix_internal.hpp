@@ -36,6 +36,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <cctype>
 #include <vector>
 #include <queue>
 #include <deque>

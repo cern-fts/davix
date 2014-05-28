@@ -125,8 +125,8 @@ MetalinkOps::~MetalinkOps(){
 }
 
 
-std::vector<File> & MetalinkOps::getReplicas(std::vector<File> &vec){
-    davix_file_get_all_replicas_metalink(getParams()._context, getParams()._uri, getParams()._reqparams, vec);
+std::vector<File> & MetalinkOps::getReplicas(IOChainContext & iocontext, std::vector<File> &vec){
+    davix_file_get_all_replicas_metalink(iocontext._context, iocontext._uri, iocontext._reqparams, vec);
     return vec;
 }
 

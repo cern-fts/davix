@@ -35,16 +35,16 @@ public:
     virtual ~HttpMetaOps();
 
     // calculate hecksum
-    virtual void checksum(std::string & checksm, const std::string & chk_algo);
+    virtual void checksum(IOChainContext & iocontext, std::string & checksm, const std::string & chk_algo);
 
     // delete resource
-    virtual void deleteResource();
+    virtual void deleteResource(IOChainContext & iocontext);
 
     // make collection
-    virtual void makeCollection();
+    virtual void makeCollection(IOChainContext & iocontext);
 
     // get statInfo
-    virtual StatInfo & statInfo(StatInfo & st_info);
+    virtual StatInfo & statInfo(IOChainContext & iocontext, StatInfo & st_info);
 
 };
 

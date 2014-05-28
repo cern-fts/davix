@@ -139,14 +139,14 @@ HttpIO::~HttpIO(){
 
 
 // read to dynamically allocated buffer
-dav_ssize_t HttpIO::readFull(std::vector<char> & buffer){
+dav_ssize_t HttpIO::readFull(IOChainContext & iocontext, std::vector<char> & buffer){
     DavixError * tmp_err=NULL;
     dav_ssize_t ret = -1, total=0;
 
     DAVIX_DEBUG(" -> readFull on vector");
-    GetRequest req (getParams()._context, getParams()._uri, &tmp_err);
+    GetRequest req (iocontext._context, iocontext._uri, &tmp_err);
     if(!tmp_err){
-        RequestParams params(getParams()._reqparams);
+        RequestParams params(iocontext._reqparams);
         req.setParameters(params);
         ret = req.beginRequest(&tmp_err);
         if(!tmp_err){
@@ -169,16 +169,16 @@ dav_ssize_t HttpIO::readFull(std::vector<char> & buffer){
 }
 
 
-dav_ssize_t HttpIO::pread(void *buf, dav_size_t count, dav_off_t offset){
+dav_ssize_t HttpIO::pread(IOChainContext & iocontext, void *buf, dav_size_t count, dav_off_t offset){
     DavixError * tmp_err=NULL;
     dav_ssize_t ret = -1;
-    DAVIX_DEBUG(" -> getOps operation for %s with size %ld and offset %ld", getParams()._uri.getString().c_str(), count, offset);
+    DAVIX_DEBUG(" -> getOps operation for %s with size %ld and offset %ld", iocontext._uri.getString().c_str(), count, offset);
     if(count ==0)
         return 0;
 
-    HttpRequest req(getParams()._context, getParams()._uri, &tmp_err);
+    HttpRequest req(iocontext._context, iocontext._uri, &tmp_err);
     if(tmp_err == NULL){
-        RequestParams params(getParams()._reqparams);
+        RequestParams params(iocontext._reqparams);
         req.setParameters(params);
         setup_offset_request(&req, &offset, &count,1);
         if(req.beginRequest(&tmp_err) ==0){
@@ -196,21 +196,21 @@ dav_ssize_t HttpIO::pread(void *buf, dav_size_t count, dav_off_t offset){
         }
         req.endRequest(NULL);
     }
-    DAVIX_DEBUG(" end getOps operation for %s <- ",getParams()._uri.getString().c_str());
+    DAVIX_DEBUG(" end getOps operation for %s <- ",iocontext._uri.getString().c_str());
     checkDavixError(&tmp_err);
     return ret;
 }
 
 
-dav_ssize_t HttpIO::readToFd(int fd, dav_size_t read_size){
+dav_ssize_t HttpIO::readToFd(IOChainContext & iocontext, int fd, dav_size_t read_size){
     DavixError * tmp_err=NULL;
     dav_ssize_t ret = -1;
 
     DAVIX_DEBUG(" -> readToFd for size %ld", read_size);
-    GetRequest req (getParams()._context, getParams()._uri, &tmp_err);
+    GetRequest req (iocontext._context, iocontext._uri, &tmp_err);
     if(!tmp_err){
-        RequestParams params(getParams()._reqparams);
-        req.setParameters(getParams()._reqparams);
+        RequestParams params(iocontext._reqparams);
+        req.setParameters(iocontext._reqparams);
         ret = req.beginRequest(&tmp_err);
         if(!tmp_err){
             if(httpcodeIsValid(req.getRequestCode()) == false){
@@ -231,14 +231,14 @@ dav_ssize_t HttpIO::readToFd(int fd, dav_size_t read_size){
 
 // position independant write operation,
 // similar to pwrite do not need open() before
-dav_ssize_t HttpIO::writeFromFd(int fd, dav_size_t size){
+dav_ssize_t HttpIO::writeFromFd(IOChainContext & iocontext, int fd, dav_size_t size){
     DavixError * tmp_err=NULL;
     dav_ssize_t ret = -1;
 
     DAVIX_DEBUG(" -> writeFromFd for size %ld", size);
-    PutRequest req (getParams()._context,getParams()._uri, &tmp_err);
+    PutRequest req (iocontext._context,iocontext._uri, &tmp_err);
     if(!tmp_err){
-        RequestParams params(getParams()._reqparams);
+        RequestParams params(iocontext._reqparams);
         req.setParameters(params);
         req.setRequestBody(fd,0, size);
         ret = req.executeRequest(&tmp_err);
@@ -279,7 +279,7 @@ HttpIOBuffer::~HttpIOBuffer(){
     delete _read_req;
 }
 
-bool HttpIOBuffer::open(int flags){
+bool HttpIOBuffer::open(IOChainContext & iocontext, int flags){
     bool res = false;
     if(_opened)
         return true;
@@ -287,7 +287,7 @@ bool HttpIOBuffer::open(int flags){
     struct StatInfo infos;
 
     try{
-        _start->statInfo(infos);
+        _start->statInfo(iocontext, infos);
 
         if( (flags & O_EXCL) && ( flags & O_CREAT)){
             throw DavixException(davix_scope_io_buff(),
@@ -309,22 +309,22 @@ bool HttpIOBuffer::open(int flags){
         }
     }
 
-    DAVIX_TRACE("File open %s, size: %ld", getParams()._uri.getString().c_str(), _file_size);
+    DAVIX_TRACE("File open %s, size: %ld", iocontext._uri.getString().c_str(), _file_size);
     return res;
 }
 
-dav_ssize_t HttpIOBuffer::read(void *buf, dav_size_t count){
+dav_ssize_t HttpIOBuffer::read(IOChainContext & iocontext, void *buf, dav_size_t count){
     boost::mutex::scoped_lock l(_rwlock);
     DavixError* tmp_err = NULL;
     dav_ssize_t ret =-1;
 
     if(_pos ==0) // reset read ahead offset to default if try to read a full file
-        resetIO();
+        resetIO(iocontext);
     if(_pos == _read_pos && isAdviseFullRead()){
         // try read ahead strategie
-        ret = readInternal(buf, count);
+        ret = readInternal(iocontext, buf, count);
     }else{ // fallback on partial read
-        ret = _start->pread(buf, count, _pos);
+        ret = _start->pread(iocontext, buf, count, _pos);
     }
     if(ret > 0)
         _pos += ret;
@@ -334,7 +334,7 @@ dav_ssize_t HttpIOBuffer::read(void *buf, dav_size_t count){
 }
 
 
-dav_ssize_t HttpIOBuffer::readInternal(void *buffer, dav_size_t size_read){
+dav_ssize_t HttpIOBuffer::readInternal(IOChainContext & iocontext, void *buffer, dav_size_t size_read){
     dav_ssize_t ret = -1;
     DavixError * tmp_err=NULL;
 
@@ -343,9 +343,9 @@ dav_ssize_t HttpIOBuffer::readInternal(void *buffer, dav_size_t size_read){
         return 0;
 
     if( _read_req == NULL
-            && (_read_req = new HttpRequest(getParams()._context,getParams()._uri, &tmp_err)) != NULL
+            && (_read_req = new HttpRequest(iocontext._context, iocontext._uri, &tmp_err)) != NULL
             && tmp_err == NULL ){
-        RequestParams params(getParams()._reqparams);
+        RequestParams params(iocontext._reqparams);
         _read_req->setParameters(params);
         if(_read_req->beginRequest(&tmp_err) ==0
             && (_read_req->getRequestCode() != 200)){
@@ -384,12 +384,12 @@ dav_ssize_t HttpIOBuffer::readInternal(void *buffer, dav_size_t size_read){
 
 
 
-void HttpIOBuffer::prefetchInfo(off_t offset, dav_size_t size_read, advise_t adv){
+void HttpIOBuffer::prefetchInfo(IOChainContext & iocontext, off_t offset, dav_size_t size_read, advise_t adv){
     _last_advise = adv;
 }
 
 
-void HttpIOBuffer::resetIO(){
+void HttpIOBuffer::resetIO(IOChainContext & iocontext){
     if(_read_req){
         delete _read_req;
         _read_req = NULL;
@@ -398,7 +398,7 @@ void HttpIOBuffer::resetIO(){
 }
 
 
-dav_off_t HttpIOBuffer::lseek(dav_off_t offset, int flags){
+dav_off_t HttpIOBuffer::lseek(IOChainContext & iocontext, dav_off_t offset, int flags){
     boost::mutex::scoped_lock l(_rwlock);
     switch(flags){
         case SEEK_CUR:
@@ -416,7 +416,7 @@ dav_off_t HttpIOBuffer::lseek(dav_off_t offset, int flags){
     return _pos;
 }
 
-dav_ssize_t HttpIOBuffer::write(const void *buf, dav_size_t count){
+dav_ssize_t HttpIOBuffer::write(IOChainContext & iocontext, const void *buf, dav_size_t count){
     boost::mutex::scoped_lock l(_rwlock);
     dav_ssize_t ret =-1;
     DavixError* tmp_err=NULL;
@@ -424,9 +424,9 @@ dav_ssize_t HttpIOBuffer::write(const void *buf, dav_size_t count){
     if(_pos != 0){
         DavixError::setupError(&tmp_err, davix_scope_http_request(), StatusCode::OperationNonSupported, " Multi-part write is not supported by Http !");
     }else{
-        PutRequest req( getParams()._context, getParams()._uri, &tmp_err);
+        PutRequest req( iocontext._context, iocontext._uri, &tmp_err);
         if(tmp_err == NULL){
-            RequestParams params(getParams()._reqparams);
+            RequestParams params(iocontext._reqparams);
             req.setParameters(params);
             req.setRequestBody(buf, count);
             if(req.beginRequest(&tmp_err) ==0){

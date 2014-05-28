@@ -39,10 +39,13 @@ struct DavFile::DavFileInternal{
 
     Context & _c;
     Uri _u;
-    HttpIOChain & getIOChain(HttpIOChain & c, const RequestParams *params){
+    HttpIOChain & getIOChain(HttpIOChain & c){
         c.add(new HttpMetaOps())->add(new MetalinkOps())->add(new HttpIO())->add(new HttpIOVecOps());
-        c.configure(_c, _u, params);
         return c;
+    }
+
+    IOChainContext getIOContext(const RequestParams * params){
+        return IOChainContext(_c, _u, params);
     }
 };
 
@@ -71,7 +74,8 @@ std::vector<DavFile> DavFile::getReplicas(const RequestParams *_params, DavixErr
     std::vector<DavFile> res;
     TRY_DAVIX{
         HttpIOChain chain;
-        return d_ptr->getIOChain(chain,_params).getReplicas(res);
+        IOChainContext io_context = d_ptr->getIOContext(_params);
+        return d_ptr->getIOChain(chain).getReplicas(io_context, res);
     }CATCH_DAVIX(err)
     return res;
 }
@@ -87,7 +91,8 @@ dav_ssize_t DavFile::readPartialBufferVec(const RequestParams *params, const Dav
                       const dav_size_t count_vec, DavixError** err){
     TRY_DAVIX{
         HttpIOChain chain;
-        return d_ptr->getIOChain(chain,params).preadVec(input_vec, output_vec, count_vec);
+        IOChainContext io_context = d_ptr->getIOContext(params);
+        return d_ptr->getIOChain(chain).preadVec(io_context, input_vec, output_vec, count_vec);
     }CATCH_DAVIX(err)
     return -1;
 }
@@ -96,7 +101,8 @@ dav_ssize_t DavFile::readPartialBufferVec(const RequestParams *params, const Dav
 dav_ssize_t DavFile::readPartial(const RequestParams *params, void* buff, dav_size_t count, dav_off_t offset, DavixError** err){
     TRY_DAVIX{
         HttpIOChain chain;
-        return d_ptr->getIOChain(chain, params).pread(buff, count, offset);
+        IOChainContext io_context = d_ptr->getIOContext(params);
+        return d_ptr->getIOChain(chain).pread(io_context, buff, count, offset);
     }CATCH_DAVIX(err)
     return -1;
 }
@@ -111,7 +117,8 @@ int DavFile::deletion(const RequestParams *params, DavixError **err) throw(){
 
 void DavFile::deletion(const RequestParams *params){
     HttpIOChain chain;
-    d_ptr->getIOChain(chain, params).deleteResource();
+    IOChainContext io_context = d_ptr->getIOContext(params);
+    d_ptr->getIOChain(chain).deleteResource(io_context);
 }
 
 dav_ssize_t DavFile::getToFd(const RequestParams* params,
@@ -129,7 +136,8 @@ dav_ssize_t DavFile::getToFd(const RequestParams* params,
                         DavixError** err){
     TRY_DAVIX{
         HttpIOChain chain;
-        return d_ptr->getIOChain(chain, params).readToFd(fd, size_read);
+        IOChainContext io_context = d_ptr->getIOContext(params);
+        return d_ptr->getIOChain(chain).readToFd(io_context, fd, size_read);
     }CATCH_DAVIX(err)
     return -1;
 }
@@ -141,7 +149,8 @@ dav_ssize_t DavFile::getFull(const RequestParams* params,
                         DavixError** err){
     TRY_DAVIX{
         HttpIOChain chain;
-        return d_ptr->getIOChain(chain, params).readFull(buffer);
+        IOChainContext io_context = d_ptr->getIOContext(params);
+        return d_ptr->getIOChain(chain).readFull(io_context, buffer);
     }CATCH_DAVIX(err)
     return -1;
 }
@@ -153,7 +162,8 @@ int DavFile::putFromFd(const RequestParams* params,
               DavixError** err){
     TRY_DAVIX{
         HttpIOChain chain;
-        d_ptr->getIOChain(chain, params).writeFromFd(fd, size);
+        IOChainContext io_context = d_ptr->getIOContext(params);
+        d_ptr->getIOChain(chain).writeFromFd(io_context, fd, size);
         return 0;
     }CATCH_DAVIX(err)
     return -1;
@@ -172,7 +182,8 @@ int DavFile::makeCollection(const RequestParams *params, DavixError **err) throw
 void DavFile::makeCollection(const RequestParams *params){
     RequestParams _params(params);
     HttpIOChain chain;
-    d_ptr->getIOChain(chain,params).makeCollection();
+    IOChainContext io_context = d_ptr->getIOContext(params);
+    d_ptr->getIOChain(chain).makeCollection(io_context);
 }
 
 int DavFile::stat(const RequestParams* params, struct stat * st, DavixError** err){
@@ -182,7 +193,8 @@ int DavFile::stat(const RequestParams* params, struct stat * st, DavixError** er
 
         StatInfo info;
         HttpIOChain chain;
-        d_ptr->getIOChain(chain,params).statInfo(info);
+        IOChainContext io_context = d_ptr->getIOContext(params);
+        d_ptr->getIOChain(chain).statInfo(io_context, info);
         info.toPosixStat(*st);
         return 0;
     }CATCH_DAVIX(err)
@@ -192,14 +204,17 @@ int DavFile::stat(const RequestParams* params, struct stat * st, DavixError** er
 int DavFile::checksum(const RequestParams *params, std::string & checksm, const std::string & chk_algo, DavixError **err) throw(){
     TRY_DAVIX{
         HttpIOChain chain;
-        d_ptr->getIOChain(chain,params).checksum(checksm, chk_algo);
+        IOChainContext io_context = d_ptr->getIOContext(params);
+        d_ptr->getIOChain(chain).checksum(io_context, checksm, chk_algo);
         return 0;
     }CATCH_DAVIX(err)
     return -1;
 }
 
 void DavFile::prefetchInfo(off_t offset, dav_size_t size_read, advise_t adv){
-    // TODO
+    HttpIOChain chain;
+    IOChainContext io_context = d_ptr->getIOContext(NULL);
+    d_ptr->getIOChain(chain).prefetchInfo(io_context, offset, size_read, adv);
 }
 
 

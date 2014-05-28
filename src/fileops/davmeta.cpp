@@ -236,27 +236,27 @@ HttpMetaOps::HttpMetaOps(): HttpIOChain(){}
 HttpMetaOps::~HttpMetaOps(){}
 
 
-void HttpMetaOps::checksum(std::string &checksm, const std::string &chk_algo){
-    internal_checksum(getParams()._context,getParams()._uri, getParams()._reqparams, checksm, chk_algo);
+void HttpMetaOps::checksum(IOChainContext & iocontext, std::string &checksm, const std::string &chk_algo){
+    internal_checksum(iocontext._context, iocontext._uri, iocontext._reqparams, checksm, chk_algo);
 }
 
-void HttpMetaOps::makeCollection(){
+void HttpMetaOps::makeCollection(IOChainContext & iocontext){
     DavixError* tmp_err=NULL;
-    internal_makeCollection(getParams()._context, getParams()._uri, getParams()._reqparams, &tmp_err);
+    internal_makeCollection(iocontext._context, iocontext._uri, iocontext._reqparams, &tmp_err);
     checkDavixError(&tmp_err);
 }
 
-void HttpMetaOps::deleteResource(){
+void HttpMetaOps::deleteResource(IOChainContext & iocontext){
     DavixError* tmp_err=NULL;
-    internal_deleteResource(getParams()._context, getParams()._uri, getParams()._reqparams, &tmp_err);
+    internal_deleteResource(iocontext._context, iocontext._uri, iocontext._reqparams, &tmp_err);
     checkDavixError(&tmp_err);
 }
 
-StatInfo & HttpMetaOps::statInfo(StatInfo &st_info){
+StatInfo & HttpMetaOps::statInfo(IOChainContext & iocontext, StatInfo &st_info){
     DavixError* tmp_err=NULL;
     struct stat st;
     memset(&st, 0, sizeof(struct stat));
-    getStatInfo(getParams()._context, getParams()._uri, getParams()._reqparams, st_info);
+    getStatInfo(iocontext._context, iocontext._uri, iocontext._reqparams, st_info);
     checkDavixError(&tmp_err);
     return st_info;
 }

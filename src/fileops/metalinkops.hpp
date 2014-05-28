@@ -15,7 +15,7 @@ public:
     virtual ~MetalinkOps();
 
     // calc replica
-    virtual std::vector<File> & getReplicas(std::vector<File> & vec);
+    virtual std::vector<File> & getReplicas(IOChainContext & iocontext, std::vector<File> & vec);
 };
 
 // utilities

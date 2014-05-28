@@ -45,7 +45,7 @@ public:
     HttpIOVecOps(){}
     virtual ~HttpIOVecOps(){}
 
-    dav_ssize_t preadVec(const DavIOVecInput * input_vec,
+    dav_ssize_t preadVec(IOChainContext & iocontext, const DavIOVecInput * input_vec,
                               DavIOVecOuput * output_vec,
                               const dav_size_t count_vec);
 

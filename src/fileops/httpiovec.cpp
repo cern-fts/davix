@@ -86,7 +86,7 @@ int davIOVecProvider(const DavIOVecInput *input_vec, dav_ssize_t & counter, dav_
     return -1;
 }
 
-dav_ssize_t HttpIOVecOps::preadVec(const DavIOVecInput * input_vec,
+dav_ssize_t HttpIOVecOps::preadVec(IOChainContext & iocontext, const DavIOVecInput * input_vec,
                           DavIOVecOuput * output_vec,
                           const dav_size_t count_vec){
 
@@ -94,7 +94,7 @@ dav_ssize_t HttpIOVecOps::preadVec(const DavIOVecInput * input_vec,
         return 0;
 
     if(count_vec ==1){ // one offset read request, no need of multi part
-            const dav_ssize_t res= _start->pread(input_vec->diov_buffer, input_vec->diov_size, input_vec->diov_offset);
+            const dav_ssize_t res= _start->pread(iocontext, input_vec->diov_buffer, input_vec->diov_size, input_vec->diov_offset);
             output_vec->diov_buffer = input_vec->diov_buffer;
             output_vec->diov_size= res;
             return res;
@@ -124,6 +124,7 @@ dav_ssize_t HttpIOVecOps::preadVec(const DavIOVecInput * input_vec,
         if(it->first == 1){ // one chunk only : no need of multi part
             TRY_DAVIX{
                 if ( (tmp_ret = _start->pread(
+                          iocontext,
                           (input_vec + p_diff)->diov_buffer,
                           (input_vec+p_diff)->diov_size,
                           (input_vec+p_diff)->diov_offset)) < 0){
@@ -138,9 +139,9 @@ dav_ssize_t HttpIOVecOps::preadVec(const DavIOVecInput * input_vec,
             ret += tmp_ret;
 
         }else{
-            GetRequest req (getParams()._context, getParams()._uri, &tmp_err);
+            GetRequest req (iocontext._context, iocontext._uri, &tmp_err);
             if(tmp_err == NULL){
-                RequestParams request_params(getParams()._reqparams);
+                RequestParams request_params(iocontext._reqparams);
                 req.setParameters(request_params);
                 req.addHeaderField(req_header_byte_range, it->second);
                 if( (tmp_ret = readPartialBufferVecRequest(req, input_vec+ p_diff, output_vec+ p_diff, it->first, &tmp_err)) <0){

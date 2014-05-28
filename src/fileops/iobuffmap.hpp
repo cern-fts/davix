@@ -45,19 +45,19 @@ public:
 
 
     // read to dynamically allocated buffer
-    virtual dav_ssize_t readFull(std::vector<char> & buffer);
+    virtual dav_ssize_t readFull(IOChainContext & iocontext, std::vector<char> & buffer);
 
 
     // position independant read operation,
     // similar to pread except that does not need open() before
-    virtual dav_ssize_t pread(void* buf, dav_size_t count, dav_off_t offset);
+    virtual dav_ssize_t pread(IOChainContext & iocontext, void* buf, dav_size_t count, dav_off_t offset);
 
     // read to fd
-    virtual dav_ssize_t readToFd(int fd, dav_size_t size);
+    virtual dav_ssize_t readToFd(IOChainContext & iocontext, int fd, dav_size_t size);
 
     // position independant write operation,
     // similar to pwrite do not need open() before
-    virtual dav_ssize_t writeFromFd(int fd, dav_size_t size);
+    virtual dav_ssize_t writeFromFd(IOChainContext & iocontext, int fd, dav_size_t size);
 
 private:
 
@@ -77,23 +77,23 @@ public:
 
     // open the file associated with the davix IOBuffMap
     // do a simple check if the file exist and try to anticipate the next ops
-    virtual bool open(int flags);
+    virtual bool open(IOChainContext & iocontext, int flags);
 
     //
-    virtual dav_ssize_t read(void* buf, dav_size_t count);
+    virtual dav_ssize_t read(IOChainContext & iocontext, void* buf, dav_size_t count);
 
 
     // give information on the future operation for prefecting
-    virtual void prefetchInfo(off_t offset, dav_size_t size_read, advise_t adv);
+    virtual void prefetchInfo(IOChainContext & iocontext, off_t offset, dav_size_t size_read, advise_t adv);
 
     //
-    virtual dav_ssize_t write(const void* buf, dav_size_t count);
+    virtual dav_ssize_t write(IOChainContext & iocontext, const void* buf, dav_size_t count);
 
     //
-    virtual dav_off_t lseek(dav_off_t offset, int flags);
+    virtual dav_off_t lseek(IOChainContext & iocontext, dav_off_t offset, int flags);
 
     //
-    virtual void resetIO();
+    virtual void resetIO(IOChainContext & iocontext);
 
 protected:
 
@@ -117,7 +117,7 @@ private:
         return (_last_advise == AdviseAuto || _last_advise == AdviseSequential);
     }
 
-    dav_ssize_t readInternal(void *buffer, dav_size_t size_read);
+    dav_ssize_t readInternal(IOChainContext & iocontext, void *buffer, dav_size_t size_read);
 
     HttpIOBuffer(const HttpIOBuffer & );
     HttpIOBuffer & operator=(const HttpIOBuffer & );

@@ -4,15 +4,12 @@
 
 namespace Davix{
 
-HttpIOChain::HttpIOChain() : _next(NULL), _params(NULL), _start(this)
+HttpIOChain::HttpIOChain() : _next(NULL), _start(this)
 {
 }
 
 HttpIOChain::~HttpIOChain(){}
 
-void HttpIOChain::configure(Context& c, const Uri &uri, const RequestParams *params){
-    _params.reset(new IOChainParams(c, uri, params));
-}
 
 HttpIOChain* HttpIOChain::add(HttpIOChain* elem){
     _next.reset(elem);
@@ -25,84 +22,84 @@ HttpIOChain* HttpIOChain::add(HttpIOChain* elem){
 
 
 // calculate hecksum
-void HttpIOChain::checksum(std::string & checksm, const std::string & chk_algo){
-    CHAIN_FORWARD(checksum(checksm, chk_algo));
+void HttpIOChain::checksum(IOChainContext & iocontext, std::string & checksm, const std::string & chk_algo){
+    CHAIN_FORWARD(checksum(iocontext, checksm, chk_algo));
 }
 
 // calc replica
-std::vector<DavFile> &  HttpIOChain::getReplicas(std::vector<DavFile> & vec){
-    CHAIN_FORWARD(getReplicas(vec));
+std::vector<DavFile> &  HttpIOChain::getReplicas(IOChainContext & iocontext, std::vector<DavFile> & vec){
+    CHAIN_FORWARD(getReplicas(iocontext, vec));
 }
 
 // delete resource
-void HttpIOChain::deleteResource(){
-    CHAIN_FORWARD(deleteResource());
+void HttpIOChain::deleteResource(IOChainContext & iocontext){
+    CHAIN_FORWARD(deleteResource(iocontext));
 }
 
 
 // make collection
-void HttpIOChain::makeCollection(){
-    CHAIN_FORWARD(makeCollection());
+void HttpIOChain::makeCollection(IOChainContext & iocontext){
+    CHAIN_FORWARD(makeCollection(iocontext));
 }
 
 
-StatInfo & HttpIOChain::statInfo(StatInfo &st_info){
-    CHAIN_FORWARD(statInfo(st_info));
+StatInfo & HttpIOChain::statInfo(IOChainContext & iocontext, StatInfo &st_info){
+    CHAIN_FORWARD(statInfo(iocontext, st_info));
 }
 
 
-bool HttpIOChain::open(int flags){
-   CHAIN_FORWARD(open(flags));
+bool HttpIOChain::open(IOChainContext & iocontext, int flags){
+   CHAIN_FORWARD(open(iocontext, flags));
 }
 
- void HttpIOChain::prefetchInfo(off_t offset, dav_size_t size_read, advise_t adv){
-     CHAIN_FORWARD(prefetchInfo(offset, size_read, adv));
+ void HttpIOChain::prefetchInfo(IOChainContext & iocontext, off_t offset, dav_size_t size_read, advise_t adv){
+     CHAIN_FORWARD(prefetchInfo(iocontext, offset, size_read, adv));
  }
 
-dav_ssize_t HttpIOChain::readFull(std::vector<char> &buffer){
-    CHAIN_FORWARD(readFull(buffer));
+dav_ssize_t HttpIOChain::readFull(IOChainContext & iocontext, std::vector<char> &buffer){
+    CHAIN_FORWARD(readFull(iocontext, buffer));
 }
 
 
-dav_ssize_t HttpIOChain::readFull(std::string & str_buffer){
+dav_ssize_t HttpIOChain::readFull(IOChainContext & iocontext, std::string & str_buffer){
     std::vector<char> buffer;
-    dav_ssize_t s = readFull(buffer);
+    dav_ssize_t s = readFull(iocontext, buffer);
     str_buffer.assign(buffer.begin(), buffer.end());
     return s;
 }
 
 // read to fd
-dav_ssize_t HttpIOChain::readToFd(int fd, dav_size_t size){
-    CHAIN_FORWARD(readToFd(fd, size));
+dav_ssize_t HttpIOChain::readToFd(IOChainContext & iocontext, int fd, dav_size_t size){
+    CHAIN_FORWARD(readToFd(iocontext, fd, size));
 }
 
 
-dav_ssize_t HttpIOChain::preadVec(const DavIOVecInput *input_vec, DavIOVecOuput *output_vec, const dav_size_t count_vec){
-    CHAIN_FORWARD(preadVec(input_vec, output_vec, count_vec));
+dav_ssize_t HttpIOChain::preadVec(IOChainContext & iocontext, const DavIOVecInput *input_vec, DavIOVecOuput *output_vec, const dav_size_t count_vec){
+    CHAIN_FORWARD(preadVec(iocontext, input_vec, output_vec, count_vec));
 }
 
-void HttpIOChain::resetIO(){
-     CHAIN_FORWARD(resetIO());
+void HttpIOChain::resetIO(IOChainContext & iocontext){
+     CHAIN_FORWARD(resetIO(iocontext));
 }
 
-dav_ssize_t HttpIOChain::pread(void *buf, dav_size_t count, dav_off_t offset){
-    CHAIN_FORWARD(pread(buf,count, offset));
+dav_ssize_t HttpIOChain::pread(IOChainContext & iocontext, void *buf, dav_size_t count, dav_off_t offset){
+    CHAIN_FORWARD(pread(iocontext, buf,count, offset));
 }
 
-dav_ssize_t HttpIOChain::read(void *buf, dav_size_t count){
-    CHAIN_FORWARD(read(buf, count));
+dav_ssize_t HttpIOChain::read(IOChainContext & iocontext, void *buf, dav_size_t count){
+    CHAIN_FORWARD(read(iocontext, buf, count));
 }
 
-dav_off_t HttpIOChain::lseek(dav_off_t offset, int flags){
-    CHAIN_FORWARD(lseek(offset, flags));
+dav_off_t HttpIOChain::lseek(IOChainContext & iocontext, dav_off_t offset, int flags){
+    CHAIN_FORWARD(lseek(iocontext, offset, flags));
 }
 
-dav_ssize_t HttpIOChain::writeFromFd(int fd, dav_size_t size){
-    CHAIN_FORWARD(writeFromFd(fd, size));
+dav_ssize_t HttpIOChain::writeFromFd(IOChainContext & iocontext, int fd, dav_size_t size){
+    CHAIN_FORWARD(writeFromFd(iocontext, fd, size));
 }
 
-dav_ssize_t HttpIOChain::write(const void *buf, dav_size_t count){
-    CHAIN_FORWARD(write(buf, count));
+dav_ssize_t HttpIOChain::write(IOChainContext & iocontext, const void *buf, dav_size_t count){
+    CHAIN_FORWARD(write(iocontext, buf, count));
 }
 
 

@@ -10,6 +10,55 @@
 namespace Davix{
 
 using namespace StrUtil;
+using namespace boost;
+
+typedef function< dav_ssize_t (IOChainContext &)> FuncIO;
+typedef function< StatInfo & (IOChainContext &) > FuncStatInfo;
+
+template<class Executor, class ReturnType>
+ReturnType metalinkTryReplicas(HttpIOChain & chain, IOChainContext & io_context, Executor fun){
+    std::vector<File> replicas;
+    chain.getReplicas(io_context, replicas);
+    for(std::vector<File>::iterator it = replicas.begin();it != replicas.end(); ++it){
+        try{
+            IOChainContext internal_context(io_context._context, it->getUri(), io_context._reqparams);
+            return fun(internal_context);
+        }catch(DavixException & replica_error){
+            DAVIX_LOG(DAVIX_LOG_VERBOSE, "Fail access to replica %s: %s", it->getUri().getString().c_str(), replica_error.what());
+        }catch(...){
+            DAVIX_LOG(DAVIX_LOG_VERBOSE, "Fail access to replica: Unknown Error");
+        }
+    }
+    throw DavixException(davix_scope_io_buff(), StatusCode::InvalidServerResponse, "Impossible to access any of the replicas with success");
+}
+
+
+template<class Executor, class ReturnType>
+ReturnType metalinkExecutor(HttpIOChain & chain, IOChainContext & io_context, Executor fun){
+    // if disabled, do nothing
+    if(io_context._reqparams != NULL && io_context._reqparams->getMetalinkMode() == MetalinkMode::Disable){
+        return fun(io_context);
+    }
+
+    try{
+        // Execute operation
+        return fun(io_context);
+    }catch(DavixException & e){
+        DAVIX_LOG(DAVIX_LOG_VERBOSE, "Failure: Impossible to execute operation on %s, error %s", io_context._uri.getString().c_str(), e.what());
+        DAVIX_LOG(DAVIX_LOG_VERBOSE, " Try to Recover with Metalink...");
+
+        try{
+            return metalinkTryReplicas<Executor, ReturnType>(chain, io_context, fun);
+        }catch(DavixException & metalink_error){
+            DAVIX_LOG(DAVIX_LOG_VERBOSE, "Impossible to Recover with Metalink: %s", metalink_error.what());
+        }catch(...){
+            DAVIX_LOG(DAVIX_LOG_VERBOSE, "Impossible to Recover with Metalink: Unknown Error");
+        }
+        throw e;
+    }
+}
+
+
 
 int davix_metalink_header_parser(const std::string & header_key, const std::string & header_value,
                                  const Uri & u_original,
@@ -125,12 +174,42 @@ MetalinkOps::~MetalinkOps(){
 }
 
 
+
 std::vector<File> & MetalinkOps::getReplicas(IOChainContext & iocontext, std::vector<File> &vec){
     davix_file_get_all_replicas_metalink(iocontext._context, iocontext._uri, iocontext._reqparams, vec);
     return vec;
 }
 
+StatInfo & MetalinkOps::statInfo(IOChainContext &iocontext, StatInfo &st_info){
+    FuncStatInfo func(bind(&HttpIOChain::statInfo, _next.get(), _1, st_info));
+    return metalinkExecutor<FuncStatInfo, StatInfo &>(*this, iocontext, func);
+}
 
+dav_ssize_t MetalinkOps::read(IOChainContext &iocontext, void *buf, dav_size_t count){
+    FuncIO func(bind(&HttpIOChain::read, _next.get(),_1, buf, count));
+    return metalinkExecutor<FuncIO, dav_ssize_t>(*this, iocontext, func);
+}
+
+dav_ssize_t MetalinkOps::pread(IOChainContext &iocontext, void *buf, dav_size_t count, dav_off_t offset){
+
+    FuncIO func(bind(&HttpIOChain::pread, _next.get(),_1, buf, count, offset));
+    return metalinkExecutor<FuncIO, dav_ssize_t>(*this, iocontext, func);
+}
+
+
+dav_ssize_t MetalinkOps::preadVec(IOChainContext & iocontext, const DavIOVecInput * input_vec,
+                          DavIOVecOuput * output_vec,
+                          const dav_size_t count_vec){
+
+    FuncIO func(bind(&HttpIOChain::preadVec, _next.get(),_1, input_vec, output_vec, count_vec));
+    return metalinkExecutor<FuncIO, dav_ssize_t>(*this, iocontext, func);
+}
+
+// read to fd Metalink manager
+dav_ssize_t MetalinkOps::readToFd(IOChainContext & iocontext, int fd, dav_size_t size){
+    FuncIO func(bind(&HttpIOChain::readToFd, _next.get(), _1, fd, size));
+    return metalinkExecutor<FuncIO, dav_ssize_t>(*this, iocontext, func);
+}
 
 } // namespace Davix
 

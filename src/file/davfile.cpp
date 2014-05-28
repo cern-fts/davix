@@ -40,7 +40,7 @@ struct DavFile::DavFileInternal{
     Context & _c;
     Uri _u;
     HttpIOChain & getIOChain(HttpIOChain & c){
-        c.add(new HttpMetaOps())->add(new MetalinkOps())->add(new HttpIO())->add(new HttpIOVecOps());
+        c.add(new MetalinkOps())->add(new HttpMetaOps())->add(new HttpIO())->add(new HttpIOVecOps());
         return c;
     }
 

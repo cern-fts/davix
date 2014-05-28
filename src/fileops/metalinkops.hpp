@@ -14,8 +14,23 @@ public:
     MetalinkOps();
     virtual ~MetalinkOps();
 
+    virtual StatInfo & statInfo(IOChainContext &iocontext, StatInfo &st_info);
+
+    virtual dav_ssize_t read(IOChainContext & iocontext, void *buf, dav_size_t count);
+
+    virtual dav_ssize_t pread(IOChainContext & iocontext, void* buf, dav_size_t count, dav_off_t offset);
+
+    virtual dav_ssize_t preadVec(IOChainContext & iocontext, const DavIOVecInput * input_vec,
+                              DavIOVecOuput * output_vec,
+                              const dav_size_t count_vec);
+
+    // read to fd
+    virtual dav_ssize_t readToFd(IOChainContext & iocontext, int fd, dav_size_t size);
+
     // calc replica
     virtual std::vector<File> & getReplicas(IOChainContext & iocontext, std::vector<File> & vec);
+
+
 };
 
 // utilities

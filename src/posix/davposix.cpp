@@ -40,7 +40,7 @@ namespace Davix{
 
 
 static HttpIOChain & getIOChain(HttpIOChain & chain){
-    chain.add(new HttpMetaOps())->add(new MetalinkOps())->add(new HttpIOBuffer())->add(new HttpIO())->add(new HttpIOVecOps());
+    chain.add(new MetalinkOps())->add(new HttpMetaOps())->add(new HttpIOBuffer())->add(new HttpIO())->add(new HttpIOVecOps());
     return chain;
 }
 

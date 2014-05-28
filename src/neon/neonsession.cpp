@@ -66,8 +66,9 @@ void NEONSession::authNeonCliCertMapper(void *userdata, ne_session *sess,
 
         if( retcallback.first(retcallback.second, infos, &cert, &tmp_err) != 0 || cert.hasCert() == false){
             if(!tmp_err)
-                DavixError::setupError(&(req->_last_error), davix_scope_http_request(), StatusCode::AuthentificationError,
+                DavixError::setupError(&tmp_err, davix_scope_http_request(), StatusCode::AuthentificationError,
                                        "No valid credential given ");
+             DavixError::propagateError(&(req->_last_error), tmp_err);
              return;
         }
 

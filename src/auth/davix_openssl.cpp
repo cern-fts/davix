@@ -62,7 +62,7 @@ static int SSL_pem_passwd_cb(char *buffer, int size, int rwflag, void *userdata)
 ne_ssl_client_cert *SSL_X509_Pem_Read(const std::string & pkeyfile_str, const std::string & credfile_str,
                                       const std::string & password_str, DavixError** err){
     FILE *fp;
-    BIO* in;
+    BIO* in=NULL;
     X509 *cert,*ca;
     STACK_OF(X509)* chain = NULL;
     EVP_PKEY *pkey;
@@ -85,6 +85,7 @@ ne_ssl_client_cert *SSL_X509_Pem_Read(const std::string & pkeyfile_str, const st
         msg << "impossible to open " << credfile << ": " << reason;
         opensslErrorMapper(msg.str(), err);
         ERR_clear_error();
+        BIO_free(in);
         return NULL;
 
     }

@@ -19,6 +19,7 @@
 */
 
 #include <davix_internal.hpp>
+#include <utils/davix_logger_internal.hpp>
 #include <utils/davix_types.hpp>
 #include <status/davixstatusrequest.hpp>
 
@@ -103,6 +104,7 @@ void DavixError::setErrScope(const std::string &scope){
 void DavixError::setupError(DavixError **err, const std::string &scope, StatusCode::Code errCode, const std::string &errMsg){
     if(err){
         if(*err){
+            DAVIX_DEBUG("Error Override of previous DavixError, BUG !");
             // error msg
         }
         *err = new DavixError(scope, errCode, errMsg);

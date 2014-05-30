@@ -181,7 +181,7 @@ std::vector<File> & MetalinkOps::getReplicas(IOChainContext & iocontext, std::ve
 }
 
 StatInfo & MetalinkOps::statInfo(IOChainContext &iocontext, StatInfo &st_info){
-    FuncStatInfo func(bind(&HttpIOChain::statInfo, _next.get(), _1, st_info));
+    FuncStatInfo func(bind(&HttpIOChain::statInfo, _next.get(), _1, ref(st_info)));
     return metalinkExecutor<FuncStatInfo, StatInfo &>(*this, iocontext, func);
 }
 

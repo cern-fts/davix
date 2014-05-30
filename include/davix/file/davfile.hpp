@@ -254,6 +254,9 @@ typedef DavFile File;
 
 
 struct StatInfo{
+    StatInfo(): size(0), nlink(0), mode(0), atime(0), mtime(0), ctime(0){
+    }
+
     // size
     dav_size_t size;
     dav_ssize_t nlink;

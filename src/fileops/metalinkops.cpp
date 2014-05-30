@@ -9,11 +9,26 @@
 
 namespace Davix{
 
+
 using namespace StrUtil;
 using namespace boost;
 
 typedef function< dav_ssize_t (IOChainContext &)> FuncIO;
 typedef function< StatInfo & (IOChainContext &) > FuncStatInfo;
+
+
+static bool metalink_support_disabled=false;
+static once_flag metalink_once = BOOST_ONCE_INIT;
+
+void metalink_check(){
+    metalink_support_disabled = (getenv("DAVIX_DISABLE_METALINK") == NULL);
+}
+
+static bool isMetalinkEnabled(const RequestParams* params){
+    call_once(metalink_check, metalink_once);
+    return !( (params != NULL && params->getMetalinkMode() == MetalinkMode::Disable) || metalink_support_disabled);
+}
+
 
 template<class Executor, class ReturnType>
 ReturnType metalinkTryReplicas(HttpIOChain & chain, IOChainContext & io_context, Executor fun){
@@ -36,7 +51,7 @@ ReturnType metalinkTryReplicas(HttpIOChain & chain, IOChainContext & io_context,
 template<class Executor, class ReturnType>
 ReturnType metalinkExecutor(HttpIOChain & chain, IOChainContext & io_context, Executor fun){
     // if disabled, do nothing
-    if(io_context._reqparams != NULL && io_context._reqparams->getMetalinkMode() == MetalinkMode::Disable){
+    if(isMetalinkEnabled(io_context._reqparams)){
         return fun(io_context);
     }
 

@@ -50,6 +50,7 @@ const std::string scope_params = "Davix::Tools::Params";
 {"version", no_argument, 0, 'V'}, \
 {"help", no_argument,0,'?'}, \
 {"header",  required_argument, 0,  'H' }, \
+{"proxy", required_argument, 0, 'x'}, \
 {"trace-headers", no_argument, 0, HEADERS_OPTIONS }
 
 #define SECURITY_LONG_OPTIONS \
@@ -172,6 +173,9 @@ int parse_davix_options_generic(const std::string &opt_filter,
             case HEADERS_OPTIONS:
                 p.pres_flag |= DISPLAY_HEADERS;
                 break;
+            case 'x':
+                p.params.setProxyServer(std::string(optarg, 0, 2048));
+                break;
             case 'X':
                 p.req_type = std::string(optarg, 0, 255);
                 break;
@@ -201,7 +205,7 @@ int parse_davix_options_generic(const std::string &opt_filter,
 
 
 int parse_davix_options(int argc, char** argv, OptParams & p, DavixError** err){
-    const std::string arg_tool_main= "H:E:X:o:kV";
+    const std::string arg_tool_main= "x:H:E:X:o:kV";
     const struct option long_options[] = {
         COMMON_LONG_OPTIONS,
         SECURITY_LONG_OPTIONS,
@@ -216,7 +220,7 @@ int parse_davix_options(int argc, char** argv, OptParams & p, DavixError** err){
 
 
 int parse_davix_ls_options(int argc, char** argv, OptParams & p, DavixError** err){
-    const std::string arg_tool_main= "H:E:vkVl";
+    const std::string arg_tool_main= "x:H:E:vkVl";
     const struct option long_options[] = {
         COMMON_LONG_OPTIONS,
         SECURITY_LONG_OPTIONS,
@@ -236,7 +240,7 @@ int parse_davix_ls_options(int argc, char** argv, OptParams & p, DavixError** er
 
 
 int parse_davix_get_options(int argc, char** argv, OptParams & p, DavixError** err){
-    const std::string arg_tool_main= "H:E:o:OvkV";
+    const std::string arg_tool_main= "x:H:E:o:OvkV";
     const struct option long_options[] = {
         COMMON_LONG_OPTIONS,
         SECURITY_LONG_OPTIONS,
@@ -258,7 +262,7 @@ int parse_davix_get_options(int argc, char** argv, OptParams & p, DavixError** e
 }
 
 int parse_davix_put_options(int argc, char** argv, OptParams & p, DavixError** err){
-    const std::string arg_tool_main= "H:E:o:vkV";
+    const std::string arg_tool_main= "x:H:E:o:vkV";
     const struct option long_options[] = {
         COMMON_LONG_OPTIONS,
         SECURITY_LONG_OPTIONS,
@@ -288,6 +292,7 @@ const std::string  & get_common_options(){
             "\t--debug:                  Debug mode\n"
             "\t--header, -H:             Add a header field to the request (ex: \"Depth: 1\") \n"
             "\t--help, -h:               Display this help message\n"
+            "\t--proxy, -x url:          SOCKS5 proxy server URL (ex: socks5://login:pass@socks.example.org )\n"
             "\t--trace-headers:          Trace all HTTP queries headers\n"
             "\t--verbose:                Verbose mode\n"
             "\t--version, -V:            Display version\n"

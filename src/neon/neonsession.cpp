@@ -134,7 +134,7 @@ NEONSession::NEONSession(Context & c, const Uri & uri, const RequestParams & p, 
     _session_recycling(_f.getSessionCaching()),
     _u(uri)
 {
-        _f.createNeonSession(uri, &_sess, err);
+        _f.createNeonSession(p, uri, &_sess, err);
         if(_sess)
             configureSession(_sess, _u, p, &NEONSession::provide_login_passwd_fn, this, &NEONSession::authNeonCliCertMapper, this);
 }

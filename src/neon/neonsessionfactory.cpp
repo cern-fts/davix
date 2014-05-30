@@ -18,6 +18,8 @@
  *
 */
 
+#include <string>
+#include <algorithm>
 #include <davix_internal.hpp>
 #include "neonsessionfactory.hpp"
 
@@ -75,12 +77,12 @@ inline std::string davix_session_uri_rewrite(const Uri & u){
     return std::string();
 }
 
-int NEONSessionFactory::createNeonSession(const Uri & uri, ne_session** sess, DavixError **err){
+int NEONSessionFactory::createNeonSession(const RequestParams & params, const Uri & uri, ne_session** sess, DavixError **err){
     if(uri.getStatus() == StatusCode::OK){
         if(sess != NULL){
             std::string scheme = davix_session_uri_rewrite(uri);
             if(scheme.size() > 0){
-                *sess = create_recycled_session(scheme, uri.getHost(), httpUriGetPort(uri));
+                *sess = create_recycled_session(params, scheme, uri.getHost(), httpUriGetPort(uri));
                 return 0;
             }
         }
@@ -98,14 +100,33 @@ int NEONSessionFactory::storeNeonSession(ne_session* sess, DavixError **err){
 
 
 
-ne_session* NEONSessionFactory::create_session(const std::string & protocol, const std::string &host, unsigned int port){
+ne_session* NEONSessionFactory::create_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port){
     ne_session *se;
     se = ne_session_create(protocol.c_str(), host.c_str(), (int) port);
+
+    const Uri* proxy = params.getProxyServer();
+    if(se != NULL && proxy != NULL){
+        DAVIX_TRACE(" configure mandatory proxy to %s", proxy->getString().c_str());
+        const enum ne_sock_sversion version = ((proxy->getProtocol().compare("socks5") ==0)?NE_SOCK_SOCKSV5:NE_SOCK_SOCKSV4);
+        const int port_proxy = ((proxy->getPort() ==0)?1080:(proxy->getPort()));
+        const std::string & userinfo = proxy->getUserInfo();
+        std::string user, password;
+        std::string::const_iterator delimiter = std::find(userinfo.begin(), userinfo.end(), ':');
+
+        if(delimiter != userinfo.end()){
+            user.assign(std::string(userinfo.begin(), delimiter));
+            password.assign((delimiter+1), userinfo.end());
+            ne_session_socks_proxy(se, version, proxy->getHost().c_str(), port_proxy, user.c_str(), password.c_str());
+        }else{
+            ne_session_socks_proxy(se, version, proxy->getHost().c_str(),  port_proxy, NULL, NULL);
+        }
+
+    }
     //ne_ssl_trust_default_ca(se); not stable in neon on epel 5
     return se;
 }
 
-ne_session* NEONSessionFactory::create_recycled_session(const std::string &protocol, const std::string &host, unsigned int port){
+ne_session* NEONSessionFactory::create_recycled_session(const RequestParams & params, const std::string &protocol, const std::string &host, unsigned int port){
 
     ne_session* se= NULL;
     {
@@ -120,7 +141,7 @@ ne_session* NEONSessionFactory::create_recycled_session(const std::string &proto
 
     }
     DAVIX_DEBUG("no cached ne_session, create a new one ");
-    return create_session(protocol, host, port);
+    return create_session(params, protocol, host, port);
 }
 
 void NEONSessionFactory::setSessionCaching(bool caching){

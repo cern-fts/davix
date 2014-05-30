@@ -43,7 +43,7 @@ public:
     /**
       Create a session object or create a recycled  one ( session reuse )
     */
-    int createNeonSession(const Uri & uri, ne_session** sess, DavixError** err);
+    int createNeonSession(const RequestParams & params, const Uri & uri, ne_session** sess, DavixError** err);
 
     /**
       store a Neon session object for session reuse purpose
@@ -64,9 +64,9 @@ private:
 
     void internal_release_session_handle(ne_session* sess);
 
-    ne_session* create_session(const std::string & protocol, const std::string &host, unsigned int port);
+    ne_session* create_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);
 
-    ne_session* create_recycled_session(const std::string & protocol, const std::string &host, unsigned int port);
+    ne_session* create_recycled_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);
 
 
     // redirection pool

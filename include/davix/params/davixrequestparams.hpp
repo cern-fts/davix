@@ -26,7 +26,7 @@
 #include <vector>
 #include <string>
 
- 
+#include <utils/davix_uri.hpp>
 #include <auth/davixauth.hpp>
 
 
@@ -226,6 +226,15 @@ public:
     /// Add a custom header line that has to be included in the requests
     void addHeader(const std::string &key, const std::string &val);
     const HeaderVec & getHeaders() const;
+
+    /// set a SOCKS5 proxy server for intermediate usage
+    /// example: setProxyServer("socks5://login:password@socks5.exmaple.org:8080")
+    /// @param url url of the proxy server
+    void setProxyServer(const Uri & proxy_url);
+
+    /// get current SOCKS5 proxy server
+    /// @return URL of the server or NULL if not defined
+    const Uri* getProxyServer() const;
 
     /// internal usage
     void* getParmState() const;

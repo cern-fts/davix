@@ -59,6 +59,7 @@ struct RequestParamsInternal{
         _proto(RequestProtocol::Auto),
         _metalink_mode(MetalinkMode::Auto),
         _customhdr(),
+        _proxy_server(),
         _session_flag(SESSION_FLAG_KEEP_ALIVE),
         _state_uid(get_requeste_uid())
     {
@@ -93,6 +94,7 @@ struct RequestParamsInternal{
         _proto(param_private._proto),
         _metalink_mode(param_private._metalink_mode),
         _customhdr(param_private._customhdr),
+        _proxy_server(param_private._proxy_server),
         _session_flag(param_private._session_flag),
         _state_uid(param_private._state_uid){
 
@@ -127,6 +129,9 @@ struct RequestParamsInternal{
 
     // additional custom header lines
     HeaderVec _customhdr;
+
+    // Proxy server URI
+    boost::shared_ptr<Uri> _proxy_server;
 
     // session flag
     int _session_flag;
@@ -325,6 +330,14 @@ void RequestParams::addHeader(const std::string &key, const std::string &val) {
 
 const HeaderVec & RequestParams::getHeaders() const{
   return d_ptr->_customhdr;
+}
+
+void RequestParams::setProxyServer(const Uri &proxy_url){
+    d_ptr->_proxy_server.reset(new Uri(proxy_url));
+}
+
+const Uri* RequestParams::getProxyServer() const{
+    return d_ptr->_proxy_server.get();
 }
 
 // suppress useless warning

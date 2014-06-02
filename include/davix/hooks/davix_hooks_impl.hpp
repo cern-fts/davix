@@ -22,7 +22,10 @@
 #ifndef DAVIX_HOOKS_IMPL_HPP
 #define DAVIX_HOOKS_IMPL_HPP
 
-#include <hooks/davix_hooks.hpp>
+#include <hooks/davix_hooks_fwd.hpp>
+
+// intern file, Never use directly
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 namespace Davix{
 
@@ -93,5 +96,6 @@ inline const RequestPreReceHook & hookGet(HookList & c){
 
 }
 
+#endif
 
 #endif // DAVIX_HOOKS_IMPL_HPP

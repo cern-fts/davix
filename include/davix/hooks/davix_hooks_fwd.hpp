@@ -19,12 +19,35 @@
 */
 
 
-#ifndef DAVIX_HOOKS_HPP
-#define DAVIX_HOOKS_HPP
+#ifndef DAVIX_HOOKS_FWD_HPP
+#define DAVIX_HOOKS_FWD_HPP
 
-// See davix_hooks_fwd.hpp for Hooks declarations
+#include <utils/davix_types.hpp>
+#include <request/httprequest.hpp>
 
-#include <hooks/davix_hooks_fwd.hpp>
-#include <hooks/davix_hooks_impl.hpp>
 
-#endif // DAVIX_HOOKS_HPP
+namespace Davix{
+
+class HttpRequest;
+class RequestParams;
+class Uri;
+
+
+#ifndef DAVIX_STD_CXX03
+
+/// Hook called before processing any request
+typedef std::function< void (RequestParams& p, HttpRequest & req, Uri & u) > RequestPreRunHook;
+
+/// Hook called when sending any request, just after sending headers
+typedef std::function<void (HttpRequest& req, const std::string & start_line) > RequestPreSendHook;
+
+/// Hook called when receiving an request, just after receiving headers
+typedef std::function<void (HttpRequest& req, const std::string & init_line, const HeaderVec & headers, int status_code) > RequestPreReceHook;
+
+
+#endif
+
+}
+
+
+#endif // DAVIX_HOOKS_FWD_HPP

@@ -178,7 +178,6 @@ public:
     ///         able to suppress collection too
     ///
     ///  @param params Davix request Parameters
-    ///  @param err Davix Error report
     ///  @throw  throw @ref DavixException if error occurs
     void deletion(const RequestParams* params = NULL);
 
@@ -194,19 +193,16 @@ public:
     /// @brief create a collection ( directory or bucket) at the current url
     ///
     ///  @param params Davix request Parameters
-    ///  @param err Davix Error report
     ///  @throw  throw @ref DavixException if error occurs
     ///
     void makeCollection(const RequestParams *params = NULL);
+
     ///
     ///  @brief create a collection ( directory or bucket) at the current url
     ///
     ///  Exception safe version of @ref makeCollection(const RequestParams *params = NULL)
     int makeCollection(const RequestParams* params,
                        DavixError** err) throw();
-
-
-
     ///
     /// @brief execute a POSIX-like stat() query
     ///
@@ -219,16 +215,21 @@ public:
 
 
     ///
-    /// @brief compute checksum of the file with the given algorithm (MD5, CRC32, ADLER32)
+    /// @brief compute checksum of the file
+    /// with the given algorithm (MD5, CRC32, ADLER32)
+    ///
+    ///  Depend of server implementation
     ///
     /// @param params request parameters
-    /// @param checksm buffer
+    /// @param checksm checksum buffer
     /// @param chk_algo string of the algorithm (eg: "MD5"  )
-    /// @throw  @class DavixException if error occurs
-    /// @return buffer to string if sucesful
+    /// @return reference to checksm, throw DavixException if error occurs
     std::string & checksum(const RequestParams *params, std::string &checksm, const std::string &chk_algo);
 
-    /// exception safe version
+    ///
+    /// @brief compute checksum of the file with the given algorithm (MD5, CRC32, ADLER32)
+    ///
+    /// Exception safe version of @ref checksum
     int checksum(const RequestParams *params, std::string & checksm, const std::string & chk_algo, DavixError **err) throw();
 
     ///

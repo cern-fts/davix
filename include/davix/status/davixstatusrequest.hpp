@@ -277,18 +277,37 @@ private:
 };
 
 
+
+///  @class DavixException
+///  @brief Davix Exception class
+///
+/// Contain a Davix Error
+///
+///
 class DAVIX_EXPORT DavixException : public std::exception{
     struct DavixExceptionIntern;
 public:
+    /// Construct a DavixException
     DavixException(const std::string & scope, StatusCode::Code c, const std::string & msg) throw();
+
+    /// Create a DavixEception from a DavixError, err is considered as free and invalid after creation
     DavixException(DavixError** err);
+
+    /// Copy Constructor
     DavixException(const DavixException & orig) throw();
+
     virtual ~DavixException() throw();
 
+    /// return a string representation of the scope for this davix exception
     virtual const char* scope() const throw();
+
+    /// return the error code association to this DavixException, same than @ref DavixError::getStatus()
     virtual StatusCode::Code code() const throw();
+
+    /// return a string representation or the error
     virtual const char*  what() const throw();
 
+    /// Extract a DavixError from this exception
     void toDavixError(DavixError** err);
 
 protected:

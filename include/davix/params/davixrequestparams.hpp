@@ -224,12 +224,16 @@ public:
 
 
     /// Add a custom header line that has to be included in the requests
+    ///  @param key key of the header
+    ///  @param val value of the header
     void addHeader(const std::string &key, const std::string &val);
+
+    /// return the list of custom headers configured
     const HeaderVec & getHeaders() const;
 
     /// set a SOCKS5 proxy server for intermediate usage
     /// example: setProxyServer("socks5://login:password@socks5.exmaple.org:8080")
-    /// @param url url of the proxy server
+    /// @param proxy_url url of the proxy server
     void setProxyServer(const Uri & proxy_url);
 
     /// get current SOCKS5 proxy server
@@ -240,6 +244,8 @@ public:
     void* getParmState() const;
 
 
+    /// swap two RequestParams content
+    /// fast operation
     void swap(RequestParams & params);
 
 private:

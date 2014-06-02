@@ -80,11 +80,15 @@ public:
 
 #ifndef DAVIX_STD_CXX03
 
+    /// set a new hook (callback) to intercept event in davix
+    /// see davix_hooks.hpp for more details about hooks
+    /// WARNING: setting a new HOOK override exiting ones
     template<typename HookType>
     inline void setHook(const HookType & id){
         hookDefine<HookType>(getHookList(), id);
     }
 
+    /// get the value register for one type of hook
     template<typename HookType>
     inline const HookType & getHook(){
         return hookGet<HookType>(getHookList());
@@ -92,7 +96,12 @@ public:
 
 #endif
 
-    /// load a plugin or a profile identified by name
+
+    /// @brief load a plugin or a profile identified by name
+    /// @param name : name of the plugin or  profile to load
+    ///
+    /// Example: loadModule("grid") configure davix
+    /// for a grid environment usage
     void loadModule(const std::string & name);
 
     ///  enable or disable the session caching

@@ -29,7 +29,7 @@
 
 namespace Davix{
 
-class ContextInternal;
+struct ContextInternal;
 
 #ifndef DAVIX_STD_CXX03
 

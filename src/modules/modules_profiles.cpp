@@ -45,7 +45,7 @@ GridEnv createGridEnv(){
 }
 
 
-void AwesomeGridHook(RequestParams& p, HttpRequest & req, Uri & u, RequestPreRunHook previous_hook, GridEnv env_grid){
+void awesomeGridHook(RequestParams& p, HttpRequest & req, Uri & u, RequestPreRunHook previous_hook, GridEnv env_grid){
 
     // initialize environment
     // add grid CA path
@@ -62,6 +62,8 @@ void AwesomeGridHook(RequestParams& p, HttpRequest & req, Uri & u, RequestPreRun
                       env_grid.cert_path.c_str(),
                       tmp_err->getErrMsg().c_str());
         }else{
+            // in current state, GRID profiles ignore all manually defined callbacks
+            p.setClientCertCallbackX509(NULL, NULL);
             p.setClientCertX509(x509);
         }
     }
@@ -76,7 +78,7 @@ void loadGridProfile(Context & context){
     GridEnv grid_env = createGridEnv();
 
     RequestPreRunHook previous_hook = context.getHook<RequestPreRunHook>();
-    RequestPreRunHook new_hook = std::bind(AwesomeGridHook, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, previous_hook, grid_env);
+    RequestPreRunHook new_hook = std::bind(awesomeGridHook, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, previous_hook, grid_env);
     context.setHook<RequestPreRunHook>(new_hook);
 }
 

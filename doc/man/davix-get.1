@@ -178,7 +178,7 @@ AWS S3 authentication: access key
 .PP
 \fBDownload content to a local file with VOMS authentication in a Grid environment
 .BR
-        davix-get -E $X509_USER_PROXY --capath $X509_CERT_DIR davs://grid-storage.example.org/dir1/file1 /tmp/file1
+        davix-get -P grid davs://grid-storage.example.org/dir1/file1 /tmp/file1
 
 \fBDownload content and print it to stdout, using a OAuth token
 .BR

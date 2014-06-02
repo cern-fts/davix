@@ -164,23 +164,18 @@ AWS S3 authentication: access key
 	   
 .SH EXAMPLES
 .PP
-\fBDownload content and print it on stdout
+\fBUpload local file to a http server
 .BR
-        davix-put http://example.org/dir1/dir2/file1
-.BR
-.PP
-\fBDownload content to a local file
-.BR
-        davix-put s3://bucket.example.org/collection/file2 /tmp/file2
+        davix-put /tmp/file1 http://example.org/dir1/dir2/file1
 .BR
 .PP
-\fBDownload content to a local file with VOMS authentication in a Grid environment
+\fBUpload a local file to a Grid compatible storage
 .BR
-        davix-put -E $X509_USER_PROXY --capath $X509_CERT_DIR davs://grid-storage.example.org/dir1/file1 /tmp/file1
+        davix-put -P grid /tmp/file1 davs://grid-storage.example.org/dir1/file1 
 
-\fBDownload content and print it to stdout, using a OAuth token
+\fBUpload a resource to a OAuth 2.0 compatible service
 .BR
-        davix-put https://example.org/dir1/tmpfile -H "Authorization: Bearer mytoken"
+        davix-put /tmp/file https://example.org/dir1/tmpfile -H "Authorization: Bearer mytoken"
 .BR
 
 .SH SEE ALSO

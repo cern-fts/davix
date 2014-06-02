@@ -24,6 +24,13 @@
 
 // See davix_hooks_fwd.hpp for Hooks declarations
 
+/**
+  @file davix_hooks.hpp
+  @author Devresse Adrien
+  @brief Hook (callback) functions of davix
+ */
+
+
 #include <hooks/davix_hooks_fwd.hpp>
 #include <hooks/davix_hooks_impl.hpp>
 

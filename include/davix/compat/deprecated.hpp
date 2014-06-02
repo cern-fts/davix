@@ -20,7 +20,7 @@
    Please love kittens and don't use them
  */
 
-
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 
 namespace Davix {
@@ -205,5 +205,8 @@ struct HookRequestPostExec : public Hook<HookRequestPostExec>{
 };
 
 } // namespace Davix
+
+
+#endif
 
 #endif

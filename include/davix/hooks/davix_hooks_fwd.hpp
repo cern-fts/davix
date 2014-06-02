@@ -26,6 +26,14 @@
 #include <request/httprequest.hpp>
 
 
+/**
+  @file davix_hooks_fwd.hpp
+  @author Devresse Adrien
+  @brief Hook definitions of davix
+ */
+
+
+
 namespace Davix{
 
 class HttpRequest;
@@ -41,7 +49,7 @@ typedef std::function< void (RequestParams& p, HttpRequest & req, Uri & u) > Req
 /// Hook called when sending any request, just after sending headers
 typedef std::function<void (HttpRequest& req, const std::string & start_line) > RequestPreSendHook;
 
-/// Hook called when receiving an request, just after receiving headers
+/// Hook called when receiving any request, just after receiving headers
 typedef std::function<void (HttpRequest& req, const std::string & init_line, const HeaderVec & headers, int status_code) > RequestPreReceHook;
 
 

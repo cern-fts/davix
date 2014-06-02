@@ -179,10 +179,13 @@ public:
     ///
     ///  @param params Davix request Parameters
     ///  @param err Davix Error report
-    ///  @throw  @class DavixException if error occurs
-    ///  @return 0 if success, or -1 if error occures
+    ///  @throw  throw @ref DavixException if error occurs
     void deletion(const RequestParams* params = NULL);
 
+    ///
+    ///  @brief Suppress the current entity.
+    ///         able to suppress collection too
+    ///  Exception safe version of @ref deletion(const RequestParams* params = NULL)
     int deletion(const RequestParams* params,
                  DavixError** err) throw();
 
@@ -192,13 +195,13 @@ public:
     ///
     ///  @param params Davix request Parameters
     ///  @param err Davix Error report
-    ///  @throw  @class DavixException if error occurs
-    ///  @return 0 if success, or -1 if error occures
-    ///
+    ///  @throw  throw @ref DavixException if error occurs
     ///
     void makeCollection(const RequestParams *params = NULL);
-
-    /// exception safe version
+    ///
+    ///  @brief create a collection ( directory or bucket) at the current url
+    ///
+    ///  Exception safe version of @ref makeCollection(const RequestParams *params = NULL)
     int makeCollection(const RequestParams* params,
                        DavixError** err) throw();
 
@@ -252,23 +255,31 @@ public:
 typedef DavFile File;
 
 
-
+///
+/// @brief The StatInfo struct
+/// @struct Container for File basic metadata
+///
+/// Follow the POSIX stat() structure
 struct StatInfo{
     StatInfo(): size(0), nlink(0), mode(0), atime(0), mtime(0), ctime(0){
     }
 
-    // size
+    /// size in bytes of the resource
     dav_size_t size;
+    /// number of links to the resource
+    /// optional
     dav_ssize_t nlink;
-    // rights
+    /// POSIX rights of the resource
+    /// optional, supported with some Webdav servers
     mode_t mode;
-    // time
+    /// access time
     time_t atime;
+    /// modification time
     time_t mtime;
+    /// creation time
     time_t ctime;
 
-    // inline struct converter
-    // avoid ABI problems due to LFS support
+    /// struct converter from POSIX stat
     inline void fromPosixStat(const struct stat & st){
         mode = static_cast<mode_t>(st.st_mode);
         atime = static_cast<time_t>(st.st_atime);
@@ -278,6 +289,7 @@ struct StatInfo{
         nlink = static_cast<dav_size_t>(st.st_nlink);
     }
 
+    /// struct converter to POSIX stat
     inline struct stat & toPosixStat(struct stat & st){
         st.st_mode = static_cast<mode_t>(mode);
         st.st_atime = static_cast<time_t>(atime);

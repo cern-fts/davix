@@ -25,6 +25,8 @@
 #error "Only davix.h or davix.hpp should be included."
 #endif
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
 #include <vector>
 
 
@@ -87,5 +89,6 @@ private:
 
 }
 
+#endif
 
 #endif // DAVIX_COPY_HPP

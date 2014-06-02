@@ -73,7 +73,13 @@ namespace Davix{
 
 // enable TR1 for non CX11 compilation
 #ifndef DAVIX_CX11_SUPPORT
+
 #include <tr1/functional>
+
+// bind tr1 to std for old compiler without CXX11
+namespace std{
+    using namespace std::tr1;
+}
 #endif
 
 // Disable all non C++03 features

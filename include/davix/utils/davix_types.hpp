@@ -65,8 +65,10 @@ namespace Davix{
 
 } // Davix
 
-// define CXX11 support
-#if ( (__cplusplus == 201103L) || (defined (DAVIX_FORCE_CXX11)) )
+// detect CXX11 support
+#if ( (__cplusplus > 199711L) \
+     || (defined (DAVIX_FORCE_CXX11)) \
+     || (defined __GXX_EXPERIMENTAL_CXX0X__) )
 #define DAVIX_CX11_SUPPORT
 #endif
 

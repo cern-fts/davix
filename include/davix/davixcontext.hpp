@@ -76,6 +76,8 @@ public:
     /// clone this instance to a new context dynamically allocated,
     Context* clone();
 
+    /// load a plugin or a profile identified by name
+    void loadModule(const std::string & name);
 
     /// define a new hook for Davix
     void setHookById(int id, void* hook, void* userdata);

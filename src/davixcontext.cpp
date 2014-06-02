@@ -21,9 +21,12 @@
 #include <davix_internal.hpp>
 #include <davixcontext.hpp>
 
+#include <string_utils/stringutils.hpp>
 #include <utils/davix_uri.hpp>
+#include <modules/modules_profiles.hpp>
 #include <neon/neonsessionfactory.hpp>
 #include <davix_context_internal.hpp>
+
 
 
 
@@ -124,6 +127,14 @@ HttpRequest* Context::createRequest(const Uri &uri, DavixError **err){
     return new HttpRequest(*this, uri, err);
 }
 
+
+void Context::loadModule(const std::string &name){
+    if( StrUtil::compare_ncase("grid",name) == 0){
+        loadGridProfile();
+        return;
+    }
+    DAVIX_LOG(DAVIX_LOG_WARNING, "No module named %s found", name.c_str());
+}
 
 void Context::setHookById(int id, void* hook, void* userdata){
     if(id >=0 && id < DAVIX_HOOK_REQUEST_NUM-1)

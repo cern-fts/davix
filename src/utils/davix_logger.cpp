@@ -28,7 +28,7 @@ const int BUFFER_SIZE =4096;
 const char* prefix = "DAVIX: ";
 
 
-static int internal_log_mask = DAVIX_LOG_CRITICAL;
+static int internal_log_mask = DAVIX_LOG_WARNING;
 static void (*_fhandler)(void* userdata, int mgs_level, const char* msg) = NULL;
 static void* _log_handler_userdata = NULL;
 

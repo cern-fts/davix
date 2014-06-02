@@ -22,6 +22,7 @@
 #include "davix_tool_params.hpp"
 #include "davix_tool_util.hpp"
 #include <getopt.h>
+#include <string_utils/stringutils.hpp>
 #include <utils/davix_logger.hpp>
 
 namespace Davix{
@@ -45,13 +46,14 @@ const std::string scope_params = "Davix::Tools::Params";
 // LONG OPTS
 
 #define COMMON_LONG_OPTIONS \
-{"verbose", no_argument, 0,  0 }, \
 {"debug", no_argument, 0,  DEBUG_OPT }, \
-{"version", no_argument, 0, 'V'}, \
-{"help", no_argument,0,'?'}, \
 {"header",  required_argument, 0,  'H' }, \
+{"help", no_argument, 0,'?'}, \
+{"module", required_argument, 0, 'P'}, \
 {"proxy", required_argument, 0, 'x'}, \
-{"trace-headers", no_argument, 0, HEADERS_OPTIONS }
+{"trace-headers", no_argument, 0, HEADERS_OPTIONS }, \
+{"verbose", no_argument, 0,  0 }, \
+{"version", no_argument, 0, 'V'}
 
 #define SECURITY_LONG_OPTIONS \
 {"cert",  required_argument,       0, 'E' }, \
@@ -167,6 +169,9 @@ int parse_davix_options_generic(const std::string &opt_filter,
             case 'o':
                 p.output_file_path = optarg;
                 break;
+            case 'P':
+                p.modules_list = StrUtil::tokenSplit(std::string(optarg), ",");
+                break;
             case 'V':
                 display_version();
                 return 1;
@@ -205,7 +210,7 @@ int parse_davix_options_generic(const std::string &opt_filter,
 
 
 int parse_davix_options(int argc, char** argv, OptParams & p, DavixError** err){
-    const std::string arg_tool_main= "x:H:E:X:o:kV";
+    const std::string arg_tool_main= "P:x:H:E:X:o:kV";
     const struct option long_options[] = {
         COMMON_LONG_OPTIONS,
         SECURITY_LONG_OPTIONS,
@@ -220,7 +225,7 @@ int parse_davix_options(int argc, char** argv, OptParams & p, DavixError** err){
 
 
 int parse_davix_ls_options(int argc, char** argv, OptParams & p, DavixError** err){
-    const std::string arg_tool_main= "x:H:E:vkVl";
+    const std::string arg_tool_main= "P:x:H:E:vkVl";
     const struct option long_options[] = {
         COMMON_LONG_OPTIONS,
         SECURITY_LONG_OPTIONS,
@@ -240,7 +245,7 @@ int parse_davix_ls_options(int argc, char** argv, OptParams & p, DavixError** er
 
 
 int parse_davix_get_options(int argc, char** argv, OptParams & p, DavixError** err){
-    const std::string arg_tool_main= "x:H:E:o:OvkV";
+    const std::string arg_tool_main= "P:x:H:E:o:OvkV";
     const struct option long_options[] = {
         COMMON_LONG_OPTIONS,
         SECURITY_LONG_OPTIONS,
@@ -262,7 +267,7 @@ int parse_davix_get_options(int argc, char** argv, OptParams & p, DavixError** e
 }
 
 int parse_davix_put_options(int argc, char** argv, OptParams & p, DavixError** err){
-    const std::string arg_tool_main= "x:H:E:o:vkV";
+    const std::string arg_tool_main= "P:x:H:E:o:vkV";
     const struct option long_options[] = {
         COMMON_LONG_OPTIONS,
         SECURITY_LONG_OPTIONS,
@@ -290,8 +295,9 @@ const std::string  & get_common_options(){
     static const std::string s(
             "  Common Options:\n"
             "\t--debug:                  Debug mode\n"
-            "\t--header, -H:             Add a header field to the request (ex: \"Depth: 1\") \n"
+            "\t--header, -H:             Add a header field to the request\n"
             "\t--help, -h:               Display this help message\n"
+            "\t--module, -P url:         Load a plugin or profile by name\n"
             "\t--proxy, -x url:          SOCKS5 proxy server URL (ex: socks5://login:pass@socks.example.org )\n"
             "\t--trace-headers:          Trace all HTTP queries headers\n"
             "\t--verbose:                Verbose mode\n"

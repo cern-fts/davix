@@ -131,6 +131,9 @@ void configureContext(Context &context, const OptParams & opts){
         context.setHookById(DAVIX_HOOK_REQUEST_PRE_SEND, (void*) hook_davix_tool_pre_send, NULL);
         context.setHookById(DAVIX_HOOK_REQUEST_PRE_RECVE, (void*)hook_davix_tool_pre_rec, NULL);
     }
+    for(std::vector<std::string>::const_iterator it = opts.modules_list.begin(); it != opts.modules_list.end(); it++){
+        context.loadModule(*it);
+    }
 }
 
 int getOutFd(const Tool::OptParams & opts, const std::string & scope, DavixError** err){

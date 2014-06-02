@@ -68,6 +68,8 @@ struct OptParams{
     int pres_flag;
     // shell flags
     int shell_flag;
+    // modules list
+    std::vector<std::string> modules_list;
 };
 
 int parse_davix_options(int argc, char** argv, OptParams & p, DavixError** err);

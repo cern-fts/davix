@@ -297,7 +297,7 @@ const std::string  & get_common_options(){
             "\t--debug:                  Debug mode\n"
             "\t--header, -H:             Add a header field to the request\n"
             "\t--help, -h:               Display this help message\n"
-            "\t--module, -P url:         Load a plugin or profile by name\n"
+            "\t--module, -P name:        Load a plugin or profile by name\n"
             "\t--proxy, -x url:          SOCKS5 proxy server URL (ex: socks5://login:pass@socks.example.org )\n"
             "\t--trace-headers:          Trace all HTTP queries headers\n"
             "\t--verbose:                Verbose mode\n"

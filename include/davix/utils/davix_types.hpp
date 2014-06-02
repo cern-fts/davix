@@ -65,7 +65,19 @@ namespace Davix{
 
 } // Davix
 
+// define CXX11 support
+#if ( (__cplusplus == 201103L) || (defined (DAVIX_FORCE_CXX11)) )
+#define DAVIX_CX11_SUPPORT
+#endif
 
+
+// enable TR1 for non CX11 compilation
+#ifndef DAVIX_CX11_SUPPORT
+#include <tr1/functional>
+#endif
+
+// Disable all non C++03 features
+//#define DAVIX_STD_CXX03
 
 // Davix Large File Support
 #if  ( __WORDSIZE == 32 ) || \

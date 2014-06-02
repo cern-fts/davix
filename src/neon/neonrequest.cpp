@@ -793,29 +793,25 @@ void NEONRequest::free_request(){
 void NEONRequest::neon_hook_pre_send(ne_request *r, void *userdata,
                    ne_buffer *header){
     NEONRequest* req = (NEONRequest*) userdata;
-    std::pair<void*, void*> p = req->_c.getHookById(DAVIX_HOOK_REQUEST_PRE_SEND);
-    hookRequestPreSend hook = (hookRequestPreSend)  (p.first);
+    RequestPreSendHook hook = req->_c.getHook<RequestPreSendHook>();
     if(hook){
         std::string header_line(header->data, (header->used)-1);
-        hook(req->_h, header_line, p.second);
+        hook(req->_h, header_line);
     }
 }
 
 void NEONRequest::neon_hook_pre_rec(ne_request *r, void *userdata,
                                     const ne_status *status){
     NEONRequest* req = (NEONRequest*) userdata;
-    std::pair<void*, void*> p = req->_c.getHookById(DAVIX_HOOK_REQUEST_PRE_RECVE);
-    hookRequestPreRece hook = (hookRequestPreRece)  (p.first);
+    RequestPreReceHook hook = req->_c.getHook<RequestPreReceHook>();
     if(hook){
         std::ostringstream header_line;
         HeaderVec headers;
         req->getAnswerHeaders(headers);
-        header_line << "HTTP/"<< status->major_version << status->minor_version << '.'
+        header_line << "HTTP/"<< status->major_version << '.' << status->minor_version
                     << ' ' << status->code << ' ' << status->reason_phrase << '\n';
-        for(HeaderVec::iterator it = headers.begin(); it != headers.end(); ++it){
-            header_line << it->first << ": " << it->second << '\n';
-        }
-        hook(req->_h, header_line.str(), p.second);
+
+        hook(req->_h, header_line.str(), headers, status->code);
     }
 }
 

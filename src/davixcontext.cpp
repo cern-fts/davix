@@ -44,9 +44,8 @@ struct ContextInternal
         _s_buff(65536),
         _timeout(300),
         _context_flags(0),
-        _hooks()
+        _hook_list()
     {
-        std::fill(_hooks, _hooks+ DAVIX_HOOK_REQUEST_NUM*2, static_cast<void*>(NULL));
     }
 
     ContextInternal(const ContextInternal & orig):
@@ -54,9 +53,8 @@ struct ContextInternal
         _s_buff(orig._s_buff),
         _timeout(orig._timeout),
         _context_flags(orig._context_flags),
-        _hooks()
+        _hook_list(orig._hook_list)
     {
-        std::copy(orig._hooks, orig._hooks+ DAVIX_HOOK_REQUEST_NUM*2, _hooks);
     }
 
     virtual ~ContextInternal(){}
@@ -74,7 +72,7 @@ struct ContextInternal
     dav_size_t _s_buff;
     unsigned long _timeout;
     bool _context_flags;
-    void* _hooks[DAVIX_HOOK_REQUEST_NUM*2];
+    HookList _hook_list;
 };
 
 ///////////////////////////////////////////////////////////////
@@ -130,23 +128,14 @@ HttpRequest* Context::createRequest(const Uri &uri, DavixError **err){
 
 void Context::loadModule(const std::string &name){
     if( StrUtil::compare_ncase("grid",name) == 0){
-        loadGridProfile();
+        loadGridProfile(*this);
         return;
     }
     DAVIX_LOG(DAVIX_LOG_WARNING, "No module named %s found", name.c_str());
 }
 
-void Context::setHookById(int id, void* hook, void* userdata){
-    if(id >=0 && id < DAVIX_HOOK_REQUEST_NUM-1)
-        _intern->_hooks[2*id] = hook;
-        _intern->_hooks[2*id+1] = userdata;
-}
-
-std::pair<void*,void*> Context::getHookById(int id){
-    if(id >=0 && id < DAVIX_HOOK_REQUEST_NUM-1){
-        return std::pair<void*,void*>(_intern->_hooks[2*id], _intern->_hooks[2*id+1]);
-    }
-    return std::pair<void*,void*>(static_cast<void*>(NULL),static_cast<void*>(NULL));
+HookList & Context::getHookList(){
+    return _intern->_hook_list;
 }
 
 NEONSessionFactory & ContextExplorer::SessionFactoryFromContext(Context & c){

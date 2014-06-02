@@ -18,6 +18,7 @@
  *
 */
 
+#include <utils/davix_types.hpp>
 #include <davix.hpp>
 #include <davix_internal.hpp>
 #include <string_utils/stringutils.hpp>
@@ -117,19 +118,36 @@ static void printHookHeaders(char symbol, const std::string & first_msg, const s
     }
 }
 
-void hook_davix_tool_pre_send(HttpRequest& req, const std::string & start_line, void* userdata){
+static void printHookHeadersVec(char symbol, const std::string & first_msg, const std::string & init_line,
+                                const HeaderVec & headers){
+    std::string parsed_first_line(init_line);
+    StrUtil::remove(parsed_first_line, '\r');
+    rtrim(parsed_first_line, StrUtil::isCrLf);
+
+    writeConsoleLine(STDOUT_FILENO, '*', first_msg);
+    writeConsoleLine(STDOUT_FILENO, symbol, parsed_first_line);
+    for(HeaderVec::const_iterator it =headers.begin(); it != headers.end(); ++it){
+          std::string header_line(it->first);
+          header_line.append(": ").append(it->second);
+          writeConsoleLine(STDOUT_FILENO, symbol, header_line);
+    }
+}
+
+void hook_davix_tool_pre_send(HttpRequest& req, const std::string & start_line){
     printHookHeaders('>', "Send request", start_line);
 }
 
-void hook_davix_tool_pre_rec(HttpRequest& req, const std::string & start_line, void* userdata){
-    printHookHeaders('<', "Receive answer", start_line);
+void hook_davix_tool_pre_rec(HttpRequest& req, const std::string & init_line, const HeaderVec & headers, int status_code){
+    printHookHeadersVec('<', "Receive answer", init_line, headers);
 }
 
 
 void configureContext(Context &context, const OptParams & opts){
     if(opts.pres_flag & DISPLAY_HEADERS){
-        context.setHookById(DAVIX_HOOK_REQUEST_PRE_SEND, (void*) hook_davix_tool_pre_send, NULL);
-        context.setHookById(DAVIX_HOOK_REQUEST_PRE_RECVE, (void*)hook_davix_tool_pre_rec, NULL);
+        RequestPreSendHook send_hook(hook_davix_tool_pre_send);
+        RequestPreReceHook rece_hook(hook_davix_tool_pre_rec);
+        context.setHook(send_hook);
+        context.setHook(rece_hook);
     }
     for(std::vector<std::string>::const_iterator it = opts.modules_list.begin(); it != opts.modules_list.end(); it++){
         context.loadModule(*it);

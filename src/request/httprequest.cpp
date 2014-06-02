@@ -222,10 +222,11 @@ bool HttpRequest::getFlag(const RequestFlag::RequestFlag flag){
 
 void HttpRequest::runPreRunHook(){
     // triggers Hooks
-    std::pair<void*, void*> pair(d_ptr->_c.getHookById(DAVIX_HOOK_REQUEST_PRE_RUN));
-    hookRequestPreRun hook = (hookRequestPreRun) (pair.first);
-    if(hook)
-        hook(d_ptr->params, *this, *(d_ptr->_orig), pair.second);
+    RequestPreRunHook hook = d_ptr->_c.getHook<RequestPreRunHook>();
+
+    if(hook){
+        hook(d_ptr->params, *this, *(d_ptr->_orig));
+    }
 }
 
 

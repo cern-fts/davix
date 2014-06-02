@@ -142,6 +142,9 @@ enum Code {
     /// Generic Parsing Error
     ParsingError = 0x23,
 
+    /// Invalid Hook type
+    InvalidHook = 0x24,
+
     /// Undefined error
     UnknowError = 0x100
 

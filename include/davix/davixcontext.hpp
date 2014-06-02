@@ -42,8 +42,10 @@ namespace Davix{
 
 struct ContextInternal;
 struct ContextExplorer;
+class HookList;
 class HttpRequest;
 class DavPosix;
+
 
 
 /// @brief Main handle for Davix
@@ -76,18 +78,27 @@ public:
     /// clone this instance to a new context dynamically allocated,
     Context* clone();
 
+#ifndef DAVIX_STD_CXX03
+
+    template<typename HookType>
+    inline void setHook(const HookType & id){
+        hookDefine<HookType>(getHookList(), id);
+    }
+
+    template<typename HookType>
+    inline const HookType & getHook(){
+        return hookGet<HookType>(getHookList());
+    }
+
+#endif
+
     /// load a plugin or a profile identified by name
     void loadModule(const std::string & name);
 
-    /// define a new hook for Davix
-    void setHookById(int id, void* hook, void* userdata);
-
-    /// get an existing hook for Davix in the form pair(hook,userdata)
-    std::pair<void*, void*> getHookById(int id);
-
-    ///  enable or disablet the session caching
+    ///  enable or disable the session caching
     void setSessionCaching(bool caching);
 
+    /// get session caching status
     bool getSessionCaching() const;
 
 private:
@@ -96,6 +107,7 @@ private:
 
     friend class DavPosix;
     friend struct ContextExplorer;
+    HookList & getHookList();
 public:
 
     /// @deprecated

@@ -90,7 +90,7 @@ static void check_last_modified(DavPropXMLParser::DavxPropXmlIntern & par, const
     DAVIX_DEBUG(" getlastmodified found -> parse it ");
     time_t t = parse_standard_date(name.c_str());
     if(t == -1){
-        DAVIX_LOG(DAVIX_LOG_WARNING, " getlastmodified parsing error : corrupted value ... ignored");
+        DAVIX_LOG(DAVIX_LOG_VERBOSE, " getlastmodified parsing error : corrupted value ... ignored");
         t = 0;
     }
     DAVIX_DEBUG(" getlastmodified found -> value %ld ", t);
@@ -102,7 +102,7 @@ static void check_creation_date(DavPropXMLParser::DavxPropXmlIntern & par, const
     DAVIX_DEBUG("creationdate found -> parse it");
     time_t t = parse_standard_date(name.c_str());
     if(t == -1){
-        DAVIX_LOG(DAVIX_LOG_WARNING," creationdate parsing error : corrupted value ... ignored");
+        DAVIX_LOG(DAVIX_LOG_VERBOSE," creationdate parsing error : corrupted value ... ignored");
         t = 0;
     }
     DAVIX_DEBUG(" creationdate found -> value %ld ", t);
@@ -120,7 +120,7 @@ static void check_content_length(DavPropXMLParser::DavxPropXmlIntern & par,  con
     DAVIX_DEBUG(" content length found -> parse it");
     const unsigned long mysize = strtoul(name.c_str(), NULL, 10);
     if(mysize == ULONG_MAX){
-        DAVIX_LOG(DAVIX_LOG_WARNING," Invalid content length value in dav response");
+        DAVIX_LOG(DAVIX_LOG_VERBOSE," Invalid content length value in dav response");
         errno =0;
         return;
     }
@@ -132,7 +132,7 @@ static void check_mode_ext(DavPropXMLParser::DavxPropXmlIntern & par, const std:
     DAVIX_DEBUG(" mode_t extension for LCGDM found -> parse it");
     const unsigned long mymode = strtoul(name.c_str(), NULL, 8);
     if(mymode == ULONG_MAX){
-        DAVIX_LOG(DAVIX_LOG_WARNING," Invalid mode_t value for the LCGDM extension");
+        DAVIX_LOG(DAVIX_LOG_VERBOSE," Invalid mode_t value for the LCGDM extension");
         errno =0;
         return;
     }
@@ -168,7 +168,7 @@ static void check_status(DavPropXMLParser::DavxPropXmlIntern & par, const std::s
            return;
         }
     }
-    DAVIX_LOG(DAVIX_LOG_WARNING,"Invalid dav status field value");
+    DAVIX_LOG(DAVIX_LOG_VERBOSE,"Invalid dav status field value");
     errno =0;
 }
 

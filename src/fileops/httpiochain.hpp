@@ -18,6 +18,7 @@ class HttpIOChain;
 
 
 
+// parameter handler for any IO Chain operation
 struct IOChainContext{
     IOChainContext(Context & c, const Uri & u, const RequestParams * p): _context(c), _uri(u), _reqparams(p) {}
     Context& _context;

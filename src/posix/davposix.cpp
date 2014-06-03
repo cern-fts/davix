@@ -91,6 +91,14 @@ struct Davix_fd{
         io_handler(), io_context(Davix::getIOContext(context, _uri, &_params)){
         Davix::getIOChain(io_handler);
     }
+    virtual ~Davix_fd(){
+        try{
+            io_handler.resetIO(io_context);
+        }catch(Davix::DavixException & e){
+            DAVIX_LOG(DAVIX_LOG_VERBOSE, "Error when closed file descriptor, possibly file corrupted %s", e.what());
+        }
+    }
+
     Davix::Uri _uri;
     Davix::RequestParams _params;
     Davix::HttpIOChain io_handler;
@@ -623,6 +631,7 @@ off_t DavPosix::lseek(DAVIX_FD* fd, off_t offset, int flags, Davix::DavixError**
 int DavPosix::close(DAVIX_FD* fd, Davix::DavixError** err){
     TRY_DAVIX{
         if(fd){
+            fd->io_handler.resetIO(fd->io_context);
             delete fd;
         }
     }CATCH_DAVIX(err)

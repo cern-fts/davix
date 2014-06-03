@@ -267,6 +267,12 @@ void NEONRequest::configure_req(){
 }
 
 
+static std::string extract_bucket(const Uri & uri){
+    const std::string & hostname = uri.getHost();
+    std::string::const_iterator it = std::find(hostname.begin(), hostname.end(),'.');
+    return std::string(hostname.begin(), it);
+}
+
 void NEONRequest::configureS3params(){
     struct tm utc_current;
     time_t t = time(NULL);
@@ -287,7 +293,7 @@ void NEONRequest::configureS3params(){
        << "\n"          // TODO : implement Content-type and md5 parser
        << "\n"
        << date << "\n"
-       << _current->getPath();
+       << '/' << extract_bucket(*_current)  << _current->getPath();
     addHeaderField("Authorization", getAwsAuthorizationField(ss.str(), params.getAwsAutorizationKeys().first, params.getAwsAutorizationKeys().second));
 }
 

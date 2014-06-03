@@ -44,6 +44,7 @@
 
 namespace Davix {
 
+
 dav_ssize_t read_segment_request(HttpRequest* req, void* buffer, dav_size_t size_read,  dav_off_t off_set, DavixError**err);
 dav_ssize_t read_truncated_segment_request(HttpRequest* req, void* buffer, dav_size_t size_read,  dav_off_t off_set, DavixError**err);
 
@@ -258,7 +259,20 @@ dav_ssize_t HttpIO::writeFromFd(IOChainContext & iocontext, int fd, dav_size_t s
 
 
 /////////////////////////////////////////////////////
-////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////
+///
+
+
+struct IOBufferLocalFile{
+    IOBufferLocalFile(int fd, const std::string & filepath): _fd(fd), _filepath(filepath){}
+    virtual ~IOBufferLocalFile(){
+        DAVIX_TRACE("Delete tmp file %s", _filepath.c_str());
+        unlink(_filepath.c_str());
+    }
+
+    int _fd;
+    std::string _filepath;
+};
 
 HttpIOBuffer::HttpIOBuffer() :
     HttpIOChain(),
@@ -277,6 +291,17 @@ HttpIOBuffer::HttpIOBuffer() :
 
 HttpIOBuffer::~HttpIOBuffer(){
     delete _read_req;
+}
+
+IOBufferLocalFile* createLocalBuffer(){
+    char buffer[1024];
+    strcpy(buffer, "/tmp/.davix_tmp_file_XXXXXXXXXXXXXXXXXXXXXXXX");
+    int fd;
+    if( (fd = mkstemp(buffer)) < 0){
+        DAVIX_TRACE("Error during temporary file creation for HTTPIO %s: %s", buffer, strerror(errno));
+        return NULL;
+    }
+    return new IOBufferLocalFile(fd, buffer);
 }
 
 bool HttpIOBuffer::open(IOChainContext & iocontext, int flags){
@@ -304,6 +329,7 @@ bool HttpIOBuffer::open(IOChainContext & iocontext, int flags){
             _file_size = 0;
             _file_exist = false;
             _opened = true;
+            _local.reset(createLocalBuffer());
         }else{
             throw e;
         }
@@ -395,6 +421,21 @@ void HttpIOBuffer::resetIO(IOChainContext & iocontext){
         _read_req = NULL;
     }
     _read_pos =0;
+    commitLocal(iocontext);
+}
+
+
+void HttpIOBuffer::commitLocal(IOChainContext & iocontext){
+    boost::mutex::scoped_lock l(_rwlock);
+
+    if(_local.get()){
+        struct stat st;
+        memset(&st,0, sizeof(struct stat));
+        fstat(_local->_fd, &st);
+        DAVIX_TRACE("Commit local file modifications, %d bytes", st.st_size);
+        _start->writeFromFd(iocontext, _local->_fd, st.st_size);
+        _local.reset();
+    }
 }
 
 
@@ -419,30 +460,28 @@ dav_off_t HttpIOBuffer::lseek(IOChainContext & iocontext, dav_off_t offset, int 
 dav_ssize_t HttpIOBuffer::write(IOChainContext & iocontext, const void *buf, dav_size_t count){
     boost::mutex::scoped_lock l(_rwlock);
     dav_ssize_t ret =-1;
-    DavixError* tmp_err=NULL;
+    dav_size_t write_len = count;
 
-    if(_pos != 0){
-        DavixError::setupError(&tmp_err, davix_scope_http_request(), StatusCode::OperationNonSupported, " Multi-part write is not supported by Http !");
-    }else{
-        PutRequest req( iocontext._context, iocontext._uri, &tmp_err);
-        if(tmp_err == NULL){
-            RequestParams params(iocontext._reqparams);
-            req.setParameters(params);
-            req.setRequestBody(buf, count);
-            if(req.beginRequest(&tmp_err) ==0){
-                if(req.getRequestCode() != 200 ||  req.getRequestCode() != 204){ // out of file, end of file
-                    ret = count; // end of file
-                    _pos += count;
-                }else{
-                    httpcodeToDavixCode(req.getRequestCode(),davix_scope_http_request(),", while  readding", &tmp_err);
-                    ret = -1;
-                }
-            }
-            req.endRequest(NULL);
-        }
+
+    if(_local.get() == NULL || !_opened){
+        throw DavixException(davix_scope_io_buff(), StatusCode::SystemError, "Impossible to write, I/O Error");
     }
-    checkDavixError(&tmp_err);
-    return ret;
+
+    do{
+        ret = pwrite(_local->_fd, buf, static_cast<size_t>(count), _pos);
+
+        if (ret == -1 && errno == EINTR) {
+            continue;
+        } else if (ret < 0) {
+            throw DavixException(davix_scope_io_buff(),
+                                   StatusCode::SystemError, std::string("Impossible to write to fd").append(strerror(errno)));
+        } else {
+            _pos += ret;
+            write_len -= ret;
+        }
+    }while(write_len >0);
+
+    return (count - write_len);
 }
 
 

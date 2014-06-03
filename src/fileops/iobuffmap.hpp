@@ -68,6 +68,9 @@ private:
 
 };
 
+
+struct IOBufferLocalFile;
+
 ///
 /// RW operation with buffering support and POSIX like interface
 class HttpIOBuffer : public HttpIOChain{
@@ -95,6 +98,9 @@ public:
     //
     virtual void resetIO(IOChainContext & iocontext);
 
+
+    void commitLocal(IOChainContext & iocontext);
+
 protected:
 
     dav_size_t _file_size;
@@ -103,9 +109,10 @@ protected:
     bool _opened;
     advise_t _last_advise;
 
-    //
-
+    // locker
     boost::mutex _rwlock;
+    // write cache
+    boost::scoped_ptr<IOBufferLocalFile> _local;
 
     dav_off_t _read_pos; //curent read file offset
     bool _read_endfile;

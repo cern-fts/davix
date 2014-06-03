@@ -17,7 +17,7 @@
 #define DAVIX_READ_BLOCK_SIZE 4096
 
 /// default connexion timeout for HTTP/Dav connexion ( 0 : def value of the library )
-#define DAVIX_DEFAULT_CONN_TIMEOUT 180
+#define DAVIX_DEFAULT_CONN_TIMEOUT 30
 /// default timeout on operations for HTTP/Webdav ( 0 : def value of the library )
 #define DAVIX_DEFAULT_OPS_TIMEOUT 0
 

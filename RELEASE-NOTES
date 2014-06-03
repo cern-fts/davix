@@ -1,5 +1,77 @@
-Trunk :
- - Prototype for pwrite
+Version - 0.3.0
+
+Release Notes - LCGUTIL - Development - Version Davix 0.3
+
+Main changes:
+- Support for transparent fail-over based on Metalink, supported by all read I/O with HTTP
+- Multi-Range support compatible with TDavixFile/ROOT 5/6 
+		-> tested and working for dCache, DPM, Apache2, EOS, DynaFed, Owncloud, S3
+- Implement SOCKS5 support based on libneon
+- Add support for POSIX write operations, davix can now be used to write remotely on top of POSIX layer.
+- Add getReplicas call, allowing to list replica of a resources using Metalink
+- Introduce Checksum calculation feature
+- Extend the command line tool with davix-mkdir, davix-rm
+- Add long listing option to davix-ls -l
+- Add the -P options to all command line tools, can be used to enable the usage of pre-defined profile
+		-> For instance "davix-ls -P grid davs://grid-storage.com/" enable all grid extensions for davix-ls
+- Introduce a callback mechanism, allowing to intercept event inside davix based on std::function
+- Drop internal library for boost ( dependency optional, git submodule )
+- The "davix" http query tool is renamed "davix-http" 
+- First port on cygwin
+- Add --headers options for OAuth spport to all command line tools
+- Add --trace-headers options to all command line tools for query debugging
+- create man pages for each cmd line tool
+- Reduce default connextion timeout from 180s to 30s
+
+List Of JIRA tickets solved :
+    * [LCGUTIL-170] - Davix : Correct important coverity warnings
+    * [LCGUTIL-275] - Double HEAD coming from gfal-copy/gfal2/davix (?) relies on KeepAlive
+    * [LCGUTIL-301] - Create Davix MetalinkParser and test it
+    * [LCGUTIL-302] - Implement replicas selector from Metalink parsers
+    * [LCGUTIL-103] - DAVIX: Evaluate performance of Http based IO and compare with other protocols ( gsiftp, xrootd )
+    * [LCGUTIL-154] - Davix: koji build hangs forever on rawhide
+    * [LCGUTIL-162] - DAVIX: portability issue seen on Win32 plateform
+    * [LCGUTIL-172] - Davix posix write does not handle failures correctly
+    * [LCGUTIL-174] - DAVIX : Add a request parameter flag in order to disable completely any session reuse 
+    * [LCGUTIL-188] - Davix: prefixed install problem with cmake 2.8.7
+    * [LCGUTIL-196] - Davix & TDavixFile : map the main option to the ROOT Open file
+    * [LCGUTIL-318] - DAVIX: storm webdav parsing problem
+    * [LCGUTIL-341] - DAVIX: redirection caching problem with dCache instance
+    * [LCGUTIL-348] - gfal-copy produces misleading error
+    * [LCGUTIL-357] - gfal2-http fails to create the directories on 3rd party copies
+    * [LCGUTIL-383] - Merge fixes for 405 error mapping and discard body after a request is done
+    * [LCGUTIL-73] - DAVIX: design an API for advanced meta-link file management.
+    * [LCGUTIL-119] - DAVIX: implement a simple transparent failover case using meta-link.
+    * [LCGUTIL-344] - DAVIX : simplify davix code using boost, internal boost version is needed for ROOT usage
+    * [LCGUTIL-370] - DAVIX : rename davix cmd line tool to davix-http in order to avoid confusion
+    * [LCGUTIL-407] - DAVIX: Implement basic SOCKS5 support for Davix 
+    * [LCGUTIL-408] - DAVIX: Add a "load module" feature to davix
+    * [LCGUTIL-113] - Davix misses a getReplicas function
+    * [LCGUTIL-115] - DAVIX: split clearly the C API and the C++ API 
+    * [LCGUTIL-116] - DAVIX: export the IO buff map functions to the Object API 
+    * [LCGUTIL-339] - DAVIX: add support for login/password HTTP auth when URL contains login/password 
+    * [LCGUTIL-19] - add third party transfer support inside davix ( gfal 2.0 need )
+    * [LCGUTIL-175] - DAVIX: add options in order to display only request headers to the logging system
+    * [LCGUTIL-246] - DAVIX : Add support for davix command line tools for plain encrypted PEM credential 
+    * [LCGUTIL-336] - DAVIX : error in case of separated cred and key usage
+    * [LCGUTIL-337] - Davix: Support 303 redirection code for GET Operation too
+    * [LCGUTIL-338] - Davix : Support for file request parameter level personalized header
+    * [LCGUTIL-369] - Davix: add cmd line tool for simple collection creation ( mkdir )
+    * [LCGUTIL-371] - DAVIX : abi break between 0.2.8, and 0.3 : an ABI break has been detected on davix, this need to be fixed
+    * [LCGUTIL-372] - DAVIX: add simple stupid option --headers to display request headers of any operations with davix
+    * [LCGUTIL-373] - DAVIX : fix compilation problems and warning on OSX with clang compilation
+    * [LCGUTIL-375] - DAVIX: prepare internal IO stack for Metalink usage, Rucio parsing and s3 bucket parsing
+    * [LCGUTIL-379] - DAVIX: Fix misleading Connexion timeout debug message
+    * [LCGUTIL-381] - DAVIX: include man page for the software distribution
+    * [LCGUTIL-394] - DAVIX: bad_alloc throw by davix in some case with dCache endpoints
+    * [LCGUTIL-409] - DAVIX: implement POSIX partial write support with davix
+
+Version - 0.2.8
+    * [LCGUTIL-197] - Davix : bug inside the vector request system : vector request split to "one" range can trigger parsing problem
+    * [LCGUTIL-333] - Improve Davix setup on OSX
+    * [LCGUTIL-327] - DAVIX: add long listing support to davix-ls 
+    * [LCGUTIL-274] - add an error code "redirection needed" to davix status errors
+
 
 Version - 0.2.7
 - remove several GNU ext dependency

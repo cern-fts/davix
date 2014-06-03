@@ -62,10 +62,15 @@ int main(int argc, char** argv){
         return -1;
     }
 
-
-
+    pos.close(fd, &tmp_err);
     if(tmp_err){
-        std::cerr << " error while readding file " << tmp_err->getErrMsg() << " code :" << (int) tmp_err->getStatus() << std::endl;
+        std::cerr << " error while writing file " << tmp_err->getErrMsg() << " code :" << (int) tmp_err->getStatus() << std::endl;
+        return -1;
+    }
+
+
+    if( (fd =pos.open(&p, url, O_RDWR | O_CREAT, &tmp_err)) == NULL){
+        std::cerr << " open error "<< tmp_err->getErrMsg() << " code :" << (int) tmp_err->getStatus() << std::endl;
         return -1;
     }
 

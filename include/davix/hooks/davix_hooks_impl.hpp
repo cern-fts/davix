@@ -44,7 +44,7 @@ public:
 
 private:
     HookList();
-    friend class ContextInternal;
+    friend struct ContextInternal;
 };
 
 

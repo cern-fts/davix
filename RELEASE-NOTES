@@ -1,6 +1,4 @@
-Version - 0.3.0
-
-Release Notes - LCGUTIL - Development - Version Davix 0.3
+Version - 0.3.1
 
 Main changes:
 - Support for transparent fail-over based on Metalink, supported by all read I/O with HTTP

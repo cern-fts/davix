@@ -66,9 +66,22 @@ int get_cert_remaining_life(const std::string& cert)
     return (expiration_timestamp - time(NULL)) / 60;
 }
 
+// Gsoap does not use the Davix HTTP request system
+// Hooks need to be triggered manually for the modules
+// stupid ugly hack to fix this
+void triggerHooks(Context & context, RequestParams & params){
+    RequestPreRunHook preRun = context.getHook<RequestPreRunHook>();
+    Uri u;
+    HttpRequest tmp_req(context, u, NULL);
+    if(preRun){
+        // force the run of the hook on req + params
+        preRun(params, tmp_req, u);
+    }
+}
+
 /// Do the delegation
-std::string DavixCopyInternal::davix_delegate(const std::string &urlpp,
-                           const RequestParams& params,
+std::string DavixCopyInternal::davix_delegate(Context & context, const std::string &urlpp,
+                           const RequestParams& _p,
                            DavixError** err)
 {
   char                               *delegation_id = NULL;
@@ -83,23 +96,28 @@ std::string DavixCopyInternal::davix_delegate(const std::string &urlpp,
   char        err_buffer[512];
   size_t      err_aux;
 
+  RequestParams params(_p);
+  triggerHooks(context, params);
   // Extract credentials
-  std::pair<authCallbackClientCertX509, void*> x509callback = params.getClientCertCallbackX509();
-  Davix::X509Credential credentials;
+  Davix::X509Credential credentials = params.getClientCertX509();
+  // call callback only if cert is already not provided
+  if(!credentials.hasCert()){
 
-  if (!x509callback.first) {
-      Davix::DavixError::setupError(err, COPY_SCOPE, StatusCode::CredentialNotFound,
-                                    "No callback set for getting credentials. Can not delegate");
-      return "";
+      std::pair<authCallbackClientCertX509, void*> x509callback = params.getClientCertCallbackX509();
+
+      if (!x509callback.first) {
+          Davix::DavixError::setupError(err, COPY_SCOPE, StatusCode::CredentialNotFound,
+                                        "No callback set for getting credentials. Can not delegate");
+          return "";
+      }
+
+      SessionInfo sess;
+
+      x509callback.first(x509callback.second, sess, &credentials, err);
+      if (err && *err)
+          return "";
+
   }
-
-  SessionInfo sess;
-
-  x509callback.first(x509callback.second, sess, &credentials, err);
-  if (err && *err)
-      return "";
-
-
   std::string ucert, ukey, passwd;
   if (!X509CredentialExtra::get_x509_info(credentials, &ucert, &ukey, &passwd)) {
       DavixError::setupError(err, COPY_SCOPE, StatusCode::DelegationError,

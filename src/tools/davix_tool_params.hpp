@@ -88,6 +88,8 @@ const std::string & get_base_description_options();
 
 const std::string  & get_put_description_options();
 
+const std::string  & get_copy_description_options();
+
 }
 
 }

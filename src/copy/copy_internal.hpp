@@ -30,7 +30,7 @@ protected:
     void monitorPerformanceMarkers(Davix::HttpRequest *request, Davix::DavixError **error);
 
     // Delegation
-    static std::string davix_delegate(const std::string &urlpp,
+    static std::string davix_delegate(Davix::Context & context, const std::string &urlpp,
                                const Davix::RequestParams& params,
                                Davix::DavixError** err);
 

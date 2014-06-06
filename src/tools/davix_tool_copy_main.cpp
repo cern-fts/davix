@@ -20,7 +20,7 @@ static void performanceCallback(const PerformanceData& perfData, void *udata)
 
 
 static std::string help_msg(){
-    return Tool::get_base_description_options() +
+    return Tool::get_copy_description_options() +
             Tool::get_common_options();
 }
 
@@ -35,6 +35,7 @@ int main(int argc, char** argv){
     if( (retcode= Tool::parse_davix_options(argc, argv, opts, &tmp_err)) ==0){
         Context c;
         if( (retcode = Tool::configureAuth(opts, &tmp_err)) == 0){
+            configureContext(c, opts);
             DavixCopy copy(c, &opts.params);
             copy.setPerformanceCallback(performanceCallback, NULL);
             copy.copy(opts.vec_arg[0], opts.vec_arg[1],

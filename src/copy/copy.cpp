@@ -156,7 +156,7 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
             davix_logger(DAVIX_LOG_VERBOSE, "Got delegation endpoint: %s",
                          delegationEndpoint.c_str());
 
-            std::string dlg_id = davix_delegate(delegationEndpoint,
+            std::string dlg_id = davix_delegate(context, delegationEndpoint,
                                                 requestParams, &internalError);
             if (internalError) {
                 DavixError::propagatePrefixedError(error, internalError, __func__);

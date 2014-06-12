@@ -55,25 +55,21 @@ void NEONSession::authNeonCliCertMapper(void *userdata, ne_session *sess,
                                          int dncount){
 
     NEONSession* req = static_cast<NEONSession*>(userdata);
-    DavixError* tmp_err=NULL;
 
     X509Credential cert;
-    std::pair<authCallbackClientCertX509,void*> retcallback = req->_params.getClientCertCallbackX509();
+    const RequestParams* params = &req->_params;
     DAVIX_DEBUG("NEONSession > clicert callback ");
-    if( retcallback.first != NULL){
+    if(params->getClientCertFunctionX509()){
         DAVIX_DEBUG("NEONSession > call client cert callback ");
         SessionInfo infos;
-
-        if( retcallback.first(retcallback.second, infos, &cert, &tmp_err) != 0 || cert.hasCert() == false){
-            if(!tmp_err)
-                DavixError::setupError(&tmp_err, davix_scope_http_request(), StatusCode::AuthentificationError,
-                                       "No valid credential given ");
-             DavixError::propagateError(&(req->_last_error), tmp_err);
-             return;
-        }
-
-        ne_ssl_set_clicert(req->_sess, X509CredentialExtra::extract_ne_ssl_clicert(cert));
-        DAVIX_DEBUG("NEONSession > end call client cert callback");
+        TRY_DAVIX{
+            params->getClientCertFunctionX509()(infos, cert);
+            if(cert.hasCert() == false){
+                throw DavixException(davix_scope_x509cred(), StatusCode::AuthentificationError,
+                                     "No valid credential given ");
+            }
+            ne_ssl_set_clicert(req->_sess, X509CredentialExtra::extract_ne_ssl_clicert(cert));
+        }CATCH_DAVIX(&(req->_last_error));
     }
     return;
 }
@@ -186,12 +182,9 @@ void configureSession(ne_session *_sess, const Uri & _u, const RequestParams &pa
         }
 
         // if authentification for cli cert by callback
-        if( params.getClientCertCallbackX509().first != NULL){
+        if( params.getClientCertFunctionX509()){
             DAVIX_DEBUG("NEONSession : enable client cert authentication by callback ");
             ne_ssl_provide_clicert(_sess, cred_callback, cred_userdata);
-        }else if( params.getClientCertX509().hasCert()){
-            ne_ssl_set_clicert(_sess, X509CredentialExtra::extract_ne_ssl_clicert(params.getClientCertX509()));
-            DAVIX_DEBUG("NEONSession : enable client cert authentication with predefined cert");
         }else{
               DAVIX_DEBUG("NEONSession : disable client cert authentication");
         }

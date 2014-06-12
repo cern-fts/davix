@@ -57,6 +57,20 @@ private:
     friend class DavixCopyInternal;
 };
 
+
+#ifndef DAVIX_STD_CXX03
+
+///
+/// std::function for advanced authentification with client cert X509
+///
+/// @param info : Session info, contains information about server requesting the certificate
+/// @param cert : Client side credential to provide
+/// @return 0 if client cert is provider with success, can throw DavixException if error occurs
+typedef std::function<int  (const SessionInfo & info, X509Credential& cert)> authFunctionClientCertX509;
+
+#endif
+
+
 ///
 /// callback for advanced authentification with client cert X509
 /// @param userdata : user defined data

@@ -135,6 +135,15 @@ public:
     const std::pair<std::string,std::string> & getClientLoginPassword() const;
 
 
+#ifndef DAVIX_STD_CXX03
+    /// set a function for or X509 client side dynamic authentication
+    /// this function overwrite \ref setClientCertCallbackX509
+    void setClientCertFunctionX509(const authFunctionClientCertX509 & callback);
+
+    /// return the function
+    const authFunctionClientCertX509 & getClientCertFunctionX509() const;
+#endif
+
     /// set a callback for X509 client side dynamic authentication
     /// this function overwrite \ref setClientCertX509
     void setClientCertCallbackX509(authCallbackClientCertX509 callback, void* userdata);

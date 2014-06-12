@@ -41,15 +41,50 @@ inline int get_requeste_uid(){
 
 #define SESSION_FLAG_KEEP_ALIVE 0x01
 
+struct X509Data{
+    X509Data() : _pair(NULL,NULL), _x509_fun(), _cred(){}
+
+    std::pair<authCallbackClientCertX509, void*> _pair;
+
+    authFunctionClientCertX509 _x509_fun;
+
+    X509Credential _cred;
+
+    static X509Data* instance(boost::shared_ptr<X509Data> & cred_ptr){
+        if(cred_ptr.get() == NULL){
+            cred_ptr.reset(new X509Data());
+        }
+        return cred_ptr.get();
+    }
+
+    static X509Data* reset(boost::shared_ptr<X509Data> & cred_ptr){
+        cred_ptr.reset(new X509Data());
+        return cred_ptr.get();
+    }
+
+    int cred_callback(const SessionInfo & info, X509Credential& cert){
+        cert = _cred;
+        return 0;
+    }
+
+    int c_callback(const SessionInfo & info, X509Credential& cert){
+        DavixError* tmp_err=NULL;
+        int ret = -1;
+        if(_pair.first){
+            ret = _pair.first(_pair.second, info, &cert, &tmp_err);
+        }
+        Davix::checkDavixError(&tmp_err);
+        return ret;
+    }
+};
+
 struct RequestParamsInternal{
     RequestParamsInternal() :
         _ssl_check(true),
         _redirection(true),
         _ca_path(),
-        _cli_cert(),
+        _x509_data(),
         _idlogpass(),
-        _callb(NULL),
-        _callb_userdata(NULL),
         _call_loginpswwd(NULL),
         _call_loginpswwd_userdata(NULL),
         _aws_cred(),
@@ -81,10 +116,8 @@ struct RequestParamsInternal{
         _ssl_check(param_private._ssl_check),
         _redirection(param_private._redirection),
         _ca_path(param_private._ca_path),
-        _cli_cert(param_private._cli_cert),
+        _x509_data(param_private._x509_data),
         _idlogpass(param_private._idlogpass),
-        _callb(param_private._callb),
-        _callb_userdata(param_private._callb_userdata),
         _call_loginpswwd(param_private._call_loginpswwd),
         _call_loginpswwd_userdata(param_private._call_loginpswwd_userdata),
         _aws_cred(param_private._aws_cred),
@@ -108,10 +141,9 @@ struct RequestParamsInternal{
     std::vector<std::string> _ca_path;
 
     // auth info
-    X509Credential _cli_cert;
+    boost::shared_ptr<X509Data> _x509_data;
+
     std::pair<std::string,std::string> _idlogpass;
-    authCallbackClientCertX509 _callb;
-    void* _callb_userdata;
     authCallbackLoginPasswordBasic _call_loginpswwd;
     void* _call_loginpswwd_userdata;
     std::pair<AwsSecretKey, AwsAccessKey> _aws_cred;
@@ -193,8 +225,11 @@ void RequestParams::setSSLCAcheck(bool chk){
 
 
 void RequestParams::setClientCertX509(const X509Credential & cli_cert){
+    using namespace std;
     d_ptr->regenerateStateUid();
-    d_ptr->_cli_cert = cli_cert;
+    X509Data* x509 = X509Data::reset(d_ptr->_x509_data);
+    x509->_cred = cli_cert;
+    x509->_x509_fun = bind(&X509Data::cred_callback, x509, _1, _2);
 }
 
 void RequestParams::setClientLoginPassword(const std::string & login, const std::string & password){
@@ -207,20 +242,36 @@ const std::pair<std::string, std::string> & RequestParams::getClientLoginPasswor
 }
 
 const X509Credential & RequestParams::getClientCertX509() const{
-    return d_ptr->_cli_cert;
+    X509Data* x509 = X509Data::instance(d_ptr->_x509_data);
+    return x509->_cred;
 }
 
 /// set a callback for X509 client side dynamic authentication
 /// this function overwrite \ref setClientCertX509
 void RequestParams::setClientCertCallbackX509(authCallbackClientCertX509 callback, void* userdata){
+    using namespace std;
     d_ptr->regenerateStateUid();
-    d_ptr->_callb = callback;
-    d_ptr->_callb_userdata = userdata;
+    X509Data* x509 = X509Data::reset(d_ptr->_x509_data);
+    x509->_pair = std::make_pair(callback, userdata);
+    x509->_x509_fun = bind(&X509Data::c_callback, x509, _1, _2);
+}
+
+
+void RequestParams::setClientCertFunctionX509(const authFunctionClientCertX509 &callback){
+    d_ptr->regenerateStateUid();
+    X509Data* x509 = X509Data::reset(d_ptr->_x509_data);
+    x509->_x509_fun= callback;
+}
+
+const authFunctionClientCertX509 & RequestParams::getClientCertFunctionX509() const{
+    X509Data* x509 = X509Data::instance(d_ptr->_x509_data);
+    return x509->_x509_fun;
 }
 
 /// return the current client side callback for authentification with the current user data
 std::pair<authCallbackClientCertX509,void*> RequestParams::getClientCertCallbackX509() const{
-    return std::pair<authCallbackClientCertX509,void*>(d_ptr->_callb, d_ptr->_callb_userdata);
+    X509Data* x509 = X509Data::instance(d_ptr->_x509_data);
+    return x509->_pair;
 }
 
 /// set a callback for X509 client side dynamic authentication

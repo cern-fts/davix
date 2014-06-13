@@ -42,7 +42,7 @@ inline int get_requeste_uid(){
 #define SESSION_FLAG_KEEP_ALIVE 0x01
 
 struct X509Data{
-    X509Data() : _pair(NULL,NULL), _x509_fun(), _cred(){}
+    X509Data() : _pair(static_cast<authCallbackClientCertX509>(NULL),static_cast<void*>(NULL)), _x509_fun(), _cred(){}
 
     std::pair<authCallbackClientCertX509, void*> _pair;
 

@@ -4,8 +4,8 @@ project (davix)
 cmake_minimum_required (VERSION 2.6)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules/")
-option(shared_library "generate shared library" TRUE)
-option(static_library  "generate static library" FALSE)
+option(SHARED_LIBRARY "generate shared library" TRUE)
+option(STATIC_LIBRARY  "generate static library" FALSE)
 
 
 # build type

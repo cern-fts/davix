@@ -41,7 +41,7 @@ LIST(APPEND SRC_DAVIX_FULL ${src_davix} ${src_davix_request} ${SRC_HTTP}  ${src_
 
 add_definitions(${HTTPLIB_PKG_CFLAGS} )
 
-if(shared_library)
+if(SHARED_LIBRARY)
 add_library(libdavix  SHARED ${SRC_DAVIX_FULL} )
 add_dependencies(libdavix neon)
 
@@ -65,31 +65,23 @@ add_PkgConfigFile_for_Library("davix.pc" libdavix
                                DESCRIPTION "Libdavix, IO library for HTTP based protocols"
                                )
 
-endif(shared_library)
+endif(SHARED_LIBRARY)
 
 
 
-if(static_library)
+if(STATIC_LIBRARY)
 
 add_library(libdavix_static  STATIC ${SRC_DAVIX_FULL})
-add_dependencies(libdavix_static neon_static)
-
-
-target_link_libraries(libdavix_static  ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES}
-                                          ${CMAKE_THREAD_LIBS_INIT} ${SOCKET_PKG_LIBRARIES})
-
 
 
 set_target_properties(libdavix_static PROPERTIES
-                            VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}
-                            SOVERSION ${VERSION_MAJOR}
-                            CLEAN_DIRECT_OUTPUT 1
                             OUTPUT_NAME ${OUTPUT_NAME_DAVIX})
+
 
 install(TARGETS libdavix_static
              DESTINATION ${LIB_INSTALL_DIR} )
 
-endif(static_library)
+endif(STATIC_LIBRARY)
 
 SET(davix_tool_common_src "${davix_tool_common_src_up}" PARENT_SCOPE)
 

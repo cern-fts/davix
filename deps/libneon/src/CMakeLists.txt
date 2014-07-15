@@ -16,4 +16,9 @@ endif(HAVE_GNUTLS)
 
 add_library(neon STATIC ${src_neon} ${src_ssl})
 
+# if the static library is produced, then we need also to install the dependent libraries to be useful
+if(STATIC_LIBRARY)
+  install(TARGETS neon DESTINATION ${LIB_INSTALL_DIR} )
+endif()
+
 

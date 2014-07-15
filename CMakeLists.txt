@@ -37,6 +37,9 @@ set(VERSION_TAG "std")
 # dependency mode
 option(BOOST_EXTERNAL "Enable the usage of an external boost dependency" TRUE)
 
+# components
+option(ENABLE_TOOLS "enable or disable tools " TRUE)
+
 # features
 option(ENABLE_IPV6 "enable or disable IPv6 support " TRUE)
 option(ENABLE_TCP_NODELAY "enable or disable tcp_nodelay" TRUE)
@@ -79,10 +82,10 @@ add_definitions( -D__STDC_LIMIT_MACROS )     # C99 limit macros
 add_definitions( -D_FILE_OFFSET_BITS=64)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_FLAG_ENABLE}")
 
+include_directories( ${Boost_INCLUDE_DIRS})
 include_directories( ${HTTPLIB_PKG_INCLUDE_DIRS} ${GLIB2_PKG_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/deps ${CMAKE_CURRENT_SOURCE_DIR}/deps/libneon/src/ )
 include_directories( ${CMAKE_SOURCE_DIR}/include/davix )
 include_directories( ${CMAKE_SOURCE_DIR}/src/libs/)
-include_directories( ${Boost_INCLUDE_DIRS})
 
 add_subdirectory (src)
 add_subdirectory (doc)

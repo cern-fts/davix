@@ -28,7 +28,9 @@ link_directories(${HTTPLIB_PKG_LIBRARY_DIR} ${CRYPTO_PKG_LIBRARY_DIR}
 add_subdirectory(copy)
 add_subdirectory(libs)
 add_subdirectory(xml)
-add_subdirectory(tools)
+if(ENABLE_TOOLS)
+  add_subdirectory(tools)
+endif()
 
 add_subdirectory(neon)
 SET(SRC_HTTP ${src_neon})
@@ -64,6 +66,9 @@ add_PkgConfigFile_for_Library("davix.pc" libdavix
                                CFLAGS " -D_FILE_OFFSET_BITS=64 "
                                DESCRIPTION "Libdavix, IO library for HTTP based protocols"
                                )
+#install pkgconfig
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/davix.pc
+        DESTINATION ${PKGCONFIG_FILES_DIR} )
 
 endif(SHARED_LIBRARY)
 
@@ -85,9 +90,5 @@ endif(STATIC_LIBRARY)
 
 SET(davix_tool_common_src "${davix_tool_common_src_up}" PARENT_SCOPE)
 
-
-#install pkgconfig
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/davix.pc
-        DESTINATION ${PKGCONFIG_FILES_DIR} )
 
 

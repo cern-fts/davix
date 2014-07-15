@@ -74,7 +74,7 @@ namespace Davix{
 
 
 // enable TR1 for non CX11 compilation
-#ifndef DAVIX_CX11_SUPPORT
+#if (!(defined DAVIX_CX11_SUPPORT) && !(defined DAVIX_STD_CXX03))
 
 #include <tr1/functional>
 

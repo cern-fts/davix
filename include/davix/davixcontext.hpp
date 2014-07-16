@@ -78,7 +78,7 @@ public:
     /// clone this instance to a new context dynamically allocated,
     Context* clone();
 
-#ifndef DAVIX_STD_CXX03
+#ifdef __DAVIX_HAS_STD_FUNCTION
 
     /// set a new hook (callback) to intercept event in davix
     /// see davix_hooks.hpp for more details about hooks

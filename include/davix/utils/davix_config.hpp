@@ -26,10 +26,21 @@
 #error "Only davix.hpp should be included."
 #endif
 
-
-// type decl
+//
+// export
+//
 #ifndef DAVIX_EXPORT
 #define DAVIX_EXPORT __attribute__((visibility("default")))
+#endif
+
+
+//
+// detect GCC
+//
+#if (defined(__GNUC__) || defined(__GNUG__)) && !(defined(__clang__) || defined(__INTEL_COMPILER))
+#   ifndef __DAVIX_COMPILER_GCC
+#       define __DAVIX_COMPILER_GCC
+#   endif
 #endif
 
 //
@@ -47,7 +58,7 @@
 // detect TR1 support
 //
 #if ( (defined DAVIX_FORCE_TR1) \
-      || (defined __GNUG__) \
+      || (defined __DAVIX_COMPILER_GCC) \
       || (defined HAVE_TR1_SUPPORT))
 #   ifndef __DAVIX_TR1_SUPPORT
 #       define __DAVIX_TR1_SUPPORT

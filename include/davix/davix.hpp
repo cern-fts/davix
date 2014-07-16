@@ -18,7 +18,6 @@
  *
 */
 
-
 #ifndef DAVIX_HPP
 #define DAVIX_HPP
 

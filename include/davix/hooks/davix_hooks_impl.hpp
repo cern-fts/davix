@@ -31,7 +31,7 @@ namespace Davix{
 
 struct ContextInternal;
 
-#ifndef DAVIX_STD_CXX03
+#ifdef __DAVIX_HAS_STD_FUNCTION
 
 class HookList{
 public:

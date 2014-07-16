@@ -22,9 +22,11 @@
 #define DAVIX_DEFAULT_OPS_TIMEOUT 0
 
 // c++11
-
 #cmakedefine HAVE_CXX011_FULL_SUPPORT 1
 #cmakedefine HAVE_CXX011_PARTIAL_SUPPORT 1
+
+// tr1
+#cmakedefine HAVE_TR1_SUPPORT 1
 
 // default export
 #undef DAVIX_EXPORT

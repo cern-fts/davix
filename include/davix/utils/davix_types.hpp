@@ -17,10 +17,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
 */
-
-
 #ifndef DAVIX_TYPES_HPP
 #define DAVIX_TYPES_HPP
+
 
 #include <string>
 #include <iostream>
@@ -39,9 +38,14 @@
 #include <dirent.h>
 #include <fcntl.h>
 
+#include "davix_config.hpp"
+#include "davix_nocopy.hpp"
+
 #ifndef __DAVIX_INSIDE__
 #error "Only davix.hpp should be included."
 #endif
+
+
 
 
 // type decl
@@ -65,33 +69,8 @@ namespace Davix{
 
 } // Davix
 
-// detect CXX11 support
-#if ( (__cplusplus > 199711L) \
-     || (defined (DAVIX_FORCE_CXX11)) \
-     || (defined __GXX_EXPERIMENTAL_CXX0X__) )
-#define DAVIX_CX11_SUPPORT
-#endif
 
-
-// enable TR1 for non CX11 compilation
-#if (!(defined DAVIX_CX11_SUPPORT) && !(defined DAVIX_STD_CXX03))
-
-#include <tr1/functional>
-
-// bind tr1 to std for old compiler without CXX11
-namespace std{
-    using namespace std::tr1;
-}
-#endif
-
-// Disable all non C++03 features
-//#define DAVIX_STD_CXX03
-
-// Davix Large File Support
-#if  ( __WORDSIZE == 32 ) || \
-        ( SIZE_MAX ==  (4294967295U) ) || \
-        ( defined __WIN32 )
-
+#ifdef __DAVIX_LFS_SUPPORT
 typedef uint64_t dav_off_t;
 typedef uint64_t dav_size_t;
 typedef int64_t dav_ssize_t;
@@ -101,36 +80,11 @@ typedef size_t dav_size_t;
 typedef ssize_t dav_ssize_t;
 #endif
 
+
 // block size
 #define DAVIX_BLOCK_SIZE 4096
 #define DAVIX_MAX_BLOCK_SIZE 16777216
 
-//
-// davix preproc facilities
-//
-#undef DAVIX_C_DECL_BEGIN
-#undef DAVIX_C_DECL_END
-#ifdef __cplusplus
-#define DAVIX_C_DECL_BEGIN \
-        extern "C" {
-#define DAVIX_C_DECL_END }
-#else
-#define DAVIX_C_DECL_BEGIN  // void
-#define DAVIX_C_DECL_END    // void
-#endif
 
-
-
-
-/// @class NonCopyable
-/// @brief Simple NonCopyableProtector
-class NonCopyable{
-protected:
-   NonCopyable() {}
-    ~NonCopyable() {}
-private:  // emphasize the following members are private
-   NonCopyable( const NonCopyable& );
-   const NonCopyable& operator=( const NonCopyable& );
-};
 
 #endif // DAVIX_TYPES_HPP

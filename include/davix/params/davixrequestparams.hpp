@@ -26,8 +26,8 @@
 #include <vector>
 #include <string>
 
-#include <utils/davix_uri.hpp>
-#include <auth/davixauth.hpp>
+#include "../utils/davix_uri.hpp"
+#include "../auth/davixauth.hpp"
 
 
 /**
@@ -135,7 +135,7 @@ public:
     const std::pair<std::string,std::string> & getClientLoginPassword() const;
 
 
-#ifndef DAVIX_STD_CXX03
+#ifdef __DAVIX_HAS_STD_FUNCTION
     /// set a function for or X509 client side dynamic authentication
     /// this function overwrite \ref setClientCertCallbackX509
     void setClientCertFunctionX509(const authFunctionClientCertX509 & callback);

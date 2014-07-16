@@ -17,7 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
 */
-
 #ifndef DAVIX_AUTH_HPP
 #define DAVIX_AUTH_HPP
 
@@ -25,8 +24,8 @@
 #include <string>
 #include <vector>
 
-#include <utils/davix_types.hpp>
-#include <auth/davixx509cred.hpp>
+#include "../utils/davix_types.hpp"
+#include "davixx509cred.hpp"
 
 
 #ifndef __DAVIX_INSIDE__
@@ -58,7 +57,7 @@ private:
 };
 
 
-#ifndef DAVIX_STD_CXX03
+#ifdef __DAVIX_HAS_STD_FUNCTION
 
 ///
 /// std::function for advanced authentification with client cert X509

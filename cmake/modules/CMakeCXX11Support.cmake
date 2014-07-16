@@ -1,4 +1,4 @@
-
+include(CheckCXXSourceCompiles REQUIRED)
 
 
 if(CMAKE_COMPILER_IS_GNUCXX)
@@ -21,3 +21,16 @@ else(CMAKE_COMPILER_IS_GNUCXX)
    SET(HAVE_CXX011_PARTIAL_SUPPORT TRUE)   
    SET(CXX11_FLAG_ENABLE "-std=c++0x")
 endif(CMAKE_COMPILER_IS_GNUCXX)
+
+
+## Check TR1
+CHECK_CXX_SOURCE_COMPILES("
+#include <tr1/functional>
+int main() { return 0; }"
+ HAVE_TR1_SUPPORT)
+
+if(HAVE_TR1_SUPPORT)
+message(STATUS "TR1 support detected")
+else(HAVE_TR1_SUPPORT)
+message(STATUS "no TR1 support")
+endif(HAVE_TR1_SUPPORT)

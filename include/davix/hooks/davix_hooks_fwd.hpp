@@ -41,7 +41,7 @@ class RequestParams;
 class Uri;
 
 
-#ifndef DAVIX_STD_CXX03
+#ifdef __DAVIX_HAS_STD_FUNCTION
 
 /// Hook called before processing any request
 typedef std::function< void (RequestParams& p, HttpRequest & req, Uri & u) > RequestPreRunHook;

@@ -19,6 +19,10 @@ FILE(GLOB src_davix_utils "utils/*.cpp")
 
 include_directories("libs" ".")
 
+if(HAVE_TR1_SUPPORT)
+
+endif(HAVE_TR1_SUPPORT)
+
 configure_file(config.in ${CMAKE_CURRENT_BINARY_DIR}/config.h @ONLY)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})

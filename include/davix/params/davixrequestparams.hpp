@@ -17,9 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
 */
-
-
-#pragma once
 #ifndef DAVIX_REQUESTPARAMS_HPP
 #define DAVIX_REQUESTPARAMS_HPP
 

@@ -50,21 +50,28 @@ public:
     */
     int storeNeonSession(ne_session *sess, DavixError** err);
 
-    void setSessionCaching(bool caching);
-
-    inline bool getSessionCaching() const {
-        return _session_caching;
-    }
-
     //
     // Redirecton caching
     //
 
     void addRedirection( const std::string & method, const Uri & origin, boost::shared_ptr<Uri> dest);
 
+    // try to find cached redirection, resolve a full chain
     boost::shared_ptr<Uri> redirectionResolve(const std::string & method, const Uri & origin);
+    // try to find a cached redirection, resolve only one element
+    boost::shared_ptr<Uri> redirectionResolveSingle(const std::string & method, const Uri & origin);
 
     void redirectionClean(const std::string & method, const Uri & origin);
+
+    //
+    // opts
+    //
+
+    void setSessionCaching(bool caching);
+
+    inline bool getSessionCaching() const {
+        return _session_caching;
+    }
 
 private:
     // session pool
@@ -79,9 +86,7 @@ private:
     ne_session* create_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);
     ne_session* create_recycled_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);
 
-
-public:
-
+    boost::shared_ptr<Uri> redirectionResolveSingleIntern(const std::string & method, const Uri & origin);
 
 };
 

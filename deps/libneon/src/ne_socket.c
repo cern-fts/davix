@@ -125,11 +125,9 @@ typedef struct in_addr ne_inet_addr;
 #define USE_CHECK_IPV6
 #endif
 
-/* "Be Conservative In What You Build". */
-#if defined(HAVE_FCNTL) && defined(O_NONBLOCK) && defined(F_SETFL) \
-    && defined(HAVE_GETSOCKOPT) && defined(SO_ERROR) \
-    && defined(HAVE_SOCKLEN_T) && defined(SOL_SOCKET) \
-    && defined(EINPROGRESS)
+
+// Use always non blocking socket
+#ifndef USE_NONBLOCKING_CONNECT
 #define USE_NONBLOCKING_CONNECT
 #endif
 

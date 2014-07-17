@@ -56,28 +56,32 @@ public:
         return _session_caching;
     }
 
-private:
-    // session pool
-    std::multimap<std::string, ne_session*> _sess_map;
-    boost::mutex _sess_mut;
-    bool _session_caching, _redir_caching;
-
-    void internal_release_session_handle(ne_session* sess);
-
-    ne_session* create_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);
-
-    ne_session* create_recycled_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);
-
-
-    // redirection pool
-    Adevpp::Cache<std::string, Uri> _redirCache;
-public:
+    //
+    // Redirecton caching
+    //
 
     void addRedirection( const std::string & method, const Uri & origin, boost::shared_ptr<Uri> dest);
 
     boost::shared_ptr<Uri> redirectionResolve(const std::string & method, const Uri & origin);
 
     void redirectionClean(const std::string & method, const Uri & origin);
+
+private:
+    // session pool
+    std::multimap<std::string, ne_session*> _sess_map;
+    boost::mutex _sess_mut;
+    bool _session_caching, _redir_caching;
+
+    // redirection pool
+    Adevpp::Cache<std::string, Uri> _redirCache;
+
+    void internal_release_session_handle(ne_session* sess);
+    ne_session* create_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);
+    ne_session* create_recycled_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);
+
+
+public:
+
 
 };
 

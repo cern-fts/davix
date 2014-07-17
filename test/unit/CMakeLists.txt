@@ -17,7 +17,7 @@ file(GLOB src_files files/*.cpp)
 file(GLOB src_auth  auth/*.cpp)
 LIST(APPEND src_utils utils/utils_test.cpp ${SRC_STRING_UTILS_CPP})
 LIST(APPEND src_parser parser/parser_test.cpp)
-LIST(APPEND src_httprequest httprequest/test_httprequest.cpp)
+LIST(APPEND src_httprequest sessionfactory/test_factory.cpp)
 
 
 add_definitions( -DTEST_VALID_CERT="${TEST_CRED_PATH}" -DTEST_VALID_CERT_PASS="${TEST_CRED_PASS}")

@@ -80,8 +80,7 @@ int davIOVecProvider(const DavIOVecInput *input_vec, dav_ssize_t & counter, dav_
     if(counter < number){
         begin = input_vec[counter].diov_offset;
         end = std::max<dav_off_t>(begin + input_vec[counter].diov_size -1, begin);
-        counter ++;
-        return counter;
+        return ++counter;
     }
     return -1;
 }
@@ -100,13 +99,11 @@ dav_ssize_t HttpIOVecOps::preadVec(IOChainContext & iocontext, const DavIOVecInp
             return res;
     }
 
-
-
     DavixError * tmp_err=NULL;
     dav_ssize_t tmp_ret=-1, ret = 0;
     ptrdiff_t p_diff=0;
     dav_ssize_t counter = 0;
-    // determine the Range header request in order to determine the number of request
+    // generator of offset
     boost::function<int (dav_off_t &, dav_off_t &)> offsetProvider( boost::bind(davIOVecProvider, input_vec, counter, (dav_ssize_t) count_vec,
                          _1, _2));
 

@@ -68,32 +68,36 @@ void setup_offset_request(HttpRequest* req, const dav_off_t *start_len, const da
 
 }
 
-std::vector< std::pair<dav_size_t, std::string> > generateRangeHeadersRec(std::vector< std::pair<dav_size_t, std::string> >  & range_rec, dav_size_t max_header_size, OffsetCallback & offset_provider){
+void generateRangeHeadersRec(std::vector< std::pair<dav_size_t, std::string> >  & range_rec, dav_size_t max_header_size, OffsetCallback & offset_provider){
 
-    range_rec.push_back(std::pair<dav_size_t,std::string >(0, std::string()));
-    std::string & current_range = range_rec.back().second;
-    dav_size_t & current_n = range_rec.back().first;
-    current_n=0;
-    current_range.reserve(max_header_size);
-    current_range.append(offset_value);
+    std::string range_string;
+    dav_size_t range_size =0;
+    std::ostringstream buffer;
+    range_string.reserve(max_header_size);
+    range_string.append(offset_value);
+
     dav_off_t begin, end;
     int ret;
     while( ( ret = offset_provider(begin, end)) >= 0){
-       std::ostringstream buffer;
-       if(current_n > 0)
+       buffer.str("");
+
+       if(range_size > 0)
            buffer << ',';
        buffer << begin << '-' <<  end;
-       current_range.append(buffer.str());
-       current_n++;
-       if(current_range.length() >= max_header_size)
-           return generateRangeHeadersRec(range_rec, max_header_size, offset_provider);
+       range_string.append(buffer.str());
+       range_size++;
+       if(range_string.size() >= max_header_size){
+           range_rec.push_back(std::make_pair(range_size, range_string));
+           generateRangeHeadersRec(range_rec, max_header_size, offset_provider);
+           return;
+       }
     }
-    return range_rec;
 }
 
 std::vector< std::pair<dav_size_t, std::string> > generateRangeHeaders(dav_size_t max_header_size, OffsetCallback & offset_provider){
    std::vector< std::pair<dav_size_t, std::string> > res;
-   return generateRangeHeadersRec(res, max_header_size, offset_provider);
+   generateRangeHeadersRec(res, max_header_size, offset_provider);
+   return res;
 }
 
 void fill_stat_from_fileproperties(struct stat* st, const  FileProperties & prop){

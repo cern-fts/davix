@@ -16,10 +16,10 @@
 #define DAVIX_BUFFER_SIZE 2048
 #define DAVIX_READ_BLOCK_SIZE 4096
 
-/// default connexion timeout for HTTP/Dav connexion ( 0 : def value of the library )
+/// default connexion timeout for HTTP/Dav connexion
 #define DAVIX_DEFAULT_CONN_TIMEOUT 30
-/// default timeout on operations for HTTP/Webdav ( 0 : def value of the library )
-#define DAVIX_DEFAULT_OPS_TIMEOUT 0
+/// default timeout on operations for HTTP/Webdav
+#define DAVIX_DEFAULT_OPS_TIMEOUT 120
 
 // c++11
 #cmakedefine HAVE_CXX011_FULL_SUPPORT 1

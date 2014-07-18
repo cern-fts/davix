@@ -162,8 +162,8 @@ void NEONSessionFactory::internal_release_session_handle(ne_session* sess){
     _sess_map.insert(std::pair<std::string, ne_session*>(sess_key, sess));
 }
 
-static std::string redirectionCreateKey(const std::string & method, const Uri & origin){
-    static const std::string head_method("HEAD");
+static const std::string redirectionCreateKey(const std::string & method, const Uri & origin){
+    const std::string head_method("HEAD");
     std::string res;
 
     res.reserve(method.size() + origin.getString().size() +3);

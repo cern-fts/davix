@@ -347,14 +347,20 @@ int NEONRequest::negotiate_request(DavixError** err){
         DAVIX_DEBUG(" ->   NEON start internal request ... ");
 
         if( (status = ne_begin_request(_req)) != NE_OK && status != NE_REDIRECT){
-            if( status == NE_ERROR ){ // bugfix against neon keepalive problem, protection against buggy servers
+            if( status == NE_ERROR){ // bugfix against neon keepalive problem, protection against buggy servers
                 if(strstr(ne_get_error(_neon_sess->get_ne_sess()), "Could not") != NULL
                    || strstr(ne_get_error(_neon_sess->get_ne_sess()), "Connection reset by peer") != NULL){
-                   DAVIX_DEBUG("KeepAlive Server problem detected, retry");
+                   DAVIX_LOG(DAVIX_LOG_VERBOSE, "Server KeepAlive problem detected, retry");
                    _number_try++;
                    redirect_cleanup();
                    return startRequest(err);
                 }
+            }
+            if( status == NE_CONNECT && _orig != _current){
+                DAVIX_LOG(DAVIX_LOG_VERBOSE, "Impossible to connect to %s, retry src", _current->getString().c_str());
+                _number_try++;
+                redirect_cleanup();
+                return startRequest(err);
             }
 
             req_started= req_running == false;

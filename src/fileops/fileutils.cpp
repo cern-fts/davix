@@ -92,6 +92,8 @@ void generateRangeHeadersRec(std::vector< std::pair<dav_size_t, std::string> >  
            return;
        }
     }
+    if(range_size > 0)
+        range_rec.push_back(std::make_pair(range_size, range_string));
 }
 
 std::vector< std::pair<dav_size_t, std::string> > generateRangeHeaders(dav_size_t max_header_size, OffsetCallback & offset_provider){

@@ -74,6 +74,7 @@ TEST(IOVecMultiPartPaser, generateRangeTest){
     OffsetCallback generator_range( boost::bind(&parse_range, boost::ref(stream), boost::ref(n), _1, _2));
 
     std::vector< std::pair<dav_size_t, std::string> > res = generateRangeHeaders(3900, generator_range);
+    ASSERT_EQ(356, n);
     ASSERT_EQ(2, res.size());
     for(std::vector<std::pair<dav_size_t, std::string>>::iterator it = res.begin(); it < res.end(); ++it){
         ASSERT_EQ(178, it->first);

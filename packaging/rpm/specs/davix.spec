@@ -136,6 +136,9 @@ make DESTDIR=%{buildroot} install
 
 
 %changelog
+* Tue Jul 22 2014 Adrien Devresse <adevress at cern.ch> - 0.3.4-1
+ - Update to release 0.3.4
+
 * Wed Jun 04 2014 Adrien Devresse <adevress at cern.ch> - 0.3.1-1
  - davix 0.3.1 release, see RELEASE-NOTES for changes
 

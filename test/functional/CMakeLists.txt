@@ -24,69 +24,66 @@ set( src_test_valid_write_read_vector_simple "test_valid_write_read_vector_simpl
 set( src_tool_read_vector_simple "tool_read_vector_simple.cpp")
 set( src_tool_get_replicas "tool_get_replica_simple.cpp")
 
+
+add_library(test_davix_functional_lib STATIC ${src_davix_test_lib})
+
 add_executable(test_request ${src_test_req} )
-target_link_libraries(test_request davix  )
+target_link_libraries(test_request davix  test_davix_functional_lib)
 
-add_executable(tool_read_vector_simple ${src_tool_read_vector_simple} ${src_davix_test_lib})
-target_link_libraries(tool_read_vector_simple davix )
-
-
-
-add_executable(test_prop ${src_test_prop} ${src_davix_test_lib} )
-target_link_libraries(test_prop davix   ${Boost_LIBRARIES})
-
-add_executable(test_stat ${src_test_stat} ${src_davix_test_lib})
-target_link_libraries(test_stat davix  )
-
-add_executable(test_stat_auto_check ${src_test_auto_stat_mkdir_check} ${src_davix_test_lib})
-target_link_libraries(test_stat_auto_check davix  )
-
-add_executable(test_mkdir ${src_test_mkdir} ${src_davix_test_lib})
-target_link_libraries(test_mkdir davix  )
-
-add_executable(test_checksum ${src_test_checksum} ${src_davix_test_lib})
-target_link_libraries(test_checksum davix  )
-
-add_executable(test_auto_rmdir_unlink_delete ${src_test_auto_rmdir_unlink_delete} ${src_davix_test_lib})
-target_link_libraries(test_auto_rmdir_unlink_delete davix  ${Boost_LIBRARIES})
-
-add_executable(test_stat_session ${src_test_stat_session} ${src_davix_test_lib})
-target_link_libraries(test_stat_session davix  )
+add_executable(tool_read_vector_simple ${src_tool_read_vector_simple} )
+target_link_libraries(tool_read_vector_simple davix test_davix_functional_lib )
 
 
-add_executable(test_rw ${src_test_rw} ${src_davix_test_lib})
-target_link_libraries(test_rw davix  )
 
-add_executable(test_opendir ${src_test_opendir} ${src_davix_test_lib} )
-target_link_libraries(test_opendir davix  )
+add_executable(test_prop ${src_test_prop} )
+target_link_libraries(test_prop davix ${Boost_LIBRARIES} test_davix_functional_lib)
 
-add_executable(test_directory ${src_test_directory} ${src_davix_test_lib} )
-target_link_libraries(test_directory davix  )
+add_executable(test_stat ${src_test_stat})
+target_link_libraries(test_stat davix test_davix_functional_lib)
 
-#add_executable(test_opendir_c ${src_test_opendir_c} ${src_davix_test_lib})
-#target_link_libraries(test_opendir_c davix  )
+add_executable(test_stat_auto_check ${src_test_auto_stat_mkdir_check})
+target_link_libraries(test_stat_auto_check davix test_davix_functional_lib)
 
-add_executable(test_opendir_partial ${src_test_opendir_partial} ${src_davix_test_lib})
-target_link_libraries(test_opendir_partial davix  )
+add_executable(test_mkdir ${src_test_mkdir})
+target_link_libraries(test_mkdir davix test_davix_functional_lib)
 
-add_executable(test_opendirpp ${src_test_opendirpp} ${src_davix_test_lib})
-target_link_libraries(test_opendirpp davix  )
+add_executable(test_checksum ${src_test_checksum})
+target_link_libraries(test_checksum davix test_davix_functional_lib)
 
-#add_executable(test_stat_c ${src_test_stat_c} ${src_davix_test_lib})
-#target_link_libraries(test_stat_c davix  )
+add_executable(test_auto_rmdir_unlink_delete ${src_test_auto_rmdir_unlink_delete})
+target_link_libraries(test_auto_rmdir_unlink_delete davix test_davix_functional_lib)
 
-add_executable(test_valid_read_generic_simple ${src_test_valid_read_generic_simple} ${src_davix_test_lib})
-target_link_libraries(test_valid_read_generic_simple davix  )
-
-add_executable(test_valid_write_read_generic_simple ${src_test_valid_write_read_generic_simple} ${src_davix_test_lib})
-target_link_libraries(test_valid_write_read_generic_simple davix  )
-
-add_executable(test_valid_write_read_vector_simple ${src_test_valid_write_read_vector_simple} ${src_davix_test_lib})
-target_link_libraries(test_valid_write_read_vector_simple davix  )
+add_executable(test_stat_session ${src_test_stat_session})
+target_link_libraries(test_stat_session davix test_davix_functional_lib)
 
 
-add_executable(tool_get_replicas ${src_tool_get_replicas} ${src_davix_test_lib})
-target_link_libraries(tool_get_replicas davix  )
+add_executable(test_rw ${src_test_rw})
+target_link_libraries(test_rw davix test_davix_functional_lib)
+
+add_executable(test_opendir ${src_test_opendir} )
+target_link_libraries(test_opendir davix test_davix_functional_lib)
+
+add_executable(test_directory ${src_test_directory} )
+target_link_libraries(test_directory davix test_davix_functional_lib)
+
+add_executable(test_opendir_partial ${src_test_opendir_partial})
+target_link_libraries(test_opendir_partial davix test_davix_functional_lib)
+
+add_executable(test_opendirpp ${src_test_opendirpp})
+target_link_libraries(test_opendirpp davix test_davix_functional_lib)
+
+add_executable(test_valid_read_generic_simple ${src_test_valid_read_generic_simple})
+target_link_libraries(test_valid_read_generic_simple davix test_davix_functional_lib)
+
+add_executable(test_valid_write_read_generic_simple ${src_test_valid_write_read_generic_simple})
+target_link_libraries(test_valid_write_read_generic_simple davix test_davix_functional_lib)
+
+add_executable(test_valid_write_read_vector_simple ${src_test_valid_write_read_vector_simple})
+target_link_libraries(test_valid_write_read_vector_simple davix test_davix_functional_lib)
+
+
+add_executable(tool_get_replicas ${src_tool_get_replicas})
+target_link_libraries(tool_get_replicas davix test_davix_functional_lib)
 
 function(test_dav_endpoint_ronly name cred)
 

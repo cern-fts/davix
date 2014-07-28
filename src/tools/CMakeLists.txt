@@ -18,52 +18,57 @@ link_directories(${PROJECT_BINARY_DIR}/src/)
 
 
 add_definitions(-DNO_BOOST_INCLUDE)
-## davix cmd line
-add_executable(davix_tool ${davix_main_src} ${davix_tool_common_src} )
 
-target_link_libraries(davix_tool davix)
+## davix tool lib
+add_library(davix_tool_lib STATIC ${davix_tool_common_src})
+
+
+## davix cmd line
+add_executable(davix_tool ${davix_main_src})
+
+target_link_libraries(davix_tool davix davix_tool_lib)
 set_target_properties(davix_tool PROPERTIES
                                 OUTPUT_NAME "davix-http")
 add_dependencies(davix_tool libdavix)
 
 ## davix ls cmd line
-add_executable(davix_ls_tool ${davix_ls_main_src} ${davix_tool_common_src} )
+add_executable(davix_ls_tool ${davix_ls_main_src})
 
-target_link_libraries(davix_ls_tool davix)
+target_link_libraries(davix_ls_tool davix davix_tool_lib)
 set_target_properties(davix_ls_tool PROPERTIES
                                 OUTPUT_NAME "davix-ls")
 add_dependencies(davix_ls_tool libdavix)
 
 
 ## davix get cmd line
-add_executable(davix_get_tool ${davix_get_main_src} ${davix_tool_common_src} )
+add_executable(davix_get_tool ${davix_get_main_src})
 
-target_link_libraries(davix_get_tool davix)
+target_link_libraries(davix_get_tool davix davix_tool_lib)
 set_target_properties(davix_get_tool PROPERTIES
                                 OUTPUT_NAME "davix-get")
 add_dependencies(davix_get_tool libdavix)
 
 ## davix put cmd line
-add_executable(davix_put_tool ${davix_put_main_src} ${davix_tool_common_src} )
+add_executable(davix_put_tool ${davix_put_main_src})
 
-target_link_libraries(davix_put_tool davix)
+target_link_libraries(davix_put_tool davix davix_tool_lib)
 set_target_properties(davix_put_tool PROPERTIES
                                 OUTPUT_NAME "davix-put")
 add_dependencies(davix_put_tool libdavix)
 
 
 ## davix del cmd line
-add_executable(davix_mkdir_tool ${davix_mkcol_main_src} ${davix_tool_common_src} ${SRC_SIMPLE_GET_PASS})
+add_executable(davix_mkdir_tool ${davix_mkcol_main_src})
 
-target_link_libraries(davix_mkdir_tool davix)
+target_link_libraries(davix_mkdir_tool davix davix_tool_lib)
 set_target_properties(davix_mkdir_tool PROPERTIES
                                 OUTPUT_NAME "davix-mkdir")
 add_dependencies(davix_mkdir_tool libdavix)
 
 ## davix rm cmd line
-add_executable(davix_rm_tool ${davix_rm_main_src} ${davix_tool_common_src} ${SRC_SIMPLE_GET_PASS})
+add_executable(davix_rm_tool ${davix_rm_main_src})
 
-target_link_libraries(davix_rm_tool davix)
+target_link_libraries(davix_rm_tool davix davix_tool_lib)
 set_target_properties(davix_rm_tool PROPERTIES
                                 OUTPUT_NAME "davix-rm")
 add_dependencies(davix_rm_tool libdavix)
@@ -75,7 +80,7 @@ install(TARGETS davix_tool davix_ls_tool davix_get_tool davix_put_tool davix_mkd
 ## davix cp cmd line
 if (ENABLE_THIRD_PARTY_COPY)
 
-    add_executable(davix_cp_tool ${davix_copy_main_src} ${davix_tool_common_src} ${SRC_SIMPLE_GET_PASS})
+    add_executable(davix_cp_tool ${davix_copy_main_src})
 
     target_link_libraries(davix_cp_tool davix_copy)
     set_target_properties(davix_cp_tool PROPERTIES

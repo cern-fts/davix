@@ -82,7 +82,7 @@ if (ENABLE_THIRD_PARTY_COPY)
 
     add_executable(davix_cp_tool ${davix_copy_main_src})
 
-    target_link_libraries(davix_cp_tool davix_copy)
+    target_link_libraries(davix_cp_tool davix_copy davix_tool_lib)
     set_target_properties(davix_cp_tool PROPERTIES
                                 OUTPUT_NAME "davix-cp")
     add_dependencies(davix_cp_tool davix_copy)

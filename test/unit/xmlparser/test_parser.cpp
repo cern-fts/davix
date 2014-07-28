@@ -341,12 +341,12 @@ TEST(XmlParserInstance, parseOneStat){
 
     ASSERT_NO_THROW({
 
-    int ret = parser.parseChuck(simple_stat_propfind_content, strlen(simple_stat_propfind_content));
+    int ret = parser.parseChunk(simple_stat_propfind_content, strlen(simple_stat_propfind_content));
     if( ret !=0){
         ASSERT_TRUE(false);
     }
     ASSERT_EQ(1u, parser.getProperties().size());
-    parser.parseChuck(NULL, 0);
+    parser.parseChunk(NULL, 0);
     ASSERT_EQ(1u, parser.getProperties().size());
 
     Davix::FileProperties f = parser.getProperties().at(0);
@@ -365,12 +365,12 @@ TEST(XMLParserInstance,ParseList){
 
     ASSERT_NO_THROW({
         Davix::DavPropXMLParser parser;
-        int ret = parser.parseChuck(recursive_listing, strlen(recursive_listing));
+        int ret = parser.parseChunk(recursive_listing, strlen(recursive_listing));
         if( ret !=0){
             ASSERT_TRUE(false);
         }
         ASSERT_EQ(16u, parser.getProperties().size());
-        parser.parseChuck(NULL, 0);
+        parser.parseChunk(NULL, 0);
         ASSERT_EQ(16u, parser.getProperties().size());
 
         // test the parent directory stats
@@ -398,7 +398,7 @@ TEST(XMLParserInstance, ParseCalDav){
         davix_set_log_level(DAVIX_LOG_ALL);
         Davix::DavPropXMLParser parser;
 
-        int ret = parser.parseChuck(caldav_item, strlen(caldav_item));
+        int ret = parser.parseChunk(caldav_item, strlen(caldav_item));
         if( ret !=0){
             ASSERT_TRUE(false);
         }
@@ -411,8 +411,8 @@ TEST(XmlParserInstance,parserNonWebdav){
     Davix::DavPropXMLParser parser;
 
     try{
-        parser.parseChuck(simple_bad_content_http, strlen(simple_bad_content_http));
-        parser.parseChuck(NULL, 0);
+        parser.parseChunk(simple_bad_content_http, strlen(simple_bad_content_http));
+        parser.parseChunk(NULL, 0);
         ASSERT_TRUE(false);
     }catch(Davix::DavixException & e){
 
@@ -430,7 +430,7 @@ TEST(XmlPaserInstance, destroyPartial){
 
     ASSERT_NO_THROW({
 
-        int ret = parser->parseChuck(simple_stat_propfind_content, strlen(simple_stat_propfind_content)/2);
+        int ret = parser->parseChunk(simple_stat_propfind_content, strlen(simple_stat_propfind_content)/2);
         if( ret !=0){
             ASSERT_TRUE(false);
         }
@@ -446,7 +446,7 @@ TEST(XmlMetalinkParserTest, parserMetalinkSimpl){
         Davix::Context c;
         std::vector<Davix::File> r;
         Davix::MetalinkParser parser(c, r);
-        int ret = parser.parseChuck(metalink_item_lcgdm, strlen(metalink_item_lcgdm));
+        int ret = parser.parseChunk(metalink_item_lcgdm, strlen(metalink_item_lcgdm));
         ASSERT_EQ(0, ret);
 
         ASSERT_EQ(1, r.size());
@@ -464,7 +464,7 @@ TEST(XmlMetalinkParserTest, parserMetalinkGeneric){
     Davix::Context c;
     std::vector<Davix::File> r;
     Davix::MetalinkParser parser(c, r);
-    int ret = parser.parseChuck(metalink_item_generic, strlen(metalink_item_generic));
+    int ret = parser.parseChunk(metalink_item_generic, strlen(metalink_item_generic));
     //std::cout << parser.getLastErr()->getErrMsg();
     ASSERT_EQ(0, ret);
 

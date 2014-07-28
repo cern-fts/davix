@@ -45,7 +45,11 @@ public:
     //
     // parse a block of character with a maximum size of 'len' characters
     // return negative value if failure or 0 if success
-    int parseChuck(const char * partial_string, dav_size_t len);
+    int parseChunk(const char * partial_string, dav_size_t len);
+
+    inline int parseChunk(const std::string & partial_string){
+        return parseChunk(partial_string.c_str(), partial_string.size());
+    }
 
 protected:
 

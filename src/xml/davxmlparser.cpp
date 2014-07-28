@@ -61,7 +61,7 @@ XMLSAXParser::~XMLSAXParser(){
 }
 
 
-int XMLSAXParser::parseChuck(const char *partial_string, dav_size_t length){
+int XMLSAXParser::parseChunk(const char *partial_string, dav_size_t length){
     int ret = ne_xml_parse(_ne_parser,partial_string,length);
     if(ret != 0){
         if(ret > 0){

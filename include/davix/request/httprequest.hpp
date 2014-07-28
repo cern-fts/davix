@@ -364,12 +364,6 @@ public:
     PropfindRequest(Context & context, const Uri & uri, DavixError** err);
 };
 
-
-/// \cond PRIVATE_SYMBOLS
-DAVIX_EXPORT bool httpcodeIsValid(int code);
-
-DAVIX_EXPORT void httpcodeToDavixCode(int code, const std::string & scope, const std::string & end_message, DavixError** err);
-/// \endcond PRIVATE_SYMBOLS
 }
 
 #endif // DAVIX_HTTPREQUEST_H

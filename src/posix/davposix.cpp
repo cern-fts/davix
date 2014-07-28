@@ -145,7 +145,7 @@ dav_ssize_t incremental_propfind_listdir_parsing(HttpRequest* req, DavPropXMLPar
         buffer[ret]= '\0';
         DAVIX_DEBUG("chunk parse : result content : %s", buffer);
         TRY_DAVIX{
-            parser->parseChuck(buffer, ret);
+            parser->parseChunk(buffer, ret);
         }CATCH_DAVIX(&tmp_err)
         if(tmp_err != NULL)
             return -1;

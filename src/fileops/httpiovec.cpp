@@ -179,7 +179,7 @@ dav_ssize_t HttpIOVecOps::readPartialBufferVecRequest(HttpRequest & _req,
                  ret = simulateMultiPartRequest(_req, input_vec, output_vec, count_vec, &tmp_err);
                  break;
              default:
-                 httpcodeToDavixCode(_req.getRequestCode(),davix_scope_http_request(),", ", &tmp_err);
+                 httpcodeToDavixError(_req.getRequestCode(),davix_scope_http_request(),", ", &tmp_err);
         }
     }
 

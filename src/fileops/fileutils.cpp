@@ -38,7 +38,7 @@ int davixRequestToFileStatus(HttpRequest* req, const std::string & scope, DavixE
     int ret = 0;
     if( httpcodeIsValid(reqcode) == false){
         DavixError* tmp_err=NULL;
-        httpcodeToDavixCode(reqcode, scope, "",&tmp_err);
+        httpcodeToDavixError(reqcode, scope, "",&tmp_err);
         if(tmp_err && tmp_err->getStatus() != StatusCode::OK){
             DavixError::propagateError(err, tmp_err);
             ret = -1;

@@ -159,7 +159,7 @@ int davix_file_get_metalink_to_vfile(Context & c, const Uri & metalink_uri,
         buffer[2048] = '\0';
         if( (read_size = req.readSegment(buffer, 2048, &tmp_err)) < 0)
             throw DavixException(davix_scope_meta(), tmp_err->getStatus(), tmp_err->getErrMsg());
-        parser.parseChuck(buffer, read_size);
+        parser.parseChunk(buffer, read_size);
     }while(read_size > 0);
 
     req.endRequest(NULL);

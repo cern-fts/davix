@@ -17,9 +17,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
 */
-
-
-#pragma once
 #ifndef DAVIX_INTERNAL_HPP
 #define DAVIX_INTERNAL_HPP
 
@@ -66,6 +63,13 @@
 // Posix includes
 #include <fcntl.h>
 
+namespace Davix{
+
+// http request internals
+void httpcodeToDavixException(int code, const std::string & scope, const std::string & end_message);
+bool httpcodeIsValid(int code);
+void httpcodeToDavixError(int code, const std::string & scope, const std::string & end_message, DavixError** err);
+}
 
 
 #endif // DAVIX_INTERNAL_HPP

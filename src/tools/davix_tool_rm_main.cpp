@@ -54,8 +54,9 @@ int main(int argc, char** argv){
 
     if( (retcode= Tool::parse_davix_options(argc, argv, opts, &tmp_err)) ==0){
         Context c;
-        configureContext(c, opts);
+
         if( (retcode = Tool::configureAuth(opts, &tmp_err)) == 0){
+            configureContext(c, opts);
             DavFile f(c,opts.vec_arg[0]);
             f.deletion(&opts.params, &tmp_err);
         }

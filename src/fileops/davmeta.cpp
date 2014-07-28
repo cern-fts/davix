@@ -72,7 +72,7 @@ int dav_stat_mapper_webdav(Context &context, const RequestParams* params, const 
         TRY_DAVIX{
             const char * res = req_webdav_propfind(&req, &tmp_err);
             if(!tmp_err){
-               parser.parseChuck((const char*) res, strlen(res));
+               parser.parseChunk((const char*) res, strlen(res));
 
                 std::deque<FileProperties> & props = parser.getProperties();
                 if( props.size() < 1){
@@ -108,7 +108,7 @@ int dav_stat_mapper_http(Context& context, const RequestParams* params, const Ur
                 st_info.mode = 0755 | S_IFREG;
                 ret = 0;
             }else{
-                httpcodeToDavixCode(req.getRequestCode(), davix_scope_http_request(), uri.getString() , &tmp_err);
+                httpcodeToDavixError(req.getRequestCode(), davix_scope_http_request(), uri.getString() , &tmp_err);
                 ret = -1;
             }
         }
@@ -137,6 +137,29 @@ dav_ssize_t getStatInfo(Context & c, const Uri & url, const RequestParams * para
     return ret;
 }
 
+void parse_creation_deletion_result(int code, const Uri & u, const std::string & msg){
+    switch(code){
+    case 200:
+    case 201:
+    case 202:
+    case 204:{
+            return;
+    }
+    case 207:{
+        // parse webdav
+        DavPropXMLParser parser;
+        parser.parseChunk(msg);
+        if( parser.getProperties().size() > 0
+           && httpcodeIsValid(parser.getProperties().at(0).req_status)){
+            return;
+        }
+        break;
+    }
+    }
+    httpcodeToDavixException(code, davix_scope_stat_str(), msg);
+}
+
+
 int internal_deleteResource(Context & c, const Uri & url, const RequestParams & params, DavixError** err){
     DavixError* tmp_err=NULL;
     int ret=-1;
@@ -146,10 +169,8 @@ int internal_deleteResource(Context & c, const Uri & url, const RequestParams & 
     DeleteRequest req(c,url, err);
     req.setParameters(_params);
     if(!tmp_err){
-        ret=req.executeRequest(&tmp_err);
-        if(!tmp_err && httpcodeIsValid(req.getRequestCode()) == false){
-                httpcodeToDavixCode(req.getRequestCode(), davix_scope_stat_str(), url.getString() , &tmp_err);
-                ret = -1;
+         if( ( ret=req.executeRequest(&tmp_err)) == 0){
+                parse_creation_deletion_result(req.getRequestCode(), url, req.getAnswerContent());
          }
     }
 
@@ -172,7 +193,7 @@ int internal_makeCollection(Context & c, const Uri & url, const RequestParams & 
         req.setParameters(params);
         req.setRequestMethod("MKCOL");
         if( (ret = req.executeRequest(&tmp_err)) == 0){
-            ret = davixRequestToFileStatus(&req, davix_scope_mkdir_str(), &tmp_err);
+                parse_creation_deletion_result(req.getRequestCode(), url, req.getAnswerContent());
         }
 
         DAVIX_DEBUG(" makeCollection <-");

@@ -158,7 +158,7 @@ dav_ssize_t HttpIO::readFull(IOChainContext & iocontext, std::vector<char> & buf
                 total += (dav_size_t) ret;
             }
             if(!tmp_err && httpcodeIsValid(req.getRequestCode()) == false){
-                httpcodeToDavixCode(req.getRequestCode(),davix_scope_io_buff(),"read error: ", &tmp_err);
+                httpcodeToDavixError(req.getRequestCode(),davix_scope_io_buff(),"read error: ", &tmp_err);
                 ret = -1;
             }
         }
@@ -191,7 +191,7 @@ dav_ssize_t HttpIO::pread(IOChainContext & iocontext, void *buf, dav_size_t coun
                 }else if( req.getRequestCode() == 200){ // full request content -> skip useless content
                     ret = read_truncated_segment_request(&req, buf, count, offset, &tmp_err);
                 }else{
-                    httpcodeToDavixCode(req.getRequestCode(),davix_scope_http_request(),", while  readding", &tmp_err);
+                    httpcodeToDavixError(req.getRequestCode(),davix_scope_http_request(),", while  readding", &tmp_err);
                 }
             }
         }
@@ -215,7 +215,7 @@ dav_ssize_t HttpIO::readToFd(IOChainContext & iocontext, int fd, dav_size_t read
         ret = req.beginRequest(&tmp_err);
         if(!tmp_err){
             if(httpcodeIsValid(req.getRequestCode()) == false){
-                httpcodeToDavixCode(req.getRequestCode(),davix_scope_io_buff(),"read error: ", &tmp_err);
+                httpcodeToDavixError(req.getRequestCode(),davix_scope_io_buff(),"read error: ", &tmp_err);
                 ret = -1;
             }else{
                 ret= req.readToFd(fd, read_size, &tmp_err);
@@ -244,7 +244,7 @@ dav_ssize_t HttpIO::writeFromFd(IOChainContext & iocontext, int fd, dav_size_t s
         req.setRequestBody(fd,0, size);
         ret = req.executeRequest(&tmp_err);
         if(!tmp_err && httpcodeIsValid(req.getRequestCode()) == false){
-            httpcodeToDavixCode(req.getRequestCode(), davix_scope_io_buff(),
+            httpcodeToDavixError(req.getRequestCode(), davix_scope_io_buff(),
                                 "read error: ", &tmp_err);
             ret = -1;
         }
@@ -375,7 +375,7 @@ dav_ssize_t HttpIOBuffer::readInternal(IOChainContext & iocontext, void *buffer,
         _read_req->setParameters(params);
         if(_read_req->beginRequest(&tmp_err) ==0
             && (_read_req->getRequestCode() != 200)){
-                httpcodeToDavixCode(_read_req->getRequestCode(),davix_scope_http_request(),", while  readding", &tmp_err);
+                httpcodeToDavixError(_read_req->getRequestCode(),davix_scope_http_request(),", while  readding", &tmp_err);
                 delete _read_req;
                 _read_req = NULL;
 

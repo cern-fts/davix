@@ -286,10 +286,8 @@ PropfindRequest::PropfindRequest(Context & context, const Uri & uri, DavixError*
 }
 
 
-
-void httpcodeToDavixCode(int code, const std::string & scope, const std::string & end_message, DavixError** err){
-    StatusCode::Code dav_code;
-    std::string str_msg;
+void httpcodeToDavixError(int code, const std::string &scope, const std::string & end_message, StatusCode::Code & dav_code, std::string & err_msg){
+    char const* str_msg = "Status Ok";
     switch (code) {
         case 200:           /* OK */
         case 201:           /* Created */
@@ -301,7 +299,6 @@ void httpcodeToDavixCode(int code, const std::string & scope, const std::string 
         case 207:           /* Multi-Status */
         case 304:           /* Not Modified */
             dav_code = StatusCode::OK;
-            str_msg ="Status Ok";
             break;
         case 401:           /* Unauthorized */
         case 402:           /* Payment Required */
@@ -377,7 +374,22 @@ void httpcodeToDavixCode(int code, const std::string & scope, const std::string 
 
     std::ostringstream ss;
     ss << "HTTP Error "<< code << " " << str_msg << std::endl;
-    DavixError::setupError(err, scope, dav_code, ss.str());
+    err_msg.assign(ss.str());
+}
+
+void httpcodeToDavixError(int code, const std::string & scope, const std::string & end_message, DavixError** err){
+    StatusCode::Code davix_code;
+    std::string err_msg;
+    httpcodeToDavixError(code, scope, end_message, davix_code, err_msg);
+    DavixError::setupError(err, scope, davix_code, err_msg);
+}
+
+
+void httpcodeToDavixException(int code, const std::string & scope, const std::string & end_message){
+    StatusCode::Code davix_code;
+    std::string err_msg;
+    httpcodeToDavixError(code, scope, end_message, davix_code, err_msg);
+    throw DavixException(scope, davix_code, err_msg);
 }
 
 bool httpcodeIsValid(int code)

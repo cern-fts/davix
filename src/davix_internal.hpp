@@ -66,7 +66,7 @@
 namespace Davix{
 
 // http request internals
-void httpcodeToDavixException(int code, const std::string & scope, const std::string & end_message);
+void httpcodeToDavixException(int code, const std::string & scope, const std::string & end_message = std::string());
 bool httpcodeIsValid(int code);
 void httpcodeToDavixError(int code, const std::string & scope, const std::string & end_message, DavixError** err);
 }

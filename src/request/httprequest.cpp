@@ -41,7 +41,7 @@ HttpRequest::HttpRequest(Context & context, const Uri & uri, DavixError** err) :
 
     DAVIX_DEBUG("Creat HttpRequest for %s", uri.getString().c_str());
     if(uri.getStatus() != StatusCode::OK){
-        DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, "impossible to parse " + uri.getString() + " ,not a valid HTTP or Webdav URL");
+        DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, "impossible to parse " + uri.getString() + ", not a valid HTTP or Webdav URL");
     }
 }
 
@@ -50,7 +50,7 @@ HttpRequest::HttpRequest(Context & context, const std::string & url, DavixError*
     Uri uri(url);
     d_ptr= new NEONRequest(*this, context, uri);
     if(uri.getStatus() != StatusCode::OK){
-        DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, "impossible to parse " + uri.getString() + " ,not a valid HTTP or Webdav URL");
+        DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, "impossible to parse " + uri.getString() + ", not a valid HTTP or Webdav URL");
     }
 }
 
@@ -373,7 +373,7 @@ void httpcodeToDavixError(int code, const std::string &scope, const std::string 
     }
 
     std::ostringstream ss;
-    ss << "HTTP Error "<< code << " " << str_msg << std::endl;
+    ss << "HTTP Error "<< code << " " << str_msg <<": "<< str_msg << std::endl;
     err_msg.assign(ss.str());
 }
 

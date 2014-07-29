@@ -149,14 +149,17 @@ void parse_creation_deletion_result(int code, const Uri & u, const std::string &
         // parse webdav
         DavPropXMLParser parser;
         parser.parseChunk(msg);
-        if( parser.getProperties().size() > 0
-           && httpcodeIsValid(parser.getProperties().at(0).req_status)){
-            return;
+        if( parser.getProperties().size() > 0){
+           const int sub_code = parser.getProperties().at(0).req_status;
+           if(httpcodeIsValid(sub_code) == false){
+               httpcodeToDavixException(sub_code, davix_scope_stat_str());
+           }
+           return;
         }
         break;
     }
     }
-    httpcodeToDavixException(code, davix_scope_stat_str(), msg);
+    httpcodeToDavixException(code, davix_scope_stat_str());
 }
 
 

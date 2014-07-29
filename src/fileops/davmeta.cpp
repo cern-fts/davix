@@ -139,25 +139,27 @@ dav_ssize_t getStatInfo(Context & c, const Uri & url, const RequestParams * para
 
 void parse_creation_deletion_result(int code, const Uri & u, const std::string & msg){
     switch(code){
-    case 200:
-    case 201:
-    case 202:
-    case 204:{
-            return;
-    }
-    case 207:{
-        // parse webdav
-        DavPropXMLParser parser;
-        parser.parseChunk(msg);
-        if( parser.getProperties().size() > 0){
-           const int sub_code = parser.getProperties().at(0).req_status;
-           if(httpcodeIsValid(sub_code) == false){
-               httpcodeToDavixException(sub_code, davix_scope_stat_str());
-           }
-           return;
+        case 200:
+        case 201:
+        case 202:
+        case 204:{
+                return;
         }
-        break;
-    }
+        case 207:{
+            // parse webdav
+            DavPropXMLParser parser;
+            parser.parseChunk(msg);
+            if( parser.getProperties().size() > 0){
+               const int sub_code = parser.getProperties().at(0).req_status;
+               if(httpcodeIsValid(sub_code) == false){
+                   httpcodeToDavixException(sub_code, davix_scope_stat_str());
+               }
+               return;
+            }
+            // if no properties, properties were filtered because invalid
+            httpcodeToDavixException(404, davix_scope_stat_str());
+            break;
+        }
     }
     httpcodeToDavixException(code, davix_scope_stat_str());
 }

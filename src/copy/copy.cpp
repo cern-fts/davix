@@ -190,6 +190,11 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
             DavixError::setupError(error, COPY_SCOPE, StatusCode::OperationNonSupported,
                                    "Could not COPY. The source service does not allow it");
         }
+        else if (responseStatus == 400) {
+        	DavixError::setupError(error, COPY_SCOPE, StatusCode::InvalidArgument,
+							   std::string("Could not COPY. The server rejected the request: ") +
+							   request->getAnswerContent());
+        }
         else if (responseStatus >= 300) {
             std::ostringstream msg;
             msg << "Could not COPY. Unknown error code: " << responseStatus;

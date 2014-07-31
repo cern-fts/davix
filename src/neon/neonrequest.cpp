@@ -408,7 +408,6 @@ int NEONRequest::negotiate_request(DavixError** err){
                 }
                 DAVIX_DEBUG(" ->   NEON receive %d code, %d .... request again ... ", code, end_status);
                 break;
-            // dCache token redirection
             case 501:
             // cleanup redirection
             _number_try++;

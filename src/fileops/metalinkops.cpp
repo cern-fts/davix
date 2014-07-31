@@ -59,6 +59,12 @@ ReturnType metalinkExecutor(HttpIOChain & chain, IOChainContext & io_context, Ex
         // Execute operation
         return fun(io_context);
     }catch(DavixException & e){
+
+        /// Forward redirections, we don't need to recover when redirection support is disabled
+        if(e.code() == StatusCode::RedirectionNeeded){
+            throw e;
+        }
+
         DAVIX_LOG(DAVIX_LOG_VERBOSE, "Failure: Impossible to execute operation on %s, error %s", io_context._uri.getString().c_str(), e.what());
         DAVIX_LOG(DAVIX_LOG_VERBOSE, " Try to Recover with Metalink...");
 

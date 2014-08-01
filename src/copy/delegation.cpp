@@ -2,11 +2,20 @@
 #include <gridsite.h>
 #include <status/davixstatusrequest.hpp>
 #include <stdsoap2.h>
-#include "soapH.h"
+#include "delegation1H.h"
 
 #include "../auth/davixx509cred_internal.hpp"
 
-#include "DelegationSoapBinding.nsmap"
+SOAP_NMAC struct Namespace namespaces[] =
+{
+	{"SOAP-ENV", "http://schemas.xmlsoap.org/soap/envelope/", "http://www.w3.org/*/soap-envelope", NULL},
+	{"SOAP-ENC", "http://schemas.xmlsoap.org/soap/encoding/", "http://www.w3.org/*/soap-encoding", NULL},
+	{"xsi", "http://www.w3.org/2001/XMLSchema-instance", "http://www.w3.org/*/XMLSchema-instance", NULL},
+	{"xsd", "http://www.w3.org/2001/XMLSchema", "http://www.w3.org/*/XMLSchema", NULL},
+	{"tns", "http://www.gridsite.org/namespaces/delegation-1", NULL, NULL},
+	{"tns2", "http://www.gridsite.org/namespaces/delegation-2", NULL, NULL},
+	{NULL, NULL, NULL, NULL}
+};
 
 #include "copy_internal.hpp"
 
@@ -89,8 +98,8 @@ std::string DavixCopyInternal::davix_delegate(Context & context, const std::stri
   char                               *certtxt = NULL;
   char                               *keycert = NULL;
   struct soap                        *soap_get = NULL, *soap_put = NULL;
-  struct tns__getNewProxyReqResponse  getNewProxyReqResponse;
-  struct tns__putProxyResponse        putProxyResponse;
+  delegation1::tns__getNewProxyReqResponse  getNewProxyReqResponse;
+  delegation1::tns__putProxyResponse        putProxyResponse;
   int                                 lifetime;
   const char* url = urlpp.c_str();
   char        err_buffer[512];
@@ -179,7 +188,7 @@ std::string DavixCopyInternal::davix_delegate(Context & context, const std::stri
 
   if (soap_ssl_client_context(soap_get, SOAP_SSL_DEFAULT, keycert, passwd.c_str(),
                               ucert.c_str(), capath.c_str(), NULL) == 0) {
-    soap_call_tns__getNewProxyReq(soap_get,
+    delegation1::soap_call_tns__getNewProxyReq(soap_get,
                                   url,
                                   "http://www.gridsite.org/namespaces/delegation-1",
                                   getNewProxyReqResponse);

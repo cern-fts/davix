@@ -53,7 +53,7 @@ private:
     SessionInfo();
     SessionInfoInternal* data;
     friend class NEONSession;
-    friend class DavixCopyInternal;
+    friend class DavixDelegation;
 };
 
 

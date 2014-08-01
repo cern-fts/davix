@@ -29,11 +29,6 @@ protected:
 
     void monitorPerformanceMarkers(Davix::HttpRequest *request, Davix::DavixError **error);
 
-    // Delegation
-    static std::string davix_delegate(Davix::Context & context, const std::string &urlpp,
-                               const Davix::RequestParams& params,
-                               Davix::DavixError** err);
-
 private:
     DavixCopyInternal(const DavixCopyInternal&);
     DavixCopyInternal& operator = (const DavixCopyInternal&);

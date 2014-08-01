@@ -11,21 +11,26 @@ IF (ENABLE_THIRD_PARTY_COPY)
     
     # Compile the WSDL for 1.1.0
     ADD_CUSTOM_COMMAND (OUTPUT typemap.dat
-                        COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/typemap.dat ${CMAKE_CURRENT_BINARY_DIR}/typemap.dat)
-    ADD_CUSTOM_COMMAND (OUTPUT delegation1.h
-                        COMMAND ${GSOAP_WSDL2H} -I/usr/share/gsoap/import/ -o${CMAKE_CURRENT_BINARY_DIR}/delegation1.h ${CMAKE_CURRENT_SOURCE_DIR}/delegation-1.1.0.wsdl -qdelegation1
-                        DEPENDS typemap.dat)
-    ADD_CUSTOM_COMMAND (OUTPUT delegation1C.cpp delegation1Client.cpp
-                        COMMAND ${GSOAP_SOAPCPP2} -L -C -x -w -I/usr/share/gsoap/import/ ${CMAKE_CURRENT_BINARY_DIR}/delegation1.h -pdelegation1 -qdelegation1
-                        DEPENDS delegation1.h)
+                        COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/delegation/typemap.dat ${CMAKE_CURRENT_BINARY_DIR}/typemap.dat)
+                        
+    ADD_CUSTOM_COMMAND (
+        OUTPUT delegation1.h
+        COMMAND ${GSOAP_WSDL2H} -j -s -I/usr/share/gsoap/import/ -o${CMAKE_CURRENT_BINARY_DIR}/delegation1.h ${CMAKE_CURRENT_SOURCE_DIR}/delegation/delegation-1.1.0.wsdl -qdelegation1
+        DEPENDS typemap.dat)
+    ADD_CUSTOM_COMMAND (
+        OUTPUT delegation1C.cpp delegation1Client.cpp
+        COMMAND ${GSOAP_SOAPCPP2} -L -C -x -w -I/usr/share/gsoap/import/ ${CMAKE_CURRENT_BINARY_DIR}/delegation1.h -pdelegation1 -qdelegation1
+        DEPENDS delegation1.h)
                         
     # Compile the WSDL for 2.0.0
-    ADD_CUSTOM_COMMAND (OUTPUT delegation2.h
-                        COMMAND ${GSOAP_WSDL2H} -I/usr/share/gsoap/import/ -o${CMAKE_CURRENT_BINARY_DIR}/delegation2.h ${CMAKE_CURRENT_SOURCE_DIR}/delegation-2.0.0.wsdl -qdelegation2
-                        DEPENDS typemap.dat)
-    ADD_CUSTOM_COMMAND (OUTPUT delegation2C.cpp delegation2Client.cpp
-                        COMMAND ${GSOAP_SOAPCPP2} -C -x -w -I/usr/share/gsoap/import/ ${CMAKE_CURRENT_BINARY_DIR}/delegation2.h -n
-                        DEPENDS delegation2.h)
+    ADD_CUSTOM_COMMAND (
+        OUTPUT delegation2.h
+        COMMAND ${GSOAP_WSDL2H} -j -s -I/usr/share/gsoap/import/ -o${CMAKE_CURRENT_BINARY_DIR}/delegation2.h ${CMAKE_CURRENT_SOURCE_DIR}/delegation/delegation-2.0.0.wsdl -qdelegation2
+        DEPENDS typemap.dat)
+    ADD_CUSTOM_COMMAND (
+        OUTPUT delegation2C.cpp delegation2Client.cpp
+        COMMAND ${GSOAP_SOAPCPP2} -C -x -w -I/usr/share/gsoap/import/ ${CMAKE_CURRENT_BINARY_DIR}/delegation2.h -n
+        DEPENDS delegation2.h)
                         
     # Need to generate some utility functions in the global namespace
     ADD_CUSTOM_COMMAND (OUTPUT env.h
@@ -45,8 +50,9 @@ IF (ENABLE_THIRD_PARTY_COPY)
     
     # Build third party copy as a static library
     FILE(GLOB src_copy "*.cpp")
+    FILE(GLOB src_dlg "delegation/*.cpp")
     
-    ADD_LIBRARY (davix_copy SHARED ${src_copy}
+    ADD_LIBRARY (davix_copy SHARED ${src_copy} ${src_dlg}
                            ${CMAKE_CURRENT_BINARY_DIR}/delegation1C.cpp
                            ${CMAKE_CURRENT_BINARY_DIR}/delegation1Client.cpp
                            ${CMAKE_CURRENT_BINARY_DIR}/delegation2C.cpp

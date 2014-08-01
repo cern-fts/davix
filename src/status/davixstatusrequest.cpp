@@ -128,6 +128,7 @@ void DavixError::propagatePrefixedError(DavixError **newErr, DavixError *oldErr,
             *newErr = oldErr;
             if(*newErr && prefix.empty() == false){
                 std::string new_mess(prefix);
+                new_mess.append(" ");
                 (*newErr)->d_ptr->_errMsg = new_mess.append((*newErr)->d_ptr->_errMsg);
             }
         }

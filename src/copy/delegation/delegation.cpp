@@ -16,6 +16,17 @@ using namespace Davix;
 
 const std::string Davix::DELEGATION_SCOPE = "Davix::HttpThirdPartyCopy::Delegation";
 
+SOAP_NMAC struct Namespace namespaces[] =
+{
+    {"SOAP-ENV", "http://schemas.xmlsoap.org/soap/envelope/", "http://www.w3.org/*/soap-envelope", NULL},
+    {"SOAP-ENC", "http://schemas.xmlsoap.org/soap/encoding/", "http://www.w3.org/*/soap-encoding", NULL},
+    {"xsi", "http://www.w3.org/2001/XMLSchema-instance", "http://www.w3.org/*/XMLSchema-instance", NULL},
+    {"xsd", "http://www.w3.org/2001/XMLSchema", "http://www.w3.org/*/XMLSchema", NULL},
+    {"tns", "http://www.gridsite.org/namespaces/delegation-1", NULL, NULL},
+    {"tns2", "http://www.gridsite.org/namespaces/delegation-2", NULL, NULL},
+    {NULL, NULL, NULL, NULL}
+};
+
 // Timestamp from ASN1 representation
 static int get_timestamp_from_asn1(ASN1_TIME* asn1)
 {

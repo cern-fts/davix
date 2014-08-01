@@ -8,38 +8,11 @@
 
 #include "../auth/davixx509cred_internal.hpp"
 
-SOAP_NMAC struct Namespace namespaces[] =
-{
-	{"SOAP-ENV", "http://schemas.xmlsoap.org/soap/envelope/", "http://www.w3.org/*/soap-envelope", NULL},
-	{"SOAP-ENC", "http://schemas.xmlsoap.org/soap/encoding/", "http://www.w3.org/*/soap-encoding", NULL},
-	{"xsi", "http://www.w3.org/2001/XMLSchema-instance", "http://www.w3.org/*/XMLSchema-instance", NULL},
-	{"xsd", "http://www.w3.org/2001/XMLSchema", "http://www.w3.org/*/XMLSchema", NULL},
-	{"tns", "http://www.gridsite.org/namespaces/delegation-1", NULL, NULL},
-	{"tns2", "http://www.gridsite.org/namespaces/delegation-2", NULL, NULL},
-	{NULL, NULL, NULL, NULL}
-};
-
 using namespace Davix;
-
-
-
-
-// Gsoap does not use the Davix HTTP request system
-// Hooks need to be triggered manually for the modules
-// stupid ugly hack to fix this
-void triggerHooks(Context & context, RequestParams & params){
-    RequestPreRunHook preRun = context.getHook<RequestPreRunHook>();
-    Uri u;
-    HttpRequest tmp_req(context, u, NULL);
-    if(preRun){
-        // force the run of the hook on req + params
-        preRun(params, tmp_req, u);
-    }
-}
 
 /// Do the delegation
 std::string DavixDelegation::delegate_v1(Context & context,
-		const std::string &dlg_endpint, const RequestParams& _p,
+		const std::string &dlg_endpint, const RequestParams& params,
 		const std::string& ucred, const std::string& passwd,
 		const std::string& capath,
 		int lifetime, DavixError** err)
@@ -55,16 +28,13 @@ std::string DavixDelegation::delegate_v1(Context & context,
   char        err_buffer[512];
   size_t      err_aux;
 
-  RequestParams params(_p);
-  triggerHooks(context, params);
-
   // Request a new delegation ID
   soap_get = soap_new();
   soap_get->keep_alive = 1;
 
   if (soap_ssl_client_context(soap_get, SOAP_SSL_DEFAULT, ucred.c_str(), passwd.c_str(),
                               ucred.c_str(), capath.c_str(), NULL) == 0) {
-    delegation1::soap_call_tns__getNewProxyReq(soap_get,
+    soap_call_tns__getNewProxyReq(soap_get,
                                   url,
                                   "http://www.gridsite.org/namespaces/delegation-1",
                                   getNewProxyReqResponse);

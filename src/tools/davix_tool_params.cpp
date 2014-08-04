@@ -24,6 +24,7 @@
 #include <getopt.h>
 #include <string_utils/stringutils.hpp>
 #include <utils/davix_logger.hpp>
+#include <adevpp/algorithm/algorithm.hpp>
 
 namespace Davix{
 
@@ -42,6 +43,8 @@ const std::string scope_params = "Davix::Tools::Params";
 #define S3_ACCESS_KEY       1006
 #define X509_PRIVATE_KEY    1007
 #define HEADERS_OPTIONS     1008
+#define REDIRECTION_OPT     1009
+#define METALINK_OPT        1010
 
 // LONG OPTS
 
@@ -49,8 +52,10 @@ const std::string scope_params = "Davix::Tools::Params";
 {"debug", no_argument, 0,  DEBUG_OPT }, \
 {"header",  required_argument, 0,  'H' }, \
 {"help", no_argument, 0,'?'}, \
+{"metalink", required_argument, 0, METALINK_OPT }, \
 {"module", required_argument, 0, 'P'}, \
 {"proxy", required_argument, 0, 'x'}, \
+{"redirection", required_argument, 0, REDIRECTION_OPT }, \
 {"trace-headers", no_argument, 0, HEADERS_OPTIONS }, \
 {"verbose", no_argument, 0,  0 }, \
 {"version", no_argument, 0, 'V'}
@@ -95,8 +100,8 @@ OptParams::OptParams() :
 
 
 static void option_abort(char** argv){
-    std::cerr << argv[0] <<", Error: Wrong argument format" << std::endl;
-    std::cerr << "try 'davix --help' for more informations" <<std::endl;
+    std::cerr << argv[0] <<", Error: Wrong argument format\n";
+    std::cerr << "Try '" << argv[0] <<" --help' for more informations" << std::endl;
     exit(-1);
 }
 
@@ -105,6 +110,16 @@ static void display_version(){
     exit(0);
 }
 
+template <typename T, typename Y, typename Z>
+Y match_option(T begin, T end,
+               Y begin_res, Y end_res,
+               Z val, char** argv){
+    Y res = Adevpp::match_array(begin, end, begin_res, end_res, val);
+    if(res == end_res){
+        option_abort(argv);
+    }
+    return res;
+}
 
 static int set_header_field(const std::string & arg, OptParams & p, DavixError** err){
     dav_size_t pos;
@@ -116,6 +131,22 @@ static int set_header_field(const std::string & arg, OptParams & p, DavixError**
     return 0;
 }
 
+static void set_metalink_opt(RequestParams & params, const std::string & metalink_opt, char** argv){
+    const std::string str_opt[] = { "no" , "disable", "auto", "failover" };
+    const Davix::MetalinkMode::MetalinkMode mode_opt[] = { MetalinkMode::Disable, MetalinkMode::Disable, MetalinkMode::Auto, MetalinkMode::FailOver };
+    params.setMetalinkMode(*match_option(str_opt, str_opt+sizeof(str_opt)/sizeof(str_opt[0]),
+                                               mode_opt, mode_opt + sizeof(mode_opt)/sizeof(mode_opt[0]),
+                                               metalink_opt, argv));
+}
+
+
+static void set_redirection_opt(RequestParams & params, const std::string & redir_opt, char** argv){
+    const std::string str_opt[] = { "no" , "yes", "auto"};
+    const bool mode_opt[] = { false, true, true };
+    params.setTransparentRedirectionSupport(*match_option(str_opt, str_opt+sizeof(str_opt)/sizeof(str_opt[0]),
+                                               mode_opt, mode_opt + sizeof(mode_opt)/sizeof(mode_opt[0]),
+                                               redir_opt, argv));
+}
 
 
 int parse_davix_options_generic(const std::string &opt_filter,
@@ -135,7 +166,6 @@ int parse_davix_options_generic(const std::string &opt_filter,
             case 'E':
                  p.cred_path = std::string(optarg);
                  break;
-
             case 'k':
                 p.params.setSSLCAcheck(false);
                 break;
@@ -185,6 +215,12 @@ int parse_davix_options_generic(const std::string &opt_filter,
             case 'X':
                 p.req_type = std::string(optarg, 0, 255);
                 break;
+            case METALINK_OPT:
+                 set_metalink_opt(p.params, std::string(optarg), argv);
+                 break;
+            case REDIRECTION_OPT:
+                 set_redirection_opt(p.params, std::string(optarg), argv);
+                 break;
             case '?':
             printf(p.help_msg.c_str(), argv[0]);
                 return -1;
@@ -298,15 +334,17 @@ const std::string  & get_common_options(){
             "\t--debug:                  Debug mode\n"
             "\t--header, -H:             Add a header field to the request\n"
             "\t--help, -h:               Display this help message\n"
-            "\t--module, -P name:        Load a plugin or profile by name\n"
-            "\t--proxy, -x url:          SOCKS5 proxy server URL (ex: socks5://login:pass@socks.example.org )\n"
+            "\t--metalink [opt]:         Metalink support: opt=no|failover, default: failover\n"
+            "\t--module, -P [name]:      Load a plugin or profile by name\n"
+            "\t--proxy, -x [url]:        SOCKS5 proxy server URL (ex: socks5://login:pass@socks.example.org )\n"
+            "\t--redirection [opt]:      Transparent redirection support: opt=no|yes, default: yes\n"
             "\t--trace-headers:          Trace all HTTP queries headers\n"
             "\t--verbose:                Verbose mode\n"
             "\t--version, -V:            Display version\n"
             "  Security Options:\n"
-            "\t--capath CA_path:         Add an additional certificate authority directory\n"
-            "\t--cert, -E cred_path:     Client Certificate in PEM format\n"
-            "\t--key priv_path:          Private key in PEM format\n"
+            "\t--capath [CA_path]:       Add an additional certificate authority directory\n"
+            "\t--cert, -E [cred_path]:   Client Certificate in PEM format\n"
+            "\t--key [priv_path]:        Private key in PEM format\n"
             "\t--insecure, -k:           Disable SSL credential checks\n"
             "\t--userlogin:              User login for login/password authentication\n"
             "\t--userpass:               User password for login/password authentication\n"

@@ -21,12 +21,12 @@ static bool metalink_support_disabled=false;
 static once_flag metalink_once = BOOST_ONCE_INIT;
 
 void metalink_check(){
-    metalink_support_disabled = (getenv("DAVIX_DISABLE_METALINK") == NULL);
+    metalink_support_disabled = (getenv("DAVIX_DISABLE_METALINK") != NULL);
 }
 
-static bool isMetalinkEnabled(const RequestParams* params){
+static bool isMetalinkDisabled(const RequestParams* params){
     call_once(metalink_check, metalink_once);
-    return !( (params != NULL && params->getMetalinkMode() == MetalinkMode::Disable) || metalink_support_disabled);
+    return (params != NULL && params->getMetalinkMode() == MetalinkMode::Disable) || metalink_support_disabled;
 }
 
 
@@ -51,7 +51,7 @@ ReturnType metalinkTryReplicas(HttpIOChain & chain, IOChainContext & io_context,
 template<class Executor, class ReturnType>
 ReturnType metalinkExecutor(HttpIOChain & chain, IOChainContext & io_context, Executor fun){
     // if disabled, do nothing
-    if(isMetalinkEnabled(io_context._reqparams)){
+    if(isMetalinkDisabled(io_context._reqparams)){
         return fun(io_context);
     }
 

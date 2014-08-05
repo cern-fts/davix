@@ -37,7 +37,7 @@ long Listing mode
 
 \fBCommon Options:\fR
 .PP
-.RS 2	
+.RS 2
 \fB\--debug\fR
 .RE
 .RS 5
@@ -45,24 +45,33 @@ Debug mode
 .RE
 .PP
 
-.RS 2	
+.RS 2
 \fB\--header, -H\fR
 .RE
 .RS 5
-Add a header field to the request (eg: -H "Depth: 1" )  
-.RE
-.PP
-
-.RS 2	
-\fB\--help, -h\fR
-.RE
-.RS 5
-Display this help message  
+Add a header field to the request (eg: -H "Depth: 1" )
 .RE
 .PP
 
 .RS 2
-\fB\--module, -P plugin_name\fR
+\fB\--help, -h\fR
+.RE
+.RS 5
+Display this help message
+.RE
+.PP
+
+
+.RS 2
+\fB\--metalink OPT \fR
+.RE
+.RS 5
+Metalink support. (OPT=failover[default]|no)
+.RE
+.PP
+
+.RS 2
+\fB\--module, -P PLUGIN_NAME\fR
 .RE
 .RS 5
 Load a plugin or profile by name
@@ -70,28 +79,38 @@ Load a plugin or profile by name
 .PP
 
 
-
 .RS 2
-\fB\--proxy, -x url\fR
+\fB\--redirection OPT \fR
 .RE
 .RS 5
-SOCKS5 proxy server URL (ex: socks5://login:pass@socks.example.org)
+Transparent redirection support. (OPT=yes[default]|no)
 .RE
 .PP
 
-.RS 2	
+
+
+.RS 2
+\fB\--proxy, -x URL\fR
+.RE
+.RS 5
+SOCKS5 proxy server URL. (ex: socks5://login:pass@socks.example.org)
+.RE
+.PP
+
+
+.RS 2
 \fB\--trace-headers\fR
 .RE
 .RS 5
-Trace all HTTP queries headers  
+Trace all HTTP queries headers
 .RE
 .PP
- 
+
 .RS 2
 \fB\--verbose\fR
 .RE
 .RS 5
-Verbose mode 
+Verbose mode
 .RE
 .PP
 
@@ -99,11 +118,11 @@ Verbose mode
 \fB\--version\fR
 .RE
 .RS 5
-Display version  
+Display version
 .RE
 .PP
 
-          
+
 \fBSecurity Options:\fR
 .PP
 

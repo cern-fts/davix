@@ -616,7 +616,7 @@ dav_ssize_t NEONRequest::readToFd(int fd, dav_size_t read_size, DavixError** err
            }while(write_len >0);
     }
 
-    return (ret> 0)?total:ret;
+    return (ret>= 0)?total:ret;
 }
 
 

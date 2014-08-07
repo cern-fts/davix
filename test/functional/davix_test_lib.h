@@ -15,4 +15,14 @@ char* generate_random_uri(const char* uri_dir, const char* prefix, char* buff, s
 
 char * generate_random_string_content(size_t size);
 
+
+#define DAV_ASSERT_TRUE(test, failure_msg) \
+    do{ \
+    if(! (test) ){ \
+        std::cerr << "f:"<< __FILE__ << ":" << __LINE__ << ": " << failure_msg << std::endl; \
+        exit(-1); \
+    } \
+    }while(0)
+
+
 #endif // DAVIX_TEST_LIB_H

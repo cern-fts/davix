@@ -207,7 +207,7 @@ dav_ssize_t HttpIO::readToFd(IOChainContext & iocontext, int fd, dav_size_t read
     DavixError * tmp_err=NULL;
     dav_ssize_t ret = -1;
 
-    DAVIX_DEBUG(" -> readToFd for size %ld", read_size);
+    DAVIX_DEBUG(" -> readToFd, request size %ld", read_size);
     GetRequest req (iocontext._context, iocontext._uri, &tmp_err);
     if(!tmp_err){
         RequestParams params(iocontext._reqparams);
@@ -224,7 +224,7 @@ dav_ssize_t HttpIO::readToFd(IOChainContext & iocontext, int fd, dav_size_t read
     }
 
 
-    DAVIX_DEBUG(" <- readToFd for size %ld", read_size);
+    DAVIX_DEBUG(" <- readToFd, read size %ld", ret);
     checkDavixError(&tmp_err);
     return ret;
 }
@@ -234,26 +234,23 @@ dav_ssize_t HttpIO::readToFd(IOChainContext & iocontext, int fd, dav_size_t read
 // similar to pwrite do not need open() before
 dav_ssize_t HttpIO::writeFromFd(IOChainContext & iocontext, int fd, dav_size_t size){
     DavixError * tmp_err=NULL;
-    dav_ssize_t ret = -1;
 
     DAVIX_DEBUG(" -> writeFromFd for size %ld", size);
     PutRequest req (iocontext._context,iocontext._uri, &tmp_err);
     if(!tmp_err){
         RequestParams params(iocontext._reqparams);
         req.setParameters(params);
-        req.setRequestBody(fd,0, size);
-        ret = req.executeRequest(&tmp_err);
+        req.setRequestBody(fd, 0, size);
+        req.executeRequest(&tmp_err);
         if(!tmp_err && httpcodeIsValid(req.getRequestCode()) == false){
             httpcodeToDavixError(req.getRequestCode(), davix_scope_io_buff(),
-                                "read error: ", &tmp_err);
-            ret = -1;
+                                "write error: ", &tmp_err);
         }
     }
 
-
     DAVIX_DEBUG(" <- writeFromFd for size %ld", size);
     checkDavixError(&tmp_err);
-    return ret;
+    return size;
 }
 
 

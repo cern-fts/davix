@@ -70,16 +70,9 @@ namespace Davix{
 } // Davix
 
 
-#ifdef __DAVIX_LFS_SUPPORT
 typedef uint64_t dav_off_t;
 typedef uint64_t dav_size_t;
 typedef int64_t dav_ssize_t;
-#else
-typedef off_t dav_off_t;
-typedef size_t dav_size_t;
-typedef ssize_t dav_ssize_t;
-#endif
-
 
 // block size
 #define DAVIX_BLOCK_SIZE 4096

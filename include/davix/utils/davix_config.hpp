@@ -92,17 +92,6 @@ namespace std{
 #   endif
 #endif
 
-
-// Davix Large File Support for plateforms != 64 bits
-#if  ( __WORDSIZE == 32 ) || \
-        ( SIZE_MAX ==  (4294967295U) ) || \
-        ( defined __WIN32 )
-#ifndef __DAVIX_LFS_SUPPORT
-#define __DAVIX_LFS_SUPPORT
-#endif
-#endif
-
-
 //
 // davix preproc facilities
 //

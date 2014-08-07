@@ -86,6 +86,13 @@ public:
      **/
     int stat(const RequestParams* params, const std::string & str, struct stat * st, DavixError** err);
 
+
+    /**
+     * 64bits version of stat
+     */
+    int stat64(const RequestParams *params, const std::string & url, StatInfo* st, DavixError** err);
+
+
     /**
       @brief open a directory for listing
       
@@ -230,6 +237,8 @@ public:
      */
     ssize_t pread(DAVIX_FD* fd, void* buffer, size_t count, off_t offset, DavixError** err);
 
+    dav_ssize_t pread64(DAVIX_FD* fd, void* buffer, dav_size_t count, dav_off_t offset, DavixError ** err);
+
     /**
       @brief do a partial write of a file in a POSIX-like approach with HTTP(S)
       behavior similar to the POSIX pwrite function
@@ -241,6 +250,11 @@ public:
       @return the size of data written or a negative value if an error occured
      */
     ssize_t pwrite(DAVIX_FD* fd, const void* buffer, size_t count, off_t offset, DavixError** err);
+
+    /**
+     * 64bits version of pwrite
+     */
+    dav_ssize_t pwrite64(DAVIX_FD* fd, const void* buffer, dav_size_t count, dav_off_t offset, DavixError** err);
 
     /**
       @brief pread_vec a file in a POSIX-like approach with HTTP(S)
@@ -277,9 +291,14 @@ public:
       @param offset offset in byte inside the file
       @param flags lseek flags, similar to the lseek function
       @param err Davix Error report
-      @return the offset position or a negative value if an error occures
+      @return the offset position or (off_t)-1 if error occurs
      */
     off_t lseek(DAVIX_FD* fd, off_t offset, int flags, DavixError** err);
+
+    /**
+     * 64bits versions of lseek
+     */
+    dav_off_t lseek64(DAVIX_FD* fd, dav_off_t, int flags, DavixError** err);
 
     /**
       @brief close a existing file descriptor

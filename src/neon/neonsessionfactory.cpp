@@ -27,9 +27,6 @@
 
 namespace Davix {
 
-const char* proto_support[] = { "http", "https", NULL };
-const unsigned int ports[] = { 80 ,443 , 0};
-
 static boost::once_flag neon_once = BOOST_ONCE_INIT;
 
 static void init_neon(){

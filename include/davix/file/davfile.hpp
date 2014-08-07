@@ -43,6 +43,8 @@
 namespace Davix{
 
 
+struct StatInfo;
+
 ///
 /// @class DavFile
 /// @brief Davix File Interface
@@ -203,6 +205,17 @@ public:
     ///  Exception safe version of @ref makeCollection(const RequestParams *params = NULL)
     int makeCollection(const RequestParams* params,
                        DavixError** err) throw();
+
+    ///
+    /// @brief execute a file meta-data query
+    ///
+    ///  @param params Davix request Parameters
+    ///  @param st stat struct
+    ///  @param err Davix Error report
+    ///  @return 0 if success, or -1 if error occures
+    ///
+    StatInfo & statInfo(const RequestParams* params, StatInfo & info);
+
     ///
     /// @brief execute a POSIX-like stat() query
     ///
@@ -255,52 +268,6 @@ public:
 
 typedef DavFile File;
 
-
-///
-/// @brief The StatInfo struct
-/// @struct Container for File basic metadata
-///
-/// Follow the POSIX stat() structure
-struct StatInfo{
-    StatInfo(): size(0), nlink(0), mode(0), atime(0), mtime(0), ctime(0){
-    }
-
-    /// size in bytes of the resource
-    dav_size_t size;
-    /// number of links to the resource
-    /// optional
-    dav_ssize_t nlink;
-    /// POSIX rights of the resource
-    /// optional, supported with some Webdav servers
-    mode_t mode;
-    /// access time
-    time_t atime;
-    /// modification time
-    time_t mtime;
-    /// creation time
-    time_t ctime;
-
-    /// struct converter from POSIX stat
-    inline void fromPosixStat(const struct stat & st){
-        mode = static_cast<mode_t>(st.st_mode);
-        atime = static_cast<time_t>(st.st_atime);
-        mtime = static_cast<time_t>(st.st_mtime);
-        ctime = static_cast<time_t>(st.st_ctime);
-        size =  static_cast<dav_size_t>(st.st_size);
-        nlink = static_cast<dav_size_t>(st.st_nlink);
-    }
-
-    /// struct converter to POSIX stat
-    inline struct stat & toPosixStat(struct stat & st){
-        st.st_mode = static_cast<mode_t>(mode);
-        st.st_atime = static_cast<time_t>(atime);
-        st.st_mtime = static_cast<time_t>(mtime);
-        st.st_ctime = static_cast<time_t>(ctime);
-        st.st_size =  static_cast<off_t>(size);
-        st.st_nlink = static_cast<nlink_t>(nlink);
-        return st;
-    }
-};
 
 } // Davix
 

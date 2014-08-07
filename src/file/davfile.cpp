@@ -192,13 +192,17 @@ int DavFile::stat(const RequestParams* params, struct stat * st, DavixError** er
             throw DavixException(davix_scope_meta(), StatusCode::InvalidArgument, "Argument stat NULL");
 
         StatInfo info;
-        HttpIOChain chain;
-        IOChainContext io_context = d_ptr->getIOContext(params);
-        d_ptr->getIOChain(chain).statInfo(io_context, info);
-        info.toPosixStat(*st);
+        statInfo(params, info).toPosixStat(*st);
         return 0;
     }CATCH_DAVIX(err)
     return -1;
+}
+
+StatInfo& DavFile::statInfo(const RequestParams *params, StatInfo &info){
+    HttpIOChain chain;
+    IOChainContext io_context = d_ptr->getIOContext(params);
+    d_ptr->getIOChain(chain).statInfo(io_context, info);
+    return info;
 }
 
 int DavFile::checksum(const RequestParams *params, std::string & checksm, const std::string & chk_algo, DavixError **err) throw(){

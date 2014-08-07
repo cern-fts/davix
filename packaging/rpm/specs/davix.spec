@@ -9,7 +9,7 @@
 %endif
 
 Name:				davix
-Version:			0.3.4
+Version:			0.3.5
 Release:			1%{?dist}
 Summary:			Toolkit for Http-based file management
 Group:				Applications/Internet

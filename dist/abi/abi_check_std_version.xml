@@ -13,6 +13,10 @@
 
 
 <skip_symbols>
+<!-- httpcodeTo** functions were commented as private, false positive -->
+_ZN5Davix19httpcodeToDavixCodeEiRKSsS1_PPNS_10DavixErrorE
+_ZN5Davix15httpcodeIsValidEi
+
 <!-- typeinfo symbol, ignore this, false positive due to clang change -->
 _ZN5Davix4HookINS_17HookReceiveHeaderEE7getTypeEPS2_
 _ZN5Davix4HookINS_19HookRequestPostExecEE7getTypeEPS2_

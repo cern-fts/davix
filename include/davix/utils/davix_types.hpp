@@ -70,8 +70,8 @@ namespace Davix{
 } // Davix
 
 
-typedef uint64_t dav_off_t;
 typedef uint64_t dav_size_t;
+typedef int64_t dav_off_t;
 typedef int64_t dav_ssize_t;
 
 // block size

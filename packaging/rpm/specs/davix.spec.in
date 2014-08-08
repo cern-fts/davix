@@ -33,9 +33,10 @@ BuildRequires:                  openssl-devel
 # davix-copy dependencies
 BuildRequires:                  gridsite-devel
 BuildRequires:                  gsoap-devel
-# unit tests
-BuildRequires:                  gtest-devel
 
+# unit tests and abi check
+BuildRequires:                  abi-compliance-checker
+BuildRequires:                  gtest-devel
 
 Requires:                       %{name}-libs%{?_isa} = %{version}-%{release}
 
@@ -97,6 +98,7 @@ make %{?_smp_mflags}
 make doc
 
 %check
+make abi-check
 ctest -V -T Test
 
 

@@ -35,7 +35,9 @@ BuildRequires:                  gridsite-devel
 BuildRequires:                  gsoap-devel
 
 # unit tests and abi check
+%if %{?fedora}%{!?fedora:0} >= 10 || %{?rhel}%{!?rhel:0} >= 6
 BuildRequires:                  abi-compliance-checker
+%endif
 BuildRequires:                  gtest-devel
 
 Requires:                       %{name}-libs%{?_isa} = %{version}-%{release}
@@ -98,7 +100,9 @@ make %{?_smp_mflags}
 make doc
 
 %check
+%if %{?fedora}%{!?fedora:0} >= 10 || %{?rhel}%{!?rhel:0} >= 6
 make abi-check
+%endif
 ctest -V -T Test
 
 

@@ -70,9 +70,14 @@ namespace Davix{
 } // Davix
 
 
+// Davix types
 typedef uint64_t dav_size_t;
-typedef int64_t dav_off_t;
 typedef int64_t dav_ssize_t;
+#ifdef __DAVIX_COMPAT_32        // defined only for 32 bits arc and abi compat
+typedef uint64_t dav_off_t;
+#else
+typedef int64_t dav_off_t;
+#endif
 
 // block size
 #define DAVIX_BLOCK_SIZE 4096

@@ -107,6 +107,14 @@ namespace std{
 #endif
 
 
+//
+// compat 32 bits
+#if  (( __WORDSIZE == 32 ) \
+        || ( SIZE_MAX ==  (4294967295U) )) \
+     && !(defined __DAVIX_COMPAT_32) \
+     && !(defined __NO_DAVIX_COMPAT_32)
+#define __DAVIX_COMPAT_32
+#endif
 
 
 #endif // DAVIX_TYPES_HPP

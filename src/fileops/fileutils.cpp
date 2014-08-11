@@ -68,38 +68,35 @@ void setup_offset_request(HttpRequest* req, const dav_off_t *start_len, const da
 
 }
 
-void generateRangeHeadersRec(std::vector< std::pair<dav_size_t, std::string> >  & range_rec, dav_size_t max_header_size, OffsetCallback & offset_provider){
-
-    std::string range_string;
-    dav_size_t range_size =0;
-    std::ostringstream buffer;
-    range_string.reserve(max_header_size);
-    range_string.append(offset_value);
-
-    dav_off_t begin, end;
-    int ret;
-    while( ( ret = offset_provider(begin, end)) >= 0){
-       buffer.str("");
-
-       if(range_size > 0)
-           buffer << ',';
-       buffer << begin << '-' <<  end;
-       range_string.append(buffer.str());
-       range_size++;
-       if(range_string.size() >= max_header_size){
-           range_rec.push_back(std::make_pair(range_size, range_string));
-           generateRangeHeadersRec(range_rec, max_header_size, offset_provider);
-           return;
-       }
-    }
-    if(range_size > 0)
-        range_rec.push_back(std::make_pair(range_size, range_string));
-}
-
 std::vector< std::pair<dav_size_t, std::string> > generateRangeHeaders(dav_size_t max_header_size, OffsetCallback & offset_provider){
-   std::vector< std::pair<dav_size_t, std::string> > res;
-   generateRangeHeadersRec(res, max_header_size, offset_provider);
-   return res;
+   std::vector< std::pair<dav_size_t, std::string> > range_rec;
+   dav_off_t begin, end;
+   int ret;
+   std::string range_string;
+   dav_size_t range_size =0;
+   std::ostringstream buffer;
+   range_string.reserve(max_header_size);
+   range_string.append(offset_value);
+
+
+   while( ( ret = offset_provider(begin, end)) >= 0){
+      buffer.str("");
+
+      buffer << begin << '-' <<  end;
+      range_string.append(buffer.str());
+      range_size++;
+      if(range_string.size() >= max_header_size){
+          range_rec.push_back(std::make_pair(range_size, range_string));
+          range_size = 0;
+          range_string.assign(offset_value);
+      }else{
+          range_string.append(",");
+      }
+   }
+   if(range_size > 0)
+       range_rec.push_back(std::make_pair(range_size, range_string));
+
+   return range_rec;
 }
 
 void fill_stat_from_fileproperties(struct stat* st, const  FileProperties & prop){

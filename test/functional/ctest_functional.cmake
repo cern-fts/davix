@@ -14,9 +14,9 @@ set(http_dynaFed_base "http://dav-federation.cern.ch/myfed/dteam/")
 set(http_lcgdm_file "${http_lcgdm_base}/davix-tests/testread0011")
 set(http_dynaFed_file "${http_dynaFed_base}/davix-tests/testread0011")
 
-set(metalink_url "http://download.documentfoundation.org/libreoffice/stable/4.1.6/deb/x86_64/LibreOffice_4.1.6_Linux_x86-64_deb.tar.gz")
-set(metalink3_url "http://download.documentfoundation.org/libreoffice/stable/4.1.6/deb/x86_64/LibreOffice_4.1.6_Linux_x86-64_deb.tar.gz.metalink")
-set(metalink_url_direct "http://download.documentfoundation.org/libreoffice/stable/4.1.6/deb/x86_64/LibreOffice_4.1.6_Linux_x86-64_deb.tar.gz.meta4")
+set(metalink_url "http://download.documentfoundation.org/libreoffice/stable/4.3.0/deb/x86_64/LibreOffice_4.3.0_Linux_x86-64_deb.tar.gz")
+set(metalink3_url "http://download.documentfoundation.org/libreoffice/stable/4.3.0/deb/x86_64/LibreOffice_4.3.0_Linux_x86-64_deb_helppack_en-US.tar.gz.metalink")
+set(metalink_url_direct "http://download.documentfoundation.org/libreoffice/stable/4.3.0/deb/x86_64/LibreOffice_4.3.0_Linux_x86-64_deb_langpack_fr.tar.gz.meta4")
 
 test_dav_endpoint_ronly( ${http_desy_base} "proxy")
 test_valid_write_read_generic("${http_desy_base}" "proxy")

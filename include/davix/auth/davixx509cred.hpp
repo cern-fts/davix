@@ -40,7 +40,7 @@ struct X509CredentialInternal;
 struct X509CredentialExtra;
 
 /// @class X509Credential
-/// @brief container for X509 certificate
+/// @brief X509 certificate
 ///
 class DAVIX_EXPORT X509Credential
 {
@@ -80,7 +80,7 @@ public:
                                 const std::string & password, DavixError** err);
 
 
-    /// check if the container owns a certificate
+    /// check if the object contain a credential
     /// @return true if contains a valid certificate, false if empty
     bool hasCert() const;
 
@@ -90,6 +90,7 @@ private:
     friend struct X509CredentialExtra;
 };
 
-} // namespace DAvix
+
+} // namespace Davix
 
 #endif // DAVIX_X509CRED_HPP

@@ -22,7 +22,7 @@
 #define DAVIX_FILEUTILS_HPP
 
 #include <davix.hpp>
-#include <fileproperties.hpp>
+#include <utils/davix_fileproperties.hpp>
 #include <boost/function.hpp>
 
 namespace Davix {

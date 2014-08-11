@@ -24,7 +24,7 @@
 
 #include <deque>
 #include <xml/davxmlparser.hpp>
-#include <fileproperties.hpp>
+#include <utils/davix_fileproperties.hpp>
 #include <string.h>
 
 namespace Davix {

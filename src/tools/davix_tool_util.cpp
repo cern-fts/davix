@@ -234,24 +234,30 @@ int authCallbackLoginPassword(void* userdata, const SessionInfo & info, std::str
 
 int authCallbackCert(void* userdata, const SessionInfo & info, X509Credential* cert, DavixError** err){
     OptParams* opts = static_cast<OptParams*>(userdata);
-    int ret = -1;
     const std::string key_path(opts->priv_key), cred_path(opts->cred_path);
 
-
     if(cred_path.empty() == false){
-        if( cert->loadFromFilePEM( ((key_path.empty()== false)?(key_path):(cred_path)),
+        // try without password
+        if(  cert->loadFromFilePEM( ((key_path.empty()== false)?(key_path):(cred_path)),
                                   cred_path,
                                   "",
                                   err) <0){
+            std::cout << std::endl;
+            if( (*err)->getStatus() != StatusCode::CredDecryptionError){
+                // credential specific error
+                return -1;
+            }
 
-            // FIX IT : Neon SSL API does not allow to know if error is bad path  or wrong password, try again with password
+            // retry with password
+            DavixError::clearError(err);
             std::string password;
             if( ask_user_passwd(password) <0
                     || cert->loadFromFilePEM(key_path, cred_path, password, err) <0 ){
                 if(err && *err == NULL){
                     DavixError::setupError(err, "Davix::Tool::Auth",
-                                           StatusCode::LoginPasswordError,
-                                           "Impossible to use client credential");
+                                           StatusCode::CredDecryptionError,
+                                           "Impossible to use and decrypt client credential");
+
                 }
                 return -1;
              }
@@ -259,10 +265,11 @@ int authCallbackCert(void* userdata, const SessionInfo & info, X509Credential* c
         std::cout << std::endl;
         return 0;
     }
-    if(ret < 0)
+    if(err && *err == NULL){
         DavixError::setupError(err, "Davix::Tool::Auth",
                                StatusCode::LoginPasswordError,
                                "No valid client credential provided");
+    }
     return -1;
 
 }

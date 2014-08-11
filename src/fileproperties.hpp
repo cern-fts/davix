@@ -25,6 +25,9 @@
 #include <string>
 #include <vector>
 
+#include <file/davix_file_info.hpp>
+#include <string_utils/stringutils.hpp>
+
 
 namespace Davix {
 
@@ -32,25 +35,31 @@ namespace Davix {
 
 struct FileProperties
 {
-    FileProperties();
+    FileProperties() :
+        filename(),
+        req_status(0),
+        info(){}
+
     std::string filename;
     unsigned int  req_status; /* status code of the request associated ( ex: http 200) */
 
-    nlink_t   nlink;
-    uid_t     uid;    /* unix user id */
-    gid_t     gid;   /* unix group id */
-    off_t     size;  /* total size, in bytes */
-    mode_t    mode;
-
-    time_t    atime;   /* time of last access */
-    time_t    mtime;   /* time of last modification */
-    time_t    ctime;   /* time of last status change */
+    // stat() metadata
+    StatInfo info;
 
     inline void clear(){
-        nlink = req_status =  gid = uid = size =0;
-        mode = atime = mtime = ctime = 0;
-        filename=std::string();
+        info = StatInfo();
+        filename.clear();
+        req_status = 0;
+    }
 
+    inline void toDirent(struct dirent * d) const{
+        StrUtil::copy_std_string_to_buff(d->d_name, NAME_MAX, filename);
+        if (S_ISDIR(info.mode))
+            d->d_type = DT_DIR;
+        else if (S_ISLNK(info.mode))
+            d->d_type = DT_LNK;
+        else
+            d->d_type = DT_REG;
     }
 
 };

@@ -99,24 +99,7 @@ std::vector< std::pair<dav_size_t, std::string> > generateRangeHeaders(dav_size_
    return range_rec;
 }
 
-void fill_stat_from_fileproperties(struct stat* st, const  FileProperties & prop){
-    memset(st, 0, sizeof(struct stat));
-    st->st_mtime = prop.mtime;
-    st->st_atime = prop.atime;
-    st->st_ctime = prop.ctime;
-    st->st_size = prop.size;
-    st->st_mode = prop.mode;
-}
 
-StatInfo &  fill_fileinfo_from_fileproperties(const  FileProperties & prop, struct StatInfo & st){
-    memset(&st,0, sizeof(struct StatInfo));
-    st.mtime =prop.mtime;
-    st.atime = prop.atime;
-    st.ctime = prop.ctime;
-    st.size = static_cast<dav_size_t>(prop.size);
-    st.mode = prop.mode;
-    return st;
-}
 
 
 

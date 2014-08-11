@@ -78,7 +78,7 @@ int dav_stat_mapper_webdav(Context &context, const RequestParams* params, const 
                 if( props.size() < 1){
                     throw DavixException(davix_scope_stat_str(), Davix::StatusCode::WebDavPropertiesParsingError, "Parsing Error : properties number < 1");
                 }else{
-                    fill_fileinfo_from_fileproperties( props.front(), st_info);
+                    st_info = props.front().info;
                     ret =0;
                 }
             }

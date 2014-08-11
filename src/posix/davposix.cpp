@@ -123,18 +123,6 @@ DavPosix::~DavPosix(){
 }
 
 
-
-
-static void fill_dirent_from_filestat(struct dirent * d, const FileProperties & f){
-    copy_std_string_to_buff(d->d_name, NAME_MAX, f.filename);
-    if (S_ISDIR(f.mode))
-        d->d_type = DT_DIR;
-    else if (S_ISLNK(f.mode))
-        d->d_type = DT_LNK;
-    else
-        d->d_type = DT_REG;
-}
-
 dav_ssize_t incremental_propfind_listdir_parsing(HttpRequest* req, DavPropXMLParser * parser, dav_size_t s_buff, const char* scope, DavixError** err){
   //  std::cout << "time 1 pre-fecth" << time(NULL) << std::endl;
     DavixError* tmp_err=NULL;
@@ -206,7 +194,8 @@ DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char
                     }while( prop_size < 1); // leave is end of req & no data
 
                     if(!tmp_err){
-                        if( S_ISDIR(parser->getProperties().at(0).mode) == false){
+                        const StatInfo & info = parser->getProperties().at(0).info;
+                        if( S_ISDIR(info.mode) == false){
                              DavixError::setupError(&tmp_err, davix_scope_directory_listing_str(), StatusCode::IsNotADirectory, url + " is not a collection or a directory, impossible to list");
                         }else{
                             parser->getProperties().pop_front(); // suppress the parent directory infos...
@@ -281,7 +270,6 @@ struct dirent* DavPosix::readdir(DAVIX_DIR * d, DavixError** err){
         if(!tmp_err){
             if(prop_size == 0) // end of the request, end of the story
                 return NULL;
-            fill_dirent_from_filestat(handle->dir_info, parser->getProperties().front());
             handle->dir_offset = read_offset;
             parser->getProperties().pop_front(); // clean the current element
             DAVIX_DEBUG(" <- davix_readdir");
@@ -325,9 +313,10 @@ struct dirent* DavPosix::readdirpp(DAVIX_DIR * d, struct stat *st, DavixError** 
             if(prop_size == 0){
                 ret= NULL; // end of the request, end of the story
             }else{
-                fill_dirent_from_filestat(handle->dir_info, parser->getProperties().front());
+                FileProperties & front = parser->getProperties().front();
+                front.toDirent(handle->dir_info);
                 handle->dir_offset = read_offset;
-                fill_stat_from_fileproperties(st, parser->getProperties().front());
+                front.info.toPosixStat(*st);
                 parser->getProperties().pop_front(); // clean the current element
                 ret= handle->dir_info;
             }

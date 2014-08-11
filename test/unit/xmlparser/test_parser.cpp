@@ -350,8 +350,8 @@ TEST(XmlParserInstance, parseOneStat){
     ASSERT_EQ(1u, parser.getProperties().size());
 
     Davix::FileProperties f = parser.getProperties().at(0);
-    ASSERT_TRUE(S_ISDIR(f.mode));
-    ASSERT_FALSE(S_ISLNK(f.mode));
+    ASSERT_TRUE(S_ISDIR(f.info.mode));
+    ASSERT_FALSE(S_ISLNK(f.info.mode));
     ASSERT_STREQ("dteam",f.filename.c_str());
  //q   ASSERT_EQ(f.mtime, 1350892251L);
 
@@ -375,14 +375,14 @@ TEST(XMLParserInstance,ParseList){
 
         // test the parent directory stats
         Davix::FileProperties f = parser.getProperties().at(0);
-        ASSERT_TRUE(S_ISDIR(f.mode));
-        ASSERT_FALSE(S_ISLNK(f.mode));
+        ASSERT_TRUE(S_ISDIR(f.info.mode));
+        ASSERT_FALSE(S_ISLNK(f.info.mode));
         ASSERT_STREQ("dteam",f.filename.c_str());
 
         for(int i =1; i < 16; ++i){
             Davix::FileProperties f_local = parser.getProperties()[i];
             ASSERT_STREQ(list_item[i-1], f_local.filename.c_str());
-            ASSERT_TRUE( f_local.size > 0 || S_ISDIR(f.mode));
+            ASSERT_TRUE( f_local.info.size > 0 || S_ISDIR(f.info.mode));
         }
 
         // test the children stats

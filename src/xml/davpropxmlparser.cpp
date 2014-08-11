@@ -67,7 +67,7 @@ struct DavPropXMLParser::DavxPropXmlIntern{
         DAVIX_DEBUG(" properties detected ");
         _current_props.clear();
         _current_props.filename = _last_filename; // setup the current filename
-        _current_props.mode = 0777 | S_IFREG; // default : fake access to everything
+        _current_props.info.mode = 0777 | S_IFREG; // default : fake access to everything
     }
 
     inline void store_new_elem(){
@@ -94,7 +94,7 @@ static void check_last_modified(DavPropXMLParser::DavxPropXmlIntern & par, const
         t = 0;
     }
     DAVIX_DEBUG(" getlastmodified found -> value %ld ", t);
-    par._current_props.mtime = t;
+    par._current_props.info.mtime = t;
 }
 
 
@@ -106,13 +106,13 @@ static void check_creation_date(DavPropXMLParser::DavxPropXmlIntern & par, const
         t = 0;
     }
     DAVIX_DEBUG(" creationdate found -> value %ld ", t);
-    par._current_props.ctime = t;
+    par._current_props.info.ctime = t;
 }
 
 static void check_is_directory(DavPropXMLParser::DavxPropXmlIntern & par,  const std::string & name){
    DAVIX_DEBUG(" directory pattern found -> set flag IS_DIR");
-   par._current_props.mode |=  S_IFDIR;
-   par._current_props.mode &= ~(S_IFREG);
+   par._current_props.info.mode |=  S_IFDIR;
+   par._current_props.info.mode &= ~(S_IFREG);
 }
 
 
@@ -125,7 +125,7 @@ static void check_content_length(DavPropXMLParser::DavxPropXmlIntern & par,  con
         return;
     }
     DAVIX_DEBUG(" content length found -> %ld", mysize);
-    par._current_props.size = (off_t) mysize;
+    par._current_props.info.size = (off_t) mysize;
 }
 
 static void check_mode_ext(DavPropXMLParser::DavxPropXmlIntern & par, const std::string & name){
@@ -137,7 +137,7 @@ static void check_mode_ext(DavPropXMLParser::DavxPropXmlIntern & par, const std:
         return;
     }
     DAVIX_DEBUG(" mode_t extension found -> 0%o", (mode_t) mymode);
-    par._current_props.mode = (mode_t) mymode;
+    par._current_props.info.mode = (mode_t) mymode;
 }
 
 static void check_href(DavPropXMLParser::DavxPropXmlIntern & par,  const std::string & name){

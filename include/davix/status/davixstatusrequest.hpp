@@ -333,6 +333,7 @@ void checkDavixError(DavixError** err);
 DAVIX_EXPORT std::string davix_scope_stat_str();
 DAVIX_EXPORT std::string davix_scope_davOps_str();
 DAVIX_EXPORT std::string davix_scope_mkdir_str();
+DAVIX_EXPORT std::string davix_scope_rm_str();
 DAVIX_EXPORT std::string davix_scope_directory_listing_str();
 DAVIX_EXPORT std::string davix_scope_http_request();
 DAVIX_EXPORT std::string davix_scope_meta();

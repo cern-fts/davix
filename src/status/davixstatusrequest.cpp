@@ -243,11 +243,15 @@ void DavixException::toDavixError(DavixError **err){
 
 
 std::string davix_scope_stat_str(){
-    return "Davix::Posix::stat";
+    return "Davix::stat";
 }
 
 std::string davix_scope_mkdir_str(){
-    return "Davix::Posix::mkdir";
+    return "Davix::mkdir";
+}
+
+std::string davix_scope_rm_str(){
+    return "Davix::rm";
 }
 
 std::string davix_scope_directory_listing_str(){
@@ -281,6 +285,8 @@ std::string davix_scope_io_buff(){
 std::string davix_scope_x509cred(){
     return "Davix::X509cred";
 }
+
+
 
 } // namespace Davix
 

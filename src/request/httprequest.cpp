@@ -299,43 +299,48 @@ void httpcodeToDavixError(int code, const std::string &scope, const std::string 
         case 207:           /* Multi-Status */
         case 304:           /* Not Modified */
             dav_code = StatusCode::OK;
+            str_msg = "Success";
             break;
         case 401:           /* Unauthorized */
         case 402:           /* Payment Required */
         case 407:           /* Proxy Authentication Required */
             dav_code = StatusCode::AuthentificationError;
-            str_msg = "HTTP Authentification Error";
+            str_msg = "Authentification Error";
             break;
         case 303:           /* See Other */
         case 404:           /* Not Found */
         case 410:           /* Gone */
             dav_code = StatusCode::FileNotFound;
-            str_msg = "HTTP File not found";
+            str_msg = "File not found";
             break;
         case 408:           /* Request Timeout */
         case 504:           /* Gateway Timeout */
             dav_code = StatusCode::OperationTimeout;
-            str_msg = "HTTP Operation timeout";
+            str_msg = "Operation timeout";
             break;
         case 409:
-            if (scope == davix_scope_mkdir_str())
+            if (scope == davix_scope_mkdir_str()){
                 dav_code = StatusCode::FileNotFound;
-            else
+                str_msg = "Conflict, File not Found";
+            } else{
                 dav_code = StatusCode::FileExist;
-            str_msg = "HTTP Conflict";
+                str_msg = "Conflict, File Exist";
+            }
             break;
         case 423:           /* Locked */
         case 403:           /* Forbidden */
             dav_code = StatusCode::PermissionRefused;
-            str_msg = "HTTP Permission refused";
+            str_msg = "Permission refused";
             break;
         break;
         case 405:           /* Method Not Allowed */
-            if (scope == davix_scope_mkdir_str())
+            if (scope == davix_scope_mkdir_str()){
                 dav_code = StatusCode::FileExist;
-            else
+                str_msg = "Method Not Allowed, File Exist";
+            } else{
                 dav_code = StatusCode::PermissionRefused; // Technically is a EPERM
-            str_msg = "Method Not Allowed";
+                str_msg = "Method Not Allowed, Permission refused";
+            }
             break;
         case 400:           /* Bad Request */
         case 411:           /* Length Required */
@@ -347,7 +352,7 @@ void httpcodeToDavixError(int code, const std::string &scope, const std::string 
         case 413:           /* Request Entity Too Large */
         case 507:           /* Insufficient Storage */
             dav_code = StatusCode::ConnectionProblem;
-            str_msg = "HTTP Server Error";
+            str_msg = "Server Error";
             break;
         case 301:           /* Moved Permanently */
         case 300:           /* Multiple Choices */
@@ -368,12 +373,12 @@ void httpcodeToDavixError(int code, const std::string &scope, const std::string 
         case 505:           /* HTTP Version Not Supported */
         default:
             dav_code = StatusCode::UnknowError;
-            str_msg = "HTTP unexcepted Server Error";
+            str_msg = "Unexcepted Server Error";
             break;
     }
 
     std::ostringstream ss;
-    ss << "HTTP Error "<< code << " " << str_msg <<": "<< str_msg << std::endl;
+    ss << "HTTP "<< code << ": " << str_msg <<". "<< end_message << std::endl;
     err_msg.assign(ss.str());
 }
 

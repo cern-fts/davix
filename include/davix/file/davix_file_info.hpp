@@ -25,20 +25,6 @@
 #include <davix_file_types.hpp>
 #include <utils/davix_uri.hpp>
 
-/**
-  @file davix_file_info.hpp
-  @author Devresse Adrien
-
-  @brief davix file Meta-data class
-
-  @warning Unstable API for preview only now, subject to changes.
-*/
-
-namespace Davix{
-
-
-
-} // Davix
 
 
 #endif // DAVIX_FILE_INFO_HPP

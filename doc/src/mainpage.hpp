@@ -8,7 +8,7 @@ Developped at CERN (IT-SDC-ID)
 
 Official WebSite: <a href="http://dmc.web.cern.ch/projects/davix/home">Here</a>
 
-User Documentation: <a hred="http://dmc.web.cern.ch/projects/davix/documentation">Here</a>
+User Documentation: <a href="http://dmc.web.cern.ch/projects/davix/documentation">Here</a>
 
 Mailing list : davix-devel@cern.ch
 
@@ -26,6 +26,7 @@ It aims to be a simple, performant and portable I/O layer for Cloud and Grid Sto
 
 
 Davix supports:
+- HTTP, WebDav, Amazon S3
 - SSL/TLS
 - X509 client auth with proxy credential support
 - Vector operations (Partial reads, multi-range, single range)
@@ -34,15 +35,10 @@ Davix supports:
 - Webdav parsing
 - Data management operations ( mkdir, rm, stat )
 
-Davix supports the protocols
-    - Http
-    - WebDAV
-    - Aws S3
-
 The Davix targets to:
-    1 - Be Simple to use for simple use cases
-    2 - Provide the needed features for High performance I/O use cases
-    3 - Be a data management swiss knife for HTTP based data stores
+- Be simple to use for simple use cases
+- Provide the needed features for High Performance I/O use cases
+- Be a data management swiss knife for HTTP based data stores
 
 <h2> Examples </h2>
 

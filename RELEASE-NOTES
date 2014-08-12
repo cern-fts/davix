@@ -1,3 +1,21 @@
+Version - 0.3.6
+
+Bug fixs:
+    * [LCGUTIL-418] - DAVIX: Solve OpenSSL issue with davix cmd line tools and password shell
+    * [LCGUTIL-475] - davfile.getToFd does not return the number of bytes read, but 0 on success
+    * [LCGUTIL-478] - Davix 32 bits ABI break problem
+    * [LCGUTIL-480] - Davix maps badly http statuses to errno
+
+Version - 0.3.4
+
+Bug fixs:
+    * [LCGUTIL-410] - davix-cp help is not up to date and confusing
+    * [LCGUTIL-411] - davix-cp does not support the profile features of the davix command line tool
+    * [LCGUTIL-454] - Davix: libneon ignores connexion timeout
+    * [LCGUTIL-455] - DAVIX: bug reported by johannes concerning dCache and very long connexion re-use
+    * [LCGUTIL-456] - LCGUTIL: davix under heavy I/O usage for vector query send sometimes empty vector query
+
+
 Version - 0.3.1
 
 Main changes:

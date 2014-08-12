@@ -9,7 +9,7 @@
 %endif
 
 Name:				davix
-Version:			0.3.5
+Version:			0.3.6
 Release:			1%{?dist}
 Summary:			Toolkit for Http-based file management
 Group:				Applications/Internet
@@ -142,6 +142,9 @@ make DESTDIR=%{buildroot} install
 
 
 %changelog
+* Tue Aug 12 2014 Adrien Devresse <adevress at cern.ch> - 0.3.6
+ - davix 0.3.6 release, see RELEASE-NOTES for changes
+
 * Tue Jul 22 2014 Adrien Devresse <adevress at cern.ch> - 0.3.4-1
  - Update to release 0.3.4
 

@@ -45,10 +45,12 @@ static std::string help_msg(){
 
 
 static int execute_get(const Tool::OptParams & opts, int out_fd, DavixError** err){
+        int ret;
         Context c;
         configureContext(c, opts);
         DavFile f(c, opts.vec_arg[0]);
-        return f.getToFd(&opts.params, out_fd, err);
+        ret = f.getToFd(&opts.params, out_fd, err);
+        return (ret >= 0)?0:-1;
 }
 
 

@@ -4,158 +4,119 @@
 @mainpage Davix Documentation
 @author Devresse Adrien ( adrien.devresse@cern.ch )
 
-Developped in CERN IT-SDC-ID 
+Developped at CERN (IT-SDC-ID)
 
-Official WebSite: http://dmc.web.cern.ch/projects/davix/home 
+Official WebSite: <a href="http://dmc.web.cern.ch/projects/davix/home">Here</a>
 
-User Documentation: http://dmc.web.cern.ch/projects/davix/documentation 
+User Documentation: <a hred="http://dmc.web.cern.ch/projects/davix/documentation">Here</a>
 
 Mailing list : davix-devel@cern.ch
 
+<h2> davix API :</h2>
 
-<h2> DAVIX </h2>
+file / object store API :   Davix::DavFile  <br/>
+posix compatiblity layer :  Davix::DavPosix <br/>
+http request layer:         Davix::HttpRequest <br/>
+main header:                \ref davix.hpp  <br/>
 
-Davix is a lightweight toolkit for file access and file management with HTTP Based protocols.
-Davix aims to be an easy-to-use, reliable and performant I/O layer for Cloud and Grid Storages.
+<h2> What is davix ? </h2>
+
+davix is a library and a set of tools for remote I/O on resources with HTTP based protocols.
+It aims to be a simple, performant and portable I/O layer for Cloud and Grid Storages services.
 
 
 Davix supports:
 - SSL/TLS
-- HTTP and SSL session reuse
-- X509 client auth
-- VOMS credential
-- S3 auth,
+- X509 client auth with proxy credential support
 - Vector operations (Partial reads, multi-range, single range)
-- Partial PUT / PATCH *
-- Fail-over
-- Multi-streams ( Metalinks), *
-- Redirection support for all operations
+- Metalinks
 - Redirections caching
 - Webdav parsing
-- Right Management (ACL)
-- Meta-data functions ( mkdir, rmdir, unlink, etc.. )
-- Chunked transfert
-
- (*) still under development
+- Data management operations ( mkdir, rm, stat )
 
 Davix supports the protocols
     - Http
     - WebDAV
     - Aws S3
 
-The Davix philosophy can be summarized as
-    - Just access files, don't loose time with the protocol details
-    - Keep It Simple Stupid
-    - Efficient
-    - Portable
+The Davix targets to:
+    1 - Be Simple to use for simple use cases
+    2 - Provide the needed features for High performance I/O use cases
+    3 - Be a data management swiss knife for HTTP based data stores
+
+<h2> Examples </h2>
 
 
-<h2> DAVIX API :</h2>
-
-File API : Davix::DavFile  <br/>
-
-Posix-like API : Davix::DavPosix <br/>
-
-Entry point API : \ref davix.hpp  <br/>
-
-
-<h2> Davix is yet an other libcurl ? </h2>
-
-In short : No
-
-Libcurl defines itself as a "client side URL transfer". <br/>
- it provides "protocol level" API, you compose your http queries mannually.
-
-- Davix offers a "file level" API. <br/>
- With Davix, you access and manage your data and do not have to know anything about Http and
- how to tune queries.
- Davix tends to be of one level higher and provides a complete API for
- remote I/O and remote file management.
-
-<h2> Examples : </h2>
-
-<h3> File Usage </h3>
-
-Create a directory :
+<h3>Query basic file metadata</h3>
  @code{.cpp}
-            DavixError* tmp_err=NULL;
-            DavFile f(context, url);
-            // creat directory
-            p.makeCollection(NULL, &tmp_err);
+            StatInfo infos;
+            DavFile file(context, "http://my.webdav.server.org/myfolder/myfile");
+            file.statInfo(NULL, infos);
+            std::cout << "my file is " << infos.size << " bytes large " << std::endl;
  @endcode
 
- Get a full file content:
+<h3>Create a directory</h3>
+ @code{.cpp}
+            DavFile file(context, "http://my.webdav.server.org/myfoldier/newfolder");
+            // creat directory
+            file.makeCollection(NULL);
+ @endcode
+
+ <h3>Get a full file content</h3>
  @code{.cpp}
 
-            DavixError* tmp_err=NULL;
             DavFile f(context, "http://mysite.org/file");
             int fd = open("/tmp/local_file", O_WRONLY | O_CREAT);
             // get full file
-            if( p.getToFd(NULL,fd, &tmp_err) < 0)
-                      std::cerr << "Error: " << tmp_err->getErrMsg() << std::endl;
+            file.getToFd(NULL,fd, NULL) < 0)
+
 
 
  @endcode
 
-Execute a partial GET :
+<h3>Execute a partial GET</h3>
  @code{.cpp}
 
-            char buffer[255] = {0}
-            DavixError* tmp_err=NULL;
-            DavFile f(context, "http://mysite.org/file");
+            char buffer[255] = {0};
+            DavFile file(context, "http://mysite.org/file");
             // get 100 bytes from http://mysite.org/file after an offset of 200 bytes
-            if( p.readPartial(NULL, buffer, 100, 200
-                      &tmp_err) <0 )
-                      std::cerr << "Error: " << tmp_err->getErrMsg() << std::endl;
-            else
-                std::cout << "Content: " << buffer << std::endl;
+            file.readPartial(NULL, buffer, 100, 200);
 
  @endcode
 
-Execute a Vector Operation :
+<h3>Execute a Vector Operation</h3>
  @code{.cpp}
 
             char buffer[255] = {0}
-            DavixError* tmp_err=NULL;
-            DavFile f(context, "http://mysite.org/file");
+            DavFile file(context, "http://mysite.org/file");
+
+
             DavIOVecInput in[3];
             DavIOVecOutput ou[3];
-            // get 100 bytes from http://mysite.org/file after an offset of 200 bytes
-            if( p.readPartial(NULL, buffer, 100, 200
-                      &tmp_err) <0 )
-                      std::cerr << "Error: " << tmp_err->getErrMsg() << std::endl;
-            else
-                std::cout << "Content: " << buffer << std::endl;
+            // setup vector operations parameters
+            // --------
+            // execute query
+            file.readPartialBufferVec(NULL, in, out , 3 , NULL);
+
 
  @endcode
 
-<h3> POSIX Usage </h3>
-
- Stat query : 
+ <h3>Random I/O in posix mode</h3>
  @code{.cpp}
 
             Davix::DavPosix p;
-            // state quer
-            p.stat("https://mywebdav-server.org/mydir/", &stat, &tmp_err);
 
- @endcode
- 
- 
- random I/O : 
- @code{.cpp}
-             //
             // read ops
-            fd= p.open(NULL, "https://mywebdav-server.org/myfile.jpg", O_RDONLY, &tmp_err);
-            p.read(fd, buffer, size, &tmp_err);
-            p.pread(fd, buffer, size2, offset, &tmp_err);
+            fd= p.open(NULL, "https://mywebdav-server.org/myfile.jpg", O_RDONLY, NULL);
+            p.read(fd, buffer, size, NULL);
+            p.pread(fd, buffer, size2, offset, NULL);
             p.close(fd);
             //
  @endcode
 
 
  
-<h3> Query Usage </h3>
-
+<h3>Manual HTTP query:</h3>
  @code{.cpp}
 
             Davix::HttpRequest req("https://restapi-server.org/rest")
@@ -169,7 +130,7 @@ Execute a Vector Operation :
  @endcode
 
 
-<h2> How to compile : </h2>
+<h2> How to compile</h2>
 
 - Davix Dependencies :
    -  openssl
@@ -177,11 +138,9 @@ Execute a Vector Operation :
    -  Doxygen ( optional, for documentation generation )
 
 - Davix Portability :
-   - Should run on Windows and any POSIX compatible Operating system
-   - Any contribution to support a new plateform is welcome
-   - Tested on Debian, Ubuntu, Fedora 18/19, Scientific Linux 5/6
-   - Tested on Windows under MinGW
-   - Tested with clang and GCC.
+   - Target any POSIX OS
+   - Ported on Linux > 2.6 , Windows with Cygwin, OSX > 10.2, AIX.
+   - Packaged on Debian > 6, Ubuntu > 13.04, Fedora > 18, SL > 5,
 
 - Compile :
     - " 1. git clone  http://git.cern.ch/pub/davix  "
@@ -191,7 +150,6 @@ Execute a Vector Operation :
     - " 5. make "
 
 - Generate doc :
-    - * run cmake
     - make doc
 
 - Compile and run unit tests :
@@ -216,19 +174,16 @@ Execute a Vector Operation :
         -> davix-ls: file listing
         -> davix-get: download operations
         -> davix-put: upload operations
-        -> davix: low level query composition
+        -> davix-http: low level query composition
 
-<h2> TODO in Davix : </h2>
+<h2>TODO in Davix</h2>
 
-    - MacOSX portability check
-    - Kerberos support
-    - Metalink support
-    - map S3 bucket operations
-    - ACL support
-    - (?) CDMI support
+    - WebHDFS support
+    - S3 ACL support
+    - CDMI support
+    - X-stream mode support ( metalink multi source download )
 
-    please contact us on davix-devel@cern.ch ( CERN e-group & mailing list ) or on adrien.devresse@cern.ch
+    For any contribution please contact us on davix-devel@cern.ch
 
-    Any contribution is welcome
 
 */

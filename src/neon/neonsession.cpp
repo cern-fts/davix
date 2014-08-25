@@ -171,24 +171,6 @@ void configureSession(ne_session *_sess, const Uri & _u, const RequestParams &pa
             ne_ssl_set_verify(_sess, validate_all_certificate, NULL);
         }
 
-        // if authentification for login/password
-        if( params.getClientLoginPassword().first.empty() == false
-                || _u.getUserInfo().size() > 0
-                || params.getClientLoginPasswordCallback().first != NULL){
-            DAVIX_DEBUG("NEONSession : enable login/password authentication");
-            ne_set_server_auth(_sess, lp_callback, lp_userdata);
-        }else{
-            DAVIX_DEBUG("NEONSession : disable login/password authentication");
-        }
-
-        // if authentification for cli cert by callback
-        if( params.getClientCertFunctionX509()){
-            DAVIX_DEBUG("NEONSession : enable client cert authentication by callback ");
-            ne_ssl_provide_clicert(_sess, cred_callback, cred_userdata);
-        }else{
-              DAVIX_DEBUG("NEONSession : disable client cert authentication");
-        }
-
         if( timespec_isset(params.getOperationTimeout())){
             const int timeout = static_cast<int>(params.getOperationTimeout()->tv_sec);
             DAVIX_DEBUG("NEONSession : define operation timeout to %d", timeout);
@@ -216,6 +198,26 @@ void configureSession(ne_session *_sess, const Uri & _u, const RequestParams &pa
         // setup sess key
         ne_set_session_private(_sess, davix_neon_key, params.getParmState());
     }
+    // configure callback for new request
+
+    // if authentification for login/password
+    if( params.getClientLoginPassword().first.empty() == false
+            || _u.getUserInfo().size() > 0
+            || params.getClientLoginPasswordCallback().first != NULL){
+        DAVIX_DEBUG("NEONSession : enable login/password authentication");
+        ne_set_server_auth(_sess, lp_callback, lp_userdata);
+    }else{
+        DAVIX_DEBUG("NEONSession : disable login/password authentication");
+    }
+
+    // if authentification for cli cert by callback
+    if( params.getClientCertFunctionX509()){
+        DAVIX_DEBUG("NEONSession : enable client cert authentication by callback ");
+        ne_ssl_provide_clicert(_sess, cred_callback, cred_userdata);
+    }else{
+          DAVIX_DEBUG("NEONSession : disable client cert authentication");
+    }
+
 
 }
 

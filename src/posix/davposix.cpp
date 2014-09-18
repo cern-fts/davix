@@ -22,12 +22,8 @@
 
 #include <utils/davix_logger_internal.hpp>
 #include <status/davixstatusrequest.hpp>
-#include <fileops/fileutils.hpp>
-#include <fileops/davmeta.hpp>
-#include <fileops/httpiovec.hpp>
-#include <fileops/metalinkops.hpp>
+#include <fileops/chain_factory.hpp>
 #include <xml/davpropxmlparser.hpp>
-#include <fileops/iobuffmap.hpp>
 #include <string_utils/stringutils.hpp>
 #include <posix/davposix.hpp>
 
@@ -40,8 +36,10 @@ namespace Davix{
 
 
 static HttpIOChain & getIOChain(HttpIOChain & chain){
-    chain.add(new MetalinkOps())->add(new HttpMetaOps())->add(new HttpIOBuffer())->add(new HttpIO())->add(new HttpIOVecOps());
-    return chain;
+    CreationFlags flags;
+    flags[CHAIN_POSIX] = true;
+
+    return ChainFactory::instanceChain(flags, chain);
 }
 
 static IOChainContext  getIOContext( Context & context, const Uri & uri, const RequestParams* params){

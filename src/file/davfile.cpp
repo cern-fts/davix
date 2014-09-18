@@ -24,10 +24,7 @@
 
 #include <davix_internal.hpp>
 #include <file/davfile.hpp>
-#include <fileops/davmeta.hpp>
-#include <fileops/iobuffmap.hpp>
-#include <fileops/httpiovec.hpp>
-#include <fileops/metalinkops.hpp>
+#include <fileops/chain_factory.hpp>
 
 namespace Davix{
 
@@ -40,8 +37,7 @@ struct DavFile::DavFileInternal{
     Context & _c;
     Uri _u;
     HttpIOChain & getIOChain(HttpIOChain & c){
-        c.add(new MetalinkOps())->add(new HttpMetaOps())->add(new HttpIO())->add(new HttpIOVecOps());
-        return c;
+        return ChainFactory::instanceChain(CreationFlags(), c);
     }
 
     IOChainContext getIOContext(const RequestParams * params){

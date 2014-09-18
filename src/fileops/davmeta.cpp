@@ -290,6 +290,11 @@ S3MetaOps::S3MetaOps() : HttpIOChain()
 
 S3MetaOps::~S3MetaOps(){}
 
+static bool is_s3_operation(IOChainContext & context){
+    const std::string & proto = context._uri.getProtocol();
+    const RequestProtocol::Protocol protocol_flag = context._reqparams->getProtocol();
+    return ( proto.compare(0, 2, "s3") ==0 || protocol_flag == RequestProtocol::AwsS3);
+}
 
 void internal_s3_creat_bucket(Context & c, const Uri & url, const RequestParams & params){
     DavixError * tmp_err=NULL;
@@ -306,7 +311,12 @@ void internal_s3_creat_bucket(Context & c, const Uri & url, const RequestParams 
 }
 
 void S3MetaOps::makeCollection(IOChainContext &iocontext){
-    internal_s3_creat_bucket( iocontext._context, iocontext._uri, iocontext._reqparams);
+
+    if(is_s3_operation(iocontext)){
+        internal_s3_creat_bucket( iocontext._context, iocontext._uri, iocontext._reqparams);
+    }else{
+        HttpIOChain::makeCollection(iocontext);
+    }
 }
 
 

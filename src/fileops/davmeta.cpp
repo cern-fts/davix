@@ -165,13 +165,13 @@ void parse_creation_deletion_result(int code, const Uri & u, const std::string &
 }
 
 
-int internal_deleteResource(Context & c, const Uri & url, const RequestParams & params, DavixError** err){
+int internal_delete_resource(Context & c, const Uri & url, const RequestParams & params){
     DavixError* tmp_err=NULL;
     int ret=-1;
     RequestParams _params(params);
     configureRequestParamsProto(url, _params);
 
-    DeleteRequest req(c,url, err);
+    DeleteRequest req(c,url, &tmp_err);
     req.setParameters(_params);
     if(!tmp_err){
          if( ( ret=req.executeRequest(&tmp_err)) == 0){
@@ -180,12 +180,12 @@ int internal_deleteResource(Context & c, const Uri & url, const RequestParams & 
     }
 
 
-    DavixError::propagateError(err, tmp_err);
+    checkDavixError(&tmp_err);
     return ret;
 }
 
 
-int internal_makeCollection(Context & c, const Uri & url, const RequestParams & params, DavixError** err){
+int internal_make_collection(Context & c, const Uri & url, const RequestParams & params){
     DAVIX_DEBUG(" -> makeCollection");
     int ret=-1;
     DavixError* tmp_err=NULL;
@@ -201,10 +201,10 @@ int internal_makeCollection(Context & c, const Uri & url, const RequestParams & 
                 parse_creation_deletion_result(req.getRequestCode(),  url, davix_scope_mkdir_str(), req.getAnswerContent());
         }
 
-        DAVIX_DEBUG(" makeCollection <-");
     }
 
-    DavixError::propagateError(err, tmp_err);
+    DAVIX_DEBUG(" makeCollection <-");
+    checkDavixError(&tmp_err);
     return ret;
 }
 
@@ -267,23 +267,17 @@ void HttpMetaOps::checksum(IOChainContext & iocontext, std::string &checksm, con
 }
 
 void HttpMetaOps::makeCollection(IOChainContext & iocontext){
-    DavixError* tmp_err=NULL;
-    internal_makeCollection(iocontext._context, iocontext._uri, iocontext._reqparams, &tmp_err);
-    checkDavixError(&tmp_err);
+    internal_make_collection(iocontext._context, iocontext._uri, iocontext._reqparams);
 }
 
 void HttpMetaOps::deleteResource(IOChainContext & iocontext){
-    DavixError* tmp_err=NULL;
-    internal_deleteResource(iocontext._context, iocontext._uri, iocontext._reqparams, &tmp_err);
-    checkDavixError(&tmp_err);
+    internal_delete_resource(iocontext._context, iocontext._uri, iocontext._reqparams);
 }
 
 StatInfo & HttpMetaOps::statInfo(IOChainContext & iocontext, StatInfo &st_info){
-    DavixError* tmp_err=NULL;
     struct stat st;
     memset(&st, 0, sizeof(struct stat));
     getStatInfo(iocontext._context, iocontext._uri, iocontext._reqparams, st_info);
-    checkDavixError(&tmp_err);
     return st_info;
 }
 

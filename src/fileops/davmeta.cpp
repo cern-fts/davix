@@ -281,6 +281,34 @@ StatInfo & HttpMetaOps::statInfo(IOChainContext & iocontext, StatInfo &st_info){
     return st_info;
 }
 
+/////////////////////////
+/////////////////////////
+
+
+S3MetaOps::S3MetaOps() : HttpIOChain()
+ {}
+
+S3MetaOps::~S3MetaOps(){}
+
+
+void internal_s3_creat_bucket(Context & c, const Uri & url, const RequestParams & params){
+    DavixError * tmp_err=NULL;
+    PutRequest req(c, url, &tmp_err);
+    checkDavixError(&tmp_err);
+
+    req.setParameters(params);
+    if( req.executeRequest(&tmp_err) < 0){
+        const int code = req.getRequestCode();
+        httpcodeToDavixException(code, davix_scope_meta(), "bucket creation failure");
+    }
+
+    checkDavixError(&tmp_err);
+}
+
+void S3MetaOps::makeCollection(IOChainContext &iocontext){
+    internal_s3_creat_bucket( iocontext._context, iocontext._uri, iocontext._reqparams);
+}
+
 
 
 } // Davix

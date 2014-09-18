@@ -49,6 +49,21 @@ public:
 };
 
 
+class S3MetaOps : public HttpIOChain{
+public:
+    S3MetaOps();
+    virtual ~S3MetaOps();
+
+    // TODO: calculate hecksum
+    //virtual void checksum(IOChainContext & iocontext, std::string & checksm, const std::string & chk_algo);
+
+    // make collection
+    virtual void makeCollection(IOChainContext & iocontext);
+
+};
+
+
+
 /*
   retrieve a webdav propfind stat request to the given url
     @param req : http request where to executethe query

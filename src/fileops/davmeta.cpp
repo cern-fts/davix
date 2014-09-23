@@ -209,12 +209,12 @@ int internal_make_collection(Context & c, const Uri & url, const RequestParams &
 }
 
 
-int internal_checksum(Context & c, const Uri & url, const RequestParams *params, std::string & checksm, const std::string & chk_algo){
+int internal_checksum(Context & c, const Uri & url, const RequestParams *p, std::string & checksm, const std::string & chk_algo){
     DAVIX_DEBUG(" -> checksum");
     int ret=-1;
     DavixError* tmp_err=NULL;
-    RequestParams _params(params);
-    configureRequestParamsProto(url, _params);
+    RequestParams params(p);
+    configureRequestParamsProto(url, params);
 
     HeadRequest req(c, url, &tmp_err);
 
@@ -253,7 +253,7 @@ int internal_checksum(Context & c, const Uri & url, const RequestParams *params,
             // last chance try to extract MD5 checksum from ETAG ( S3 work around )
             std::string etag_str;
             if(compare_ncase(chk_algo, "MD5") ==0 && req.getAnswerHeader("etag", etag_str)){
-                stringVec tokens = tokenSplit(etag_str, "&;");
+                stringVec tokens = tokenSplit(etag_str, "&;\\/\"'");
                 for(stringVec::iterator it = tokens.begin(); it < tokens.end(); it++){
                     if(it->size() == 32 && std::find_if(it->begin(), it->end(), std::not1(StrUtil::isHexa())) == it->end()){
                         std::swap(checksm, *it);
@@ -262,7 +262,9 @@ int internal_checksum(Context & c, const Uri & url, const RequestParams *params,
                 }
             }
 
-           throw DavixException(davix_scope_meta(), StatusCode::OperationNonSupported, "Checksum calculation not supported by server");
+           std::ostringstream ss;
+           ss << "checksum calculation for " << chk_algo << "not supported for " << url;
+           throw DavixException(davix_scope_meta(), StatusCode::OperationNonSupported, ss.str());
 
            DAVIX_DEBUG(" checksum <-");
            return 0;
@@ -327,7 +329,7 @@ void internal_s3_creat_bucket(Context & c, const Uri & url, const RequestParams 
 
 
 void S3MetaOps::checksum(IOChainContext &iocontext, std::string &checksm, const std::string &chk_algo){
-
+    internal_checksum(iocontext._context, iocontext._uri, iocontext._reqparams, checksm, chk_algo);
 }
 
 void S3MetaOps::makeCollection(IOChainContext &iocontext){

@@ -50,6 +50,10 @@
 // has signal support
 #cmakedefine HAVE_SIGNAL_H 1
 
+#ifdef HAVE_SIGNAL_H
+#define HAVE_SIGNAL
+#endif
+
 // has getaddrinfo
 #cmakedefine HAVE_GETADDRINFO_H 1
 #ifdef HAVE_GETADDRINFO_H

@@ -338,7 +338,7 @@ int ne_sock_init(void)
     SOCKSinit("neon");
 #endif
 
-#if defined(HAVE_SIGNAL) && defined(SIGPIPE)
+#if defined(HAVE_SIGNAL)
     (void) signal(SIGPIPE, SIG_IGN);
 #endif
 
@@ -536,7 +536,13 @@ static ssize_t write_raw(ne_socket *sock, const char *data, size_t length)
 #endif
 
     do {
-	ret = send(sock->fd, data, length, 0);
+
+// no signal protection
+#if  (defined HAVE_SIGNAL) && (defined MSG_NOSIGNAL)
+    ret = send(sock->fd, data, length, MSG_NOSIGNAL);
+#else
+    ret = send(sock->fd, data, length, 0);
+#endif
     } while (ret == -1 && NE_ISINTR(ne_errno));
 
     if (ret < 0) {
@@ -1439,7 +1445,7 @@ int ne_sock_connect(ne_socket *sock,
         setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof flag);
     }
 #endif
-    
+
     ret = connect_socket(sock, fd, addr, htons(port));
     if (ret == 0)
         sock->fd = fd;

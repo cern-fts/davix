@@ -232,25 +232,40 @@ int internal_checksum(Context & c, const Uri & url, const RequestParams *params,
                     DAVIX_TRACE("Extract MD5 checksum in base64 %s", chk.c_str());
                     chk= Base64::base64_decode(chk);
                     std::swap(checksm, chk);
+                    return 0;
                 }
             }
 
             // fallback on extension for checksum
             std::string digest;
             req.getAnswerHeader("Digest", digest);
-            if (digest.empty())
-                throw DavixException(davix_scope_meta(), StatusCode::OperationNonSupported, "Checksum calculation not supported by server");
+            if (digest.empty() == false){
+                size_t valueOffset = digest.find('=');
+                if (valueOffset == std::string::npos
+                        || compare_ncase(digest,0, valueOffset, chk_algo.c_str()) !=0)
+                    throw DavixException(davix_scope_meta(), StatusCode::InvalidServerResponse, "Invalid server checksum answer");
 
-            size_t valueOffset = digest.find('=');
-            if (valueOffset == std::string::npos
-                    || compare_ncase(digest,0, valueOffset, chk_algo.c_str()) !=0)
-                throw DavixException(davix_scope_meta(), StatusCode::InvalidServerResponse, "Invalid server checksum answer");
+                digest.erase(digest.begin(), digest.begin()+valueOffset+1);
+                std::swap(checksm, digest);
+                return 0;
+            }
 
-            digest.erase(digest.begin(), digest.begin()+valueOffset+1);
-            std::swap(checksm, digest);
+            // last chance try to extract MD5 checksum from ETAG ( S3 work around )
+            std::string etag_str;
+            if(compare_ncase(chk_algo, "MD5") ==0 && req.getAnswerHeader("etag", etag_str)){
+                stringVec tokens = tokenSplit(etag_str, "&;");
+                for(stringVec::iterator it = tokens.begin(); it < tokens.end(); it++){
+                    if(it->size() == 32 && std::find_if(it->begin(), it->end(), std::not1(StrUtil::isHexa())) == it->end()){
+                        std::swap(checksm, *it);
+                        return 0;
+                    }
+                }
+            }
 
-            DAVIX_DEBUG(" checksum <-");
-            return 0;
+           throw DavixException(davix_scope_meta(), StatusCode::OperationNonSupported, "Checksum calculation not supported by server");
+
+           DAVIX_DEBUG(" checksum <-");
+           return 0;
         }
     }
     throw DavixException(&tmp_err);
@@ -308,6 +323,11 @@ void internal_s3_creat_bucket(Context & c, const Uri & url, const RequestParams 
     }
 
     checkDavixError(&tmp_err);
+}
+
+
+void S3MetaOps::checksum(IOChainContext &iocontext, std::string &checksm, const std::string &chk_algo){
+
 }
 
 void S3MetaOps::makeCollection(IOChainContext &iocontext){

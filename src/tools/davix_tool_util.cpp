@@ -108,7 +108,7 @@ int configureAuth(OptParams & opts, DavixError** err){
 static void printHookHeaders(char symbol, const std::string & first_msg, const std::string & start_line){
     std::string req_header(start_line);
     StrUtil::remove(req_header, '\r');
-    rtrim(req_header, StrUtil::isCrLf);
+    rtrim(req_header, StrUtil::isCrLf());
     std::vector<std::string> res;
     split(req_header, '\n', res);
 
@@ -122,7 +122,7 @@ static void printHookHeadersVec(char symbol, const std::string & first_msg, cons
                                 const HeaderVec & headers){
     std::string parsed_first_line(init_line);
     StrUtil::remove(parsed_first_line, '\r');
-    rtrim(parsed_first_line, StrUtil::isCrLf);
+    rtrim(parsed_first_line, StrUtil::isCrLf());
 
     writeConsoleLine(STDOUT_FILENO, '*', first_msg);
     writeConsoleLine(STDOUT_FILENO, symbol, parsed_first_line);

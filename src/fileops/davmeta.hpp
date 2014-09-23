@@ -54,8 +54,8 @@ public:
     S3MetaOps();
     virtual ~S3MetaOps();
 
-    // TODO: calculate hecksum
-    //virtual void checksum(IOChainContext & iocontext, std::string & checksm, const std::string & chk_algo);
+    // S3 + HTTP checksum computation
+    virtual void checksum(IOChainContext & iocontext, std::string & checksm, const std::string & chk_algo);
 
     // make collection
     virtual void makeCollection(IOChainContext & iocontext);

@@ -16,22 +16,48 @@ typedef std::vector<std::string> stringVec;
 namespace StrUtil{
 
 
-inline bool isslash(int c){
-    return ( c == '/');
-}
+struct isSlash{
 
-inline bool isCrLf(int c){
-    return (( c == '\n') || (c == '\r'));
-}
+    bool operator()(char c) const{
+        return ( c == '/');
+    }
 
-inline bool isSpace(int c){
-    return static_cast<bool>(::isspace(static_cast<char>(c)));
-}
+    typedef char argument_type;
+};
+
+
+struct isCrLf{
+    bool operator()(char c) const{
+        return (( c == '\n') || (c == '\r'));
+    }
+
+    typedef char argument_type;
+};
+
+struct isSpace{
+    bool operator()(char c) const{
+        return ::isspace(c);
+    }
+
+    typedef char argument_type;
+
+};
+
+
+struct isHexa{
+    bool operator()(char c) const{
+        return (isdigit(c) || (isalpha(c) && ( tolower(c) >= 'a' && tolower(c) <= 'f')));
+    }
+
+    typedef char argument_type;
+};
 
 // predicates
 inline bool charEqCase(char c1, char c2){
     return (c1 == c2 || ::tolower(c1) == ::tolower(c2));
 }
+
+
 
 
 
@@ -82,29 +108,29 @@ inline size_t copy_std_string_to_buff(char* buffer, size_t max_size, const std::
 
 // trim from start
 template <typename Func>
-inline std::string &ltrim(std::string &s, Func  pred) {
-        s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, bool>(pred))));
+inline std::string &ltrim(std::string &s, const Func  & pred) {
+        s.erase(s.begin(), static_cast<std::string::iterator>(std::find_if(s.begin(), s.end(), std::not1(pred)).base()));
         return s;
 }
 
 inline std::string &ltrim(std::string &s) {
-        return ltrim(s, isSpace);
+        return ltrim(s, isSpace());
 }
 
 // trim from end
 template <typename Func>
-inline std::string &rtrim(std::string &s, Func pred) {
-        s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, bool>(pred))).base(), s.end());
+inline std::string &rtrim(std::string &s, const Func & pred) {
+        s.erase(static_cast<std::string::iterator>(std::find_if(s.rbegin(), s.rend(), std::not1(pred)).base()), s.end());
         return s;
 }
 
 inline std::string &rtrim(std::string &s) {
-    return rtrim(s, isSpace);
+    return rtrim(s, isSpace());
 }
 
 // trim from both
 template <typename Func>
-inline std::string &trim(std::string &s, Func pred) {
+inline std::string &trim(std::string &s, const Func & pred) {
     return ltrim<Func>(rtrim<Func>(s, pred), pred);
 }
 

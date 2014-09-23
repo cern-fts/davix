@@ -45,6 +45,8 @@ const std::string scope_params = "Davix::Tools::Params";
 #define HEADERS_OPTIONS     1008
 #define REDIRECTION_OPT     1009
 #define METALINK_OPT        1010
+#define CONN_TIMEOUT        1011
+#define TIMEOUT_OPS         1012
 
 // LONG OPTS
 
@@ -56,6 +58,8 @@ const std::string scope_params = "Davix::Tools::Params";
 {"module", required_argument, 0, 'P'}, \
 {"proxy", required_argument, 0, 'x'}, \
 {"redirection", required_argument, 0, REDIRECTION_OPT }, \
+{"conn-timeout", required_argument, 0, CONN_TIMEOUT }, \
+{"timeout", required_argument, 0, TIMEOUT_OPS }, \
 {"trace-headers", no_argument, 0, HEADERS_OPTIONS }, \
 {"verbose", no_argument, 0,  0 }, \
 {"version", no_argument, 0, 'V'}
@@ -148,6 +152,19 @@ static void set_redirection_opt(RequestParams & params, const std::string & redi
                                                redir_opt, argv));
 }
 
+static struct timespec parse_timeout(const std::string & opt, char** argv){
+    int t;
+    std::istringstream ss(opt);
+    ss >> t;
+    if( ss.fail() || t < 0){
+        std::cerr << "Invalid timeout " << opt << std::endl;
+        option_abort(argv);
+    }
+    struct timespec timelapse;
+    timelapse.tv_sec =t;
+    timelapse.tv_nsec =0;
+    return timelapse;
+}
 
 int parse_davix_options_generic(const std::string &opt_filter,
                                 const struct option* long_options,
@@ -221,6 +238,16 @@ int parse_davix_options_generic(const std::string &opt_filter,
             case REDIRECTION_OPT:
                  set_redirection_opt(p.params, std::string(optarg), argv);
                  break;
+            case CONN_TIMEOUT:{
+                struct timespec s =parse_timeout(std::string(optarg), argv);
+                p.params.setConnectionTimeout(&s);
+                }
+                break;
+            case TIMEOUT_OPS:{
+                struct timespec s =parse_timeout(std::string(optarg), argv);
+                p.params.setOperationTimeout(&s);
+                break;
+             }
             case '?':
             printf(p.help_msg.c_str(), argv[0]);
                 return -1;
@@ -331,13 +358,15 @@ int parse_davix_put_options(int argc, char** argv, OptParams & p, DavixError** e
 const std::string  & get_common_options(){
     static const std::string s(
             "  Common Options:\n"
+            "\t--conn-timeout TIME:      Connection timeout in seconds. default: 30\n"
             "\t--debug:                  Debug mode\n"
             "\t--header, -H:             Add a header field to the request\n"
             "\t--help, -h:               Display this help message\n"
-            "\t--metalink OPT:           Metalink support. (OPT=failover[default]|no) \n"
+            "\t--metalink OPT:           Metalink support. value=failover|no. default=failover) \n"
             "\t--module, -P NAME:        Load a plugin or profile by name\n"
             "\t--proxy, -x URL:          SOCKS5 proxy server URL. (Ex: socks5://login:pass@socks.example.org)\n"
-            "\t--redirection OPT:        Transparent redirection support. (OPT=yes[default]|no)\n"
+            "\t--redirection OPT:        Transparent redirection support. value=yes|no. default=yes)\n"
+            "\t--timeout TIME:           Global timeout for the operation in seconds. default: infinite\n"
             "\t--trace-headers:          Trace all HTTP queries headers\n"
             "\t--verbose:                Verbose mode\n"
             "\t--version, -V:            Display version\n"

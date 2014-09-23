@@ -176,7 +176,7 @@ public:
 
     /// define the connexion timeout
     /// conn_timeout is a relative time
-    /// DEFAULT : 180s
+    /// DEFAULT : 30s
     void setConnectionTimeout(struct timespec* conn_timeout);
 
     /// get the current connexion timeout

@@ -1,0 +1,65 @@
+#ifndef ADEVPP_ADEVPP_LOGGER_HPP
+#define ADEVPP_ADEVPP_LOGGER_HPP
+
+#include <bitset>
+
+namespace Adevpp {
+
+typedef std::bitset<64> Channels;
+typedef unsigned int LogLevel;
+
+
+
+class Logger
+{
+public:
+    static const LogLevel Critical;
+    static const LogLevel Warning;
+    static const LogLevel Verbose;
+    static const LogLevel Debug;
+    static const LogLevel Trace;
+
+
+    static inline Channels allComponents(){
+        Channels mask;
+        mask.set();
+        return mask;
+    }
+
+    Logger();
+
+    virtual ~Logger();
+
+    inline void setComponentMask(int index, bool flag){
+        chnl.set(index, flag);
+    }
+
+    inline void setLogLevel(const LogLevel level){
+        log_level = level;
+    }
+
+    inline LogLevel getLogLevel() const{
+        return log_level;
+    }
+
+    inline bool componentEnabled(int index){
+        return chnl[index];
+    }
+
+
+    void logStream(const std::ostream & stream);
+
+
+#define ADEVPP_LOG(LOG_LEVEL,  COMPONENT_INT, MSG) if( LOG_LEVEL >= getLogLevel() && componentEnabled(COMPONENT_INT)){
+
+    void reset(const LogLevel ldefault = Warning, const Channels & mask_default= allComponents());
+
+private:
+    Channels chnl;
+    LogLevel log_level;
+
+};
+
+} // namespace Adevpp
+
+#endif // ADEVPP_ADEVPP_LOGGER_HPP

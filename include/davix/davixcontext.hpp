@@ -75,7 +75,7 @@ public:
     ///
     virtual ~Context();
 
-    /// clone this instance to a new context dynamically allocated,
+    /// clone this instance to a new context
     Context* clone();
 
 #ifdef __DAVIX_HAS_STD_FUNCTION

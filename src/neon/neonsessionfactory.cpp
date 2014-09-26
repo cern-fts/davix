@@ -125,8 +125,8 @@ ne_session* NEONSessionFactory::create_session(const RequestParams & params, con
 
 ne_session* NEONSessionFactory::create_recycled_session(const RequestParams & params, const std::string &protocol, const std::string &host, unsigned int port){
 
-    ne_session* se= NULL;
-    {
+    if(params.getKeepAlive()){
+        ne_session* se= NULL;
         boost::lock_guard<boost::mutex> lock(_sess_mut);
         std::multimap<std::string, ne_session*>::iterator it;
         if( (it = _sess_map.find(create_map_keys_from_URL(protocol, host, port))) != _sess_map.end()){

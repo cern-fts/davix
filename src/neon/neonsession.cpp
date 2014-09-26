@@ -127,7 +127,7 @@ NEONSession::NEONSession(Context & c, const Uri & uri, const RequestParams & p, 
     _sess(NULL),
     _params(p),
     _last_error(NULL),
-    _session_recycling(_f.getSessionCaching()),
+    _session_recycling(_f.getSessionCaching() && p.getKeepAlive()),
     _u(uri)
 {
         _f.createNeonSession(p, uri, &_sess, err);
@@ -199,8 +199,6 @@ void configureSession(ne_session *_sess, const Uri & _u, const RequestParams &pa
         ne_set_session_private(_sess, davix_neon_key, params.getParmState());
     }
     // configure callback for new request
-
-    // if authentification for login/password
     if( params.getClientLoginPassword().first.empty() == false
             || _u.getUserInfo().size() > 0
             || params.getClientLoginPasswordCallback().first != NULL){

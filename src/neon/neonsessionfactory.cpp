@@ -89,7 +89,7 @@ int NEONSessionFactory::createNeonSession(const RequestParams & params, const Ur
     return -1;
 }
 
-int NEONSessionFactory::storeNeonSession(ne_session* sess, DavixError **err){
+int NEONSessionFactory::storeNeonSession(ne_session* sess){
     internal_release_session_handle(sess);
     return 0;
 }

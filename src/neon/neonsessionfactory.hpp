@@ -48,7 +48,7 @@ public:
     /**
       store a Neon session object for session reuse purpose
     */
-    int storeNeonSession(ne_session *sess, DavixError** err);
+    int storeNeonSession(ne_session *sess);
 
     //
     // Redirecton caching

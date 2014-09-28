@@ -684,6 +684,8 @@ dav_ssize_t NEONRequest::readSegment(char* p_buff, dav_size_t size_read,  DavixE
 
 int NEONRequest::endRequest(DavixError** err){
     int status;
+    (void) err;
+
     if(_req  && req_running == true){
         req_running = false;
         if(_last_read > 0){ // if read content, discard it
@@ -803,6 +805,7 @@ void NEONRequest::free_request(){
 
 void NEONRequest::neon_hook_pre_send(ne_request *r, void *userdata,
                    ne_buffer *header){
+    (void) r;
     NEONRequest* req = (NEONRequest*) userdata;
     RequestPreSendHook hook = req->_c.getHook<RequestPreSendHook>();
     if(hook){
@@ -813,6 +816,7 @@ void NEONRequest::neon_hook_pre_send(ne_request *r, void *userdata,
 
 void NEONRequest::neon_hook_pre_rec(ne_request *r, void *userdata,
                                     const ne_status *status){
+    (void) r;
     NEONRequest* req = (NEONRequest*) userdata;
     RequestPreReceHook hook = req->_c.getHook<RequestPreReceHook>();
     if(hook){

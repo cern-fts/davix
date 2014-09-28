@@ -350,7 +350,7 @@ void RequestParams::setProtocol(const RequestProtocol::Protocol proto){
     d_ptr->_proto = proto;
 }
 
-const MetalinkMode::MetalinkMode RequestParams::getMetalinkMode() const{
+MetalinkMode::MetalinkMode RequestParams::getMetalinkMode() const{
     return d_ptr->_metalink_mode;
 }
 

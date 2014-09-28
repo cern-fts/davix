@@ -44,6 +44,9 @@ static std::pair<std::string, std::string> userInfo_to_auth(const std::string & 
 
 static int validate_all_certificate(void *userdata, int failures,
                                 const ne_ssl_certificate *cert){
+    (void) userdata;
+    (void) failures;
+    (void) cert;
     return 0;
 }
 
@@ -53,7 +56,9 @@ const int n_max_auth = 20;
 void NEONSession::authNeonCliCertMapper(void *userdata, ne_session *sess,
                                          const ne_ssl_dname *const *dnames,
                                          int dncount){
-
+    (void) dncount;
+    (void) sess;
+    (void) dnames;
     NEONSession* req = static_cast<NEONSession*>(userdata);
 
     X509Credential cert;
@@ -76,6 +81,7 @@ void NEONSession::authNeonCliCertMapper(void *userdata, ne_session *sess,
 
 int NEONSession::provide_login_passwd_fn(void *userdata, const char *realm, int attempt,
                                 char *username, char *password){
+    (void) realm;
     NEONSession * req = static_cast<NEONSession*>(userdata);
     DavixError * tmp_err=NULL;
     int ret =-1;
@@ -140,7 +146,7 @@ NEONSession::~NEONSession(){
 #   ifndef _DISABLE_SESSION_REUSE
         if(_sess){
             if(_session_recycling)
-                _f.storeNeonSession(_sess, NULL);
+                _f.storeNeonSession(_sess);
             else
                 ne_session_destroy(_sess);
         }

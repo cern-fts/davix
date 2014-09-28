@@ -220,7 +220,7 @@ public:
     void setMetalinkMode( const MetalinkMode::MetalinkMode mode);
 
     /// get the Current Metalink mode
-    const MetalinkMode::MetalinkMode getMetalinkMode() const;
+    MetalinkMode::MetalinkMode getMetalinkMode() const;
 
     /// set the keep alive value of the associated session
     void setKeepAlive(const bool keep_alive_flag);

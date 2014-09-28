@@ -203,6 +203,7 @@ HttpCacheToken* HttpRequest::extractCacheToken()const{
 }
 
 void HttpRequest::useCacheToken(const HttpCacheToken *token){
+    (void) token;
 }
 
 /// set a HttpRequest flag

@@ -38,7 +38,7 @@ using namespace std;
 const std::string scope_main = "Davix::Tools::davix";
 
 
-static void configure_req(HttpRequest& req, Tool::OptParams & opts){
+static void configureRequest(HttpRequest& req, Tool::OptParams & opts){
     req.setParameters(opts.params);
     if(opts.req_type.empty() == false)
         req.setRequestMethod(opts.req_type);
@@ -81,7 +81,7 @@ int main(int argc, char** argv){
 
             HttpRequest req(c, opts.vec_arg[0], &tmp_err);
             if( tmp_err == NULL){
-                configure_req(req, opts);
+                configureRequest(req, opts);
                 retcode= read_stream(&req, out_fd, &tmp_err);
                 Tool::flushFinalLineShell(out_fd);
                 close(out_fd);

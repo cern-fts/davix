@@ -187,20 +187,20 @@ NEONRequest::NEONRequest(HttpRequest & h, Context& context, const Uri & uri_req)
 
 NEONRequest::~NEONRequest(){
     // safe destruction of the request
-    reqReset();
+    resetRequest();
 }
 
 
-void NEONRequest::reqReset(){
+void NEONRequest::resetRequest(){
     if(req_running) {
         endRequest(NULL);
     }
-    free_request();
+    freeRequest();
 }
 
-int NEONRequest::create_req(DavixError** err){
+int NEONRequest::createRequest(DavixError** err){
     if(_req){
-       reqReset();
+       resetRequest();
     }
 
     boost::shared_ptr<Uri> redir_url = ContextExplorer::SessionFactoryFromContext(_c).redirectionResolve(_request_type, *_current);
@@ -208,16 +208,16 @@ int NEONRequest::create_req(DavixError** err){
         _current.swap(redir_url);
     }
 
-    if( pick_sess(err) < 0)
+    if( instanceSession(err) < 0)
         return -1;
 
     _req= ne_request_create(_neon_sess->get_ne_sess(), _request_type.c_str(), _current->getPathAndQuery().c_str());
-    configure_req();
+    configureRequest();
 
     return 0;
 }
 
-int NEONRequest::pick_sess(DavixError** err){
+int NEONRequest::instanceSession(DavixError** err){
     DavixError * tmp_err=NULL;
     _neon_sess.reset(static_cast<NEONSession*>(new NEONSessionExtended(this, *_current, params, &tmp_err)));
     if(tmp_err){
@@ -233,7 +233,7 @@ ssize_t NEONRequest::neon_body_content_provider(void* userdata, char* buffer, si
 	return (ssize_t) req->_content_provider.callback(req->_content_provider.udata, buffer, buflen);
 }
 
-void NEONRequest::configure_req(){
+void NEONRequest::configureRequest(){
     // configure S3 params if needed
     if(params.getProtocol() == RequestProtocol::AwsS3)
         configureS3params();
@@ -310,7 +310,7 @@ int NEONRequest::processRedirection(int neonCode, DavixError **err){
         ne_discard_response(_req);              // Get a valid redirection, drop request content
         _last_read =0;
         end_status = ne_end_request(_req);      // submit the redirection
-        if(redirect_request(err) <0){           // accept redirection
+        if(redirectRequest(err) <0){           // accept redirection
             return -1;
         }
         end_status = NE_RETRY;
@@ -323,12 +323,12 @@ int NEONRequest::processRedirection(int neonCode, DavixError **err){
 
 
 int NEONRequest::startRequest(DavixError **err){        
-    if( create_req(err) < 0)
+    if( createRequest(err) < 0)
             return -1;
-    return negotiate_request(err);
+    return negotiateRequest(err);
 }
 
-int NEONRequest::negotiate_request(DavixError** err){
+int NEONRequest::negotiateRequest(DavixError** err){
 
     const int n_limit = 10;
     int code, status, end_status = NE_RETRY;
@@ -352,14 +352,14 @@ int NEONRequest::negotiate_request(DavixError** err){
                    || strstr(ne_get_error(_neon_sess->get_ne_sess()), "Connection reset by peer") != NULL){
                    DAVIX_LOG(DAVIX_LOG_VERBOSE, "Server KeepAlive problem detected, retry");
                    _number_try++;
-                   redirect_cleanup();
+                   redirectAndConnectionCleanup();
                    return startRequest(err);
                 }
             }
             if( status == NE_CONNECT && _orig != _current){
                 DAVIX_LOG(DAVIX_LOG_VERBOSE, "Impossible to connect to %s, retry src", _current->getString().c_str());
                 _number_try++;
-                redirect_cleanup();
+                redirectAndConnectionCleanup();
                 return startRequest(err);
             }
 
@@ -398,7 +398,7 @@ int NEONRequest::negotiate_request(DavixError** err){
                         neon_to_davix_code(status, _neon_sess->get_ne_sess(), davix_scope_http_request(),err);
                     }
                     _number_try++;
-                    if (redirect_cleanup()){
+                    if (redirectAndConnectionCleanup()){
                         DavixError::clearError(err);
                         endRequest(NULL);
                         return startRequest(err);
@@ -408,10 +408,11 @@ int NEONRequest::negotiate_request(DavixError** err){
                 }
                 DAVIX_DEBUG(" ->   NEON receive %d code, %d .... request again ... ", code, end_status);
                 break;
+            case 403:
             case 501:
             // cleanup redirection
             _number_try++;
-            if( redirect_cleanup()){
+            if( redirectAndConnectionCleanup()){
                 // recursive call, restart request
                 endRequest(NULL);
                 return startRequest(err);
@@ -437,22 +438,25 @@ int NEONRequest::negotiate_request(DavixError** err){
 }
 
 
-bool NEONRequest::redirect_cleanup(){
+bool NEONRequest::redirectAndConnectionCleanup(){
     // cleanup redirection
     ContextExplorer::SessionFactoryFromContext(_c).redirectionClean(_request_type, *_orig);
     // disable recycling
     // server supporting broken pipelining will trigger if reused
     _neon_sess->disable_session_reuse();
+    // disable session reuse for this request, avoid picking up a session already expired
+    params.setKeepAlive(false);
+
     // cancel redirect, maybe outdated ? retry
     if(_current != _orig){
-        DAVIX_DEBUG(" ->  Auth problem after redirect: cancel redirect and try again");
+        DAVIX_DEBUG(" ->  problem after redirection: cancel redirect and try again");
         _current = _orig;
         return true;
     }
     return false;
 }
 
-int NEONRequest::redirect_request(DavixError **err){
+int NEONRequest::redirectRequest(DavixError **err){
     boost::shared_ptr<Uri> old_uri;
     const ne_uri * new_uri = ne_redirect_location(_neon_sess->get_ne_sess());
     if(!new_uri){
@@ -471,13 +475,13 @@ int NEONRequest::redirect_request(DavixError **err){
 
 
     // recycle old request and session
-    free_request();
+    freeRequest();
     _neon_sess.reset(NULL);
 
     // renew request
     req_started = false;
     // create a new couple of session + request
-    if( create_req(err) <0){
+    if( createRequest(err) <0){
         return -1;
     }
     req_started= true;
@@ -796,7 +800,7 @@ void NEONRequest::setRequestBody(HttpBodyProvider provider, dav_size_t len, void
 }
 
 
-void NEONRequest::free_request(){
+void NEONRequest::freeRequest(){
     if(_req != NULL){
         ne_request_destroy(_req);
         _req=NULL;

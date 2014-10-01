@@ -145,7 +145,7 @@ dav_ssize_t incremental_propfind_listdir_parsing(HttpRequest* req, DavPropXMLPar
 
 
 
-void configure_req_for_listdir(HttpRequest* req){
+void configureRequest_for_listdir(HttpRequest* req){
     req->addHeaderField("Depth","1");
 }
 
@@ -159,7 +159,7 @@ DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char
 
     // create a new connexion + parser for this opendir
     if(tmp_err == NULL){
-        configure_req_for_listdir(http_req);
+        configureRequest_for_listdir(http_req);
          res=  new DAVIX_DIR(http_req, new DavPropXMLParser());
         time_t timestamp_timeout = time(NULL) + _timeout;
 

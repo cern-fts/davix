@@ -187,27 +187,27 @@ private:
 
     int processRedirection(int neonCode, DavixError** err); // analyze and process redirection if needed
 
-    void reqReset();
+    void resetRequest();
 
-    int pick_sess(DavixError** err);
+    int instanceSession(DavixError** err);
 
-    void configure_req();
+    void configureRequest();
 
     void configureS3params();
 
     // create initial neon request object
-    int create_req(DavixError** err);
+    int createRequest(DavixError** err);
 
     // negociate the request : authentification, redirection, name resolution
-    int negotiate_request(DavixError** err);
+    int negotiateRequest(DavixError** err);
 
     // redirection logic
-    int redirect_request(DavixError** err);
+    int redirectRequest(DavixError** err);
 
     // redirecttion caching cleaning function
-    bool redirect_cleanup();
+    bool redirectAndConnectionCleanup();
 
-    void free_request();
+    void freeRequest();
     /**
       internal, try to authentification with pkcs12 credential
     */

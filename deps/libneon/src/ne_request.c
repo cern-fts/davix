@@ -364,7 +364,7 @@ static ssize_t body_fd_send(void *userdata, char *buffer, size_t count)
 static int send_request_body(ne_request *req, int retry)
 {
     ne_session *const sess = req->session;
-    char buffer[NE_BUFSIZ];
+    char buffer[NE_BUFSIZ_LARGE];
     ssize_t bytes;
 
     NE_DEBUG(NE_DBG_HTTP, "Sending request body:\n");

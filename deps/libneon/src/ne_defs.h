@@ -78,4 +78,8 @@ typedef off_t ne_off_t;
 #define NE_BUFSIZ 8192
 #endif
 
+#ifndef NE_BUFSIZ_LARGE
+#define NE_BUFSIZ_LARGE (1 << 18)
+#endif
+
 #endif /* NE_DEFS_H */

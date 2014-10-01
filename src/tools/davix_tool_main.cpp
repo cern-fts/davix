@@ -77,7 +77,7 @@ int main(int argc, char** argv){
         Context c;
         configureContext(c, opts);
         if( (out_fd= Tool::getOutFd(opts, scope_main, &tmp_err)) > 0
-            && (retcode = Tool::configureAuth(opts, &tmp_err)) == 0){
+            && (retcode = Tool::configureAuth(opts)) == 0){
 
             HttpRequest req(c, opts.vec_arg[0], &tmp_err);
             if( tmp_err == NULL){

@@ -76,33 +76,48 @@ int XMLSAXParser::parseChunk(const char *partial_string, dav_size_t length){
 
 
 int XMLSAXParser::parserStartElemCb(int parent, const char *nspace, const char *name, const char **atts){
+    (void) parent;
+    (void) nspace;
+    (void) name;
+    (void) atts;
     return davParserNotImplemented();
 }
 
 
 int XMLSAXParser::parserCdataCb(int state, const char *cdata, size_t len){
+    (void) state;
+    (void) cdata;
+    (void) len;
     return davParserNotImplemented();
 }
 
 int XMLSAXParser::parserEndElemCb(int state, const char *nspace, const char *name){
+    (void) state;
+    (void) nspace;
+    (void) name;
     return davParserNotImplemented();
 }
 
 
 int XMLSAXParser::startElemCb(const Chunk & data,
                              const std::vector<XMLSAXParser::Chunk> & attrs){
-    return 0;
+    (void) data;
+    (void) attrs;
+    return -1;
 }
 
 int XMLSAXParser::cdataCb(const Chunk & data){
-    return 0;
+    (void) data;
+    return -1;
 }
 
 int XMLSAXParser::endElemCb(const Chunk & data){
+    (void) data;
     return 0;
 }
 
 int XMLSAXParser::commentCb(const Chunk & data){
+    (void) data;
     return 0;
 }
 

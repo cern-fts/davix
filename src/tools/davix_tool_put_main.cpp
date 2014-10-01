@@ -72,7 +72,7 @@ int main(int argc, char** argv){
     int fd_in= -1;
 
     if( (retcode= Tool::parse_davix_put_options(argc, argv, opts, &tmp_err)) ==0
-        && (retcode = Tool::configureAuth(opts, &tmp_err)) == 0){
+        && (retcode = Tool::configureAuth(opts)) == 0){
         if( ( fd_in = Tool::getInFd(opts, scope_put, &tmp_err)) > 0){
             retcode = execute_put(opts, fd_in, &tmp_err);
             close(fd_in);

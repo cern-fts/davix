@@ -146,18 +146,22 @@ dav_size_t MetalinkParser::getSize() const{
 int MetalinkParser::parserStartElemCb(int parent,
                                const char *nspace, const char *name,
                                const char **atts){
+    (void) parent;
+    (void) nspace;
+    (void) atts;
     return d_ptr->startElem(name);
 }
 
 int MetalinkParser::parserCdataCb(int state,
                             const char *cdata, size_t len){
-
+    (void) state;
     return d_ptr->dataElem(cdata, len);
 }
 
 int MetalinkParser::parserEndElemCb(int state,
                             const char *nspace, const char *name){
-
+    (void) state;
+    (void) nspace;
     return d_ptr->endElem(name);
 }
 

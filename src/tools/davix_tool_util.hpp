@@ -35,7 +35,7 @@ dav_ssize_t writeToFd(int fd, const void* buffer, dav_size_t s_buff);
 
 dav_ssize_t writeToFd(int fd, const std::string & str);
 
-int configureAuth(OptParams & opts, DavixError** err);
+int configureAuth(OptParams & opts);
 
 void configureContext(Context &context, const OptParams & opts);
 

@@ -44,14 +44,12 @@
 
 namespace Davix {
 
-
-dav_ssize_t read_segment_request(HttpRequest* req, void* buffer, dav_size_t size_read,  dav_off_t off_set, DavixError**err);
 dav_ssize_t read_truncated_segment_request(HttpRequest* req, void* buffer, dav_size_t size_read,  dav_off_t off_set, DavixError**err);
 
 
 
 
-dav_ssize_t read_segment_request(HttpRequest* req, void* buffer, dav_size_t size_read,  dav_off_t off_set, DavixError**err){
+dav_ssize_t read_segment_request(HttpRequest* req, void* buffer, dav_size_t size_read, DavixError**err){
     DavixError* tmp_err=NULL;
     dav_ssize_t ret, tmp_ret;
     char* p_buff =(char*) buffer;
@@ -99,7 +97,7 @@ dav_ssize_t read_truncated_segment_request(HttpRequest* req, void* buffer, dav_s
      }
 
      if(!tmp_err){
-        ret = read_segment_request(req, p_buffer, size_read,  off_set, &tmp_err);
+        ret = read_segment_request(req, p_buffer, size_read, &tmp_err);
      }
 
      if(tmp_err){
@@ -187,7 +185,7 @@ dav_ssize_t HttpIO::pread(IOChainContext & iocontext, void *buf, dav_size_t coun
                 ret = 0; // end of file
             }else{
                 if(req.getRequestCode() == 206 ){ // partial request supported, just read !
-                    ret = read_segment_request(&req, buf, count, offset, &tmp_err);
+                    ret = read_segment_request(&req, buf, count, &tmp_err);
                 }else if( req.getRequestCode() == 200){ // full request content -> skip useless content
                     ret = read_truncated_segment_request(&req, buf, count, offset, &tmp_err);
                 }else{
@@ -386,7 +384,7 @@ dav_ssize_t HttpIOBuffer::readInternal(IOChainContext & iocontext, void *buffer,
     }
 
     if(_read_req != NULL){ // valid request -> proceed to read
-        ret = read_segment_request(_read_req, buffer, size_read, _read_pos, &tmp_err);
+        ret = read_segment_request(_read_req, buffer, size_read, &tmp_err);
         if(ret > 0){
             _read_pos += ret;
             if(ret < (dav_ssize_t) size_read){ // end of file
@@ -408,6 +406,9 @@ dav_ssize_t HttpIOBuffer::readInternal(IOChainContext & iocontext, void *buffer,
 
 
 void HttpIOBuffer::prefetchInfo(IOChainContext & iocontext, off_t offset, dav_size_t size_read, advise_t adv){
+    (void) iocontext;
+    (void) offset;
+    (void) size_read;
     _last_advise = adv;
 }
 

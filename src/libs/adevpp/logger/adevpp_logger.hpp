@@ -50,7 +50,7 @@ public:
     void logStream(const std::ostream & stream);
 
 
-#define ADEVPP_LOG(LOG_LEVEL,  COMPONENT_INT, MSG) if( LOG_LEVEL >= getLogLevel() && componentEnabled(COMPONENT_INT)){
+#define ADEVPP_LOG(LOG_LEVEL,  COMPONENT_INT, MSG) if( LOG_LEVEL >= getLogLevel() && componentEnabled(COMPONENT_INT)){ std::ostringstream ss; ss << MSG
 
     void reset(const LogLevel ldefault = Warning, const Channels & mask_default= allComponents());
 

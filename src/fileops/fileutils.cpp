@@ -59,7 +59,7 @@ void setup_offset_request(HttpRequest* req, const dav_off_t *start_len, const da
         if( i > 0)
             buffer << ",";
 
-       if(size_read > 0)
+       if(size_read[i] > 0)
            buffer << start_len[i] << "-"<< (start_len[i]+size_read[i]-1);
        else
             buffer << start_len [i]<< "-";

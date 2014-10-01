@@ -53,7 +53,7 @@ std::string string_from_ptime(const time_t & t){
     char b[255];
     b[sizeof(b)-1]= '\0';
 
-    struct tm local_time={0};
+    struct tm local_time;
     (void) localtime_r(&t, &local_time);
     strftime(b, 254, "%F %T", &local_time);
     return std::string(b);
@@ -89,7 +89,7 @@ void writeConsoleLine(int fd, char symbol,  const std::string & msg){
     writeToFd(fd, ss.str());
 }
 
-int configureAuth(OptParams & opts, DavixError** err){
+int configureAuth(OptParams & opts){
     // setup client side credential
     opts.params.setClientCertCallbackX509(&authCallbackCert, &opts);
     // setup client login / password
@@ -134,10 +134,13 @@ static void printHookHeadersVec(char symbol, const std::string & first_msg, cons
 }
 
 void hook_davix_tool_pre_send(HttpRequest& req, const std::string & start_line){
+    (void) req;
     printHookHeaders('>', "Send request", start_line);
 }
 
 void hook_davix_tool_pre_rec(HttpRequest& req, const std::string & init_line, const HeaderVec & headers, int status_code){
+    (void) req;
+    (void) status_code;
     printHookHeadersVec('<', "Receive answer", init_line, headers);
 }
 
@@ -207,6 +210,7 @@ std::string mode_to_stringmode(mode_t mode){
 
 int authCallbackLoginPassword(void* userdata, const SessionInfo & info, std::string & login, std::string & password,
                                         int count, DavixError** err){
+    (void) info;
     OptParams* opts = static_cast<OptParams*>(userdata);
     int ret = -1;
     if(opts->userlogpasswd.first.empty() == false){
@@ -233,6 +237,7 @@ int authCallbackLoginPassword(void* userdata, const SessionInfo & info, std::str
 }
 
 int authCallbackCert(void* userdata, const SessionInfo & info, X509Credential* cert, DavixError** err){
+    (void) info;
     OptParams* opts = static_cast<OptParams*>(userdata);
     const std::string key_path(opts->priv_key), cred_path(opts->cred_path);
 
@@ -293,14 +298,6 @@ std::string string_from_size_t(size_t number, size_t size_string){
     ss << number;
     ss << std::string(((digit < size_string)?(size_string - digit):0), ' ');
     return ss.str();
-}
-
-
-std::string filename_from_uri(const std::string & current_dir, const Uri & uri){
-    if(uri.getStatus() == StatusCode::OK){
-
-    }
-    return std::string();
 }
 
 bool isShell(int fd){

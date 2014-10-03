@@ -326,6 +326,10 @@ const char metalink_item_generic[]= " "
         "  </metalink>";
 
 
+const char aws_s3_listing_bucket[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ListBucketResult xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\"><Name>a-random-random-bucket</Name><Prefix></Prefix><Marker></Marker><MaxKeys>1000</MaxKeys><IsTruncated>false</IsTruncated><Contents><Key>h1big.root</Key><LastModified>2014-09-19T14:27:33.000Z</LastModified><ETag>&quot;bf5b1efa7fe677965bf3ecd41e20be2a&quot;</ETag><Size>280408881</Size><StorageClass>STANDARD</StorageClass><Owner><ID>mhellmic</ID><DisplayName>Martin Hellmich</DisplayName></Owner></Contents><Contents><Key>services</Key><LastModified>2014-10-03T14:58:12.000Z</LastModified><ETag>&quot;3e73cc5c77799fd3e7a02c62474107bb&quot;</ETag><Size>19558</Size><StorageClass>STANDARD</StorageClass><Owner><ID>mhellmic</ID><DisplayName>Martin Hellmich</DisplayName></Owner></Contents></ListBucketResult>";
+
+
+
 TEST(XmlParserInstance, createParser){
 
     ASSERT_NO_THROW({
@@ -554,6 +558,13 @@ TEST(XmlPTreeTest, testPTreeChain){
     ASSERT_EQ(1, res.size());
     ASSERT_TRUE(res.at(0)->compareNode(baseItem));
     vec_node.clear();
+
+
+}
+
+TEST(XmlS3parsing, TestListingBucket){
+
+    ASSERT_TRUE(true);
 
 
 }

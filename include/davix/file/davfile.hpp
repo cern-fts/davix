@@ -60,7 +60,7 @@ public:
     class Iterator{
         friend struct DavFileInternal;
         public:
-            Iterator() : d_ptr(NULL) {}
+            Iterator() : d_ptr() {}
             Iterator(const Iterator & orig) : d_ptr(orig.d_ptr){}
 
             bool next();

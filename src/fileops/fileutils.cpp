@@ -50,6 +50,13 @@ int davixRequestToFileStatus(HttpRequest* req, const std::string & scope, DavixE
 }
 
 
+void check_file_status(HttpRequest & req, const std::string & scope){
+    const int code =req.getRequestCode();
+    if( httpcodeIsValid(code) == false){
+        httpcodeToDavixException(code, scope);
+    }
+}
+
 void setup_offset_request(HttpRequest* req, const dav_off_t *start_len, const dav_size_t *size_read, const dav_size_t number_ops){
    std::ostringstream buffer;
 

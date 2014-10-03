@@ -58,31 +58,46 @@ static const std::string stat_listing("<?xml version=\"1.0\" encoding=\"utf-8\" 
 
 struct Davix_dir_handle{
 
-    Davix_dir_handle(Davix::HttpRequest* _req, Davix::DavPropXMLParser * _parser):
-        request(_req),
-        parser(_parser),
+    Davix_dir_handle(Davix::Context & context, const Davix::Uri & u, const Davix::RequestParams * p):
+        params(p),
+        uri(u),
+        io_chain(),
+        io_context(context, uri, &params),
+        start_entry_name(),
+        start_entry_st(),
         dir_info((struct dirent*) calloc(1,sizeof(struct dirent) + NAME_MAX +1)),
-        dir_offset(0){
-
+        dir_offset(0),
+        end(false){
+        Davix::getIOChain(io_chain);
     }
 
    ~Davix_dir_handle(){
-        delete request;
-        delete parser;
         free(dir_info);
     }
 
-   Davix::HttpRequest* request;
-   Davix::DavPropXMLParser * parser;
+
+    // params
+    Davix::RequestParams params;
+    Davix::Uri uri;
+
+    Davix::HttpIOChain io_chain;
+    Davix::IOChainContext io_context;
+
+   //first entry
+   std::string start_entry_name;
+   Davix::StatInfo start_entry_st;
+
+   // dir struct
    struct dirent* dir_info;
    off_t dir_offset;
+
+   // end listing
+   bool end;
 
 private:
    Davix_dir_handle(const Davix_dir_handle & );
    Davix_dir_handle & operator=(const Davix_dir_handle & );
 };
-
-
 
 struct Davix_fd{
     Davix_fd(Davix::Context & context, const Davix::Uri & uri, const Davix::RequestParams * params) : _uri(uri), _params(params),
@@ -106,6 +121,20 @@ struct Davix_fd{
 
 namespace Davix {
 
+
+
+static void toDirent(struct dirent * d, const std::string & filename, const StatInfo & info){
+    StrUtil::copy_std_string_to_buff(d->d_name, NAME_MAX, filename);
+    if (S_ISDIR(info.mode))
+        d->d_type = DT_DIR;
+    else if (S_ISLNK(info.mode))
+        d->d_type = DT_LNK;
+    else
+        d->d_type = DT_REG;
+}
+
+
+
 DavPosix::DavPosix(Context* _context) :
     context(_context),
     _timeout(180),
@@ -121,6 +150,7 @@ DavPosix::~DavPosix(){
 }
 
 
+/*
 dav_ssize_t incremental_propfind_listdir_parsing(HttpRequest* req, DavPropXMLParser * parser, dav_size_t s_buff, const char* scope, DavixError** err){
   //  std::cout << "time 1 pre-fecth" << time(NULL) << std::endl;
     DavixError* tmp_err=NULL;
@@ -141,10 +171,10 @@ dav_ssize_t incremental_propfind_listdir_parsing(HttpRequest* req, DavPropXMLPar
     DavixError::propagateError(err, tmp_err);
     return ret;
 }
+*/
 
 
-
-
+/*
 void configureRequest_for_listdir(HttpRequest* req){
     req->addHeaderField("Depth","1");
 }
@@ -210,6 +240,13 @@ DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char
     }
     return (DAVIX_DIR*) res;
 }
+*/
+
+DAVIX_DIR* internal_opendir(Context & context, const RequestParams* params, const std::string & url){
+    std::unique_ptr<DAVIX_DIR> dir(new DAVIX_DIR(context, url, params));
+    dir->end = ! dir->io_chain.nextSubItem(dir->io_context,dir->start_entry_name, dir->start_entry_st);
+    return dir.release();
+}
 
 
 DAVIX_DIR* DavPosix::opendir(const RequestParams* params, const std::string &url, DavixError** err){
@@ -218,7 +255,7 @@ DAVIX_DIR* DavPosix::opendir(const RequestParams* params, const std::string &url
     DAVIX_DIR* r  = NULL;
 
     TRY_DAVIX{
-        r =  internal_opendirpp(params, "Core::opendir",simple_listing, url, err);
+        r = internal_opendir(*context, params, url);
     }CATCH_DAVIX(err)
 
     DAVIX_DEBUG(" <- davix_opendir");
@@ -231,7 +268,7 @@ DAVIX_DIR* DavPosix::opendirpp(const RequestParams* params, const std::string &u
     DAVIX_DIR* r  = NULL;
 
     TRY_DAVIX{
-        r =  internal_opendirpp(params, "Core::opendir",stat_listing, url, err);
+        r = internal_opendir(*context, params, url);
     }CATCH_DAVIX(err)
 
     DAVIX_DEBUG(" <- davix_opendirpp");
@@ -239,40 +276,47 @@ DAVIX_DIR* DavPosix::opendirpp(const RequestParams* params, const std::string &u
 }
 
 
+struct dirent* internal_readdir(DAVIX_DIR * dir, struct stat* st){
+    if( dir==NULL){
+        throw DavixException(davix_scope_directory_listing_str(), StatusCode::InvalidFileHandle,  "Invalid file descriptor for DAVIX_DIR*");
+    }
+
+    if(dir->end)
+        return NULL;
+
+    if(dir->start_entry_name.size() >0) { // first entry
+        if(st){
+            dir->start_entry_st.toPosixStat(*st);
+        }
+        toDirent(dir->dir_info, dir->start_entry_name, dir->start_entry_st);
+        dir->dir_info->d_off +=1;
+        dir->start_entry_name.clear();
+        return dir->dir_info;
+    }
+
+    StatInfo info;
+    std::string name;
+    if( dir->io_chain.nextSubItem(dir->io_context, name, info) ==false){
+        return NULL;
+    }
+
+    if(st){
+         info.toPosixStat(*st);
+    }
+    toDirent(dir->dir_info, name, info);
+    dir->dir_info->d_off +=1;
+    return dir->dir_info;
+
+}
+
+
 struct dirent* DavPosix::readdir(DAVIX_DIR * d, DavixError** err){
     DAVIX_DEBUG(" -> davix_readdir");
     DavixError* tmp_err=NULL;
-    DAVIX_DIR* handle = static_cast<DAVIX_DIR*>(d);
+    DAVIX_DIR* dir = static_cast<DAVIX_DIR*>(d);
 
     TRY_DAVIX{
-
-        if( d==NULL){
-            throw DavixException(davix_scope_directory_listing_str(), StatusCode::InvalidFileHandle,  "Invalid file descriptor for DAVIX_DIR*");
-        }
-
-        HttpRequest *req = handle->request; // setup env again
-        DavPropXMLParser* parser = handle->parser;
-        off_t read_offset = handle->dir_offset+1;
-        size_t prop_size = parser->getProperties().size();
-        ssize_t s_resu = _s_buff;
-
-        while( prop_size == 0
-              && s_resu > 0){ // request not complete and current data too smalls
-            // continue the parsing until one more result
-           if( (s_resu = incremental_propfind_listdir_parsing(req, parser, this->_s_buff, "Davix::readdir", &tmp_err)) <0)
-               break;
-
-           prop_size = parser->getProperties().size();
-        }
-
-        if(!tmp_err){
-            if(prop_size == 0) // end of the request, end of the story
-                return NULL;
-            handle->dir_offset = read_offset;
-            parser->getProperties().pop_front(); // clean the current element
-            DAVIX_DEBUG(" <- davix_readdir");
-            return handle->dir_info;
-        }
+        return internal_readdir(dir, NULL);
     }CATCH_DAVIX(&tmp_err)
 
     DavixError::propagateError(err, tmp_err);
@@ -282,49 +326,14 @@ struct dirent* DavPosix::readdir(DAVIX_DIR * d, DavixError** err){
 struct dirent* DavPosix::readdirpp(DAVIX_DIR * d, struct stat *st, DavixError** err){
     DAVIX_DEBUG(" -> davix_readdirpp");
     DavixError* tmp_err=NULL;
-    struct dirent* ret = NULL;
-    DAVIX_DIR* handle = static_cast<DAVIX_DIR*>(d);
+    DAVIX_DIR* dir = static_cast<DAVIX_DIR*>(d);
 
     TRY_DAVIX{
-
-        if( d==NULL){
-            throw DavixException(davix_scope_directory_listing_str(), StatusCode::InvalidFileHandle,  "Invalid file descriptor for DAVIX_DIR*");
-        }
-
-
-        HttpRequest* req = handle->request; // setup env again
-        DavPropXMLParser* parser = handle->parser;
-        off_t read_offset = handle->dir_offset+1;
-        size_t prop_size = parser->getProperties().size();
-        ssize_t s_resu = _s_buff;
-
-        while( prop_size == 0
-              && s_resu > 0){ // request not complete and current data too smalls
-            // continue the parsing until one more result
-           if( (s_resu = incremental_propfind_listdir_parsing(req, parser, this->_s_buff, "Davix::readdirpp", &tmp_err)) <0)
-               break;
-
-           prop_size = parser->getProperties().size();
-        }
-
-        if(!tmp_err){
-            if(prop_size == 0){
-                ret= NULL; // end of the request, end of the story
-            }else{
-                FileProperties & front = parser->getProperties().front();
-                front.toDirent(handle->dir_info);
-                handle->dir_offset = read_offset;
-                front.info.toPosixStat(*st);
-                parser->getProperties().pop_front(); // clean the current element
-                ret= handle->dir_info;
-            }
-            DAVIX_DEBUG(" <- davix_readdirpp");
-        }
-
+        return internal_readdir(dir, st);
     }CATCH_DAVIX(&tmp_err)
 
     DavixError::propagateError(err, tmp_err);
-    return ret;
+    return NULL;
 }
 
 

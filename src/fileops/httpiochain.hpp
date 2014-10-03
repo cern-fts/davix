@@ -55,6 +55,10 @@ public:
     // get statInfo
     virtual StatInfo & statInfo(IOChainContext & iocontext, StatInfo & st_info);
 
+    // listing
+    // return false if end of directory is reached
+    virtual bool nextSubItem(IOChainContext & iocontext, std::string & entry_name, StatInfo & info);
+
 
     /*
      *     I/O Layer

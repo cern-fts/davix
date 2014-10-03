@@ -52,15 +52,6 @@ struct FileProperties
         req_status = 0;
     }
 
-    inline void toDirent(struct dirent * d) const{
-        StrUtil::copy_std_string_to_buff(d->d_name, NAME_MAX, filename);
-        if (S_ISDIR(info.mode))
-            d->d_type = DT_DIR;
-        else if (S_ISLNK(info.mode))
-            d->d_type = DT_LNK;
-        else
-            d->d_type = DT_REG;
-    }
 
 };
 

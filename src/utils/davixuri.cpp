@@ -58,7 +58,8 @@ struct UriPrivate{
         _uri_string(orig._uri_string),
         query_and_path(NULL){ }
 
-    ~UriPrivate() {
+    ~UriPrivate(){
+
     }
 
     void parsing(const std::string & uri_string){

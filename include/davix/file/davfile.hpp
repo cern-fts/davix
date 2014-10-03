@@ -21,6 +21,7 @@
 #ifndef DAVFILE_HPP
 #define DAVFILE_HPP
 
+#include <memory>
 #include <davixcontext.hpp>
 #include <params/davixrequestparams.hpp>
 #include <file/davix_file_info.hpp>
@@ -54,6 +55,24 @@ class DAVIX_EXPORT DavFile
 {
 public:
     struct DavFileInternal;
+
+
+    class Iterator{
+        friend struct DavFileInternal;
+        public:
+            Iterator() : d_ptr(NULL) {}
+            Iterator(const Iterator & orig) : d_ptr(orig.d_ptr){}
+
+            bool next();
+
+            const std::string & name();
+            const StatInfo & info();
+        private:
+           struct Internal;
+
+           std::shared_ptr<Internal> d_ptr;
+    };
+
     ///
     /// \brief default constructor
     /// \param c context
@@ -219,19 +238,27 @@ public:
     ///
     /// @brief execute a POSIX-like stat() query
     ///
-    ///  @param params Davix request Parameters
+    ///  @param params DaviX request parameters
     ///  @param st stat struct
     ///  @param err Davix Error report
     ///  @return 0 if success, or -1 if error occures
     ///
     int stat(const RequestParams* params, struct stat * st, DavixError** err);
 
+    ///
+    /// @brief Collection listing
+    ///
+    ///  @param params DaviX request parameters
+    ///  @return Iterator to the collection
+    Iterator  listCollection(const RequestParams* params);
+
 
     ///
     /// @brief compute checksum of the file
     /// with the given algorithm (MD5, CRC32, ADLER32)
     ///
-    ///  Depend of server implementation
+    ///  server implementation dependend
+    ///  Davix::checksum support LCGDM-DAV, dCache Jetty and Aws S3 checksum support
     ///
     /// @param params request parameters
     /// @param checksm checksum buffer

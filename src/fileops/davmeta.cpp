@@ -35,9 +35,25 @@ using namespace StrUtil;
 
 namespace Davix{
 
+static const std::string simple_listing("<propfind xmlns=\"DAV:\"><prop><resourcetype><collection/></resourcetype></prop></propfind>");
+
+static const std::string stat_listing("<?xml version=\"1.0\" encoding=\"utf-8\" ?><D:propfind xmlns:D=\"DAV:\" xmlns:L=\"LCGDM:\"><D:prop>"
+                                      "<D:displayname/><D:getlastmodified/><D:creationdate/><D:getcontentlength/>"
+                                      "<D:resourcetype><D:collection/></D:resourcetype><L:mode/>"
+                                      "</D:prop>"
+                                      "</D:propfind>");
 
 
 
+class DirHandle{
+public:
+    DirHandle(HttpRequest* req, DavPropXMLParser * p): request(req), parser(p){}
+
+    std::unique_ptr<HttpRequest> request;
+    std::unique_ptr<Davix::DavPropXMLParser> parser;
+private:
+    DirHandle(const DirHandle &);
+};
 
 /**
   execute a propfind/stat request on a given HTTP request handle
@@ -276,6 +292,112 @@ int internal_checksum(Context & c, const Uri & url, const RequestParams *p, std:
 }
 
 
+dav_ssize_t webdav_inc_propfind_listdir_parsing(HttpRequest* req, DavPropXMLParser * parser, dav_size_t s_buff, const std::string & scope){
+  //  std::cout << "time 1 pre-fecth" << time(NULL) << std::endl;
+    DavixError* tmp_err=NULL;
+
+    char buffer[s_buff+1];
+    const dav_ssize_t ret = req->readSegment(buffer, s_buff, &tmp_err);
+    checkDavixError(&tmp_err);
+    if(ret >= 0){
+        buffer[ret]= '\0';
+        DAVIX_DEBUG("Listdir::ChunkParsing content : %s", buffer);
+        parser->parseChunk(buffer, ret);
+    }else{
+        throw DavixException(scope, StatusCode::UnknowError, "Unknow readSegment error");
+    }
+
+    return ret;
+}
+
+bool wedav_get_next_property(std::unique_ptr<DirHandle> & handle, std::string & name_entry, StatInfo & info){
+    DAVIX_DEBUG(" -> wedav_get_next_property");
+    const size_t read_size = 2048;
+
+
+    HttpRequest& req = *(handle->request); // setup env again
+    DavPropXMLParser& parser = *(handle->parser);
+
+    size_t prop_size = parser.getProperties().size();
+    ssize_t s_resu = read_size;
+
+    while( prop_size == 0
+          && s_resu > 0){ // request not complete and current data too smalls
+        // continue the parsing until one more result
+       s_resu = webdav_inc_propfind_listdir_parsing(&req, &parser, read_size, "WebDav::listing");
+
+       prop_size = parser.getProperties().size();
+    }
+
+
+    if(prop_size == 0){
+        return false; // end of the request, end of the story
+    }
+
+    FileProperties & front = parser.getProperties().front();
+    name_entry.swap(front.filename);
+    info = front.info;
+    parser.getProperties().pop_front(); // clean the current element
+    return true;
+}
+
+
+void webdav_start_listing_query(std::unique_ptr<DirHandle> & handle, Context & context, const RequestParams* params, const Uri & url, const std::string & body){
+    dav_ssize_t s_resu;
+
+    DavixError* tmp_err=NULL;
+    handle.reset(new DirHandle(new PropfindRequest(context, url, &tmp_err), new DavPropXMLParser()));
+    checkDavixError(&tmp_err);
+
+
+    const int operation_timeout = params->getOperationTimeout()->tv_sec;
+    HttpRequest & http_req = *(handle->request);
+    DavPropXMLParser & parser = *(handle->parser);
+
+    http_req.addHeaderField("Depth","1");
+    time_t timestamp_timeout = time(NULL) + ((operation_timeout)?(operation_timeout):180);
+
+    http_req.setParameters(params);
+    // setup the handle for simple listing only
+    http_req.setRequestBody(body);
+
+    http_req.beginRequest(&tmp_err);
+    checkDavixError(&tmp_err);
+
+    check_file_status(http_req, davix_scope_directory_listing_str());
+
+    size_t prop_size = 0;
+    do{ // parse the begining of the request until the first property -> directory property
+       s_resu = webdav_inc_propfind_listdir_parsing(&http_req, &parser, 2048, davix_scope_directory_listing_str());
+
+       prop_size = parser.getProperties().size();
+       if(s_resu < 2048 && prop_size <1){ // verify request status : if req done + no data -> error
+           throw DavixException(davix_scope_directory_listing_str(), StatusCode::WebDavPropertiesParsingError, "bad server answer, not a valid WebDav PROPFIND answer");
+       }
+       if(timestamp_timeout < time(NULL)){
+          throw DavixException(davix_scope_directory_listing_str(), StatusCode::OperationTimeout, "operation timeout triggered while directory listing");
+       }
+
+    }while( prop_size < 1); // leave is end of req & no data
+
+    const StatInfo & info = parser.getProperties().at(0).info;
+    if( S_ISDIR(info.mode) == false){
+        std::ostringstream ss;
+        ss << url << " is not a collection, listing impossible";
+        throw DavixException(davix_scope_directory_listing_str(), StatusCode::IsNotADirectory, ss.str());
+    }else{
+        parser.getProperties().pop_front(); // suppress the parent directory infos...
+    }
+
+}
+
+bool webdav_directory_listing(std::unique_ptr<DirHandle> & handle, Context & context, const RequestParams* params, const Uri & uri, const std::string & body, std::string & name_entry, StatInfo & info){
+    if(handle.get() == NULL){
+        webdav_start_listing_query(handle, context, params, uri, body);
+    }
+    return wedav_get_next_property(handle, name_entry, info);
+}
+
 HttpMetaOps::HttpMetaOps(): HttpIOChain(){}
 
 HttpMetaOps::~HttpMetaOps(){}
@@ -298,6 +420,11 @@ StatInfo & HttpMetaOps::statInfo(IOChainContext & iocontext, StatInfo &st_info){
     memset(&st, 0, sizeof(struct stat));
     getStatInfo(iocontext._context, iocontext._uri, iocontext._reqparams, st_info);
     return st_info;
+}
+
+bool HttpMetaOps::nextSubItem(IOChainContext &iocontext, std::string &entry_name, StatInfo &info){
+    return webdav_directory_listing(directoryItem, iocontext._context, iocontext._reqparams, iocontext._uri, stat_listing,
+                             entry_name, info);
 }
 
 /////////////////////////

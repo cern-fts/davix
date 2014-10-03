@@ -28,7 +28,12 @@
 
 namespace Davix{
 
+
+DavFile::Iterator createIterator(DavFile::DavFileInternal& f, const RequestParams * params);
+
+
 struct DavFile::DavFileInternal{
+
     DavFileInternal(Context & c, const Uri & u) :
         _c(c), _u(u) {}
 
@@ -43,7 +48,58 @@ struct DavFile::DavFileInternal{
     IOChainContext getIOContext(const RequestParams * params){
         return IOChainContext(_c, _u, params);
     }
+
+    DavFile::Iterator createIterator(const RequestParams * params);
+
+
+    static void check_iterator(DavFile::Iterator::Internal* ptr){
+        if(ptr == NULL)
+            throw DavixException(davix_scope_directory_listing_str(), StatusCode::InvalidArgument, "Usage of an invalid Iterator");
+    }
+
+
 };
+
+
+struct DavFile::Iterator::Internal{
+
+    Internal(DavFile::DavFileInternal & f, const RequestParams* p) :
+        io_chain(),
+        io_context(f.getIOContext(p))
+    {
+        f.getIOChain(io_chain);
+        io_chain.nextSubItem(io_context, name, info);
+    }
+
+    HttpIOChain io_chain;
+    IOChainContext io_context;
+    std::string name;
+    StatInfo info;
+};
+
+
+
+
+DavFile::Iterator DavFile::DavFileInternal::createIterator(const RequestParams * params){
+    DavFile::Iterator it;
+    it.d_ptr.reset(new DavFile::Iterator::Internal(*this, params));
+    return it;
+}
+
+
+bool DavFile::Iterator::next(){
+    return d_ptr->io_chain.nextSubItem(d_ptr->io_context, d_ptr->name, d_ptr->info);
+}
+
+const std::string & DavFile::Iterator::name(){
+    DavFileInternal::check_iterator(d_ptr.get());
+    return d_ptr->name;
+}
+
+const StatInfo & DavFile::Iterator::info(){
+    DavFileInternal::check_iterator(d_ptr.get());
+    return d_ptr->info;
+}
 
 
 DavFile::DavFile(Context &c, const Uri &u) :
@@ -78,6 +134,8 @@ std::vector<DavFile> DavFile::getReplicas(const RequestParams *_params, DavixErr
 
 
 dav_ssize_t DavFile::getAllReplicas(const RequestParams* params, ReplicaVec & v, DavixError **err){
+    (void) params;
+    (void) v;
     Davix::DavixError::setupError(err, davix_scope_http_request(), StatusCode::OperationNonSupported, " GetAllReplicas Function not supported, please use GetReplicas()");
     return -1;
 }
@@ -199,6 +257,10 @@ StatInfo& DavFile::statInfo(const RequestParams *params, StatInfo &info){
     IOChainContext io_context = d_ptr->getIOContext(params);
     d_ptr->getIOChain(chain).statInfo(io_context, info);
     return info;
+}
+
+DavFile::Iterator DavFile::listCollection(const RequestParams *params){
+    return d_ptr->createIterator(params);
 }
 
 int DavFile::checksum(const RequestParams *params, std::string & checksm, const std::string & chk_algo, DavixError **err) throw(){

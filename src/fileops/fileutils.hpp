@@ -38,6 +38,7 @@ extern const std::string req_header_byte_range;
 // take a HTTP request status and convert file status to common errcode
 int davixRequestToFileStatus(HttpRequest* req, const std::string & scope, DavixError** err);
 
+void check_file_status(HttpRequest & req, const std::string & scope);
 
 // configure Range request
 void setup_offset_request(HttpRequest* req, const dav_off_t *start_len, const dav_size_t *size_read, const dav_size_t number_ops);

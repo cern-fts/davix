@@ -47,6 +47,10 @@ StatInfo & HttpIOChain::statInfo(IOChainContext & iocontext, StatInfo &st_info){
     CHAIN_FORWARD(statInfo(iocontext, st_info));
 }
 
+bool HttpIOChain::nextSubItem(IOChainContext &iocontext, std::string &entry_name, StatInfo &info){
+    CHAIN_FORWARD(nextSubItem(iocontext, entry_name, info));
+}
+
 
 bool HttpIOChain::open(IOChainContext & iocontext, int flags){
    CHAIN_FORWARD(open(iocontext, flags));

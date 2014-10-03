@@ -74,6 +74,7 @@
 #if (!(defined __DAVIX_CX11_SUPPORT) \
     && (defined __DAVIX_TR1_SUPPORT))
 #       include <tr1/functional>
+#       include <tr1/memory>
 
 namespace std{
     using namespace std::tr1;

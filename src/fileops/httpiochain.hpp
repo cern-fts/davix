@@ -103,7 +103,7 @@ public:
 
 
 protected:
-    boost::scoped_ptr<HttpIOChain> _next;
+    Ptr::Scoped<HttpIOChain> _next;
     HttpIOChain* _start;
 
 

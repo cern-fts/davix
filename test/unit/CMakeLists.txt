@@ -6,7 +6,7 @@ include_directories(${PROJECT_SOURCE_DIR}/src "." ${GTEST_INCLUDE_DIRS})
 include_directories(${HEADER_RAPIDJSON})
 
 
-file(GLOB src_adevpp adevpp/*.cpp)
+file(GLOB src_alibxx alibxx/*.cpp)
 file(GLOB src_neon neon/*.cpp)
 file(GLOB src_datetime datetime/*.cpp)
 file(GLOB src_credential credential/*.cpp)
@@ -23,7 +23,7 @@ LIST(APPEND src_httprequest sessionfactory/test_factory.cpp)
 add_definitions( -DTEST_VALID_CERT="${TEST_CRED_PATH}" -DTEST_VALID_CERT_PASS="${TEST_CRED_PASS}")
 add_executable(g_test_unit_davix_exe ${src_context} ${src_session} ${src_credential}
                 ${src_httprequest} ${src_datetime} ${src_neon} ${src_parser} ${src_auth} ${src_utils} ${src_parser} ${SRC_BASE64}
-                ${SRC_HMACSHA1} ${davix_tool_common_src} ${src_files} ${src_adevpp})
+                ${SRC_HMACSHA1} ${davix_tool_common_src} ${src_files} ${src_alibxx})
 target_link_libraries(g_test_unit_davix_exe davix  gtest gtest_main ${LIBSSL_PKG_LIBRARIES} ${Boost_LIBRARIES})
 add_dependencies(g_test_unit_davix_exe libdavix)
 

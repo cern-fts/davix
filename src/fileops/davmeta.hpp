@@ -51,7 +51,7 @@ public:
 
 private:
 
-    std::unique_ptr<DirHandle> directoryItem;
+    Ptr::Scoped<DirHandle> directoryItem;
 };
 
 

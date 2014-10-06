@@ -1,5 +1,5 @@
-#ifndef ADEVPP_CACHE_H
-#define ADEVPP_CACHE_H
+#ifndef alibxx_CACHE_H
+#define alibxx_CACHE_H
 
 #include <functional>
 #include <algorithm>
@@ -10,7 +10,7 @@
 #include <boost/thread/locks.hpp>
 
 
-namespace Adevpp{
+namespace alibxx{
 
 template <class Key, class Value, class CompareT = std::less<Key> >
 class Cache {
@@ -78,4 +78,4 @@ private:
 
 }
 
-#endif // ADEVPP_H
+#endif // alibxx_H

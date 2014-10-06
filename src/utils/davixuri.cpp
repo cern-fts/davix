@@ -87,7 +87,7 @@ struct UriPrivate{
     std::string proto, userinfo, path, host, query, fragment;
     unsigned int port;
     std::string _uri_string;
-    boost::scoped_ptr<std::string> query_and_path;
+    Ptr::Scoped<std::string> query_and_path;
 
 };
 

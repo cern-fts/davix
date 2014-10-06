@@ -243,7 +243,7 @@ DAVIX_DIR* DavPosix::internal_opendirpp(const RequestParams* _params, const char
 */
 
 DAVIX_DIR* internal_opendir(Context & context, const RequestParams* params, const std::string & url){
-    std::unique_ptr<DAVIX_DIR> dir(new DAVIX_DIR(context, url, params));
+    Ptr::Scoped<DAVIX_DIR> dir(new DAVIX_DIR(context, url, params));
     dir->end = ! dir->io_chain.nextSubItem(dir->io_context,dir->start_entry_name, dir->start_entry_st);
     return dir.release();
 }

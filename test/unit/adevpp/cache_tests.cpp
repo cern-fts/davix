@@ -3,7 +3,11 @@
 #include <string>
 #include <cstring>
 #include <gtest/gtest.h>
-#include <adevpp/containers/cache.hpp>
+#include <alibxx/alibxx.hpp>
+
+
+#undef A_LIB_NAMESPACE
+#define A_LIB_NAMESPACE Testpp
 
 using namespace std;
 
@@ -13,11 +17,11 @@ struct DummyStruct{
 
 
 // instanciate and play with gates
-TEST(AdevppTests, CacheTest){
+TEST(ALibxx, CacheTest){
 
 
 
-    Adevpp::Cache<std::string,  DummyStruct> cache;
+    Testpp::Cache<std::string,  DummyStruct> cache;
 
     ASSERT_TRUE(cache.find("hello").get() == NULL);
 

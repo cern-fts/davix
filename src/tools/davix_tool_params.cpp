@@ -18,13 +18,13 @@
  *
 */
 
+
 #include <davix_internal.hpp>
 #include "davix_tool_params.hpp"
 #include "davix_tool_util.hpp"
 #include <getopt.h>
 #include <string_utils/stringutils.hpp>
 #include <utils/davix_logger.hpp>
-#include <adevpp/algorithm/algorithm.hpp>
 
 namespace Davix{
 
@@ -118,7 +118,7 @@ template <typename T, typename Y, typename Z>
 Y match_option(T begin, T end,
                Y begin_res, Y end_res,
                Z val, char** argv){
-    Y res = Adevpp::match_array(begin, end, begin_res, end_res, val);
+    Y res = match_array(begin, end, begin_res, end_res, val);
     if(res == end_res){
         option_abort(argv);
     }

@@ -68,7 +68,7 @@ struct ContextInternal
       _s_buff = value;
     }
 
-    boost::scoped_ptr<NEONSessionFactory>  _fsess;
+    Ptr::Scoped<NEONSessionFactory>  _fsess;
     dav_size_t _s_buff;
     unsigned long _timeout;
     bool _context_flags;

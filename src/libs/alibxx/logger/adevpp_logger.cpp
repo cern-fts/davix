@@ -1,6 +1,6 @@
-#include "adevpp_logger.hpp"
+#include "alibxx_logger.hpp"
 
-namespace Adevpp {
+namespace A_LIB_NAMESPACE {
 
 const LogLevel Logger::Critical=0;
 const LogLevel Logger::Warning=0x01;
@@ -23,5 +23,9 @@ void Logger::reset(const LogLevel ldefault = Warning, const CmptMask & mask_defa
     log_level = ldefault;
 }
 
+void Logger::logStream(const std::ostream &message){
+    
+}
 
-} // namespace Adevpp
+
+} // namespace alibxx

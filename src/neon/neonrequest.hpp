@@ -26,11 +26,11 @@
 #include <memory>
 #include <string>
 
+#include <davix_internal.hpp>
+
 #include <ne_request.h>
 #include <ne_auth.h>
 #include <neon/neonsessionfactory.hpp>
-#include <boost/scoped_ptr.hpp>
-#include <boost/shared_ptr.hpp>
  
 #include <request/httprequest.hpp>
 #include <neon/neonsession.hpp>
@@ -145,7 +145,7 @@ private:
     // request parameters
     RequestParams params;
     // neon internal field
-    boost::scoped_ptr<NEONSession> _neon_sess;
+    Ptr::Scoped<NEONSession> _neon_sess;
     // request options flag
 
 

@@ -3,7 +3,7 @@
 
 
 
-namespace Adevpp{
+namespace A_LIB_NAMESPACE{
 
 template<typename _Iterator1, typename _Iterator2, typename _Tvalue>
 _Iterator2 match_array(_Iterator1 begin_match, _Iterator1 end_match,

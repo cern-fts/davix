@@ -1,17 +1,19 @@
-#ifndef ADEVPP_CACHE_H
-#define ADEVPP_CACHE_H
+#pragma once
 
 #include <functional>
 #include <algorithm>
 #include <map>
 #include <limits>
 #include <utility>
+
+#ifndef NO_BOOST_INCLUDE
+
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/locks.hpp>
 
 
-namespace Adevpp{
+namespace A_LIB_NAMESPACE{
 
 ///
 /// Thread Safe Cache container
@@ -117,4 +119,6 @@ protected:
 
 }
 
-#endif // ADEVPP_H
+
+#endif
+

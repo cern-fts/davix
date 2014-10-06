@@ -1,9 +1,9 @@
-#ifndef ADEVPP_ADEVPP_LOGGER_HPP
-#define ADEVPP_ADEVPP_LOGGER_HPP
+#ifndef alibxx_alibxx_LOGGER_HPP
+#define alibxx_alibxx_LOGGER_HPP
 
 #include <bitset>
 
-namespace Adevpp {
+namespace A_LIB_NAMESPACE {
 
 typedef std::bitset<64> Channels;
 typedef unsigned int LogLevel;
@@ -50,7 +50,7 @@ public:
     void logStream(const std::ostream & stream);
 
 
-#define ADEVPP_LOG(LOG_LEVEL,  COMPONENT_INT, MSG) if( LOG_LEVEL >= getLogLevel() && componentEnabled(COMPONENT_INT)){ std::ostringstream ss; ss << MSG
+#define alibxx_LOG(LOG_LEVEL,  COMPONENT_INT, MSG) if( LOG_LEVEL >= getLogLevel() && componentEnabled(COMPONENT_INT)){ std::ostringstream ss; ss << MSG
 
     void reset(const LogLevel ldefault = Warning, const Channels & mask_default= allComponents());
 
@@ -60,6 +60,6 @@ private:
 
 };
 
-} // namespace Adevpp
+} // namespace alibxx
 
-#endif // ADEVPP_ADEVPP_LOGGER_HPP
+#endif // alibxx_alibxx_LOGGER_HPP

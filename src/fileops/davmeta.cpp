@@ -49,8 +49,8 @@ class DirHandle{
 public:
     DirHandle(HttpRequest* req, DavPropXMLParser * p): request(req), parser(p){}
 
-    std::unique_ptr<HttpRequest> request;
-    std::unique_ptr<Davix::DavPropXMLParser> parser;
+    Ptr::Scoped<HttpRequest> request;
+    Ptr::Scoped<Davix::DavPropXMLParser> parser;
 private:
     DirHandle(const DirHandle &);
 };
@@ -310,7 +310,7 @@ dav_ssize_t webdav_inc_propfind_listdir_parsing(HttpRequest* req, DavPropXMLPars
     return ret;
 }
 
-bool wedav_get_next_property(std::unique_ptr<DirHandle> & handle, std::string & name_entry, StatInfo & info){
+bool wedav_get_next_property(Ptr::Scoped<DirHandle> & handle, std::string & name_entry, StatInfo & info){
     DAVIX_DEBUG(" -> wedav_get_next_property");
     const size_t read_size = 2048;
 
@@ -342,7 +342,7 @@ bool wedav_get_next_property(std::unique_ptr<DirHandle> & handle, std::string & 
 }
 
 
-void webdav_start_listing_query(std::unique_ptr<DirHandle> & handle, Context & context, const RequestParams* params, const Uri & url, const std::string & body){
+void webdav_start_listing_query(Ptr::Scoped<DirHandle> & handle, Context & context, const RequestParams* params, const Uri & url, const std::string & body){
     dav_ssize_t s_resu;
 
     DavixError* tmp_err=NULL;
@@ -391,7 +391,7 @@ void webdav_start_listing_query(std::unique_ptr<DirHandle> & handle, Context & c
 
 }
 
-bool webdav_directory_listing(std::unique_ptr<DirHandle> & handle, Context & context, const RequestParams* params, const Uri & uri, const std::string & body, std::string & name_entry, StatInfo & info){
+bool webdav_directory_listing(Ptr::Scoped<DirHandle> & handle, Context & context, const RequestParams* params, const Uri & uri, const std::string & body, std::string & name_entry, StatInfo & info){
     if(handle.get() == NULL){
         webdav_start_listing_query(handle, context, params, uri, body);
     }

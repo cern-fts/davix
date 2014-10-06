@@ -112,7 +112,7 @@ protected:
     // locker
     boost::recursive_mutex _rwlock;
     // write cache
-    boost::scoped_ptr<IOBufferLocalFile> _local;
+    Ptr::Scoped<IOBufferLocalFile> _local;
 
     dav_off_t _read_pos; //curent read file offset
     bool _read_endfile;

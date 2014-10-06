@@ -1,7 +1,7 @@
 # libs CMakefile for third party deps
 
 
-add_subdirectory(adevpp)
+add_subdirectory(alibxx)
 add_subdirectory(datetime)
 
 

@@ -27,7 +27,7 @@
 #include <neon/neonrequest.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
-#include <adevpp/containers/cache.hpp>
+#include <alibxx/containers/cache.hpp>
 
 namespace Davix {
 
@@ -80,7 +80,7 @@ private:
     bool _session_caching, _redir_caching;
 
     // redirection pool
-    Adevpp::Cache<std::string, Uri> _redirCache;
+    Cache<std::string, Uri> _redirCache;
 
     void internal_release_session_handle(ne_session* sess);
     ne_session* create_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);

@@ -1,6 +1,0 @@
-# libs CMakefile for adevpp
-
-
-
-
-

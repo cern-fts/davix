@@ -20,7 +20,9 @@
 #ifndef DAVIX_INTERNAL_HPP
 #define DAVIX_INTERNAL_HPP
 
-// global include file
+// define alib namespace
+#undef A_LIB_NAMESPACE
+#define A_LIB_NAMESPACE Davix
 
 // configuration
 #include <config.h>
@@ -46,7 +48,6 @@
 
 #ifndef NO_BOOST_INCLUDE
 // boost
-#include <boost/scoped_ptr.hpp>
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
 
@@ -62,6 +63,8 @@
 
 // Posix includes
 #include <fcntl.h>
+
+#include "libs/alibxx/alibxx.hpp"
 
 namespace Davix{
 

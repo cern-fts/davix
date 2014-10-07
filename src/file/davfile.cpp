@@ -122,7 +122,7 @@ const Uri &  DavFile::getUri() const{
 }
 
 
-std::vector<DavFile> DavFile::getReplicas(const RequestParams *_params, DavixError **err){
+std::vector<DavFile> DavFile::getReplicas(const RequestParams *_params, DavixError **err) throw(){
     std::vector<DavFile> res;
     TRY_DAVIX{
         HttpIOChain chain;
@@ -142,7 +142,7 @@ dav_ssize_t DavFile::getAllReplicas(const RequestParams* params, ReplicaVec & v,
 
 dav_ssize_t DavFile::readPartialBufferVec(const RequestParams *params, const DavIOVecInput * input_vec,
                       DavIOVecOuput * output_vec,
-                      const dav_size_t count_vec, DavixError** err){
+                      const dav_size_t count_vec, DavixError** err) throw(){
     TRY_DAVIX{
         HttpIOChain chain;
         IOChainContext io_context = d_ptr->getIOContext(params);
@@ -152,7 +152,7 @@ dav_ssize_t DavFile::readPartialBufferVec(const RequestParams *params, const Dav
 }
 
 
-dav_ssize_t DavFile::readPartial(const RequestParams *params, void* buff, dav_size_t count, dav_off_t offset, DavixError** err){
+dav_ssize_t DavFile::readPartial(const RequestParams *params, void* buff, dav_size_t count, dav_off_t offset, DavixError** err) throw(){
     TRY_DAVIX{
         HttpIOChain chain;
         IOChainContext io_context = d_ptr->getIOContext(params);
@@ -177,7 +177,7 @@ void DavFile::deletion(const RequestParams *params){
 
 dav_ssize_t DavFile::getToFd(const RequestParams* params,
                         int fd,
-                        DavixError** err){
+                        DavixError** err) throw(){
     TRY_DAVIX{
         return DavFile::getToFd(params, fd, 0, err);
     }CATCH_DAVIX(err)
@@ -187,7 +187,7 @@ dav_ssize_t DavFile::getToFd(const RequestParams* params,
 dav_ssize_t DavFile::getToFd(const RequestParams* params,
                         int fd,
                         dav_size_t size_read,
-                        DavixError** err){
+                        DavixError** err) throw(){
     TRY_DAVIX{
         HttpIOChain chain;
         IOChainContext io_context = d_ptr->getIOContext(params);
@@ -200,7 +200,7 @@ dav_ssize_t DavFile::getToFd(const RequestParams* params,
 
 dav_ssize_t DavFile::getFull(const RequestParams* params,
                         std::vector<char> & buffer,
-                        DavixError** err){
+                        DavixError** err) throw(){
     TRY_DAVIX{
         HttpIOChain chain;
         IOChainContext io_context = d_ptr->getIOContext(params);
@@ -213,7 +213,7 @@ dav_ssize_t DavFile::getFull(const RequestParams* params,
 int DavFile::putFromFd(const RequestParams* params,
               int fd,
               dav_size_t size,
-              DavixError** err){
+              DavixError** err) throw(){
     TRY_DAVIX{
         HttpIOChain chain;
         IOChainContext io_context = d_ptr->getIOContext(params);
@@ -240,7 +240,7 @@ void DavFile::makeCollection(const RequestParams *params){
     d_ptr->getIOChain(chain).makeCollection(io_context);
 }
 
-int DavFile::stat(const RequestParams* params, struct stat * st, DavixError** err){
+int DavFile::stat(const RequestParams* params, struct stat * st, DavixError** err) throw(){
     TRY_DAVIX{
         if(st == NULL)
             throw DavixException(davix_scope_meta(), StatusCode::InvalidArgument, "Argument stat NULL");

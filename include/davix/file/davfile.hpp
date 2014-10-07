@@ -97,7 +97,7 @@ public:
     /// @param params  Davix Request parameters
     /// @param err  DavixError error report
     /// @return  Replica vector, if error is found return empty vector and set err properly
-    std::vector<DavFile> getReplicas(const RequestParams* params, DavixError** err);
+    std::vector<DavFile> getReplicas(const RequestParams* params, DavixError** err) throw();
 
     ///
     ///  @brief Vector read operation
@@ -116,7 +116,7 @@ public:
                           const DavIOVecInput * input_vec,
                           DavIOVecOuput * ioutput_vec,
                           const dav_size_t count_vec,
-                          DavixError** err);
+                          DavixError** err) throw();
 
     ///
     ///  @brief Partial position independant read.
@@ -136,7 +136,7 @@ public:
                             void* buff,
                             dav_size_t count,
                             dav_off_t offset,
-                            DavixError** err);
+                            DavixError** err) throw();
 
 
     ///
@@ -149,7 +149,7 @@ public:
     ///
     dav_ssize_t getToFd(const RequestParams* params,
                             int fd,
-                            DavixError** err);
+                            DavixError** err) throw();
 
     ///
     ///  @brief Get the first 'size_read' bytes of the file and write it to fd
@@ -163,7 +163,7 @@ public:
     dav_ssize_t getToFd(const RequestParams* params,
                             int fd,
                             dav_size_t size_read,
-                            DavixError** err);
+                            DavixError** err) throw();
 
     ///
     ///  @brief Get the full file content in a dynamically allocated buffer
@@ -175,7 +175,7 @@ public:
     ///
     dav_ssize_t getFull(const RequestParams* params,
                             std::vector<char> & buffer,
-                            DavixError** err);
+                            DavixError** err) throw();
 
     ///
     ///  @brief create and replace the file with the content
@@ -190,7 +190,7 @@ public:
     int putFromFd(const RequestParams* params,
                   int fd,
                   dav_size_t size_write,
-                  DavixError** err);
+                  DavixError** err) throw();
 
 
 
@@ -243,7 +243,7 @@ public:
     ///  @param err Davix Error report
     ///  @return 0 if success, or -1 if error occures
     ///
-    int stat(const RequestParams* params, struct stat * st, DavixError** err);
+    int stat(const RequestParams* params, struct stat * st, DavixError** err) throw();
 
     ///
     /// @brief Collection listing

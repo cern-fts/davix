@@ -564,8 +564,18 @@ bool s3_directory_listing(Ptr::Scoped<DirHandle> & handle, Context & context, co
 }
 
 
+
+bool is_a_bucket(const Uri & u){
+    const std::string & s = u.getPath();
+    return (std::find_if(s.begin(), s.end(), std::not1(StrUtil::isSlash())) == s.end()); // false if pathname does not match '\/+'
+}
+
+
 bool S3MetaOps::nextSubItem(IOChainContext &iocontext, std::string &entry_name, StatInfo &info){
     if(is_s3_operation(iocontext)){
+        if(is_a_bucket(iocontext._uri) == false){
+            throw DavixException(davix_scope_directory_listing_str(), StatusCode::IsNotADirectory, "This is not a S3 bucket");
+        }
         return s3_directory_listing(directoryItem, iocontext._context, iocontext._reqparams, iocontext._uri, stat_listing,
                                  entry_name, info);
     }else{

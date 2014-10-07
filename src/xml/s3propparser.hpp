@@ -2,6 +2,8 @@
 #define S3PROPPARSER_HPP
 
 #include <deque>
+
+#include <davix_internal.hpp>
 #include <xml/davxmlparser.hpp>
 #include <utils/davix_fileproperties.hpp>
 #include <string.h>
@@ -26,7 +28,7 @@ protected:
 
 
 private:
-    Internal* d_ptr;
+    Ptr::Scoped<Internal> d_ptr;
 };
 
 }

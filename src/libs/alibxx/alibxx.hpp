@@ -19,6 +19,9 @@
 // algorithm helpers
 #include "algorithm/algorithm.hpp"
 
+// type conversion
+#include "typeconv/typeconv.hpp"
+
 // containers
 #include "containers/cache.hpp"
 

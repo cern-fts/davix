@@ -3,11 +3,13 @@
 #include <string>
 #include <cstring>
 #include <gtest/gtest.h>
-#include <alibxx/alibxx.hpp>
+
 
 
 #undef A_LIB_NAMESPACE
 #define A_LIB_NAMESPACE Testpp
+
+#include <alibxx/alibxx.hpp>
 
 using namespace std;
 

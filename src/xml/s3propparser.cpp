@@ -6,6 +6,7 @@
 
 namespace Davix{
 
+const std::string col_prop = "Name";
 const std::string delimiter_prop ="Contents";
 const std::string name_prop = "Key";
 const std::string size_prop = "Size";
@@ -28,6 +29,12 @@ struct S3PropParser::Internal{
             throw DavixException(davix_scope_xml_parser(), StatusCode::ParsingError, "Impossible to parse S3 content, corrupted XML");
         }
 
+        // check element, if collection name add first entry
+        if( StrUtil::compare_ncase(col_prop, elem) ==0){
+            DAVIX_TRACE("collection found", elem.c_str());
+            property.clear();
+        }
+
         // check element, if new entry clear current entry
         if( StrUtil::compare_ncase(delimiter_prop, elem) ==0){
             DAVIX_TRACE("new element found", elem.c_str());
@@ -43,6 +50,7 @@ struct S3PropParser::Internal{
     }
 
     int end_elem(const std::string &elem){
+        StrUtil::trim(current);
 
         // new name new fileprop
         if(StrUtil::compare_ncase(name_prop, elem) ==0){
@@ -52,11 +60,22 @@ struct S3PropParser::Internal{
 
         if(StrUtil::compare_ncase(size_prop, elem) ==0){
             try{
-                unsigned long size = toType<unsigned long, std::string>()(elem);
+                dav_size_t size = toType<dav_size_t, std::string>()(current);
                 DAVIX_TRACE("element size %ld", size);
+                property.info.size = size;
             }catch(...){
                 DAVIX_TRACE("Unable to parse element size");
             }
+        }
+
+        // found bucket name
+        // push it as first item to identify bucket
+        if( StrUtil::compare_ncase(col_prop, elem) ==0){
+            DAVIX_TRACE("push collection", elem.c_str());
+            property.filename = current;
+            property.info.mode |=  S_IFDIR;
+            property.info.mode &= ~(S_IFREG);
+            props.push_back(property);
         }
 
         // check element, if end entry push new entry
@@ -96,7 +115,7 @@ int S3PropParser::parserStartElemCb(int parent, const char *nspace, const char *
 int S3PropParser::parserCdataCb(int state, const char *cdata, size_t len){
     (void) state;
     (void) len;
-    return d_ptr->add_chunk(std::string(cdata));
+    return d_ptr->add_chunk(std::string(cdata, len));
 }
 
 int S3PropParser::parserEndElemCb(int state, const char *nspace, const char *name){

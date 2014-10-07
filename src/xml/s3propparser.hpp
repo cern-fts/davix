@@ -10,7 +10,7 @@
 
 namespace Davix{
 
-class S3PropParser : public XMLSAXParser
+class S3PropParser :  public XMLPropParser
 {
 public:
     struct Internal;
@@ -18,7 +18,7 @@ public:
     S3PropParser();
     virtual ~S3PropParser();
 
-    std::deque<FileProperties> & getProperties();
+    virtual std::deque<FileProperties> & getProperties();
 
 
 protected:

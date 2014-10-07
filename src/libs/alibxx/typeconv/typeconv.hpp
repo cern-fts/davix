@@ -7,6 +7,7 @@
 #include <cerrno>
 
 #include "typeconv_exception.hpp"
+#include "../base_types.hpp"
 
 
 namespace A_LIB_NAMESPACE{
@@ -40,6 +41,39 @@ struct toType{
 
 };
 
+
+template <>
+struct toType<unsigned long long, std::string>{
+    unsigned long long operator()(const std::string & str){
+        char* end_str = NULL;
+        const unsigned long long ret = strtoull(str.c_str(), &end_str, 10);
+        errno =0;
+        if( str.size() ==0 || *end_str != '\0'){
+             throw TypeConvException("Invalid type converstion from string to unsigned long long");
+        }
+        check_sign<unsigned long long, long long>(ret, str);
+        return ret;
+    }
+};
+
+
+template <>
+struct toType<long long, std::string>{
+    long long operator()(const std::string & str){
+        char* end_str = NULL;
+        const long long ret = strtoll(str.c_str(), &end_str, 10);
+        errno =0;
+        if( str.size() ==0 || *end_str != '\0'){
+             throw TypeConvException("Invalid type converstion from string to long long");
+        }
+        return ret;
+    }
+};
+
+
+
+
+
 template <>
 struct toType<unsigned long, std::string>{
     unsigned long operator()(const std::string & str){
@@ -62,7 +96,7 @@ struct toType<long, std::string>{
         const long ret = strtol(str.c_str(), &end_str, 10);
         errno =0;
         if( str.size() ==0 || *end_str != '\0'){
-             throw TypeConvException("Invalid type converstion from string to unsigned long");
+             throw TypeConvException("Invalid type converstion from string to long");
         }
         return ret;
     }
@@ -71,12 +105,12 @@ struct toType<long, std::string>{
 
 template <>
 struct toType<unsigned int, std::string>{
-    unsigned long operator()(const std::string & str){
+    unsigned int operator()(const std::string & str){
         char* end_str = NULL;
         const unsigned long ret = strtoul(str.c_str(), &end_str, 10);
         errno =0;
         if( str.size() ==0 || *end_str != '\0'){
-             throw TypeConvException("Invalid type converstion from string to unsigned long");
+             throw TypeConvException("Invalid type converstion from string to unsigned");
         }
         check_sign<unsigned long, long>(ret, str);
         return numerical_cast_safe<unsigned long, unsigned int>(ret);
@@ -87,19 +121,19 @@ struct toType<unsigned int, std::string>{
 
 template <>
 struct toType<int, std::string>{
-    unsigned long operator()(const std::string & str){
+    int operator()(const std::string & str){
         char* end_str = NULL;
         const long ret = strtol(str.c_str(), &end_str, 10);
         errno =0;
         if( str.size() ==0 || *end_str != '\0'){
-             throw TypeConvException("Invalid type converstion from string to unsigned long");
+             throw TypeConvException("Invalid type converstion from string to int");
         }
         return numerical_cast_safe<long, int>(ret);
     }
 };
 
 
-
+/*
 template<typename T>
 struct toType<T, std::string>{
     T operator()(const std::string  & val){
@@ -115,7 +149,7 @@ struct toType<T, std::string>{
 
     std::istringstream ss;
 };
-
+*/
 
 template<typename S>
 struct toType<std::string, S>{

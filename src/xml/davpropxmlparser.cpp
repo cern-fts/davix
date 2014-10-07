@@ -118,14 +118,15 @@ static void check_is_directory(DavPropXMLParser::DavxPropXmlIntern & par,  const
 
 static void check_content_length(DavPropXMLParser::DavxPropXmlIntern & par,  const std::string & name){
     DAVIX_DEBUG(" content length found -> parse it");
-    const unsigned long mysize = strtoul(name.c_str(), NULL, 10);
-    if(mysize == ULONG_MAX){
+    try{
+        const unsigned long mysize = toType<unsigned long, std::string>()(name);
+        DAVIX_DEBUG(" content length found -> %ld", mysize);
+        par._current_props.info.size = static_cast<off_t>(mysize);
+    }catch(...){
         DAVIX_LOG(DAVIX_LOG_VERBOSE," Invalid content length value in dav response");
-        errno =0;
-        return;
     }
-    DAVIX_DEBUG(" content length found -> %ld", mysize);
-    par._current_props.info.size = (off_t) mysize;
+
+
 }
 
 static void check_mode_ext(DavPropXMLParser::DavxPropXmlIntern & par, const std::string & name){
@@ -240,8 +241,10 @@ int DavPropXMLParser::parserEndElemCb(int state, const char *nspace, const char 
         chain = webDavTree->findChain(d_ptr->_stack);
         if(chain.size() > 0){
             properties_cb cb = ((properties_cb) chain.at(chain.size()-1)->getMeta());
-            if(cb)
+            if(cb){
+                StrUtil::trim(d_ptr->char_buffer);
                 cb(*d_ptr, d_ptr->char_buffer);
+            }
         }
     }
 

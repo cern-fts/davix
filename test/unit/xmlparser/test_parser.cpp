@@ -8,6 +8,7 @@
 #include <xml/davxmlparser.hpp>
 #include <xml/davpropxmlparser.hpp>
 #include <xml/metalinkparser.hpp>
+#include <xml/s3propparser.hpp>
 #include <status/davixstatusrequest.hpp>
 #include <string.h>
 #include <xml/davix_ptree.hpp>
@@ -326,7 +327,7 @@ const char metalink_item_generic[]= " "
         "  </metalink>";
 
 
-const char aws_s3_listing_bucket[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ListBucketResult xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\"><Name>a-random-random-bucket</Name><Prefix></Prefix><Marker></Marker><MaxKeys>1000</MaxKeys><IsTruncated>false</IsTruncated><Contents><Key>h1big.root</Key><LastModified>2014-09-19T14:27:33.000Z</LastModified><ETag>&quot;bf5b1efa7fe677965bf3ecd41e20be2a&quot;</ETag><Size>280408881</Size><StorageClass>STANDARD</StorageClass><Owner><ID>mhellmic</ID><DisplayName>Martin Hellmich</DisplayName></Owner></Contents><Contents><Key>services</Key><LastModified>2014-10-03T14:58:12.000Z</LastModified><ETag>&quot;3e73cc5c77799fd3e7a02c62474107bb&quot;</ETag><Size>19558</Size><StorageClass>STANDARD</StorageClass><Owner><ID>mhellmic</ID><DisplayName>Martin Hellmich</DisplayName></Owner></Contents></ListBucketResult>";
+const std::string s3_xml_response = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ListBucketResult xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\"><Name>a-random-random-bucket</Name><Prefix></Prefix><Marker></Marker><MaxKeys>1000</MaxKeys><IsTruncated>false</IsTruncated><Contents><Key>h1big.root</Key><LastModified>2014-09-19T14:27:33.000Z</LastModified><ETag>&quot;bf5b1efa7fe677965bf3ecd41e20be2a&quot;</ETag><Size>280408881</Size><StorageClass>STANDARD</StorageClass><Owner><ID>mhellmic</ID><DisplayName>Martin Hellmich</DisplayName></Owner></Contents><Contents><Key>services</Key><LastModified>2014-10-03T14:58:12.000Z</LastModified><ETag>&quot;3e73cc5c77799fd3e7a02c62474107bb&quot;</ETag><Size>\t   19558   \t</Size><StorageClass>STANDARD</StorageClass><Owner><ID>mhellmic</ID><DisplayName>Martin Hellmich</DisplayName></Owner></Contents></ListBucketResult>";
 
 
 
@@ -563,8 +564,22 @@ TEST(XmlPTreeTest, testPTreeChain){
 }
 
 TEST(XmlS3parsing, TestListingBucket){
+    using namespace Davix;
 
-    ASSERT_TRUE(true);
+    davix_set_log_level(DAVIX_LOG_ALL);
+    S3PropParser parser;
 
+    int ret = parser.parseChunk(s3_xml_response);
+    ASSERT_EQ(ret, 0);
 
+    ASSERT_EQ(3, parser.getProperties().size());
+
+    // verify name
+    ASSERT_EQ(std::string("a-random-random-bucket"), parser.getProperties().at(0).filename);
+    ASSERT_EQ(std::string("h1big.root"), parser.getProperties().at(1).filename);
+    ASSERT_EQ(std::string("services"), parser.getProperties().at(2).filename);
+
+    // verify size
+    ASSERT_EQ(280408881, parser.getProperties().at(1).info.size);
+    ASSERT_EQ(19558, parser.getProperties().at(2).info.size);
 }

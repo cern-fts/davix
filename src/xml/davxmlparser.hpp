@@ -27,6 +27,8 @@
 #include <xml/davix_ptree.hpp>
 #include <ne_xml.h>
 
+#include <utils/davix_fileproperties.hpp>
+
 
 namespace Davix {
 
@@ -91,6 +93,27 @@ private:
     ne_xml_parser*  _ne_parser;
     friend struct InternalDavParser;
 };
+
+
+
+class ElementsParser {
+public:
+    ElementsParser(){}
+    virtual ~ElementsParser(){}
+
+    virtual std::deque<FileProperties> & getProperties()=0;
+
+};
+
+
+class XMLPropParser: public XMLSAXParser, public ElementsParser{
+public:
+    XMLPropParser(){}
+    virtual ~XMLPropParser(){}
+
+};
+
+
 
 } // namespace Davix
 

@@ -66,6 +66,12 @@ public:
     // make collection
     virtual void makeCollection(IOChainContext & iocontext);
 
+    // listing
+    virtual bool nextSubItem(IOChainContext &iocontext, std::string &entry_name, StatInfo &info);
+
+private:
+    Ptr::Scoped<DirHandle> directoryItem;
+
 };
 
 

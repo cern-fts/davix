@@ -22,12 +22,15 @@
 #include "davmeta.hpp"
 
 #include <xml/davpropxmlparser.hpp>
+#include <xml/metalinkparser.hpp>
+#include <xml/s3propparser.hpp>
+
 #include <utils/davix_logger_internal.hpp>
+#include <utils/davix_utils_internal.hpp>
+
 #include <request/httprequest.hpp>
 #include <fileops/fileutils.hpp>
-#include <utils/davix_utils_internal.hpp>
 #include <string_utils/stringutils.hpp>
-#include <xml/metalinkparser.hpp>
 #include <base64/base64.hpp>
 
 
@@ -47,10 +50,10 @@ static const std::string stat_listing("<?xml version=\"1.0\" encoding=\"utf-8\" 
 
 class DirHandle{
 public:
-    DirHandle(HttpRequest* req, DavPropXMLParser * p): request(req), parser(p){}
+    DirHandle(HttpRequest* req, XMLPropParser * p): request(req), parser(p){}
 
     Ptr::Scoped<HttpRequest> request;
-    Ptr::Scoped<Davix::DavPropXMLParser> parser;
+    Ptr::Scoped<Davix::XMLPropParser> parser;
 private:
     DirHandle(const DirHandle &);
 };
@@ -292,7 +295,7 @@ int internal_checksum(Context & c, const Uri & url, const RequestParams *p, std:
 }
 
 
-dav_ssize_t webdav_inc_propfind_listdir_parsing(HttpRequest* req, DavPropXMLParser * parser, dav_size_t s_buff, const std::string & scope){
+dav_ssize_t incremental_listdir_parsing(HttpRequest* req, XMLPropParser * parser, dav_size_t s_buff, const std::string & scope){
   //  std::cout << "time 1 pre-fecth" << time(NULL) << std::endl;
     DavixError* tmp_err=NULL;
 
@@ -316,7 +319,7 @@ bool wedav_get_next_property(Ptr::Scoped<DirHandle> & handle, std::string & name
 
 
     HttpRequest& req = *(handle->request); // setup env again
-    DavPropXMLParser& parser = *(handle->parser);
+    XMLPropParser& parser = *(handle->parser);
 
     size_t prop_size = parser.getProperties().size();
     ssize_t s_resu = read_size;
@@ -324,7 +327,7 @@ bool wedav_get_next_property(Ptr::Scoped<DirHandle> & handle, std::string & name
     while( prop_size == 0
           && s_resu > 0){ // request not complete and current data too smalls
         // continue the parsing until one more result
-       s_resu = webdav_inc_propfind_listdir_parsing(&req, &parser, read_size, "WebDav::listing");
+       s_resu = incremental_listdir_parsing(&req, &parser, read_size, "WebDav::listing");
 
        prop_size = parser.getProperties().size();
     }
@@ -352,7 +355,7 @@ void webdav_start_listing_query(Ptr::Scoped<DirHandle> & handle, Context & conte
 
     const int operation_timeout = params->getOperationTimeout()->tv_sec;
     HttpRequest & http_req = *(handle->request);
-    DavPropXMLParser & parser = *(handle->parser);
+    XMLPropParser & parser = *(handle->parser);
 
     http_req.addHeaderField("Depth","1");
     time_t timestamp_timeout = time(NULL) + ((operation_timeout)?(operation_timeout):180);
@@ -368,7 +371,7 @@ void webdav_start_listing_query(Ptr::Scoped<DirHandle> & handle, Context & conte
 
     size_t prop_size = 0;
     do{ // parse the begining of the request until the first property -> directory property
-       s_resu = webdav_inc_propfind_listdir_parsing(&http_req, &parser, 2048, davix_scope_directory_listing_str());
+       s_resu = incremental_listdir_parsing(&http_req, &parser, 2048, davix_scope_directory_listing_str());
 
        prop_size = parser.getProperties().size();
        if(s_resu < 2048 && prop_size <1){ // verify request status : if req done + no data -> error
@@ -469,6 +472,109 @@ void S3MetaOps::makeCollection(IOChainContext &iocontext){
         HttpIOChain::makeCollection(iocontext);
     }
 }
+
+
+
+
+bool s3_get_next_property(Ptr::Scoped<DirHandle> & handle, std::string & name_entry, StatInfo & info){
+    DAVIX_DEBUG(" -> s3_get_next_property");
+    const size_t read_size = 2048;
+
+
+    HttpRequest& req = *(handle->request); // setup env again
+    XMLPropParser& parser = *(handle->parser);
+
+    size_t prop_size = parser.getProperties().size();
+    ssize_t s_resu = read_size;
+
+    while( prop_size == 0
+          && s_resu > 0){ // execute request only if no property are available
+
+        // continue the parsing until one more result
+       s_resu = incremental_listdir_parsing(&req, &parser, read_size, "S3::listing");
+       prop_size = parser.getProperties().size();
+    }
+
+
+    if(prop_size == 0){
+        return false; // end of the request, end of the story
+    }
+
+    FileProperties & front = parser.getProperties().front();
+    name_entry.swap(front.filename);
+    info = front.info;
+    parser.getProperties().pop_front(); // clean the current element
+    return true;
+}
+
+
+void s3_start_listing_query(Ptr::Scoped<DirHandle> & handle, Context & context, const RequestParams* params, const Uri & url, const std::string & body){
+    dav_ssize_t s_resu;
+
+    DavixError* tmp_err=NULL;
+    handle.reset(new DirHandle(new GetRequest(context, url, &tmp_err), new S3PropParser()));
+    checkDavixError(&tmp_err);
+
+
+    const int operation_timeout = params->getOperationTimeout()->tv_sec;
+    HttpRequest & http_req = *(handle->request);
+    XMLPropParser & parser = *(handle->parser);
+
+    time_t timestamp_timeout = time(NULL) + ((operation_timeout)?(operation_timeout):180);
+
+    http_req.setParameters(params);
+
+    http_req.beginRequest(&tmp_err);
+    checkDavixError(&tmp_err);
+
+    check_file_status(http_req, davix_scope_directory_listing_str());
+
+    size_t prop_size = 0;
+    do{ // first entry -> bucket informations
+       s_resu = incremental_listdir_parsing(&http_req, &parser, 2048, davix_scope_directory_listing_str());
+
+       prop_size = parser.getProperties().size();
+       if(s_resu < 2048 && prop_size <1){ // verify request status : if req done + no data -> error
+           throw DavixException(davix_scope_directory_listing_str(), StatusCode::ParsingError, "Invalid server response, not a S3 listing");
+       }
+       if(timestamp_timeout < time(NULL)){
+          throw DavixException(davix_scope_directory_listing_str(), StatusCode::OperationTimeout, "Operation timeout triggered while directory listing");
+       }
+
+    }while( prop_size < 1); // prop < 1 means not enough data
+
+    const StatInfo & info = parser.getProperties().at(0).info;
+    if( S_ISDIR(info.mode) == false){
+        std::ostringstream ss;
+        ss << url << " is not a S3 bucket";
+        throw DavixException(davix_scope_directory_listing_str(), StatusCode::IsNotADirectory, ss.str());
+    }else{
+        parser.getProperties().pop_front(); // suppress the bucket entry
+    }
+
+}
+
+
+
+bool s3_directory_listing(Ptr::Scoped<DirHandle> & handle, Context & context, const RequestParams* params, const Uri & uri, const std::string & body, std::string & name_entry, StatInfo & info){
+    if(handle.get() == NULL){
+        s3_start_listing_query(handle, context, params, uri, body);
+    }
+    return s3_get_next_property(handle, name_entry, info);
+}
+
+
+bool S3MetaOps::nextSubItem(IOChainContext &iocontext, std::string &entry_name, StatInfo &info){
+    if(is_s3_operation(iocontext)){
+        return s3_directory_listing(directoryItem, iocontext._context, iocontext._reqparams, iocontext._uri, stat_listing,
+                                 entry_name, info);
+    }else{
+        return HttpIOChain::nextSubItem(iocontext, entry_name, info);
+    }
+
+}
+
+
 
 
 

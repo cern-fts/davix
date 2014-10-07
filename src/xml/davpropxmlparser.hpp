@@ -24,20 +24,19 @@
 
 #include <deque>
 #include <xml/davxmlparser.hpp>
-#include <utils/davix_fileproperties.hpp>
 #include <string.h>
 
 namespace Davix {
 
 
-class DavPropXMLParser : public XMLSAXParser
+class DavPropXMLParser : public XMLPropParser
 {
 public:
     struct DavxPropXmlIntern;
     DavPropXMLParser();
     virtual ~DavPropXMLParser();
 
-    std::deque<FileProperties> & getProperties();
+    virtual std::deque<FileProperties> & getProperties();
 
 
 protected:

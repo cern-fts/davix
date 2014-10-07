@@ -730,11 +730,15 @@ dav_ssize_t NEONRequest::getAnswerSizeFromHeaders() const{
     std::string str_file_size;
     long size=-1;
     if( getAnswerHeader(ans_header_content_length, str_file_size)){
-        size =  strtol(str_file_size.c_str(), NULL, 10);
+        StrUtil::trim(str_file_size);
+        try{
+            size = toType<long, std::string>()(str_file_size);
+        }catch(...){
+            size = -1;
+        }
     }
-    if( size == -1 || size ==  LONG_MAX){
+    if( size == -1){
        DAVIX_TRACE("Bad server answer: %s Invalid, impossible to determine answer size", ans_header_content_length.c_str());
-       size = -1;
     }
     return static_cast<dav_ssize_t>(size);
 }

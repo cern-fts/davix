@@ -73,6 +73,9 @@
 /// logger features
 #include <utils/davix_logger.hpp>
 
+/// REST utilities functions
+#include <utils/davix_s3_utils.hpp>
+
 /// hooks for extensions
 #include <hooks/davix_hooks.hpp>
 

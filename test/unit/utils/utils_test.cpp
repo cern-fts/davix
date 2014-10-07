@@ -5,6 +5,7 @@
 #include <tools/davix_tool_util.hpp>
 #include <base64/base64.hpp>
 #include <hmac_sha1/hmacsha1.hpp>
+#include <utils/davix_s3_utils.hpp>
 #include <gtest/gtest.h>
 
 using namespace std;
@@ -100,6 +101,35 @@ TEST(testStringMode, test_mode){
     m =  040777;
     m_str = Tool::string_from_mode(m);
     ASSERT_STREQ("drwxrwxrwx", m_str.c_str());
+}
+
+
+TEST(testAuthS3, ReqToSign){
+    RequestParams params;
+    Uri url("http://johnsmith.s3.amazonaws.com/photos/puppy.jpg");
+    params.setAwsAuthorizationKeys("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY", "AKIAIOSFODNN7EXAMPLE");
+
+
+    HeaderVec vec;
+    vec.push_back(std::pair<std::string,std::string>("Date", "Tue, 27 Mar 2007 19:36:42 +0000"));
+
+    S3::signRequest(params, "GET", url, vec);
+    ASSERT_EQ(std::string("Authorization"),vec.at(1).first);
+    ASSERT_EQ(std::string("AWS AKIAIOSFODNN7EXAMPLE:bWq2s1WEIj+Ydj0vQ697zp+IXMU="),vec.at(1).second);
+}
+
+
+TEST(testAuthS3, ReqToToken){
+    RequestParams params;
+    Uri url("http://johnsmith.s3.amazonaws.com/photos/puppy.jpg");
+    params.setAwsAuthorizationKeys("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY", "AKIAIOSFODNN7EXAMPLE");
+
+
+    HeaderVec vec;
+
+    Uri u = S3::tokenizeRequest(params, "GET", url, vec, static_cast<time_t>(1175139620UL));
+    Uri resu("http://johnsmith.s3.amazonaws.com/photos/puppy.jpg?AWSAccessKeyId=AKIAIOSFODNN7EXAMPLE&Signature=NpgCjnDzrM%2BWFzoENXmpNDUsSn8%3D&Expires=1175139620");
+    ASSERT_TRUE(StrUtil::compare_ncase(resu.getString(), u.getString()) ==0);
 }
 
 

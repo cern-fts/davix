@@ -282,34 +282,13 @@ void NEONRequest::configureRequest(){
 }
 
 
-static std::string extract_bucket(const Uri & uri){
-    const std::string & hostname = uri.getHost();
-    std::string::const_iterator it = std::find(hostname.begin(), hostname.end(),'.');
-    return std::string(hostname.begin(), it);
-}
-
 void NEONRequest::configureS3params(){
-    struct tm utc_current;
-    time_t t = time(NULL);
-    char date[255];
-    std::ostringstream ss;
-    date[254]= '\0';
-#ifdef HAVE_GMTIME_R	
-    gmtime_r(&t, &utc_current);
-#else
-	struct tm* p_utc = gmtime(&t);
-	memcpy(&utc_current, p_utc, sizeof(struct tm));
-#endif	
-    strftime(date, 254, "%a, %d %b %Y %H:%M:%S %z", &utc_current);
-    // add Date header
-    addHeaderField("Date", date);
-    // construct Request token
-    ss << _request_type << "\n"
-       << "\n"          // TODO : implement Content-type and md5 parser
-       << "\n"
-       << date << "\n"
-       << '/' << extract_bucket(*_current)  << _current->getPath();
-    addHeaderField("Authorization", getAwsAuthorizationField(ss.str(), params.getAwsAutorizationKeys().first, params.getAwsAutorizationKeys().second));
+    HeaderVec vec;
+    S3::signRequest(params, _request_type, *_current, vec);
+
+    for(HeaderVec::iterator it = vec.begin(); it < vec.end(); it++){
+        addHeaderField(it->first, it->second);
+    }
 }
 
 int NEONRequest::processRedirection(int neonCode, DavixError **err){

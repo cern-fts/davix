@@ -141,7 +141,6 @@ dav_ssize_t getStatInfo(Context & c, const Uri & url, const RequestParams * para
                       struct StatInfo& st_info){
     RequestParams _params(params);
     int ret =-1;
-    configureRequestParamsProto(url, _params);
 
     switch(_params.getProtocol()){
          case RequestProtocol::Webdav:
@@ -190,7 +189,6 @@ int internal_delete_resource(Context & c, const Uri & url, const RequestParams &
     DavixError* tmp_err=NULL;
     int ret=-1;
     RequestParams _params(params);
-    configureRequestParamsProto(url, _params);
 
     DeleteRequest req(c,url, &tmp_err);
     req.setParameters(_params);
@@ -211,7 +209,6 @@ int internal_make_collection(Context & c, const Uri & url, const RequestParams &
     int ret=-1;
     DavixError* tmp_err=NULL;
     RequestParams _params(params);
-    configureRequestParamsProto(url, _params);
 
     HttpRequest req(c, url, &tmp_err);
 
@@ -235,7 +232,6 @@ int internal_checksum(Context & c, const Uri & url, const RequestParams *p, std:
     int ret=-1;
     DavixError* tmp_err=NULL;
     RequestParams params(p);
-    configureRequestParamsProto(url, params);
 
     HeadRequest req(c, url, &tmp_err);
 
@@ -434,6 +430,13 @@ bool HttpMetaOps::nextSubItem(IOChainContext &iocontext, std::string &entry_name
 /////////////////////////
 
 
+bool is_a_bucket(const Uri & u){
+    const std::string & s = u.getPath();
+    return (std::find_if(s.begin(), s.end(), std::not1(StrUtil::isSlash())) == s.end()); // false if pathname does not match '\/+'
+}
+
+
+
 S3MetaOps::S3MetaOps() : HttpIOChain()
  {}
 
@@ -470,6 +473,16 @@ void S3MetaOps::makeCollection(IOChainContext &iocontext){
         internal_s3_creat_bucket( iocontext._context, iocontext._uri, iocontext._reqparams);
     }else{
         HttpIOChain::makeCollection(iocontext);
+    }
+}
+
+// get statInfo
+StatInfo & S3MetaOps::statInfo(IOChainContext & iocontext, StatInfo & st_info){
+    StatInfo & ref = HttpIOChain::statInfo(iocontext, st_info);
+
+    if(is_s3_operation(iocontext) && is_a_bucket(iocontext._uri)){
+        ref.mode |= S_IFDIR;
+        ref.mode &= ~(S_IFREG);
     }
 }
 
@@ -561,13 +574,6 @@ bool s3_directory_listing(Ptr::Scoped<DirHandle> & handle, Context & context, co
         s3_start_listing_query(handle, context, params, uri, body);
     }
     return s3_get_next_property(handle, name_entry, info);
-}
-
-
-
-bool is_a_bucket(const Uri & u){
-    const std::string & s = u.getPath();
-    return (std::find_if(s.begin(), s.end(), std::not1(StrUtil::isSlash())) == s.end()); // false if pathname does not match '\/+'
 }
 
 

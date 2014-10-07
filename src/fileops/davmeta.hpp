@@ -63,6 +63,9 @@ public:
     // S3 + HTTP checksum computation
     virtual void checksum(IOChainContext & iocontext, std::string & checksm, const std::string & chk_algo);
 
+    // get statInfo
+    virtual StatInfo & statInfo(IOChainContext & iocontext, StatInfo & st_info);
+
     // make collection
     virtual void makeCollection(IOChainContext & iocontext);
 

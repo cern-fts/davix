@@ -58,6 +58,18 @@ private:
 
 
 
+static void configureRequestParamsProto(const Uri &uri, RequestParams &params){
+    if(params.getProtocol() == RequestProtocol::Auto){
+        const std::string & proto = uri.getProtocol();
+        if( proto.compare(0,2,"s3") ==0){
+            params.setProtocol(RequestProtocol::AwsS3);
+        }else if ( proto.compare(0, 3,"dav") ==0){
+            params.setProtocol(RequestProtocol::Webdav);
+        }
+    }
+
+}
+
 static void neonrequest_eradicate_session(NEONSession& sess, DavixError ** err){
     if(err && *err && (*err)->getStatus() == StatusCode::ConnectionProblem){
         DAVIX_DEBUG("Connexion problem: eradicate session.....");
@@ -234,6 +246,9 @@ ssize_t NEONRequest::neon_body_content_provider(void* userdata, char* buffer, si
 }
 
 void NEONRequest::configureRequest(){
+    // reconfigure protos
+    configureRequestParamsProto(*_current, params);
+
     // configure S3 params if needed
     if(params.getProtocol() == RequestProtocol::AwsS3)
         configureS3params();
@@ -347,6 +362,7 @@ int NEONRequest::negotiateRequest(DavixError** err){
         DAVIX_DEBUG(" ->   NEON start internal request ... ");
 
         if( (status = ne_begin_request(_req)) != NE_OK && status != NE_REDIRECT){
+            _last_read = -1;
             if( status == NE_ERROR){ // bugfix against neon keepalive problem, protection against buggy servers
                 if(strstr(ne_get_error(_neon_sess->get_ne_sess()), "Could not") != NULL
                    || strstr(ne_get_error(_neon_sess->get_ne_sess()), "Connection reset by peer") != NULL){
@@ -410,16 +426,14 @@ int NEONRequest::negotiateRequest(DavixError** err){
                 break;
             case 403:
             case 501:
-            // cleanup redirection
-            _number_try++;
-            if( redirectAndConnectionCleanup()){
-                // recursive call, restart request
-                endRequest(NULL);
-                return startRequest(err);
-            }
-
-            return -1;
-
+                 // cleanup redirection
+                _number_try++;
+                if( redirectAndConnectionCleanup()){
+                    // recursive call, restart request
+                    endRequest(NULL);
+                    return startRequest(err);
+                }
+                break;
             default:
                 end_status = 0;
                 break;

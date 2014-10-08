@@ -29,6 +29,23 @@ DestType numerical_cast_safe(SourceType val){
     return static_cast<DestType>(val);
 }
 
+template<typename Integral>
+inline void check_overflow_integral(Integral val, int errcode){
+    if( (val == std::numeric_limits<Integral>::min() || val ==std::numeric_limits<Integral>::max())
+         && ( errcode == ERANGE || errcode == EINVAL)){
+         errno =0;
+         throw TypeConvException("Overflow during type converstion from string to integral value");
+    }
+}
+
+inline void check_strto_error(char * end_str, const std::string & str){
+    if( str.size() ==0 || *end_str != '\0'){
+         errno =0;
+         throw TypeConvException("Invalid type converstion from string to integral value");
+    }
+}
+
+
 }
 
 
@@ -46,11 +63,10 @@ template <>
 struct toType<unsigned long long, std::string>{
     unsigned long long operator()(const std::string & str){
         char* end_str = NULL;
-        const unsigned long long ret = strtoull(str.c_str(), &end_str, 10);
         errno =0;
-        if( str.size() ==0 || *end_str != '\0'){
-             throw TypeConvException("Invalid type converstion from string to unsigned long long");
-        }
+        const unsigned long long ret = strtoull(str.c_str(), &end_str, 10);
+        check_overflow_integral(ret, errno);
+        check_strto_error(end_str,str);
         check_sign<unsigned long long, long long>(ret, str);
         return ret;
     }
@@ -61,11 +77,10 @@ template <>
 struct toType<long long, std::string>{
     long long operator()(const std::string & str){
         char* end_str = NULL;
-        const long long ret = strtoll(str.c_str(), &end_str, 10);
         errno =0;
-        if( str.size() ==0 || *end_str != '\0'){
-             throw TypeConvException("Invalid type converstion from string to long long");
-        }
+        const long long ret = strtoll(str.c_str(), &end_str, 10);
+        check_overflow_integral(ret, errno);
+        check_strto_error(end_str,str);
         return ret;
     }
 };
@@ -78,11 +93,10 @@ template <>
 struct toType<unsigned long, std::string>{
     unsigned long operator()(const std::string & str){
         char* end_str = NULL;
-        const unsigned long ret = strtoul(str.c_str(), &end_str, 10);
         errno =0;
-        if( str.size() ==0 || *end_str != '\0'){
-             throw TypeConvException("Invalid type converstion from string to unsigned long");
-        }
+        const unsigned long ret = strtoul(str.c_str(), &end_str, 10);
+        check_overflow_integral(ret, errno);
+        check_strto_error(end_str,str);
         check_sign<unsigned long, long>(ret, str);
         return ret;
     }
@@ -93,11 +107,10 @@ template <>
 struct toType<long, std::string>{
     unsigned long operator()(const std::string & str){
         char* end_str = NULL;
-        const long ret = strtol(str.c_str(), &end_str, 10);
         errno =0;
-        if( str.size() ==0 || *end_str != '\0'){
-             throw TypeConvException("Invalid type converstion from string to long");
-        }
+        const long ret = strtol(str.c_str(), &end_str, 10);
+        check_overflow_integral(ret, errno);
+        check_strto_error(end_str,str);
         return ret;
     }
 };
@@ -107,11 +120,10 @@ template <>
 struct toType<unsigned int, std::string>{
     unsigned int operator()(const std::string & str){
         char* end_str = NULL;
-        const unsigned long ret = strtoul(str.c_str(), &end_str, 10);
         errno =0;
-        if( str.size() ==0 || *end_str != '\0'){
-             throw TypeConvException("Invalid type converstion from string to unsigned");
-        }
+        const unsigned long ret = strtoul(str.c_str(), &end_str, 10);
+        check_overflow_integral(ret, errno);
+        check_strto_error(end_str,str);
         check_sign<unsigned long, long>(ret, str);
         return numerical_cast_safe<unsigned long, unsigned int>(ret);
     }
@@ -123,11 +135,10 @@ template <>
 struct toType<int, std::string>{
     int operator()(const std::string & str){
         char* end_str = NULL;
-        const long ret = strtol(str.c_str(), &end_str, 10);
         errno =0;
-        if( str.size() ==0 || *end_str != '\0'){
-             throw TypeConvException("Invalid type converstion from string to int");
-        }
+        const long ret = strtol(str.c_str(), &end_str, 10);
+        check_overflow_integral(ret, errno);
+        check_strto_error(end_str,str);
         return numerical_cast_safe<long, int>(ret);
     }
 };

@@ -50,6 +50,16 @@ TEST(ALibxx, StringToULong){
          // silent
      }
 
+    unsigned long long super_long = std::numeric_limits<unsigned long long>::max();
+    std::ostringstream ss;
+    ss << super_long;
+    ss << super_long; // overflow
+    try{
+            ul =toType<unsigned long, std::string>()(ss.str());
+            FAIL();
+    }catch(...){
+        // silent
+    }
 
 }
 
@@ -112,15 +122,15 @@ TEST(ALibxx, StringToInt){
     l = conv(str_int);
     ASSERT_EQ(l, -9865743);
 
-    if(sizeof(int) != sizeof(long long)){
-        long long super_long = std::numeric_limits<long long>::max();
-        std::ostringstream ss;
-        ss << super_long;
-        try{
-                l =toType<int, std::string>()(ss.str());
-                FAIL();
-        }catch(...){
-            // silent
-        }
+
+    long long super_long = std::numeric_limits<long long>::max();
+    std::ostringstream ss;
+    ss << super_long;
+    ss << super_long; // overflow
+    try{
+            l =toType<int, std::string>()(ss.str());
+            FAIL();
+    }catch(...){
+        // silent
     }
 }

@@ -131,5 +131,3 @@ TEST(testAuthS3, ReqToToken){
     Uri resu("http://johnsmith.s3.amazonaws.com/photos/puppy.jpg?AWSAccessKeyId=AKIAIOSFODNN7EXAMPLE&Signature=NpgCjnDzrM%2BWFzoENXmpNDUsSn8%3D&Expires=1175139620");
     ASSERT_TRUE(StrUtil::compare_ncase(resu.getString(), u.getString()) ==0);
 }
-
-

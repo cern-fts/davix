@@ -85,17 +85,19 @@ Uri tokenizeRequest(const RequestParams & params, const std::string & method, co
        << "\n"
        << static_cast<unsigned long long>(expirationTime) << "\n"
        << '/' << extract_bucket(url)  << url.getPath();
-    std::string signature = getAwsReqToken(ss.str(), params.getAwsAutorizationKeys().first, params.getAwsAutorizationKeys().second);
+    const std::string signature = getAwsReqToken(ss.str(), params.getAwsAutorizationKeys().first, params.getAwsAutorizationKeys().second);
 
+
+    ss.clear();
     ss.str("");
     ss << url.getString();
     if(url.getQuery().size() ==0){
-        ss << '?';
+        ss << "?";
     }else{
-        ss << '&';
+        ss << "&";
     }
-    ss << "AWSAccessKeyId=" << params.getAwsAutorizationKeys().second << '&';
-    ss << "Signature=" << signature << '&';
+    ss << "AWSAccessKeyId=" << params.getAwsAutorizationKeys().second << "&";
+    ss << "Signature=" << signature << "&";
     ss << "Expires=" << static_cast<unsigned long long>(expirationTime);
     return Uri(ss.str());
 }

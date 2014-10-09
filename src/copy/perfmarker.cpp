@@ -84,7 +84,7 @@ off_t PerformanceData::avgTransfer(void) const
 off_t PerformanceData::diffTransfer() const
 {
     off_t total = 0;
-    for (int i = 0; i < markers.size(); ++i)
+    for (size_t i = 0; i < markers.size(); ++i)
         total += markers[i].transferInstant;
     return total;
 }
@@ -94,7 +94,7 @@ off_t PerformanceData::diffTransfer() const
 off_t PerformanceData::totalTransferred() const
 {
     off_t total = 0;
-    for (int i = 0; i < markers.size(); ++i)
+    for (size_t i = 0; i < markers.size(); ++i)
         total += markers[i].transferred;
     return total;
 }

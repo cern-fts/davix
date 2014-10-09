@@ -17,6 +17,7 @@ using namespace Davix;
 
 
 int mycred_auth_callback_x509(void* userdata, const SessionInfo & info, X509Credential * cred, DavixError** err){
+    (void) info;
     Davix::DavixError* tmp_err= NULL;
 
     std::string path((char*) userdata);

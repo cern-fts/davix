@@ -34,7 +34,7 @@ namespace Davix {
 
 struct DAVIX_EXPORT PerformanceMarker
 {
-    int    index, count;
+    size_t    index, count;
 
     time_t begin, latest;
     off_t  transferred;

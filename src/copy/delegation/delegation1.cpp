@@ -17,6 +17,9 @@ std::string DavixDelegation::delegate_v1(Context & context,
 		const std::string& capath,
 		int lifetime, DavixError** err)
 {
+   (void) context;
+   (void) params;
+
   std::string  delegation_id;
   std::string  reqtxt;
   char*        certtxt = NULL;

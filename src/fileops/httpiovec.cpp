@@ -70,7 +70,7 @@ void HttpIoVecSetupErrorMultiPartSize( DavixError** err, dav_off_t req_offset, d
     DavixError::setupError(err, HttpIoVec_scope(), StatusCode::InvalidServerResponse, ss.str());
 }
 
-inline char* header_delimiter(char* buffer, dav_size_t len, DavixError** err){
+inline char* header_delimiter(char* buffer, dav_size_t len){
     char* p = std::find(buffer, buffer + len, ':');
     return (p < buffer + len)?p:NULL;
 }
@@ -228,7 +228,7 @@ int get_multi_part_info(const HttpRequest& req, std::string & boundary, DavixErr
 // return 0 -> not a content length header, return -1 : not a header or error, return 1 : success
 int find_header_params(char* buffer, dav_size_t buffer_len, dav_size_t* part_size, dav_off_t* part_offset){
     static const std::string delimiter(" bytes-/\t");
-    char * p = header_delimiter(buffer, buffer_len, NULL);
+    char * p = header_delimiter(buffer, buffer_len);
     if(p == NULL)
         return -1;
     std::string header_type(buffer, p - buffer);
@@ -457,7 +457,7 @@ static void balance_iterator_windows(MapChunk & m,
 static void fill_concerned_chunk_buffer(MapChunk & m,
                                         MapChunk::iterator & start, MapChunk::iterator & end,
                                         char* buffer, dav_ssize_t read_size, dav_ssize_t pos){
-
+    (void) m;
     for(MapChunk::iterator it = start; it != end; it++){
         const dav_ssize_t size_part = (*it).second._in->diov_size;
         const dav_off_t off_part = (*it).second._in->diov_offset;

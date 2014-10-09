@@ -223,12 +223,11 @@ std::string DavixDelegation::delegate(Context & context, const std::string &dlg_
 {
 	std::string ucreds, capath, passwd;
 	int lifetime;
-	bool should_unlink;
 
 	RequestParams params(_p);
 	triggerHooks(context, params);
 
-	should_unlink = get_credentials(params, ucreds, passwd, capath, &lifetime, err);
+    get_credentials(params, ucreds, passwd, capath, &lifetime, err);
 	if (*err)
 		return std::string();
 

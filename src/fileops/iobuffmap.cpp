@@ -439,6 +439,7 @@ void HttpIOBuffer::commitLocal(IOChainContext & iocontext){
 
 
 dav_off_t HttpIOBuffer::lseek(IOChainContext & iocontext, dav_off_t offset, int flags){
+    (void) iocontext;
     boost::recursive_mutex::scoped_lock l(_rwlock);
     switch(flags){
         case SEEK_CUR:
@@ -457,6 +458,7 @@ dav_off_t HttpIOBuffer::lseek(IOChainContext & iocontext, dav_off_t offset, int 
 }
 
 dav_ssize_t HttpIOBuffer::write(IOChainContext & iocontext, const void *buf, dav_size_t count){
+    (void) iocontext;
     boost::recursive_mutex::scoped_lock l(_rwlock);
     dav_ssize_t ret =-1;
     dav_size_t write_len = count;

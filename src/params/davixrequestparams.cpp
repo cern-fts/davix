@@ -63,6 +63,7 @@ struct X509Data{
     }
 
     int cred_callback(const SessionInfo & info, X509Credential& cert){
+        (void) info;
         cert = _cred;
         return 0;
     }

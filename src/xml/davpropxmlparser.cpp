@@ -110,6 +110,7 @@ static void check_creation_date(DavPropXMLParser::DavxPropXmlIntern & par, const
 }
 
 static void check_is_directory(DavPropXMLParser::DavxPropXmlIntern & par,  const std::string & name){
+   (void) name;
    DAVIX_DEBUG(" directory pattern found -> set flag IS_DIR");
    par._current_props.info.mode |=  S_IFDIR;
    par._current_props.info.mode &= ~(S_IFREG);
@@ -214,6 +215,10 @@ std::deque<FileProperties> & DavPropXMLParser::getProperties(){
 
 
 int DavPropXMLParser::parserStartElemCb(int parent, const char *nspace, const char *name, const char **atts){
+    (void) parent;
+    (void) name;
+    (void) nspace;
+    (void) atts;
     // add elem to stack
     Xml::XmlPTree node(Xml::ElementStart, name);
     d_ptr->_stack.push_back(node);
@@ -227,12 +232,15 @@ int DavPropXMLParser::parserStartElemCb(int parent, const char *nspace, const ch
 
 
 int DavPropXMLParser::parserCdataCb(int state, const char *cdata, size_t len){
+    (void) state;
     d_ptr->appendChars(cdata, len);
     return 0;
 }
 
 
 int DavPropXMLParser::parserEndElemCb(int state, const char *nspace, const char *name){
+    (void) state;
+    (void) nspace;
     Xml::XmlPTree node(Xml::ElementStart, name);
 
     // find potential interesting data

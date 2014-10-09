@@ -224,7 +224,7 @@ void DavixCopyInternal::monitorPerformanceMarkers(Davix::HttpRequest *request,
 {
     Davix::DavixError* daverr = NULL;
     char buffer[1024], *p;
-    size_t line_len;
+    dav_ssize_t line_len;
 
     PerformanceMarker holder;
     PerformanceData performance;

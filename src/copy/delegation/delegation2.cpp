@@ -109,6 +109,8 @@ std::string DavixDelegation::delegate_v2(Context & context, const std::string &d
          const std::string& capath,
          int lifetime, Davix::DavixError** err)
 {
+    (void) context;
+    (void) params;
     struct soap* soap;
     soap = soap_new();
 

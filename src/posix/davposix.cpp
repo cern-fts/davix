@@ -377,6 +377,7 @@ void DavPosix::fadvise(DAVIX_FD *fd, dav_off_t offset, dav_size_t len, advise_t 
 
 
 int DavPosix::mkdir(const RequestParams * _params, const std::string &url, mode_t right, DavixError** err){
+    (void) right;
     DAVIX_DEBUG(" -> davix_mkdir");
     int ret=-1;
 
@@ -417,7 +418,7 @@ int DavPosix::stat64(const RequestParams *params, const std::string & url, StatI
     return -1;
 }
 
-int davix_remove_posix(DavPosix & p, Context* context, const RequestParams * params, const std::string & url, bool directory, DavixError** err){
+int davix_remove_posix(Context* context, const RequestParams * params, const std::string & url, bool directory, DavixError** err){
     DavixError* tmp_err = NULL;
     int ret = -1;
     Uri uri(url);
@@ -472,7 +473,7 @@ int DavPosix::unlink(const RequestParams * params, const std::string &uri, Davix
     DavixError* tmp_err=NULL;
 
     TRY_DAVIX{
-        ret = davix_remove_posix(*this, context, params, uri, false, &tmp_err);
+        ret = davix_remove_posix(context, params, uri, false, &tmp_err);
     }CATCH_DAVIX(&tmp_err)
 
     DAVIX_DEBUG(" davix_unlink <-");
@@ -487,7 +488,7 @@ int DavPosix::rmdir(const RequestParams * params, const std::string &uri, DavixE
     DavixError* tmp_err=NULL;
 
     TRY_DAVIX{
-        ret = davix_remove_posix(*this, context, params, uri, true, &tmp_err);
+        ret = davix_remove_posix(context, params, uri, true, &tmp_err);
     }CATCH_DAVIX(&tmp_err)
 
     DAVIX_DEBUG(" davix_rmdir <-");
@@ -576,14 +577,24 @@ dav_ssize_t DavPosix::pread64(DAVIX_FD *fd, void *buf, dav_size_t count, dav_off
 }
 
 ssize_t DavPosix::pwrite(DAVIX_FD* fd, const void* buf, size_t count, off_t offset, DavixError** err){
+    (void) fd;
+    (void) buf;
+    (void) count;
+    (void) offset;
     DAVIX_DEBUG(" -> davix_pwrite");
     DAVIX_DEBUG(" davix_pwrite <-");
+    DavixError::setupError(err, davix_scope_io_buff(), StatusCode::OperationNonSupported, "Operation pwrite Not supported");
     return -1;
 }
 
-dav_ssize_t DavPosix::pwrite64(DAVIX_FD *fd, const void *buffer, dav_size_t count, dav_off_t offset, DavixError **err){
+dav_ssize_t DavPosix::pwrite64(DAVIX_FD *fd, const void *buf, dav_size_t count, dav_off_t offset, DavixError **err){
+    (void) fd;
+    (void) buf;
+    (void) count;
+    (void) offset;
     DAVIX_DEBUG(" -> davix_pwrite");
     DAVIX_DEBUG(" davix_pwrite <-");
+    DavixError::setupError(err, davix_scope_io_buff(), StatusCode::OperationNonSupported, "Operation pwrite Not supported");
     return -1;
 }
 

@@ -11,7 +11,7 @@
 namespace Davix{
 
 
-std::string getAwsReqToken(const std::string & stringToSign, const std::string & private_key, const std::string & access_key){
+std::string getAwsReqToken(const std::string & stringToSign, const std::string & private_key){
     std::ostringstream ss;
     const std::string hmac = hmac_sha1(private_key, stringToSign);
     ss << Base64::base64_encode((unsigned char*) hmac.c_str(), hmac.size());
@@ -77,6 +77,8 @@ void signRequest(const RequestParams & params, const std::string & method, const
 
 
 Uri tokenizeRequest(const RequestParams & params, const std::string & method, const Uri & url, HeaderVec & headers, time_t expirationTime){
+
+    (void) headers; // will be in used later for requests with content-type / amz headers
     std::ostringstream ss;
 
     // construct Request token
@@ -85,7 +87,7 @@ Uri tokenizeRequest(const RequestParams & params, const std::string & method, co
        << "\n"
        << static_cast<unsigned long long>(expirationTime) << "\n"
        << '/' << extract_bucket(url)  << url.getPath();
-    const std::string signature = getAwsReqToken(ss.str(), params.getAwsAutorizationKeys().first, params.getAwsAutorizationKeys().second);
+    const std::string signature = getAwsReqToken(ss.str(), params.getAwsAutorizationKeys().first);
 
 
     ss.clear();

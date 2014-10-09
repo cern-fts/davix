@@ -484,6 +484,7 @@ StatInfo & S3MetaOps::statInfo(IOChainContext & iocontext, StatInfo & st_info){
         ref.mode |= S_IFDIR;
         ref.mode &= ~(S_IFREG);
     }
+    return ref;
 }
 
 
@@ -522,6 +523,7 @@ bool s3_get_next_property(Ptr::Scoped<DirHandle> & handle, std::string & name_en
 
 
 void s3_start_listing_query(Ptr::Scoped<DirHandle> & handle, Context & context, const RequestParams* params, const Uri & url, const std::string & body){
+    (void) body;
     dav_ssize_t s_resu;
 
     DavixError* tmp_err=NULL;

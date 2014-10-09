@@ -13,6 +13,7 @@ const std::string scope_main = "Davix::Tools::davix";
 
 static void performanceCallback(const PerformanceData& perfData, void *udata)
 {
+    (void) udata;
     std::cout << perfData.totalTransferred()
               << " (" << perfData.avgTransfer() << " bytes/sec)"
               << std::endl;

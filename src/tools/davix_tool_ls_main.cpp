@@ -46,12 +46,14 @@ static std::string help_msg(){
 
 
 static void display_file_entry(const std::string & filename, const Tool::OptParams & opts, FILE* filestream){
+    (void) opts;
     fputs(filename.c_str(), filestream);
     fputs("\n",filestream);
 }
 
 
 static void display_long_file_entry(const std::string & filename,  struct stat* st, const Tool::OptParams & opts, FILE* filestream){
+    (void) opts;
     std::ostringstream ss;
     ss << Tool::string_from_mode(st->st_mode) << " ";
     ss << Tool::string_from_size_t(static_cast<size_t>(st->st_nlink),4) << " ";

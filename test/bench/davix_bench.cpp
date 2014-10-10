@@ -25,7 +25,9 @@ struct Options
     bool check;
     bool debug;
     bool silent;
+    bool hasinputfile;
     std::vector<std::string> vec_arg;
+    std::string inputfile;
 
     Options() :
         params(),
@@ -35,7 +37,9 @@ struct Options
         check(false),
         debug(false),
         silent(false),
-        vec_arg()
+        hasinputfile(false),
+        vec_arg(),
+        inputfile()
     {
     } 
 };
@@ -66,7 +70,7 @@ struct ReaderArgs
 
 int ParseOptions(int argc, char* argv[], Options & p);
 void PrintUsage();
-int ReadSome(long *offs, long *lens, int maxnread, long long &totalbytes, bool &last_iter);
+int ReadSome(long *offs, long *lens, int maxnread, long long &totalbytes, bool &last_iter, Options &p, ifstream& in_file); 
 void errorPrint(DavixError ** err);
 void* ThreadRead(void* args);
 void* PopulateQueue(void* args);
@@ -157,7 +161,7 @@ int main(int argc, char* argv[])
                 {
                     cerr << endl << "Invaild option." << endl;
                     PrintUsage();
-                    exit(1);    
+                    exit(-1);    
                 }
         } // switch
     } // isURL
@@ -233,7 +237,7 @@ int main(int argc, char* argv[])
                 {
                     cerr << endl << "Invaild option." << endl;
                     PrintUsage();
-                    exit(1);   
+                    exit(-1);   
                 }
         } // switch
     } // isfile
@@ -250,13 +254,24 @@ int main(int argc, char* argv[])
     long v_lens[MAX_READ_PER_LOOP];
     DavIOVecInput inVec[opts.vec_size];
     DavIOVecOuput outVec[opts.vec_size];
-  
+
     // Davix doesn't support remote pwrite yet, write to tmp file before uploading to simulate the effect
     std::FILE* tmpf = std::tmpfile();
     int fdd = fileno(tmpf);
 
+    ifstream input;
 
-    while((ntoread = ReadSome(v_offsets, v_lens, maxtoread, totalbytestoprocess, last_batch)))
+    if(opts.hasinputfile == true)
+    {   
+        input.open(opts.inputfile.c_str(),ios::in);
+        if(!input)
+        {
+            std::cerr << endl << "Cannot open input file.";
+            return -1;
+        }    
+    }
+
+    while((ntoread = ReadSome(v_offsets, v_lens, maxtoread, totalbytestoprocess, last_batch, opts, input)))
     {
         cout << ".";
 
@@ -306,7 +321,7 @@ int main(int argc, char* argv[])
                                 {
                                     if(((k + v_offsets[j]) % 256) != ((unsigned char *)buffer)[k])
                                     {
-                                        cerr << "Error in the file offset: " << k + v_offsets <<
+                                        cerr << "%Byte check -- Error in the file offset: " << k + v_offsets <<
                                         " buffer: " << (int)((unsigned char *)buffer)[k] << " expected: " << (k+v_offsets[j]) % 256 << endl;
                                         iserror = true;
                                         break;
@@ -314,7 +329,7 @@ int main(int argc, char* argv[])
                                 }
                                 if(!iserror && !opts.silent)
                                 {
-                                    cout << "Bytes checked OK." << endl;
+                                    cout << "$Byte check -- Passed." << endl;
                                 }
                             }
 
@@ -475,7 +490,7 @@ int main(int argc, char* argv[])
                             if(retval != 0)
                             {
                                 cerr << "DavFile write error: putFromFd" << endl;
-                                exit(1);
+                                exit(-1);
                             }
 
                             if(!opts.silent)
@@ -512,7 +527,7 @@ int main(int argc, char* argv[])
                 {
                     cerr << endl << "Option not reconised." << endl;
                     PrintUsage();
-                    exit(1);   
+                    exit(-1);   
                     break;
                 }
         }// switch
@@ -576,6 +591,17 @@ int main(int argc, char* argv[])
         cout << summarypref << " Max bytes read per sec: " << totalbytesread / (closetime - openphasetime) << endl;
         cout << summarypref << " Effective bytes read per sec: " << totalbytesread / (endtime - starttime) << endl;
         cout << summarypref << " Successful read count: " << totalreadscount << endl;
+
+        switch(opts.mode)
+        {
+            case 'v':
+                cout << summarypref << " Vector size: " << opts.vec_size << endl;
+                break;
+
+            case 't':
+                cout << summarypref << " Number of thread(s): " << opts.no_of_thread << endl;
+                break;
+        }
     }
     cout << summarypref << " Opened file count: " << file_count << endl;
     cout << endl;
@@ -625,34 +651,67 @@ void errorPrint(DavixError ** err)
 
 
 
-int ReadSome(long *offs, long *lens, int maxnread, long long &totalbytes, bool &last_iter) 
+int ReadSome(long *offs, long *lens, int maxnread, long long &totalbytes, bool &last_iter, Options &p, ifstream& in_file) 
 {
-    for (int i = 0; i < maxnread;) 
+    if(p.hasinputfile)
     {
-        lens[i] = -1;
-        offs[i] = -1;
-
-        if (cin.eof()) 
+        for (int i = 0; i < maxnread;) 
         {
-            last_iter = true;
-            return i;
-        }
-        
-        cin >> lens[i] >> offs[i];
+            lens[i] = -1;
+            offs[i] = -1;
 
-        if(lens[i] > (BUFFER_SIZE*1024*1024) )
-        {
-            std::cerr << endl << "Length exceeds buffer size @ length: " << lens[i] << ", buffer: " << BUFFER_SIZE*1024*1024 << endl << endl;
-            exit(1);
-        }
+            if (in_file.eof()) 
+            {
+                last_iter = true;
+                return i;
+            }
+            
+            in_file >> lens[i] >> offs[i];
 
-        if ((lens[i] > 0) && (offs[i] >= 0)) 
-        {
-            totalbytes += lens[i];
-            i++;
+            if(lens[i] > (BUFFER_SIZE*1024*1024) )
+            {
+                std::cerr << endl << "Length exceeds buffer size @ length: " << lens[i] << ", buffer: " << BUFFER_SIZE*1024*1024 << endl << endl;
+                exit(-1);
+            }
+
+            if ((lens[i] > 0) && (offs[i] >= 0)) 
+            {
+                totalbytes += lens[i];
+                i++;
+            }
         }
+        return maxnread;
+
     }
-    return maxnread;
+    else
+    {
+        for (int i = 0; i < maxnread;) 
+        {
+            lens[i] = -1;
+            offs[i] = -1;
+
+            if (cin.eof()) 
+            {
+                last_iter = true;
+                return i;
+            }
+            
+            cin >> lens[i] >> offs[i];
+
+            if(lens[i] > (BUFFER_SIZE*1024*1024) )
+            {
+                std::cerr << endl << "Length exceeds buffer size @ length: " << lens[i] << ", buffer: " << BUFFER_SIZE*1024*1024 << endl << endl;
+                exit(-1);
+            }
+
+            if ((lens[i] > 0) && (offs[i] >= 0)) 
+            {
+                totalbytes += lens[i];
+                i++;
+            }
+        }
+        return maxnread;
+    }
 }  
 
 
@@ -660,14 +719,14 @@ int ReadSome(long *offs, long *lens, int maxnread, long long &totalbytes, bool &
 
 int ParseOptions(int argc, char* argv[], Options & p)
 {
-    const std::string arg_tool_main= "srwdchv:t:";
+    const std::string arg_tool_main= "srwdchv:t:i:";
     
     int ret = 0;
     
     if(argc < 2)
     {
         PrintUsage();
-        exit(1);
+        exit(-1);
     }
 
     while((ret = getopt(argc, argv, arg_tool_main.c_str() )) > 0)
@@ -684,7 +743,7 @@ int ParseOptions(int argc, char* argv[], Options & p)
                 if(p.vec_size <= 0)
                 {
                     std::cerr << endl << "Vector size must be a positive integer." << endl << endl;
-                    exit(1);
+                    exit(-1);
                 }  
                 break;
 
@@ -694,7 +753,7 @@ int ParseOptions(int argc, char* argv[], Options & p)
                 if(p.no_of_thread <= 0)
                 {
                     std::cerr << endl << "Number of threads must be a positive integer." << endl << endl;
-                    exit(1);
+                    exit(-1);
                 }    
 
             case 'w':
@@ -717,11 +776,16 @@ int ParseOptions(int argc, char* argv[], Options & p)
 
             case 's':
                 p.silent = true;
-                break;    
+                break;
+
+            case 'i':
+                p.hasinputfile = true;
+                p.inputfile = optarg;
+                break;   
                         
             default:
                 PrintUsage();
-                exit(1);    
+                exit(-1);    
         }// switch
     }// while getopt
 
@@ -736,7 +800,7 @@ int ParseOptions(int argc, char* argv[], Options & p)
     if(ret != 0 && p.mode != 'h')
     {
         PrintUsage();
-        exit(1);
+        exit(-1);
     }
     
     return ret;
@@ -833,5 +897,6 @@ void PrintUsage()
         "    -d          Debug mode." << endl <<
         "    -s          Silent mode." << endl <<
         "    -w          Write mode, create file which is compatible with the -c option." << endl <<
+        "    -i<file>    Read input from file instead of standard input." << endl <<
         "    -c          Verify if the value of the byte at offset i is i%256. Valid only for the non-vectored(r) read mode." << endl << endl;
 }

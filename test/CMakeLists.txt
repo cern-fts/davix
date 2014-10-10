@@ -15,7 +15,7 @@ set(TEST_CRED_PASS "testpass")
 add_subdirectory(unit)
 add_subdirectory(functional)
 add_subdirectory(root-tests)
-
+add_subdirectory(bench)
 
 
 

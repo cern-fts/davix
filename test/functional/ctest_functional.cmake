@@ -8,7 +8,9 @@ set(BASIC_PASSWD "tester")
 
 set(http_desy_base "https://vm-dcache-deploy6.desy.de:2880/dteam/davix-tests" CACHE STRING "dCache test instance to use")
 set(http_lcgdm_base "https://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam" CACHE STRING "DPM test instance to use" )
+set(dav_lcgdm_base "https://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam" CACHE STRING "DPM test instance to use, Webdav protocol" )
 #set(http_lcgdm_base "https://lxfsra10a01.cern.ch/dpm/cern.ch/home/dteam" CACHE STRING "DPM test instance to use" )
+
 set(http_storm_base "https://gridhttps-storm-atlas.cr.cnaf.infn.it:8443/webdav/dteam/davix-tests/" CACHE STRING "Storm test instance to use")
 set(http_dynaFed_base "http://dav-federation.cern.ch/myfed/dteam/")
 set(http_lcgdm_file "${http_lcgdm_base}/davix-tests/testread0011")
@@ -27,6 +29,9 @@ test_valid_delete_all("${http_lcgdm_base}"  "proxy")
 test_valid_read_generic("${http_lcgdm_base}" "proxy")
 test_valid_write_read_generic("${http_lcgdm_base}" "proxy")
 
+# DPM Webdav
+test_collection("${dav_lcgdm_base}" "proxy")
+
 # Storm tests
 test_dav_endpoint_rw( "${http_storm_base}" "proxy")
 test_valid_delete_all("${http_storm_base}"  "proxy")
@@ -43,9 +48,6 @@ test_valid_delete_all("http://localhost:8009"  "${BASIC_LOGIN}:${BASIC_PASSWD}")
 
 
 test_valid_delete_all("http://localhost:8008"  "${CMAKE_SOURCE_DIR}/test.p12")
-
-# crap
-#listdir_partial("${http_lcgdm_base}" 2000 "proxy")
 
 ## generic http query test
 test_valid_read_generic("http://google.com" "")

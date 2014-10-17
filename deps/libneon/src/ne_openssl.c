@@ -567,7 +567,7 @@ ne_ssl_context *ne_ssl_context_create(int mode)
 {
     ne_ssl_context *ctx = ne_calloc(sizeof *ctx);
     if (mode == NE_SSL_CTX_CLIENT) {
-        ctx->ctx = SSL_CTX_new(TLSv1_client_method());
+        ctx->ctx = SSL_CTX_new(SSLv23_client_method());
         ctx->sess = NULL;
         /* set client cert callback. */
         SSL_CTX_set_client_cert_cb(ctx->ctx, provide_client_cert);
@@ -575,10 +575,11 @@ ne_ssl_context *ne_ssl_context_create(int mode)
         SSL_CTX_set_options(ctx->ctx, SSL_OP_ALL);
         SSL_CTX_set_verify(ctx->ctx, SSL_VERIFY_PEER, verify_callback);
     } else if (mode == NE_SSL_CTX_SERVER) {
-        ctx->ctx = SSL_CTX_new(TLSv1_client_method());
+        ctx->ctx = SSL_CTX_new(SSLv23_server_method());
         SSL_CTX_set_session_cache_mode(ctx->ctx, SSL_SESS_CACHE_CLIENT);
     } else {
-         ctx->ctx = SSL_CTX_new(TLSv1_client_method());
+         ctx->ctx = SSL_CTX_new(SSLv23_server_method());       
+        // ctx->ctx = SSL_CTX_new(SSLv2_server_method());
         SSL_CTX_set_session_cache_mode(ctx->ctx, SSL_SESS_CACHE_CLIENT);
     }
     return ctx;

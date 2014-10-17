@@ -237,6 +237,8 @@ void neon_to_davix_code(int ne_status,ne_session* sess, const std::string & scop
 
 void neon_simple_req_code_to_davix_code(int ne_status, ne_session* sess, const std::string & scope, DavixError** err);
 
+void configureRequestParamsProto(const Uri &uri, RequestParams &params);
+
 
 } // namespace Davix
 

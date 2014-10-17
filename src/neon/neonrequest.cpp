@@ -58,7 +58,7 @@ private:
 
 
 
-static void configureRequestParamsProto(const Uri &uri, RequestParams &params){
+void configureRequestParamsProto(const Uri &uri, RequestParams &params){
     if(params.getProtocol() == RequestProtocol::Auto){
         const std::string & proto = uri.getProtocol();
         if( proto.compare(0,2,"s3") ==0){

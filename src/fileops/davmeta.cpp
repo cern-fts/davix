@@ -32,6 +32,7 @@
 #include <fileops/fileutils.hpp>
 #include <string_utils/stringutils.hpp>
 #include <base64/base64.hpp>
+#include <neon/neonrequest.hpp>
 
 
 using namespace StrUtil;
@@ -140,6 +141,7 @@ int dav_stat_mapper_http(Context& context, const RequestParams* params, const Ur
 dav_ssize_t getStatInfo(Context & c, const Uri & url, const RequestParams * params,
                       struct StatInfo& st_info){
     RequestParams _params(params);
+    configureRequestParamsProto(url, params);
     int ret =-1;
 
     switch(_params.getProtocol()){

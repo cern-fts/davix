@@ -138,18 +138,18 @@ int dav_stat_mapper_http(Context& context, const RequestParams* params, const Ur
 }
 
 
-dav_ssize_t getStatInfo(Context & c, const Uri & url, const RequestParams * params,
+dav_ssize_t getStatInfo(Context & c, const Uri & url, const RequestParams * p,
                       struct StatInfo& st_info){
-    RequestParams _params(params);
+    RequestParams params(p);
     configureRequestParamsProto(url, params);
     int ret =-1;
 
-    switch(_params.getProtocol()){
+    switch(params.getProtocol()){
          case RequestProtocol::Webdav:
-            ret = dav_stat_mapper_webdav(c, &_params, url, st_info);
+            ret = dav_stat_mapper_webdav(c, &params, url, st_info);
             break;
         default:
-            ret = dav_stat_mapper_http(c, &_params, url, st_info);
+            ret = dav_stat_mapper_http(c, &params, url, st_info);
             break;
 
     }

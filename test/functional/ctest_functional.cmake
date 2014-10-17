@@ -8,7 +8,7 @@ set(BASIC_PASSWD "tester")
 
 set(http_desy_base "https://vm-dcache-deploy6.desy.de:2880/dteam/davix-tests" CACHE STRING "dCache test instance to use")
 set(http_lcgdm_base "https://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam" CACHE STRING "DPM test instance to use" )
-set(dav_lcgdm_base "https://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam" CACHE STRING "DPM test instance to use, Webdav protocol" )
+set(dav_lcgdm_base "davs://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam" CACHE STRING "DPM test instance to use, Webdav protocol" )
 #set(http_lcgdm_base "https://lxfsra10a01.cern.ch/dpm/cern.ch/home/dteam" CACHE STRING "DPM test instance to use" )
 
 set(http_storm_base "https://gridhttps-storm-atlas.cr.cnaf.infn.it:8443/webdav/dteam/davix-tests/" CACHE STRING "Storm test instance to use")

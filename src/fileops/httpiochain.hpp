@@ -21,9 +21,14 @@ class HttpIOChain;
 // parameter handler for any IO Chain operation
 struct IOChainContext{
     IOChainContext(Context & c, const Uri & u, const RequestParams * p): _context(c), _uri(u), _reqparams(p) {}
+    // static parameters
     Context& _context;
     Uri const & _uri;
     RequestParams const * _reqparams;
+
+    // Operation parameter
+    Chrono::TimePoint _end_time;
+
 };
 
 // Davix IO chain

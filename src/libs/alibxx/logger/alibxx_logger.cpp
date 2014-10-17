@@ -2,6 +2,8 @@
 
 namespace A_LIB_NAMESPACE {
 
+/*
+
 const LogLevel Logger::Critical=0;
 const LogLevel Logger::Warning=0x01;
 const LogLevel Logger::Verbose=0x10;
@@ -26,6 +28,6 @@ void Logger::reset(const LogLevel ldefault = Warning, const CmptMask & mask_defa
 void Logger::logStream(const std::ostream &message){
     
 }
-
+*/
 
 } // namespace alibxx

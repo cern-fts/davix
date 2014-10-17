@@ -1,6 +1,6 @@
 # libs CMakefile for third party deps
 
-
+add_definitions(-DA_LIB_NAMESPACE=Davix)
 add_subdirectory(alibxx)
 add_subdirectory(datetime)
 

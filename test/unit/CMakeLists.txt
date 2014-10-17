@@ -6,6 +6,12 @@ include_directories(${PROJECT_SOURCE_DIR}/src "." ${GTEST_INCLUDE_DIRS})
 include_directories(${HEADER_RAPIDJSON})
 
 
+## alibxx
+add_definitions(-DA_LIB_NAMESPACE=Testpp)
+FILE(GLOB src_alibxx "${ALIBXX_SRC_DIR}/*/*.cpp")
+add_library(alibxx_test_core STATIC ${src_alibxx})
+
+
 file(GLOB src_alibxx alibxx/*.cpp)
 file(GLOB src_neon neon/*.cpp)
 file(GLOB src_datetime datetime/*.cpp)
@@ -24,7 +30,7 @@ add_definitions( -DTEST_VALID_CERT="${TEST_CRED_PATH}" -DTEST_VALID_CERT_PASS="$
 add_executable(g_test_unit_davix_exe ${src_context} ${src_session} ${src_credential}
                 ${src_httprequest} ${src_datetime} ${src_neon} ${src_parser} ${src_auth} ${src_utils} ${src_parser} ${SRC_BASE64}
                 ${SRC_HMACSHA1} ${davix_tool_common_src} ${src_files} ${src_alibxx})
-target_link_libraries(g_test_unit_davix_exe davix  gtest gtest_main ${LIBSSL_PKG_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(g_test_unit_davix_exe alibxx_test_core davix  gtest gtest_main ${LIBSSL_PKG_LIBRARIES} ${Boost_LIBRARIES})
 add_dependencies(g_test_unit_davix_exe libdavix)
 
 

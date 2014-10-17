@@ -52,7 +52,7 @@ add_library(libdavix  SHARED ${SRC_DAVIX_FULL} )
 add_dependencies(libdavix neon)
 
 
-target_link_libraries(libdavix  ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES}
+target_link_libraries(libdavix  alibxx_core ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES}
                                 ${CMAKE_THREAD_LIBS_INIT} ${SOCKET_PKG_LIBRARIES} ${Boost_LIBRARIES})
 
 

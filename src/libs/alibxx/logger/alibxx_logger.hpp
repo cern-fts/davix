@@ -1,10 +1,12 @@
-#ifndef alibxx_alibxx_LOGGER_HPP
-#define alibxx_alibxx_LOGGER_HPP
+#pragma once
+
 
 #include <bitset>
 
 namespace A_LIB_NAMESPACE {
 
+
+/*
 typedef std::bitset<64> Channels;
 typedef unsigned int LogLevel;
 
@@ -58,8 +60,7 @@ private:
     Channels chnl;
     LogLevel log_level;
 
-};
+};*/
 
 } // namespace alibxx
 
-#endif // alibxx_alibxx_LOGGER_HPP

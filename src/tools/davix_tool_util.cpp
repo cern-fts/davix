@@ -248,13 +248,14 @@ int authCallbackCert(void* userdata, const SessionInfo & info, X509Credential* c
                                   cred_path,
                                   "",
                                   err) <0){
-            std::cout << std::endl;
+            
             if( (*err)->getStatus() != StatusCode::CredDecryptionError){
                 // credential specific error
                 return -1;
             }
 
             // retry with password
+            std::cout << std::endl;
             DavixError::clearError(err);
             std::string password;
             if( ask_user_passwd(password) <0

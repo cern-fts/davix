@@ -181,7 +181,7 @@ int parse_davix_options_generic(const std::string &opt_filter,
                 davix_set_log_level(DAVIX_LOG_ALL);
                 break;
             case 'E':
-                 p.cred_path = std::string(optarg);
+                 p.cred_path = SanitiseTildedPath(optarg);
                  break;
             case 'k':
                 p.params.setSSLCAcheck(false);
@@ -197,7 +197,7 @@ int parse_davix_options_generic(const std::string &opt_filter,
                 p.userlogpasswd.first = optarg;
                 break;
             case X509_PRIVATE_KEY:
-                p.priv_key = optarg;
+                p.priv_key = SanitiseTildedPath(optarg).c_str();
                 break;
             case USER_PASSWORD:
                 p.userlogpasswd.second = optarg;

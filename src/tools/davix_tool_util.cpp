@@ -314,5 +314,23 @@ void flushFinalLineShell(int fd){
     }
 }
 
+std::string SanitiseTildedPath(const char * path){
+    if(path[0] == '~')
+    {
+        std::string newpath(path);
+        newpath.erase(0, 1);
+        const char * val = std::getenv("HOME");
+        
+        if(val != NULL){
+            newpath.insert(0, val);
+        }
+        else{
+            newpath.insert(0, "/");
+        }
+        return newpath;
+    }   
+    return std::string(path);
+}
+
 }
 }

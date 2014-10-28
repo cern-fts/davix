@@ -67,6 +67,8 @@ std::string filename_from_uri(const std::string & current_dir, const Uri & uri);
 bool isShell(int fd);
 void flushFinalLineShell(int fd);
 
+// replace '~' at front of string with env HOME if found
+std::string SanitiseTildedPath(const char * path);
 }
 }
 

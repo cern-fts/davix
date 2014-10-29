@@ -36,6 +36,7 @@ set(VERSION_TAG "rc")
 
 # dependency mode
 option(BOOST_EXTERNAL "Enable the usage of an external boost dependency" TRUE)
+set (Boost_NO_BOOST_CMAKE ON)
 
 # components
 option(ENABLE_TOOLS "enable or disable tools " TRUE)

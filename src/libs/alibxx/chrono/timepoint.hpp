@@ -77,7 +77,7 @@ public:
         Second
     };
 
-    Clock(Type clock_type, Precision tick = Precision::Second);
+    Clock(Type clock_type, Precision tick = Second);
     ~Clock();
 
     TimePoint now();

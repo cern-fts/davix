@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ctime>
+#include <ostream>
 
 #include "../base_types.hpp"
 #include "../operator.hpp"
@@ -60,6 +61,7 @@ private:
     struct timespec t;
     friend class Clock;
     friend class TimePoint;
+    friend std::ostream& operator<<(std::ostream& os, const Duration & d);
 };
 
 
@@ -84,6 +86,12 @@ private:
     Type _type;
     Precision _precision;
 };
+
+
+
+std::ostream& operator<<(std::ostream& os, const Duration & d);
+std::ostream& operator<<(std::ostream& os, const TimePoint & d);
+
 
 } // namespace Chrono
 

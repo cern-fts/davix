@@ -1,10 +1,10 @@
 
 #include <iostream>
 #include <string>
-#include <cstring>
 #include <gtest/gtest.h>
 
 #include <ctime>
+#include <cstring>
 
 #undef A_LIB_NAMESPACE
 #define A_LIB_NAMESPACE Testpp

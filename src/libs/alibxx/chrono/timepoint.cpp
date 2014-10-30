@@ -55,6 +55,7 @@ Type::UInt64 TimePoint::toTimestamp() const{
 }
 
 
+
 ////////////////////////////////
 ////////////////////////////////
 
@@ -101,6 +102,17 @@ TimePoint Clock::now(){
     }
     clock_gettime(t, &(res.t));
     return res;
+}
+
+
+std::ostream& operator<<(std::ostream& os, const Duration & d){
+    os << d.t.tv_sec << "s";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const TimePoint & t){
+    os << t;
+    return os;
 }
 
 

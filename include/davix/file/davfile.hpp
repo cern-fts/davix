@@ -272,6 +272,16 @@ public:
     /// Exception safe version of @ref checksum
     int checksum(const RequestParams *params, std::string & checksm, const std::string & chk_algo, DavixError **err) throw();
 
+
+
+    ///
+    /// @brief rename or move a resource
+    ///  
+    int rename(const RequestParams *params, std::string & target_url, DavixError **err);
+
+
+
+
     ///
     /// @brief provide informations on the next file operation
     ///

@@ -25,6 +25,7 @@ set( src_test_valid_write_read_fd "test_valid_write_read_fd.cpp")
 set( src_test_valid_write_read_vector_simple "test_valid_write_read_vector_simple.cpp")
 set( src_tool_read_vector_simple "tool_read_vector_simple.cpp")
 set( src_tool_get_replicas "tool_get_replica_simple.cpp")
+set( src_test_mv "test_mv.cpp")
 
 
 add_library(test_davix_functional_lib STATIC ${src_davix_test_lib})
@@ -91,6 +92,9 @@ target_link_libraries(test_valid_write_read_vector_simple davix test_davix_funct
 add_executable(tool_get_replicas ${src_tool_get_replicas})
 target_link_libraries(tool_get_replicas davix test_davix_functional_lib)
 
+add_executable(test_mv ${src_test_mv})
+target_link_libraries(test_mv davix test_davix_functional_lib)
+
 function(test_dav_endpoint_ronly name cred)
 
     add_test(test_stat_${name} test_stat ${name} ${cred})
@@ -139,6 +143,10 @@ endfunction(test_valid_write_read_generic url cred)
 function(test_replica_listing_existing url cred)
    add_test(tool_get_replicas_${url} tool_get_replicas ${url} ${cred})
 endfunction(test_replica_listing_existing url cred)
+
+function(test_rename url cred)
+    add_test(test_mv_${url} test_mv ${url} ${cred})
+endfunction(test_rename url cred)
 
 include(ctest_functional.cmake)
 

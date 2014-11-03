@@ -42,6 +42,10 @@ void HttpIOChain::makeCollection(IOChainContext & iocontext){
     CHAIN_FORWARD(makeCollection(iocontext));
 }
 
+// move/rename resource
+void HttpIOChain::move(IOChainContext & iocontext, const std::string & target_url){
+    CHAIN_FORWARD(move(iocontext, target_url));
+}
 
 StatInfo & HttpIOChain::statInfo(IOChainContext & iocontext, StatInfo &st_info){
     CHAIN_FORWARD(statInfo(iocontext, st_info));

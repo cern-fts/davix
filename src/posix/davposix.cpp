@@ -375,6 +375,24 @@ void DavPosix::fadvise(DAVIX_FD *fd, dav_off_t offset, dav_size_t len, advise_t 
 //////////////////// Davix POSIX meta ops
 /////////////////////////////////////////////////////
 
+int DavPosix::rename(const RequestParams * _params, const std::string &source_url, const std::string &target_url, DavixError** err){
+    DAVIX_DEBUG(" -> davix_mv");
+    int ret=-1;
+
+    TRY_DAVIX{
+        Uri uri(source_url);
+        HttpIOChain chain;
+        IOChainContext io_context = getIOContext(*context, uri, _params);
+
+        getIOChain(chain).move(io_context, target_url);
+        ret = 0;
+    }CATCH_DAVIX(err)
+
+    DAVIX_DEBUG(" davix_mv <-");
+    return ret;
+}
+
+
 
 int DavPosix::mkdir(const RequestParams * _params, const std::string &url, mode_t right, DavixError** err){
     (void) right;

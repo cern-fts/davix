@@ -255,6 +255,10 @@ std::string davix_scope_rm_str(){
     return "Davix::rm";
 }
 
+std::string davix_scope_mv_str(){
+    return "Davix::mv";
+}
+
 std::string davix_scope_directory_listing_str(){
     return "Davix::Posix::listdir";
 }

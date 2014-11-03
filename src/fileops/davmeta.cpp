@@ -229,6 +229,32 @@ int internal_make_collection(Context & c, const Uri & url, const RequestParams &
 }
 
 
+int internal_move(Context & c, const Uri & url, const RequestParams & params, const std::string & target_url){
+    DAVIX_DEBUG(" -> move");
+    int ret=-1;
+    DavixError* tmp_err=NULL;
+    RequestParams _params(params);
+
+    HttpRequest req(c, url, &tmp_err);
+
+    if(tmp_err == NULL){
+        req.setParameters(params);
+        req.setRequestMethod("MOVE");
+        req.addHeaderField("Destination", target_url);
+
+        if( (ret = req.executeRequest(&tmp_err)) == 0){
+                parse_creation_deletion_result(req.getRequestCode(),  url, davix_scope_mv_str(), req.getAnswerContent());
+        }
+
+    }
+
+    DAVIX_DEBUG(" move <-");
+    checkDavixError(&tmp_err);
+    return ret;
+}
+
+
+
 int internal_checksum(Context & c, const Uri & url, const RequestParams *p, std::string & checksm, const std::string & chk_algo){
     DAVIX_DEBUG(" -> checksum");
     int ret=-1;
@@ -410,6 +436,10 @@ void HttpMetaOps::checksum(IOChainContext & iocontext, std::string &checksm, con
 
 void HttpMetaOps::makeCollection(IOChainContext & iocontext){
     internal_make_collection(iocontext._context, iocontext._uri, iocontext._reqparams);
+}
+
+void HttpMetaOps::move(IOChainContext & iocontext, const std::string & target_url){
+    internal_move(iocontext._context, iocontext._uri, iocontext._reqparams, target_url);
 }
 
 void HttpMetaOps::deleteResource(IOChainContext & iocontext){

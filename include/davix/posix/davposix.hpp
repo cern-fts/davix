@@ -176,6 +176,11 @@ public:
     */
     int mkdir(const RequestParams* params, const std::string& url, mode_t right, DavixError** err);
 
+
+    int rename(const RequestParams* params, const std::string& source_url, const std::string& target_url, DavixError** err);
+
+
+
     /**
       @brief execute a remove file operation
       behavior similar to the POSIX unlink function

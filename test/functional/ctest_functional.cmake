@@ -7,6 +7,7 @@ set(BASIC_LOGIN "test")
 set(BASIC_PASSWD "tester")
 
 set(http_desy_base "https://vm-dcache-deploy6.desy.de:2880/dteam/davix-tests" CACHE STRING "dCache test instance to use")
+set(http_desy_mv "https://vm-dcache-deploy6.desy.de:2880/dteam" CACHE STRING "dCache test instance to use for rename")
 set(http_lcgdm_base "https://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam" CACHE STRING "DPM test instance to use" )
 set(dav_lcgdm_base "davs://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam" CACHE STRING "DPM test instance to use, Webdav protocol" )
 #set(http_lcgdm_base "https://lxfsra10a01.cern.ch/dpm/cern.ch/home/dteam" CACHE STRING "DPM test instance to use" )
@@ -22,6 +23,9 @@ set(metalink_url_direct "http://download.documentfoundation.org/libreoffice/stab
 
 test_dav_endpoint_ronly( ${http_desy_base} "proxy")
 test_valid_write_read_generic("${http_desy_base}" "proxy")
+
+test_rename("${http_desy_mv}" "proxy")
+test_rename("${http_lcgdm_base}" "proxy")
 
 # DPM tests
 test_dav_endpoint_rw( "${http_lcgdm_base}" "proxy")

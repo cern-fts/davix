@@ -38,6 +38,12 @@ char* generate_random_uri(const char* uri_dir, const char* prefix, char* buff, s
     return buff;
 }
 
+Davix::Uri generate_random_uri(const Davix::Uri & url_directory, const std::string & prefix){
+    std::ostringstream ss;
+    ss << url_directory << "/" << prefix << static_cast<int>(getpid()) << static_cast<long>(time(NULL)) << static_cast<long>(rand());
+    return Davix::Uri(ss.str());
+}
+
 void configure_grid_env(char * cert_path, RequestParams&  p){
 
     if(strcmp(cert_path, "proxy") == 0){ // VOMS PROXY MODE

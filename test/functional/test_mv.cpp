@@ -35,9 +35,8 @@ int main(int argc, char** argv){
         configure_grid_env(argv[2], p);
     }
 
-    std::ostringstream oss;
-    oss << argv[1] << "/" << (rand()%20000);
-    std::string a = oss.str();
+    std::string url = argv[1];
+    std::string a =  generate_random_uri(Davix::Uri(url), "test_move").getString();
     std::string b = a+"cake";
 
     int ret = 0;

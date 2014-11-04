@@ -193,6 +193,17 @@ public:
                   DavixError** err) throw();
 
 
+    ///
+    /// @brief move
+    /// @param params Davix request Parameters
+    /// @param destination Destination Resource
+    ///
+    /// Move the current resource to Destination
+    /// The result of the operation depend of the protocol used.
+    /// Protocol supported currently: WebDav
+    ///
+    void move(const RequestParams* params, DavFile & destination);
+
 
     ///
     ///  @brief Suppress the current entity.
@@ -271,15 +282,6 @@ public:
     ///
     /// Exception safe version of @ref checksum
     int checksum(const RequestParams *params, std::string & checksm, const std::string & chk_algo, DavixError **err) throw();
-
-
-
-    ///
-    /// @brief rename or move a resource
-    ///  
-    int rename(const RequestParams *params, std::string & target_url, DavixError **err);
-
-
 
 
     ///

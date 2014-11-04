@@ -224,6 +224,15 @@ int DavFile::putFromFd(const RequestParams* params,
 }
 
 
+
+void DavFile::move(const RequestParams *params, DavFile & destination){
+    HttpIOChain chain;
+    IOChainContext io_context = d_ptr->getIOContext(params);
+    d_ptr->getIOChain(chain).move(io_context, destination.getUri().getString());
+}
+
+
+
 int DavFile::makeCollection(const RequestParams *params, DavixError **err) throw(){
     TRY_DAVIX{
         makeCollection(params);
@@ -277,16 +286,6 @@ void DavFile::prefetchInfo(off_t offset, dav_size_t size_read, advise_t adv){
     HttpIOChain chain;
     IOChainContext io_context = d_ptr->getIOContext(NULL);
     d_ptr->getIOChain(chain).prefetchInfo(io_context, offset, size_read, adv);
-}
-
-int DavFile::rename(const RequestParams *params, std::string & target_url, DavixError **err){
-    TRY_DAVIX{
-        HttpIOChain chain;
-        IOChainContext io_context = d_ptr->getIOContext(params);
-        d_ptr->getIOChain(chain).move(io_context, target_url);
-        return 0;
-    }CATCH_DAVIX(err)
-    return -1;
 }
 
 } //Davix

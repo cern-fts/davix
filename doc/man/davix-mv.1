@@ -1,0 +1,203 @@
+.\" @(#)$RCSfile: davix-http.man,v $ $Revision: 1 $ $Date: 2014/05/24 $ CERN Adrien Devresse
+.\" Copyright (C) 2014 by CERN
+.\" All rights reserved
+.\"
+.TH DAVIX-MV 1 "$Date: 2014/05/24 $" davix "listing tool"
+.SH NAME
+davix-mv \- Rename tool based on libdavix
+.SH SYNOPSIS
+.PP		
+    davix-mv [options]... original-url new-url
+.PP	
+	              
+.SH DESCRIPTION
+\fBdavix-mv\fR is a tool to rename/move resources with HTTP, Webdav or REST compatible services.
+.br
+The commands can rename/move resources and resources containers.
+.br
+.PP	
+davix-mv is powered by libdavix. See libdavix(3) for details.
+
+.br
+
+.SH OPTIONS
+.PP
+
+\fBCommon Options:\fR
+.PP
+.RS 2
+\fB\--debug\fR
+.RE
+.RS 5
+Debug mode
+.RE
+.PP
+
+.RS 2
+\fB\--header, -H\fR
+.RE
+.RS 5
+Add a header field to the request (eg: -H "Depth: 1" )
+.RE
+.PP
+
+.RS 2
+\fB\--help, -h\fR
+.RE
+.RS 5
+Display this help message
+.RE
+.PP
+
+
+.RS 2
+\fB\--metalink OPT \fR
+.RE
+.RS 5
+Metalink support. (OPT=failover[default]|no)
+.RE
+.PP
+
+.RS 2
+\fB\--module, -P PLUGIN_NAME\fR
+.RE
+.RS 5
+Load a plugin or profile by name
+.RE
+.PP
+
+
+.RS 2
+\fB\--redirection OPT \fR
+.RE
+.RS 5
+Transparent redirection support. (OPT=yes[default]|no)
+.RE
+.PP
+
+
+
+.RS 2
+\fB\--proxy, -x URL\fR
+.RE
+.RS 5
+SOCKS5 proxy server URL. (ex: socks5://login:pass@socks.example.org)
+.RE
+.PP
+
+
+.RS 2
+\fB\--trace-headers\fR
+.RE
+.RS 5
+Trace all HTTP queries headers
+.RE
+.PP
+
+.RS 2
+\fB\--verbose\fR
+.RE
+.RS 5
+Verbose mode
+.RE
+.PP
+
+.RS 2
+\fB\--version\fR
+.RE
+.RS 5
+Display version
+.RE
+.PP
+
+
+\fBSecurity Options:\fR
+.PP
+
+.RS 2
+\fB\--capath CA_path\fR
+.RE
+.RS 5
+Add an additional certificate authority directory  
+.RE
+.PP
+
+.RS 2
+\fB\--cert, -E cred_path\fR
+.RE
+.RS 5
+Client Certificate in PEM format 
+.RE
+.PP
+
+.RS 2
+\fB\--key priv_path\fR
+.RE
+.RS 5
+Private key in PEM format  
+.RE
+.PP
+   
+.RS 2
+\fB\--insecure, -k\fR
+.RE
+.RS 5
+Disable SSL credential checks 
+.RE
+.PP
+
+.RS 2
+\fB\--userlogin\fR
+.RE
+.RS 5
+User login for login/password authentication  
+.RE
+.PP
+
+.RS 2
+\fB\--userpass\fR
+.RE
+.RS 5
+User password for login/password authentication 
+.RE
+.PP
+    
+.RS 2
+\fB\--s3secretkey\fR
+.RE
+.RS 5
+AWS S3 authentication: secret key
+.RE
+.PP         
+
+.RS 2
+\fB\--s3accesskey\fR
+.RE
+.RS 5
+AWS S3 authentication: access key 
+.RE
+.PP
+
+
+	   
+.SH EXAMPLES
+.PP
+\fB Rename a resource over HTTP
+.BR
+        davix-mv http://example.org/rename_me.txt http://example.org/thanks.txt
+.PP
+\fB Move a resource on a Grid Storage with VOMS authentication
+.BR
+        davix-mv -P grid davs://grid-storage.example.org/dir1/dir2/move_me.txt davs://grid-storage.example.org/dir1/move_me.txt
+.BR
+
+.SH SEE ALSO
+.BR libdavix(3), davix-ls(1), davix-get(1), davix-put(1),
+.BR
+
+.SH LINKS
+.BR http://dmc.web.cern.ch/projects/davix/home
+
+
+.SH AUTHORS
+Adrien Devresse <adrien.devresse@cern.ch>, IT-SDC-ID, CERN

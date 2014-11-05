@@ -16,6 +16,7 @@ static NEONSessionFactory & SessionFactoryFromContext(Context & c);
 
 };
 
+const std::string & getLibPath();
 
 ///@endcond
 

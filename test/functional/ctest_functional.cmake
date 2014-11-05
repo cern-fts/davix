@@ -13,9 +13,9 @@ set(dav_lcgdm_base "davs://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam" CACHE STR
 #set(http_lcgdm_base "https://lxfsra10a01.cern.ch/dpm/cern.ch/home/dteam" CACHE STRING "DPM test instance to use" )
 
 set(http_storm_base "https://gridhttps-storm-atlas.cr.cnaf.infn.it:8443/webdav/dteam/davix-tests/" CACHE STRING "Storm test instance to use")
-set(http_dynaFed_base "http://dav-federation.cern.ch/myfed/dteam/")
+set(http_dynaFed_base "http://federation.desy.de/fed/everywhere/")
 set(http_lcgdm_file "${http_lcgdm_base}/davix-tests/testread0011")
-set(http_dynaFed_file "${http_dynaFed_base}/davix-tests/testread0011")
+set(http_dynaFed_file "${http_dynaFed_base}/file_1005.txt")
 
 set(metalink_url "http://download.documentfoundation.org/libreoffice/stable/4.3.0/deb/x86_64/LibreOffice_4.3.0_Linux_x86-64_deb.tar.gz")
 set(metalink3_url "http://download.documentfoundation.org/libreoffice/stable/4.3.0/deb/x86_64/LibreOffice_4.3.0_Linux_x86-64_deb_helppack_en-US.tar.gz.metalink")

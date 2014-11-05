@@ -27,15 +27,23 @@ int main(int argc, char** argv){
     DavixError* tmp_err=NULL;
     opts.help_msg = help_msg();
 
-    if( (retcode= Tool::parse_davix_options(argc, argv, opts, &tmp_err)) ==0){
-        Context c;
+    TRY_DAVIX{
+        if( (retcode= Tool::parse_davix_options(argc, argv, opts, &tmp_err)) ==0){
+            Context c;
 
-        if( (retcode = Tool::configureAuth(opts)) == 0){
-            configureContext(c, opts);
-            DavPosix f(&c);
-            f.rename(&opts.params, opts.vec_arg[0], opts.vec_arg[1], &tmp_err);
+            if( (retcode = Tool::configureAuth(opts)) == 0){
+                configureContext(c, opts);
+                File source(c, opts.vec_arg[0]), dest(c, opts.vec_arg[1]);
+
+
+                source.move(&opts.params, dest);
+                retcode =0;
+            }
         }
-    }
+     }CATCH_DAVIX(&tmp_err){
+        retcode = -1;
+     }
+
     Tool::errorPrint(&tmp_err);
     return retcode;
 }

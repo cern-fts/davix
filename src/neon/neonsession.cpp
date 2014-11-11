@@ -64,6 +64,8 @@ void NEONSession::authNeonCliCertMapper(void *userdata, ne_session *sess,
     X509Credential cert;
     const RequestParams* params = &req->_params;
     DAVIX_DEBUG("NEONSession > clicert callback ");
+    DavixError::clearError(&(req->_last_error));
+
     if(params->getClientCertFunctionX509()){
         DAVIX_DEBUG("NEONSession > call client cert callback ");
         SessionInfo infos;

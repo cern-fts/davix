@@ -841,7 +841,10 @@ ssize_t ne_sock_readline(ne_socket *sock, char *buf, size_t buflen)
 {
     char *lf;
     size_t len;
-    
+
+    if(!sock)
+        return NE_SOCK_CLOSED;
+
     if ((lf = memchr(sock->bufpos, '\n', sock->bufavail)) == NULL
 	&& sock->bufavail < RDBUFSIZ) {
 	/* The buffered data does not contain a complete line: move it

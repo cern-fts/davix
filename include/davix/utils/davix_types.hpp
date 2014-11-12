@@ -65,7 +65,9 @@ typedef struct davix_request_params* davix_params_t;
 
 namespace Davix{
     // Davix namespace declaration
-    typedef std::vector< std::pair <std::string, std::string> > HeaderVec;
+    typedef std::pair <std::string, std::string> HeaderLine;
+    typedef std::vector< HeaderLine > HeaderVec;
+
 
 } // Davix
 

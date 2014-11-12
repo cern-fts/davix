@@ -92,6 +92,8 @@ inline std::string & remove(std::string & str, char c){
 // compare two C++ string case insensitive
 int compare_ncase(const std::string & str1, const std::string & str2);
 
+int compare_ncase(const std::string &str1, const std::string &str2, size_t max);
+
 int compare_ncase(const std::string & str1, off_t offset, size_t size, const char* cstr2);
 
 
@@ -136,6 +138,12 @@ inline std::string &trim(std::string &s, const Func & pred) {
 
 inline std::string &trim(std::string &s) {
     return ltrim(rtrim(s));
+}
+
+
+inline std::string & toLower(std::string & str){
+    std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+    return str;
 }
 
 

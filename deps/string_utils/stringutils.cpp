@@ -22,6 +22,11 @@ int compare_ncase(const std::string & str1, const std::string & str2){
     return strcasecmp(str1.c_str(), str2.c_str());
 }
 
+int compare_ncase(const std::string &str1, const std::string &str2, size_t max){
+    return strncasecmp(str1.c_str(), str2.c_str(), max);
+}
+
+
 
 int compare_ncase(const std::string & str1, off_t offset, size_t size, const char* cstr2){
      return strncasecmp(str1.c_str(), cstr2+ offset, size);

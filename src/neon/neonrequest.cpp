@@ -249,6 +249,8 @@ void NEONRequest::configureRequest(){
     // reconfigure protos
     configureRequestParamsProto(*_current, params);
 
+    std::copy(params.getHeaders().begin(), params.getHeaders().end(), std::back_inserter(_headers_field));
+    
     // configure S3 params if needed
     if(params.getProtocol() == RequestProtocol::AwsS3)
         configureS3params();
@@ -273,22 +275,13 @@ void NEONRequest::configureRequest(){
     }else if(_content_ptr && _content_len >0){
         ne_set_request_body_buffer(_req, _content_ptr, _content_len);       
     }
-
-    const HeaderVec &  h  = params.getHeaders();
-    for (HeaderVec::const_iterator i = h.begin();
-         i != h.end(); i++) {
-        ne_add_request_header(_req, i->first.c_str(), i->second.c_str());
-      }
 }
 
 
 void NEONRequest::configureS3params(){
-    HeaderVec vec;
+    HeaderVec vec = _headers_field;
     S3::signRequest(params, _request_type, *_current, vec);
-
-    for(HeaderVec::iterator it = vec.begin(); it < vec.end(); it++){
-        addHeaderField(it->first, it->second);
-    }
+    vec.swap(_headers_field);
 }
 
 int NEONRequest::processRedirection(int neonCode, DavixError **err){

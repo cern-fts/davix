@@ -11,6 +11,9 @@
 namespace Davix{
 
 
+const std::string prefix_s3_header("x-amz-");
+const std::string prefix_s3_date("x-amz-date");
+
 std::string getAwsReqToken(const std::string & stringToSign, const std::string & private_key){
     std::ostringstream ss;
     const std::string hmac = hmac_sha1(private_key, stringToSign);
@@ -63,6 +66,31 @@ static std::string get_date(HeaderVec & vec){
 }
 
 
+bool matchAmzheaders(const std::string & header_key){
+    return (StrUtil::compare_ncase(header_key, prefix_s3_header, prefix_s3_header.size()) == 0
+            && StrUtil::compare_ncase(header_key, prefix_s3_date) != 0);
+}
+
+std::string getAmzCanonHeaders(HeaderVec & headers){
+    std::string canon_amz_headers;
+
+    for(HeaderVec::iterator it = headers.begin(); it < headers.end(); ++it){
+        std::string header_key = (*it).first, header_value = (*it).second;
+        StrUtil::toLower(StrUtil::trim(header_key));
+        StrUtil::toLower(StrUtil::trim(header_value));
+
+        if( matchAmzheaders(header_key)){
+            canon_amz_headers.reserve(canon_amz_headers.size() + header_key.size() + header_value.size() +1);
+            canon_amz_headers += header_key;
+            canon_amz_headers += ":";
+            canon_amz_headers += header_value;
+            canon_amz_headers += "\n";
+        }
+    }
+    return canon_amz_headers;
+}
+
+
 void signRequest(const RequestParams & params, const std::string & method, const Uri & url, HeaderVec & headers){
     std::ostringstream ss;
 
@@ -71,14 +99,13 @@ void signRequest(const RequestParams & params, const std::string & method, const
        << "\n"          // TODO : implement Content-type and md5 parser
        << "\n"
        << get_date(headers) << "\n"
-       << '/' << extract_bucket(url)  << url.getPath();
+       << getAmzCanonHeaders(headers) << '/' << extract_bucket(url)  << url.getPath();
     headers.push_back(std::pair<std::string, std::string>("Authorization",  getAwsAuthorizationField(ss.str(), params.getAwsAutorizationKeys().first, params.getAwsAutorizationKeys().second)));
 }
 
 
 Uri tokenizeRequest(const RequestParams & params, const std::string & method, const Uri & url, HeaderVec & headers, time_t expirationTime){
 
-    (void) headers; // will be in used later for requests with content-type / amz headers
     std::ostringstream ss;
 
     // construct Request token
@@ -86,7 +113,7 @@ Uri tokenizeRequest(const RequestParams & params, const std::string & method, co
        << "\n"          // TODO : implement Content-type and md5 parser
        << "\n"
        << static_cast<unsigned long long>(expirationTime) << "\n"
-       << '/' << extract_bucket(url)  << url.getPath();
+       <<  getAmzCanonHeaders(headers) << '/' << extract_bucket(url)  << url.getPath();
     const std::string signature = getAwsReqToken(ss.str(), params.getAwsAutorizationKeys().first);
 
 
@@ -101,6 +128,17 @@ Uri tokenizeRequest(const RequestParams & params, const std::string & method, co
     ss << "AWSAccessKeyId=" << params.getAwsAutorizationKeys().second << "&";
     ss << "Signature=" << signature << "&";
     ss << "Expires=" << static_cast<unsigned long long>(expirationTime);
+
+    // add amz headers as query parameters
+    for(HeaderVec::iterator it = headers.begin(); it < headers.end(); ++it){
+        if(matchAmzheaders(it->first)){
+            std::string key= it->first, value = it->second;
+            StrUtil::toLower(StrUtil::trim(key));
+            StrUtil::toLower(StrUtil::trim(value));
+
+            ss << "&"<< Uri::escapeString(key) << "=" << Uri::escapeString(value);
+        }
+    }
     return Uri(ss.str());
 }
 

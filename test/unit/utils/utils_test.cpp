@@ -119,6 +119,28 @@ TEST(testAuthS3, ReqToSign){
 }
 
 
+TEST(testAuthS3, ReqToSignAWS){
+    RequestParams params;
+    Uri url("http://static.johnsmith.net:8080/db-backup.dat.gz");
+    params.setAwsAuthorizationKeys("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY", "AKIAIOSFODNN7EXAMPLE");
+
+
+    HeaderVec vec;
+    vec.push_back(HeaderLine("Date", "Tue, 27 Mar 2007 21:06:08 +0000"));
+    vec.push_back(HeaderLine("x-amz-acl","public-read"));
+    vec.push_back(HeaderLine("X-Amz-Meta-ReviewedBy", "joe@johnsmith.net,jane@johnsmith.net"));
+    vec.push_back(HeaderLine("X-Amz-Meta-FileChecksum","0x02661779"));
+    vec.push_back(HeaderLine("X-Amz-Meta-ChecksumAlgorithm", "crc32"));
+    vec.push_back(HeaderLine("Content-Disposition","attachment; filename=database.dat"));
+    vec.push_back(HeaderLine("Content-Encoding","gzip"));
+    vec.push_back(HeaderLine("Content-Length","5913339"));
+
+    S3::signRequest(params, "PUT", url, vec);
+    ASSERT_EQ(std::string("Authorization"),vec.back().first);
+    ASSERT_EQ(std::string("AWS AKIAIOSFODNN7EXAMPLE:mRp45AGRkcT9u0ssDHIkjUqmPWk="),vec.back().second);
+}
+
+
 TEST(testAuthS3, ReqToToken){
     RequestParams params;
     Uri url("http://johnsmith.s3.amazonaws.com/photos/puppy.jpg");
@@ -131,3 +153,22 @@ TEST(testAuthS3, ReqToToken){
     Uri resu("http://johnsmith.s3.amazonaws.com/photos/puppy.jpg?AWSAccessKeyId=AKIAIOSFODNN7EXAMPLE&Signature=NpgCjnDzrM%2BWFzoENXmpNDUsSn8%3D&Expires=1175139620");
     ASSERT_TRUE(StrUtil::compare_ncase(resu.getString(), u.getString()) ==0);
 }
+
+
+
+
+TEST(testAuthS3, ReqToTokenWithHeaders){
+    RequestParams params;
+    Uri url("http://firwen-bucket.s3.amazonaws.com/testfile1234");
+    params.setAwsAuthorizationKeys("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY", "AKIAIOSFODNN7EXAMPLE");
+
+
+    HeaderVec vec;
+    vec.push_back(HeaderLine("x-amz-meta-fed-acl", "adevress : rwx, furano : rwx"));
+
+    Uri u = S3::tokenizeRequest(params, "PUT", url, vec, static_cast<time_t>(1415835686));
+    Uri resu("http://firwen-bucket.s3.amazonaws.com/testfile1234?AWSAccessKeyId=AKIAIOSFODNN7EXAMPLE&Signature=8DnY/3Te1GOcC01S6BGNHZErJMo%3d&Expires=1415835686&x-amz-meta-fed-acl=adevress%20%3a%20rwx%2c%20furano%20%3a%20rwx");
+    std::cout << u << "\n" << resu << std::endl;
+    ASSERT_TRUE(StrUtil::compare_ncase(resu.getString(), u.getString()) ==0);
+}
+

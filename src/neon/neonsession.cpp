@@ -112,6 +112,7 @@ int NEONSession::provide_login_passwd_fn(void *userdata, const char *realm, int 
          DAVIX_DEBUG("NEONSession > Try callback for login/passwd for %d time", attempt+1);
          SessionInfo infos;
          std::string tmp_login, tmp_password;
+         DavixError::clearError(&(req->_last_error));
          if( (ret = retcallback.first(retcallback.second, infos, tmp_login, tmp_password, attempt, &tmp_err) ) <0){
              if(!tmp_err)
                  DavixError::setupError(&tmp_err, davix_scope_http_request(), StatusCode::LoginPasswordError,

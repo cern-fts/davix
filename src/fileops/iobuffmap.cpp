@@ -56,7 +56,7 @@ dav_ssize_t read_segment_request(HttpRequest* req, void* buffer, dav_size_t size
     dav_size_t s_read= size_read;
     ret = tmp_ret = 0;
 
-    DAVIX_TRACE("Davix::IOMap::readSegment: want to read %lld bytes ", size_read);
+    DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CHAIN, "Davix::IOMap::readSegment: want to read %lld bytes ", size_read);
     do{
         tmp_ret= req->readBlock(p_buff, s_read, &tmp_err);
         if(tmp_ret > 0){ // tmp_ret bytes readed
@@ -73,7 +73,7 @@ dav_ssize_t read_segment_request(HttpRequest* req, void* buffer, dav_size_t size
         DavixError::propagateError(err, tmp_err);
         return -1;
     }
-    DAVIX_TRACE("Davix::IOMap::readSegment: got %lld bytes ", ret);
+    DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CHAIN, "Davix::IOMap::readSegment: got %lld bytes ", ret);
     return ret;
 }
 
@@ -142,7 +142,7 @@ dav_ssize_t HttpIO::readFull(IOChainContext & iocontext, std::vector<char> & buf
     DavixError * tmp_err=NULL;
     dav_ssize_t ret = -1, total=0;
 
-    DAVIX_DEBUG(" -> readFull on vector");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CHAIN, " -> readFull on vector");
     GetRequest req (iocontext._context, iocontext._uri, &tmp_err);
     if(!tmp_err){
         RequestParams params(iocontext._reqparams);
@@ -162,7 +162,7 @@ dav_ssize_t HttpIO::readFull(IOChainContext & iocontext, std::vector<char> & buf
         }
     }
 
-    DAVIX_DEBUG(" <- readFull on vector");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CHAIN, " <- readFull on vector");
     checkDavixError(&tmp_err);
     return (ret>0)?total:-1;
 }
@@ -171,7 +171,7 @@ dav_ssize_t HttpIO::readFull(IOChainContext & iocontext, std::vector<char> & buf
 dav_ssize_t HttpIO::pread(IOChainContext & iocontext, void *buf, dav_size_t count, dav_off_t offset){
     DavixError * tmp_err=NULL;
     dav_ssize_t ret = -1;
-    DAVIX_DEBUG(" -> getOps operation for %s with size %ld and offset %ld", iocontext._uri.getString().c_str(), count, offset);
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CHAIN, " -> getOps operation for %s with size %ld and offset %ld", iocontext._uri.getString().c_str(), count, offset);
     if(count ==0)
         return 0;
 
@@ -195,7 +195,7 @@ dav_ssize_t HttpIO::pread(IOChainContext & iocontext, void *buf, dav_size_t coun
         }
         req.endRequest(NULL);
     }
-    DAVIX_DEBUG(" end getOps operation for %s <- ",iocontext._uri.getString().c_str());
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CHAIN, " end getOps operation for %s <- ",iocontext._uri.getString().c_str());
     checkDavixError(&tmp_err);
     return ret;
 }
@@ -205,7 +205,7 @@ dav_ssize_t HttpIO::readToFd(IOChainContext & iocontext, int fd, dav_size_t read
     DavixError * tmp_err=NULL;
     dav_ssize_t ret = -1;
 
-    DAVIX_DEBUG(" -> readToFd, request size %ld", read_size);
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CHAIN, " -> readToFd, request size %ld", read_size);
     GetRequest req (iocontext._context, iocontext._uri, &tmp_err);
     if(!tmp_err){
         RequestParams params(iocontext._reqparams);
@@ -222,7 +222,7 @@ dav_ssize_t HttpIO::readToFd(IOChainContext & iocontext, int fd, dav_size_t read
     }
 
 
-    DAVIX_DEBUG(" <- readToFd, read size %ld", ret);
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CHAIN, " <- readToFd, read size %ld", ret);
     checkDavixError(&tmp_err);
     return ret;
 }
@@ -233,7 +233,7 @@ dav_ssize_t HttpIO::readToFd(IOChainContext & iocontext, int fd, dav_size_t read
 dav_ssize_t HttpIO::writeFromFd(IOChainContext & iocontext, int fd, dav_size_t size){
     DavixError * tmp_err=NULL;
 
-    DAVIX_DEBUG(" -> writeFromFd for size %ld", size);
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CHAIN, " -> writeFromFd for size %ld", size);
     PutRequest req (iocontext._context,iocontext._uri, &tmp_err);
     if(!tmp_err){
         RequestParams params(iocontext._reqparams);
@@ -246,7 +246,7 @@ dav_ssize_t HttpIO::writeFromFd(IOChainContext & iocontext, int fd, dav_size_t s
         }
     }
 
-    DAVIX_DEBUG(" <- writeFromFd for size %ld", size);
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CHAIN, " <- writeFromFd for size %ld", size);
     checkDavixError(&tmp_err);
     return size;
 }
@@ -261,7 +261,7 @@ dav_ssize_t HttpIO::writeFromFd(IOChainContext & iocontext, int fd, dav_size_t s
 struct IOBufferLocalFile{
     IOBufferLocalFile(int fd, const std::string & filepath): _fd(fd), _filepath(filepath){}
     virtual ~IOBufferLocalFile(){
-        DAVIX_TRACE("Delete tmp file %s", _filepath.c_str());
+        DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CHAIN, "Delete tmp file %s", _filepath.c_str());
         unlink(_filepath.c_str());
     }
 
@@ -293,7 +293,7 @@ IOBufferLocalFile* createLocalBuffer(){
     strcpy(buffer, "/tmp/.davix_tmp_file_XXXXXXXXXXXXXXXXXXXXXXXX");
     int fd;
     if( (fd = mkstemp(buffer)) < 0){
-        DAVIX_TRACE("Error during temporary file creation for HTTPIO %s: %s", buffer, strerror(errno));
+        DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CHAIN, "Error during temporary file creation for HTTPIO %s: %s", buffer, strerror(errno));
         return NULL;
     }
     return new IOBufferLocalFile(fd, buffer);
@@ -330,7 +330,7 @@ bool HttpIOBuffer::open(IOChainContext & iocontext, int flags){
         }
     }
 
-    DAVIX_TRACE("File open %s, size: %ld", iocontext._uri.getString().c_str(), _file_size);
+    DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CHAIN, "File open %s, size: %ld", iocontext._uri.getString().c_str(), _file_size);
     return res;
 }
 
@@ -431,7 +431,7 @@ void HttpIOBuffer::commitLocal(IOChainContext & iocontext){
         struct stat st;
         memset(&st,0, sizeof(struct stat));
         fstat(_local->_fd, &st);
-        DAVIX_TRACE("Commit local file modifications, %d bytes", st.st_size);
+        DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CHAIN, "Commit local file modifications, %d bytes", st.st_size);
         _start->writeFromFd(iocontext, _local->_fd, st.st_size);
         _local.reset();
     }

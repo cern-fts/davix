@@ -33,6 +33,8 @@
 #include <trio.h>
 #endif
 
+#include "davix_logger_c.h"
+
 NE_BEGIN_DECLS
 
 /* Returns a human-readable library version string describing the
@@ -64,19 +66,27 @@ int ne_has_support(int feature);
 #ifndef NE_DEBUGGING
 #define NE_DEBUG if (0) ne_debug
 #else /* DEBUGGING */
-#define NE_DEBUG ne_debug
+//#define NE_DEBUG ne_debug
+#define NE_DEBUG(scope, msg, ...) \
+    do{ \
+    if( (davix_get_log_level() & scope)) { \
+        set_prefix(LOG_SCOPE_NEON); \
+        davix_logger(DAVIX_LOG_ALL, msg, ##__VA_ARGS__); } \
+    }while(0)
 #endif /* DEBUGGING */
 
 /* Debugging masks. */
-#define NE_DBG_SOCKET (1<<0) /* raw socket */
-#define NE_DBG_HTTP (1<<1) /* HTTP request/response handling */
-#define NE_DBG_XML (1<<2) /* XML parser */
-#define NE_DBG_HTTPAUTH (1<<3) /* HTTP authentication (hiding credentials) */
-#define NE_DBG_HTTPPLAIN (1<<4) /* plaintext HTTP authentication */
-#define NE_DBG_LOCKS (1<<5) /* WebDAV locking */
-#define NE_DBG_XMLPARSE (1<<6) /* low-level XML parser */
-#define NE_DBG_HTTPBODY (1<<7) /* HTTP response body blocks */
-#define NE_DBG_SSL (1<<8) /* SSL/TLS */
+/* Masked to DAVIX logging masks. */
+#define NE_DBG_SOCKET LOG_SOCKET /* raw socket */
+#define NE_DBG_HTTP LOG_HEADER /* HTTP request/response handling */
+#define NE_DBG_XML LOG_XML /* XML parser */
+#define NE_DBG_HTTPAUTH LOG_SSL /* HTTP authentication (hiding credentials) */
+#define NE_DBG_HTTPPLAIN LOG_SSL /* plaintext HTTP authentication */
+#define NE_DBG_LOCKS LOG_LOCKS /* WebDAV locking */
+#define NE_DBG_XMLPARSE LOG_XML /* low-level XML parser */
+#define NE_DBG_HTTPBODY LOG_BODY /* HTTP response body blocks */
+#define NE_DBG_SSL LOG_SSL /* SSL/TLS */
+#define NE_DBG_CORE LOG_CORE
 #define NE_DBG_FLUSH (1<<30) /* always flush debugging */
 
 /* Send debugging output to 'stream', for all of the given debug

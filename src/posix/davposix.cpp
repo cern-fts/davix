@@ -33,7 +33,7 @@ using namespace StrUtil;
 
 namespace Davix{
 
-
+const std::string scope = "DavFile";
 
 static HttpIOChain & getIOChain(HttpIOChain & chain){
     CreationFlags flags;
@@ -108,7 +108,8 @@ struct Davix_fd{
         try{
             io_handler.resetIO(io_context);
         }catch(Davix::DavixException & e){
-            DAVIX_LOG(DAVIX_LOG_VERBOSE, "Error when closed file descriptor, possibly file corrupted %s", e.what());
+            //DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_POSIX, "Error when closed file descriptor, possibly file corrupted %s", e.what());
+            DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_POSIX, "Error when closed file descriptor, possibly file corrupted %s", e.what());
         }
     }
 
@@ -159,7 +160,7 @@ dav_ssize_t incremental_propfind_listdir_parsing(HttpRequest* req, DavPropXMLPar
     const dav_ssize_t ret = req->readSegment(buffer, s_buff, &tmp_err);
     if(ret >= 0){
         buffer[ret]= '\0';
-        DAVIX_DEBUG("chunk parse : result content : %s", buffer);
+        DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, "chunk parse : result content : %s", buffer);
         TRY_DAVIX{
             parser->parseChunk(buffer, ret);
         }CATCH_DAVIX(&tmp_err)
@@ -251,27 +252,27 @@ DAVIX_DIR* internal_opendir(Context & context, const RequestParams* params, cons
 
 DAVIX_DIR* DavPosix::opendir(const RequestParams* params, const std::string &url, DavixError** err){
 
-    DAVIX_DEBUG(" -> davix_opendir");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " -> davix_opendir");
     DAVIX_DIR* r  = NULL;
 
     TRY_DAVIX{
         r = internal_opendir(*context, params, url);
     }CATCH_DAVIX(err)
 
-    DAVIX_DEBUG(" <- davix_opendir");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " <- davix_opendir");
     return (DAVIX_DIR*) r;
 }
 
 DAVIX_DIR* DavPosix::opendirpp(const RequestParams* params, const std::string &url, DavixError** err){
 
-    DAVIX_DEBUG(" -> davix_opendirpp");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " -> davix_opendirpp");
     DAVIX_DIR* r  = NULL;
 
     TRY_DAVIX{
         r = internal_opendir(*context, params, url);
     }CATCH_DAVIX(err)
 
-    DAVIX_DEBUG(" <- davix_opendirpp");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " <- davix_opendirpp");
     return (DAVIX_DIR*) r;
 }
 
@@ -311,7 +312,7 @@ struct dirent* internal_readdir(DAVIX_DIR * dir, struct stat* st){
 
 
 struct dirent* DavPosix::readdir(DAVIX_DIR * d, DavixError** err){
-    DAVIX_DEBUG(" -> davix_readdir");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " -> davix_readdir");
     DavixError* tmp_err=NULL;
     DAVIX_DIR* dir = static_cast<DAVIX_DIR*>(d);
 
@@ -324,7 +325,7 @@ struct dirent* DavPosix::readdir(DAVIX_DIR * d, DavixError** err){
 }
 
 struct dirent* DavPosix::readdirpp(DAVIX_DIR * d, struct stat *st, DavixError** err){
-    DAVIX_DEBUG(" -> davix_readdirpp");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " -> davix_readdirpp");
     DavixError* tmp_err=NULL;
     DAVIX_DIR* dir = static_cast<DAVIX_DIR*>(d);
 
@@ -364,9 +365,9 @@ void DavPosix::fadvise(DAVIX_FD *fd, dav_off_t offset, dav_size_t len, advise_t 
         fd->io_handler.prefetchInfo(fd->io_context, offset, len, advise);
 
     }catch(DavixException & e){
-        DAVIX_LOG(DAVIX_LOG_WARNING, "[DavPosix::fadvise] error %s", e.what());
+        DAVIX_LOG(DAVIX_LOG_WARNING, LOG_POSIX, "[DavPosix::fadvise] error %s", e.what());
     }catch(...){
-        DAVIX_LOG(DAVIX_LOG_WARNING, "[DavPosix::fadvise] Unknown error, aborted");
+        DAVIX_LOG(DAVIX_LOG_WARNING, LOG_POSIX, "[DavPosix::fadvise] Unknown error, aborted");
     }
 }
 
@@ -376,7 +377,7 @@ void DavPosix::fadvise(DAVIX_FD *fd, dav_off_t offset, dav_size_t len, advise_t 
 /////////////////////////////////////////////////////
 
 int DavPosix::rename(const RequestParams * _params, const std::string &source_url, const std::string &target_url, DavixError** err){
-    DAVIX_DEBUG(" -> davix_mv");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " -> davix_mv");
     int ret=-1;
 
     TRY_DAVIX{
@@ -388,7 +389,7 @@ int DavPosix::rename(const RequestParams * _params, const std::string &source_ur
         ret = 0;
     }CATCH_DAVIX(err)
 
-    DAVIX_DEBUG(" davix_mv <-");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " davix_mv <-");
     return ret;
 }
 
@@ -396,7 +397,7 @@ int DavPosix::rename(const RequestParams * _params, const std::string &source_ur
 
 int DavPosix::mkdir(const RequestParams * _params, const std::string &url, mode_t right, DavixError** err){
     (void) right;
-    DAVIX_DEBUG(" -> davix_mkdir");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " -> davix_mkdir");
     int ret=-1;
 
     TRY_DAVIX{
@@ -408,18 +409,18 @@ int DavPosix::mkdir(const RequestParams * _params, const std::string &url, mode_
         ret = 0;
     }CATCH_DAVIX(err)
 
-    DAVIX_DEBUG(" davix_mkdir <-");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " davix_mkdir <-");
     return ret;
 }
 
 
 int DavPosix::stat(const RequestParams * params, const std::string & url, struct stat* st, DavixError** err){
-    DAVIX_DEBUG(" -> davix_stat");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " -> davix_stat");
 
     File f(*context, url);
     int ret = f.stat(params, st, err);
 
-    DAVIX_DEBUG(" davix_stat <-");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " davix_stat <-");
     return ret;
 
 }
@@ -486,7 +487,7 @@ int davix_remove_posix(Context* context, const RequestParams * params, const std
 
 
 int DavPosix::unlink(const RequestParams * params, const std::string &uri, DavixError** err){
-    DAVIX_DEBUG(" -> davix_unlink");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " -> davix_unlink");
     int ret=-1;
     DavixError* tmp_err=NULL;
 
@@ -494,14 +495,14 @@ int DavPosix::unlink(const RequestParams * params, const std::string &uri, Davix
         ret = davix_remove_posix(context, params, uri, false, &tmp_err);
     }CATCH_DAVIX(&tmp_err)
 
-    DAVIX_DEBUG(" davix_unlink <-");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " davix_unlink <-");
     DavixError::propagatePrefixedError(err, tmp_err, "DavPosix::unlink ");
     return ret;
 }
 
 
 int DavPosix::rmdir(const RequestParams * params, const std::string &uri, DavixError** err){
-    DAVIX_DEBUG(" -> davix_rmdir");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " -> davix_rmdir");
     int ret=-1;
     DavixError* tmp_err=NULL;
 
@@ -509,7 +510,7 @@ int DavPosix::rmdir(const RequestParams * params, const std::string &uri, DavixE
         ret = davix_remove_posix(context, params, uri, true, &tmp_err);
     }CATCH_DAVIX(&tmp_err)
 
-    DAVIX_DEBUG(" davix_rmdir <-");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " davix_rmdir <-");
     DavixError::propagatePrefixedError(err, tmp_err, "DavPosix::rmdir ");
     return ret;
 }
@@ -532,7 +533,7 @@ inline int davix_check_rw_fd(DAVIX_FD* fd, DavixError** err){
 
 
 DAVIX_FD* DavPosix::open(const RequestParams * _params, const std::string & url, int flags, DavixError** err){
-    DAVIX_DEBUG(" -> davix_open");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " -> davix_open");
     DavixError* tmp_err=NULL;
     Davix_fd* fd = NULL;
 
@@ -552,13 +553,13 @@ DAVIX_FD* DavPosix::open(const RequestParams * _params, const std::string & url,
         delete fd;
         fd= NULL;
     }
-    DAVIX_DEBUG(" davix_open <-");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " davix_open <-");
     return fd;
 }
 
 
 ssize_t DavPosix::read(DAVIX_FD* fd, void* buf, size_t count, Davix::DavixError** err){
-    DAVIX_DEBUG(" -> davix_read");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " -> davix_read");
     ssize_t ret =-1;
     DavixError* tmp_err=NULL;
 
@@ -569,7 +570,7 @@ ssize_t DavPosix::read(DAVIX_FD* fd, void* buf, size_t count, Davix::DavixError*
     }CATCH_DAVIX(&tmp_err)
 
     DavixError::propagateError(err, tmp_err);
-    DAVIX_DEBUG(" davix_read <-");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " davix_read <-");
     return ret;
 }
 
@@ -579,7 +580,7 @@ ssize_t DavPosix::pread(DAVIX_FD* fd, void* buf, size_t count, off_t offset, Dav
 }
 
 dav_ssize_t DavPosix::pread64(DAVIX_FD *fd, void *buf, dav_size_t count, dav_off_t offset, DavixError **err){
-    DAVIX_DEBUG(" -> davix_pread");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " -> davix_pread");
     dav_ssize_t ret =-1;
     DavixError* tmp_err=NULL;
 
@@ -590,7 +591,7 @@ dav_ssize_t DavPosix::pread64(DAVIX_FD *fd, void *buf, dav_size_t count, dav_off
     }CATCH_DAVIX(&tmp_err)
 
     DavixError::propagateError(err, tmp_err);;
-    DAVIX_DEBUG(" davix_pread <-");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " davix_pread <-");
     return ret;
 }
 
@@ -599,8 +600,8 @@ ssize_t DavPosix::pwrite(DAVIX_FD* fd, const void* buf, size_t count, off_t offs
     (void) buf;
     (void) count;
     (void) offset;
-    DAVIX_DEBUG(" -> davix_pwrite");
-    DAVIX_DEBUG(" davix_pwrite <-");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " -> davix_pwrite");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " davix_pwrite <-");
     DavixError::setupError(err, davix_scope_io_buff(), StatusCode::OperationNonSupported, "Operation pwrite Not supported");
     return -1;
 }
@@ -610,8 +611,8 @@ dav_ssize_t DavPosix::pwrite64(DAVIX_FD *fd, const void *buf, dav_size_t count, 
     (void) buf;
     (void) count;
     (void) offset;
-    DAVIX_DEBUG(" -> davix_pwrite");
-    DAVIX_DEBUG(" davix_pwrite <-");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " -> davix_pwrite");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " davix_pwrite <-");
     DavixError::setupError(err, davix_scope_io_buff(), StatusCode::OperationNonSupported, "Operation pwrite Not supported");
     return -1;
 }
@@ -619,7 +620,7 @@ dav_ssize_t DavPosix::pwrite64(DAVIX_FD *fd, const void *buf, dav_size_t count, 
 dav_ssize_t DavPosix::preadVec(DAVIX_FD* fd, const DavIOVecInput * input_vec,
                       DavIOVecOuput * output_vec,
                       dav_size_t count_vec, DavixError** err){
-    DAVIX_DEBUG(" -> davix_pread_vec");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " -> davix_pread_vec");
     ssize_t ret =-1;
     DavixError* tmp_err=NULL;
 
@@ -630,12 +631,12 @@ dav_ssize_t DavPosix::preadVec(DAVIX_FD* fd, const DavIOVecInput * input_vec,
     }CATCH_DAVIX(&tmp_err)
 
     DavixError::propagateError(err, tmp_err);
-    DAVIX_DEBUG(" davix_pread_vec <-");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " davix_pread_vec <-");
     return ret;
 }
 
 ssize_t DavPosix::write(DAVIX_FD* fd, const void* buf, size_t count, Davix::DavixError** err){
-    DAVIX_DEBUG(" -> davix_write");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " -> davix_write");
     ssize_t ret =-1;
     DavixError* tmp_err=NULL;
 
@@ -646,7 +647,7 @@ ssize_t DavPosix::write(DAVIX_FD* fd, const void* buf, size_t count, Davix::Davi
     }CATCH_DAVIX(&tmp_err)
 
     DavixError::propagateError(err, tmp_err);
-    DAVIX_DEBUG(" davix_write <-");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " davix_write <-");
     return ret;
 }
 
@@ -660,7 +661,7 @@ off_t DavPosix::lseek(DAVIX_FD* fd, off_t offset, int flags, Davix::DavixError**
 }
 
 dav_off_t DavPosix::lseek64(DAVIX_FD *fd, dav_off_t offset, int flags, DavixError **err){
-    DAVIX_DEBUG(" -> davix_lseek");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " -> davix_lseek");
     ssize_t ret =-1;
     DavixError* tmp_err=NULL;
 
@@ -671,7 +672,7 @@ dav_off_t DavPosix::lseek64(DAVIX_FD *fd, dav_off_t offset, int flags, DavixErro
     }CATCH_DAVIX(&tmp_err)
 
     DavixError::propagateError(err, tmp_err);
-    DAVIX_DEBUG(" davix_lseek <-");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_POSIX, " davix_lseek <-");
     return ret;
 }
 

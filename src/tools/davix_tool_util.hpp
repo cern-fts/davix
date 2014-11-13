@@ -69,6 +69,8 @@ void flushFinalLineShell(int fd);
 
 // replace '~' at front of string with env HOME if found
 std::string SanitiseTildedPath(const char * path);
+
+bool is_number(const std::string& s);
 }
 }
 

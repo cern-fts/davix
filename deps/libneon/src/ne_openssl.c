@@ -399,12 +399,18 @@ static ne_ssl_certificate *make_chain(STACK_OF(X509) *chain)
     for (n = 0; n < count; n++) {
         ne_ssl_certificate *cert = ne_malloc(sizeof *cert);
         populate_cert(cert, X509_dup(sk_X509_value(chain, n)));
-#ifdef NE_DEBUGGING
+//#ifdef NE_DEBUGGING
+        /*
         if (ne_debug_mask & NE_DBG_SSL) {
             fprintf(ne_debug_stream, "Cert #%d:\n", n);
             X509_print_fp(ne_debug_stream, cert->subject);
+        }*/
+        if((davix_get_log_level() & NE_DBG_SSL)){
+            NE_DEBUG(NE_DBG_SSL, "Cert #%d:\n", n);
+            X509_print_fp(stderr, cert->subject);
         }
-#endif
+
+//#endif
         if (top == NULL) {
             current = top = cert;
         } else {

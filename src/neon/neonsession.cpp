@@ -67,7 +67,7 @@ void NEONSession::authNeonCliCertMapper(void *userdata, ne_session *sess,
     DavixError::clearError(&(req->_last_error));
 
     if(params->getClientCertFunctionX509()){
-        DAVIX_DEBUG("NEONSession > call client cert callback ");
+        DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "NEONSession > call client cert callback ");
         SessionInfo infos;
         TRY_DAVIX{
             params->getClientCertFunctionX509()(infos, cert);
@@ -89,7 +89,7 @@ int NEONSession::provide_login_passwd_fn(void *userdata, const char *realm, int 
     int ret =-1;
 
 
-    DAVIX_DEBUG("NEONSession > Try to get auth/password authentification from client");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "NEONSession > Try to get auth/password authentification from client");
 
      if(attempt > n_max_auth ){
          DavixError::setupError(&(req->_last_error), davix_scope_http_request(), StatusCode::LoginPasswordError,
@@ -109,7 +109,7 @@ int NEONSession::provide_login_passwd_fn(void *userdata, const char *realm, int 
               copy_std_string_to_buff(username, NE_ABUFSIZ, id.first.c_str());
               copy_std_string_to_buff(password, NE_ABUFSIZ, id.second.c_str());
      }else if(retcallback.first != NULL){
-         DAVIX_DEBUG("NEONSession > Try callback for login/passwd for %d time", attempt+1);
+         DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "NEONSession > Try callback for login/passwd for %d time", attempt+1);
          SessionInfo infos;
          std::string tmp_login, tmp_password;
          DavixError::clearError(&(req->_last_error));
@@ -124,7 +124,7 @@ int NEONSession::provide_login_passwd_fn(void *userdata, const char *realm, int 
          copy_std_string_to_buff(password, NE_ABUFSIZ, tmp_password.c_str());
      }
 
-    DAVIX_DEBUG("NEONSession > get login/password with success...try server submission ");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "NEONSession > get login/password with success...try server submission ");
     return 0;
 
 }
@@ -164,7 +164,7 @@ void configureSession(ne_session *_sess, const Uri & _u, const RequestParams &pa
     void* state = ne_get_session_private(_sess,davix_neon_key);
     if(state == NULL || state != params.getParmState()){
         // no configuration done, need to configure
-        DAVIX_TRACE("NEONSession : configure session...");
+        DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CORE, "NEONSession : configure session...");
 
         if(strcmp(ne_get_scheme(_sess), "https") ==0) // fix a libneon bug with non ssl connexion
             ne_ssl_trust_default_ca(_sess);
@@ -176,28 +176,28 @@ void configureSession(ne_session *_sess, const Uri & _u, const RequestParams &pa
         ne_set_useragent(_sess, params.getUserAgent().c_str());
 
         if(params.getSSLCACheck() == false){ // configure ssl check
-            DAVIX_DEBUG("NEONRequest : disable ssl verification");
+            DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "NEONRequest : disable ssl verification");
             ne_ssl_set_verify(_sess, validate_all_certificate, NULL);
         }
 
         if( timespec_isset(params.getOperationTimeout())){
             const int timeout = static_cast<int>(params.getOperationTimeout()->tv_sec);
-            DAVIX_DEBUG("NEONSession : define operation timeout to %d", timeout);
+            DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "NEONSession : define operation timeout to %d", timeout);
             ne_set_read_timeout(_sess, timeout);
         }
         if(timespec_isset(params.getConnectionTimeout())){
             const int timeout = static_cast<int>(params.getConnectionTimeout()->tv_sec);
-            DAVIX_DEBUG("NEONSession : define connection timeout to %d" , timeout);
+            DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "NEONSession : define connection timeout to %d" , timeout);
             ne_set_connect_timeout(_sess, timeout);
         }
 
         for(std::vector<std::string>::const_iterator it = params.listCertificateAuthorityPath().begin(); it < params.listCertificateAuthorityPath().end(); it++){
             struct stat st;
             if ( stat(it->c_str(), &st) < 0 || S_ISDIR(st.st_mode) == false){
-                DAVIX_LOG(DAVIX_LOG_WARNING, "NEONSession : CA Path invalid : %s, %s ", it->c_str(), (errno != 0)?strerror(errno):strerror(ENOTDIR));
+                DAVIX_LOG(DAVIX_LOG_WARNING, LOG_CORE, "NEONSession : CA Path invalid : %s, %s ", it->c_str(), (errno != 0)?strerror(errno):strerror(ENOTDIR));
                 errno = 0;
             }else{
-                DAVIX_TRACE(" add CA PATH %s", it->c_str());
+                DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CORE, " add CA PATH %s", it->c_str());
                 ne_ssl_truse_add_ca_path(_sess, it->c_str());
             }
         }
@@ -211,18 +211,18 @@ void configureSession(ne_session *_sess, const Uri & _u, const RequestParams &pa
     if( params.getClientLoginPassword().first.empty() == false
             || _u.getUserInfo().size() > 0
             || params.getClientLoginPasswordCallback().first != NULL){
-        DAVIX_DEBUG("NEONSession : enable login/password authentication");
+        DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "NEONSession : enable login/password authentication");
         ne_set_server_auth(_sess, lp_callback, lp_userdata);
     }else{
-        DAVIX_DEBUG("NEONSession : disable login/password authentication");
+        DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "NEONSession : disable login/password authentication");
     }
 
     // if authentification for cli cert by callback
     if( params.getClientCertFunctionX509()){
-        DAVIX_DEBUG("NEONSession : enable client cert authentication by callback ");
+        DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "NEONSession : enable client cert authentication by callback ");
         ne_ssl_provide_clicert(_sess, cred_callback, cred_userdata);
     }else{
-          DAVIX_DEBUG("NEONSession : disable client cert authentication");
+          DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "NEONSession : disable client cert authentication");
     }
 
 

@@ -39,7 +39,7 @@ HttpRequest::HttpRequest(NEONRequest* req) : d_ptr(req)
 HttpRequest::HttpRequest(Context & context, const Uri & uri, DavixError** err) :
     d_ptr(new NEONRequest(*this, context,uri)){
 
-    DAVIX_DEBUG("Creat HttpRequest for %s", uri.getString().c_str());
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "Creat HttpRequest for %s", uri.getString().c_str());
     if(uri.getStatus() != StatusCode::OK){
         DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, "impossible to parse " + uri.getString() + ", not a valid HTTP or Webdav URL");
     }
@@ -56,7 +56,7 @@ HttpRequest::HttpRequest(Context & context, const std::string & url, DavixError*
 
 HttpRequest::~HttpRequest()
 {
-    DAVIX_DEBUG("Destroy HttpRequest");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "Destroy HttpRequest");
     delete d_ptr;
 }
 
@@ -133,12 +133,12 @@ dav_ssize_t HttpRequest::readSegment(char* buffer, dav_size_t max_size, DavixErr
 }
 
 dav_ssize_t HttpRequest::readLine(char *buffer, dav_size_t max_size, DavixError **err){
-    DAVIX_DEBUG("Davix::Request::readLine want to read a line of max %lld chars", max_size);
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "Davix::Request::readLine want to read a line of max %lld chars", max_size);
     dav_ssize_t ret= -1;
     TRY_DAVIX{
         if( (ret =  d_ptr->readLine(buffer, max_size, err)) >= 0){
-            DAVIX_DEBUG("Davix::Request::readLine got %lld chars", ret);
-            DAVIX_TRACE("Davix::Request::readLine content\n{{%.*s}}\n", ret, buffer);
+            DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "Davix::Request::readLine got %lld chars", ret);
+            DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CORE, "Davix::Request::readLine content\n{{%.*s}}\n", ret, buffer);
         }
     }CATCH_DAVIX(err)
     return ret;

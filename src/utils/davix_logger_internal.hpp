@@ -6,22 +6,6 @@
 
 DAVIX_C_DECL_BEGIN
 
-#define DAVIX_LOG(X, msg, ...) \
-    do{ \
-    if(X & davix_get_log_level()){ davix_logger(X, msg, ##__VA_ARGS__); } \
-    }while(0)
-
-#define DAVIX_DEBUG(msg, ...) \
-    do{ \
-    if(0x04 & davix_get_log_level() ){ davix_logger(0x04, msg, ##__VA_ARGS__); } \
-    }while(0)
-
-#define DAVIX_TRACE(msg, ...) \
-    do{ \
-    if(0x08 & davix_get_log_level()){ davix_logger(0x08, msg, ##__VA_ARGS__); } \
-    }while(0)
-
-
 #define davix_return_val_if_fail(X, Y) \
     do{ \
         if(!(X)){ \
@@ -30,6 +14,13 @@ DAVIX_C_DECL_BEGIN
         } \
     }while(0)
 
+
+#define DAVIX_LOG(lvl, scope, msg, ...) \
+    do{ \
+    if( (davix_get_log_level() & scope) && (davix_get_trace_level() >= lvl) ){ \
+        set_prefix(LOG_SCOPE_DAVIX); \
+        davix_logger(lvl, msg, ##__VA_ARGS__); } \
+    }while(0)
 
 DAVIX_C_DECL_END
 

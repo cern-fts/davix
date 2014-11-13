@@ -104,11 +104,47 @@ SOCKS5 proxy server URL. (ex: socks5://login:pass@socks.example.org)
 .PP
 
 
-.RS 2
-\fB\--trace-headers\fR
+.RS 2	
+\fB\--trace\fR
 .RE
 .RS 5
-Trace all HTTP queries headers
+Traces specific scope(s), options include:
+.RE
+.RS 8
+file - Davix file interface
+.RE
+.RS 8
+posix - Davix POSIX interface
+.RE
+.RS 8
+xml - XML parser output
+.RE
+.RS 8
+ssl - SSL and certs details
+.RE
+.RS 8
+header - HTTP queries headers
+.RE
+.RS 8
+body - HTTP bodies
+.RE
+.RS 8
+chain - IO chains info
+.RE
+.RS 8
+core - Config and misc info
+.RE
+.RS 8
+grid - Misc info from 3rd parties
+.RE
+.RS 8
+socket - Socket info
+.RE
+.RS 8
+locks - WebDAV locking info
+.RE
+.RS 8
+all - Traces everything
 .RE
 .PP
 

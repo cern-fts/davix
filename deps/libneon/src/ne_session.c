@@ -81,7 +81,7 @@ void ne_session_destroy(ne_session *sess)
 {
     struct hook *hk;
 
-    NE_DEBUG(NE_DBG_HTTP, "sess: Destroying session.\n");
+    NE_DEBUG(NE_DBG_CORE, "sess: Destroying session.\n");
 
     /* Run the destroy hooks. */
     for (hk = sess->destroy_sess_hooks; hk != NULL; hk = hk->next) {

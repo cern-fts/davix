@@ -42,7 +42,7 @@ const std::string scope_params = "Davix::Tools::Params";
 #define S3_SECRET_KEY       1005
 #define S3_ACCESS_KEY       1006
 #define X509_PRIVATE_KEY    1007
-#define HEADERS_OPTIONS     1008
+#define TRACE_OPTIONS       1008
 #define REDIRECTION_OPT     1009
 #define METALINK_OPT        1010
 #define CONN_TIMEOUT        1011
@@ -60,7 +60,7 @@ const std::string scope_params = "Davix::Tools::Params";
 {"redirection", required_argument, 0, REDIRECTION_OPT }, \
 {"conn-timeout", required_argument, 0, CONN_TIMEOUT }, \
 {"timeout", required_argument, 0, TIMEOUT_OPS }, \
-{"trace-headers", no_argument, 0, HEADERS_OPTIONS }, \
+{"trace", required_argument, 0, TRACE_OPTIONS }, \
 {"verbose", no_argument, 0,  0 }, \
 {"version", no_argument, 0, 'V'}
 
@@ -178,7 +178,8 @@ int parse_davix_options_generic(const std::string &opt_filter,
         switch(ret){
             case DEBUG_OPT:
                 p.debug = true;
-                davix_set_log_level(DAVIX_LOG_ALL);
+                davix_set_log_level(LOG_ALL ^ LOG_BODY ^ LOG_XML);
+                davix_set_log_debug(true);
                 break;
             case 'E':
                  p.cred_path = SanitiseTildedPath(optarg);
@@ -223,8 +224,25 @@ int parse_davix_options_generic(const std::string &opt_filter,
             case 'V':
                 display_version();
                 return 1;
-            case HEADERS_OPTIONS:
-                p.pres_flag |= DISPLAY_HEADERS;
+            case TRACE_OPTIONS:
+                p.trace_list = StrUtil::tokenSplit(std::string(optarg), ",");
+
+                unsigned int i;
+
+                if(is_number(p.trace_list[0]) ){
+                        if(atoi(p.trace_list[0].c_str() ) > DAVIX_LOG_ALL){
+                            std::cerr << "Trace level must be a decimal digit up to " << DAVIX_LOG_ALL << std::endl;
+                            return -1;
+                        }else{ // is a number <= max log level
+                            i = 1;
+                            davix_set_trace_level(atoi(p.trace_list[0].c_str()));
+                        }
+                }else{ // not a number
+                    i = 0;
+                }
+                
+                for(; i < p.trace_list.size(); ++i)
+                    davix_set_log_scope(p.trace_list[i]);
                 break;
             case 'x':
                 p.params.setProxyServer(std::string(optarg, 0, 2048));
@@ -367,7 +385,7 @@ const std::string  & get_common_options(){
             "\t--proxy, -x URL:          SOCKS5 proxy server URL. (Ex: socks5://login:pass@socks.example.org)\n"
             "\t--redirection OPT:        Transparent redirection support. value=yes|no. default=yes)\n"
             "\t--timeout TIME:           Global timeout for the operation in seconds. default: infinite\n"
-            "\t--trace-headers:          Trace all HTTP queries headers\n"
+            "\t--trace:                  Specify one or more scpoes to trace. (Ex: --trace log level(optional),header,file)\n"
             "\t--verbose:                Verbose mode\n"
             "\t--version, -V:            Display version\n"
             "  Security Options:\n"

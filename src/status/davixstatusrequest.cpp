@@ -104,7 +104,7 @@ void DavixError::setErrScope(const std::string &scope){
 void DavixError::setupError(DavixError **err, const std::string &scope, StatusCode::Code errCode, const std::string &errMsg){
     if(err){
         if(*err){
-            DAVIX_DEBUG("Error Override of previous DavixError, BUG !");
+            DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "Error Override of previous DavixError, BUG !");
             // error msg
         }
         *err = new DavixError(scope, errCode, errMsg);

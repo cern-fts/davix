@@ -25,7 +25,7 @@
 #include <string_utils/stringutils.hpp>
 #include "davix_tool_util.hpp"
 
-
+#include <ctype.h>
 #include <simple_getpass/simple_get_pass.h>
 
 
@@ -331,6 +331,13 @@ std::string SanitiseTildedPath(const char * path){
         return newpath;
     }   
     return std::string(path);
+}
+
+bool is_number(const std::string& s)
+{
+    std::string::const_iterator it = s.begin();
+    while (it != s.end() && std::isdigit(*it)) ++it;
+    return !s.empty() && it == s.end();
 }
 
 }

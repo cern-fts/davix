@@ -39,9 +39,9 @@ ReturnType metalinkTryReplicas(HttpIOChain & chain, IOChainContext & io_context,
             IOChainContext internal_context(io_context._context, it->getUri(), io_context._reqparams);
             return fun(internal_context);
         }catch(DavixException & replica_error){
-            DAVIX_LOG(DAVIX_LOG_VERBOSE, "Fail access to replica %s: %s", it->getUri().getString().c_str(), replica_error.what());
+            DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, "Fail access to replica %s: %s", it->getUri().getString().c_str(), replica_error.what());
         }catch(...){
-            DAVIX_LOG(DAVIX_LOG_VERBOSE, "Fail access to replica: Unknown Error");
+            DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, "Fail access to replica: Unknown Error");
         }
     }
     throw DavixException(davix_scope_io_buff(), StatusCode::InvalidServerResponse, "Impossible to access any of the replicas with success");
@@ -65,15 +65,15 @@ ReturnType metalinkExecutor(HttpIOChain & chain, IOChainContext & io_context, Ex
             throw e;
         }
 
-        DAVIX_LOG(DAVIX_LOG_VERBOSE, "Failure: Impossible to execute operation on %s, error %s", io_context._uri.getString().c_str(), e.what());
-        DAVIX_LOG(DAVIX_LOG_VERBOSE, " Try to Recover with Metalink...");
+        DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, "Failure: Impossible to execute operation on %s, error %s", io_context._uri.getString().c_str(), e.what());
+        DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, " Try to Recover with Metalink...");
 
         try{
             return metalinkTryReplicas<Executor, ReturnType>(chain, io_context, fun);
         }catch(DavixException & metalink_error){
-            DAVIX_LOG(DAVIX_LOG_VERBOSE, "Impossible to Recover with Metalink: %s", metalink_error.what());
+            DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, "Impossible to Recover with Metalink: %s", metalink_error.what());
         }catch(...){
-            DAVIX_LOG(DAVIX_LOG_VERBOSE, "Impossible to Recover with Metalink: Unknown Error");
+            DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, "Impossible to Recover with Metalink: Unknown Error");
         }
         throw e;
     }
@@ -84,7 +84,7 @@ ReturnType metalinkExecutor(HttpIOChain & chain, IOChainContext & io_context, Ex
 int davix_metalink_header_parser(const std::string & header_key, const std::string & header_value,
                                  const Uri & u_original,
                                  Uri & metalink){
-    DAVIX_TRACE("Parse headers for metalink %s %s", header_key.c_str(), header_value.c_str());
+    DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CHAIN, "Parse headers for metalink %s %s", header_key.c_str(), header_value.c_str());
 
     if(compare_ncase(header_key, "Link") ==0 && header_value.find("application/metalink") != std::string::npos){
         std::string::const_iterator it1, it2;
@@ -93,7 +93,7 @@ int davix_metalink_header_parser(const std::string & header_key, const std::stri
             std::string metalink_url(it1+1, it2);
             metalink =  Uri::fromRelativePath(u_original, trim(metalink_url));
             if(metalink.getStatus() == StatusCode::OK){
-                DAVIX_TRACE("Valid metalink URI found %s", metalink.getString().c_str());
+                DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CHAIN, "Valid metalink URI found %s", metalink.getString().c_str());
                 return 1;
             }
 
@@ -117,7 +117,7 @@ int davix_get_metalink_url( Context & c, const Uri & uri,
     req.addHeaderField("Accept", "application/metalink4+xml");
 
 
-    DAVIX_TRACE("Executing head query to %s for Metalink file", uri.getString().c_str());
+    DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CHAIN, "Executing head query to %s for Metalink file", uri.getString().c_str());
     if(tmp_err != NULL || (req.executeRequest(&tmp_err) <0))
         throw DavixException(davix_scope_meta(), tmp_err->getStatus(), tmp_err->getErrMsg());
 
@@ -150,7 +150,7 @@ int davix_file_get_metalink_to_vfile(Context & c, const Uri & metalink_uri,
     req.setParameters(_params);
     req.addHeaderField("Accept", "application/metalink4+xml");
 
-    DAVIX_TRACE("Executing query for %s Metalink content", metalink_uri.getString().c_str());
+    DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CHAIN, "Executing query for %s Metalink content", metalink_uri.getString().c_str());
     if(tmp_err != NULL || (req.beginRequest(&tmp_err) <0) )
         throw DavixException(davix_scope_meta(), tmp_err->getStatus(), tmp_err->getErrMsg());
     if(httpcodeIsValid(req.getRequestCode()) == false){

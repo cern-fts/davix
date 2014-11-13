@@ -138,7 +138,7 @@ void Context::loadModule(const std::string &name){
         loadGridProfile(*this);
         return;
     }
-    DAVIX_LOG(DAVIX_LOG_WARNING, "No module named %s found", name.c_str());
+    DAVIX_LOG(DAVIX_LOG_WARNING, LOG_CORE, "No module named %s found", name.c_str());
 }
 
 HookList & Context::getHookList(){

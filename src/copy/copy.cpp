@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include "copy_internal.hpp"
 #include "delegation/delegation.hpp"
+#include <utils/davix_logger_internal.hpp>
 
 using namespace Davix;
 

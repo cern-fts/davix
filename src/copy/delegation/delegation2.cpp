@@ -3,6 +3,7 @@
 
 #include "delegation.hpp"
 #include "delegation2H.h"
+#include <utils/davix_logger_internal.hpp>
 
 using namespace Davix;
 using namespace delegation2;

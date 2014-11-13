@@ -11,6 +11,7 @@
 #include "delegation2H.h"
 #include "delegation.hpp"
 #include "../auth/davixx509cred_internal.hpp"
+#include <utils/davix_logger_internal.hpp>
 
 using namespace Davix;
 

@@ -52,7 +52,7 @@ struct ContextInternal
         _context_flags(0),
         _hook_list()
     {
-            DAVIX_DEBUG("libdavix path %s", getLibPath().c_str());
+            DAVIX_LOG(DAVIX_LOG_DEBUG, "libdavix path %s", getLibPath().c_str());
     }
 
     ContextInternal(const ContextInternal & orig):

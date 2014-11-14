@@ -227,6 +227,34 @@ dav_ssize_t HttpIO::readToFd(IOChainContext & iocontext, int fd, dav_size_t read
     return ret;
 }
 
+static dav_ssize_t body_provider_wrapper(void *userdata,
+                                       char *buffer, dav_size_t buflen){
+
+        DataProviderFun* cb = (DataProviderFun*) userdata;
+        return (*cb)(buffer, buflen);
+}
+
+dav_ssize_t HttpIO::writeFromCb(IOChainContext &iocontext, const DataProviderFun & func, dav_size_t size){
+    DavixError * tmp_err=NULL;
+
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CHAIN, " -> writeFromCb for size %ld", size);
+    PutRequest req (iocontext._context,iocontext._uri, &tmp_err);
+    if(!tmp_err){
+        RequestParams params(iocontext._reqparams);
+        req.setParameters(params);
+        req.setRequestBody(&body_provider_wrapper, size, (void*) &func);
+        req.executeRequest(&tmp_err);
+        if(!tmp_err && httpcodeIsValid(req.getRequestCode()) == false){
+            httpcodeToDavixError(req.getRequestCode(), davix_scope_io_buff(),
+                                "write error: ", &tmp_err);
+        }
+    }
+
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CHAIN, " <- writeFromFd for size %ld", size);
+    checkDavixError(&tmp_err);
+    return size;
+}
+
 
 // position independant write operation,
 // similar to pwrite do not need open() before

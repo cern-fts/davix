@@ -27,6 +27,7 @@ int main(int argc, char** argv){
 
     DavixError* tmp_err=NULL;
     RequestParams  p;
+    dav_ssize_t ret;
     int fd, fd_out, fd_out2;
     Context c;
     const ssize_t size_content = rand()/1000000+2;
@@ -46,9 +47,11 @@ int main(int argc, char** argv){
     fd = open("/dev/urandom", O_RDONLY);
     DAV_ASSERT_TRUE( fd > 0,  "Impossible to open random generator");
 
-    dav_ssize_t ret = f.putFromFd(&p, fd, size_content, &tmp_err);
+    TRY_DAVIX{
+        f.put(&p, fd, size_content);
+    }CATCH_DAVIX(&tmp_err);
+
     DAV_ASSERT_TRUE( tmp_err == NULL, tmp_err->getErrMsg());
-    DAV_ASSERT_TRUE( ret == 0, "Invalid size " << ret);
 
 
     strcpy(buffer_mktemp, "dav-fd-test-XXXXXXXXX");

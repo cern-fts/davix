@@ -147,6 +147,13 @@ void DavixError::clearError(DavixError **err){
     }
 }
 
+
+void errno_to_davix_exception(int errno_code, const std::string &scope, const std::string &msg){
+    DavixError* tmp_err=NULL;
+    davix_errno_to_davix_error(errno_code, scope, msg, &tmp_err);
+    checkDavixError(&tmp_err);
+}
+
 void davix_errno_to_davix_error(int errcode, const std::string & scope, const std::string & msg, DavixError** newErr){
     StatusCode::Code c;
     std::string msg_final;

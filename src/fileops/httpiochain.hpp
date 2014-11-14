@@ -101,10 +101,12 @@ public:
     virtual dav_off_t lseek(IOChainContext & iocontext, dav_off_t offset, int flags);
 
 
-    // position independant write operation,
-    // similar to pwrite do not need open() before
+    // write the entire content from a file descriptor
     virtual dav_ssize_t writeFromFd(IOChainContext & iocontext, int fd, dav_size_t size);
 
+
+    // wirte the entire content from a defined callback
+    virtual dav_ssize_t writeFromCb(IOChainContext & iocontext, const DataProviderFun & func, dav_size_t size);
 
     // sequential write
     virtual dav_ssize_t write(IOChainContext & iocontext, const void* buf, dav_size_t count);

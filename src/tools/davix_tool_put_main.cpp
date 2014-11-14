@@ -48,17 +48,19 @@ static int execute_put(const Tool::OptParams & opts, int fd, DavixError** err){
         const std::string &  dst_file = opts.vec_arg[1];
         Context c;
         configureContext(c, opts);
-        DavFile f(c, dst_file);
-        struct stat st;
-        if( fstat(fd, &st) != 0){
-            davix_errno_to_davix_error(errno, scope_put, std::string("for source file ").append(src_file), err);
-            return -1;
-        }
-        if( S_ISREG(st.st_mode) && st.st_size > 0){
-            return f.putFromFd(&opts.params, fd, static_cast<dav_size_t>(st.st_size), err);
-        }
-        DavixError::setupError(err, scope_put, StatusCode::SystemError, std::string(dst_file).append("is not a valid regular file"));
-        return -1;
+        TRY_DAVIX{
+            DavFile f(c, dst_file);
+            struct stat st;
+            if( fstat(fd, &st) != 0){
+                errno_to_davix_exception(errno, scope_put, std::string("for source file ").append(src_file));
+            }
+            if( S_ISREG(st.st_mode) && st.st_size > 0){
+                    f.put(&opts.params, fd, static_cast<dav_size_t>(st.st_size));
+                    return 0;
+            }
+            throw DavixException(scope_put, StatusCode::SystemError, std::string(dst_file).append("is not a valid regular file"));
+      }CATCH_DAVIX(err);
+      return -1;
 }
 
 

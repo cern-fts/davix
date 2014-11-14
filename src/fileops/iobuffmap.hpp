@@ -55,6 +55,8 @@ public:
     // read to fd
     virtual dav_ssize_t readToFd(IOChainContext & iocontext, int fd, dav_size_t size);
 
+    virtual dav_ssize_t writeFromCb(IOChainContext &iocontext, const DataProviderFun &func, dav_size_t size);
+
     // position independant write operation,
     // similar to pwrite do not need open() before
     virtual dav_ssize_t writeFromFd(IOChainContext & iocontext, int fd, dav_size_t size);

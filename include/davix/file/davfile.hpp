@@ -22,6 +22,8 @@
 #define DAVFILE_HPP
 
 #include <memory>
+#include <istream>
+#include <ostream>
 #include <davixcontext.hpp>
 #include <params/davixrequestparams.hpp>
 #include <file/davix_file_info.hpp>
@@ -79,6 +81,7 @@ public:
     /// \param url Remote File URL
     ///
     DavFile(Context & c, const Uri & url);
+    DavFile(Context &c, const RequestParams & params, const Uri &url);
     DavFile(const DavFile & orig);
     ///
     /// \brief destructor
@@ -177,21 +180,63 @@ public:
                             std::vector<char> & buffer,
                             DavixError** err) throw();
 
+
     ///
-    ///  @brief create and replace the file with the content
-    ///     of the file descriptor fd
+    ///  @brief Get the full file content
+    ///
+    ///  @param params Davix request Parameters
+    ///  @param buffer reference to a vector for the result
+    ///  @return total number of bytes read, or -1 if error occures
+    ///
+    /// Get the file content in a dynamically allocated buffer
+    ///
+    ///  WARNING: this operation is without size limit for the content
+    ///
+    dav_ssize_t get(const RequestParams* params,
+                    std::vector<char> & buffer);
+
+
+
+    ///
+    ///  @brief Create/Replace file content
     ///
     ///  @param params Davix request Parameters
     ///  @param fd file descriptor
-    ///  @param size_write number of bytes to write    
-    ///  @param err Davix Error report
-    ///  @return 0 if success, or -1 if error occures
+    ///  @param size_write number of bytes to write
+    ///  @throw DavixException if an error occurs
     ///
-    int putFromFd(const RequestParams* params,
-                  int fd,
-                  dav_size_t size_write,
-                  DavixError** err) throw();
+    ///  Create / Replace the file.
+    ///  Read the new content from the file descriptor fd for a maximum of size_write bytes.
+    void put(const RequestParams* params, int fd, dav_size_t size_write);
 
+
+    ///
+    ///  @brief Create/Replace file content
+    ///
+    ///  @param params Davix request Parameters
+    ///  @param buffer buffer with data to write
+    ///  @param size_write number of bytes to write
+    ///  @throw DavixException if an error occurs
+    ///
+    ///  Set a new content for the file.
+    ///  The new content comes from buffer
+    void put(const RequestParams* params, const char* buffer, dav_size_t size_write);
+
+#ifdef __DAVIX_HAS_STD_FUNCTION
+
+    ///
+    ///  @brief Create/Replace file content
+    ///
+    ///  @param params Davix request Parameters
+    ///  @param callback data provider callback
+    ///  @param size Total size of the data to write
+    ///  @throw DavixException if an error occurs
+    ///
+    ///  Set a new content for the file.
+    ///  The new content comes from a data provider callback
+    void put(const RequestParams* params, const DataProviderFun & callback, dav_size_t size);
+
+#endif
 
     ///
     /// @brief move
@@ -300,14 +345,27 @@ private:
     DavFileInternal* d_ptr;
 
 public:
-    /// @deprecated deprecated, will be removed in 1.0
-    dav_ssize_t getAllReplicas(const RequestParams* params,
-                                    ReplicaVec & vec, DavixError** err);
+    /// @deprecated deprecated, will be removed in 2.0
+    DEPRECATED(dav_ssize_t getAllReplicas(const RequestParams* params,
+                                    ReplicaVec & vec, DavixError** err));
+
+    ///
+    ///  @deprecated please use put() as a replacer, will be removed in 2.0
+    ///
+    DEPRECATED(int putFromFd(const RequestParams* params,
+                  int fd,
+                  dav_size_t size_write,
+                  DavixError** err) throw());
 };
 
 typedef DavFile File;
 
 
 } // Davix
+
+
+// provide stream operator for Davix::File
+std::ostream & operator<<(std::ostream & out, Davix::DavFile & file);
+std::istream & operator>>(std::istream & in, Davix::DavFile & file);
 
 #endif // DAVFILE_HPP

@@ -348,6 +348,8 @@ DAVIX_EXPORT std::string davix_scope_x509cred();
 //
 DAVIX_EXPORT void davix_errno_to_davix_error(int errcode, const std::string & scope, const std::string & msg, DavixError** newErr);
 
+DAVIX_EXPORT void errno_to_davix_exception(int errno_code, const std::string & scope, const std::string & msg);
+
 
 
 

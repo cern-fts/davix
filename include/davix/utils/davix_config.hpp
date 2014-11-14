@@ -118,4 +118,13 @@ namespace std{
 #endif
 
 
+//
+// deprecated
+#undef DEPRECATED
+#ifdef __GNUC__
+#define DEPRECATED(func) func __attribute__ ((deprecated))
+#else
+#define DEPRECATED(func) func
+#endif
+
 #endif // DAVIX_TYPES_HPP

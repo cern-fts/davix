@@ -87,4 +87,26 @@ typedef int64_t dav_off_t;
 
 
 
+#ifdef __DAVIX_HAS_STD_FUNCTION
+
+///
+/// \brief DataProviderFun
+///
+/// Before each time the body is provided, the callback will be called
+/// once with max_size == 0.  The body may have to be provided >1 time
+/// per request (for authentication retries etc.).
+///
+/// For a call with max_size == 0, the callback must return zero on success
+/// or non-zero on error
+///
+/// For a call with max_size > 0, the callback must return:
+///       <0           : error, abort request
+///        0           : ignore 'buffer' contents, end of data.
+///     0 < x <= buflen : buffer contains x bytes of data.  */
+///
+typedef std::function<dav_ssize_t (void* buffer, dav_size_t max_size)> DataProviderFun;
+
+#endif
+
+
 #endif // DAVIX_TYPES_HPP

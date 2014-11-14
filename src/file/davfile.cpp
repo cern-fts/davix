@@ -34,19 +34,21 @@ DavFile::Iterator createIterator(DavFile::DavFileInternal& f, const RequestParam
 
 struct DavFile::DavFileInternal{
 
-    DavFileInternal(Context & c, const Uri & u) :
-        _c(c), _u(u) {}
+    DavFileInternal(Context & c, const Uri & u, const RequestParams & params = RequestParams()) :
+        _c(c), _u(u), _params(params) {}
 
-    DavFileInternal(const DavFileInternal & orig) : _c(orig._c), _u(orig._u) {}
+    DavFileInternal(const DavFileInternal & orig) : _c(orig._c), _u(orig._u), _params(orig._params) {}
 
     Context & _c;
     Uri _u;
+    RequestParams _params;
+
     HttpIOChain & getIOChain(HttpIOChain & c){
         return ChainFactory::instanceChain(CreationFlags(), c);
     }
 
     IOChainContext getIOContext(const RequestParams * params){
-        return IOChainContext(_c, _u, params);
+        return IOChainContext(_c, _u, (params)?(params):(&_params));
     }
 
     DavFile::Iterator createIterator(const RequestParams * params);
@@ -107,6 +109,14 @@ DavFile::DavFile(Context &c, const Uri &u) :
 {
 
 }
+
+DavFile::DavFile(Context &c, const RequestParams & params, const Uri &u) :
+    d_ptr(new DavFileInternal(c,u,params))
+{
+
+}
+
+
 
 DavFile::DavFile(const DavFile & orig): d_ptr(new DavFileInternal(*orig.d_ptr)){
 
@@ -202,11 +212,17 @@ dav_ssize_t DavFile::getFull(const RequestParams* params,
                         std::vector<char> & buffer,
                         DavixError** err) throw(){
     TRY_DAVIX{
-        HttpIOChain chain;
-        IOChainContext io_context = d_ptr->getIOContext(params);
-        return d_ptr->getIOChain(chain).readFull(io_context, buffer);
+        return get(params, buffer);
     }CATCH_DAVIX(err)
     return -1;
+}
+
+
+dav_ssize_t DavFile::get(const RequestParams* params,
+                        std::vector<char> & buffer){
+    HttpIOChain chain;
+    IOChainContext io_context = d_ptr->getIOContext(params);
+    return d_ptr->getIOChain(chain).readFull(io_context, buffer);
 }
 
 
@@ -215,12 +231,45 @@ int DavFile::putFromFd(const RequestParams* params,
               dav_size_t size,
               DavixError** err) throw(){
     TRY_DAVIX{
-        HttpIOChain chain;
-        IOChainContext io_context = d_ptr->getIOContext(params);
-        d_ptr->getIOChain(chain).writeFromFd(io_context, fd, size);
+        put(params, fd, size);
         return 0;
     }CATCH_DAVIX(err)
     return -1;
+}
+
+void DavFile::put(const RequestParams *params, int fd, dav_size_t size_write){
+    HttpIOChain chain;
+    IOChainContext io_context = d_ptr->getIOContext(params);
+    d_ptr->getIOChain(chain).writeFromFd(io_context, fd, size_write);
+}
+
+void DavFile::put(const RequestParams *params, const DataProviderFun &callback, dav_size_t size_write){
+    HttpIOChain chain;
+    IOChainContext io_context = d_ptr->getIOContext(params);
+    d_ptr->getIOChain(chain).writeFromCb(io_context, callback, size_write);
+}
+
+
+static dav_ssize_t buffer_mapper(void* buffer, dav_size_t max_size, const char* origin_buffer, dav_size_t buffer_size, dav_size_t* written_bytes){
+    dav_ssize_t res;
+
+    if(max_size ==0 || buffer_size == *written_bytes){
+        *written_bytes =0;
+        return 0;
+    }
+
+    res = std::min(max_size, buffer_size - *written_bytes);
+    memcpy(buffer, origin_buffer+ *written_bytes, res);
+    *written_bytes += res;
+
+    return res;
+}
+
+void DavFile::put(const RequestParams *params, const char *buffer, dav_size_t size_write){
+    using namespace boost;
+    dav_size_t written_bytes=0;
+    put(params, bind(buffer_mapper, _1, _2, buffer, size_write, &written_bytes), size_write);
+
 }
 
 
@@ -288,4 +337,23 @@ void DavFile::prefetchInfo(off_t offset, dav_size_t size_read, advise_t adv){
     d_ptr->getIOChain(chain).prefetchInfo(io_context, offset, size_read, adv);
 }
 
+
+
 } //Davix
+
+
+
+std::ostream & operator<<(std::ostream & out,  Davix::DavFile & file){
+        std::vector<char> buffer;
+
+        file.get(NULL, buffer);
+        out.write(&buffer[0], buffer.size());
+        return out;
+}
+
+std::istream & operator>>(std::istream & in, Davix::DavFile & file){
+    std::vector<char> buffer((std::istream_iterator<char>(in)), std::istream_iterator<char>());
+
+    file.put(NULL, &(buffer.at(0)), buffer.size());
+    return in;
+}

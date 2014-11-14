@@ -21,6 +21,7 @@ set( src_test_auto_stat_mkdir_check "test_auto_stat_mkdir_check.cpp")
 set( src_test_auto_rmdir_unlink_delete "test_auto_rmdir_unlink_delete.cpp")
 set( src_test_valid_read_generic_simple "test_valid_read_generic_simple.cpp")
 set( src_test_valid_write_read_generic_simple "test_valid_write_read_generic_simple.cpp")
+set( src_test_valid_write_read_davfile "test_valid_write_read_davfile.cpp")
 set( src_test_valid_write_read_fd "test_valid_write_read_fd.cpp")
 set( src_test_valid_write_read_vector_simple "test_valid_write_read_vector_simple.cpp")
 set( src_tool_read_vector_simple "tool_read_vector_simple.cpp")
@@ -84,6 +85,9 @@ target_link_libraries(test_valid_read_generic_simple davix test_davix_functional
 
 add_executable(test_valid_write_read_generic_simple ${src_test_valid_write_read_generic_simple})
 target_link_libraries(test_valid_write_read_generic_simple davix test_davix_functional_lib)
+
+add_executable(test_valid_write_read_davfile ${src_test_valid_write_read_davfile})
+target_link_libraries(test_valid_write_read_davfile davix test_davix_functional_lib)
 
 add_executable(test_valid_write_read_vector_simple ${src_test_valid_write_read_vector_simple})
 target_link_libraries(test_valid_write_read_vector_simple davix test_davix_functional_lib)

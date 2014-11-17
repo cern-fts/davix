@@ -97,7 +97,8 @@ struct RequestParamsInternal{
         _customhdr(),
         _proxy_server(),
         _session_flag(SESSION_FLAG_KEEP_ALIVE),
-        _state_uid(get_requeste_uid())
+        _state_uid(get_requeste_uid()),
+        _transferCb()
     {
         timespec_clear(&connexion_timeout);
         timespec_clear(&ops_timeout);
@@ -130,7 +131,8 @@ struct RequestParamsInternal{
         _customhdr(param_private._customhdr),
         _proxy_server(param_private._proxy_server),
         _session_flag(param_private._session_flag),
-        _state_uid(param_private._state_uid){
+        _state_uid(param_private._state_uid),
+        _transferCb(param_private._transferCb){
 
         timespec_copy(&(connexion_timeout), &(param_private.connexion_timeout));
         timespec_copy(&(ops_timeout), &(param_private.ops_timeout));
@@ -172,6 +174,8 @@ struct RequestParamsInternal{
     // ssl state value, a state uid is used to check if two copy of a requestParam struct are equal
     int _state_uid;
 
+    // transfer cb
+    TransferMonitorCB _transferCb;
 
     // method
     inline void regenerateStateUid(){
@@ -331,6 +335,10 @@ void RequestParams::setTransparentRedirectionSupport(bool redirection){
 
 bool RequestParams::getTransparentRedirectionSupport() const{
     return d_ptr->_redirection;
+}
+
+void RequestParams::setTransfertMonitorCb(const TransferMonitorCB &cb){
+    d_ptr->_transferCb = cb;
 }
 
 const std::string & RequestParams::getUserAgent() const{

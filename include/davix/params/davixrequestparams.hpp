@@ -23,7 +23,7 @@
 #include <vector>
 #include <string>
 
-#include "../utils/davix_uri.hpp"
+#include "davix_request_params_types.hpp"
 #include "../auth/davixauth.hpp"
 
 
@@ -39,49 +39,11 @@
 #endif
 
 
-
 namespace Davix {
 
 
-namespace RequestProtocol{
-    ///
-    /// \brief Http based protocol to use for advanced queries
-    ///
-    enum Protocol{
-        // default
-        Auto=0,
-        // Strict Http without extensions
-        Http,
-        // Use Http + Webdav extension
-        Webdav,
-        // Use Amazon S3 API
-        AwsS3
-    };
-}
-
-namespace MetalinkMode{
-    enum MetalinkMode{
-        // default mode = failover
-        Auto=0,
-        // Disable Metalink Support
-        Disable,
-        // Use only for failover purpose
-        FailOver,
-        // Enable parallel DL
-        XStream
-    };
-}
-
-
 struct RequestParamsInternal;
-///
-/// \brief string for Amazon private key
-///
-typedef std::string AwsSecretKey;
-///
-/// \brief string for Amazon public key
-///
-typedef std::string AwsAccessKey;
+
 
 ///
 /// @class RequestParams
@@ -201,6 +163,25 @@ public:
 
     /// return true if the transparent redirection mode is enabled
     bool getTransparentRedirectionSupport() const;
+
+#ifdef __DAVIX_HAS_STD_FUNCTION
+    ///
+    /// @brief setTransfertMonitorCb
+    /// @param cb
+    ///
+    ///  define a transfer callback
+    ///  The transfer callback is called on a regular based
+    ///  when a data transfer operation is progressing ( put, get, copy )
+    ///
+    ///  The callback is called at least once per transfer for the following operations :
+    ///  - DavFile::put
+    ///  - DavixFile::get / getV
+    ///  - Posix::read / pread / write / prwrite / preadVec
+    ///
+    ///
+    void setTransfertMonitorCb(const TransferMonitorCB & cb);
+
+#endif //__DAVIX_HAS_STD_FUNCTION
 
     /// set the user agent for the associated request
     void setUserAgent(const std::string & user_agent);

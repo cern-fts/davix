@@ -43,11 +43,9 @@ DAVIX_C_DECL_BEGIN
 #define LOG_CORE       (1<<7)
 #define LOG_GRID       (1<<8)
 #define LOG_SOCKET     (1<<9)
-#define LOG_LOCKS      (1<<10) 
-#define LOG_ALL        (~(0x00))
-
-#define LOG_SCOPE_DAVIX     1000
-#define LOG_SCOPE_NEON      1001
+#define LOG_LOCKS      (1<<10)
+#define LOG_SCOPE_NEON (1<<29)
+#define LOG_ALL        (~(0x00) ^ LOG_SCOPE_NEON)
 
 // define log scopes
 extern const char* SCOPE_FILE;      // Davix file interface
@@ -81,11 +79,10 @@ extern DAVIX_EXPORT void davix_logger(int log_mask, const char * msg, ...);
 /// @param userdata : callback userdata
 extern DAVIX_EXPORT void davix_set_log_handler( void (*fhandler)(void* userdata, int mgs_level, const char* msg), void* userdata);
 
-/// Set the prefix of the log messages (e.g DAVIX, NEON)
-extern DAVIX_EXPORT void set_prefix(const int scope_ident);
-
 /// Compare command line tools --trace options with scopes and set mask
 void davix_set_log_scope(const std::string & scope);
+
+std::string davix_get_log_scope(int scope_mask);
 
 void davix_set_log_debug(bool dbg);
 

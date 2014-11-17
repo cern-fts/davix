@@ -9,7 +9,7 @@ DAVIX_C_DECL_BEGIN
 #define davix_return_val_if_fail(X, Y) \
     do{ \
         if(!(X)){ \
-            DAVIX_DEBUG("WARNING: davix assertion failed at %s:%s", __LINE__, __FILE__); \
+            DAVIX_LOG(DAVIX_LOG_ALL, LOG_ALL, "WARNING: davix assertion failed at %s:%s", __LINE__, __FILE__); \
             return Y; \
         } \
     }while(0)
@@ -18,8 +18,7 @@ DAVIX_C_DECL_BEGIN
 #define DAVIX_LOG(lvl, scope, msg, ...) \
     do{ \
     if( (davix_get_log_level() & scope) && (davix_get_trace_level() >= lvl) ){ \
-        set_prefix(LOG_SCOPE_DAVIX); \
-        davix_logger(lvl, msg, ##__VA_ARGS__); } \
+        davix_logger(scope, msg, ##__VA_ARGS__); } \
     }while(0)
 
 DAVIX_C_DECL_END

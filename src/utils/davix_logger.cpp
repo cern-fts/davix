@@ -59,7 +59,7 @@ const std::string davix_log_scope[] = {
 
 const int num_of_scopes = sizeof(davix_log_scope)/sizeof(*davix_log_scope);
 std::vector<std::string> log_scope_vec;
-static int scope_id = 0;
+
 static int internal_log_mask = 0;
 static int internal_trace_level = DAVIX_LOG_ALL;
 static bool debug = false;
@@ -83,14 +83,11 @@ static void internal_log_handler(int log_mask, const char * msg,  va_list ap){
     if(_fhandler){
         _fhandler(_log_handler_userdata, log_mask, buffer); 
     }else{
-        switch(scope_id){
-            case LOG_SCOPE_DAVIX:
-                fprintf(stdout, "%s%s\n",prefix, buffer);
-                break;
-            case LOG_SCOPE_NEON:
-                fprintf(stdout, "%s", buffer);    
-                break;
-        }
+        if(log_mask & LOG_SCOPE_NEON){ // libneon logs 
+            fprintf(stdout, "%s", buffer); 
+        }else{  // davix logs
+            fprintf(stdout, "%s%s: %s\n",prefix, davix_get_log_scope(log_mask).c_str(), buffer);
+        }    
     }
 }
 
@@ -104,10 +101,6 @@ extern "C" void davix_logger(int log_mask, const char * msg, ...){
 extern "C"  void davix_set_log_handler( void (*fhandler)(void* userdata, int mgs_level, const char* msg), void* userdata){
     _fhandler = fhandler;
     _log_handler_userdata = userdata;
-}
-
-extern "C"  void set_prefix(const int scope_ident){
-    scope_id = scope_ident;
 }
 
 void davix_set_trace_level(int trace_level){
@@ -162,6 +155,50 @@ void davix_set_log_scope(const std::string & scope){
         }
     }
 }
+
+std::string davix_get_log_scope(int scope_mask){
+    std::string scope_name;
+    switch(scope_mask){
+        case LOG_FILE:
+            scope_name = SCOPE_FILE;
+            break;
+        case LOG_POSIX:
+            scope_name = SCOPE_POSIX;
+            break;
+        case LOG_XML:
+            scope_name = SCOPE_XML;
+            break;
+        case LOG_SSL:
+            scope_name = SCOPE_SSL;
+            break;
+        case LOG_HEADER:
+            scope_name = SCOPE_HEADER;
+            break;
+        case LOG_BODY:
+            scope_name = SCOPE_BODY;
+            break;
+        case LOG_CHAIN:
+            scope_name = SCOPE_CHAIN;
+            break;
+        case LOG_CORE:
+            scope_name = SCOPE_CORE;
+            break;
+        case LOG_GRID:
+            scope_name = SCOPE_GRID;
+            break;
+        case LOG_SOCKET:
+            scope_name = SCOPE_SOCKET;
+            break;
+        case LOG_LOCKS:
+            scope_name = SCOPE_LOCKS;
+            break;
+        case LOG_ALL:
+            scope_name = SCOPE_ALL;
+            break;
+    }
+    return scope_name;    
+}
+
 
 void davix_set_log_debug(bool dbg){
     debug = dbg;

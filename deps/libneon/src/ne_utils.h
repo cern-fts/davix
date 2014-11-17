@@ -66,27 +66,27 @@ int ne_has_support(int feature);
 #ifndef NE_DEBUGGING
 #define NE_DEBUG if (0) ne_debug
 #else /* DEBUGGING */
-//#define NE_DEBUG ne_debug
+/* #define NE_DEBUG ne_debug */
+/* bypasses default Neon logger and use Davix's instead */
 #define NE_DEBUG(scope, msg, ...) \
     do{ \
     if( (davix_get_log_level() & scope)) { \
-        set_prefix(LOG_SCOPE_NEON); \
-        davix_logger(DAVIX_LOG_ALL, msg, ##__VA_ARGS__); } \
+        davix_logger(scope, msg, ##__VA_ARGS__); } \
     }while(0)
 #endif /* DEBUGGING */
 
 /* Debugging masks. */
-/* Masked to DAVIX logging masks. */
-#define NE_DBG_SOCKET LOG_SOCKET /* raw socket */
-#define NE_DBG_HTTP LOG_HEADER /* HTTP request/response handling */
-#define NE_DBG_XML LOG_XML /* XML parser */
-#define NE_DBG_HTTPAUTH LOG_SSL /* HTTP authentication (hiding credentials) */
-#define NE_DBG_HTTPPLAIN LOG_SSL /* plaintext HTTP authentication */
-#define NE_DBG_LOCKS LOG_LOCKS /* WebDAV locking */
-#define NE_DBG_XMLPARSE LOG_XML /* low-level XML parser */
-#define NE_DBG_HTTPBODY LOG_BODY /* HTTP response body blocks */
-#define NE_DBG_SSL LOG_SSL /* SSL/TLS */
-#define NE_DBG_CORE LOG_CORE
+/* Map to DAVIX logging masks. */
+#define NE_DBG_SOCKET (LOG_SOCKET | LOG_SCOPE_NEON) /* raw socket */
+#define NE_DBG_HTTP (LOG_HEADER | LOG_SCOPE_NEON) /* HTTP request/response handling */
+#define NE_DBG_XML (LOG_XML | LOG_SCOPE_NEON) /* XML parser */
+#define NE_DBG_HTTPAUTH (LOG_SSL | LOG_SCOPE_NEON) /* HTTP authentication (hiding credentials) */
+#define NE_DBG_HTTPPLAIN (LOG_SSL | LOG_SCOPE_NEON) /* plaintext HTTP authentication */
+#define NE_DBG_LOCKS (LOG_LOCKS | LOG_SCOPE_NEON) /* WebDAV locking */
+#define NE_DBG_XMLPARSE (LOG_XML | LOG_SCOPE_NEON) /* low-level XML parser */
+#define NE_DBG_HTTPBODY (LOG_BODY | LOG_SCOPE_NEON) /* HTTP response body blocks */
+#define NE_DBG_SSL (LOG_SSL | LOG_SCOPE_NEON) /* SSL/TLS */
+#define NE_DBG_CORE (LOG_CORE | LOG_SCOPE_NEON) 
 #define NE_DBG_FLUSH (1<<30) /* always flush debugging */
 
 /* Send debugging output to 'stream', for all of the given debug

@@ -10,6 +10,10 @@
 // force dav
 #define NE_HAVE_DAV 1
 
+// Force TLS and thread safety callback once forever
+#define HAVE_CRYPTO_SET_IDPTR_CALLBACK
+#define NE_HAVE_TS_SSL
+
 //has malloc
 #cmakedefine HAVE_MALLOC_H 1
 

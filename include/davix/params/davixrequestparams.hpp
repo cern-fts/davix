@@ -181,6 +181,14 @@ public:
     ///
     void setTransfertMonitorCb(const TransferMonitorCB & cb);
 
+    ///
+    /// \brief getTransferMonitorCb
+    /// \return current transfer monitor callback
+    ///
+    ///  see \ref setTransfertMonitorCb for more details
+    ///
+    const TransferMonitorCB & getTransferMonitorCb() const;
+
 #endif //__DAVIX_HAS_STD_FUNCTION
 
     /// set the user agent for the associated request

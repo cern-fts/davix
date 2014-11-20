@@ -155,7 +155,7 @@ private:
     // req info
     size_t _number_try;
     // read info
-    dav_ssize_t _last_read;
+    dav_ssize_t _total_read_size, _last_read;
 
     std::vector<char> _vec;
     std::vector<char> _vec_line;

@@ -341,6 +341,10 @@ void RequestParams::setTransfertMonitorCb(const TransferMonitorCB &cb){
     d_ptr->_transferCb = cb;
 }
 
+const TransferMonitorCB & RequestParams::getTransferMonitorCb() const{
+    return d_ptr->_transferCb;
+}
+
 const std::string & RequestParams::getUserAgent() const{
     return d_ptr->agent_string;
 }

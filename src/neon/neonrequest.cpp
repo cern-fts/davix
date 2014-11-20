@@ -235,7 +235,7 @@ int NEONRequest::instanceSession(DavixError** err){
 
 ssize_t NEONRequest::neon_body_content_provider(void* userdata, char* buffer, size_t buflen){
 	NEONRequest* req = static_cast<NEONRequest*>(userdata);
-	return (ssize_t) req->_content_provider.callback(req->_content_provider.udata, buffer, buflen);
+     return (ssize_t) req->_content_provider.callback(req->_content_provider.udata, buffer, buflen);
 }
 
 void NEONRequest::configureRequest(){
@@ -313,6 +313,7 @@ int NEONRequest::negotiateRequest(DavixError** err){
     const int n_limit = 10;
     int code, status, end_status = NE_RETRY;
     _last_read = -1;
+    _total_read_size = 0;
 
     DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, " ->   Davix negociate request ... ");
     if(req_started){
@@ -562,6 +563,12 @@ dav_ssize_t NEONRequest::readBlock(char* buffer, dav_size_t max_size, DavixError
        return -1;
     }
     DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CORE, "NEONRequest::readBlock read %ld bytes", read_status);
+
+    _total_read_size += read_status;
+    if(params.getTransferMonitorCb()){
+        dav_ssize_t final_size = getAnswerSize();
+        params.getTransferMonitorCb()(*_current, Transfer::Read, _total_read_size, ((final_size> 0)?(final_size):(0)));
+    }
     return read_status;
 }
 
@@ -755,7 +762,7 @@ size_t NEONRequest::getAnswerHeaders( HeaderVec & vec_headers) const{
 
 
 void NEONRequest::setRequestBody(const std::string & body){
-    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "NEONRequest : add request content of size %s ", body.c_str());
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "NEONRequest : add request content of size %ld ", body.size());
     _content_body = std::string(body);
     _content_ptr = (char*) _content_body.c_str();
     _content_len = strlen(_content_ptr);

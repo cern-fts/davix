@@ -79,6 +79,16 @@ typedef std::string AwsAccessKey;
     typedef std::function<dav_ssize_t (void* buffer, dav_size_t max_size)> DataProviderFun;
 
 
+
+    namespace Transfer{
+        enum Type{
+            Read =0x00,
+            Write =0x01,
+
+        };
+
+    }
+
     ///
     /// \brief TransferMonitorCB
     ///
@@ -90,7 +100,7 @@ typedef std::string AwsAccessKey;
     ///  bytes_transfered: bytes transfered at the time of the callback called
     ///  total_size: total size of the resource if available, can be 0 if not determined
     ///
-    typedef std::function<void (const Uri & url, dav_size_t baudrate, dav_ssize_t bytes_transfered, dav_size_t total_size)> TransferMonitorCB;
+    typedef std::function<void (const Uri & url, Transfer::Type type, dav_ssize_t bytes_transfered, dav_size_t total_size)> TransferMonitorCB;
 
 #endif
 

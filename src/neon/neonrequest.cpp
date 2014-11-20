@@ -170,6 +170,7 @@ NEONRequest::NEONRequest(HttpRequest & h, Context& context, const Uri & uri_req)
     _current( new Uri(uri_req)),
     _orig(_current),
     _number_try(0),
+    _total_read_size(0),
     _last_read(-1),
     _vec(),
     _vec_line(),

@@ -43,6 +43,8 @@ public:
 
     Type::UInt64 toTimestamp() const;
 
+    bool isValid();
+
 
 
 private:
@@ -80,7 +82,7 @@ public:
     Clock(Type clock_type, Precision tick = Second);
     ~Clock();
 
-    TimePoint now();
+    TimePoint now() const;
 
 private:
     Type _type;

@@ -55,6 +55,11 @@ Type::UInt64 TimePoint::toTimestamp() const{
 }
 
 
+bool TimePoint::isValid(){
+    return (t.tv_sec != 0 && t.tv_nsec != 0);
+}
+
+
 
 ////////////////////////////////
 ////////////////////////////////
@@ -89,7 +94,7 @@ Clock::~Clock(){
 
 }
 
-TimePoint Clock::now(){
+TimePoint Clock::now() const{
     TimePoint res;
     clockid_t t;
     switch(_type){

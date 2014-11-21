@@ -144,23 +144,6 @@ struct toType<int, std::string>{
 };
 
 
-/*
-template<typename T>
-struct toType<T, std::string>{
-    T operator()(const std::string  & val){
-        T ret;
-        ss.clear();
-        ss.str(val);
-        ss >> ret;
-        if(ss.fail()){
-            throw TypeConvException("Invalid type converstion from string to generic");
-        }
-        return ret;
-    }
-
-    std::istringstream ss;
-};
-*/
 
 template<typename S>
 struct toType<std::string, S>{
@@ -169,7 +152,7 @@ struct toType<std::string, S>{
         ss.str("");
         ss << val;
         if(ss.fail()){
-            throw TypeConvException("Invalid type converstion from string to generic");
+            throw TypeConvException("Invalid type converstion from string to ");
         }
         return ret.str();
     }

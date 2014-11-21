@@ -29,6 +29,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <time.h>
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif
@@ -50,6 +51,7 @@
 #include "ne_utils.h"
 #include "ne_socket.h"
 #include "ne_uri.h"
+
 
 #include "ne_private.h"
 
@@ -1531,7 +1533,15 @@ static int do_connect(ne_session *sess, struct host_info *host)
 
     sess->status.ci.hostname = host->hostname;
 
+    struct timespec deadline_timeout;
+    if(sess->rdtimeout > 0){
+        clock_gettime(CLOCK_MONOTONIC, &deadline_timeout);
+        deadline_timeout.tv_sec += sess->rdtimeout;
+    }
+
     do {
+        struct timespec current_time;
+
         sess->status.ci.address = host->current;
 	notify_status(sess, ne_status_connecting);
 #ifdef NE_DEBUGGING
@@ -1543,6 +1553,13 @@ static int do_connect(ne_session *sess, struct host_info *host)
 	}
 #endif
 	ret = ne_sock_connect(sess->socket, host->current, host->port);
+
+    if(ret){
+        clock_gettime(CLOCK_MONOTONIC, &current_time);
+        ret = (current_time.tv_sec > deadline_timeout.tv_sec)?(NE_SOCK_TIMEOUT): ret;
+        break;
+    }
+
     } while (ret && /* try the next address... */
 	     (host->current = resolve_next(host)) != NULL);
 

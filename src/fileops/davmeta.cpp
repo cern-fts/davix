@@ -377,14 +377,10 @@ void webdav_start_listing_query(Ptr::Scoped<DirHandle> & handle, Context & conte
     handle.reset(new DirHandle(new PropfindRequest(context, url, &tmp_err), new DavPropXMLParser()));
     checkDavixError(&tmp_err);
 
-
-    const int operation_timeout = params->getOperationTimeout()->tv_sec;
     HttpRequest & http_req = *(handle->request);
     XMLPropParser & parser = *(handle->parser);
 
     http_req.addHeaderField("Depth","1");
-    time_t timestamp_timeout = time(NULL) + ((operation_timeout)?(operation_timeout):180);
-
     http_req.setParameters(params);
     // setup the handle for simple listing only
     http_req.setRequestBody(body);
@@ -401,9 +397,6 @@ void webdav_start_listing_query(Ptr::Scoped<DirHandle> & handle, Context & conte
        prop_size = parser.getProperties().size();
        if(s_resu < 2048 && prop_size <1){ // verify request status : if req done + no data -> error
            throw DavixException(davix_scope_directory_listing_str(), StatusCode::WebDavPropertiesParsingError, "bad server answer, not a valid WebDav PROPFIND answer");
-       }
-       if(timestamp_timeout < time(NULL)){
-          throw DavixException(davix_scope_directory_listing_str(), StatusCode::OperationTimeout, "operation timeout triggered while directory listing");
        }
 
     }while( prop_size < 1); // leave is end of req & no data

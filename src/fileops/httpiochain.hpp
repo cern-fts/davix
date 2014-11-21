@@ -20,8 +20,24 @@ class HttpIOChain;
 
 // parameter handler for any IO Chain operation
 struct IOChainContext{
-    IOChainContext(Context & c, const Uri & u, const RequestParams * p): _context(c), _uri(u), _reqparams(p) {}
-    // static parameters
+    IOChainContext(Context & c, const Uri & u, const RequestParams * p): _context(c), _uri(u), _reqparams(p) {
+        _end_time = Chrono::Clock(Chrono::Clock::Monolitic).now();
+        _end_time += Chrono::Duration(_reqparams->getOperationTimeout()->tv_sec);
+    }
+
+
+    void checkTimeout(){
+        if( _end_time < Chrono::Clock(Chrono::Clock::Monolitic).now()){
+            std::ostringstream ss;
+            ss << "operation timeout of " << _reqparams->getOperationTimeout()->tv_sec << "s expired";
+            throw DavixException(davix_scope_io_buff(), StatusCode::OperationTimeout, ss.str());
+        }
+    }
+
+
+
+
+    // context parameter
     Context& _context;
     Uri const & _uri;
     RequestParams const * _reqparams;

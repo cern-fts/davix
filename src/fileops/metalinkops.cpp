@@ -33,6 +33,10 @@ static bool isMetalinkDisabled(const RequestParams* params){
 template<class Executor, class ReturnType>
 ReturnType metalinkTryReplicas(HttpIOChain & chain, IOChainContext & io_context, Executor fun){
     std::vector<File> replicas;
+
+    // check if we expired
+    io_context.checkTimeout();
+    // get all replicas from Metalink
     chain.getReplicas(io_context, replicas);
     for(std::vector<File>::iterator it = replicas.begin();it != replicas.end(); ++it){
         try{
@@ -43,6 +47,8 @@ ReturnType metalinkTryReplicas(HttpIOChain & chain, IOChainContext & io_context,
         }catch(...){
             DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, "Fail access to replica: Unknown Error");
         }
+        // check timeout again between two iterations
+        io_context.checkTimeout();
     }
     throw DavixException(davix_scope_io_buff(), StatusCode::InvalidServerResponse, "Impossible to access any of the replicas with success");
 }
@@ -60,8 +66,9 @@ ReturnType metalinkExecutor(HttpIOChain & chain, IOChainContext & io_context, Ex
         return fun(io_context);
     }catch(DavixException & e){
 
-        /// Forward redirections, we don't need to recover when redirection support is disabled
-        if(e.code() == StatusCode::RedirectionNeeded){
+        /// Forward redirections and other error we don't want to recover
+        if(e.code() == StatusCode::RedirectionNeeded
+                || e.code() == StatusCode::OperationTimeout){
             throw e;
         }
 

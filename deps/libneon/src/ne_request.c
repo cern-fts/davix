@@ -154,6 +154,8 @@ struct ne_request_s {
     unsigned int method_is_head;
     unsigned int can_persist;
 
+    struct timespec expiration_time;
+
     int flags[NE_REQFLAG_LAST];
 
     ne_session *session;
@@ -488,6 +490,9 @@ ne_request *ne_request_create(ne_session *sess,
 	}
     }
 
+    req->expiration_time.tv_sec = 0;
+    req->expiration_time.tv_nsec= 0;
+
     return req;
 }
 
@@ -540,6 +545,11 @@ int ne_get_request_flag(ne_request *req, ne_request_flag flag)
         return req->flags[flag];
     }
     return -1;
+}
+
+
+void ne_set_expiration_time(ne_request* req, struct timespec * deadline){
+    req->expiration_time.tv_sec = deadline->tv_sec;
 }
 
 void ne_add_request_header(ne_request *req, const char *name, 
@@ -1369,6 +1379,13 @@ int ne_end_request(ne_request *req)
 	req->session->persisted = 1;
     
     return ret;
+}
+
+
+int ne_abort_request(ne_request* req){
+    if(req->session)
+        ne_close_connection(req->session);
+    return 0;
 }
 
 int ne_read_response_to_fd(ne_request *req, int fd)

@@ -180,15 +180,16 @@ void configureSession(ne_session *_sess, const Uri & _u, const RequestParams &pa
             ne_ssl_set_verify(_sess, validate_all_certificate, NULL);
         }
 
-        if( timespec_isset(params.getOperationTimeout())){
-            const int timeout = static_cast<int>(params.getOperationTimeout()->tv_sec);
-            DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "NEONSession : define operation timeout to %d", timeout);
-            ne_set_read_timeout(_sess, timeout);
-        }
         if(timespec_isset(params.getConnectionTimeout())){
             const int timeout = static_cast<int>(params.getConnectionTimeout()->tv_sec);
             DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "NEONSession : define connection timeout to %d" , timeout);
             ne_set_connect_timeout(_sess, timeout);
+        }
+
+        if(timespec_isset(params.getOperationTimeout())){
+            const int timeout = static_cast<int>(params.getOperationTimeout()->tv_sec);
+            DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "NEONSession : define operation timeout to %d" , timeout);
+            ne_set_read_timeout(_sess, timeout);
         }
 
         for(std::vector<std::string>::const_iterator it = params.listCertificateAuthorityPath().begin(); it < params.listCertificateAuthorityPath().end(); it++){

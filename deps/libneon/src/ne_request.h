@@ -82,6 +82,7 @@ typedef ssize_t (*ne_provide_body)(void *userdata,
 void ne_set_request_body_provider(ne_request *req, ne_off_t length,
 				  ne_provide_body provider, void *userdata);
 
+
 /* Handling response bodies; two callbacks must be provided:
  *
  * 1) 'acceptance' callback: determines whether you want to handle the
@@ -191,6 +192,14 @@ void ne_request_destroy(ne_request *req);
 int ne_begin_request(ne_request *req);
 int ne_end_request(ne_request *req);
 
+
+/*
+ *
+ *  Abort open connexion in unstable state
+ *
+ * */
+int ne_abort_request(ne_request* req);
+
 /* Read a block of the response into the passed buffer of size 'buflen'.
  *
  * Returns:
@@ -227,6 +236,10 @@ void ne_set_request_flag(ne_request *req, ne_request_flag flag, int value);
 /* Return 0 if the given flag is not set, >0 it is set, or -1 if the
  * flag is not supported. */
 int ne_get_request_flag(ne_request *req, ne_request_flag flag);
+
+
+
+void ne_set_expiration_time(ne_request* req, struct timespec * deadline);
 
 /**** Request hooks handling *****/
 

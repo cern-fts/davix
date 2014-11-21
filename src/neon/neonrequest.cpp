@@ -70,12 +70,6 @@ void configureRequestParamsProto(const Uri &uri, RequestParams &params){
 
 }
 
-static void neonrequest_eradicate_session(NEONSession& sess, DavixError ** err){
-    if(err && *err && (*err)->getStatus() == StatusCode::ConnectionProblem){
-        DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "Connection problem: eradicate session.....");
-        sess.disable_session_reuse();
-    }
-}
 
 
 void neon_generic_error_mapper(int ne_status, StatusCode::Code & code, std::string & str){
@@ -181,6 +175,7 @@ NEONRequest::NEONRequest(HttpRequest & h, Context& context, const Uri & uri_req)
     _fd_content(-1),
     _content_provider(),
     _ans_size(-1),
+    _expiration_time(),
     _request_type("GET"),
     _h(h),
     _c(context),
@@ -195,6 +190,14 @@ NEONRequest::~NEONRequest(){
     // safe destruction of the request
     resetRequest();
 }
+
+void NEONRequest::eradicateSession(){
+   if(_neon_sess.get() != NULL){
+        DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "Connection problem: eradicate session.....");
+       _neon_sess->disable_session_reuse();
+    }
+}
+
 
 
 void NEONRequest::resetRequest(){
@@ -239,6 +242,16 @@ ssize_t NEONRequest::neon_body_content_provider(void* userdata, char* buffer, si
      return (ssize_t) req->_content_provider.callback(req->_content_provider.udata, buffer, buflen);
 }
 
+bool NEONRequest::checkTimeout(DavixError **err){
+    if(_expiration_time < Chrono::Clock(Chrono::Clock::Monolitic).now()){
+        std::ostringstream ss;
+        ss << "timeout of " << params.getOperationTimeout()->tv_sec << "s";
+        DavixError::setupError(err, davix_scope_http_request(), StatusCode::OperationTimeout, ss.str());
+        return true;
+    }
+    return false;
+}
+
 void NEONRequest::configureRequest(){
     // reconfigure protos
     configureRequestParamsProto(*_current, params);
@@ -248,6 +261,13 @@ void NEONRequest::configureRequest(){
     // configure S3 params if needed
     if(params.getProtocol() == RequestProtocol::AwsS3)
         configureS3params();
+
+    // setup timeout
+    if(_expiration_time.isValid() == false
+        && params.getOperationTimeout()->tv_sec != 0){
+        using namespace Chrono;
+        _expiration_time = Clock(Clock::Monolitic).now() + Duration(params.getOperationTimeout()->tv_sec);
+    }
 
     // setup headers
     for(size_t i=0; i< _headers_field.size(); ++i){
@@ -317,6 +337,11 @@ int NEONRequest::negotiateRequest(DavixError** err){
     _total_read_size = 0;
 
     DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, " ->   Davix negociate request ... ");
+
+    // check timeout
+    if(checkTimeout(err) == true)
+        return -1;
+
     if(req_started){
         DavixError::setupError(err, davix_scope_http_request(), StatusCode::AlreadyRunning, "Http request already started, Error");
         DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, " Davix negociate request ... <-");
@@ -348,7 +373,8 @@ int NEONRequest::negotiateRequest(DavixError** err){
 
             req_started= req_running == false;
             neon_to_davix_code(status, _neon_sess->get_ne_sess(), davix_scope_http_request(),err);
-            neonrequest_eradicate_session(*_neon_sess, err);
+
+            eradicateSession();
             ContextExplorer::SessionFactoryFromContext(_c).redirectionClean(_request_type, *_orig);
             DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, " Davix negociate request ... <-");
             return -1;
@@ -536,6 +562,10 @@ dav_ssize_t NEONRequest::readBlock(char* buffer, dav_size_t max_size, DavixError
     if(max_size ==0)
         return 0;
 
+    // check timeout
+    if(checkTimeout(err) == true)
+        return -1;
+
     // take from line buffer
     if(_vec_line.size() > 0){
        if( _vec_line.size() >= max_size){
@@ -554,8 +584,9 @@ dav_ssize_t NEONRequest::readBlock(char* buffer, dav_size_t max_size, DavixError
        }
     }
 
-    if(_last_read ==0)
+    if(_last_read ==0){
         return 0;
+    }
 
     _last_read= read_status= ne_read_response_block(_req, buffer, max_size );
     if(read_status <0){
@@ -563,6 +594,7 @@ dav_ssize_t NEONRequest::readBlock(char* buffer, dav_size_t max_size, DavixError
        req_running = false;
        return -1;
     }
+
     DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CORE, "NEONRequest::readBlock read %ld bytes", read_status);
 
     _total_read_size += read_status;
@@ -680,16 +712,20 @@ int NEONRequest::endRequest(DavixError** err){
     if(_req  && req_running == true){
         req_running = false;
         if(_last_read > 0){ // if read content, discard it
-            DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CORE, "Discard remaining content....");
-            ne_discard_response(_req);
+            DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CORE, "Operation incomplete, kill the connection....");
+            ne_abort_request(_req);
+            eradicateSession();
             _last_read =0;
+
         }
         if( (status = ne_end_request(_req)) != NE_OK){
             DavixError* tmp_err=NULL;
             if(_neon_sess.get() != NULL)
                 neon_to_davix_code(status, _neon_sess->get_ne_sess(), davix_scope_http_request(), &tmp_err);
-            if(tmp_err)
+            if(tmp_err){
                 DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "NEONRequest::endRequest -> error %d Error closing request -> %s ", tmp_err->getStatus(), tmp_err->getErrMsg().c_str());
+                eradicateSession();
+            }
             DavixError::clearError(&tmp_err);
         }
     }

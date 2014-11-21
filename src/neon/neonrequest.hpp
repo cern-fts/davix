@@ -170,6 +170,10 @@ private:
 
     // answer length
     mutable dav_ssize_t _ans_size;
+
+    // timeout management
+    Chrono::TimePoint _expiration_time;
+
     // Request string
     std::string _request_type;
     HttpRequest & _h;
@@ -191,9 +195,13 @@ private:
 
     int instanceSession(DavixError** err);
 
+    bool checkTimeout(DavixError** err);
+
     void configureRequest();
 
     void configureS3params();
+
+    void eradicateSession();
 
     // create initial neon request object
     int createRequest(DavixError** err);

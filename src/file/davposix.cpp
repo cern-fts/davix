@@ -25,7 +25,7 @@
 #include <fileops/chain_factory.hpp>
 #include <xml/davpropxmlparser.hpp>
 #include <string_utils/stringutils.hpp>
-#include <posix/davposix.hpp>
+#include <file/davposix.hpp>
 
 using namespace StrUtil;
 

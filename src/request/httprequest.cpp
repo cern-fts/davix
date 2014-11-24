@@ -379,7 +379,7 @@ void httpcodeToDavixError(int code, const std::string &scope, const std::string 
     }
 
     std::ostringstream ss;
-    ss << "HTTP "<< code << ": " << str_msg <<". "<< end_message << std::endl;
+    ss << "HTTP "<< code << ": " << str_msg <<" "<< end_message << std::endl;
     err_msg.assign(ss.str());
 }
 

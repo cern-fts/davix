@@ -182,7 +182,7 @@ void parse_creation_deletion_result(int code, const Uri & u, const std::string &
         }
     }
     std::ostringstream ss;
-    ss << " in url " << u.getString();
+    ss << " with url " << u.getString();
     httpcodeToDavixException(code, scope, ss.str());
 }
 

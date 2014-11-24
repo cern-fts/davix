@@ -243,7 +243,7 @@ ssize_t NEONRequest::neon_body_content_provider(void* userdata, char* buffer, si
 }
 
 bool NEONRequest::checkTimeout(DavixError **err){
-    if(_expiration_time < Chrono::Clock(Chrono::Clock::Monolitic).now()){
+    if(_expiration_time.isValid() && _expiration_time < Chrono::Clock(Chrono::Clock::Monolitic).now()){
         std::ostringstream ss;
         ss << "timeout of " << params.getOperationTimeout()->tv_sec << "s";
         DavixError::setupError(err, davix_scope_http_request(), StatusCode::OperationTimeout, ss.str());

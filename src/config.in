@@ -19,7 +19,7 @@
 /// default connexion timeout for HTTP/Dav connexion
 #define DAVIX_DEFAULT_CONN_TIMEOUT 30
 /// default timeout on operations for HTTP/Webdav
-#define DAVIX_DEFAULT_OPS_TIMEOUT 120
+#define DAVIX_DEFAULT_OPS_TIMEOUT 0
 
 // c++11
 #cmakedefine HAVE_CXX011_FULL_SUPPORT 1

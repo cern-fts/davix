@@ -65,7 +65,7 @@
 #include <file/davfile.hpp>
 
 /// posix like API
-#include <posix/davposix.hpp>
+#include <file/davposix.hpp>
 
 /// status and error management
 #include <status/davixstatusrequest.hpp>

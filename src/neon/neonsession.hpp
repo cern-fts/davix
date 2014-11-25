@@ -45,6 +45,15 @@ public:
         return _sess;
     }
 
+    inline bool getLastError(DavixError** err){
+        if(_last_error){
+            DavixError::propagateError(err, _last_error);
+            _last_error = NULL;
+            return true;
+        }
+        return false;
+    }
+
     inline void disable_session_reuse(){
         DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_SSL, "Disable Session recycling.....");
         _session_recycling = false;

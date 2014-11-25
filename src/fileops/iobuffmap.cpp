@@ -186,6 +186,11 @@ dav_ssize_t HttpIO::pread(IOChainContext & iocontext, void *buf, dav_size_t coun
             }else{
                 if(req.getRequestCode() == 206 ){ // partial request supported, just read !
                     ret = read_segment_request(&req, buf, count, &tmp_err);
+
+                    // clean remaining content
+                    char buffer[255];
+                    while( req.readBlock(buffer, 255, NULL) > 0);
+
                 }else if( req.getRequestCode() == 200){ // full request content -> skip useless content
                     ret = read_truncated_segment_request(&req, buf, count, offset, &tmp_err);
                 }else{

@@ -2,7 +2,7 @@
 
 #include "davmeta.hpp"
 #include "httpiovec.hpp"
-#include "metalinkops.hpp"
+#include "davix_reliability_ops.hpp"
 #include "iobuffmap.hpp"
 
 namespace Davix{
@@ -13,7 +13,7 @@ ChainFactory::ChainFactory(){}
 
 HttpIOChain& ChainFactory::instanceChain(const CreationFlags & flags, HttpIOChain & c){
     HttpIOChain* elem;
-    elem= c.add(new MetalinkOps())->add(new S3MetaOps())->add(new HttpMetaOps());
+    elem= c.add(new MetalinkOps())->add(new AutoRetryOps())->add(new S3MetaOps())->add(new HttpMetaOps());
 
     // add posix to the chain if needed
     if(flags[CHAIN_POSIX] == true){

@@ -164,6 +164,21 @@ public:
     /// return true if the transparent redirection mode is enabled
     bool getTransparentRedirectionSupport() const;
 
+    ///
+    /// \brief number of re-try in case of operation failure
+    /// \param number_retry
+    ///
+    /// define the number of retry attempt  in case of an operation failure
+    void setOperationRetry(int number_retry);
+
+
+    ///
+    /// \brief getOperationRetry
+    /// \return
+    /// get current number of retry attempt, see \ref setOperationRetry for more details
+    int getOperationRetry() const;
+
+
 #ifdef __DAVIX_HAS_STD_FUNCTION
     ///
     /// @brief setTransfertMonitorCb

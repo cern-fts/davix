@@ -216,6 +216,10 @@ private:
     bool redirectAndConnectionCleanup();
 
     void freeRequest();
+
+
+    void createError(int ne_status, DavixError** err);
+
     /**
       internal, try to authentification with pkcs12 credential
     */
@@ -231,6 +235,7 @@ private:
 
     static void neon_hook_pre_rec(ne_request *req, void *userdata,
                                         const ne_status *status);
+
 
     friend class HttpRequest;
     friend class NEONSessionExtended;

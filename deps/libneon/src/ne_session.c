@@ -459,7 +459,9 @@ void ne_fill_proxy_uri(ne_session *sess, ne_uri *uri)
 
 const char *ne_get_error(ne_session *sess)
 {
-    return sess->error;
+    if(sess)
+        return sess->error;
+    return NULL;
 }
 
 void ne_close_connection(ne_session *sess)

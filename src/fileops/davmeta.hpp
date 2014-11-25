@@ -30,6 +30,10 @@ namespace Davix{
 
 struct DirHandle;
 
+///
+/// \brief The HttpMetaOps class
+///
+/// The HttpMetaOps handle all meta-data operations related to HTTP/Webdav
 class HttpMetaOps : public HttpIOChain{
 public:
     HttpMetaOps();
@@ -58,6 +62,7 @@ private:
 };
 
 
+/// The HttpMetaOps handle all meta-data operations related to Aws S3
 class S3MetaOps : public HttpIOChain{
 public:
     S3MetaOps();

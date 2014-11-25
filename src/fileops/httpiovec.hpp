@@ -38,7 +38,10 @@ struct ChunkInfo {
     bool bounded;
 };
 
-
+////
+/// \brief The HttpIOVecOps class
+///
+///  the HttpIOVecOps io vec chain element handle all operations relative to Vector requests
 class HttpIOVecOps : public HttpIOChain
 {
 public:

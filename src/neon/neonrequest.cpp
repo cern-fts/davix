@@ -113,24 +113,6 @@ void neon_generic_error_mapper(int ne_status, StatusCode::Code & code, std::stri
 }
 
 
-// convert standard neon error to davix code
-void neon_to_davix_code(int ne_status, ne_session* sess, const std::string & scope, DavixError** err){
-    StatusCode::Code code;
-    std::string str;
-    switch(ne_status){
-        case NE_ERROR:
-             str = std::string("Neon error: ").append(ne_get_error(sess));
-             if (str.find("SSL handshake failed") == std::string::npos)
-                 code = StatusCode::ConnectionProblem;
-             else
-                 code = StatusCode::SSLError;
-             break;
-        default:
-            neon_generic_error_mapper(ne_status, code, str);
-    }
-    DavixError::setupError(err,scope, code, str);
-}
-
 // convert neon_simple_request error to davix code,
 void neon_simple_req_code_to_davix_code(int ne_status, ne_session* sess, const std::string & scope, DavixError** err){
     StatusCode::Code code;
@@ -145,7 +127,7 @@ void neon_simple_req_code_to_davix_code(int ne_status, ne_session* sess, const s
              }else{
                  code = StatusCode::ConnectionProblem;
              }
-             str = std::string("Neon error: ").append(str_error);
+             str = std::string("(Neon): ").append(str_error);
              break;
         }
         default:
@@ -305,7 +287,7 @@ int NEONRequest::processRedirection(int neonCode, DavixError **err){
                 && neonCode != NE_RETRY
                 && neonCode != NE_REDIRECT){
             req_started= req_running = false;
-            neon_to_davix_code(neonCode, _neon_sess->get_ne_sess(), davix_scope_http_request(),err);
+            createError(neonCode, err);
             return -1;
         }
         ne_discard_response(_req);              // Get a valid redirection, drop request content
@@ -331,12 +313,12 @@ int NEONRequest::startRequest(DavixError **err){
 
 int NEONRequest::negotiateRequest(DavixError** err){
 
-    const int n_limit = 10;
+    const int auth_retry_limit = 5;
     int code, status, end_status = NE_RETRY;
     _last_read = -1;
     _total_read_size = 0;
 
-    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, " ->   Davix negociate request ... ");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "-> Davix negociate request ... ");
 
     // check timeout
     if(checkTimeout(err) == true)
@@ -344,21 +326,21 @@ int NEONRequest::negotiateRequest(DavixError** err){
 
     if(req_started){
         DavixError::setupError(err, davix_scope_http_request(), StatusCode::AlreadyRunning, "Http request already started, Error");
-        DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, " Davix negociate request ... <-");
+        DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "Davix negociate request ... <-");
         return -1;
     }
 
     req_started = req_running = true;
 
-    while(end_status == NE_RETRY && _number_try < n_limit){
+    while(end_status == NE_RETRY && _number_try < auth_retry_limit){
         DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, " ->   NEON start internal request ... ");
 
         if( (status = ne_begin_request(_req)) != NE_OK && status != NE_REDIRECT){
             _last_read = -1;
-            if( status == NE_ERROR){ // bugfix against neon keepalive problem, protection against buggy servers
+            if( status == NE_ERROR){ // bugfix against keepalive problem, protection against buggy servers that corrupt the connexion
                 if(strstr(ne_get_error(_neon_sess->get_ne_sess()), "Could not") != NULL
                    || strstr(ne_get_error(_neon_sess->get_ne_sess()), "Connection reset by peer") != NULL){
-                   DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_CORE, "Server KeepAlive problem detected, retry");
+                   DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_CORE, "Connection problem, retry");
                    _number_try++;
                    redirectAndConnectionCleanup();
                    return startRequest(err);
@@ -372,7 +354,7 @@ int NEONRequest::negotiateRequest(DavixError** err){
             }
 
             req_started= req_running == false;
-            neon_to_davix_code(status, _neon_sess->get_ne_sess(), davix_scope_http_request(),err);
+            createError(status, err);
 
             eradicateSession();
             ContextExplorer::SessionFactoryFromContext(_c).redirectionClean(_request_type, *_orig);
@@ -404,7 +386,7 @@ int NEONRequest::negotiateRequest(DavixError** err){
                             DavixError::setupError(err,davix_scope_http_request(),
                                                    StatusCode::AuthentificationError, "401 Unauthorized Error");
                     }else{
-                        neon_to_davix_code(status, _neon_sess->get_ne_sess(), davix_scope_http_request(),err);
+                        createError(end_status, err);
                     }
                     _number_try++;
                     if (redirectAndConnectionCleanup()){
@@ -415,7 +397,7 @@ int NEONRequest::negotiateRequest(DavixError** err){
 
                     return -1;
                 }
-                DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, " ->   NEON receive %d code, %d .... request again ... ", code, end_status);
+                DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "(NEON) %d code -> request again ", code);
                 break;
             case 403:
             case 501:
@@ -435,9 +417,11 @@ int NEONRequest::negotiateRequest(DavixError** err){
         _number_try++;
     }
 
-    if(_number_try >= n_limit){
-        DavixError::setupError(err,davix_scope_http_request(),StatusCode::AuthentificationError,
-                               "Maximum number of retrial reached.");
+    if(_number_try >= auth_retry_limit){
+        if(_neon_sess.get() != NULL && _neon_sess->getLastError(err)){
+            DavixError::setupError(err,davix_scope_http_request(), StatusCode::AuthenticationError,
+                               "Authentication Error, reach maximum number of attempts");
+        }
         return -2;
     }
     DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, " Davix negociate request ... <-");
@@ -523,8 +507,9 @@ int NEONRequest::executeRequest(DavixError** err){
     }
 
     if(read_status < 0){
-        if(err && *err == NULL)
-            neon_to_davix_code(read_status, _neon_sess->get_ne_sess(), davix_scope_http_request(), err);
+        if(err && *err == NULL){
+            createError(read_status, err);
+        }
         return -1;
     }
     _vec.push_back('\0');
@@ -710,9 +695,9 @@ int NEONRequest::endRequest(DavixError** err){
     (void) err;
 
     if(_req  && req_running == true){
-        req_running = false;
+
         if(_last_read > 0){ // if read content, discard it
-            DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CORE, "Operation incomplete, kill the connection....");
+            DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CORE, "(EndRequest)(Libneon) Operation incomplete, kill the connection....");
             ne_abort_request(_req);
             eradicateSession();
             _last_read =0;
@@ -720,10 +705,9 @@ int NEONRequest::endRequest(DavixError** err){
         }
         if( (status = ne_end_request(_req)) != NE_OK){
             DavixError* tmp_err=NULL;
-            if(_neon_sess.get() != NULL)
-                neon_to_davix_code(status, _neon_sess->get_ne_sess(), davix_scope_http_request(), &tmp_err);
+            createError(status, err);
             if(tmp_err){
-                DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "NEONRequest::endRequest -> error %d Error closing request -> %s ", tmp_err->getStatus(), tmp_err->getErrMsg().c_str());
+                DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "(EndRequest)(Libneon) Suppress broken connection %d  -> %s ", tmp_err->getStatus(), tmp_err->getErrMsg().c_str());
                 eradicateSession();
             }
             DavixError::clearError(&tmp_err);
@@ -832,6 +816,41 @@ void NEONRequest::freeRequest(){
         ne_request_destroy(_req);
         _req=NULL;
     }
+}
+
+
+void NEONRequest::createError(int ne_status, DavixError **err){
+    StatusCode::Code code;
+    std::string str;
+    switch(ne_status){
+        case NE_ERROR:
+            {
+             const char * neon_error = ne_get_error(_neon_sess->get_ne_sess());
+             str = std::string("(Neon): ").append((neon_error)?(neon_error):"");
+             if (str.find("SSL handshake failed") == std::string::npos)
+                 code = StatusCode::ConnectionProblem;
+             else
+                 code = StatusCode::SSLError;
+            }
+             break;
+        case NE_TIMEOUT:
+            {
+            // check if redirection occured, if redirection occured
+            // report TimeoutRedirectionError, to allow error recovery
+            if(_current != _orig){
+                code = StatusCode::TimeoutRedirectionError;
+                str= "Connection Timeout during redirection on ";
+                str+= _current->getString();
+                break;
+            }
+            neon_generic_error_mapper(ne_status, code, str);
+            }
+            break;
+
+        default:
+            neon_generic_error_mapper(ne_status, code, str);
+    }
+    DavixError::setupError(err, davix_scope_http_request(), code, str);
 }
 
 void NEONRequest::neon_hook_pre_send(ne_request *r, void *userdata,

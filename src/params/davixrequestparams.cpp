@@ -98,7 +98,8 @@ struct RequestParamsInternal{
         _proxy_server(),
         _session_flag(SESSION_FLAG_KEEP_ALIVE),
         _state_uid(get_requeste_uid()),
-        _transferCb()
+        _transferCb(),
+        retry_number(default_retry_number)
     {
         timespec_clear(&connexion_timeout);
         timespec_clear(&ops_timeout);
@@ -132,7 +133,8 @@ struct RequestParamsInternal{
         _proxy_server(param_private._proxy_server),
         _session_flag(param_private._session_flag),
         _state_uid(param_private._state_uid),
-        _transferCb(param_private._transferCb){
+        _transferCb(param_private._transferCb),
+        retry_number(param_private.retry_number){
 
         timespec_copy(&(connexion_timeout), &(param_private.connexion_timeout));
         timespec_copy(&(ops_timeout), &(param_private.ops_timeout));
@@ -176,6 +178,9 @@ struct RequestParamsInternal{
 
     // transfer cb
     TransferMonitorCB _transferCb;
+
+    // retry attempts
+    int retry_number;
 
     // method
     inline void regenerateStateUid(){
@@ -335,6 +340,14 @@ void RequestParams::setTransparentRedirectionSupport(bool redirection){
 
 bool RequestParams::getTransparentRedirectionSupport() const{
     return d_ptr->_redirection;
+}
+
+void RequestParams::setOperationRetry(int number_retry){
+    d_ptr->retry_number = number_retry;
+}
+
+int RequestParams::getOperationRetry() const{
+    return d_ptr->retry_number;
 }
 
 void RequestParams::setTransfertMonitorCb(const TransferMonitorCB &cb){

@@ -154,7 +154,7 @@ NEONSession::~NEONSession(){
                 ne_session_destroy(_sess);
         }
 #   endif
-
+        DavixError::clearError(&_last_error);
 }
 
 

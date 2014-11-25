@@ -145,6 +145,9 @@ enum Code {
     /// Invalid Hook type
     InvalidHook = 0x24,
 
+    /// Connection timeout during a redirection
+    TimeoutRedirectionError = 0x25,
+
     /// Undefined error
     UnknowError = 0x100
 
@@ -314,6 +317,7 @@ protected:
     DavixError e;
     DavixExceptionIntern* d_ptr;
 };
+
 
 void checkDavixError(DavixError** err);
 

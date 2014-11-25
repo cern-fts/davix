@@ -1,5 +1,5 @@
 #include <davix_internal.hpp>
-#include "metalinkops.hpp"
+#include "davix_reliability_ops.hpp"
 
 #include <string_utils/stringutils.hpp>
 #include <utils/davix_logger_internal.hpp>
@@ -19,6 +19,15 @@ typedef function< StatInfo & (IOChainContext &) > FuncStatInfo;
 
 static bool metalink_support_disabled=false;
 static once_flag metalink_once = BOOST_ONCE_INIT;
+
+
+void propagateNonRecoverableExceptions(DavixException & e){
+    /// Forward redirections and other error we don't want to recover
+    if(e.code() == StatusCode::RedirectionNeeded
+            || e.code() == StatusCode::OperationTimeout){
+        throw e;
+    }
+}
 
 void metalink_check(){
     metalink_support_disabled = (getenv("DAVIX_DISABLE_METALINK") != NULL);
@@ -66,14 +75,10 @@ ReturnType metalinkExecutor(HttpIOChain & chain, IOChainContext & io_context, Ex
         return fun(io_context);
     }catch(DavixException & e){
 
-        /// Forward redirections and other error we don't want to recover
-        if(e.code() == StatusCode::RedirectionNeeded
-                || e.code() == StatusCode::OperationTimeout){
-            throw e;
-        }
+        propagateNonRecoverableExceptions(e);
 
         DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, "Failure: Impossible to execute operation on %s, error %s", io_context._uri.getString().c_str(), e.what());
-        DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, " Try to Recover with Metalink...");
+        DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, "Try to Recover with Metalink...");
 
         try{
             return metalinkTryReplicas<Executor, ReturnType>(chain, io_context, fun);
@@ -238,6 +243,99 @@ dav_ssize_t MetalinkOps::readToFd(IOChainContext & iocontext, int fd, dav_size_t
     FuncIO func(bind(&HttpIOChain::readToFd, _next.get(), _1, fd, size));
     return metalinkExecutor<FuncIO, dav_ssize_t>(*this, iocontext, func);
 }
+
+
+
+
+
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+
+template<class Executor, class ReturnType>
+ReturnType autoRetryExecutor(HttpIOChain & chain, IOChainContext & io_context, Executor fun){
+
+    (void) chain;
+    const int max_retry = io_context._reqparams->getOperationRetry();
+    int retry =0;
+    const Uri & u = io_context._uri;
+
+     while(1){
+        io_context.checkTimeout();
+        try{
+            return fun(io_context);
+        }catch(DavixException & error){
+
+            // propagate fatal exceptions and connection error exceptions
+            propagateNonRecoverableExceptions(error);
+            if(error.code() == StatusCode::ConnectionTimeout){
+                throw error;
+            }
+
+
+            DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, "Operation failure: %s. After %d retry", error.what(), retry);
+            if( retry >= max_retry){
+                std::ostringstream ss;
+                ss << "Failure " << error.what() << " after " << retry << " attempts";
+                throw DavixException(error.scope(), error.code(), ss.str());
+            }
+        }catch(...){
+            DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, "Operation failure: Unknown Error");
+            std::ostringstream ss;
+            ss << "Unrecoverable error from IOChain on " << u;
+            throw DavixException(davix_scope_io_buff(), StatusCode::UnknowError, ss.str());
+        }
+        ++retry;
+    }
+}
+
+
+AutoRetryOps::AutoRetryOps(){
+
+}
+
+
+AutoRetryOps::~AutoRetryOps(){
+
+}
+
+
+StatInfo & AutoRetryOps::statInfo(IOChainContext &iocontext, StatInfo &st_info){
+    FuncStatInfo func(bind(&HttpIOChain::statInfo, _next.get(), _1, ref(st_info)));
+    return autoRetryExecutor<FuncStatInfo, StatInfo &>(*this, iocontext, func);
+}
+
+dav_ssize_t AutoRetryOps::read(IOChainContext &iocontext, void *buf, dav_size_t count){
+    FuncIO func(bind(&HttpIOChain::read, _next.get(),_1, buf, count));
+    return autoRetryExecutor<FuncIO, dav_ssize_t>(*this, iocontext, func);
+}
+
+dav_ssize_t AutoRetryOps::pread(IOChainContext &iocontext, void *buf, dav_size_t count, dav_off_t offset){
+
+    FuncIO func(bind(&HttpIOChain::pread, _next.get(),_1, buf, count, offset));
+    return autoRetryExecutor<FuncIO, dav_ssize_t>(*this, iocontext, func);
+}
+
+
+dav_ssize_t AutoRetryOps::preadVec(IOChainContext & iocontext, const DavIOVecInput * input_vec,
+                          DavIOVecOuput * output_vec,
+                          const dav_size_t count_vec){
+
+    FuncIO func(bind(&HttpIOChain::preadVec, _next.get(),_1, input_vec, output_vec, count_vec));
+    return autoRetryExecutor<FuncIO, dav_ssize_t>(*this, iocontext, func);
+}
+
+// read to fd Metalink manager
+dav_ssize_t AutoRetryOps::readToFd(IOChainContext & iocontext, int fd, dav_size_t size){
+    FuncIO func(bind(&HttpIOChain::readToFd, _next.get(), _1, fd, size));
+    return autoRetryExecutor<FuncIO, dav_ssize_t>(*this, iocontext, func);
+}
+
 
 } // namespace Davix
 

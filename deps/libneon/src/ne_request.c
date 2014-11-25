@@ -864,8 +864,12 @@ static ne_buffer *build_request(ne_request *req)
 
 static void dump_request(const char *request)
 {
-    char hdr_tmp[MAX_HEADER_LEN]; 
+    char hdr_tmp[MAX_HEADER_LEN];
     char hdr_debug[MAX_HEADER_LEN];
+
+    memset(hdr_tmp, '\0', sizeof(hdr_tmp));
+    memset(hdr_debug, '\0', sizeof(hdr_debug));
+
     strcat(hdr_tmp, "> ");
     strcat(hdr_tmp, request);
     char* token = strtok(hdr_tmp, "\n");

@@ -48,6 +48,9 @@ const char *ne_version_string(void);
  * presumed to be incompatible.  */
 int ne_version_match(int major, int minor);
 
+
+void ne_davix_logger(int level, const char* msg, ...);
+
 /* Feature codes: */
 #define NE_FEATURE_SSL (1) /* SSL/TLS support */
 #define NE_FEATURE_ZLIB (2) /* zlib compression in compress interface */
@@ -68,12 +71,10 @@ int ne_has_support(int feature);
 #else /* DEBUGGING */
 /* #define NE_DEBUG ne_debug */
 /* bypasses default Neon logger and use Davix's instead */
-#define NE_DEBUG(scope, msg, ...) \
-    do{ \
-    if( (davix_get_log_level() & scope)) { \
-        davix_logger(scope, msg, ##__VA_ARGS__); } \
-    }while(0)
-#endif /* DEBUGGING */
+#define NE_DEBUG ne_davix_logger
+#endif
+
+/* DEBUGGING */
 
 /* Debugging masks. */
 /* Map to DAVIX logging masks. */

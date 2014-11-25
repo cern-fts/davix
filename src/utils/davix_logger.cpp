@@ -18,11 +18,12 @@
  *
 */
 
-#include <davix_internal.hpp>
+#include <vector>
 #include <cstdio>
 #include <cstdarg>
+#include <davix_internal.hpp>
 #include <utils/davix_logger.hpp>
-#include <vector>
+
 
 const int BUFFER_SIZE =4096;
 const char* prefix = "DAVIX: ";
@@ -94,8 +95,14 @@ static void internal_log_handler(int log_mask, const char * msg,  va_list ap){
 extern "C" void davix_logger(int log_mask, const char * msg, ...){
     va_list va;
     va_start(va, msg);
-    internal_log_handler(log_mask, msg, va);
+    davix_vlogger(log_mask, msg, va);
     va_end(va);
+}
+
+
+
+extern "C" void davix_vlogger(int log_mask, const char* msg, va_list va){
+    internal_log_handler(log_mask, msg, va);
 }
 
 extern "C"  void davix_set_log_handler( void (*fhandler)(void* userdata, int mgs_level, const char* msg), void* userdata){

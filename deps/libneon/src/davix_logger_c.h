@@ -67,6 +67,8 @@ int davix_get_log_level();
 
 void davix_logger(int log_mask, const char * msg, ...);
 
+void davix_vlogger(int log_mask, const char* msg, va_list args);
+
 /* @brief setup a log handler
 
    redirect the davix log output to the function f_handler

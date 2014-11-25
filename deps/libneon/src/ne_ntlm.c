@@ -685,4 +685,5 @@ char *ne__ntlm_getRequestToken(ne_ntlm_context *context)
 }
 
 #endif /* HAVE_OPENSSL */
+
 #endif /* HAVE_NTLM */

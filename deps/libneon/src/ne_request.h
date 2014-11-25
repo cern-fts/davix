@@ -22,9 +22,12 @@
 #ifndef NE_REQUEST_H
 #define NE_REQUEST_H
 
+#include <time.h>
+
 #include "ne_utils.h" /* For ne_status */
 #include "ne_string.h" /* For ne_buffer */
 #include "ne_session.h"
+
 
 NE_BEGIN_DECLS
 
@@ -237,9 +240,6 @@ void ne_set_request_flag(ne_request *req, ne_request_flag flag, int value);
  * flag is not supported. */
 int ne_get_request_flag(ne_request *req, ne_request_flag flag);
 
-
-
-void ne_set_expiration_time(ne_request* req, struct timespec * deadline);
 
 /**** Request hooks handling *****/
 

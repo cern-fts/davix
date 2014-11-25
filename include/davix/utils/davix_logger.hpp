@@ -22,6 +22,7 @@
 #ifndef DAVIX_LOGGER_HPP
 #define DAVIX_LOGGER_HPP
 
+#include <cstdarg>
 #include <utils/davix_types.hpp>
 
 DAVIX_C_DECL_BEGIN
@@ -68,7 +69,12 @@ extern DAVIX_EXPORT void davix_set_log_level(int log_mask);
 /// get current log mask
 extern DAVIX_EXPORT int davix_get_log_level();
 
+/// internal logger function
 extern DAVIX_EXPORT void davix_logger(int log_mask, const char * msg, ...);
+
+/// variadic version of internal logger function
+extern DAVIX_EXPORT void davix_vlogger(int log_mask, const char* msg, va_list args);
+
 
 /// @brief setup a log handler
 ///

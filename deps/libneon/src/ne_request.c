@@ -25,11 +25,13 @@
 
 #include "config.h"
 
+#include <time.h>
 #include <sys/types.h>
 
 #include <errno.h>
 #include <fcntl.h>
-#include <time.h>
+
+
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif
@@ -549,10 +551,6 @@ int ne_get_request_flag(ne_request *req, ne_request_flag flag)
     return -1;
 }
 
-
-void ne_set_expiration_time(ne_request* req, struct timespec * deadline){
-    req->expiration_time.tv_sec = deadline->tv_sec;
-}
 
 void ne_add_request_header(ne_request *req, const char *name, 
 			   const char *value)

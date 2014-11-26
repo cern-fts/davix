@@ -213,7 +213,7 @@ private:
     int redirectRequest(DavixError** err);
 
     // redirecttion caching cleaning function
-    bool redirectAndConnectionCleanup();
+    bool requestCleanup();
 
     void freeRequest();
 

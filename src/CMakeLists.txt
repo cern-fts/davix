@@ -28,7 +28,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 link_directories(${HTTPLIB_PKG_LIBRARY_DIR} ${CRYPTO_PKG_LIBRARY_DIR} 
                                         ${LIBXML2_PKG_LIBRARY_DIR} )
 
-add_subdirectory(copy)
+add_subdirectory(modules/copy)
 add_subdirectory(libs)
 add_subdirectory(xml)
 if(ENABLE_TOOLS)

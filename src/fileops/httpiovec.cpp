@@ -368,10 +368,16 @@ dav_ssize_t HttpIOVecOps::parseMultipartRequest(HttpRequest & _req,
 
        if( (tmp_ret = copyChunk(_req, &input_vec[off], &output_vec[off], err)) <0 )
            return -1;
+
        ret += tmp_ret;
        DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CHAIN, "Davix::parseMultipartRequest chunk parsed with success, next chunk..");
        off++;
     }
+
+    // finish with success, dump the remaining part of the query to end the request properly
+    char buffer[255];
+    while( _req.readBlock(buffer, 255, NULL) > 0);
+
 
     DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CHAIN, "Davix::parseMultipartRequest end %d %d", off, count_vec);
     return ret;

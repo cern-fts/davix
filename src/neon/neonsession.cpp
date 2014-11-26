@@ -137,11 +137,12 @@ NEONSession::NEONSession(Context & c, const Uri & uri, const RequestParams & p, 
     _params(p),
     _last_error(NULL),
     _session_recycling(_f.getSessionCaching() && p.getKeepAlive()),
+    reused(false),
     _u(uri)
 {
         _f.createNeonSession(p, uri, &_sess, err);
         if(_sess)
-            configureSession(_sess, _u, p, &NEONSession::provide_login_passwd_fn, this, &NEONSession::authNeonCliCertMapper, this);
+            configureSession(_sess, _u, p, &NEONSession::provide_login_passwd_fn, this, &NEONSession::authNeonCliCertMapper, this, reused);
 }
 
 
@@ -159,9 +160,13 @@ NEONSession::~NEONSession(){
 
 
 void configureSession(ne_session *_sess, const Uri & _u, const RequestParams &params, ne_auth_creds lp_callback, void* lp_userdata,
-                      ne_ssl_provide_fn cred_callback,  void* cred_userdata){
+                      ne_ssl_provide_fn cred_callback,  void* cred_userdata, bool & reused){
 
     void* state = ne_get_session_private(_sess,davix_neon_key);
+    if(state != NULL){
+        reused = true;
+    }
+
     if(state == NULL || state != params.getParmState()){
         // no configuration done, need to configure
         DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CORE, "NEONSession : configure session...");

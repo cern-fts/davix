@@ -23,19 +23,17 @@
 
 
 void h2fast(const char *url , Bool_t draw=kFALSE, Long64_t cachesize=10000000, Int_t learn=1) {
-gEnv->SetValue("TFile.AsyncReading", "no");
-//      gEnv->SetValue("TFile.ForceRemote", "yes");
 // gEnv->SetValue("TFile.DavixLog", 10);
 //  gDebug= 0x02;
    TStopwatch sw;
    TTree* T = NULL;
    sw.Start();
    Long64_t oldb = TFile::GetFileBytesRead();
-   TFile *f = TFile::Open(url, " GRID_MODE=yes ");
+   TFile *f = TFile::Open(url);
   
    if (!f || f->IsZombie()) {
       printf("File h1big.root does not exist\n");
-      return;
+      exit (-1);
    }
    
 

@@ -175,7 +175,7 @@ NEONRequest::~NEONRequest(){
 
 void NEONRequest::eradicateSession(){
    if(_neon_sess.get() != NULL){
-        DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "Connection problem: eradicate session.....");
+        DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "Connection problem: eradicate session");
        _neon_sess->disable_session_reuse();
     }
 }
@@ -318,7 +318,7 @@ int NEONRequest::negotiateRequest(DavixError** err){
     _last_read = -1;
     _total_read_size = 0;
 
-    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "-> Davix negociate request ... ");
+    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "-> Davix negociate request");
 
     // check timeout
     if(checkTimeout(err) == true)
@@ -337,19 +337,21 @@ int NEONRequest::negotiateRequest(DavixError** err){
 
         if( (status = ne_begin_request(_req)) != NE_OK && status != NE_REDIRECT){
             _last_read = -1;
-            if( status == NE_ERROR){ // bugfix against keepalive problem, protection against buggy servers that corrupt the connexion
-                if(strstr(ne_get_error(_neon_sess->get_ne_sess()), "Could not") != NULL
-                   || strstr(ne_get_error(_neon_sess->get_ne_sess()), "Connection reset by peer") != NULL){
-                   DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_CORE, "Connection problem, retry");
-                   _number_try++;
-                   redirectAndConnectionCleanup();
-                   return startRequest(err);
-                }
+
+            if( status == NE_ERROR
+                &&  requestCleanup()
+                && (
+                    strstr(ne_get_error(_neon_sess->get_ne_sess()), "Could not") != NULL
+                    || strstr(ne_get_error(_neon_sess->get_ne_sess()), "Connection reset by peer") != NULL
+                    )){
+               DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_CORE, "Connection problem, retry");
+               _number_try++;
+                return startRequest(err);
             }
-            if( status == NE_CONNECT && _orig != _current){
-                DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_CORE, "Impossible to connect to %s, retry src", _current->getString().c_str());
+
+            if( status == NE_CONNECT &&  requestCleanup() ){
+                DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_CORE, "Impossible to connect to %s, retry from origin %s", _current->getString().c_str(), _orig->getString().c_str());
                 _number_try++;
-                redirectAndConnectionCleanup();
                 return startRequest(err);
             }
 
@@ -382,19 +384,21 @@ int NEONRequest::negotiateRequest(DavixError** err){
                 if( end_status != NE_RETRY){
                     req_started= req_running = false;
                     clearAnswerContent();
-                    if(end_status == NE_OK){
-                            DavixError::setupError(err,davix_scope_http_request(),
-                                                   StatusCode::AuthentificationError, "401 Unauthorized Error");
-                    }else{
-                        createError(end_status, err);
-                    }
+
                     _number_try++;
-                    if (redirectAndConnectionCleanup()){
+                    if (requestCleanup()){
                         DavixError::clearError(err);
                         endRequest(NULL);
                         return startRequest(err);
                     }
 
+                    if(end_status == NE_OK){
+                            DavixError::setupError(err,davix_scope_http_request(),
+                                                   StatusCode::AuthentificationError, "401 Unauthorized");
+                            return -1;
+                    }
+
+                    createError(end_status, err);
                     return -1;
                 }
                 DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, "(NEON) %d code -> request again ", code);
@@ -403,7 +407,7 @@ int NEONRequest::negotiateRequest(DavixError** err){
             case 501:
                  // cleanup redirection
                 _number_try++;
-                if( redirectAndConnectionCleanup()){
+                if( requestCleanup()){
                     // recursive call, restart request
                     endRequest(NULL);
                     return startRequest(err);
@@ -429,18 +433,24 @@ int NEONRequest::negotiateRequest(DavixError** err){
 }
 
 
-bool NEONRequest::redirectAndConnectionCleanup(){
+// mark the session as dirty for destruction, clean any cached redirection due to error
+// detect if the request comes from a cached session or have been redirected
+// if it is the case, return true
+//
+bool NEONRequest::requestCleanup(){
     // cleanup redirection
     ContextExplorer::SessionFactoryFromContext(_c).redirectionClean(_request_type, *_orig);
+
     // disable recycling
     // server supporting broken pipelining will trigger if reused
     _neon_sess->disable_session_reuse();
-    // disable session reuse for this request, avoid picking up a session already expired
-    params.setKeepAlive(false);
 
-    // cancel redirect, maybe outdated ? retry
-    if(_current != _orig){
-        DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, " ->  problem after redirection: cancel redirect and try again");
+    // check if we had a redirection
+    // if it's the case redirection can be expired, then
+    if(_current != _orig || _neon_sess->isRecycledSession()){
+        DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_CORE, " ->  Error when using reycling of session/redirect : cancel and try again");
+        // disable session reuse for this request, avoid picking up a session already expired
+        params.setKeepAlive(false);
         _current = _orig;
         return true;
     }

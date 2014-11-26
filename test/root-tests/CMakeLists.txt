@@ -1,6 +1,8 @@
 
 
 
+option(ROOT_TESTS "Root functional test execution " FALSE)
+
 if(ROOT_TESTS)
 
 ## the root tests are compatibility tests with the ROOT analysis framework (http://root.cern.ch/)
@@ -9,9 +11,10 @@ if(ROOT_TESTS)
 ## - a valid proxy credential for the dteam VO
 
 
-find_package(ROOT)
+find_package(ROOT REQUIRED)
 
 add_definitions(-Wall)
+
 
 
 

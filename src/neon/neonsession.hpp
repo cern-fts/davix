@@ -54,8 +54,12 @@ public:
         return false;
     }
 
+    inline bool isRecycledSession(){
+        return reused;
+    }
+
     inline void disable_session_reuse(){
-        DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_SSL, "Disable Session recycling.....");
+        DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_SSL, "Disable Session recycling");
         _session_recycling = false;
     }
 
@@ -65,6 +69,7 @@ private:
     const RequestParams & _params;
     DavixError* _last_error;
     bool _session_recycling;
+    bool reused;
     Uri _u;
 
     NEONSession(const NEONSession &);
@@ -84,7 +89,7 @@ private:
 
 
 void configureSession(ne_session *_sess, const Uri & uri, const RequestParams &params, ne_auth_creds lp_callbac, void* lp_userdata,
-                      ne_ssl_provide_fn cred_callback,  void* cred_userdata);
+                      ne_ssl_provide_fn cred_callback,  void* cred_userdata, bool & reused);
 
 
 }

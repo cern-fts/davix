@@ -262,7 +262,7 @@ ReturnType autoRetryExecutor(HttpIOChain & chain, IOChainContext & io_context, E
 
     (void) chain;
     const int max_retry = io_context._reqparams->getOperationRetry();
-    int retry =0;
+    int retry =1;
     const Uri & u = io_context._uri;
 
      while(1){

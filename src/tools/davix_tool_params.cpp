@@ -47,6 +47,7 @@ const std::string scope_params = "Davix::Tools::Params";
 #define METALINK_OPT        1010
 #define CONN_TIMEOUT        1011
 #define TIMEOUT_OPS         1012
+#define RETRY_OPT           1013
 
 // LONG OPTS
 
@@ -59,6 +60,7 @@ const std::string scope_params = "Davix::Tools::Params";
 {"proxy", required_argument, 0, 'x'}, \
 {"redirection", required_argument, 0, REDIRECTION_OPT }, \
 {"conn-timeout", required_argument, 0, CONN_TIMEOUT }, \
+{"retry", required_argument, 0, RETRY_OPT }, \
 {"timeout", required_argument, 0, TIMEOUT_OPS }, \
 {"trace", required_argument, 0, TRACE_OPTIONS }, \
 {"verbose", no_argument, 0,  0 }, \
@@ -152,14 +154,20 @@ static void set_redirection_opt(RequestParams & params, const std::string & redi
                                                redir_opt, argv));
 }
 
-static struct timespec parse_timeout(const std::string & opt, char** argv){
-    int t;
-    std::istringstream ss(opt);
-    ss >> t;
-    if( ss.fail() || t < 0){
-        std::cerr << "Invalid timeout " << opt << std::endl;
+
+static int parse_int(const std::string & opt, char** argv){
+    try{
+        return toType<int, std::string>()(opt);
+    }catch(...){
+        std::cerr << "Invalid option value " << opt << std::endl;
         option_abort(argv);
     }
+    return 0;
+}
+
+static struct timespec parse_timeout(const std::string & opt, char** argv){
+    int t = parse_int(opt, argv);
+
     struct timespec timelapse;
     timelapse.tv_sec =t;
     timelapse.tv_nsec =0;
@@ -205,6 +213,9 @@ int parse_davix_options_generic(const std::string &opt_filter,
                 break;
             case DATA_CONTENT:
                 p.req_content = optarg;
+                break;
+            case RETRY_OPT:
+                p.params.setOperationRetry( parse_int(optarg, argv));
                 break;
             case S3_ACCESS_KEY:
                 p.aws_auth.second = optarg;

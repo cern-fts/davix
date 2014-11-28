@@ -51,6 +51,7 @@ private:
     struct timespec t;
     friend class Clock;
     friend class Duration;
+    friend std::ostream& operator<<(std::ostream& os, const TimePoint & t);
 };
 
 class Duration{

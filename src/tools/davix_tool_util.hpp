@@ -71,6 +71,13 @@ void flushFinalLineShell(int fd);
 std::string SanitiseTildedPath(const char * path);
 
 bool is_number(const std::string& s);
+
+void TransferMonitor(const Uri & url, Transfer::Type op_type, dav_ssize_t bytes_transfered, dav_size_t total_size, Transfer::Type tool_type);
+
+void printProgressBar(const int percent, dav_ssize_t bytes_transfered, dav_size_t total_size);
+
+int configureMonitorCB(OptParams & opts, Transfer::Type type);
+
 }
 }
 

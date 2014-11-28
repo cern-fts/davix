@@ -23,6 +23,7 @@
 #include <tools/davix_tool_util.hpp>
 #include <cstdio>
 
+
 // @author : Devresse Adrien
 // main file for davix-put operation
 
@@ -48,6 +49,7 @@ static int execute_put(const Tool::OptParams & opts, int fd, DavixError** err){
         const std::string &  dst_file = opts.vec_arg[1];
         Context c;
         configureContext(c, opts);
+
         TRY_DAVIX{
             DavFile f(c, dst_file);
             struct stat st;
@@ -74,12 +76,15 @@ int main(int argc, char** argv){
     int fd_in= -1;
 
     if( (retcode= Tool::parse_davix_put_options(argc, argv, opts, &tmp_err)) ==0
-        && (retcode = Tool::configureAuth(opts)) == 0){
+        && (retcode = Tool::configureAuth(opts)) == 0
+        && (retcode = Tool::configureMonitorCB(opts, Transfer::Type::Write)) == 0){
         if( ( fd_in = Tool::getInFd(opts, scope_put, &tmp_err)) > 0){
             retcode = execute_put(opts, fd_in, &tmp_err);
             close(fd_in);
         }
     }
+    
+
     Tool::errorPrint(&tmp_err);
     return retcode;
 }

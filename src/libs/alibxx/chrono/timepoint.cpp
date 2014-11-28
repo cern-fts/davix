@@ -111,12 +111,12 @@ TimePoint Clock::now() const{
 
 
 std::ostream& operator<<(std::ostream& os, const Duration & d){
-    os << d.t.tv_sec << "s";
+    os << d.t.tv_sec;
     return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const TimePoint & t){
-    os << t;
+    os << t.t.tv_sec;
     return os;
 }
 

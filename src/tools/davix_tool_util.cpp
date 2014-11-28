@@ -28,12 +28,15 @@
 #include <ctype.h>
 #include <simple_getpass/simple_get_pass.h>
 
+#include <sys/ioctl.h>
+#include <unistd.h>
 
 namespace Davix{
 
 namespace Tool{
 
 using namespace StrUtil;
+using namespace std::placeholders;
 
 dav_ssize_t writeToFd(int fd, const void* buffer, dav_size_t s_buff){
     while(1){
@@ -339,6 +342,104 @@ bool is_number(const std::string& s)
     while (it != s.end() && std::isdigit(*it)) ++it;
     return !s.empty() && it == s.end();
 }
+
+
+void TransferMonitor(const Uri & url, Transfer::Type op_type, dav_ssize_t bytes_transfered, dav_size_t total_size, Transfer::Type tool_type){
+    static bool printOnce = true;
+
+    if(isatty(fileno(stdout)) && (op_type == tool_type)){
+        int progress = 0;
+        if(printOnce){
+            std::string type;
+            
+            (op_type == Transfer::Type::Read) ? type = "Read" : type = "Write";
+
+            std::cout << "Performing " << type << " operation on: " << url << std::endl;
+            printOnce = false;
+        }
+        
+        if(total_size == 0)
+            progress = 0;
+        else
+            progress = (static_cast<float>(bytes_transfered) / static_cast<float>(total_size)) * 100;
+
+        printProgressBar(progress, bytes_transfered, total_size);
+    }
+}
+
+void printProgressBar(const int percent, dav_ssize_t bytes_transfered, dav_size_t total_size){
+    std::string bar;
+    std::string unit;
+    static bool printOnce = true;
+    static Chrono::TimePoint start_time = Chrono::Clock(Chrono::Clock::Monolitic).now();
+    Chrono::TimePoint current_time = Chrono::Clock(Chrono::Clock::Monolitic).now();
+    unsigned long diff_time = current_time.toTimestamp() - start_time.toTimestamp();
+    int size = (total_size == 0) ? 0 : total_size;
+    unsigned long baudrate = 0;
+
+
+    struct winsize win;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &win);
+
+    if(diff_time == 0)
+        baudrate = 0;
+    else
+        baudrate = (bytes_transfered/diff_time);
+    
+    // w = width of bar, r = 100/w
+    int w = (win.ws_row/1.5);    
+    float r = 100/static_cast<float>(w);    
+    for(int i = 0; i < w; ++i){
+        if(i < (percent/r) ){
+            bar.replace(i,1,"=");
+        }else{
+            bar.replace(i,1," ");
+        }
+    }
+
+    if((total_size / 1024) >= (1024 * 1024 * 1024)){
+        size /= (1024 * 1024 * 1024);
+        bytes_transfered /= (1024 * 1024 * 1024);
+        baudrate /= (1024 * 1024 * 1024);
+        unit = "GB";
+    }else if(total_size >= (1024 * 1024 * 1024)){
+        size /= (1024 * 1024);
+        bytes_transfered /= (1024 * 1024);
+        baudrate /= (1024 * 1024);
+        unit = "MB";
+    }else if(total_size >= (1024 * 1024)){
+        size /= 1024;
+        bytes_transfered /= 1024;
+        baudrate /= 1024;
+        unit = "KB";
+    }else{
+        unit = "B";
+    }
+    if((percent == 100) && !printOnce)
+        return;
+
+    std::cout << "\r" "[" << bar << "] ";
+    std::cout.width(3);
+    std::cout << percent << "%     " << 
+        bytes_transfered << "/" << size << unit;
+    std::cout.width(10); 
+    std::cout << baudrate << unit << "/s" <<
+        "                     " << std::flush;
+
+    if(bytes_transfered == size){
+        std::cout << std::endl;
+        printOnce = false;
+    }
+}
+
+int configureMonitorCB(OptParams & opts, Transfer::Type type){
+    TransferMonitorCB transMonCB;
+    transMonCB = std::bind(&Tool::TransferMonitor, _1, _2, _3, _4, type);
+    opts.params.setTransfertMonitorCb(transMonCB);
+
+    return 0;
+}
+
 
 }
 }

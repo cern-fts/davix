@@ -1,4 +1,4 @@
-#include <config.h>
+#include <davix_internal_config.hpp>
 #include "stringutils.hpp"
 #include <cstring>
 #include <algorithm>

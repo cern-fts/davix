@@ -22,7 +22,7 @@ if(HAVE_TR1_SUPPORT)
 
 endif(HAVE_TR1_SUPPORT)
 
-configure_file(config.in ${CMAKE_CURRENT_BINARY_DIR}/config.h @ONLY)
+configure_file(davix_internal_config.in ${CMAKE_CURRENT_BINARY_DIR}/davix_internal_config.hpp @ONLY)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 link_directories(${HTTPLIB_PKG_LIBRARY_DIR} ${CRYPTO_PKG_LIBRARY_DIR} 

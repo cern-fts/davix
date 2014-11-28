@@ -64,19 +64,19 @@ struct DavPropXMLParser::DavxPropXmlIntern{
 
 
     inline void add_new_elem(){
-        DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_XML, " properties detected ");
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_XML, " properties detected ");
         _current_props.clear();
         _current_props.filename = _last_filename; // setup the current filename
         _current_props.info.mode = 0777 | S_IFREG; // default : fake access to everything
     }
 
     inline void store_new_elem(){
-        DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_XML, " end of properties... ");
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_XML, " end of properties... ");
         if( _last_response_status > 100
             && _last_response_status < 400){
             _props.push_back(_current_props);
         }else{
-           DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_XML, "Bad status code ! properties dropped");
+           DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_XML, "Bad status code ! properties dropped");
         }
     }
 
@@ -87,58 +87,58 @@ typedef void (*properties_cb)(DavPropXMLParser::DavxPropXmlIntern & par, const s
 
 
 static void check_last_modified(DavPropXMLParser::DavxPropXmlIntern & par, const std::string & name){
-    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_XML, " getlastmodified found -> parse it ");
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_XML, " getlastmodified found -> parse it ");
     time_t t = parse_standard_date(name.c_str());
     if(t == -1){
-        DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_XML, " getlastmodified parsing error : corrupted value ... ignored");
+        DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_XML, " getlastmodified parsing error : corrupted value ... ignored");
         t = 0;
     }
-    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_XML, " getlastmodified found -> value %ld ", t);
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_XML, " getlastmodified found -> value {} ", t);
     par._current_props.info.mtime = t;
 }
 
 
 static void check_creation_date(DavPropXMLParser::DavxPropXmlIntern & par, const std::string & name){
-    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_XML, "creationdate found -> parse it");
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_XML, "creationdate found -> parse it");
     time_t t = parse_standard_date(name.c_str());
     if(t == -1){
-        DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_XML, " creationdate parsing error : corrupted value ... ignored");
+        DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_XML, " creationdate parsing error : corrupted value ... ignored");
         t = 0;
     }
-    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_XML, " creationdate found -> value %ld ", t);
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_XML, " creationdate found -> value {} ", t);
     par._current_props.info.ctime = t;
 }
 
 static void check_is_directory(DavPropXMLParser::DavxPropXmlIntern & par,  const std::string & name){
    (void) name;
-   DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_XML, " directory pattern found -> set flag IS_DIR");
+   DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_XML, " directory pattern found -> set flag IS_DIR");
    par._current_props.info.mode |=  S_IFDIR;
    par._current_props.info.mode &= ~(S_IFREG);
 }
 
 
 static void check_content_length(DavPropXMLParser::DavxPropXmlIntern & par,  const std::string & name){
-    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_XML, " content length found -> parse it");
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_XML, " content length found -> parse it");
     try{
         const unsigned long mysize = toType<unsigned long, std::string>()(name);
-        DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_XML, " content length found -> %ld", mysize);
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_XML, " content length found -> {}", mysize);
         par._current_props.info.size = static_cast<off_t>(mysize);
     }catch(...){
-        DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_XML, " Invalid content length value in dav response");
+        DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_XML, " Invalid content length value in dav response");
     }
 
 
 }
 
 static void check_mode_ext(DavPropXMLParser::DavxPropXmlIntern & par, const std::string & name){
-    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_XML, " mode_t extension for LCGDM found -> parse it");
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_XML, "mode_t extension for LCGDM found -> parse it");
     const unsigned long mymode = strtoul(name.c_str(), NULL, 8);
     if(mymode == ULONG_MAX){
-        DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_XML, " Invalid mode_t value for the LCGDM extension");
+        DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_XML, "Invalid mode_t value for the LCGDM extension");
         errno =0;
         return;
     }
-    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_XML, " mode_t extension found -> 0%o", (mode_t) mymode);
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_XML, fmt::sprintf(" mode_t extension found -> 0%o", (mode_t) mymode).c_str());
     par._current_props.info.mode = (mode_t) mymode;
 }
 
@@ -151,11 +151,11 @@ static void check_href(DavPropXMLParser::DavxPropXmlIntern & par,  const std::st
     }else{
         par._last_filename.assign(it.base(), _href.end());
     }
-   DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_XML, " href/filename parsed -> %s ", par._last_filename.c_str() );
+   DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_XML, " href/filename parsed -> {} ", par._last_filename.c_str() );
 }
 
 static void check_status(DavPropXMLParser::DavxPropXmlIntern & par, const std::string & name){
-    DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_XML, " status found -> parse it");
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_XML, " status found -> parse it");
     std::string str_status(name);
     ltrim(str_status, StrUtil::isSpace());
     std::string::iterator it1, it2;
@@ -165,12 +165,12 @@ static void check_status(DavPropXMLParser::DavxPropXmlIntern & par, const std::s
         std::string str_status_parsed(it1+1, it2);
         unsigned long res = strtoul(str_status_parsed.c_str(), NULL, 10);
         if(res != ULONG_MAX){
-           DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_XML, " status value : %ld", res);
+           DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_XML, " status value : {}", res);
            par._last_response_status = res;
            return;
         }
     }
-    DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_XML, "Invalid dav status field value");
+    DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_XML, "Invalid dav status field value");
     errno =0;
 }
 

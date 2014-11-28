@@ -18,7 +18,7 @@
  *
 */
 
-#include <config.h>
+#include <davix_internal_config.hpp>
 #include "datetime_utils.hpp"
 
 time_t parse_http_date(const char* http_date){

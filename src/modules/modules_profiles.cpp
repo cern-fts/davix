@@ -16,30 +16,28 @@ struct GridEnv{
 
 GridEnv createGridEnv(){
 
-    DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CORE, "Enable GRID profile for DAVIX");
+    DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_CORE, "Enable GRID profile for DAVIX");
 
     GridEnv env;
     env.ca_path = EnvUtils::getEnv("X509_CERT_DIR", "/etc/grid-security/certificates/");
-    DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CORE, "Add CA path %s to valid CA path list", env.ca_path.c_str());
+    DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_CORE, "Add CA path {} to valid CA path list", env.ca_path);
 
     std::string proxy = EnvUtils::getEnv("X509_USER_PROXY", std::string());
     if(proxy.size() ==0){
-        std::ostringstream ss;
-        ss << "/tmp/x509up_u" << geteuid();
-        proxy = ss.str();
+        proxy = fmt::format("/tmp/x509up_u{}", geteuid());
         if(access(proxy.c_str(), R_OK) !=0){
-            DAVIX_LOG(DAVIX_LOG_WARNING, LOG_CORE, "Unable to read proxy file %s", proxy.c_str());
+            DAVIX_SLOG(DAVIX_LOG_WARNING, LOG_CORE, "Unable to read proxy file {}", proxy);
             proxy.clear();
         }
     }
     if(proxy.size() > 0){
-        DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CORE, "Define %s proxy certificate for use", proxy.c_str());
+        DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_CORE, "Define {} proxy certificate for use", proxy);
         env.cert_path = env.key_path = proxy;
     }else{
         // No proxy, load simply creds
         env.key_path = EnvUtils::getEnv("X509_USER_KEY", std::string());
         env.cert_path = EnvUtils::getEnv("X509_USER_CERT", std::string());
-        DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CORE, "Define to use GRID key %s and GRID cert %s ", env.key_path.c_str(), env.cert_path.c_str());
+        DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_CORE, "Define to use GRID key {} and GRID cert {} ", env.key_path, env.cert_path);
     }
     return env;
 }
@@ -57,10 +55,10 @@ void awesomeGridHook(RequestParams& p, HttpRequest & req, Uri & u, RequestPreRun
         X509Credential x509;
         DavixError* tmp_err=NULL;
         if( x509.loadFromFilePEM(env_grid.key_path, env_grid.cert_path, "", &tmp_err) <0){
-            DAVIX_LOG(DAVIX_LOG_WARNING, LOG_CORE, "Impossible to load GRID certificate %s %s: %s",
-                      env_grid.key_path.c_str(),
-                      env_grid.cert_path.c_str(),
-                      tmp_err->getErrMsg().c_str());
+            DAVIX_SLOG(DAVIX_LOG_WARNING, LOG_CORE, "Impossible to load GRID certificate {} {}: {}",
+                      env_grid.key_path,
+                      env_grid.cert_path,
+                      tmp_err->getErrMsg());
         }else{
             // in current state, GRID profiles ignore all manually defined callbacks
             p.setClientCertCallbackX509(NULL, NULL);

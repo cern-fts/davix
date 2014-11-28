@@ -241,7 +241,7 @@ std::string DavixDelegation::delegate(Context & context, const std::string &dlg_
 	if (*err)
 		return std::string();
 
-    DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_GRID, "Delegation version: %d", delegation_version);
+    DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_GRID, "Delegation version: {}", delegation_version);
 
     switch (delegation_version)
     {

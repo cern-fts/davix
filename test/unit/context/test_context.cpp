@@ -1,4 +1,4 @@
-#include <config.h>
+#include <davix_internal_config.hpp>
 #include <davix.hpp>
 #include <gtest/gtest.h>
 

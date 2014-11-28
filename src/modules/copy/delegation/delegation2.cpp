@@ -27,7 +27,7 @@ static bool get_delegated_credentials(struct soap* soap,
     if (SOAP_OK != soap_call_tns2__getTerminationTime(soap, endpoint.c_str(), NULL, dlg_id_ptr, resp)) {
         char err_buffer[512];
         soap_sprint_fault(soap, err_buffer, sizeof(err_buffer));
-        DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_GRID, "Could not retrieve delegated credentials: %s", err_buffer);
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_GRID, "Could not retrieve delegated credentials: {}", err_buffer);
         return false;
     }
 
@@ -50,7 +50,7 @@ static void renew_proxy(struct soap* soap, const std::string& endpoint,
     struct tns2__putProxyResponse put_resp;
 
     if (force) {
-        DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_GRID, "Renew proxy request");
+        DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_GRID, "Renew proxy request");
 
         ret = soap_call_tns2__renewProxyReq(soap, endpoint.c_str(), NULL, dlg_id_ptr, renew_resp);
         if (SOAP_OK != ret) {
@@ -62,7 +62,7 @@ static void renew_proxy(struct soap* soap, const std::string& endpoint,
 
     /* if it was forced and failed, or if it was not forced at all */
     if (certreq.empty()) {
-        DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_GRID, "Get proxy request");
+        DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_GRID, "Get proxy request");
         /* there was no proxy, or not forcing -- the normal path */
         ret = soap_call_tns2__getProxyReq(soap, endpoint.c_str(), NULL,
                 dlg_id_ptr, get_resp);
@@ -75,7 +75,7 @@ static void renew_proxy(struct soap* soap, const std::string& endpoint,
 
     /* generating a certificate from the request */
     if (!certreq.empty()) {
-        DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_GRID, "Sign proxy request");
+        DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_GRID, "Sign proxy request");
         ret = GRSTx509MakeProxyCert(&certtxt, stderr, (char*)certreq.c_str(),
                 (char*)ucred.c_str(), (char*)ucred.c_str(), lifetime);
     }
@@ -95,7 +95,7 @@ static void renew_proxy(struct soap* soap, const std::string& endpoint,
         return;
     }
 
-    DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_GRID, "Put new proxy");
+    DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_GRID, "Put new proxy");
     if (SOAP_OK != soap_call_tns2__putProxy(soap, endpoint.c_str(), NULL, dlg_id_ptr, scerttxt, put_resp)) {
         err2davix(soap, err, "Renewal failed");
         return;
@@ -128,15 +128,15 @@ std::string DavixDelegation::delegate_v2(Context & context, const std::string &d
     time_t delegated_lifetime;
 
     if(!get_delegated_credentials(soap, dlg_endpoint, dlg_id, &delegated_lifetime)) {
-        DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_GRID, "No delegated credentials on the storage");
+        DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_GRID, "No delegated credentials on the storage");
         new_delegation = true;
     }
     else if (delegated_lifetime < lifetime) {
-        DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_GRID, "Need to renew the credentials, %d > %d", lifetime, delegated_lifetime);
+        DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_GRID, "Need to renew the credentials, {} > {}", lifetime, delegated_lifetime);
         renew_delegation = true;
     }
     else {
-        DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_GRID, "Remaining life of the delegated credentials: %d", delegated_lifetime);
+        DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_GRID, "Remaining life of the delegated credentials: {}", delegated_lifetime);
     }
 
     if (new_delegation || renew_delegation)

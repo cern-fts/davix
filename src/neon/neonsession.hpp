@@ -59,7 +59,7 @@ public:
     }
 
     inline void disable_session_reuse(){
-        DAVIX_LOG(DAVIX_LOG_DEBUG, LOG_SSL, "Disable Session recycling");
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_SSL, "Disable Session recycling");
         _session_recycling = false;
     }
 

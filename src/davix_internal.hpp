@@ -20,12 +20,9 @@
 #ifndef DAVIX_INTERNAL_HPP
 #define DAVIX_INTERNAL_HPP
 
-// define alib namespace
-#undef A_LIB_NAMESPACE
-#define A_LIB_NAMESPACE Davix
 
 // configuration
-#include <config.h>
+#include <davix_internal_config.hpp>
 
 #include <davix.hpp>
 

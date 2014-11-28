@@ -19,7 +19,7 @@
 */
 
 
-#include <config.h>
+#include <davix_internal_config.hpp>
 #include "hmacsha1.hpp"
 
 

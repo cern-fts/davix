@@ -25,7 +25,7 @@
  *        Support for Windows locales added by Nils Durner for PlibC
  */
  
-#include <config.h>
+#include <davix_internal_config.hpp>
 
 //#include "plibc_private.h"
 

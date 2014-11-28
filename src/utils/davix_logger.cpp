@@ -26,7 +26,7 @@
 
 
 const int BUFFER_SIZE =4096;
-const char* prefix = "DAVIX: ";
+const char* prefix = "DAVIX";
 
 const char* SCOPE_FILE =    "file";
 const char* SCOPE_POSIX =   "posix";
@@ -68,6 +68,42 @@ static bool debug = false;
 static void (*_fhandler)(void* userdata, int mgs_level, const char* msg) = NULL;
 static void* _log_handler_userdata = NULL;
 
+
+
+
+
+
+namespace Davix{
+
+
+void logStr(int scope, int log_level, const std::string & str){
+    if(_fhandler){
+        _fhandler(_log_handler_userdata, log_level, str.c_str());
+    }else{
+        if(scope & LOG_SCOPE_NEON){ // libneon logs
+            fmt::print(stdout, "{}", str);
+        }else{  // davix logs
+            fmt::print(stdout,"{}({}): {}\n", prefix, davix_get_log_scope(scope), str);
+        }
+    }
+}
+
+
+} // Davix
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 extern "C" void davix_set_log_level(int log_mask){
     internal_log_mask = log_mask;
 }
@@ -76,21 +112,23 @@ extern "C" int davix_get_log_level(){
     return internal_log_mask;
 }
 
+
+
 static void internal_log_handler(int log_mask, const char * msg,  va_list ap){
     char buffer[BUFFER_SIZE];
 
     vsnprintf(buffer, BUFFER_SIZE-1, msg, ap);
     buffer[BUFFER_SIZE-1] ='\0';
-    if(_fhandler){
-        _fhandler(_log_handler_userdata, log_mask, buffer); 
-    }else{
-        if(log_mask & LOG_SCOPE_NEON){ // libneon logs 
-            fprintf(stdout, "%s", buffer); 
-        }else{  // davix logs
-            fprintf(stdout, "%s%s: %s\n",prefix, davix_get_log_scope(log_mask).c_str(), buffer);
-        }    
-    }
+    Davix::logStr(log_mask, log_mask, buffer);
 }
+
+
+
+extern "C" void davix_vlogger(int log_mask, const char* msg, va_list va){
+    internal_log_handler(log_mask, msg, va);
+}
+
+
 
 extern "C" void davix_logger(int log_mask, const char * msg, ...){
     va_list va;
@@ -99,11 +137,6 @@ extern "C" void davix_logger(int log_mask, const char * msg, ...){
     va_end(va);
 }
 
-
-
-extern "C" void davix_vlogger(int log_mask, const char* msg, va_list va){
-    internal_log_handler(log_mask, msg, va);
-}
 
 extern "C"  void davix_set_log_handler( void (*fhandler)(void* userdata, int mgs_level, const char* msg), void* userdata){
     _fhandler = fhandler;
@@ -214,5 +247,4 @@ void davix_set_log_debug(bool dbg){
 bool davix_get_log_debug(){
     return debug;
 }
-
 

@@ -71,7 +71,7 @@ struct MetalinkParser::MetalinkParserIntern{
 
     inline int startElem(const std::string & name){
 
-        DAVIX_LOG(DAVIX_LOG_TRACE, LOG_XML, "MetalinkParser: <tag> %s", name.c_str());
+        DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_XML, "MetalinkParser: <tag> {}", name.c_str());
         const MetalinkTag::MetalinkParserTag t = getTag(name);
         if( t == MetalinkTag::Invalid){
             return 0;
@@ -94,11 +94,11 @@ struct MetalinkParser::MetalinkParserIntern{
 
         // metalink 3.0
         if(matchStack(_tagStack, url_stack, url_stack_size)){
-            DAVIX_LOG(DAVIX_LOG_TRACE, LOG_XML, "MetalinkParser 3.0 : Replica URL %s", replic.c_str());
+            DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_XML, "MetalinkParser 3.0 : Replica URL {}", replic.c_str());
             _fvec.push_back(File(_c, Uri(replic)));
         }
         if(matchStack(_tagStack, size_stack, size_stack_size)){
-            DAVIX_LOG(DAVIX_LOG_TRACE, LOG_XML, "MetalinkParser 3.0 : Replica size %d", replic.c_str());
+            DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_XML, "MetalinkParser 3.0 : Replica size {}", replic.c_str());
             try{
                 _filesize = toType<dav_size_t, std::string>()(replic);
             }catch(...){
@@ -108,11 +108,11 @@ struct MetalinkParser::MetalinkParserIntern{
 
         // metalink 4.0
         if(matchStack(_tagStack, url_stack_meta4, url_stack_size_meta4)){
-            DAVIX_LOG(DAVIX_LOG_TRACE, LOG_XML, "MetalinkParser 4.0 : Replica URL %s", replic.c_str());
+            DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_XML, "MetalinkParser 4.0 : Replica URL {}", replic.c_str());
             _fvec.push_back(File(_c, Uri(replic)));
         }
         if(matchStack(_tagStack, size_stack_meta4, size_stack_size_meta4)){
-            DAVIX_LOG(DAVIX_LOG_TRACE, LOG_XML, "MetalinkParser 4.0 : Replica size %d", replic.c_str());
+            DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_XML, "MetalinkParser 4.0 : Replica size {}", replic.c_str());
             try{
                 _filesize = toType<dav_size_t, std::string>()(replic);
             }catch(...){

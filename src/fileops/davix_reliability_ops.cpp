@@ -52,9 +52,9 @@ ReturnType metalinkTryReplicas(HttpIOChain & chain, IOChainContext & io_context,
             IOChainContext internal_context(io_context._context, it->getUri(), io_context._reqparams);
             return fun(internal_context);
         }catch(DavixException & replica_error){
-            DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, "Fail access to replica %s: %s", it->getUri().getString().c_str(), replica_error.what());
+            DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, "Fail access to replica {}: {}", it->getUri(), replica_error.what());
         }catch(...){
-            DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, "Fail access to replica: Unknown Error");
+            DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, "Fail access to replica: Unknown Error");
         }
         // check timeout again between two iterations
         io_context.checkTimeout();
@@ -77,15 +77,15 @@ ReturnType metalinkExecutor(HttpIOChain & chain, IOChainContext & io_context, Ex
 
         propagateNonRecoverableExceptions(e);
 
-        DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, "Failure: Impossible to execute operation on %s, error %s", io_context._uri.getString().c_str(), e.what());
-        DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, "Try to Recover with Metalink...");
+        DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, "Failure: Impossible to execute operation on {}, error {}", io_context._uri.getString(), e.what());
+        DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, "Try to Recover with Metalink...");
 
         try{
             return metalinkTryReplicas<Executor, ReturnType>(chain, io_context, fun);
         }catch(DavixException & metalink_error){
-            DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, "Impossible to Recover with Metalink: %s", metalink_error.what());
+            DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, "Impossible to Recover with Metalink: {}", metalink_error.what());
         }catch(...){
-            DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, "Impossible to Recover with Metalink: Unknown Error");
+            DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, "Impossible to Recover with Metalink: Unknown Error");
         }
         throw e;
     }
@@ -96,7 +96,7 @@ ReturnType metalinkExecutor(HttpIOChain & chain, IOChainContext & io_context, Ex
 int davix_metalink_header_parser(const std::string & header_key, const std::string & header_value,
                                  const Uri & u_original,
                                  Uri & metalink){
-    DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CHAIN, "Parse headers for metalink %s %s", header_key.c_str(), header_value.c_str());
+    DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_CHAIN, "Parse headers for metalink {} {}", header_key, header_value);
 
     if(compare_ncase(header_key, "Link") ==0 && header_value.find("application/metalink") != std::string::npos){
         std::string::const_iterator it1, it2;
@@ -105,7 +105,7 @@ int davix_metalink_header_parser(const std::string & header_key, const std::stri
             std::string metalink_url(it1+1, it2);
             metalink =  Uri::fromRelativePath(u_original, trim(metalink_url));
             if(metalink.getStatus() == StatusCode::OK){
-                DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CHAIN, "Valid metalink URI found %s", metalink.getString().c_str());
+                DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_CHAIN, "Valid metalink URI found {}", metalink.getString());
                 return 1;
             }
 
@@ -129,7 +129,7 @@ int davix_get_metalink_url( Context & c, const Uri & uri,
     req.addHeaderField("Accept", "application/metalink4+xml");
 
 
-    DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CHAIN, "Executing head query to %s for Metalink file", uri.getString().c_str());
+    DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_CHAIN, "Executing head query to {} for Metalink file", uri.getString());
     if(tmp_err != NULL || (req.executeRequest(&tmp_err) <0))
         throw DavixException(davix_scope_meta(), tmp_err->getStatus(), tmp_err->getErrMsg());
 
@@ -162,13 +162,11 @@ int davix_file_get_metalink_to_vfile(Context & c, const Uri & metalink_uri,
     req.setParameters(_params);
     req.addHeaderField("Accept", "application/metalink4+xml");
 
-    DAVIX_LOG(DAVIX_LOG_TRACE, LOG_CHAIN, "Executing query for %s Metalink content", metalink_uri.getString().c_str());
+    DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_CHAIN, "Executing query for {} Metalink content", metalink_uri.getString());
     if(tmp_err != NULL || (req.beginRequest(&tmp_err) <0) )
         throw DavixException(davix_scope_meta(), tmp_err->getStatus(), tmp_err->getErrMsg());
     if(httpcodeIsValid(req.getRequestCode()) == false){
-        std::ostringstream ss;
-        ss << "Unable to get Metalink file, error HTTP " << req.getRequestCode();
-        throw DavixException(davix_scope_meta(), StatusCode::InvalidServerResponse, ss.str());
+        throw DavixException(davix_scope_meta(), StatusCode::InvalidServerResponse, fmt::format("Unable to get Metalink file, error HTTP {}", req.getRequestCode()));
     }
 
     dav_ssize_t read_size;
@@ -278,17 +276,13 @@ ReturnType autoRetryExecutor(HttpIOChain & chain, IOChainContext & io_context, E
             }
 
 
-            DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, "Operation failure: %s. After %d retry", error.what(), retry);
+            DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, "Operation failure: {}. After {} retry", error.what(), retry);
             if( retry >= max_retry){
-                std::ostringstream ss;
-                ss << "Failure " << error.what() << " after " << retry << " attempts";
-                throw DavixException(error.scope(), error.code(), ss.str());
+                throw DavixException(error.scope(), error.code(), fmt::format("Failure {} after {} attempts", error.what(), retry));
             }
         }catch(...){
-            DAVIX_LOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, "Operation failure: Unknown Error");
-            std::ostringstream ss;
-            ss << "Unrecoverable error from IOChain on " << u;
-            throw DavixException(davix_scope_io_buff(), StatusCode::UnknowError, ss.str());
+            DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_CHAIN, "Operation failure: Unknown Error");
+            throw DavixException(davix_scope_io_buff(), StatusCode::UnknowError, fmt::format("Unrecoverable error from IOChain on {}", u));
         }
         ++retry;
     }

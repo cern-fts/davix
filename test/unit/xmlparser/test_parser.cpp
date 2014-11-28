@@ -1,6 +1,6 @@
 #include <typeinfo>
 #include <gtest/gtest.h>
-#include <config.h>
+#include <davix_internal_config.hpp>
 #include <stdbool.h>
 #include <ctime>
 #include <datetime/datetime_utils.hpp>

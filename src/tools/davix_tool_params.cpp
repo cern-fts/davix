@@ -415,21 +415,21 @@ const std::string  & get_common_options(){
 
 
 const std::string  & get_base_description_options(){
-    static const std::string s("Usage: %s [OPTIONS ...] <url>\n"
+    static const std::string s("Usage: {} [OPTIONS ...] <url>\n"
             );
     return s;
 }
 
 
 const std::string  & get_put_description_options(){
-    static const std::string s("Usage: %s [OPTIONS ...] <local_file> <remote_file_url> \n"
+    static const std::string s("Usage: {} [OPTIONS ...] <local_file> <remote_file_url> \n"
             );
     return s;
 }
 
 
 const std::string  & get_copy_description_options(){
-    static const std::string s("Usage: %s [OPTIONS ...] <src_url> <dst_url>\n"
+    static const std::string s("Usage: {} [OPTIONS ...] <src_url> <dst_url>\n"
             );
     return s;
 }

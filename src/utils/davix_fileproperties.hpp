@@ -21,7 +21,7 @@
 #ifndef DAVIX_FILEPROPERTIES_H
 #define DAVIX_FILEPROPERTIES_H
 
-#include <config.h>
+#include <davix_internal_config.hpp>
 #include <string>
 #include <vector>
 

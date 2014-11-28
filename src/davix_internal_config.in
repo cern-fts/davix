@@ -1,6 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+
 // POSIX inclusion
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -11,6 +12,11 @@
 #include <cstring>
 #include <climits>
 #include <cerrno>
+
+
+// define alib namespace
+#undef A_LIB_NAMESPACE
+#define A_LIB_NAMESPACE Davix
 
 
 // buffer parameters

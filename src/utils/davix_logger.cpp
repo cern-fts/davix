@@ -29,6 +29,7 @@ const int BUFFER_SIZE =4096;
 const char* prefix = "DAVIX";
 
 const char* SCOPE_FILE =    "file";
+const char* SCOPE_HTTP =    "http";
 const char* SCOPE_POSIX =   "posix";
 const char* SCOPE_XML =     "xml";
 const char* SCOPE_SSL =     "ssl";

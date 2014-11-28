@@ -45,11 +45,13 @@ DAVIX_C_DECL_BEGIN
 #define LOG_GRID       (1<<8)
 #define LOG_SOCKET     (1<<9)
 #define LOG_LOCKS      (1<<10)
+#define LOG_HTTP       (1<<11)
 #define LOG_SCOPE_NEON (1<<29)
 #define LOG_ALL        (~(0x00) ^ LOG_SCOPE_NEON)
 
 // define log scopes
 extern const char* SCOPE_FILE;      // Davix file interface
+extern const char* SCOPE_HTTP;      // Http Request Scope
 extern const char* SCOPE_POSIX;     // Davix posix interface
 extern const char* SCOPE_XML;       // XML info and parser output
 extern const char* SCOPE_SSL;       // SSL and cert details

@@ -175,7 +175,7 @@ NEONRequest::~NEONRequest(){
 
 void NEONRequest::eradicateSession(){
    if(_neon_sess.get() != NULL){
-        DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CORE, "Connection problem: eradicate session");
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_HTTP, "Connection problem: eradicate session");
        _neon_sess->disable_session_reuse();
     }
 }
@@ -318,7 +318,8 @@ int NEONRequest::negotiateRequest(DavixError** err){
     _last_read = -1;
     _total_read_size = 0;
 
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CORE, "-> Davix negociate request");
+
+    DAVIX_SCOPE_TRACE(LOG_HTTP, negoreq);
 
     // check timeout
     if(checkTimeout(err) == true)
@@ -326,14 +327,13 @@ int NEONRequest::negotiateRequest(DavixError** err){
 
     if(req_started){
         DavixError::setupError(err, davix_scope_http_request(), StatusCode::AlreadyRunning, "Http request already started, Error");
-        DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CORE, "Davix negociate request ... <-");
         return -1;
     }
 
     req_started = req_running = true;
 
     while(end_status == NE_RETRY && _number_try < auth_retry_limit){
-        DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CORE, " ->   NEON start internal request ... ");
+        DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_HTTP, "NEON start internal request");
 
         if( (status = ne_begin_request(_req)) != NE_OK && status != NE_REDIRECT){
             _last_read = -1;
@@ -344,13 +344,13 @@ int NEONRequest::negotiateRequest(DavixError** err){
                     strstr(ne_get_error(_neon_sess->get_ne_sess()), "Could not") != NULL
                     || strstr(ne_get_error(_neon_sess->get_ne_sess()), "Connection reset by peer") != NULL
                     )){
-               DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_CORE, "Connection problem, retry");
+               DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_HTTP, "Connection problem, retry");
                _number_try++;
                 return startRequest(err);
             }
 
             if( status == NE_CONNECT &&  requestCleanup() ){
-                DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_CORE, "Impossible to connect to {}, retry from origin {}", _current->getString(), _orig->getString());
+                DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_HTTP, "Impossible to connect to {}, retry from origin {}", _current->getString(), _orig->getString());
                 _number_try++;
                 return startRequest(err);
             }
@@ -360,7 +360,6 @@ int NEONRequest::negotiateRequest(DavixError** err){
 
             eradicateSession();
             ContextExplorer::SessionFactoryFromContext(_c).redirectionClean(_request_type, *_orig);
-            DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CORE, " Davix negociate request ... <-");
             return -1;
         }
 
@@ -372,7 +371,6 @@ int NEONRequest::negotiateRequest(DavixError** err){
             case 303:
             case 307:
                 if( (end_status = processRedirection(status, err)) <0){
-                   DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CORE, " Davix negociate request ... <-");
                    return -1;
                 }
                 break;
@@ -401,7 +399,7 @@ int NEONRequest::negotiateRequest(DavixError** err){
                     createError(end_status, err);
                     return -1;
                 }
-                DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CORE, "(NEON) {} code -> request again ", code);
+                DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_HTTP, "(NEON) {} code -> request again ", code);
                 break;
             case 403:
             case 501:
@@ -428,7 +426,6 @@ int NEONRequest::negotiateRequest(DavixError** err){
         }
         return -2;
     }
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CORE, " Davix negociate request ... <-");
     return 0;
 }
 
@@ -448,7 +445,7 @@ bool NEONRequest::requestCleanup(){
     // check if we had a redirection
     // if it's the case redirection can be expired, then
     if(_current != _orig || _neon_sess->isRecycledSession()){
-        DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CORE, " ->  Error when using reycling of session/redirect : cancel and try again");
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_HTTP, " ->  Error when using reycling of session/redirect : cancel and try again");
         // disable session reuse for this request, avoid picking up a session already expired
         params.setKeepAlive(false);
         _current = _orig;
@@ -466,7 +463,7 @@ int NEONRequest::redirectRequest(DavixError **err){
     }
 
     char* dst_uri = ne_uri_unparse(new_uri);
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CORE, "redirection from {} to {}", _current->getString(), dst_uri);
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_HTTP, "redirection from {} to {}", _current->getString(), dst_uri);
 
     // setup new path & session target
     old_uri = _current;
@@ -494,7 +491,8 @@ int NEONRequest::executeRequest(DavixError** err){
     _last_request_flag =0;
     _vec.clear();
 
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CORE, " -> NEON start synchronous  request... ");
+    DAVIX_SCOPE_TRACE(LOG_HTTP, execReq);
+
     if( startRequest(err) < 0){
         return -1;
     }
@@ -503,7 +501,7 @@ int NEONRequest::executeRequest(DavixError** err){
         _vec.reserve(std::min<size_t>(getAnswerSize(), 4194304));
 
     while(read_status > 0){
-        DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CORE, " -> NEON Read data flow... ");
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_HTTP, "NEON Read data flow");
         size_t s = _vec.size();
         _vec.resize(s + NEON_BUFFER_SIZE);
         read_status= readBlock(&(_vec[s]), NEON_BUFFER_SIZE, err);
@@ -531,7 +529,6 @@ int NEONRequest::executeRequest(DavixError** err){
    if( endRequest(err) < 0){
        return -1;
    }
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CORE, " -> End synchronous request ... ");
     _last_request_flag =1; // 1 -> syn request
     return 0;
 }
@@ -566,7 +563,7 @@ dav_ssize_t NEONRequest::readBlock(char* buffer, dav_size_t max_size, DavixError
        if( _vec_line.size() >= max_size){
         std::copy(_vec_line.begin(), _vec_line.begin() + max_size, buffer);
         _vec_line.erase(_vec_line.begin(), _vec_line.begin() + max_size);
-        DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_CORE, "NEONRequest::readBlock read {} bytes (from buffer)", max_size);
+        DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_HTTP, "NEONRequest::readBlock read {} bytes (from buffer)", max_size);
         return max_size;
        }else{
            const dav_ssize_t n_bytes = _vec_line.size();
@@ -574,7 +571,7 @@ dav_ssize_t NEONRequest::readBlock(char* buffer, dav_size_t max_size, DavixError
            _vec_line.clear();
            read_status = readBlock(buffer + n_bytes, max_size -n_bytes, err);
            const dav_ssize_t ret_value = (read_status >= 0)?(read_status+n_bytes):(-1);
-           DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_CORE, "NEONRequest::readBlock read {} bytes(from partially)", ret_value);
+           DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_HTTP, "NEONRequest::readBlock read {} bytes(from partially)", ret_value);
            return ret_value;
        }
     }
@@ -590,7 +587,7 @@ dav_ssize_t NEONRequest::readBlock(char* buffer, dav_size_t max_size, DavixError
        return -1;
     }
 
-    DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_CORE, "NEONRequest::readBlock read {} bytes", read_status);
+    DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_HTTP, "NEONRequest::readBlock read {} bytes", read_status);
 
     _total_read_size += read_status;
     if(params.getTransferMonitorCb()){
@@ -679,7 +676,7 @@ dav_ssize_t NEONRequest::readSegment(char* p_buff, dav_size_t size_read,  DavixE
     dav_ssize_t ret, tmp_ret;
     dav_size_t s_read= size_read;
     ret = tmp_ret = 0;
-    DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_CORE, "Davix::Request::readSegment: want to read {} bytes ", size_read);
+    DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_HTTP, "Davix::Request::readSegment: want to read {} bytes ", size_read);
 
     do{
         tmp_ret= readBlock(p_buff, s_read, &tmp_err);
@@ -707,7 +704,7 @@ int NEONRequest::endRequest(DavixError** err){
     if(_req  && req_running == true){
 
         if(_last_read > 0){ // if read content, discard it
-            DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_CORE, "(EndRequest)(Libneon) Operation incomplete, kill the connection");
+            DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_HTTP, "(EndRequest)(Libneon) Operation incomplete, kill the connection");
             ne_abort_request(_req);
             eradicateSession();
             _last_read =0;
@@ -717,7 +714,7 @@ int NEONRequest::endRequest(DavixError** err){
             DavixError* tmp_err=NULL;
             createError(status, err);
             if(tmp_err){
-                DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CORE, "(EndRequest)(Libneon) Suppress broken connection {}  -> {} ", tmp_err->getStatus(), tmp_err->getErrMsg());
+                DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_HTTP, "(EndRequest)(Libneon) Suppress broken connection {}  -> {} ", tmp_err->getStatus(), tmp_err->getErrMsg());
                 eradicateSession();
             }
             DavixError::clearError(&tmp_err);
@@ -755,7 +752,7 @@ dav_ssize_t NEONRequest::getAnswerSizeFromHeaders() const{
         }
     }
     if( size == -1){
-       DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_CORE, "Bad server answer: {} Invalid, impossible to determine answer size", ans_header_content_length);
+       DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_HTTP, "Bad server answer: {} Invalid, impossible to determine answer size", ans_header_content_length);
     }
     return static_cast<dav_ssize_t>(size);
 }
@@ -793,7 +790,7 @@ size_t NEONRequest::getAnswerHeaders( HeaderVec & vec_headers) const{
 
 
 void NEONRequest::setRequestBody(const std::string & body){
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CORE, "NEONRequest : add request content of size {} ", body.size());
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_HTTP, "NEONRequest : add request content of size {} ", body.size());
     _content_body = std::string(body);
     _content_ptr = (char*) _content_body.c_str();
     _content_len = strlen(_content_ptr);

@@ -50,8 +50,8 @@ NEONSessionFactory::NEONSessionFactory() :
     _redirCache(256)
 {
     boost::call_once(&init_neon, neon_once);
-    DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_CORE, "HTTP/SSL Session caching {}", (_session_caching?"ENABLED":"DISABLED"));
-    DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_CORE, "Redirection Session caching {}", (_redir_caching?"ENABLED":"DISABLED"));
+    DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_HTTP, "HTTP/SSL Session caching {}", (_session_caching?"ENABLED":"DISABLED"));
+    DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_HTTP, "Redirection Session caching {}", (_redir_caching?"ENABLED":"DISABLED"));
 }
 
 NEONSessionFactory::~NEONSessionFactory(){
@@ -103,7 +103,7 @@ ne_session* NEONSessionFactory::create_session(const RequestParams & params, con
 
     const Uri* proxy = params.getProxyServer();
     if(se != NULL && proxy != NULL){
-        DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_CORE, " configure mandatory proxy to {}", proxy->getString().c_str());
+        DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_HTTP, " configure mandatory proxy to {}", proxy->getString().c_str());
         const enum ne_sock_sversion version = ((proxy->getProtocol().compare("socks5") ==0)?NE_SOCK_SOCKSV5:NE_SOCK_SOCKSV4);
         const int port_proxy = ((proxy->getPort() ==0)?1080:(proxy->getPort()));
         const std::string & userinfo = proxy->getUserInfo();
@@ -130,14 +130,14 @@ ne_session* NEONSessionFactory::create_recycled_session(const RequestParams & pa
         boost::lock_guard<boost::mutex> lock(_sess_mut);
         std::multimap<std::string, ne_session*>::iterator it;
         if( (it = _sess_map.find(create_map_keys_from_URL(protocol, host, port))) != _sess_map.end()){
-            DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CORE, "cached ne_session found ! taken from cache ");
+            DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_HTTP, "cached ne_session found ! taken from cache ");
             se = it->second;
             _sess_map.erase(it);
             return se;
         }
 
     }
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CORE, "no cached ne_session, create a new one ");
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_HTTP, "no cached ne_session, create a new one ");
     return create_session(params, protocol, host, port);
 }
 
@@ -154,7 +154,7 @@ void NEONSessionFactory::internal_release_session_handle(ne_session* sess){
     std::string sess_key;
     sess_key.append(ne_get_scheme(sess)).append(ne_get_server_hostport(sess));
 
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CORE, "add old session to cache {}", sess_key.c_str());
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_HTTP, "add old session to cache {}", sess_key.c_str());
 
     _sess_map.insert(std::pair<std::string, ne_session*>(sess_key, sess));
 }
@@ -171,7 +171,7 @@ static const std::string redirectionCreateKey(const std::string & method, const 
 
 void NEONSessionFactory::addRedirection( const std::string & method, const Uri & origin, boost::shared_ptr<Uri> dest){
     if(_redir_caching){
-        DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CORE, "Add cached redirection <{} {} {}>", method.c_str(), origin.getString().c_str(), dest->getString().c_str());
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_HTTP, "Add cached redirection <{} {} {}>", method.c_str(), origin.getString().c_str(), dest->getString().c_str());
         _redirCache.insert(redirectionCreateKey(method, origin), dest);
     }
 }
@@ -194,7 +194,7 @@ boost::shared_ptr<Uri> NEONSessionFactory::redirectionResolveSingleIntern(const 
 boost::shared_ptr<Uri> NEONSessionFactory::redirectionResolveSingle(const std::string & method, const Uri & origin){
     boost::shared_ptr<Uri> res = redirectionResolveSingleIntern(method, origin);
     if(res.get() != NULL){
-        DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CORE, "Found redirection  <{} {} {}>", method.c_str(), origin.getString().c_str(), res->getString().c_str());
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_HTTP, "Found redirection  <{} {} {}>", method.c_str(), origin.getString().c_str(), res->getString().c_str());
     }
     return res;
 }
@@ -202,7 +202,7 @@ boost::shared_ptr<Uri> NEONSessionFactory::redirectionResolveSingle(const std::s
 void NEONSessionFactory::redirectionClean(const std::string & method, const Uri & origin){
     boost::shared_ptr<Uri> res = redirectionResolveSingleIntern(method, origin);
     if(res.get() != NULL){
-        DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CORE, "Delete Cached redirection for <{} {} {}>", method.c_str(), origin.getString().c_str(), res->getString().c_str());
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_HTTP, "Delete Cached redirection for <{} {} {}>", method.c_str(), origin.getString().c_str(), res->getString().c_str());
         _redirCache.erase(redirectionCreateKey(method, origin));
         redirectionClean(method, *res);
     }
@@ -218,7 +218,7 @@ std::string create_map_keys_from_URL(const std::string & protocol, const std::st
         host_port = fmt::format("{}{}", protocol, host);
     }else
         host_port = fmt::format("{}{}:{}", protocol, host, port);
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CORE, " creating session keys... {}", host_port);
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_HTTP, " creating session keys... {}", host_port);
     return host_port;
 }
 

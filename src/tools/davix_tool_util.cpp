@@ -433,8 +433,9 @@ void printProgressBar(const int percent, dav_ssize_t bytes_transfered, dav_size_
 }
 
 int configureMonitorCB(OptParams & opts, Transfer::Type type){
+    using namespace std;
     TransferMonitorCB transMonCB;
-    transMonCB = std::bind(&Tool::TransferMonitor, _1, _2, _3, _4, type);
+    transMonCB = bind(&Tool::TransferMonitor, _1, _2, _3, _4, type);
     opts.params.setTransfertMonitorCb(transMonCB);
 
     return 0;

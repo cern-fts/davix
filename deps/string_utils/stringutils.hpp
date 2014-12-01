@@ -111,7 +111,7 @@ inline size_t copy_std_string_to_buff(char* buffer, size_t max_size, const std::
 // trim from start
 template <typename Func>
 inline std::string &ltrim(std::string &s, const Func  & pred) {
-        s.erase(s.begin(), static_cast<std::string::iterator>(std::find_if(s.begin(), s.end(), std::not1(pred)).base()));
+        s.erase(s.begin(), static_cast<std::string::iterator>(std::find_if(s.begin(), s.end(), std::not1(pred))));
         return s;
 }
 

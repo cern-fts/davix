@@ -114,6 +114,7 @@ static void get_time(Clock::Type clock_type, struct timespec & time_value){
 
 
 Clock::Clock(Type clock_type, Precision tick) : _type(clock_type), _precision(tick){
+    (void) _precision;
 }
 
 Clock::~Clock(){

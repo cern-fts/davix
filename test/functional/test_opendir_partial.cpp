@@ -53,7 +53,7 @@ int main(int argc, char** argv){
         do{
             dir= pos.readdir(d, &tmp_err);
             if(dir)
-                std::cout << "N° " << dir->d_off <<" file : " << dir->d_name << std::endl;
+                std::cout << "N° " << n <<" file : " << dir->d_name << std::endl;
             n++;
         }while(dir!= NULL && max_read > n);
         if(dir == NULL){

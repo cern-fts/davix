@@ -196,7 +196,6 @@ struct dirent* internal_readdir(DAVIX_DIR * dir, struct stat* st){
             dir->start_entry_st.toPosixStat(*st);
         }
         toDirent(dir->dir_info, dir->start_entry_name, dir->start_entry_st);
-        dir->dir_info->d_off +=1;
         dir->start_entry_name.clear();
         return dir->dir_info;
     }
@@ -211,7 +210,6 @@ struct dirent* internal_readdir(DAVIX_DIR * dir, struct stat* st){
          info.toPosixStat(*st);
     }
     toDirent(dir->dir_info, name, info);
-    dir->dir_info->d_off +=1;
     return dir->dir_info;
 
 }

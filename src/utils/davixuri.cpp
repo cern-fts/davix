@@ -542,6 +542,11 @@ std::string davix_path_escape(const std::string & str)
 #undef path_escape_ch
 
 
+std::ostream& operator<< (std::ostream& stream, const Davix::Uri & _u){
+    stream << _u.getString();
+    return stream;
+}
+
 } // namespace Davix
 
 

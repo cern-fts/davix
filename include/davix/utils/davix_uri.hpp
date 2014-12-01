@@ -158,8 +158,10 @@ bool DAVIX_EXPORT uriCheckError(const Uri & uri, DavixError ** err);
 /// return default http port or default SSL port if not precised
 unsigned int DAVIX_EXPORT httpUriGetPort(const Uri & uri);
 
-} // namespace Davix
 
 std::ostream& operator<< (std::ostream& stream, const Davix::Uri & _u);
+
+} // namespace Davix
+
 
 #endif // DAVIX_DAVIXURI_HPP

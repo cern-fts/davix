@@ -76,6 +76,10 @@
 //gnutls support
 #cmakedefine HAVE_GNUTLS 1
 
+// check clock
+#cmakedefine HAVE_CLOCK_GETTIME 1
+#cmakedefine HAVE_GETTIMEOFDAY 1
+
 // libxml support
 #cmakedefine HAVE_LIBXML 1
 

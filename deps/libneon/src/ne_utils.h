@@ -26,6 +26,8 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include <time.h>
+#include <sys/time.h>
 
 #include "ne_defs.h"
 
@@ -50,6 +52,8 @@ int ne_version_match(int major, int minor);
 
 
 void ne_davix_logger(int scope, const char* msg, ...);
+
+void ne_gettime(struct timespec * t);
 
 /* Feature codes: */
 #define NE_FEATURE_SSL (1) /* SSL/TLS support */

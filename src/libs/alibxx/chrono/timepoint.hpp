@@ -77,7 +77,10 @@ public:
         RealTime
     };
     enum Precision{
-        Second
+        Second,
+        MilliSecond,
+        MicroSecond,
+        NanoSecond
     };
 
     Clock(Type clock_type, Precision tick = Second);

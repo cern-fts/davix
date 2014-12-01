@@ -43,12 +43,16 @@ const int default_retry_number= 10;
 #undef DAVIX_EXPORT
 #define DAVIX_EXPORT
 
+
+// POSIX
 // has unistd
 #cmakedefine HAVE_UNISTD_H 1
+// has clock_gettime
+#cmakedefine HAVE_CLOCK_GETTIME 1
+#cmakedefine HAVE_GETTIMEOFDAY 1
 
 // openssl backend
 #cmakedefine HAVE_OPENSSL 1
-
 
 // has locale
 #cmakedefine HAVE_LOCALE_H 1

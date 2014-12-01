@@ -1,3 +1,4 @@
+#include <davix_internal_config.hpp>
 #include "timepoint.hpp"
 
 
@@ -86,8 +87,33 @@ Duration::~Duration(){
 //////////////////////////////
 
 
-Clock::Clock(Type clock_type, Precision tick) : _type(clock_type), _precision(tick){
+static void get_time(Clock::Type clock_type, struct timespec & time_value){
+#ifdef HAVE_CLOCK_GETTIME
+    clockid_t t;
+    switch(clock_type){
+        case Clock::Monolitic:
+            t = CLOCK_MONOTONIC;
+            break;
+        default:
+            t = CLOCK_REALTIME;
+            break;
+    }
+    clock_gettime(t, &time_value);
+#elif HAVE_GETTIMEOFDAY
+    // TODO: gettimeofday is vulnerable to time jump
+    // need an OSX specific implementation using Mach micro kernel API
+    struct timeval now;
+    (void) gettimeofday(&now, NULL);
+    time_value.tv_sec  = now.tv_sec;
+    time_value.tv_nsec = now.tv_usec * 1000;
+#else
+#error "No gettimeofday nor clock_gettime: No time support"
+#endif
 
+}
+
+
+Clock::Clock(Type clock_type, Precision tick) : _type(clock_type), _precision(tick){
 }
 
 Clock::~Clock(){
@@ -96,16 +122,7 @@ Clock::~Clock(){
 
 TimePoint Clock::now() const{
     TimePoint res;
-    clockid_t t;
-    switch(_type){
-        case Monolitic:
-            t = CLOCK_MONOTONIC;
-            break;
-        default:
-            t = CLOCK_REALTIME;
-            break;
-    }
-    clock_gettime(t, &(res.t));
+    get_time(_type, res.t);
     return res;
 }
 

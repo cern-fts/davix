@@ -140,18 +140,18 @@ int safe_strerror(
     int error_code, char *&buffer, std::size_t buffer_size) FMT_NOEXCEPT(true) {
   assert(buffer != 0 && buffer_size != 0);
   int result = 0;
-#ifdef _GNU_SOURCE
+#if  (defined _GNU_SOURCE) && (defined __USE_GNU)
   char *message = strerror_r(error_code, buffer, buffer_size);
   // If the buffer is full then the message is probably truncated.
   if (message == buffer && strlen(buffer) == buffer_size - 1)
     result = ERANGE;
   buffer = message;
-#elif __MINGW32__
+#elif (defined __MINGW32__)
   errno = 0;
   (void)buffer_size;
   buffer = strerror(error_code);
   result = errno;
-#elif _WIN32
+#elif (defined _WIN32)
   result = strerror_s(buffer, buffer_size, error_code);
   // If the buffer is full then the message is probably truncated.
   if (result == 0 && std::strlen(buffer) == buffer_size - 1)

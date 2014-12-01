@@ -35,7 +35,7 @@ using namespace std;
 #define READ_BLOCK_SIZE 4096
 
 
-const std::string scope_main = "Davix::Tools::davix-del";
+const std::string scope_main = "Davix::Tools::davix-rm";
 
 
 

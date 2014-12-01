@@ -239,7 +239,7 @@ void NEONRequest::configureRequest(){
     configureRequestParamsProto(*_current, params);
 
     std::copy(params.getHeaders().begin(), params.getHeaders().end(), std::back_inserter(_headers_field));
-    
+
     // configure S3 params if needed
     if(params.getProtocol() == RequestProtocol::AwsS3)
         configureS3params();
@@ -269,7 +269,7 @@ void NEONRequest::configureRequest(){
         ne_set_request_body_provider(_req, _content_len,
                                      &neon_body_content_provider, this);
     }else if(_content_ptr && _content_len >0){
-        ne_set_request_body_buffer(_req, _content_ptr, _content_len);       
+        ne_set_request_body_buffer(_req, _content_ptr, _content_len);
     }
 }
 
@@ -305,7 +305,7 @@ int NEONRequest::processRedirection(int neonCode, DavixError **err){
 }
 
 
-int NEONRequest::startRequest(DavixError **err){        
+int NEONRequest::startRequest(DavixError **err){
     if( createRequest(err) < 0)
             return -1;
     return negotiateRequest(err);
@@ -710,7 +710,8 @@ int NEONRequest::endRequest(DavixError** err){
             _last_read =0;
 
         }
-        if( (status = ne_end_request(_req)) != NE_OK){
+        status = ne_end_request(_req);
+        if(status != NE_OK && status != NE_REDIRECT) {
             DavixError* tmp_err=NULL;
             createError(status, err);
             if(tmp_err){

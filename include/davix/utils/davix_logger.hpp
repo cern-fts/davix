@@ -52,7 +52,7 @@ namespace Davix{
 #define DAVIX_LOG_LOCKS      (1<<10)
 #define DAVIX_LOG_HTTP       (1<<11)
 #define DAVIX_LOG_SCOPE_NEON (1<<29)
-#define DAVIX_LOG_SCOPE_ALL        (~(0x00))
+#define DAVIX_LOG_SCOPE_ALL        (~(0) ^ DAVIX_LOG_BODY)
 
 // define string for log scopes
 extern const char* SCOPE_FILE;      // Davix file interface

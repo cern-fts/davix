@@ -102,7 +102,7 @@ static int append_dirstring(ne_buffer *buf, ASN1_STRING *str)
         }
         break;
     default:
-        NE_DEBUG(NE_DBG_SSL, "Could not convert DirectoryString type %d\n",
+        NE_DEBUG(NE_DBG_SSL, "Could not convert DirectoryString type %d",
                  str->type);
         return -1;
     }
@@ -314,7 +314,7 @@ static int check_identity(const ne_uri *server, X509 *cert, char **identity)
         ne_buffer_destroy(cname);
     }
 
-    NE_DEBUG(NE_DBG_SSL, "Identity match for '%s': %s\n", hostname, 
+    NE_DEBUG(NE_DBG_SSL, "Identity match for '%s': %s", hostname, 
              match ? "good" : "bad");
     return match ? 0 : 1;
 }
@@ -350,7 +350,7 @@ static int verify_callback(int ok, X509_STORE_CTX *ctx)
     /* If there's no error, nothing to do here. */
     if (ok) return ok;
 
-    NE_DEBUG(NE_DBG_SSL, "ssl: Verify callback @ %d => %d\n", depth, err);
+    NE_DEBUG(NE_DBG_SSL, "ssl: Verify callback @ %d => %d", depth, err);
 
     /* Map the error code onto any of the exported cert validation
      * errors, if possible. */
@@ -375,14 +375,14 @@ static int verify_callback(int ok, X509_STORE_CTX *ctx)
         /* Clear the failures bitmask so check_certificate knows this
          * is a bailout. */
         sess->ssl_context->failures |= NE_SSL_UNHANDLED;
-        NE_DEBUG(NE_DBG_SSL, "ssl: Unhandled verification error %d -> %s\n", 
+        NE_DEBUG(NE_DBG_SSL, "ssl: Unhandled verification error %d -> %s", 
                  err, X509_verify_cert_error_string(err));
         return 0;
     }
 
     sess->ssl_context->failures |= failures;
 
-    NE_DEBUG(NE_DBG_SSL, "ssl: Verify failures |= %d => %d\n", failures,
+    NE_DEBUG(NE_DBG_SSL, "ssl: Verify failures |= %d => %d", failures,
              sess->ssl_context->failures);
     
     return 1;
@@ -521,7 +521,7 @@ static int provide_client_cert(SSL *ssl, X509 **cert, EVP_PKEY **pkey)
             }
         }
 
-	NE_DEBUG(NE_DBG_SSL, "Calling client certificate provider...\n");
+	NE_DEBUG(NE_DBG_SSL, "Calling client certificate provider...");
 	sess->ssl_provide_fn(sess->ssl_provide_ud, sess, 
                              (const ne_ssl_dname *const *)dnames, count);
         if (count) {
@@ -535,7 +535,7 @@ static int provide_client_cert(SSL *ssl, X509 **cert, EVP_PKEY **pkey)
         SSL_CTX* ctx;
 
         ne_ssl_client_cert *const cc = sess->client_cert;
-        NE_DEBUG(NE_DBG_SSL, "Supplying client certificate.\n");
+        NE_DEBUG(NE_DBG_SSL, "Supplying client certificate.");
         cc->pkey->references++;
         cc->cert.subject->references++;
         *cert = cc->cert.subject;
@@ -554,7 +554,7 @@ static int provide_client_cert(SSL *ssl, X509 **cert, EVP_PKEY **pkey)
 	return 1;
     } else {
         sess->ssl_cc_requested = 1;
-	NE_DEBUG(NE_DBG_SSL, "No client certificate supplied.\n");
+	NE_DEBUG(NE_DBG_SSL, "No client certificate supplied.");
 	return 0;
     }
 }
@@ -673,7 +673,7 @@ int ne__negotiate_ssl(ne_session *sess)
     STACK_OF(X509) *chain;
     int freechain = 0; /* non-zero if chain should be free'd. */
 
-    NE_DEBUG(NE_DBG_SSL, "Doing SSL negotiation.\n");
+    NE_DEBUG(NE_DBG_SSL, "Doing SSL negotiation.");
     
     /* Pass through the hostname if SNI is enabled. */
     ctx->hostname = 
@@ -736,7 +736,7 @@ int ne__negotiate_ssl(ne_session *sess)
         if (freechain) sk_X509_free(chain); /* no longer need the chain */
 
 	if (check_certificate(sess, ssl, cert)) {
-	    NE_DEBUG(NE_DBG_SSL, "SSL certificate checks failed: %s\n",
+	    NE_DEBUG(NE_DBG_SSL, "SSL certificate checks failed: %s",
 		     sess->error);
 	    ne_ssl_cert_free(cert);
 	    return NE_ERROR;
@@ -934,7 +934,7 @@ ne_ssl_client_cert *ne_ssl_clicert_pem_read(const char* pkeyfile, const char* cr
         return NULL;
     }
     if ( (cert = PEM_read_bio_X509(in, NULL, ne_ssl_pem_passwd_cb, (void*) password)) == NULL){
-        NE_DEBUG(NE_DBG_SSL, " parse PEM credential %s failed : %s\n",
+        NE_DEBUG(NE_DBG_SSL, " parse PEM credential %s failed : %s",
                  credfile, ERR_reason_error_string(ERR_get_error()));
         ERR_clear_error();
         BIO_free(in);
@@ -953,7 +953,7 @@ ne_ssl_client_cert *ne_ssl_clicert_pem_read(const char* pkeyfile, const char* cr
     if (ERR_GET_LIB(err) == ERR_LIB_PEM && ERR_GET_REASON(err) == PEM_R_NO_START_LINE){
         ERR_clear_error();
     }else{
-        NE_DEBUG(NE_DBG_SSL, " parse PEM credential chain %s failed : %s\n",
+        NE_DEBUG(NE_DBG_SSL, " parse PEM credential chain %s failed : %s",
                  credfile, ERR_reason_error_string(err));
         ERR_clear_error();
         X509_free(cert);
@@ -969,7 +969,7 @@ ne_ssl_client_cert *ne_ssl_clicert_pem_read(const char* pkeyfile, const char* cr
         return NULL;
     }
     if ( (pkey = PEM_read_PrivateKey(fp, NULL, ne_ssl_pem_passwd_cb,  (void*) password)) == NULL){
-        NE_DEBUG(NE_DBG_SSL, " parse PEM private key %s failed : %s\n",
+        NE_DEBUG(NE_DBG_SSL, " parse PEM private key %s failed : %s",
                  pkeyfile, ERR_reason_error_string(ERR_get_error()));
         ERR_clear_error();
         X509_free(cert);
@@ -1087,7 +1087,7 @@ ne_ssl_certificate *ne_ssl_cert_read(const char *filename)
     fclose(fp);
 
     if (cert == NULL) {
-        NE_DEBUG(NE_DBG_SSL, "d2i_X509_fp failed: %s\n", 
+        NE_DEBUG(NE_DBG_SSL, "d2i_X509_fp failed: %s", 
                  ERR_reason_error_string(ERR_get_error()));
         ERR_clear_error();
         return NULL;
@@ -1261,8 +1261,8 @@ int ne__ssl_init(void)
      * neon.  If the library which has installed the callbacks is
      * unloaded, then all bets are off. */
     if (ID_CALLBACK_IS_OTHER || CRYPTO_get_locking_callback() != NULL) {
-        NE_DEBUG(NE_DBG_SOCKET, "ssl: OpenSSL thread-safety callbacks already installed.\n");
-        NE_DEBUG(NE_DBG_SOCKET, "ssl: neon will not replace existing callbacks.\n");
+        NE_DEBUG(NE_DBG_SOCKET, "ssl: OpenSSL thread-safety callbacks already installed.");
+        NE_DEBUG(NE_DBG_SOCKET, "ssl: neon will not replace existing callbacks.");
     } else {
         size_t n;
 
@@ -1278,7 +1278,7 @@ int ne__ssl_init(void)
         locks = malloc(num_locks * sizeof *locks);
         for (n = 0; n < num_locks; n++) {
             if (pthread_mutex_init(&locks[n], NULL)) {
-                NE_DEBUG(NE_DBG_SOCKET, "ssl: Failed to initialize pthread mutex.\n");
+                NE_DEBUG(NE_DBG_SOCKET, "ssl: Failed to initialize pthread mutex.");
                 return -1;
             }
         }

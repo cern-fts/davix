@@ -257,7 +257,7 @@ static int seed_ssl_prng(void)
 	return 0;
 
 #if defined(EGD_PATH)
-    NE_DEBUG(NE_DBG_SOCKET, "Seeding PRNG from " EGD_PATH "...\n");
+    NE_DEBUG(NE_DBG_SOCKET, "Seeding PRNG from " EGD_PATH "...");
     if (RAND_egd(EGD_PATH) != -1)
 	return 0;
 #elif defined(ENABLE_EGD)
@@ -266,14 +266,14 @@ static int seed_ssl_prng(void)
 				       "/etc/egd-pool", "/etc/entropy" };
 	size_t n;
 	for (n = 0; n < sizeof(paths) / sizeof(char *); n++) {
-	    NE_DEBUG(NE_DBG_SOCKET, "Seeding PRNG from %s...\n", paths[n]);
+	    NE_DEBUG(NE_DBG_SOCKET, "Seeding PRNG from %s...", paths[n]);
 	    if (RAND_egd(paths[n]) != -1)
 		return 0;
 	}
     }
 #endif /* EGD_PATH */
 
-    NE_DEBUG(NE_DBG_SOCKET, "No entropy source found; could not seed PRNG.\n");
+    NE_DEBUG(NE_DBG_SOCKET, "No entropy source found; could not seed PRNG.");
     return -1;
 }
 #endif /* HAVE_OPENSSL */
@@ -432,7 +432,7 @@ ssize_t ne_sock_read(ne_socket *sock, char *buffer, size_t buflen)
     ssize_t bytes;
 
 #if 0
-    NE_DEBUG(NE_DBG_SOCKET, "buf: at %d, %d avail [%s]\n", 
+    NE_DEBUG(NE_DBG_SOCKET, "buf: at %d, %d avail [%s]", 
 	     sock->bufpos - sock->buffer, sock->bufavail, sock->bufpos);
 #endif
 
@@ -692,11 +692,11 @@ static int check_alert(ne_socket *sock, ssize_t ret)
 
     if (ret == GNUTLS_E_WARNING_ALERT_RECEIVED) {
         alert = gnutls_alert_get_name(gnutls_alert_get(sock->ssl));
-        NE_DEBUG(NE_DBG_SOCKET, "TLS warning alert: %s\n", alert);
+        NE_DEBUG(NE_DBG_SOCKET, "TLS warning alert: %s", alert);
         return 0;
     } else if (ret == GNUTLS_E_FATAL_ALERT_RECEIVED) {
         alert = gnutls_alert_get_name(gnutls_alert_get(sock->ssl));
-        NE_DEBUG(NE_DBG_SOCKET, "TLS fatal alert: %s\n", alert);
+        NE_DEBUG(NE_DBG_SOCKET, "TLS fatal alert: %s", alert);
         return -1;
     }
     return ret;
@@ -1682,7 +1682,7 @@ int ne_sock_accept_ssl(ne_socket *sock, ne_ssl_context *ctx)
     }
 
     if (SSL_session_reused(ssl)) {
-        NE_DEBUG(NE_DBG_SSL, "ssl: Server reused session.\n");
+        NE_DEBUG(NE_DBG_SSL, "ssl: Server reused session.");
     }
 #elif defined(HAVE_GNUTLS)
     gnutls_init(&ssl, GNUTLS_SERVER);

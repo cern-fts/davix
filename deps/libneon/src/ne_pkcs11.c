@@ -83,7 +83,7 @@ static int pk11_rsa_sign(int type,
     unsigned long len;
 
     if (!prov->session || prov->privkey == CK_INVALID_HANDLE) {
-        NE_DEBUG(NE_DBG_SSL, "pk11: Cannot sign, no session/key.\n");
+        NE_DEBUG(NE_DBG_SSL, "pk11: Cannot sign, no session/key.");
         RSAerr(PK11_RSA_ERR,ERR_R_RSA_LIB);
         return 0;
     }
@@ -96,7 +96,7 @@ static int pk11_rsa_sign(int type,
      * earlier. */
     rv = pakchois_sign_init(prov->session, &mech, prov->privkey);
     if (rv != CKR_OK) {
-        NE_DEBUG(NE_DBG_SSL, "pk11: SignInit failed: %lx.\n", rv);
+        NE_DEBUG(NE_DBG_SSL, "pk11: SignInit failed: %lx.", rv);
         RSAerr(PK11_RSA_ERR, ERR_R_RSA_LIB);
         return 0;
     }
@@ -104,12 +104,12 @@ static int pk11_rsa_sign(int type,
     len = *siglen = RSA_size(r);
     rv = pakchois_sign(prov->session, (unsigned char *)m, mlen, sigret, &len);
     if (rv != CKR_OK) {
-        NE_DEBUG(NE_DBG_SSL, "pk11: Sign failed.\n");
+        NE_DEBUG(NE_DBG_SSL, "pk11: Sign failed.");
         RSAerr(PK11_RSA_ERR, ERR_R_RSA_LIB);
         return 0;
     }
 
-    NE_DEBUG(NE_DBG_SSL, "pk11: Signed successfully.\n");
+    NE_DEBUG(NE_DBG_SSL, "pk11: Signed successfully.");
     return 1;
 }
 
@@ -185,7 +185,7 @@ static int pk11_find_x509(ne_ssl_pkcs11_provider *prov,
 
     rv = pakchois_find_objects_init(pks, a, 2);
     if (rv != CKR_OK) {
-        NE_DEBUG(NE_DBG_SSL, "pk11: FindObjectsInit failed.\n");
+        NE_DEBUG(NE_DBG_SSL, "pk11: FindObjectsInit failed.");
         return 0;
     }
 
@@ -212,7 +212,7 @@ static int pk11_find_x509(ne_ssl_pkcs11_provider *prov,
             cc = ne__ssl_clicert_exkey_import(value, a[0].value_len, pk11_rsa_method(prov));
 #endif
             if (cc) {
-                NE_DEBUG(NE_DBG_SSL, "pk11: Imported X.509 cert.\n");
+                NE_DEBUG(NE_DBG_SSL, "pk11: Imported X.509 cert.");
                 prov->clicert = cc;
                 found = 1;
                 *cid_len = a[1].value_len;
@@ -220,7 +220,7 @@ static int pk11_find_x509(ne_ssl_pkcs11_provider *prov,
             }
         }
         else {
-            NE_DEBUG(NE_DBG_SSL, "pk11: Skipped cert, missing attrs.\n");
+            NE_DEBUG(NE_DBG_SSL, "pk11: Skipped cert, missing attrs.");
         }
     }
 
@@ -260,14 +260,14 @@ static int pk11_find_pkey(ne_ssl_pkcs11_provider *prov,
 
     rv = pakchois_find_objects_init(pks, a, 2);
     if (rv != CKR_OK) {
-        NE_DEBUG(NE_DBG_SSL, "pk11: FindObjectsInit failed.\n");
+        NE_DEBUG(NE_DBG_SSL, "pk11: FindObjectsInit failed.");
         /* TODO: error propagation */
         return 0;
     }
 
     rv = pakchois_find_objects(pks, &obj, 1, &count);
     if (rv == CKR_OK && count == 1) {
-        NE_DEBUG(NE_DBG_SSL, "pk11: Found private key.\n");
+        NE_DEBUG(NE_DBG_SSL, "pk11: Found private key.");
 
         a[0].type = CKA_KEY_TYPE;
         a[0].value = &prov->keytype;
@@ -279,7 +279,7 @@ static int pk11_find_pkey(ne_ssl_pkcs11_provider *prov,
             prov->privkey = obj;
         }
         else {
-            NE_DEBUG(NE_DBG_SSL, "pk11: Could not determine key type.\n");
+            NE_DEBUG(NE_DBG_SSL, "pk11: Could not determine key type.");
         }
     }
 
@@ -315,7 +315,7 @@ static int pk11_sign_callback(gnutls_session_t session,
     unsigned long siglen;
 
     if (!prov->session || prov->privkey == CK_INVALID_HANDLE) {
-        NE_DEBUG(NE_DBG_SSL, "pk11: Cannot sign, no session/key.\n");
+        NE_DEBUG(NE_DBG_SSL, "pk11: Cannot sign, no session/key.");
         return GNUTLS_E_NO_CERTIFICATE_FOUND;
     }
 
@@ -327,14 +327,14 @@ static int pk11_sign_callback(gnutls_session_t session,
      * earlier. */
     rv = pakchois_sign_init(prov->session, &mech, prov->privkey);
     if (rv != CKR_OK) {
-        NE_DEBUG(NE_DBG_SSL, "pk11: SignInit failed: %lx.\n", rv);
+        NE_DEBUG(NE_DBG_SSL, "pk11: SignInit failed: %lx.", rv);
         return GNUTLS_E_PK_SIGN_FAILED;
     }
 
     /* Work out how long the signature must be: */
     rv = pakchois_sign(prov->session, hash->data, hash->size, NULL, &siglen);
     if (rv != CKR_OK) {
-        NE_DEBUG(NE_DBG_SSL, "pk11: Sign1 failed.\n");
+        NE_DEBUG(NE_DBG_SSL, "pk11: Sign1 failed.");
         return GNUTLS_E_PK_SIGN_FAILED;
     }
 
@@ -344,11 +344,11 @@ static int pk11_sign_callback(gnutls_session_t session,
     rv = pakchois_sign(prov->session, hash->data, hash->size, 
                        signature->data, &siglen);
     if (rv != CKR_OK) {
-        NE_DEBUG(NE_DBG_SSL, "pk11: Sign2 failed.\n");
+        NE_DEBUG(NE_DBG_SSL, "pk11: Sign2 failed.");
         return GNUTLS_E_PK_SIGN_FAILED;
     }
 
-    NE_DEBUG(NE_DBG_SSL, "pk11: Signed successfully.\n");
+    NE_DEBUG(NE_DBG_SSL, "pk11: Signed successfully.");
 
     return 0;
 }
@@ -377,13 +377,13 @@ static int pk11_login(ne_ssl_pkcs11_provider *prov, ck_slot_id_t slot_id,
     ck_rv_t rv;
 
     if (pakchois_get_token_info(prov->module, slot_id, &tinfo) != CKR_OK) {
-        NE_DEBUG(NE_DBG_SSL, "pk11: GetTokenInfo failed\n");
+        NE_DEBUG(NE_DBG_SSL, "pk11: GetTokenInfo failed");
         /* TODO: propagate error. */
         return -1;
     }
 
     if ((tinfo.flags & CKF_LOGIN_REQUIRED) == 0) {
-        NE_DEBUG(NE_DBG_SSL, "pk11: No login required.\n");
+        NE_DEBUG(NE_DBG_SSL, "pk11: No login required.");
         return 0;
     }
 
@@ -395,7 +395,7 @@ static int pk11_login(ne_ssl_pkcs11_provider *prov, ck_slot_id_t slot_id,
             return 0;
         }
         else {
-            NE_DEBUG(NE_DBG_SSL, "pk11: Protected login failed.\n");
+            NE_DEBUG(NE_DBG_SSL, "pk11: Protected login failed.");
             /* TODO: error propagation. */
             return -1;
         }
@@ -404,7 +404,7 @@ static int pk11_login(ne_ssl_pkcs11_provider *prov, ck_slot_id_t slot_id,
     /* Otherwise, PIN entry is necessary for login, so fail if there's
      * no callback. */
     if (!prov->pin_fn) {
-        NE_DEBUG(NE_DBG_SSL, "pk11: No pin callback but login required.\n");
+        NE_DEBUG(NE_DBG_SSL, "pk11: No pin callback but login required.");
         /* TODO: propagate error. */
         return -1;
     }
@@ -420,7 +420,7 @@ static int pk11_login(ne_ssl_pkcs11_provider *prov, ck_slot_id_t slot_id,
         if (attempt) {
             if (pakchois_get_token_info(prov->module, slot_id, 
                                         &tinfo) != CKR_OK) {
-                NE_DEBUG(NE_DBG_SSL, "pk11: GetTokenInfo failed\n");
+                NE_DEBUG(NE_DBG_SSL, "pk11: GetTokenInfo failed");
                 /* TODO: propagate error. */
                 return -1;
             }
@@ -446,7 +446,7 @@ static int pk11_login(ne_ssl_pkcs11_provider *prov, ck_slot_id_t slot_id,
         memset(pin, 0, sizeof pin);
     } while (rv == CKR_PIN_INCORRECT);
 
-    NE_DEBUG(NE_DBG_SSL, "pk11: Login result = %lu\n", rv);
+    NE_DEBUG(NE_DBG_SSL, "pk11: Login result = %lu", rv);
 
     return (rv == CKR_OK || rv == CKR_USER_ALREADY_LOGGED_IN) ? 0 : -1;
 }
@@ -460,14 +460,14 @@ static void pk11_provide(void *userdata, ne_session *sess,
     unsigned long scount, n;
 
     if (prov->clicert) {
-        NE_DEBUG(NE_DBG_SSL, "pk11: Using existing clicert.\n");
+        NE_DEBUG(NE_DBG_SSL, "pk11: Using existing clicert.");
         ne_ssl_set_clicert(sess, prov->clicert);
         return;
     }
 
     if (pakchois_get_slot_list(prov->module, 1, NULL, &scount) != CKR_OK
         || scount == 0) {
-        NE_DEBUG(NE_DBG_SSL, "pk11: No slots.\n");
+        NE_DEBUG(NE_DBG_SSL, "pk11: No slots.");
         /* TODO: propagate error. */
         return;
     }
@@ -475,12 +475,12 @@ static void pk11_provide(void *userdata, ne_session *sess,
     slots = ne_malloc(scount * sizeof *slots);
     if (pakchois_get_slot_list(prov->module, 1, slots, &scount) != CKR_OK)  {
         ne_free(slots);
-        NE_DEBUG(NE_DBG_SSL, "pk11: Really, no slots?\n");
+        NE_DEBUG(NE_DBG_SSL, "pk11: Really, no slots?");
         /* TODO: propagate error. */
         return;
     }
 
-    NE_DEBUG(NE_DBG_SSL, "pk11: Found %ld slots.\n", scount);
+    NE_DEBUG(NE_DBG_SSL, "pk11: Found %ld slots.", scount);
 
     for (n = 0; n < scount; n++) {
         pakchois_session_t *pks;
@@ -488,12 +488,12 @@ static void pk11_provide(void *userdata, ne_session *sess,
         struct ck_slot_info sinfo;
 
         if (pakchois_get_slot_info(prov->module, slots[n], &sinfo) != CKR_OK) {
-            NE_DEBUG(NE_DBG_SSL, "pk11: GetSlotInfo failed\n");
+            NE_DEBUG(NE_DBG_SSL, "pk11: GetSlotInfo failed");
             continue;
         }
 
         if ((sinfo.flags & CKF_TOKEN_PRESENT) == 0) {
-            NE_DEBUG(NE_DBG_SSL, "pk11: slot empty, ignoring\n");
+            NE_DEBUG(NE_DBG_SSL, "pk11: slot empty, ignoring");
             continue;
         }
         
@@ -501,14 +501,14 @@ static void pk11_provide(void *userdata, ne_session *sess,
                                    CKF_SERIAL_SESSION,
                                    NULL, NULL, &pks);
         if (rv != CKR_OK) {
-            NE_DEBUG(NE_DBG_SSL, "pk11: could not open slot, %ld (%ld: %ld)\n", 
+            NE_DEBUG(NE_DBG_SSL, "pk11: could not open slot, %ld (%ld: %ld)", 
                      rv, n, slots[n]);
             continue;
         }
 
         if (pk11_login(prov, slots[n], pks, &sinfo) == 0) {
             if (find_client_cert(prov, pks)) {
-                NE_DEBUG(NE_DBG_SSL, "pk11: Setup complete.\n");
+                NE_DEBUG(NE_DBG_SSL, "pk11: Setup complete.");
                 prov->session = pks;
                 ne_ssl_set_clicert(sess, prov->clicert);
                 ne_free(slots);

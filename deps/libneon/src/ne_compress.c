@@ -106,7 +106,7 @@ struct ne_decompress_s {
  */
 static int parse_header(ne_decompress *ctx)
 {
-    NE_DEBUG(NE_DBG_HTTP, "ID1: %d  ID2: %d, cmeth %d, flags %d\n", 
+    NE_DEBUG(NE_DBG_HTTP, "ID1: %d  ID2: %d, cmeth %d, flags %d", 
              HDR_ID1(ctx), HDR_ID2(ctx), HDR_CMETH(ctx), HDR_FLAGS(ctx));
     
     if (HDR_ID1(ctx) != ID1 || HDR_ID2(ctx) != ID2 || HDR_CMETH(ctx) != 8) {
@@ -114,7 +114,7 @@ static int parse_header(ne_decompress *ctx)
 	return HDR_ERROR;
     }
 
-    NE_DEBUG(NE_DBG_HTTP, "mtime: %d, xflags: %d, os: %d\n",
+    NE_DEBUG(NE_DBG_HTTP, "mtime: %d, xflags: %d, os: %d",
 	     HDR_MTIME(ctx), HDR_XFLAGS(ctx), HDR_OS(ctx));
     
     /* TODO: we can only handle one NUL-terminated extensions field
@@ -129,7 +129,7 @@ static int parse_header(ne_decompress *ctx)
 	return HDR_ERROR;
     }
 
-    NE_DEBUG(NE_DBG_HTTP, "compress: Good stream.\n");
+    NE_DEBUG(NE_DBG_HTTP, "compress: Good stream.");
     
     ctx->state = NE_Z_INFLATING;
     return HDR_DONE;
@@ -152,7 +152,7 @@ static int process_footer(ne_decompress *ctx,
 	    uLong crc = BUF2UINT(ctx->footer) & 0xFFFFFFFF;
 	    if (crc == ctx->checksum) {
 		ctx->state = NE_Z_FINISHED;
-		NE_DEBUG(NE_DBG_HTTP, "compress: End of response; checksum match.\n");
+		NE_DEBUG(NE_DBG_HTTP, "compress: End of response; checksum match.");
 	    } else {
 		NE_DEBUG(NE_DBG_HTTP, "compress: End of response; checksum mismatch: "
 			 "given %lu vs computed %lu\n", crc, ctx->checksum);
@@ -223,7 +223,7 @@ static int do_inflate(ne_decompress *ctx, const char *buf, size_t len)
     } while (ret == Z_OK && ctx->zstr.avail_in > 0);
     
     if (ret == Z_STREAM_END) {
-	NE_DEBUG(NE_DBG_HTTP, "compress: end of data stream, %d bytes remain.\n",
+	NE_DEBUG(NE_DBG_HTTP, "compress: end of data stream, %d bytes remain.",
 		 ctx->zstr.avail_in);
 	/* process the footer. */
 	ctx->state = NE_Z_AFTER_DATA;
@@ -285,7 +285,7 @@ static int gz_reader(void *ud, const char *buf, size_t len)
         hdr = ne_get_response_header(ctx->request, "Content-Encoding");
         if (hdr && ne_strcasecmp(hdr, "gzip") == 0) {
             int ret;
-	    NE_DEBUG(NE_DBG_HTTP, "compress: got gzipped stream.\n");
+	    NE_DEBUG(NE_DBG_HTTP, "compress: got gzipped stream.");
 
             /* inflateInit2() works here where inflateInit() doesn't. */
             ret = inflateInit2(&ctx->zstr, -MAX_WBITS);
@@ -379,7 +379,7 @@ static void gz_pre_send(ne_request *r, void *ud, ne_buffer *req)
     ne_decompress *ctx = ud;
 
     if (ctx->request == r) {
-        NE_DEBUG(NE_DBG_HTTP, "compress: Initialization.\n");
+        NE_DEBUG(NE_DBG_HTTP, "compress: Initialization.");
         
         /* (Re-)Initialize the context */
         ctx->state = NE_Z_BEFORE_DATA;

@@ -459,7 +459,7 @@ static int check_identity(const ne_uri *server, gnutls_x509_crt cert,
     }
 
     if (*hostname)
-        NE_DEBUG(NE_DBG_SSL, "ssl: Identity match for '%s': %s\n", hostname, 
+        NE_DEBUG(NE_DBG_SSL, "ssl: Identity match for '%s': %s", hostname, 
                  match ? "good" : "bad");
 
     return match ? 0 : 1;
@@ -582,7 +582,7 @@ static int provide_client_cert(gnutls_session session,
         return GNUTLS_E_RECEIVED_ILLEGAL_PARAMETER;
     }
 
-    NE_DEBUG(NE_DBG_SSL, "ssl: Client cert provider callback; %d CA names.\n",
+    NE_DEBUG(NE_DBG_SSL, "ssl: Client cert provider callback; %d CA names.",
              nreqs);
 
     if (!sess->client_cert && sess->ssl_provide_fn) {
@@ -609,7 +609,7 @@ static int provide_client_cert(gnutls_session session,
             }
         }
        
-        NE_DEBUG(NE_DBG_SSL, "ssl: Mapped %d CA names to %u DN objects.\n",
+        NE_DEBUG(NE_DBG_SSL, "ssl: Mapped %d CA names to %u DN objects.",
                  nreqs, dncount);
 
         sess->ssl_provide_fn(sess->ssl_provide_ud, sess, dns, dncount);
@@ -632,7 +632,7 @@ static int provide_client_cert(gnutls_session session,
     if (sess->client_cert) {
         gnutls_certificate_type type = gnutls_certificate_type_get(session);
         if (type == GNUTLS_CRT_X509) {
-            NE_DEBUG(NE_DBG_SSL, "Supplying client certificate.\n");
+            NE_DEBUG(NE_DBG_SSL, "Supplying client certificate.");
 
             st->type = type;
             st->ncerts = sess->client_cert->cert.chain_len;;
@@ -646,7 +646,7 @@ static int provide_client_cert(gnutls_session session,
         }
     } 
     else {
-        NE_DEBUG(NE_DBG_SSL, "No client certificate supplied.\n");
+        NE_DEBUG(NE_DBG_SSL, "No client certificate supplied.");
         st->ncerts = 0;
         sess->ssl_cc_requested = 1;
         return 0;
@@ -744,7 +744,7 @@ static ne_ssl_certificate *make_peers_chain(gnutls_session sock,
         return NULL;
     }
 
-    NE_DEBUG(NE_DBG_SSL, "ssl: Got %u certs in peer chain.\n", count);
+    NE_DEBUG(NE_DBG_SSL, "ssl: Got %u certs in peer chain.", count);
     
     for (n = 0; n < count; n++) {
         gnutls_x509_crt x5;
@@ -899,7 +899,7 @@ static int check_certificate(ne_session *sess, gnutls_session sock,
     failures |= check_chain_expiry(chain);
 
     ret = gnutls_certificate_verify_peers2(sock, &status);
-    NE_DEBUG(NE_DBG_SSL, "ssl: Verify peers returned %d, status=%u\n", 
+    NE_DEBUG(NE_DBG_SSL, "ssl: Verify peers returned %d, status=%u", 
              ret, status);
     if (ret != GNUTLS_E_SUCCESS) {
         ne_set_error(sess, _("Could not verify server certificate: %s"),
@@ -909,7 +909,7 @@ static int check_certificate(ne_session *sess, gnutls_session sock,
 
     failures |= map_verify_failures(&status);
 
-    NE_DEBUG(NE_DBG_SSL, "ssl: Verification failures = %d (status = %u).\n", 
+    NE_DEBUG(NE_DBG_SSL, "ssl: Verification failures = %d (status = %u).", 
              failures, status);
     
     if (status && status != GNUTLS_CERT_INVALID) {
@@ -939,7 +939,7 @@ int ne__negotiate_ssl(ne_session *sess)
     ne_ssl_certificate *chain;
     gnutls_session sock;
 
-    NE_DEBUG(NE_DBG_SSL, "Negotiating SSL connection.\n");
+    NE_DEBUG(NE_DBG_SSL, "Negotiating SSL connection.");
 
     /* Pass through the hostname if SNI is enabled. */
     ctx->hostname = 
@@ -1209,7 +1209,7 @@ ne_ssl_client_cert *ne__ssl_clicert_exkey_import(const unsigned char *der,
 
     if (gnutls_x509_crt_init(&x5) 
         || gnutls_x509_crt_import(x5, &datum, GNUTLS_X509_FMT_DER)) {
-        NE_DEBUG(NE_DBG_SSL, "ssl: crt_import failed.\n");
+        NE_DEBUG(NE_DBG_SSL, "ssl: crt_import failed.");
         return NULL;
     }
     

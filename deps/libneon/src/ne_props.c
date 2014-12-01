@@ -453,7 +453,7 @@ static int startelm(void *userdata, int parent,
     }
     prop->value = NULL;
 
-    NE_DEBUG(NE_DBG_XML, "Got property #%d: {%s}%s.\n", n, 
+    NE_DEBUG(NE_DBG_XML, "Got property #%d: {%s}%s.", n, 
 	     NSPACE(prop->nspace), prop->name);
 
     /* This is under discussion at time of writing (April '01), and it
@@ -464,7 +464,7 @@ static int startelm(void *userdata, int parent,
     lang = ne_xml_get_attr(hdl->parser, atts, NULL, "xml:lang");
     if (lang != NULL) {
 	prop->lang = ne_strdup(lang);
-	NE_DEBUG(NE_DBG_XML, "Property language is %s\n", prop->lang);
+	NE_DEBUG(NE_DBG_XML, "Property language is %s", prop->lang);
     } else {
 	prop->lang = NULL;
     }

@@ -341,7 +341,7 @@ static void start_element(void *userdata, const ne_xml_char *name,
                                   elm->nspace, elm->name, PASS_ATTS(atts));
     }
 
-    NE_DEBUG(NE_DBG_XML, "XML: start-element (%d, {%s, %s}) => %d\n", 
+    NE_DEBUG(NE_DBG_XML, "XML: start-element (%d, {%s, %s}) => %d", 
              elm->parent->state, elm->nspace, elm->name, state);             
     
     if (state > 0)
@@ -382,7 +382,7 @@ static void char_data(void *userdata, const ne_xml_char *data, int len)
     
     if (elm->handler->cdata_cb) {
         p->failure = elm->handler->cdata_cb(elm->handler->userdata, elm->state, data, len);
-        NE_DEBUG(NE_DBG_XML, "XML: char-data (%d) returns %d\n", 
+        NE_DEBUG(NE_DBG_XML, "XML: char-data (%d) returns %d", 
                  elm->state, p->failure);
     }        
 }
@@ -401,12 +401,12 @@ static void end_element(void *userdata, const ne_xml_char *name)
         p->failure = elm->handler->endelm_cb(elm->handler->userdata, elm->state,
                                              elm->nspace, elm->name);
         if (p->failure) {
-            NE_DEBUG(NE_DBG_XML, "XML: end-element for %d failed with %d.\n", 
+            NE_DEBUG(NE_DBG_XML, "XML: end-element for %d failed with %d.", 
                      elm->state, p->failure);
         }
     }
     
-    NE_DEBUG(NE_DBG_XML, "XML: end-element (%d, {%s, %s})\n",
+    NE_DEBUG(NE_DBG_XML, "XML: end-element (%d, {%s, %s})",
              elm->state, elm->nspace, elm->name);
 
     /* move back up the tree */
@@ -426,7 +426,7 @@ static void entity_declaration(void *userData, const XML_Char *entityName,
 {
     ne_xml_parser *parser = userData;
     
-    NE_DEBUG(NE_DBG_XMLPARSE, "XML: entity declaration [%s]. Failing.\n",
+    NE_DEBUG(NE_DBG_XMLPARSE, "XML: entity declaration [%s]. Failing.",
              entityName);
 
     XML_StopParser(parser->parser, XML_FALSE);
@@ -568,15 +568,15 @@ int ne_xml_parse(ne_xml_parser *p, const char *block, size_t len)
     if (len == 0) {
 	flag = -1;
 	block = "";
-	NE_DEBUG(NE_DBG_XMLPARSE, "XML: End of document.\n");
+	NE_DEBUG(NE_DBG_XMLPARSE, "XML: End of document.");
     } else {	
-	NE_DEBUG(NE_DBG_XMLPARSE, "XML: Parsing %" NE_FMT_SIZE_T " bytes.\n", len);
+	NE_DEBUG(NE_DBG_XMLPARSE, "XML: Parsing %" NE_FMT_SIZE_T " bytes.", len);
 	flag = 0;
     }
 
 #ifdef NEED_BOM_HANDLING
     if (p->bom_pos < 3) {
-        NE_DEBUG(NE_DBG_XMLPARSE, "Checking for UTF-8 BOM.\n");
+        NE_DEBUG(NE_DBG_XMLPARSE, "Checking for UTF-8 BOM.");
         while (len > 0 && p->bom_pos < 3 && 
                block[0] == BOM_UTF8[p->bom_pos]) {
             block++;
@@ -598,25 +598,25 @@ int ne_xml_parse(ne_xml_parser *p, const char *block, size_t len)
      * will already have been written in that case. */
 #ifdef HAVE_EXPAT
     ret = XML_Parse(p->parser, block, len, flag);
-    NE_DEBUG(NE_DBG_XMLPARSE, "XML: XML_Parse returned %d\n", ret);
+    NE_DEBUG(NE_DBG_XMLPARSE, "XML: XML_Parse returned %d", ret);
     if (ret == 0 && p->failure == 0) {
 	ne_snprintf(p->error, ERR_SIZE,
 		    "XML parse error at line %" NE_FMT_XML_SIZE ": %s", 
 		    XML_GetCurrentLineNumber(p->parser),
 		    XML_ErrorString(XML_GetErrorCode(p->parser)));
 	p->failure = 1;
-        NE_DEBUG(NE_DBG_XMLPARSE, "XML: Parse error: %s\n", p->error);
+        NE_DEBUG(NE_DBG_XMLPARSE, "XML: Parse error: %s", p->error);
     }
 #else
     ret = xmlParseChunk(p->parser, block, len, flag);
-    NE_DEBUG(NE_DBG_XMLPARSE, "XML: xmlParseChunk returned %d\n", ret);
+    NE_DEBUG(NE_DBG_XMLPARSE, "XML: xmlParseChunk returned %d", ret);
     /* Parse errors are normally caught by the sax_error() callback,
      * which clears p->valid. */
     if (p->parser->errNo && p->failure == 0) {
 	ne_snprintf(p->error, ERR_SIZE, "XML parse error at line %d", 
 		    ne_xml_currentline(p));
 	p->failure = 1;
-        NE_DEBUG(NE_DBG_XMLPARSE, "XML: Parse error: %s\n", p->error);
+        NE_DEBUG(NE_DBG_XMLPARSE, "XML: Parse error: %s", p->error);
     }
 #endif
     return p->failure;

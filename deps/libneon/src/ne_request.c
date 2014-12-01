@@ -191,7 +191,7 @@ static int aborted(ne_request *req, const char *doing, ssize_t code)
     ne_session *sess = req->session;
     int ret = NE_ERROR;
 
-    NE_DEBUG(NE_DBG_HTTP, "Aborted request (%" NE_FMT_SSIZE_T "): %s\n",
+    NE_DEBUG(NE_DBG_HTTP, "Aborted request (%" NE_FMT_SSIZE_T "): %s",
 	     code, doing);
 
     switch(code) {
@@ -373,7 +373,7 @@ static int send_request_body(ne_request *req, int retry)
     char buffer[NE_BUFSIZ_LARGE];
     ssize_t bytes;
 
-    NE_DEBUG(NE_DBG_CORE, "Sending request body:\n");
+    NE_DEBUG(NE_DBG_CORE, "Sending request body:");
 
     req->session->status.sr.progress = 0;
     req->session->status.sr.total = req->body_length;
@@ -689,7 +689,7 @@ void ne_request_destroy(ne_request *req)
 
     ne_buffer_destroy(req->headers);
 
-    NE_DEBUG(NE_DBG_CORE, "Running destroy hooks.\n");
+    NE_DEBUG(NE_DBG_CORE, "Running destroy hooks.");
     for (hk = req->session->destroy_req_hooks; hk; hk = next_hk) {
 	ne_destroy_req_fn fn = (ne_destroy_req_fn)hk->fn;
         next_hk = hk->next;
@@ -704,7 +704,7 @@ void ne_request_destroy(ne_request *req)
     if (req->status.reason_phrase)
 	ne_free(req->status.reason_phrase);
 
-    NE_DEBUG(NE_DBG_CORE, "Request ends.\n");
+    NE_DEBUG(NE_DBG_CORE, "Request ends.");
     ne_free(req);
 }
 
@@ -744,7 +744,7 @@ static int read_response_block(ne_request *req, struct ne_response *resp,
 		chunk_len == ULONG_MAX || chunk_len > UINT_MAX) {
 		return aborted(req, _("Could not parse chunk size"), 0);
 	    }
-	    NE_DEBUG(NE_DBG_HTTP, "Got chunk size: %lu\n", chunk_len);
+	    NE_DEBUG(NE_DBG_HTTP, "Got chunk size: %lu", chunk_len);
 	    resp->body.chunk.remain = chunk_len;
 	}
 	willread = resp->body.chunk.remain > *buflen
@@ -775,13 +775,13 @@ static int read_response_block(ne_request *req, struct ne_response *resp,
      * any case, but SSL servers are just too buggy.  */
     if (resp->mode == R_TILLEOF && 
 	(readlen == NE_SOCK_CLOSED || readlen == NE_SOCK_TRUNC)) {
-	NE_DEBUG(NE_DBG_HTTP, "Got EOF.\n");
+	NE_DEBUG(NE_DBG_HTTP, "Got EOF.");
 	req->can_persist = 0;
 	readlen = 0;
     } else if (readlen < 0) {
 	return aborted(req, _("Could not read response body"), readlen);
     } else {
-    NE_DEBUG(NE_DBG_CORE, "Got %" NE_FMT_SSIZE_T " bytes.\n", readlen);
+    NE_DEBUG(NE_DBG_CORE, "Got %" NE_FMT_SSIZE_T " bytes.", readlen);
     }
     /* safe to cast: readlen guaranteed to be >= 0 above */
     *buflen = (size_t)readlen;
@@ -847,7 +847,7 @@ static ne_buffer *build_request(ne_request *req)
         ne_buffer_czappend(buf, "Expect: 100-continue\r\n");
     }
 
-    NE_DEBUG(NE_DBG_CORE, "Running pre_send hooks\n");
+    NE_DEBUG(NE_DBG_CORE, "Running pre_send hooks");
     for (hk = req->session->pre_send_hooks; hk!=NULL; hk = hk->next) {
 	ne_pre_send_fn fn = (ne_pre_send_fn)hk->fn;
 	fn(req, hk->userdata, buf);
@@ -883,7 +883,7 @@ static void dump_request(const char *request)
 
     if (davix_get_log_scope() & NE_DBG_HTTPPLAIN) {
 	/* Display everything mode */
-        NE_DEBUG(NE_DBG_HTTP, "%s\n", hdr_debug);
+        NE_DEBUG(NE_DBG_HTTP, "%s", hdr_debug);
     } else if (davix_get_log_scope() & NE_DBG_HTTP) {
 	/* Blank out the Authorization paramaters */
 	char *reqdebug = ne_strdup(hdr_debug), *pnt = reqdebug;
@@ -892,7 +892,7 @@ static void dump_request(const char *request)
 		*pnt = 'x';
 	    }
 	}
-    NE_DEBUG(NE_DBG_HTTP, "%s\n",reqdebug);
+    NE_DEBUG(NE_DBG_HTTP, "%s",reqdebug);
 
 	ne_free(reqdebug);
     }
@@ -927,8 +927,8 @@ static int read_status_line(ne_request *req, ne_status *status, int retry)
 	return RETRY_RET(retry, ret, aret);
     }
     
-    NE_DEBUG(NE_DBG_HTTP, "< %s", buffer);
     strip_eol(buffer, &ret);
+    NE_DEBUG(NE_DBG_HTTP, "< %s", buffer);
     
     if (status->reason_phrase) ne_free(status->reason_phrase);
     memset(status, 0, sizeof *status);
@@ -942,7 +942,7 @@ static int read_status_line(ne_request *req, ne_status *status, int retry)
         status->minor_version = 0;
         status->reason_phrase = ne_strclean(ne_strdup(buffer + 8));
         status->klass = buffer[4] - '0';
-        NE_DEBUG(NE_DBG_HTTP, "[status-line] ICY protocol; code %d\n", 
+        NE_DEBUG(NE_DBG_HTTP, "[status-line] ICY protocol; code %d", 
                  status->code);
     } else if (ne_parse_statusline(buffer, status)) {
 	return aborted(req, _("Could not parse response status line"), 0);
@@ -980,7 +980,7 @@ static int send_request(ne_request *req, const ne_buffer *request)
     ssize_t sret;
 
     /* Send the Request-Line and headers */
-    NE_DEBUG(NE_DBG_CORE, "Sending request-line and headers:\n");
+    NE_DEBUG(NE_DBG_CORE, "Sending request-line and headers:");
     /* Open the connection if necessary */
     ret = open_connection(sess);
     if (ret) return ret;
@@ -1003,13 +1003,13 @@ static int send_request(ne_request *req, const ne_buffer *request)
 	}
     }
     
-    NE_DEBUG(NE_DBG_CORE, "Request sent; retry is %d.\n", retry);
+    NE_DEBUG(NE_DBG_CORE, "Request sent; retry is %d.", retry);
 
     /* Loop eating interim 1xx responses (RFC2616 says these MAY be
      * sent by the server, even if 100-continue is not used). */
     while ((ret = read_status_line(req, status, retry)) == NE_OK 
 	   && status->klass == 1) {
-	NE_DEBUG(NE_DBG_HTTP, "Interim %d response.\n", status->code);
+	NE_DEBUG(NE_DBG_HTTP, "Interim %d response.", status->code);
 	retry = 0; /* successful read() => never retry now. */
 	/* Discard headers with the interim response. */
 	if ((ret = discard_headers(req)) != NE_OK) break;
@@ -1040,12 +1040,12 @@ static int read_message_header(ne_request *req, char *buf, size_t buflen)
     n = ne_sock_readline(sock, buf, buflen);
     if (n <= 0)
 	return aborted(req, _("Error reading response headers"), n);
-    NE_DEBUG(NE_DBG_HTTP, "< %s", buf);
 
     strip_eol(buf, &n);
+    NE_DEBUG(NE_DBG_HTTP, "< %s", buf);
 
     if (n == 0) {
-    NE_DEBUG(NE_DBG_CORE, "End of headers.\n");
+    NE_DEBUG(NE_DBG_CORE, "End of headers.");
 	return NE_OK;
     }
 
@@ -1161,7 +1161,7 @@ static int read_response_headers(ne_request *req)
 	    pnt++;
 
 	/* pnt now points to the header value. */
-	//NE_DEBUG(NE_DBG_HTTP, "Header Name: [%s], Value: [%s]\n", hdr, pnt);
+	//NE_DEBUG(NE_DBG_HTTP, "Header Name: [%s], Value: [%s]", hdr, pnt);
         add_response_header(req, hash, hdr, pnt);
     }
 
@@ -1176,7 +1176,7 @@ static int read_response_headers(ne_request *req)
  * returns NE_ code with error string set on error. */
 static int lookup_host(ne_session *sess, struct host_info *info)
 {
-    NE_DEBUG(NE_DBG_CORE, "Doing DNS lookup on %s...\n", info->hostname);
+    NE_DEBUG(NE_DBG_CORE, "Doing DNS lookup on %s...", info->hostname);
     sess->status.lu.hostname = info->hostname;
     notify_status(sess, ne_status_lookup);
     info->address = ne_addr_resolve(info->hostname, 0);
@@ -1221,7 +1221,7 @@ int ne_begin_request(ne_request *req)
     ret = send_request(req, data);
     /* Retry this once after a persistent connection timeout. */
     if (ret == NE_RETRY) {
-	NE_DEBUG(NE_DBG_HTTP, "Persistent connection timed out, retrying.\n");
+	NE_DEBUG(NE_DBG_HTTP, "Persistent connection timed out, retrying.");
 	ret = send_request(req, data);
     }
     ne_buffer_destroy(data);
@@ -1334,7 +1334,7 @@ int ne_begin_request(ne_request *req)
         req->resp.mode = R_TILLEOF; /* otherwise: read-till-eof mode */
     }
     
-    NE_DEBUG(NE_DBG_CORE, "Running post_headers hooks\n");
+    NE_DEBUG(NE_DBG_CORE, "Running post_headers hooks");
     for (hk = req->session->post_headers_hooks; hk != NULL; hk = hk->next) {
         ne_post_headers_fn fn = (ne_post_headers_fn)hk->fn;
         fn(req, hk->userdata, &req->status);
@@ -1368,7 +1368,7 @@ int ne_end_request(ne_request *req)
         ret = NE_OK;
     }
     
-    NE_DEBUG(NE_DBG_CORE, "Running post_send hooks\n");
+    NE_DEBUG(NE_DBG_CORE, "Running post_send hooks");
     for (hk = req->session->post_send_hooks; 
 	 ret == NE_OK && hk != NULL; hk = hk->next) {
 	ne_post_send_fn fn = (ne_post_send_fn)hk->fn;
@@ -1549,7 +1549,7 @@ static int do_connect(ne_session *sess, struct host_info *host)
 #ifdef NE_DEBUGGING
 	if (ne_debug_mask & NE_DBG_HTTP) {
 	    char buf[150];
-	    NE_DEBUG(NE_DBG_HTTP, "req: Connecting to %s:%u\n",
+	    NE_DEBUG(NE_DBG_HTTP, "req: Connecting to %s:%u",
 		     ne_iaddr_print(host->current, buf, sizeof buf),
                      host->port);
 	}

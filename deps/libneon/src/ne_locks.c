@@ -267,7 +267,7 @@ void ne_lock_using_parent(ne_request *req, const char *path)
 	if ((item->lock->depth == NE_DEPTH_INFINITE && 
 	     ne_path_childof(item->lock->uri.path, parent)) ||
 	    ne_path_compare(item->lock->uri.path, parent) == 0) {
-	    NE_DEBUG(NE_DBG_LOCKS, "Locked parent, %s on %s\n",
+	    NE_DEBUG(NE_DBG_LOCKS, "Locked parent, %s on %s",
 		     item->lock->token, item->lock->uri.path);
 	    submit_lock(lrc, item->lock);
 	}
@@ -296,19 +296,19 @@ void ne_lock_using_resource(ne_request *req, const char *uri, int depth)
 	    ne_path_childof(uri, item->lock->uri.path)) {
 	    /* Case 1: this is a depth-infinity request which will 
 	     * modify a lock somewhere inside the collection. */
-	    NE_DEBUG(NE_DBG_LOCKS, "Has child: %s\n", item->lock->token);
+	    NE_DEBUG(NE_DBG_LOCKS, "Has child: %s", item->lock->token);
 	    match = 1;
 	} 
 	else if (ne_path_compare(uri, item->lock->uri.path) == 0) {
 	    /* Case 2: this request is directly on a locked resource */
-	    NE_DEBUG(NE_DBG_LOCKS, "Has direct lock: %s\n", item->lock->token);
+	    NE_DEBUG(NE_DBG_LOCKS, "Has direct lock: %s", item->lock->token);
 	    match = 1;
 	}
 	else if (item->lock->depth == NE_DEPTH_INFINITE && 
 		 ne_path_childof(item->lock->uri.path, uri)) {
 	    /* Case 3: there is a higher-up infinite-depth lock which
 	     * covers the resource that this request will modify. */
-	    NE_DEBUG(NE_DBG_LOCKS, "Is child of: %s\n", item->lock->token);
+	    NE_DEBUG(NE_DBG_LOCKS, "Is child of: %s", item->lock->token);
 	    match = 1;
 	}
 	
@@ -456,7 +456,7 @@ static void discover_results(void *userdata, const ne_uri *uri,
 	ctx->results(ctx->userdata, NULL, uri, status);
     }
 
-    NE_DEBUG(NE_DBG_LOCKS, "End of response for %s\n", uri->path);
+    NE_DEBUG(NE_DBG_LOCKS, "End of response for %s", uri->path);
 }
 
 static int 
@@ -473,14 +473,14 @@ end_element_common(struct ne_lock *l, int state, const char *cdata)
 	l->scope = ne_lockscope_shared;
 	break;
     case ELM_depth:
-	NE_DEBUG(NE_DBG_LOCKS, "Got depth: %s\n", cdata);
+	NE_DEBUG(NE_DBG_LOCKS, "Got depth: %s", cdata);
 	l->depth = parse_depth(cdata);
 	if (l->depth == -1) {
 	    return -1;
 	}
 	break;
     case ELM_timeout:
-	NE_DEBUG(NE_DBG_LOCKS, "Got timeout: %s\n", cdata);
+	NE_DEBUG(NE_DBG_LOCKS, "Got timeout: %s", cdata);
 	l->timeout = parse_timeout(cdata);
 	if (l->timeout == NE_TIMEOUT_INVALID) {
 	    return -1;
@@ -570,7 +570,7 @@ static int lk_startelm(void *userdata, int parent,
 
     id = ne_xml_mapid(element_map, NE_XML_MAPLEN(element_map), nspace, name);
 
-    NE_DEBUG(NE_DBG_LOCKS, "lk_startelm: %s => %d\n", name, id);
+    NE_DEBUG(NE_DBG_LOCKS, "lk_startelm: %s => %d", name, id);
     
     if (id == 0)
         return NE_XML_DECLINE;    
@@ -588,7 +588,7 @@ static int lk_startelm(void *userdata, int parent,
         if (token[0] == '<') token++;
         ctx->token = ne_strdup(token);
         ne_shave(ctx->token, ">");
-        NE_DEBUG(NE_DBG_LOCKS, "lk_startelm: Finding token %s\n",
+        NE_DEBUG(NE_DBG_LOCKS, "lk_startelm: Finding token %s",
                  ctx->token);
     }
 

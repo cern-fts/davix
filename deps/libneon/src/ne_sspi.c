@@ -102,11 +102,11 @@ static void initDll(HINSTANCE hSecDll)
     pSFT = (initSecurityInterface) ();
 
     if (pSFT == NULL) {
-        NE_DEBUG(NE_DBG_HTTPAUTH, "sspi: Security Function Table [fail].\n");
+        NE_DEBUG(NE_DBG_HTTPAUTH, "sspi: Security Function Table [fail].");
         initialized = -2;
         return;
     } else {
-        NE_DEBUG(NE_DBG_HTTPAUTH, "sspi: Security Function Table [ok].\n");
+        NE_DEBUG(NE_DBG_HTTPAUTH, "sspi: Security Function Table [ok].");
     }
 
     if (getMaxTokenSize("Negotiate", &negotiateMaxTokenSize)) {
@@ -131,21 +131,21 @@ int ne_sspi_init(void)
         return 0;
     }
 
-    NE_DEBUG(NE_DBG_SOCKET, "sspiInit\n");
-    NE_DEBUG(NE_DBG_HTTPAUTH, "sspi: Loading security dll.\n");
+    NE_DEBUG(NE_DBG_SOCKET, "sspiInit");
+    NE_DEBUG(NE_DBG_HTTPAUTH, "sspi: Loading security dll.");
     hSecDll = LoadLibrary("security.dll");
 
     if (hSecDll == NULL) {
-        NE_DEBUG(NE_DBG_HTTPAUTH, "sspi: Loading of security dll [fail].\n");
+        NE_DEBUG(NE_DBG_HTTPAUTH, "sspi: Loading of security dll [fail].");
     } else {
-        NE_DEBUG(NE_DBG_HTTPAUTH, "sspi: Loading of security dll [ok].\n");
+        NE_DEBUG(NE_DBG_HTTPAUTH, "sspi: Loading of security dll [ok].");
         initDll(hSecDll);
         if (initialized == 0) {
             initialized = 1;
         }
     }
 
-    NE_DEBUG(NE_DBG_HTTPAUTH, "sspi: sspiInit [%d].\n", initialized);
+    NE_DEBUG(NE_DBG_HTTPAUTH, "sspi: sspiInit [%d].", initialized);
     if (initialized < 0) {
         return initialized;
     } else {
@@ -158,7 +158,7 @@ int ne_sspi_init(void)
  */
 int ne_sspi_deinit(void)
 {
-    NE_DEBUG(NE_DBG_SOCKET, "sspi: DeInit\n");
+    NE_DEBUG(NE_DBG_SOCKET, "sspi: DeInit");
     if (initialized <= 0) {
         return initialized;
     }
@@ -166,7 +166,7 @@ int ne_sspi_deinit(void)
     pSFT = NULL;
 
     if (hSecDll != NULL) {
-        NE_DEBUG(NE_DBG_HTTPAUTH, "sspi: Unloading security dll.\n");
+        NE_DEBUG(NE_DBG_HTTPAUTH, "sspi: Unloading security dll.");
         if (FreeLibrary(hSecDll)) {
             NE_DEBUG(NE_DBG_HTTPAUTH,
                      "sspi: Unloading of security dll [ok].\n");
@@ -394,7 +394,7 @@ int ne_sspi_create_context(void **context, char *serverName, int ntlm)
         canonicalName = canonical_hostname(serverName);
         sspiContext->serverName = ne_concat("HTTP/", canonicalName, NULL);
         ne_free(canonicalName);
-        NE_DEBUG(NE_DBG_HTTPAUTH, "sspi: Created context with SPN '%s'\n",
+        NE_DEBUG(NE_DBG_HTTPAUTH, "sspi: Created context with SPN '%s'",
                  sspiContext->serverName);
         sspiContext->maxTokenSize = negotiateMaxTokenSize;
     }
@@ -518,7 +518,7 @@ int ne_sspi_authenticate(void *context, const char *base64Token, char **response
 
         if (!sspiContext->continueNeeded) {
             freeBuffer(&outBufferDesc);
-            NE_DEBUG(NE_DBG_HTTPAUTH, "sspi: Got an unexpected token.\n");
+            NE_DEBUG(NE_DBG_HTTPAUTH, "sspi: Got an unexpected token.");
             return -1;
         }
 
@@ -544,7 +544,7 @@ int ne_sspi_authenticate(void *context, const char *base64Token, char **response
     } else {
         if (sspiContext->continueNeeded) {
             freeBuffer(&outBufferDesc);
-            NE_DEBUG(NE_DBG_HTTPAUTH, "sspi: Expected a token from server.\n");
+            NE_DEBUG(NE_DBG_HTTPAUTH, "sspi: Expected a token from server.");
             return -1;
         }
         if (sspiContext->authfinished && (sspiContext->credentials.dwLower || sspiContext->credentials.dwUpper)) {
@@ -552,7 +552,7 @@ int ne_sspi_authenticate(void *context, const char *base64Token, char **response
             {
                 freeBuffer(&outBufferDesc);
                 sspiContext->authfinished = 0;
-                NE_DEBUG(NE_DBG_HTTPAUTH,"sspi: failing because starting over from failed try.\n");
+                NE_DEBUG(NE_DBG_HTTPAUTH,"sspi: failing because starting over from failed try.");
                 return -1;
             }
             sspiContext->authfinished = 0;
@@ -583,7 +583,7 @@ int ne_sspi_authenticate(void *context, const char *base64Token, char **response
 
         if (compleStatus != SEC_E_OK) {
             freeBuffer(&outBufferDesc);
-            NE_DEBUG(NE_DBG_HTTPAUTH, "sspi: CompleteAuthToken failed.\n");
+            NE_DEBUG(NE_DBG_HTTPAUTH, "sspi: CompleteAuthToken failed.");
             return -1;
         }
     }

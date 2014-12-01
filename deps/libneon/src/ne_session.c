@@ -81,7 +81,7 @@ void ne_session_destroy(ne_session *sess)
 {
     struct hook *hk;
 
-    NE_DEBUG(NE_DBG_CORE, "sess: Destroying session.\n");
+    NE_DEBUG(NE_DBG_CORE, "sess: Destroying session.");
 
     /* Run the destroy hooks. */
     for (hk = sess->destroy_sess_hooks; hk != NULL; hk = hk->next) {
@@ -157,7 +157,7 @@ ne_session *ne_session_create(const char *scheme,
 {
     ne_session *sess = ne_calloc(sizeof *sess);
 
-    NE_DEBUG(NE_DBG_HTTP, "HTTP session to %s://%s:%d begins.\n",
+    NE_DEBUG(NE_DBG_HTTP, "HTTP session to %s://%s:%d begins.",
 	     scheme, hostname, port);
 
     strcpy(sess->error, "Unknown error.");
@@ -188,7 +188,7 @@ ne_session *ne_session_create(const char *scheme,
         else {
             sess->flags[NE_SESSFLAG_TLS_SNI] = 1;
         }
-        NE_DEBUG(NE_DBG_SSL, "ssl: SNI %s by default.\n",
+        NE_DEBUG(NE_DBG_SSL, "ssl: SNI %s by default.",
                  sess->flags[NE_SESSFLAG_TLS_SNI] ?
                  "enabled" : "disabled");
     }
@@ -257,7 +257,7 @@ void ne_session_system_proxy(ne_session *sess, unsigned int flags)
 
         ne_uri_free(&uri);
 
-        NE_DEBUG(NE_DBG_HTTP, "sess: libproxy #%u=%s\n", 
+        NE_DEBUG(NE_DBG_HTTP, "sess: libproxy #%u=%s", 
                  n, proxies[n]);
 
         if (ne_uri_parse(proxies[n], &uri))
@@ -284,7 +284,7 @@ void ne_session_system_proxy(ne_session *sess, unsigned int flags)
         if (n == 0 && proxies[1] == NULL && ptype == PROXY_NONE)
             break;
 
-        NE_DEBUG(NE_DBG_HTTP, "sess: Got proxy %s://%s:%d\n",
+        NE_DEBUG(NE_DBG_HTTP, "sess: Got proxy %s://%s:%d",
                  uri.scheme, uri.host ? uri.host : "(none)",
                  uri.port);
         
@@ -469,7 +469,7 @@ void ne_close_connection(ne_session *sess)
     if (sess->connected) {
         struct hook *hk;
 
-        NE_DEBUG(NE_DBG_SOCKET, "sess: Closing connection.\n");
+        NE_DEBUG(NE_DBG_SOCKET, "sess: Closing connection.");
 
         if (sess->notify_cb) {
             sess->status.cd.hostname = sess->nexthop->hostname;
@@ -485,9 +485,9 @@ void ne_close_connection(ne_session *sess)
 
 	ne_sock_close(sess->socket);
 	sess->socket = NULL;
-        NE_DEBUG(NE_DBG_SOCKET, "sess: Connection closed.\n");
+        NE_DEBUG(NE_DBG_SOCKET, "sess: Connection closed.");
     } else {
-        NE_DEBUG(NE_DBG_SOCKET, "sess: Not closing closed connection.\n");
+        NE_DEBUG(NE_DBG_SOCKET, "sess: Not closing closed connection.");
     }
     sess->connected = 0;
 }
@@ -589,7 +589,7 @@ int ne__ssl_match_hostname(const char *cn, size_t cnlen, const char *hostname)
 {
     const char *dot;
 
-    NE_DEBUG(NE_DBG_SSL, "ssl: Match common name '%s' against '%s'\n",
+    NE_DEBUG(NE_DBG_SSL, "ssl: Match common name '%s' against '%s'",
              cn, hostname);
 
     if (strncmp(cn, "*.", 2) == 0 && cnlen > 2

@@ -450,7 +450,7 @@ static void get_gss_name(gss_name_t *server, const char *hostname)
     ne_free(token.value);
     
     if (GSS_ERROR(major)) {
-        NE_DEBUG(NE_DBG_HTTPAUTH, "gssapi: gss_import_name failed.\n");
+        NE_DEBUG(NE_DBG_HTTPAUTH, "gssapi: gss_import_name failed.");
         *server = GSS_C_NO_NAME;
     }
 }
@@ -495,10 +495,10 @@ static int continue_negotiate(auth_session *sess, const char *token,
             return -1;
         }
         input.value = bintoken;
-        NE_DEBUG(NE_DBG_HTTPAUTH, "gssapi: Continuation token [%s]\n", token);
+        NE_DEBUG(NE_DBG_HTTPAUTH, "gssapi: Continuation token [%s]", token);
     }
     else if (sess->gssctx != GSS_C_NO_CONTEXT) {
-        NE_DEBUG(NE_DBG_HTTPAUTH, "gssapi: Reset incomplete context.\n");
+        NE_DEBUG(NE_DBG_HTTPAUTH, "gssapi: Reset incomplete context.");
         gss_delete_sec_context(&minor, &sess->gssctx, GSS_C_NO_BUFFER);
     }
 
@@ -522,7 +522,7 @@ static int continue_negotiate(auth_session *sess, const char *token,
     }
 
     if (major == GSS_S_CONTINUE_NEEDED || major == GSS_S_COMPLETE) {
-        NE_DEBUG(NE_DBG_HTTPAUTH, "gssapi: init_sec_context OK. (major=%d)\n",
+        NE_DEBUG(NE_DBG_HTTPAUTH, "gssapi: init_sec_context OK. (major=%d)",
                  major);
         ret = 0;
     } 
@@ -538,11 +538,11 @@ static int continue_negotiate(auth_session *sess, const char *token,
 
     if (output.length) {
         sess->gssapi_token = ne_base64(output.value, output.length);
-        NE_DEBUG(NE_DBG_HTTPAUTH, "gssapi: Output token: [%s]\n", 
+        NE_DEBUG(NE_DBG_HTTPAUTH, "gssapi: Output token: [%s]", 
                  sess->gssapi_token);
         gss_release_buffer(&minor, &output);
     } else {
-        NE_DEBUG(NE_DBG_HTTPAUTH, "gssapi: No output token.\n");
+        NE_DEBUG(NE_DBG_HTTPAUTH, "gssapi: No output token.");
     }
 
     return ret;
@@ -586,7 +586,7 @@ static int verify_negotiate_response(struct auth_request *req, auth_session *ses
     ptr++;
 
     if (strlen(ptr) == 0) {
-        NE_DEBUG(NE_DBG_HTTPAUTH, "gssapi: No token in Negotiate response!\n");
+        NE_DEBUG(NE_DBG_HTTPAUTH, "gssapi: No token in Negotiate response!");
         ne_free(duphdr);
         return NE_OK;
     }
@@ -596,7 +596,7 @@ static int verify_negotiate_response(struct auth_request *req, auth_session *ses
     if ((sep = strchr(ptr, ' ')) != NULL)
         *sep = '\0';
 
-    NE_DEBUG(NE_DBG_HTTPAUTH, "gssapi: Negotiate response token [%s]\n", ptr);
+    NE_DEBUG(NE_DBG_HTTPAUTH, "gssapi: Negotiate response token [%s]", ptr);
     ret = continue_negotiate(sess, ptr, &errmsg);
     if (ret) {
         ne_set_error(sess->sess, _("Negotiate response verification failure: %s"),
@@ -624,7 +624,7 @@ static int continue_sspi(auth_session *sess, int ntlm, const char *hdr)
     int status;
     char *response = NULL;
     
-    NE_DEBUG(NE_DBG_HTTPAUTH, "auth: SSPI challenge.\n");
+    NE_DEBUG(NE_DBG_HTTPAUTH, "auth: SSPI challenge.");
     
     if (!sess->sspi_context) {
         ne_uri uri = {0};
@@ -648,7 +648,7 @@ static int continue_sspi(auth_session *sess, int ntlm, const char *hdr)
     if (response && *response) {
         sess->sspi_token = response;
         
-        NE_DEBUG(NE_DBG_HTTPAUTH, "auth: SSPI challenge [%s]\n", sess->sspi_token);
+        NE_DEBUG(NE_DBG_HTTPAUTH, "auth: SSPI challenge [%s]", sess->sspi_token);
     }
 
     return 0;
@@ -679,7 +679,7 @@ static int verify_sspi(struct auth_request *req, auth_session *sess,
         ptr++;
 
     if (*ptr == '\0') {
-        NE_DEBUG(NE_DBG_HTTPAUTH, "auth: No token in SSPI response!\n");
+        NE_DEBUG(NE_DBG_HTTPAUTH, "auth: No token in SSPI response!");
         return NE_OK;
     }
 
@@ -717,12 +717,12 @@ static int parse_domain(auth_session *sess, const char *domain)
                                            ++sess->ndomains *
                                            sizeof(*sess->domains));
                 sess->domains[sess->ndomains - 1] = absolute.path;
-                NE_DEBUG(NE_DBG_HTTPAUTH, "auth: Using domain %s from %s\n",
+                NE_DEBUG(NE_DBG_HTTPAUTH, "auth: Using domain %s from %s",
                          absolute.path, token);
                 absolute.path = NULL;
             }
             else {
-                NE_DEBUG(NE_DBG_HTTPAUTH, "auth: Ignoring domain %s\n",
+                NE_DEBUG(NE_DBG_HTTPAUTH, "auth: Ignoring domain %s",
                          token);
             }
 
@@ -767,7 +767,7 @@ static int ntlm_challenge(auth_session *sess, int attempt,
 {
     int status;
     
-    NE_DEBUG(NE_DBG_HTTPAUTH, "auth: NTLM challenge.\n");
+    NE_DEBUG(NE_DBG_HTTPAUTH, "auth: NTLM challenge.");
     
     if (!parms->opaque && (!sess->ntlm_context || (attempt > 1))) {
         char password[NE_ABUFSIZ];
@@ -860,7 +860,7 @@ static int digest_challenge(auth_session *sess, int attempt,
     
     if (parms->got_qop) {
 	/* What type of qop are we to apply to the message? */
-	NE_DEBUG(NE_DBG_HTTPAUTH, "auth: Got qop, using 2617-style.\n");
+	NE_DEBUG(NE_DBG_HTTPAUTH, "auth: Got qop, using 2617-style.");
 	sess->nonce_count = 0;
         sess->qop = auth_qop_auth;
     } else {
@@ -897,16 +897,16 @@ static int digest_challenge(auth_session *sess, int attempt,
 	    ne_md5_process_bytes(sess->cnonce, strlen(sess->cnonce), a1);
 	    ne_md5_finish_ascii(a1, sess->h_a1);
             ne_md5_destroy_ctx(a1);
-	    NE_DEBUG(NE_DBG_HTTPAUTH, "auth: Session H(A1) is [%s]\n", sess->h_a1);
+	    NE_DEBUG(NE_DBG_HTTPAUTH, "auth: Session H(A1) is [%s]", sess->h_a1);
 	} else {
 	    ne_md5_finish_ascii(tmp, sess->h_a1);
-	    NE_DEBUG(NE_DBG_HTTPAUTH, "auth: H(A1) is [%s]\n", sess->h_a1);
+	    NE_DEBUG(NE_DBG_HTTPAUTH, "auth: H(A1) is [%s]", sess->h_a1);
 	}
         ne_md5_destroy_ctx(tmp);
 	
     }
     
-    NE_DEBUG(NE_DBG_HTTPAUTH, "auth: Accepting digest challenge.\n");
+    NE_DEBUG(NE_DBG_HTTPAUTH, "auth: Accepting digest challenge.");
 
     return 0;
 }
@@ -932,7 +932,7 @@ static int inside_domain(auth_session *sess, const char *req_uri)
         inside = strncmp(uri.path, d, strlen(d)) == 0;
     }
     
-    NE_DEBUG(NE_DBG_HTTPAUTH, "auth: '%s' is inside auth domain: %d.\n", 
+    NE_DEBUG(NE_DBG_HTTPAUTH, "auth: '%s' is inside auth domain: %d.", 
              uri.path, inside);
     ne_uri_free(&uri);
     
@@ -968,7 +968,7 @@ static char *request_digest(auth_session *sess, struct auth_request *req)
     ne_md5_process_bytes(req->uri, strlen(req->uri), a2);
     ne_md5_finish_ascii(a2, a2_md5_ascii);
     ne_md5_destroy_ctx(a2);
-    NE_DEBUG(NE_DBG_HTTPAUTH, "auth: H(A2): %s\n", a2_md5_ascii);
+    NE_DEBUG(NE_DBG_HTTPAUTH, "auth: H(A2): %s", a2_md5_ascii);
 
     /* Now, calculation of the Request-Digest.
      * The first section is the regardless of qop value
@@ -1113,7 +1113,7 @@ static int verify_digest_response(struct auth_request *req, auth_session *sess,
 
     pnt = hdr = ne_strdup(value);
     
-    NE_DEBUG(NE_DBG_HTTPAUTH, "auth: Got Auth-Info header: %s\n", value);
+    NE_DEBUG(NE_DBG_HTTPAUTH, "auth: Got Auth-Info header: %s", value);
 
     while (tokenize(&pnt, &key, &val, NULL, 0) == 0) {
 	val = ne_shave(val, "\"");
@@ -1139,7 +1139,7 @@ static int verify_digest_response(struct auth_request *req, auth_session *sess,
     if (qop == auth_qop_none) {
         /* The 2069-style A-I header only has the entity and nextnonce
          * parameters. */
-        NE_DEBUG(NE_DBG_HTTPAUTH, "auth: 2069-style A-I header.\n");
+        NE_DEBUG(NE_DBG_HTTPAUTH, "auth: 2069-style A-I header.");
     }
     else if (!rspauth || !cnonce || !nc) {
         ret = NE_ERROR;
@@ -1213,7 +1213,7 @@ static int verify_digest_response(struct auth_request *req, auth_session *sess,
 
     /* Check for a nextnonce */
     if (nextnonce != NULL) {
-	NE_DEBUG(NE_DBG_HTTPAUTH, "auth: Found nextnonce of [%s].\n", nextnonce);
+	NE_DEBUG(NE_DBG_HTTPAUTH, "auth: Found nextnonce of [%s].", nextnonce);
         ne_free(sess->nonce);
 	sess->nonce = ne_strdup(nextnonce);
         sess->nonce_count = 0;
@@ -1341,7 +1341,7 @@ static int auth_challenge(auth_session *sess, int attempt,
                 continue;
 	    }
             
-            NE_DEBUG(NE_DBG_HTTPAUTH, "auth: Got '%s' challenge.\n", proto->name);
+            NE_DEBUG(NE_DBG_HTTPAUTH, "auth: Got '%s' challenge.", proto->name);
             chall = insert_challenge(&challenges, proto);
             chall->handler = hdl;
 
@@ -1350,14 +1350,14 @@ static int auth_challenge(auth_session *sess, int attempt,
                  * paramater token doesn't match the 2617 auth-param
                  * grammar: */
                 chall->opaque = ne_shave(ne_token(&pnt, ','), " \t");
-                NE_DEBUG(NE_DBG_HTTPAUTH, "auth: %s opaque parameter '%s'\n",
+                NE_DEBUG(NE_DBG_HTTPAUTH, "auth: %s opaque parameter '%s'",
                          proto->name, chall->opaque);
                 if (!pnt) break; /* stop parsing at end-of-string. */
             }
 	    continue;
 	} else if (chall == NULL) {
 	    /* Ignore pairs for an unknown challenge. */
-            NE_DEBUG(NE_DBG_HTTPAUTH, "auth: Ignored parameter: %s = %s\n", key, val);
+            NE_DEBUG(NE_DBG_HTTPAUTH, "auth: Ignored parameter: %s = %s", key, val);
 	    continue;
 	}
 
@@ -1403,10 +1403,10 @@ static int auth_challenge(auth_session *sess, int attempt,
     /* Iterate through the challenge list (which is sorted from
      * strongest to weakest) attempting to accept each one. */
     for (chall = challenges; chall != NULL; chall = chall->next) {
-        NE_DEBUG(NE_DBG_HTTPAUTH, "auth: Trying %s challenge...\n",
+        NE_DEBUG(NE_DBG_HTTPAUTH, "auth: Trying %s challenge...",
                  chall->protocol->name);
         if (chall->protocol->challenge(sess, attempt, chall, &errmsg) == 0) {
-            NE_DEBUG(NE_DBG_HTTPAUTH, "auth: Accepted %s challenge.\n", 
+            NE_DEBUG(NE_DBG_HTTPAUTH, "auth: Accepted %s challenge.", 
                      chall->protocol->name);
             sess->protocol = chall->protocol;
             break;
@@ -1414,7 +1414,7 @@ static int auth_challenge(auth_session *sess, int attempt,
     }
 
     if (!sess->protocol) {
-        NE_DEBUG(NE_DBG_HTTPAUTH, "auth: No challenges accepted.\n");
+        NE_DEBUG(NE_DBG_HTTPAUTH, "auth: No challenges accepted.");
         ne_set_error(sess->sess, _(sess->spec->error_noauth),
                      errmsg ? errmsg->data : _("could not parse challenge"));
     }
@@ -1443,7 +1443,7 @@ static void ah_create(ne_request *req, void *session, const char *method,
         struct auth_request *areq = ne_calloc(sizeof *areq);
         struct auth_handler *hdl;
         
-        NE_DEBUG(NE_DBG_HTTPAUTH, "ah_create, for %s\n", sess->spec->resp_hdr);
+        NE_DEBUG(NE_DBG_HTTPAUTH, "ah_create, for %s", sess->spec->resp_hdr);
         
         areq->method = method;
         areq->uri = uri;
@@ -1468,7 +1468,7 @@ static void ah_pre_send(ne_request *r, void *cookie, ne_buffer *request)
     if (sess->protocol && req) {
 	char *value;
 
-        NE_DEBUG(NE_DBG_HTTPAUTH, "auth: Sending '%s' response.\n",
+        NE_DEBUG(NE_DBG_HTTPAUTH, "auth: Sending '%s' response.",
                  sess->protocol->name);
 
         value = sess->protocol->response(sess, req);
@@ -1535,7 +1535,7 @@ static int ah_post_send(ne_request *req, void *cookie, const ne_status *status)
 	       auth_hdr) {
         /* note above: allow a 401 in response to a CONNECT request
          * from a proxy since some buggy proxies send that. */
-	NE_DEBUG(NE_DBG_HTTPAUTH, "auth: Got challenge (code %d).\n", status->code);
+	NE_DEBUG(NE_DBG_HTTPAUTH, "auth: Got challenge (code %d).", status->code);
 	if (!auth_challenge(sess, areq->attempt++, auth_hdr)) {
 	    ret = NE_RETRY;
 	} else {

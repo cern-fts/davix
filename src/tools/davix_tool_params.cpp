@@ -186,8 +186,9 @@ int parse_davix_options_generic(const std::string &opt_filter,
         switch(ret){
             case DEBUG_OPT:
                 p.debug = true;
-                davix_set_log_level(LOG_ALL ^ LOG_BODY ^ LOG_XML);
-                davix_set_log_debug(true);
+                // max log level
+                setLogLevel(DAVIX_LOG_TRACE);
+                setLogScope(DAVIX_LOG_SCOPE_ALL | DAVIX_LOG_SCOPE_NEON | DAVIX_LOG_BODY | DAVIX_LOG_XML);
                 break;
             case 'E':
                  p.cred_path = SanitiseTildedPath(optarg);
@@ -236,24 +237,11 @@ int parse_davix_options_generic(const std::string &opt_filter,
                 display_version();
                 return 1;
             case TRACE_OPTIONS:
-                p.trace_list = StrUtil::tokenSplit(std::string(optarg), ",");
-
-                unsigned int i;
-
-                if(is_number(p.trace_list[0]) ){
-                        if(atoi(p.trace_list[0].c_str() ) > DAVIX_LOG_ALL){
-                            std::cerr << "Trace level must be a decimal digit up to " << DAVIX_LOG_ALL << std::endl;
-                            return -1;
-                        }else{ // is a number <= max log level
-                            i = 1;
-                            davix_set_trace_level(atoi(p.trace_list[0].c_str()));
-                        }
-                }else{ // not a number
-                    i = 0;
+                {
+                    setLogScope(0);
+                    setLogScope(std::string(optarg));
+                    setLogLevel(DAVIX_LOG_TRACE);
                 }
-                
-                for(; i < p.trace_list.size(); ++i)
-                    davix_set_log_scope(p.trace_list[i]);
                 break;
             case 'x':
                 p.params.setProxyServer(std::string(optarg, 0, 2048));

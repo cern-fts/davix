@@ -132,12 +132,12 @@ int ne_version_match(int major, int minor)
         || (NE_VERSION_MAJOR == 0 && NE_VERSION_MINOR != minor);
 }
 
-void ne_davix_logger(int level, const char *msg, ...)
+void ne_davix_logger(int scope, const char *msg, ...)
 {
-    if( (davix_get_log_level() & level)) {
+    if( (davix_get_log_level() >= DAVIX_LOG_DEBUG) && (davix_get_log_scope() & scope) ) {
         va_list va;
         va_start(va, msg);
-        davix_vlogger(level, msg, va);
+        davix_vlogger2(scope, DAVIX_LOG_TRACE, msg, va);
         va_end(va);
     }
 }

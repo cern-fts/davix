@@ -126,7 +126,7 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
         }
         delete request;
 
-        DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_GRID, "Hop: {}",
+        DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_GRID, "Hop: {}",
                      nextSrc);
 
         request = context.createRequest(nextSrc, &internalError);
@@ -155,7 +155,7 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
                 break;
             }
 
-            DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_GRID, "Got delegation endpoint: {}",
+            DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_GRID, "Got delegation endpoint: {}",
                          delegationEndpoint.c_str());
 
             std::string dlg_id = DavixDelegation::delegate(context, delegationEndpoint,
@@ -165,7 +165,7 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
                 break;
             }
 
-            DAVIX_SLOG(DAVIX_LOG_VERBOSE, LOG_GRID, "Got delegation ID {}",
+            DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_GRID, "Got delegation ID {}",
                          dlg_id.c_str());
 
             dlg_id.clear();

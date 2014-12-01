@@ -881,10 +881,10 @@ static void dump_request(const char *request)
 
     hdr_debug[strlen(hdr_debug)-2] = '\0';
 
-    if (davix_get_log_level() & NE_DBG_HTTPPLAIN) { 
+    if (davix_get_log_scope() & NE_DBG_HTTPPLAIN) {
 	/* Display everything mode */
         NE_DEBUG(NE_DBG_HTTP, "%s\n", hdr_debug);
-    } else if (davix_get_log_level() & NE_DBG_HTTP) {
+    } else if (davix_get_log_scope() & NE_DBG_HTTP) {
 	/* Blank out the Authorization paramaters */
 	char *reqdebug = ne_strdup(hdr_debug), *pnt = reqdebug;
 	while ((pnt = strstr(pnt, "Authorization: ")) != NULL) {
@@ -1215,7 +1215,7 @@ int ne_begin_request(ne_request *req)
 
     /* Build the request string, and send it */
     data = build_request(req);
-    if(davix_get_log_level() & NE_DBG_HTTP){
+    if(davix_get_log_scope() & NE_DBG_HTTP){
         dump_request(data->data);
     }
     ret = send_request(req, data);

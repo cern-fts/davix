@@ -19,7 +19,7 @@ void logStr(int scope, int log_level, const std::string & str);
 class ScopeLogger{
 public:
     ScopeLogger(int scopep, const char* msgp) : scope(0), msg(NULL){
-        if( davix_get_log_level() >= DAVIX_LOG_TRACE){
+        if( getLogLevel() >= DAVIX_LOG_TRACE && getLogScope() & scopep){
             msg = msgp;
             scope = scopep;
             logStr(scope, davix_get_log_level(), ::Davix::fmt::format(" -> {}",msg));
@@ -41,7 +41,7 @@ private:
 
 #define DAVIX_SLOG(lvl, scope, msg, ...) \
     do{ \
-    if( (davix_get_log_level() & scope) && (davix_get_trace_level() >= lvl) ){ \
+    if( (::Davix::getLogScope() & scope) && (::Davix::getLogLevel() >= lvl) ){ \
         ::Davix::logStr(scope, lvl, ::Davix::fmt::format(msg, ##__VA_ARGS__)); } \
     }while(0)
 

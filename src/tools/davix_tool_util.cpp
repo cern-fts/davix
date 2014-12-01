@@ -378,8 +378,9 @@ void printProgressBar(const int percent, dav_ssize_t bytes_transfered, dav_size_
     unsigned long baudrate = 0;
 
 
+    int out_fd = STDERR_FILENO;
     struct winsize win;
-    ioctl(STDOUT_FILENO, TIOCGWINSZ, &win);
+    ioctl(out_fd, TIOCGWINSZ, &win);
 
     if(diff_time == 0)
         baudrate = 0;

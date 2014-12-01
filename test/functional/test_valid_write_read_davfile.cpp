@@ -25,8 +25,8 @@ int main(int argc, char** argv){
 
     srand(time(NULL));
 
-    davix_set_log_scope(SCOPE_ALL);
-    davix_set_log_level(LOG_ALL);
+    setLogScope(DAVIX_LOG_SCOPE_ALL);
+    setLogLevel(DAVIX_LOG_ALL);
 
     RequestParams p;
     Context context;

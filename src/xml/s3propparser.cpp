@@ -31,13 +31,13 @@ struct S3PropParser::Internal{
 
         // check element, if collection name add first entry
         if( StrUtil::compare_ncase(col_prop, elem) ==0){
-            DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_XML, "collection found", elem.c_str());
+            DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "collection found", elem.c_str());
             property.clear();
         }
 
         // check element, if new entry clear current entry
         if( StrUtil::compare_ncase(delimiter_prop, elem) ==0){
-            DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_XML, "new element found", elem.c_str());
+            DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "new element found", elem.c_str());
             property.clear();
         }
 
@@ -54,24 +54,24 @@ struct S3PropParser::Internal{
 
         // new name new fileprop
         if(StrUtil::compare_ncase(name_prop, elem) ==0){
-            DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_XML, "new element {}", elem.c_str());
+            DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "new element {}", elem.c_str());
             property.filename = current;
         }
 
         if(StrUtil::compare_ncase(size_prop, elem) ==0){
             try{
                 dav_size_t size = toType<dav_size_t, std::string>()(current);
-                DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_XML, "element size {}", size);
+                DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "element size {}", size);
                 property.info.size = size;
             }catch(...){
-                DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_XML, "Unable to parse element size");
+                DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "Unable to parse element size");
             }
         }
 
         // found bucket name
         // push it as first item to identify bucket
         if( StrUtil::compare_ncase(col_prop, elem) ==0){
-            DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_XML, "push collection", elem.c_str());
+            DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "push collection", elem.c_str());
             property.filename = current;
             property.info.mode |=  S_IFDIR;
             property.info.mode &= ~(S_IFREG);
@@ -80,7 +80,7 @@ struct S3PropParser::Internal{
 
         // check element, if end entry push new entry
         if( StrUtil::compare_ncase(delimiter_prop, elem) ==0){
-            DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_XML, "push new element {}", elem.c_str());
+            DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "push new element {}", elem.c_str());
             props.push_back(property);
         }
 

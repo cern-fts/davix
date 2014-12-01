@@ -23,6 +23,7 @@
 #define DAVIX_LOGGER_C_H
 
 
+// log level
 #define DAVIX_LOG_CRITICAL  1
 #define DAVIX_LOG_WARNING   2
 #define DAVIX_LOG_VERBOSE   3
@@ -30,33 +31,21 @@
 #define DAVIX_LOG_TRACE     5
 #define DAVIX_LOG_ALL       6
 
-#define LOG_FILE       (1<<0)
-#define LOG_POSIX      (1<<1)
-#define LOG_XML        (1<<2)
-#define LOG_SSL        (1<<3)
-#define LOG_HEADER     (1<<4)
-#define LOG_BODY       (1<<5)
-#define LOG_CHAIN      (1<<6)
-#define LOG_CORE       (1<<7)
-#define LOG_GRID       (1<<8)
-#define LOG_SOCKET     (1<<9)
-#define LOG_LOCKS      (1<<10) 
-#define LOG_SCOPE_NEON (1<<29)
-#define LOG_ALL        (~(0x00) ^ LOG_SCOPE_NEON)
-
-/* define log scopes */
-extern const char* SCOPE_FILE;      /* Davix file interface */
-extern const char* SCOPE_POSIX;     /* Davix posix interface */
-extern const char* SCOPE_XML;       /* XML and parser output */
-extern const char* SCOPE_SSL;       /* SSL and cert details */
-extern const char* SCOPE_HEADER;    /* Request and respond headers */
-extern const char* SCOPE_BODY;      /* HTTP bodies */
-extern const char* SCOPE_CHAIN;     /* IO chains info */
-extern const char* SCOPE_CORE;      /* Config and misc info */
-extern const char* SCOPE_GRID;      /* Misc info from 3rd parties */
-extern const char* SCOPE_SOCKET;    /* Socket info */
-extern const char* SCOPE_LOCKS;     /* WebDAV locking info */
-extern const char* SCOPE_ALL;       /* All of the above */
+// log scope
+#define DAVIX_LOG_FILE       (1<<0)
+#define DAVIX_LOG_POSIX      (1<<1)
+#define DAVIX_LOG_XML        (1<<2)
+#define DAVIX_LOG_SSL        (1<<3)
+#define DAVIX_LOG_HEADER     (1<<4)
+#define DAVIX_LOG_BODY       (1<<5)
+#define DAVIX_LOG_CHAIN      (1<<6)
+#define DAVIX_LOG_CORE       (1<<7)
+#define DAVIX_LOG_GRID       (1<<8)
+#define DAVIX_LOG_SOCKET     (1<<9)
+#define DAVIX_LOG_LOCKS      (1<<10)
+#define DAVIX_LOG_HTTP       (1<<11)
+#define DAVIX_LOG_SCOPE_NEON (1<<29)
+#define DAVIX_LOG_SCOPE_ALL        (~(0x00))
 
 /* set the davix log mask */
 /* everything that is not coverred by the mask is dropped */
@@ -65,9 +54,11 @@ void davix_set_log_level(int log_mask);
 /* get current log mask */
 int davix_get_log_level();
 
-void davix_logger(int log_mask, const char * msg, ...);
 
-void davix_vlogger(int log_mask, const char* msg, va_list args);
+void davix_vlogger2(int log_mask, int log_level, const char* msg, va_list args);
+
+
+int davix_get_log_scope();
 
 /* @brief setup a log handler
 

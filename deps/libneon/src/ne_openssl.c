@@ -394,7 +394,7 @@ static ne_ssl_certificate *make_chain(STACK_OF(X509) *chain)
     int n, count = sk_X509_num(chain);
     ne_ssl_certificate *top = NULL, *current = NULL;
     
-    NE_DEBUG(NE_DBG_SSL, "Chain depth: %d\n", count);
+    NE_DEBUG(NE_DBG_SSL, "Chain depth: %d", count);
 
     for (n = 0; n < count; n++) {
         ne_ssl_certificate *cert = ne_malloc(sizeof *cert);
@@ -405,8 +405,9 @@ static ne_ssl_certificate *make_chain(STACK_OF(X509) *chain)
             fprintf(ne_debug_stream, "Cert #%d:\n", n);
             X509_print_fp(ne_debug_stream, cert->subject);
         }*/
-        if((davix_get_log_level() & NE_DBG_SSL)){
-            NE_DEBUG(NE_DBG_SSL, "Cert #%d:\n", n);
+        if((davix_get_log_scope() & NE_DBG_SSL)
+           && (davix_get_log_level() >= DAVIX_LOG_DEBUG)){
+            NE_DEBUG(NE_DBG_SSL, "Cert #%d:", n);
             X509_print_fp(stderr, cert->subject);
         }
 

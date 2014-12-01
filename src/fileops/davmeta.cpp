@@ -153,7 +153,7 @@ dav_ssize_t getStatInfo(Context & c, const Uri & url, const RequestParams * p,
             break;
 
     }
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CHAIN, " davix_stat <-");
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, " davix_stat <-");
     return ret;
 }
 
@@ -207,7 +207,7 @@ int internal_delete_resource(Context & c, const Uri & url, const RequestParams &
 
 
 int internal_make_collection(Context & c, const Uri & url, const RequestParams & params){
-    DAVIX_SCOPE_TRACE(LOG_CHAIN, mkcoll);
+    DAVIX_SCOPE_TRACE(DAVIX_LOG_CHAIN, mkcoll);
 
     int ret=-1;
     DavixError* tmp_err=NULL;
@@ -230,7 +230,7 @@ int internal_make_collection(Context & c, const Uri & url, const RequestParams &
 
 
 int internal_move(Context & c, const Uri & url, const RequestParams & params, const std::string & target_url){
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CHAIN, " -> move");
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, " -> move");
     int ret=-1;
     DavixError* tmp_err=NULL;
     RequestParams _params(params);
@@ -248,7 +248,7 @@ int internal_move(Context & c, const Uri & url, const RequestParams & params, co
 
     }
 
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CHAIN, " move <-");
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, " move <-");
     checkDavixError(&tmp_err);
     return ret;
 }
@@ -256,7 +256,7 @@ int internal_move(Context & c, const Uri & url, const RequestParams & params, co
 
 
 int internal_checksum(Context & c, const Uri & url, const RequestParams *p, std::string & checksm, const std::string & chk_algo){
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CHAIN, " -> checksum");
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, " -> checksum");
     int ret=-1;
     DavixError* tmp_err=NULL;
     RequestParams params(p);
@@ -274,7 +274,7 @@ int internal_checksum(Context & c, const Uri & url, const RequestParams *p, std:
             if(compare_ncase(chk_algo, "MD5") == 0){
                 std::string  chk;
                 if(req.getAnswerHeader("Content-MD5", chk) == true){
-                    DAVIX_SLOG(DAVIX_LOG_TRACE, LOG_CHAIN, "Extract MD5 checksum in base64 {}", chk);
+                    DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CHAIN, "Extract MD5 checksum in base64 {}", chk);
                     chk= Base64::base64_decode(chk);
                     std::swap(checksm, chk);
                     return 0;
@@ -311,7 +311,7 @@ int internal_checksum(Context & c, const Uri & url, const RequestParams *p, std:
            ss << "checksum calculation for " << chk_algo << "not supported for " << url;
            throw DavixException(davix_scope_meta(), StatusCode::OperationNonSupported, ss.str());
 
-           DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CHAIN, " checksum <-");
+           DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, " checksum <-");
            return 0;
         }
     }
@@ -337,7 +337,7 @@ dav_ssize_t incremental_listdir_parsing(HttpRequest* req, XMLPropParser * parser
 }
 
 bool wedav_get_next_property(Ptr::Scoped<DirHandle> & handle, std::string & name_entry, StatInfo & info){
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CHAIN, " -> wedav_get_next_property");
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, " -> wedav_get_next_property");
     const size_t read_size = 2048;
 
 
@@ -515,7 +515,7 @@ StatInfo & S3MetaOps::statInfo(IOChainContext & iocontext, StatInfo & st_info){
 
 
 bool s3_get_next_property(Ptr::Scoped<DirHandle> & handle, std::string & name_entry, StatInfo & info){
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CHAIN, " -> s3_get_next_property");
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, " -> s3_get_next_property");
     const size_t read_size = 2048;
 
 

@@ -25,8 +25,12 @@
 #include <cstdarg>
 #include <utils/davix_types.hpp>
 
-DAVIX_C_DECL_BEGIN
 
+
+namespace Davix{
+
+
+// log level
 #define DAVIX_LOG_CRITICAL  1
 #define DAVIX_LOG_WARNING   2
 #define DAVIX_LOG_VERBOSE   3
@@ -34,22 +38,23 @@ DAVIX_C_DECL_BEGIN
 #define DAVIX_LOG_TRACE     5
 #define DAVIX_LOG_ALL       6
 
-#define LOG_FILE       (1<<0)
-#define LOG_POSIX      (1<<1)
-#define LOG_XML        (1<<2)
-#define LOG_SSL        (1<<3)
-#define LOG_HEADER     (1<<4)
-#define LOG_BODY       (1<<5)
-#define LOG_CHAIN      (1<<6)
-#define LOG_CORE       (1<<7)
-#define LOG_GRID       (1<<8)
-#define LOG_SOCKET     (1<<9)
-#define LOG_LOCKS      (1<<10)
-#define LOG_HTTP       (1<<11)
-#define LOG_SCOPE_NEON (1<<29)
-#define LOG_ALL        (~(0x00) ^ LOG_SCOPE_NEON)
+// log scope
+#define DAVIX_LOG_FILE       (1<<0)
+#define DAVIX_LOG_POSIX      (1<<1)
+#define DAVIX_LOG_XML        (1<<2)
+#define DAVIX_LOG_SSL        (1<<3)
+#define DAVIX_LOG_HEADER     (1<<4)
+#define DAVIX_LOG_BODY       (1<<5)
+#define DAVIX_LOG_CHAIN      (1<<6)
+#define DAVIX_LOG_CORE       (1<<7)
+#define DAVIX_LOG_GRID       (1<<8)
+#define DAVIX_LOG_SOCKET     (1<<9)
+#define DAVIX_LOG_LOCKS      (1<<10)
+#define DAVIX_LOG_HTTP       (1<<11)
+#define DAVIX_LOG_SCOPE_NEON (1<<29)
+#define DAVIX_LOG_SCOPE_ALL        (~(0x00))
 
-// define log scopes
+// define string for log scopes
 extern const char* SCOPE_FILE;      // Davix file interface
 extern const char* SCOPE_HTTP;      // Http Request Scope
 extern const char* SCOPE_POSIX;     // Davix posix interface
@@ -63,6 +68,58 @@ extern const char* SCOPE_GRID;      // Misc info from 3rd parties
 extern const char* SCOPE_SOCKET;    // Socket info
 extern const char* SCOPE_LOCKS;     // WebDAV locking info
 extern const char* SCOPE_ALL;       // All of the above
+
+
+// log a string to the Davix logger system
+void logStr(int scope, int log_level, const std::string & str);
+
+///
+/// \brief getLogLevel
+/// \return current davix Logger level
+///
+int getLogLevel();
+///
+/// \brief setLogLevel
+/// \param logLevel
+///
+/// define davix logger level
+void setLogLevel(int logLevel);
+
+///
+/// \brief getLogScope
+/// \return current davix scope mask
+///
+int getLogScope();
+
+///
+/// \brief setLogScope
+///
+///  define davix scope mask.
+///  Only the componnents covered by the mask will be available via the logging
+void setLogScope(int mask);
+///
+/// \brief setLogScope
+/// \param scope
+/// define davix scope mask from a list of string separated by comma
+void setLogScope(const std::string & scope);
+
+
+///
+/// \brief getScopeName
+/// \param scope_mask
+/// \return scope name of the first scope that match the mask
+///  if none match, return ALL
+///
+std::string getScopeName(int scope_mask);
+
+} // Davix
+
+
+
+
+DAVIX_C_DECL_BEGIN
+
+
 
 /// set the davix log mask
 /// everything that is not coverred by the mask is dropped
@@ -87,20 +144,6 @@ extern DAVIX_EXPORT void davix_vlogger(int log_mask, const char* msg, va_list ar
 /// @param userdata : callback userdata
 extern DAVIX_EXPORT void davix_set_log_handler( void (*fhandler)(void* userdata, int mgs_level, const char* msg), void* userdata);
 
-/// Compare command line tools --trace options with scopes and set mask
-void davix_set_log_scope(const std::string & scope);
-
-std::string davix_get_log_scope(int scope_mask);
-
-void davix_set_log_debug(bool dbg);
-
-bool davix_get_log_debug();    
-
-/// Set debug level
-void davix_set_trace_level(int trace_level);
-
-/// Get debug level
-int davix_get_trace_level();
 
 DAVIX_C_DECL_END
 

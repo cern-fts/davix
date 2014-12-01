@@ -49,7 +49,7 @@ const char *ne_version_string(void);
 int ne_version_match(int major, int minor);
 
 
-void ne_davix_logger(int level, const char* msg, ...);
+void ne_davix_logger(int scope, const char* msg, ...);
 
 /* Feature codes: */
 #define NE_FEATURE_SSL (1) /* SSL/TLS support */
@@ -78,16 +78,16 @@ int ne_has_support(int feature);
 
 /* Debugging masks. */
 /* Map to DAVIX logging masks. */
-#define NE_DBG_SOCKET (LOG_SOCKET | LOG_SCOPE_NEON) /* raw socket */
-#define NE_DBG_HTTP (LOG_HEADER | LOG_SCOPE_NEON) /* HTTP request/response handling */
-#define NE_DBG_XML (LOG_XML | LOG_SCOPE_NEON) /* XML parser */
-#define NE_DBG_HTTPAUTH (LOG_SSL | LOG_SCOPE_NEON) /* HTTP authentication (hiding credentials) */
-#define NE_DBG_HTTPPLAIN (LOG_SSL | LOG_SCOPE_NEON) /* plaintext HTTP authentication */
-#define NE_DBG_LOCKS (LOG_LOCKS | LOG_SCOPE_NEON) /* WebDAV locking */
-#define NE_DBG_XMLPARSE (LOG_XML | LOG_SCOPE_NEON) /* low-level XML parser */
-#define NE_DBG_HTTPBODY (LOG_BODY | LOG_SCOPE_NEON) /* HTTP response body blocks */
-#define NE_DBG_SSL (LOG_SSL | LOG_SCOPE_NEON) /* SSL/TLS */
-#define NE_DBG_CORE (LOG_CORE | LOG_SCOPE_NEON) 
+#define NE_DBG_SOCKET (DAVIX_LOG_SOCKET ) /* raw socket */
+#define NE_DBG_HTTP (DAVIX_LOG_HEADER ) /* HTTP request/response handling */
+#define NE_DBG_XML (DAVIX_LOG_XML ) /* XML parser */
+#define NE_DBG_HTTPAUTH (DAVIX_LOG_SSL ) /* HTTP authentication (hiding credentials) */
+#define NE_DBG_HTTPPLAIN (DAVIX_LOG_SSL ) /* plaintext HTTP authentication */
+#define NE_DBG_LOCKS (DAVIX_LOG_LOCKS ) /* WebDAV locking */
+#define NE_DBG_XMLPARSE (DAVIX_LOG_XML ) /* low-level XML parser */
+#define NE_DBG_HTTPBODY (DAVIX_LOG_BODY ) /* HTTP response body blocks */
+#define NE_DBG_SSL (DAVIX_LOG_SSL ) /* SSL/TLS */
+#define NE_DBG_CORE (DAVIX_LOG_SOCKET )
 #define NE_DBG_FLUSH (1<<30) /* always flush debugging */
 
 /* Send debugging output to 'stream', for all of the given debug

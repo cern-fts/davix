@@ -52,7 +52,7 @@ struct ContextInternal
         _context_flags(0),
         _hook_list()
     {
-            DAVIX_SLOG(DAVIX_LOG_DEBUG, LOG_CORE, "libdavix path {}", getLibPath());
+            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "libdavix path {}", getLibPath());
     }
 
     ContextInternal(const ContextInternal & orig):
@@ -138,7 +138,7 @@ void Context::loadModule(const std::string &name){
         loadGridProfile(*this);
         return;
     }
-    DAVIX_SLOG(DAVIX_LOG_WARNING, LOG_CORE, "No module named {} found", name);
+    DAVIX_SLOG(DAVIX_LOG_WARNING, DAVIX_LOG_CORE, "No module named {} found", name);
 }
 
 HookList & Context::getHookList(){

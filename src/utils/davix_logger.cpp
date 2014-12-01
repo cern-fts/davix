@@ -23,10 +23,24 @@
 #include <cstdarg>
 #include <davix_internal.hpp>
 #include <utils/davix_logger.hpp>
+#include <string_utils/stringutils.hpp>
 
 
 const int BUFFER_SIZE =4096;
 const char* prefix = "DAVIX";
+
+static int internal_log_level = 0;
+static int internal_log_scope = DAVIX_LOG_SCOPE_ALL;
+
+static void (*_fhandler)(void* userdata, int mgs_level, const char* msg) = NULL;
+static void* _log_handler_userdata = NULL;
+
+
+
+
+
+
+namespace Davix{
 
 const char* SCOPE_FILE =    "file";
 const char* SCOPE_HTTP =    "http";
@@ -45,6 +59,7 @@ const char* SCOPE_ALL =     "all";
 
 const std::string davix_log_scope[] = {
     SCOPE_FILE,
+    SCOPE_HTTP,
     SCOPE_POSIX,
     SCOPE_XML,
     SCOPE_SSL,
@@ -58,75 +73,182 @@ const std::string davix_log_scope[] = {
     SCOPE_ALL
 };
 
-
 const int num_of_scopes = sizeof(davix_log_scope)/sizeof(*davix_log_scope);
-std::vector<std::string> log_scope_vec;
-
-static int internal_log_mask = 0;
-static int internal_trace_level = DAVIX_LOG_ALL;
-static bool debug = false;
-
-static void (*_fhandler)(void* userdata, int mgs_level, const char* msg) = NULL;
-static void* _log_handler_userdata = NULL;
 
 
+int getLogLevel(){
+    return internal_log_level;
+}
 
+void setLogLevel(int logLevel){
+    internal_log_level = logLevel;
+}
 
+int getLogScope(){
+    return internal_log_scope;
+}
 
+void setLogScope(int log_scope){
+    internal_log_scope = log_scope;
+}
 
-namespace Davix{
+void setLogScope(const std::string &scope){
+    int mask=0;
+    std::vector<std::string> vec_scopes;
+    StrUtil::split( scope, ',', vec_scopes);
+
+    for(std::vector<std::string>::iterator it = vec_scopes.begin(); it < vec_scopes.end(); ++it){
+        for(int i = 0; i < num_of_scopes; ++i){
+            if(StrUtil::compare_ncase((*it), davix_log_scope[i]) == 0){
+                switch(i){
+                    case 0:
+                        mask |= DAVIX_LOG_FILE;
+                        break;
+                    case 1:
+                        mask |= DAVIX_LOG_HTTP;
+                        break;
+                    case 2:
+                        mask |= DAVIX_LOG_POSIX;
+                        break;
+                    case 3:
+                        mask |= DAVIX_LOG_XML;
+                        break;
+                    case 4:
+                        mask |= DAVIX_LOG_SSL;
+                        break;
+                    case 5:
+                        mask |= DAVIX_LOG_HEADER;
+                        break;
+                    case 6:
+                        mask |= DAVIX_LOG_BODY;
+                        break;
+                    case 7:
+                        mask |= DAVIX_LOG_CHAIN;
+                        break;
+                    case 8:
+                        mask |= DAVIX_LOG_CORE;
+                        break;
+                    case 9:
+                        mask |= DAVIX_LOG_GRID;
+                        break;
+                    case 10:
+                        mask |= DAVIX_LOG_SOCKET;
+                        break;
+                    case 11:
+                        mask |= DAVIX_LOG_LOCKS;
+                        break;
+                    case 12:
+                        mask |= DAVIX_LOG_SCOPE_ALL;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+    setLogScope(mask);
+}
+
 
 
 void logStr(int scope, int log_level, const std::string & str){
     if(_fhandler){
         _fhandler(_log_handler_userdata, log_level, str.c_str());
     }else{
-        if(scope & LOG_SCOPE_NEON){ // libneon logs
-            fmt::print(stdout, "{}", str);
+        if(scope & DAVIX_LOG_HEADER){ // log header, we do not want headers to be prefixed
+            fmt::print(stderr, "{}\n", str);
         }else{  // davix logs
-            fmt::print(stdout,"{}({}): {}\n", prefix, davix_get_log_scope(scope), str);
+            fmt::print(stderr,"{}({}): {}\n", prefix, getScopeName(scope), str);
         }
     }
 }
+
+
+
+std::string getScopeName(int scope_mask){
+    std::string scope_name;
+    switch(scope_mask){
+        case DAVIX_LOG_FILE:
+            scope_name = SCOPE_FILE;
+            break;
+        case DAVIX_LOG_HTTP:
+            scope_name = SCOPE_HTTP;
+            break;
+        case DAVIX_LOG_POSIX:
+            scope_name = SCOPE_POSIX;
+            break;
+        case DAVIX_LOG_XML:
+            scope_name = SCOPE_XML;
+            break;
+        case DAVIX_LOG_SSL:
+            scope_name = SCOPE_SSL;
+            break;
+        case DAVIX_LOG_HEADER:
+            scope_name = SCOPE_HEADER;
+            break;
+        case DAVIX_LOG_BODY:
+            scope_name = SCOPE_BODY;
+            break;
+        case DAVIX_LOG_CHAIN:
+            scope_name = SCOPE_CHAIN;
+            break;
+        case DAVIX_LOG_CORE:
+            scope_name = SCOPE_CORE;
+            break;
+        case DAVIX_LOG_GRID:
+            scope_name = SCOPE_GRID;
+            break;
+        case DAVIX_LOG_SOCKET:
+            scope_name = SCOPE_SOCKET;
+            break;
+        case DAVIX_LOG_LOCKS:
+            scope_name = SCOPE_LOCKS;
+            break;
+        default:
+            scope_name = "Unknown";
+            break;
+    }
+    return scope_name;
+}
+
+
+
+
 
 
 } // Davix
 
 
 
-
-
-
-
-
-
-
-
-
+//
+// Old legacy API
+//
 
 
 extern "C" void davix_set_log_level(int log_mask){
-    internal_log_mask = log_mask;
+    internal_log_level = log_mask;
 }
 
 extern "C" int davix_get_log_level(){
-    return internal_log_mask;
+    return internal_log_level;
 }
 
 
+extern "C" int davix_get_log_scope(){
+    return internal_log_scope;
+}
 
-static void internal_log_handler(int log_mask, const char * msg,  va_list ap){
+
+extern "C" void davix_vlogger2(int log_mask, int log_level, const char* msg, va_list ap){
     char buffer[BUFFER_SIZE];
 
     vsnprintf(buffer, BUFFER_SIZE-1, msg, ap);
     buffer[BUFFER_SIZE-1] ='\0';
-    Davix::logStr(log_mask, log_mask, buffer);
+    Davix::logStr(log_mask, log_level, buffer);
 }
 
-
-
 extern "C" void davix_vlogger(int log_mask, const char* msg, va_list va){
-    internal_log_handler(log_mask, msg, va);
+    davix_vlogger2(log_mask, DAVIX_LOG_DEBUG, msg, va);
 }
 
 
@@ -144,108 +266,7 @@ extern "C"  void davix_set_log_handler( void (*fhandler)(void* userdata, int mgs
     _log_handler_userdata = userdata;
 }
 
-void davix_set_trace_level(int trace_level){
-    internal_trace_level = trace_level;
-}
-
-int davix_get_trace_level(){
-    return internal_trace_level;
-}
-
-void davix_set_log_scope(const std::string & scope){
-    for(int i = 0; i < num_of_scopes; ++i){
-        if(scope.compare(davix_log_scope[i]) == 0){
-            switch(i){
-                case 0:
-                    internal_log_mask |= LOG_FILE;
-                    break;
-                case 1:  
-                    internal_log_mask |= LOG_POSIX;
-                    break;
-                case 2:  
-                    internal_log_mask |= LOG_XML;
-                    break;
-                case 3:  
-                    internal_log_mask |= LOG_SSL;
-                    break;
-                case 4:  
-                    internal_log_mask |= LOG_HEADER;
-                    break;
-                case 5:  
-                    internal_log_mask |= LOG_BODY;
-                    break;
-                case 6:  
-                    internal_log_mask |= LOG_CHAIN;
-                    break;
-                case 7:  
-                    internal_log_mask |= LOG_CORE;
-                    break;
-                case 8:  
-                    internal_log_mask |= LOG_GRID;
-                    break;
-                case 9:  
-                    internal_log_mask |= LOG_SOCKET;
-                    break;
-                case 10:  
-                    internal_log_mask |= LOG_LOCKS;
-                    break;
-                case 11:  
-                    internal_log_mask |= LOG_ALL;
-                    break;                    
-            }
-        }
-    }
-}
-
-std::string davix_get_log_scope(int scope_mask){
-    std::string scope_name;
-    switch(scope_mask){
-        case LOG_FILE:
-            scope_name = SCOPE_FILE;
-            break;
-        case LOG_POSIX:
-            scope_name = SCOPE_POSIX;
-            break;
-        case LOG_XML:
-            scope_name = SCOPE_XML;
-            break;
-        case LOG_SSL:
-            scope_name = SCOPE_SSL;
-            break;
-        case LOG_HEADER:
-            scope_name = SCOPE_HEADER;
-            break;
-        case LOG_BODY:
-            scope_name = SCOPE_BODY;
-            break;
-        case LOG_CHAIN:
-            scope_name = SCOPE_CHAIN;
-            break;
-        case LOG_CORE:
-            scope_name = SCOPE_CORE;
-            break;
-        case LOG_GRID:
-            scope_name = SCOPE_GRID;
-            break;
-        case LOG_SOCKET:
-            scope_name = SCOPE_SOCKET;
-            break;
-        case LOG_LOCKS:
-            scope_name = SCOPE_LOCKS;
-            break;
-        case LOG_ALL:
-            scope_name = SCOPE_ALL;
-            break;
-    }
-    return scope_name;    
-}
 
 
-void davix_set_log_debug(bool dbg){
-    debug = dbg;
-}
 
-bool davix_get_log_debug(){
-    return debug;
-}
 

@@ -60,6 +60,9 @@ public:
     Duration(Type::UInt64 seconds);
     ~Duration();
 
+    /// return duration value in seconds
+    Type::UInt64 toTimeValue() const;
+
 private:
     struct timespec t;
     friend class Clock;

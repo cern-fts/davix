@@ -345,47 +345,56 @@ bool is_number(const std::string& s)
 
 
 void TransferMonitor(const Uri & url, Transfer::Type op_type, dav_ssize_t bytes_transfered, dav_size_t total_size, Transfer::Type tool_type){
-    static bool printOnce = true;
+    static bool print_header= false;
+    static Chrono::TimePoint start_time, last_time;
+    Chrono::TimePoint current_time;
+    Chrono::Clock clk(Chrono::Clock::Monolitic, Chrono::Clock::Second);
 
-    if(isatty(fileno(stdout)) && (op_type == tool_type)){
-        int progress = 0;
-        if(printOnce){
-            std::string type;
-            
-            (op_type == Transfer::Type::Read) ? type = "Read" : type = "Write";
+    int out_fd = STDERR_FILENO; // output fd -> stderr
 
-            std::cout << "Performing " << type << " operation on: " << url << std::endl;
-            printOnce = false;
-        }
-        
-        if(total_size == 0)
-            progress = 0;
-        else
-            progress = (static_cast<float>(bytes_transfered) / static_cast<float>(total_size)) * 100;
-
-        printProgressBar(progress, bytes_transfered, total_size);
+    if(isatty(out_fd) ==0 || (op_type != tool_type)){
+        return;
     }
+
+    int progress = 0;
+    dav_size_t baudrate =0;
+    current_time = clk.now();
+
+    if(print_header == false){
+        std::string type = ((op_type == Transfer::Type::Read) ?  "Read" : "Write");
+        last_time = start_time = clk.now();
+
+        std::cout << "Performing " << type << " operation on: " << url << std::endl;
+        print_header = true;
+    }else{
+        // tty display is slow
+        // display progression only every second
+        if(current_time < (last_time + Chrono::Duration(1)))
+            return;
+    }
+    last_time = clk.now();
+    Chrono::Duration diff_time = last_time - start_time;
+    if( diff_time.toTimeValue() > 0){
+        baudrate = bytes_transfered/(diff_time.toTimeValue());
+    }
+
+
+    if(total_size > 0){
+        progress = (static_cast<float>(bytes_transfered) / static_cast<float>(total_size)) * 100;
+    }
+
+    printProgressBar(out_fd, progress, bytes_transfered, total_size, baudrate);
 }
 
-void printProgressBar(const int percent, dav_ssize_t bytes_transfered, dav_size_t total_size){
+void printProgressBar(int out_fd, int percent, dav_ssize_t bytes_transfered, dav_size_t total_size, dav_size_t baudrate){
     std::string bar;
     std::string unit;
     static bool printOnce = true;
-    static Chrono::TimePoint start_time = Chrono::Clock(Chrono::Clock::Monolitic).now();
-    Chrono::TimePoint current_time = Chrono::Clock(Chrono::Clock::Monolitic).now();
-    unsigned long diff_time = current_time.toTimestamp() - start_time.toTimestamp();
-    int size = (total_size == 0) ? 0 : total_size;
-    unsigned long baudrate = 0;
+    dav_size_t size = total_size;
 
-
-    int out_fd = STDERR_FILENO;
     struct winsize win;
     ioctl(out_fd, TIOCGWINSZ, &win);
 
-    if(diff_time == 0)
-        baudrate = 0;
-    else
-        baudrate = (bytes_transfered/diff_time);
     
     // w = width of bar, r = 100/w
     int w = (win.ws_row/1.5);    
@@ -427,7 +436,7 @@ void printProgressBar(const int percent, dav_ssize_t bytes_transfered, dav_size_
     std::cout << baudrate << unit << "/s" <<
         "                     " << std::flush;
 
-    if(bytes_transfered == size){
+    if(static_cast<dav_size_t>(bytes_transfered) == size){
         std::cout << std::endl;
         printOnce = false;
     }

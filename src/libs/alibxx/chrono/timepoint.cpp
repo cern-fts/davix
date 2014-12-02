@@ -79,6 +79,10 @@ Duration::~Duration(){
 
 }
 
+Type::UInt64 Duration::toTimeValue() const{
+    return t.tv_sec;
+}
+
 
 
 

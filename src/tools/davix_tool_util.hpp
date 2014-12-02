@@ -74,7 +74,7 @@ bool is_number(const std::string& s);
 
 void TransferMonitor(const Uri & url, Transfer::Type op_type, dav_ssize_t bytes_transfered, dav_size_t total_size, Transfer::Type tool_type);
 
-void printProgressBar(const int percent, dav_ssize_t bytes_transfered, dav_size_t total_size);
+void printProgressBar(int out_fd, int percent, dav_ssize_t bytes_transfered, dav_size_t total_size, dav_size_t baudrate);
 
 int configureMonitorCB(OptParams & opts, Transfer::Type type);
 

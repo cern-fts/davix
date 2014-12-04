@@ -153,7 +153,7 @@ private:
     ne_request * _req;
     boost::shared_ptr<Uri>  _current, _orig;
     // req info
-    size_t _number_try;
+    int _number_try;
     // read info
     dav_ssize_t _total_read_size, _last_read;
 

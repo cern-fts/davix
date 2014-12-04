@@ -410,6 +410,7 @@ int NEONRequest::negotiateRequest(DavixError** err){
                     endRequest(NULL);
                     return startRequest(err);
                 }
+		end_status = 0;
                 break;
             default:
                 end_status = 0;

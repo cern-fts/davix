@@ -376,8 +376,8 @@ int NEONRequest::negotiateRequest(DavixError** err){
                 break;
             case 401: // authentification requested, do retry
                 ne_discard_response(_req);
-                _last_read =0;
                 end_status = ne_end_request(_req);
+                _last_read = -1;
 
                 if( end_status != NE_RETRY){
                     req_started= req_running = false;
@@ -703,11 +703,11 @@ int NEONRequest::endRequest(DavixError** err){
 
     if(_req  && req_running == true){
 
-        if(_last_read > 0){ // if read content, discard it
+        if(_last_read != 0){ // if read content, discard it
             DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_HTTP, "(EndRequest)(Libneon) Operation incomplete, kill the connection");
             ne_abort_request(_req);
             eradicateSession();
-            _last_read =0;
+            _last_read = -1;
 
         }
         status = ne_end_request(_req);

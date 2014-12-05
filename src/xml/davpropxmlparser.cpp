@@ -32,7 +32,8 @@ namespace Davix {
 
 const Xml::XmlPTree prop_node(Xml::ElementStart, "propstat");
 const Xml::XmlPTree prop_collection(Xml::ElementStart, "collection");
-static Xml::XmlPTree* webDavTree = NULL;
+static Ptr::Scoped<Xml::XmlPTree> webDavTree;
+
 static boost::once_flag _l_init = BOOST_ONCE_INIT;
 
 struct DavPropXMLParser::DavxPropXmlIntern{
@@ -178,7 +179,7 @@ static void check_status(DavPropXMLParser::DavxPropXmlIntern & par, const std::s
 void init_webdavTree(){
 
     // Nodes list
-    webDavTree = new Xml::XmlPTree(Xml::ElementStart, "multistatus");
+    webDavTree.reset(new Xml::XmlPTree(Xml::ElementStart, "multistatus"));
     webDavTree->addChild(Xml::XmlPTree(Xml::ElementStart, "response"));
     Xml::XmlPTree::iterator it = webDavTree->beginChildren();
     it->addChild(Xml::XmlPTree(Xml::ElementStart, "href", Xml::XmlPTree::ChildrenList(),  (void*) &check_href));

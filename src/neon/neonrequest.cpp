@@ -742,6 +742,11 @@ const char* NEONRequest::getAnswerContent(){
     return NULL;
 }
 
+
+std::vector<char> & NEONRequest::getAnswerContentVec(){
+    return _vec;
+}
+
 dav_ssize_t NEONRequest::getAnswerSizeFromHeaders() const{
     std::string str_file_size;
     long size=-1;

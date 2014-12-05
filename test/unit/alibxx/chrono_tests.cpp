@@ -7,7 +7,7 @@
 #include <cstring>
 
 #undef A_LIB_NAMESPACE
-#define A_LIB_NAMESPACE Testpp
+#define A_LIB_NAMESPACE Davix
 
 #include <alibxx/alibxx.hpp>
 
@@ -17,7 +17,7 @@ using namespace std;
 // instanciate and play with gates
 TEST(ALibxx, ChronoTest){
 
-    using namespace Testpp::Chrono;
+    using namespace Davix::Chrono;
 
     TimePoint pp;
     ASSERT_EQ(0, pp.toTimestamp());

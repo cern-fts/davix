@@ -19,7 +19,8 @@ int main(int argc, char** argv){
     if(tmp_err){
         std::cerr << " error in request : " << tmp_err->getErrMsg() << std::endl;
     }else{
-        std::string v(r.getAnswerContent(), r.getAnswerSize());
+        std::vector<char> body = r.getAnswerContentVec();
+        std::string v(body.begin(), body.end());
         std::cout << "content "<< v << std::endl;
     }
 

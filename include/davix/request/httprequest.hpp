@@ -243,8 +243,11 @@ public:
     /// finish a request stated with beginRequest
     int endRequest(DavixError** err);
 
-    /// get a reference to the internal anwser content buffer
+    /// return the body of the answer
     const char* getAnswerContent();
+
+    /// return the body of the answer in a vector
+    std::vector<char>  & getAnswerContentVec();
 
     /// get content length
     /// @return content size, return -1 if chunked
@@ -276,10 +279,10 @@ public:
 
 
     /// @deprecated not in use anymore
-    HttpCacheToken* extractCacheToken() const;
+    DEPRECATED(HttpCacheToken* extractCacheToken() const);
 
     /// @deprecated not in use anymore
-    void useCacheToken(const HttpCacheToken* token);
+    DEPRECATED(void useCacheToken(const HttpCacheToken* token));
 
     /// set a HttpRequest flag
     void setFlag(const RequestFlag::RequestFlag flag, bool value);

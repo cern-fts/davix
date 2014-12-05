@@ -365,7 +365,7 @@ int davix_remove_posix(Context* context, const RequestParams * params, const std
                     ret =0;
                 }else{
                     ret = -1;
-                    throw DavixException(davix_scope_davOps_str(), StatusCode::IsNotADirectory, fmt::format(" {} is not a directory, impossible to unlink\n", uri));
+                    throw DavixException(davix_scope_davOps_str(), StatusCode::IsADirectory, fmt::format(" {} is a directory, impossible to unlink\n", uri));
                 }
             }else{ // file, rock & roll
                 if(directory == false){

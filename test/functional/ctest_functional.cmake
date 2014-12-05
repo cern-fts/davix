@@ -13,13 +13,13 @@ set(dav_lcgdm_base "davs://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam" CACHE STR
 #set(http_lcgdm_base "https://lxfsra10a01.cern.ch/dpm/cern.ch/home/dteam" CACHE STRING "DPM test instance to use" )
 
 set(http_storm_base "https://gridhttps-storm-atlas.cr.cnaf.infn.it:8443/webdav/dteam/davix-tests/" CACHE STRING "Storm test instance to use")
-set(http_dynaFed_base "http://federation.desy.de/fed/everywhere/")
+set(http_dynaFed_base "http://federation.desy.de/fed/dynafeds_demo/everywhere/")
 set(http_lcgdm_file "${http_lcgdm_base}/davix-tests/testread0011")
 set(http_dynaFed_file "${http_dynaFed_base}/file_1005.txt")
 
-set(metalink_url "http://download.documentfoundation.org/libreoffice/stable/4.3.0/deb/x86_64/LibreOffice_4.3.0_Linux_x86-64_deb.tar.gz")
-set(metalink3_url "http://releases.ubuntu.com/releases/14.04/ubuntu-14.04-desktop-amd64.metalink")
-set(metalink_url_direct "http://download.documentfoundation.org/libreoffice/stable/4.3.0/deb/x86_64/LibreOffice_4.3.0_Linux_x86-64_deb_langpack_fr.tar.gz.meta4")
+set(metalink_url "http://download.documentfoundation.org/libreoffice/stable/4.3.4/deb/x86_64/LibreOffice_4.3.4_Linux_x86-64_deb.tar.gz")
+set(metalink3_url "http://download.documentfoundation.org/libreoffice/stable/4.3.4/deb/x86_64/LibreOffice_4.3.4_Linux_x86-64_deb_helppack_en-US.tar.gz.metalink")
+set(metalink_url_direct "http://download.documentfoundation.org/libreoffice/stable/4.3.4/deb/x86_64/LibreOffice_4.3.4_Linux_x86-64_deb_helppack_en-US.tar.gz.meta4")
 
 test_dav_endpoint_ronly( ${http_desy_base} "proxy")
 test_valid_write_read_generic("${http_desy_base}" "proxy")
@@ -37,10 +37,11 @@ test_valid_write_read_generic("${http_lcgdm_base}" "proxy")
 test_collection("${dav_lcgdm_base}" "proxy")
 
 # Storm tests
-test_dav_endpoint_rw( "${http_storm_base}" "proxy")
-test_valid_delete_all("${http_storm_base}"  "proxy")
-test_valid_read_generic("${http_storm_base}" "proxy")
-test_valid_write_read_generic("${http_storm_base}" "proxy")
+## Disable storm test no valid gate !
+#test_dav_endpoint_rw( "${http_storm_base}" "proxy")
+#test_valid_delete_all("${http_storm_base}"  "proxy")
+#test_valid_read_generic("${http_storm_base}" "proxy")
+#test_valid_write_read_generic("${http_storm_base}" "proxy")
 
 # localhost generic server, ex : "davserver -n -D /tmp"
 test_dav_endpoint_rw("http://localhost:8008" "")

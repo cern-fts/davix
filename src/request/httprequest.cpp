@@ -193,6 +193,11 @@ const char* HttpRequest::getAnswerContent(){
     return d_ptr->getAnswerContent();
 }
 
+std::vector<char> & HttpRequest::getAnswerContentVec(){
+    return d_ptr->getAnswerContentVec();
+}
+
+
 /// get content length
 dav_ssize_t HttpRequest::getAnswerSize() const{
     return d_ptr->getAnswerSize();

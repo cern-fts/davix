@@ -118,6 +118,9 @@ public:
       get a reference to the current result for synchronous full request
      */
     const char* getAnswerContent();
+
+    std::vector<char> & getAnswerContentVec();
+
     /**
      * get content length
      **/

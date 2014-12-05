@@ -63,20 +63,22 @@ private:
   execute a propfind/stat request on a given HTTP request handle
   return a vector with the content of the request if success
 */
-const char* req_webdav_propfind(HttpRequest* req, DavixError** err){
+std::vector<char> req_webdav_propfind(HttpRequest* req, DavixError** err){
     DavixError* tmp_err=NULL;
     int ret =-1;
+    std::vector<char> res;
 
     req->addHeaderField("Depth","0");
     req->setRequestMethod("PROPFIND");
     if( (ret = req->executeRequest(&tmp_err)) ==0){
         ret = davixRequestToFileStatus(req, davix_scope_stat_str(), &tmp_err);
+        res.swap(req->getAnswerContentVec());
     }
 
     if(ret != 0)
         DavixError::propagateError(err, tmp_err);
 
-    return req->getAnswerContent();
+    return res;
 }
 
 
@@ -90,9 +92,9 @@ int dav_stat_mapper_webdav(Context &context, const RequestParams* params, const 
         req.setParameters(params);
 
         TRY_DAVIX{
-            const char * res = req_webdav_propfind(&req, &tmp_err);
+            std::vector<char> body = req_webdav_propfind(&req, &tmp_err);
             if(!tmp_err){
-               parser.parseChunk((const char*) res, strlen(res));
+               parser.parseChunk(&(body[0]), body.size());
 
                 std::deque<FileProperties> & props = parser.getProperties();
                 if( props.size() < 1){
@@ -157,7 +159,7 @@ dav_ssize_t getStatInfo(Context & c, const Uri & url, const RequestParams * p,
     return ret;
 }
 
-void parse_creation_deletion_result(int code, const Uri & u, const std::string & scope, const std::string & msg){
+void parse_creation_deletion_result(int code, const Uri & u, const std::string & scope, const std::vector<char> & body){
     switch(code){
         case 200:
         case 201:
@@ -168,7 +170,7 @@ void parse_creation_deletion_result(int code, const Uri & u, const std::string &
         case 207:{
             // parse webdav
             DavPropXMLParser parser;
-            parser.parseChunk(msg);
+            parser.parseChunk(&(body[0]), body.size());
             if( parser.getProperties().size() > 0){
                const int sub_code = parser.getProperties().at(0).req_status;
                if(httpcodeIsValid(sub_code) == false){
@@ -192,11 +194,11 @@ int internal_delete_resource(Context & c, const Uri & url, const RequestParams &
     int ret=-1;
     RequestParams _params(params);
 
-    DeleteRequest req(c,url, &tmp_err);
+    DeleteRequest req(c, url, &tmp_err);
     req.setParameters(_params);
     if(!tmp_err){
          if( ( ret=req.executeRequest(&tmp_err)) == 0){
-                parse_creation_deletion_result(req.getRequestCode(), url, davix_scope_rm_str(), req.getAnswerContent());
+                parse_creation_deletion_result(req.getRequestCode(), url, davix_scope_rm_str(), req.getAnswerContentVec());
          }
     }
 
@@ -219,7 +221,7 @@ int internal_make_collection(Context & c, const Uri & url, const RequestParams &
         req.setParameters(params);
         req.setRequestMethod("MKCOL");
         if( (ret = req.executeRequest(&tmp_err)) == 0){
-                parse_creation_deletion_result(req.getRequestCode(),  url, davix_scope_mkdir_str(), req.getAnswerContent());
+                parse_creation_deletion_result(req.getRequestCode(),  url, davix_scope_mkdir_str(), req.getAnswerContentVec());
         }
 
     }
@@ -243,7 +245,7 @@ int internal_move(Context & c, const Uri & url, const RequestParams & params, co
         req.addHeaderField("Destination", target_url);
 
         if( (ret = req.executeRequest(&tmp_err)) == 0){
-                parse_creation_deletion_result(req.getRequestCode(),  url, davix_scope_mv_str(), req.getAnswerContent());
+                parse_creation_deletion_result(req.getRequestCode(),  url, davix_scope_mv_str(), req.getAnswerContentVec());
         }
 
     }

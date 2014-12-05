@@ -29,7 +29,8 @@ int main(int argc, char** argv){
     r.setParameters(params);
     r.addHeaderField("Depth", "1");
 
-    std::string v(req_webdav_propfind(&r, &tmp_err));
+    std::vector<char> body = req_webdav_propfind(&r, &tmp_err);
+    std::string v(body.begin(), body.end());
 
     std::cout << "content "<< v << std::endl;
     if(tmp_err){

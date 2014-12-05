@@ -92,7 +92,7 @@ private:
     @param req : http request where to executethe query
     @return vector of characters of the query content
   */
-const char* req_webdav_propfind(HttpRequest* req, DavixError** err);
+std::vector<char> req_webdav_propfind(HttpRequest* req, DavixError** err);
 
 
 

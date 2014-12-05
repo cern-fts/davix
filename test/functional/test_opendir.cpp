@@ -38,10 +38,11 @@ int main(int argc, char** argv){
 
     if(d != NULL){
         struct dirent * dir = NULL;
+        int n =0;
         do{
             dir= pos.readdir(d, &tmp_err);
             if(dir)
-                std::cout << "N° " << n <<" file : " << dir->d_name << std::endl;
+                std::cout << "N° " << ++n <<" file : " << dir->d_name << std::endl;
         }while(dir!= NULL);
 
         pos.closedir(d, NULL);

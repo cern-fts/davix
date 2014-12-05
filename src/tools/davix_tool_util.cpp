@@ -352,7 +352,7 @@ void TransferMonitor(const Uri & url, Transfer::Type op_type, dav_ssize_t bytes_
 
     int out_fd = STDERR_FILENO; // output fd -> stderr
 
-    if(isatty(out_fd) ==0 || (op_type != tool_type)){
+    if((op_type != tool_type)){
         return;
     }
 
@@ -369,7 +369,7 @@ void TransferMonitor(const Uri & url, Transfer::Type op_type, dav_ssize_t bytes_
     }else{
         // tty display is slow
         // display progression only every second
-        if(current_time < (last_time + Chrono::Duration(1)))
+        if(current_time < (last_time + Chrono::Duration(1)) && (static_cast<dav_size_t>(bytes_transfered) != total_size))
             return;
     }
     last_time = clk.now();
@@ -384,6 +384,23 @@ void TransferMonitor(const Uri & url, Transfer::Type op_type, dav_ssize_t bytes_
     }
 
     printProgressBar(out_fd, progress, bytes_transfered, total_size, baudrate);
+}
+
+
+std::string normalize_unit(dav_size_t bytes){
+    const char * tab_unit[] = { "", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei" };
+    size_t size_tab_unit= sizeof(tab_unit)/sizeof(const char*);
+
+    const dav_size_t factor = 10*1024;
+    size_t i;
+
+    for(i =0; i < size_tab_unit; ++i){
+        if(bytes < factor){
+            break;
+        }
+        bytes /= 1024;
+    }
+    return fmt::format("{}{}", bytes, tab_unit[i]);
 }
 
 void printProgressBar(int out_fd, int percent, dav_ssize_t bytes_transfered, dav_size_t total_size, dav_size_t baudrate){
@@ -407,33 +424,15 @@ void printProgressBar(int out_fd, int percent, dav_ssize_t bytes_transfered, dav
         }
     }
 
-    if((total_size / 1024) >= (1024 * 1024 * 1024)){
-        size /= (1024 * 1024 * 1024);
-        bytes_transfered /= (1024 * 1024 * 1024);
-        baudrate /= (1024 * 1024 * 1024);
-        unit = "GB";
-    }else if(total_size >= (1024 * 1024 * 1024)){
-        size /= (1024 * 1024);
-        bytes_transfered /= (1024 * 1024);
-        baudrate /= (1024 * 1024);
-        unit = "MB";
-    }else if(total_size >= (1024 * 1024)){
-        size /= 1024;
-        bytes_transfered /= 1024;
-        baudrate /= 1024;
-        unit = "KB";
-    }else{
-        unit = "B";
-    }
     if((percent == 100) && !printOnce)
         return;
 
     std::cout << "\r" "[" << bar << "] ";
     std::cout.width(3);
     std::cout << percent << "%     " << 
-        bytes_transfered << "/" << size << unit;
+        normalize_unit(bytes_transfered) << 'B' << "/" << normalize_unit(size) << 'B';
     std::cout.width(10); 
-    std::cout << baudrate << unit << "/s" <<
+    std::cout << normalize_unit(baudrate) << "B/s" <<
         "                     " << std::flush;
 
     if(static_cast<dav_size_t>(bytes_transfered) == size){
@@ -444,9 +443,14 @@ void printProgressBar(int out_fd, int percent, dav_ssize_t bytes_transfered, dav
 
 int configureMonitorCB(OptParams & opts, Transfer::Type type){
     using namespace std;
-    TransferMonitorCB transMonCB;
-    transMonCB = bind(&Tool::TransferMonitor, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, type);
-    opts.params.setTransfertMonitorCb(transMonCB);
+
+    // active monitoring callback only if output != stdout and stderr is a terminal
+    if(opts.output_file_path.empty() == false
+       && isatty(STDERR_FILENO) ==1 ){
+        TransferMonitorCB transMonCB;
+        transMonCB = bind(&Tool::TransferMonitor, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, type);
+        opts.params.setTransfertMonitorCb(transMonCB);
+    }
 
     return 0;
 }

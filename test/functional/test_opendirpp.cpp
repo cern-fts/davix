@@ -38,11 +38,12 @@ int main(int argc, char** argv){
 
     if(d){
         struct dirent * dir = NULL;
+        int n =0;
         do{
             struct stat st;
             dir= pos.readdirpp(d, &st, &tmp_err);
             if(dir)
-                std::cout << "N° " << n <<" file : " << dir->d_name <<" len : " << st.st_size << " atime: "<< st.st_atime << " mode : "<< std::oct << st.st_mode;
+                std::cout << "N° " << ++n <<" file : " << dir->d_name <<" len : " << st.st_size << " atime: "<< st.st_atime << " mode : "<< std::oct << st.st_mode;
                 std::cout << " mtime : " << st.st_mtime ;
                 std::cout << " ctime : " << st.st_ctime << std::endl;
         }while(dir!= NULL);

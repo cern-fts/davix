@@ -7,7 +7,7 @@
 
 
 #undef A_LIB_NAMESPACE
-#define A_LIB_NAMESPACE Testpp
+#define A_LIB_NAMESPACE Davix
 
 #include <alibxx/alibxx.hpp>
 
@@ -23,7 +23,7 @@ TEST(ALibxx, CacheTest){
 
 
 
-    Testpp::Cache<std::string,  DummyStruct> cache;
+    Davix::Cache<std::string,  DummyStruct> cache;
 
     ASSERT_TRUE(cache.find("hello").get() == NULL);
 

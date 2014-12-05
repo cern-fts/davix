@@ -21,4 +21,7 @@ _ZN5Davix4HookINS_17HookReceiveHeaderEE7getTypeEPS2_
 _ZN5Davix4HookINS_19HookRequestPostExecEE7getTypeEPS2_
 _ZN5Davix4HookINS_18HookRequestPreExecEE7getTypeEPS2_
 _ZN5Davix4HookINS_14HookSendHeaderEE7getTypeEPS2_
+
+<!-- operator move inside scope, false positive, ABI preserved -->
+_ZlsRSoRKN5Davix3UriE
 </skip_symbols>

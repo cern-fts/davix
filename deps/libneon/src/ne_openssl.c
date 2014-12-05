@@ -412,6 +412,7 @@ static ne_ssl_certificate *make_chain(STACK_OF(X509) *chain)
             if(str_size > 0){
                     NE_DEBUG(NE_DBG_SSL,"%s",cert_str);
             }
+            BIO_free(mem);
         }
 
 //#endif

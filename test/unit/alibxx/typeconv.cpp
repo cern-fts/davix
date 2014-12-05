@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 
 #undef A_LIB_NAMESPACE
-#define A_LIB_NAMESPACE Testpp
+#define A_LIB_NAMESPACE Davix
 
 
 #include <alibxx/alibxx.hpp>
@@ -21,7 +21,7 @@ struct DummyStruct{
 
 // instanciate and play with gates
 TEST(ALibxx, StringToULong){
-    using namespace Testpp;
+    using namespace Davix;
     std::string str_ulong("123456");
     toType<unsigned long, std::string> conv;
 
@@ -35,7 +35,7 @@ TEST(ALibxx, StringToULong){
 
    try{
         std::string str2 = "random string";
-        Testpp::toType<unsigned long, std::string>()(str2);
+        Davix::toType<unsigned long, std::string>()(str2);
         FAIL();
     }catch(TypeConvException & e){
         // silent
@@ -44,7 +44,7 @@ TEST(ALibxx, StringToULong){
 
     try{
          std::string str2 = "-15";
-         Testpp::toType<unsigned long, std::string>()(str2);
+         Davix::toType<unsigned long, std::string>()(str2);
          FAIL();
      }catch(TypeConvException & e){
          // silent
@@ -66,7 +66,7 @@ TEST(ALibxx, StringToULong){
 
 // instanciate and play with gates
 TEST(ALibxx, StringToLong){
-    using namespace Testpp;
+    using namespace Davix;
     std::string str_long("123456");
     toType<long, std::string> conv;
 
@@ -80,7 +80,7 @@ TEST(ALibxx, StringToLong){
 
    try{
         std::string str2 = "random string";
-        Testpp::toType<long, std::string>()(str2);
+        Davix::toType<long, std::string>()(str2);
         FAIL();
     }catch(TypeConvException & e){
         // silent
@@ -97,7 +97,7 @@ TEST(ALibxx, StringToLong){
 
 // instanciate and play with gates
 TEST(ALibxx, StringToInt){
-    using namespace Testpp;
+    using namespace Davix;
     std::string str_int("123456");
     toType<int, std::string> conv;
 

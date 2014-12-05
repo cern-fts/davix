@@ -1,13 +1,41 @@
-Version - 0.3.6
+Version - 0.4.0
+** Bug Fixes
+    * [DMC-443] - Wrong section in .TH tag for libdavix.3
+    * [DMC-444] - Fix SSL Error related to too big digest (reported by Martin)
+    * [DMC-472] - Fix Davix follows redirection automatically even though redirectionSupport is switched off
+    * [DMC-501] - Fix SIGPIPE error with OpenSSL in Davix
+    * [DMC-518] - Fix POODLE vulnerability CVE-2014-3566 affects libneon, then davix
+    * [DMC-538] - Fix davix cmd line tool print an error in case of double authentication x509 -> login/password
+    * [DMC-547] - Update the functional tests
+    * [DMC-554] - Fix Thread-safety issue in the new davix logger system
+    * [DMC-564] - Fix issue: Libneon does not set OpenSSL thread callback for some plateforms ( Ubuntu )
+    * [DMC-571] - Fix compilation warnings on the libneon part
+    * [DMC-573] - Reinforce auto retry mechanism  (dCache Door problem)
+    * [DMC-581] - Solve portability problem under OSX/BSD due to the new hard timeout support
+    * [DMC-586] - Fix
+** Improvement
+    * [DMC-474] - Log response body on http 3rd party copies
+    * [DMC-476] - Delegation v2 support needed
+    * [DMC-503] - Implement checksum support for S3 interface via Davix::File::checksum
+    * [DMC-534] - Davix: re-design the logger to be more user friendly and easier to tune
+** New Feature
+    * [DMC-498] - S3 bucket creation support
+    * [DMC-499] - S3 checksum support
+    * [DMC-182] - Implement a list bucket feature for davix on the opendir/readdir model
+    * [DMC-505] - Hard timeout support
+    * [DMC-535] - Implement move operation in the File API
+    * [DMC-552] - DAVIX: improve PUT operation support in the file API
 
+
+Version - 0.3.6
 Bug fixs:
     * [LCGUTIL-418] - DAVIX: Solve OpenSSL issue with davix cmd line tools and password shell
     * [LCGUTIL-475] - davfile.getToFd does not return the number of bytes read, but 0 on success
     * [LCGUTIL-478] - Davix 32 bits ABI break problem
     * [LCGUTIL-480] - Davix maps badly http statuses to errno
 
-Version - 0.3.4
 
+Version - 0.3.4
 Bug fixs:
     * [LCGUTIL-410] - davix-cp help is not up to date and confusing
     * [LCGUTIL-411] - davix-cp does not support the profile features of the davix command line tool
@@ -17,7 +45,6 @@ Bug fixs:
 
 
 Version - 0.3.1
-
 Main changes:
 - Support for transparent fail-over based on Metalink, supported by all read I/O with HTTP
 - Multi-Range support compatible with TDavixFile/ROOT 5/6 
@@ -81,6 +108,7 @@ List Of JIRA tickets solved :
     * [LCGUTIL-381] - DAVIX: include man page for the software distribution
     * [LCGUTIL-394] - DAVIX: bad_alloc throw by davix in some case with dCache endpoints
     * [LCGUTIL-409] - DAVIX: implement POSIX partial write support with davix
+
 
 Version - 0.2.8
     * [LCGUTIL-197] - Davix : bug inside the vector request system : vector request split to "one" range can trigger parsing problem

@@ -51,6 +51,8 @@ private:
 // define
 template<typename HookType>
 inline void hookDefine(HookList & c,  const HookType & hook){
+    (void) c;
+    (void) hook;
     throw DavixException(std::string("davix::hook"), StatusCode::InvalidHook, "Invalid Hook type");
 }
 
@@ -73,6 +75,7 @@ inline void hookDefine(HookList &c, const RequestPreReceHook & hook){
 // get
 template<typename HookType>
 inline const HookType & hookGet(HookList & c){
+    (void) c;
     throw DavixException(std::string("davix::hook"), StatusCode::InvalidHook, "Invalid Hook type");
 }
 

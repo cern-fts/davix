@@ -28,18 +28,14 @@
 #include <davix_context_internal.hpp>
 
 
-#include <dlfcn.h>
-
-
-
-static const std::string _version = DAVIX_VERSION "-" DAVIX_VERSION_TAG;
-
-
-
 
 namespace Davix{
 
 struct LibPath;
+
+
+static const std::string _version = DAVIX_VERSION "-" DAVIX_VERSION_TAG;
+static LibPath lib_path;
 
 
 ///  Implementation f the core logic in davix
@@ -150,27 +146,22 @@ NEONSessionFactory & ContextExplorer::SessionFactoryFromContext(Context & c){
 }
 
 
+LibPath::LibPath(){
+    Dl_info shared_lib_infos;
+
+    // do an address resolution on a local function
+    // get this resolution to determine davix shared library path at runtime
+    if( dladdr((void*) &version, &shared_lib_infos) != 0){
+        path = shared_lib_infos.dli_fname;
+    }
+
+}
+
+
 const std::string & version(){
     return _version;
 }
 
-
-
-struct LibPath{
-    LibPath(){
-        Dl_info shared_lib_infos;
-
-        // do an address resolution on a local function
-        // get this resolution to determine davix shared library path at runtime
-        if( dladdr((void*) &version, &shared_lib_infos) != 0){
-            path = shared_lib_infos.dli_fname;
-        }
-
-    }
-
-    std::string path;
-
-} lib_path;
 
 
 const std::string & getLibPath(){

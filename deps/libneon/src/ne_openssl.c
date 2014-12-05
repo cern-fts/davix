@@ -400,15 +400,18 @@ static ne_ssl_certificate *make_chain(STACK_OF(X509) *chain)
         ne_ssl_certificate *cert = ne_malloc(sizeof *cert);
         populate_cert(cert, X509_dup(sk_X509_value(chain, n)));
 //#ifdef NE_DEBUGGING
-        /*
-        if (ne_debug_mask & NE_DBG_SSL) {
-            fprintf(ne_debug_stream, "Cert #%d:\n", n);
-            X509_print_fp(ne_debug_stream, cert->subject);
-        }*/
+
         if((davix_get_log_scope() & NE_DBG_SSL)
            && (davix_get_log_level() >= DAVIX_LOG_DEBUG)){
             NE_DEBUG(NE_DBG_SSL, "Cert #%d:", n);
-            X509_print_fp(stderr, cert->subject);
+            BIO *mem = BIO_new(BIO_s_mem());
+            X509_print(mem, cert->subject);
+            BIO_puts(mem, ""); // force \0
+            char* cert_str= NULL;
+            long  str_size = BIO_get_mem_data(mem, &cert_str);
+            if(str_size > 0){
+                    NE_DEBUG(NE_DBG_SSL,"%s",cert_str);
+            }
         }
 
 //#endif

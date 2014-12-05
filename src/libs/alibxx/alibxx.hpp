@@ -32,3 +32,8 @@
 // str
 #include "str/format.hpp"
 
+
+// crypto
+#include "crypto/base64.hpp"
+#include "crypto/hmacsha1.hpp"
+

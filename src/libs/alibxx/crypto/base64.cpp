@@ -18,16 +18,7 @@
  *
 */
 
-#include "base64.hpp"
 
-/*
-   base64.cpp and base64.hpp
-
-   Modified version from René Nyffenegger version
-
-   Public Domain
-
-*/
 
 #include "base64.hpp"
 #include <iostream>

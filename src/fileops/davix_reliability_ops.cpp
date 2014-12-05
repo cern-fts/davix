@@ -4,7 +4,7 @@
 #include <string_utils/stringutils.hpp>
 #include <utils/davix_logger_internal.hpp>
 #include <xml/metalinkparser.hpp>
-#include <base64/base64.hpp>
+#include <alibxx/crypto/base64.hpp>
 
 
 namespace Davix{

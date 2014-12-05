@@ -3,8 +3,8 @@
 #include <davix.hpp>
 #include <string_utils/stringutils.hpp>
 #include <tools/davix_tool_util.hpp>
-#include <base64/base64.hpp>
-#include <hmac_sha1/hmacsha1.hpp>
+#include <alibxx/crypto/base64.hpp>
+#include <alibxx/crypto/hmacsha1.hpp>
 #include <utils/davix_s3_utils.hpp>
 #include <gtest/gtest.h>
 

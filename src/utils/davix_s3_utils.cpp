@@ -4,8 +4,8 @@
 #include <cstring>
 #include <davix_internal.hpp>
 #include <string_utils/stringutils.hpp>
-#include <base64/base64.hpp>
-#include <hmac_sha1/hmacsha1.hpp>
+#include <alibxx/crypto/base64.hpp>
+#include <alibxx/crypto/hmacsha1.hpp>
 
 
 namespace Davix{

@@ -361,7 +361,7 @@ void TransferMonitor(const Uri & url, Transfer::Type op_type, dav_ssize_t bytes_
     current_time = clk.now();
 
     if(print_header == false){
-        std::string type = ((op_type == Transfer::Type::Read) ?  "Read" : "Write");
+        std::string type = ((op_type == Transfer::Read) ?  "Read" : "Write");
         last_time = start_time = clk.now();
 
         std::cout << "Performing " << type << " operation on: " << url << std::endl;
@@ -380,7 +380,7 @@ void TransferMonitor(const Uri & url, Transfer::Type op_type, dav_ssize_t bytes_
 
 
     if(total_size > 0){
-        progress = (static_cast<float>(bytes_transfered) / static_cast<float>(total_size)) * 100;
+        progress = static_cast<int>((static_cast<double>(bytes_transfered) / static_cast<double>(total_size)) * 100);
     }
 
     printProgressBar(out_fd, progress, bytes_transfered, total_size, baudrate);
@@ -414,10 +414,10 @@ void printProgressBar(int out_fd, int percent, dav_ssize_t bytes_transfered, dav
 
     
     // w = width of bar, r = 100/w
-    int w = (win.ws_row/1.5);    
-    float r = 100/static_cast<float>(w);    
-    for(int i = 0; i < w; ++i){
-        if(i < (percent/r) ){
+    double w = static_cast<double>(win.ws_row)/1.5;
+    double r = 100/w;
+    for(double i = 0; i < w; ++i){
+        if(i < (static_cast<double>(percent)/r) ){
             bar.replace(i,1,"=");
         }else{
             bar.replace(i,1," ");

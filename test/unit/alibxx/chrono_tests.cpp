@@ -1,4 +1,4 @@
-
+#include <davix_internal_config.hpp>
 #include <iostream>
 #include <string>
 #include <gtest/gtest.h>
@@ -23,10 +23,12 @@ TEST(ALibxx, ChronoTest){
     ASSERT_EQ(0, pp.toTimestamp());
 
     pp = Clock(Clock::Monolitic).now();
+#ifdef HAVE_CLOCK_GETTIME
     struct timespec t;
     clock_gettime(CLOCK_MONOTONIC, &t);
     ASSERT_GE(t.tv_sec, pp.toTimestamp());
     ASSERT_LE(t.tv_sec, pp.toTimestamp()+5);
+#endif
 
     TimePoint copy_time = pp;
     ASSERT_EQ(pp, copy_time);

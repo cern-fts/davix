@@ -49,14 +49,14 @@ static const std::string stat_listing("<?xml version=\"1.0\" encoding=\"utf-8\" 
 
 
 
-class DirHandle{
-public:
+struct DirHandle{
+
     DirHandle(HttpRequest* req, XMLPropParser * p): request(req), parser(p){}
 
     Ptr::Scoped<HttpRequest> request;
     Ptr::Scoped<Davix::XMLPropParser> parser;
-private:
-    DirHandle(const DirHandle &);
+
+
 };
 
 /**

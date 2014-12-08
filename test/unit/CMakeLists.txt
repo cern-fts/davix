@@ -27,7 +27,13 @@ add_definitions( -DTEST_VALID_CERT="${TEST_CRED_PATH}" -DTEST_VALID_CERT_PASS="$
 add_executable(g_test_unit_davix_exe ${src_context} ${src_session} ${src_credential}
                 ${src_httprequest} ${src_datetime} ${src_neon} ${src_parser} ${src_auth} ${src_utils} ${src_parser} ${SRC_BASE64}
                 ${SRC_HMACSHA1} ${davix_tool_common_src} ${src_files} ${src_alibxx})
+
 target_link_libraries(g_test_unit_davix_exe alibxx_core davix  gtest gtest_main ${LIBSSL_PKG_LIBRARIES} ${Boost_LIBRARIES})
+
+if(HAVE_CLOCK_GETTIME)
+    target_link_libraries(g_test_unit_davix_exe rt)
+endif(HAVE_CLOCK_GETTIME)
+
 add_dependencies(g_test_unit_davix_exe libdavix)
 
 

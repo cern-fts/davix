@@ -47,14 +47,22 @@ static void configureRequest(HttpRequest& req, Tool::OptParams & opts){
 
 }
 
-static std::string help_msg(){
-    return Tool::get_base_description_options() +
-            Tool::get_common_options() +
-           "  Request Options: \n"
-           "\t--data                    Content of the request\n"
-           "\t--request, -X:            Request operation to use (ex : GET, PUT, PROPFIND, etc..)\n"
-           "\n"
-                       ;
+static std::string get_request_options(){
+    return "  Request Options: \n"
+    "\t--data                    Content of the request\n"
+    "\t--request, -X:            Request operation to use (ex : GET, PUT, PROPFIND, etc..)\n"
+    "\n"
+                ;
+}
+
+
+static std::string help_msg(const std::string & cmd_path){
+    std::string help_msg = fmt::format("Usage : {} ", cmd_path);
+    help_msg += Tool::get_base_description_options();
+    help_msg += Tool::get_common_options();
+    help_msg += get_request_options();
+
+    return help_msg;
 }
 
 
@@ -70,7 +78,7 @@ int main(int argc, char** argv){
     int retcode=-1;
     Tool::OptParams opts;
     DavixError* tmp_err=NULL;
-    opts.help_msg = help_msg();
+    opts.help_msg = help_msg(argv[0]);
     int out_fd;
 
     if( (retcode= Tool::parse_davix_options(argc, argv, opts, &tmp_err)) ==0){

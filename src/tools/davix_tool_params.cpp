@@ -266,8 +266,8 @@ int parse_davix_options_generic(const std::string &opt_filter,
                 break;
              }
             case '?':
-            printf(p.help_msg.c_str(), argv[0]);
-                return -1;
+                std::cout <<  p.help_msg;
+                exit(1);
           break;
             default:
                 option_abort(argv);
@@ -372,9 +372,8 @@ int parse_davix_put_options(int argc, char** argv, OptParams & p, DavixError** e
 }
 
 
-const std::string  & get_common_options(){
-    static const std::string s(
-            "  Common Options:\n"
+std::string get_common_options(){
+           return  "  Common Options:\n"
             "\t--conn-timeout TIME:      Connection timeout in seconds. default: 30\n"
             "\t--debug:                  Debug mode\n"
             "\t--header, -H:             Add a header field to the request\n"
@@ -396,30 +395,32 @@ const std::string  & get_common_options(){
             "\t--userpass:               User password for login/password authentication\n"
             "\t--s3secretkey SEC_KEY:    S3 authentication: secret key\n"
             "\t--s3accesskey ACC_KEY:    S3 authentication: access key\n"
-            );
-    return s;
+            ;
 }
 
 
 
-const std::string  & get_base_description_options(){
-    static const std::string s("Usage: {} [OPTIONS ...] <url>\n"
-            );
-    return s;
+std::string  get_base_description_options(){
+    return "[OPTIONS ...] <url>\n"
+            ;
+}
+
+std::string  get_get_description_options(){
+    return "[OPTIONS ...] <url> [local_file]\n"
+            ;
 }
 
 
-const std::string  & get_put_description_options(){
-    static const std::string s("Usage: {} [OPTIONS ...] <local_file> <remote_file_url> \n"
-            );
-    return s;
+
+std::string get_put_description_options(){
+    return "[OPTIONS ...] <local_file> <remote_file_url> \n"
+            ;
 }
 
 
-const std::string  & get_copy_description_options(){
-    static const std::string s("Usage: {} [OPTIONS ...] <src_url> <dst_url>\n"
-            );
-    return s;
+std::string get_copy_description_options(){
+    return "[OPTIONS ...] <src_url> <dst_url>\n"
+            ;
 }
 
 }

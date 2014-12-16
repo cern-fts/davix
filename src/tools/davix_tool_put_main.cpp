@@ -38,9 +38,12 @@ const std::string scope_put = "Davix::Tools::davix-put";
 
 
 
-static std::string help_msg(){
-    return Tool::get_put_description_options() +
-           Tool::get_common_options()+ "\n";
+static std::string help_msg(const std::string & cmd_path){
+    std::string help_msg = fmt::format("Usage : {} ", cmd_path);
+    help_msg += Tool::get_put_description_options();
+    help_msg += Tool::get_common_options();
+
+    return help_msg;
 }
 
 
@@ -72,7 +75,7 @@ int main(int argc, char** argv){
     int retcode=-1;
     Tool::OptParams opts;
     DavixError* tmp_err=NULL;
-    opts.help_msg = help_msg();
+    opts.help_msg = help_msg(argv[0]);
     int fd_in= -1;
 
     if( (retcode= Tool::parse_davix_put_options(argc, argv, opts, &tmp_err)) ==0

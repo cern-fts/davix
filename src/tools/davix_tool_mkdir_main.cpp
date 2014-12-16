@@ -39,7 +39,7 @@ const std::string scope_main = "Davix::Tools::davix";
 
 
 
-static std::string help_msg(){
+static std::string help_msg(const std::string & cmd_path){
     return Tool::get_base_description_options() +
             Tool::get_common_options();
 }
@@ -50,7 +50,7 @@ int main(int argc, char** argv){
     int retcode=-1;
     Tool::OptParams opts;
     DavixError* tmp_err=NULL;
-    opts.help_msg = help_msg();
+    opts.help_msg = help_msg(argv[0]);
 
     if( (retcode= Tool::parse_davix_options(argc, argv, opts, &tmp_err)) ==0){
         Context c;

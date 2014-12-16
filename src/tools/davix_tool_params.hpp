@@ -82,13 +82,15 @@ int parse_davix_put_options(int argc, char** argv, OptParams & p, DavixError** e
 
 
 
-const std::string & get_common_options();
+std::string get_common_options();
 
-const std::string & get_base_description_options();
+std::string get_base_description_options();
 
-const std::string  & get_put_description_options();
+std::string get_get_description_options();
 
-const std::string  & get_copy_description_options();
+std::string get_put_description_options();
+
+std::string get_copy_description_options();
 
 }
 

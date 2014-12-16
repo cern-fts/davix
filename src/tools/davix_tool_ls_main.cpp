@@ -32,16 +32,18 @@ using namespace Davix;
 using namespace std;
 
 
-static const std::string  & get_base_listing_options(){
-    static const std::string s("  Listing Options:\n"
-                               "\t-l --long-list:                  long Listing mode\n");
-    return s;
+std::string  get_base_listing_options(){
+    return "  Listing Options:\n"
+           "\t-l --long-list:                  long Listing mode\n";
 }
 
-static std::string help_msg(){
-    return Tool::get_base_description_options() +
-           get_base_listing_options() +
-           Tool::get_common_options()+ "\n";
+static std::string help_msg(const std::string & cmd_path){
+    std::string help_msg = fmt::format("Usage : {} ", cmd_path);
+    help_msg += Tool::get_base_description_options();
+    help_msg += Tool::get_common_options();
+    help_msg += get_base_listing_options();
+
+    return help_msg;
 }
 
 
@@ -107,7 +109,7 @@ int main(int argc, char** argv){
     int retcode;
     Tool::OptParams opts;
     DavixError* tmp_err=NULL;
-    opts.help_msg = help_msg();
+    opts.help_msg = help_msg(argv[0]);
     FILE* fstream = stdout;
 
     if( (retcode= Tool::parse_davix_ls_options(argc, argv, opts, &tmp_err)) ==0){

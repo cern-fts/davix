@@ -235,6 +235,8 @@ void DavixCopyInternal::monitorPerformanceMarkers(Davix::HttpRequest *request,
             && !daverr)
     {
         buffer[line_len] = '\0';
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_GRID, "Received: {}", buffer);
+
         // Skip heading whitespaces
         p = buffer;
         while (*p && p < buffer + sizeof(buffer) && isspace(*p))

@@ -231,11 +231,12 @@ void DavixCopyInternal::monitorPerformanceMarkers(Davix::HttpRequest *request,
     PerformanceData performance;
     time_t lastPerfCallback = time(NULL);
 
-    while ((line_len = request->readLine(buffer, sizeof(buffer), &daverr)) >= 0
-            && !daverr)
+    while ((line_len = request->readLine(buffer, sizeof(buffer), &daverr)) >= 0 && !daverr)
     {
         buffer[line_len] = '\0';
-        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_GRID, "Received: {}", buffer);
+
+        if (line_len > 0)
+            DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_GRID, "Received: {}", buffer);
 
         // Skip heading whitespaces
         p = buffer;
@@ -283,17 +284,15 @@ void DavixCopyInternal::monitorPerformanceMarkers(Davix::HttpRequest *request,
                     "Transfer aborted in the remote end");
             break;
         }
-        else if (strncasecmp("failed", p, 6) == 0)
+        else if (strncasecmp("failed", p, 6) == 0 || strncasecmp("failure", p, 7) == 0)
         {
             Davix::DavixError::setupError(error, COPY_SCOPE, StatusCode::RemoteError,
                     std::string("Transfer failed: ") + p);
             break;
         }
-        else
+        else if(line_len> 0)
         {
-            Davix::DavixError::setupError(error, COPY_SCOPE, StatusCode::SystemError,
-                    std::string("Unexpected message from remote host: ") + p);
-            break;
+            DAVIX_SLOG(DAVIX_LOG_WARNING, DAVIX_LOG_GRID, "Unknown performance marker, ignoring: {}", buffer);
         }
     }
 }

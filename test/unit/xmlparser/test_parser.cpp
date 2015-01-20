@@ -567,9 +567,7 @@ TEST(XmlS3parsing, TestListingBucket){
     using namespace Davix;
 
     davix_set_log_level(DAVIX_LOG_ALL);
-<<<<<<< HEAD
     S3PropParser parser(true);
->>>>>>> Small fix to XmlS3parsing unit test
 
     int ret = parser.parseChunk(s3_xml_response);
     ASSERT_EQ(ret, 0);

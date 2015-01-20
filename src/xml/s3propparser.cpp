@@ -11,8 +11,15 @@ const std::string delimiter_prop ="Contents";
 const std::string name_prop = "Key";
 const std::string size_prop = "Size";
 
+const std::string prefix_prop = "Prefix";
+const std::string com_prefix_prop = "CommonPrefixes";
+
 struct S3PropParser::Internal{
     std::string current;
+    std::string prefix;
+    std::string prefix_to_remove;
+    bool inside_com_prefix;
+    bool hierarchical;    
     std::stack<std::string> stack_status;
     std::deque<FileProperties> props;
 
@@ -41,6 +48,18 @@ struct S3PropParser::Internal{
             property.clear();
         }
 
+        // check element, if common prefixes clear current entry
+        if( hierarchical && StrUtil::compare_ncase(com_prefix_prop, elem) ==0){
+            DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "common prefixes found", elem.c_str());
+            inside_com_prefix = true;
+        }
+
+        // check element, if prefix clear current entry
+        if( hierarchical && StrUtil::compare_ncase(prefix_prop, elem) ==0){
+            DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "prefix found", elem.c_str());
+            property.clear();
+        }
+
         return 1;
     }
 
@@ -52,13 +71,31 @@ struct S3PropParser::Internal{
     int end_elem(const std::string &elem){
         StrUtil::trim(current);
 
-        // new name new fileprop
-        if(StrUtil::compare_ncase(name_prop, elem) ==0){
-            DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "new element {}", elem.c_str());
-            property.filename = current;
+        // found prefix 
+        if( hierarchical && 
+                StrUtil::compare_ncase(prefix_prop, elem) ==0 && 
+                !current.empty()){
+            DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "new prefix {}", current.c_str());
+            prefix = current;
+            if(inside_com_prefix){
+                DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "push new common prefix {}", current.c_str());
+                property.filename = current.erase(0, prefix_to_remove.size());
+                props.push_back(property);
+            }
         }
 
-        if(StrUtil::compare_ncase(size_prop, elem) ==0){
+        // new name new fileprop
+        if( StrUtil::compare_ncase(name_prop, elem) ==0){
+            if(!hierarchical){
+                property.filename = current.erase(0,prefix.size());
+            }
+            else if(!(prefix.empty() ) && !(StrUtil::compare_ncase(prefix, current) ==0) ){
+                DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "new element {}", elem.c_str());
+                property.filename = current.erase(0, prefix_to_remove.size());
+            }
+        }
+
+        if( StrUtil::compare_ncase(size_prop, elem) ==0){
             try{
                 dav_size_t size = toType<dav_size_t, std::string>()(current);
                 DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "element size {}", size);
@@ -84,6 +121,10 @@ struct S3PropParser::Internal{
             props.push_back(property);
         }
 
+        // check element, if end common prefix reset flag
+        if( hierarchical && StrUtil::compare_ncase(com_prefix_prop, elem) ==0){
+            inside_com_prefix = false;
+        }
 
         // reduce stack size
         if(stack_status.size() > 0)
@@ -95,9 +136,19 @@ struct S3PropParser::Internal{
 };
 
 
-S3PropParser::S3PropParser() : d_ptr(new Internal())
+
+S3PropParser::S3PropParser(bool flat_flag) : d_ptr(new Internal())
 {
+    d_ptr->hierarchical = !flat_flag;
 }
+
+
+S3PropParser::S3PropParser(bool flat_flag, std::string fixed_prefix = "") : d_ptr(new Internal())
+{
+    d_ptr->hierarchical = !flat_flag;
+    d_ptr->prefix_to_remove = fixed_prefix.erase(0,1);
+}
+
 
 S3PropParser::~S3PropParser(){
 

@@ -83,6 +83,7 @@ struct RequestParamsInternal{
     RequestParamsInternal() :
         _ssl_check(true),
         _redirection(true),
+        _s3_flat(false),
         _ca_path(),
         _x509_data(),
         _idlogpass(),
@@ -118,6 +119,7 @@ struct RequestParamsInternal{
     RequestParamsInternal(const RequestParamsInternal & param_private):
         _ssl_check(param_private._ssl_check),
         _redirection(param_private._redirection),
+        _s3_flat(param_private._s3_flat),
         _ca_path(param_private._ca_path),
         _x509_data(param_private._x509_data),
         _idlogpass(param_private._idlogpass),
@@ -141,6 +143,7 @@ struct RequestParamsInternal{
     }
     bool _ssl_check; // ssl CA check
     bool _redirection; // redirection support
+    bool _s3_flat; // s3 bucket flat listing mode
 
     // CA management
     std::vector<std::string> _ca_path;
@@ -304,6 +307,14 @@ void RequestParams::setAwsAuthorizationKeys(const std::string &secret_key, const
 
 const std::pair<AwsSecretKey, AwsAccessKey> & RequestParams::getAwsAutorizationKeys() const{
     return d_ptr->_aws_cred;
+}
+
+void RequestParams::setS3Flat(const bool s3_flat){
+    d_ptr->_s3_flat = s3_flat;
+}
+
+bool RequestParams::getS3Flat() const{
+    return d_ptr->_s3_flat;
 }
 
 void RequestParams::addCertificateAuthorityPath(const std::string &path){

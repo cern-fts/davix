@@ -34,7 +34,8 @@ using namespace std;
 
 std::string  get_base_listing_options(){
     return "  Listing Options:\n"
-           "\t-l --long-list:                  long Listing mode\n";
+           "\t--long-list, -l:          long Listing mode\n"
+           "\t--flat, -f:               S3 bucket flat listing mode\n";
 }
 
 static std::string help_msg(const std::string & cmd_path){

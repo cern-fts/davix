@@ -143,6 +143,29 @@ Uri tokenizeRequest(const RequestParams & params, const std::string & method, co
 }
 
 
+Uri s3UriTranslator(const Uri & original_url){
+    std::string delimiter = "?delimiter=/";
+    std::string prefix = "&prefix=";
+
+    std::ostringstream ss;
+
+    ss << "s3://" << original_url.getHost() << "/";
+
+    if(!original_url.getPath().empty()){    // there is something after '/', grab it
+        std::string tmp = original_url.getPath();
+        if(tmp[tmp.size()-1] != '/'){
+            throw DavixException(davix_scope_directory_listing_str(), StatusCode::IsNotADirectory, "This is not a S3 bucket");   
+        }
+        tmp.erase(0,1); 
+        prefix += tmp;
+    }
+    
+    ss << delimiter << prefix;    
+    
+    return Uri(ss.str());
+}
+
+
 } // S3
 
 

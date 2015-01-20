@@ -15,7 +15,8 @@ class S3PropParser :  public XMLPropParser
 public:
     struct Internal;
 
-    S3PropParser();
+    S3PropParser(bool flat_flag);
+    S3PropParser(bool flat_flag, std::string fixed_prefix);
     virtual ~S3PropParser();
 
     virtual std::deque<FileProperties> & getProperties();

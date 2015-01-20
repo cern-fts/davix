@@ -130,6 +130,12 @@ public:
     ///
     const std::pair<AwsSecretKey, AwsAccessKey> & getAwsAutorizationKeys() const;
 
+    /// set hierarchical mode flag for S3 bucket
+    void setS3Flat(const bool s3_flat);
+
+    /// get hierarchical mode flag for S3 bucket
+    bool getS3Flat() const;
+
     /// add the CA certificate in the directory 'path' as trusted certificate
     void addCertificateAuthorityPath(const std::string & path);
 

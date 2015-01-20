@@ -27,6 +27,7 @@
 
 #include <utils/davix_logger_internal.hpp>
 #include <utils/davix_utils_internal.hpp>
+#include <utils/davix_s3_utils.hpp>
 
 #include <request/httprequest.hpp>
 #include <fileops/fileutils.hpp>
@@ -553,7 +554,17 @@ void s3_start_listing_query(Ptr::Scoped<DirHandle> & handle, Context & context, 
     dav_ssize_t s_resu;
 
     DavixError* tmp_err=NULL;
-    handle.reset(new DirHandle(new GetRequest(context, url, &tmp_err), new S3PropParser()));
+
+    if(!params->getS3Flat()){
+        Uri new_url = S3::s3UriTranslator(url); 
+        handle.reset(new DirHandle(new GetRequest(context, new_url, &tmp_err), new S3PropParser(params->getS3Flat(), url.getPath())));
+    }
+    else{
+        if(is_a_bucket(url) == false){
+           throw DavixException(davix_scope_directory_listing_str(), StatusCode::IsNotADirectory, "This is not a S3 bucket");
+        }
+        handle.reset(new DirHandle(new GetRequest(context, url, &tmp_err), new S3PropParser(params->getS3Flat())));
+    }
     checkDavixError(&tmp_err);
 
 
@@ -607,9 +618,6 @@ bool s3_directory_listing(Ptr::Scoped<DirHandle> & handle, Context & context, co
 
 bool S3MetaOps::nextSubItem(IOChainContext &iocontext, std::string &entry_name, StatInfo &info){
     if(is_s3_operation(iocontext)){
-        if(is_a_bucket(iocontext._uri) == false){
-            throw DavixException(davix_scope_directory_listing_str(), StatusCode::IsNotADirectory, "This is not a S3 bucket");
-        }
         return s3_directory_listing(directoryItem, iocontext._context, iocontext._reqparams, iocontext._uri, stat_listing,
                                  entry_name, info);
     }else{

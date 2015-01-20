@@ -82,6 +82,7 @@ const std::string scope_params = "Davix::Tools::Params";
 {"verbose", no_argument, 0,  0 }
 
 #define LISTING_LONG_OPTIONS \
+{"flat", no_argument, 0,  'f' }, \
 {"long-list", no_argument, 0,  'l' }
 
 OptParams::OptParams() :
@@ -200,6 +201,9 @@ int parse_davix_options_generic(const std::string &opt_filter,
                 if( set_header_field(optarg, p, err) <0)
                     return -1;
                 break;
+            case 'f':
+                p.params.setS3Flat(true); 
+                break;
             case CAPATH_OPT:
                 p.params.addCertificateAuthorityPath(optarg);
                 break;
@@ -306,7 +310,7 @@ int parse_davix_options(int argc, char** argv, OptParams & p, DavixError** err){
 
 
 int parse_davix_ls_options(int argc, char** argv, OptParams & p, DavixError** err){
-    const std::string arg_tool_main= "P:x:H:E:vkVl";
+    const std::string arg_tool_main= "P:x:H:E:vkVlf";
     const struct option long_options[] = {
         COMMON_LONG_OPTIONS,
         SECURITY_LONG_OPTIONS,
@@ -383,7 +387,7 @@ std::string get_common_options(){
             "\t--proxy, -x URL:          SOCKS5 proxy server URL. (Ex: socks5://login:pass@socks.example.org)\n"
             "\t--redirection OPT:        Transparent redirection support. value=yes|no. default=yes)\n"
             "\t--timeout TIME:           Global timeout for the operation in seconds. default: infinite\n"
-            "\t--trace:                  Specify one or more scpoes to trace. (Ex: --trace log level(optional),header,file)\n"
+            "\t--trace:                  Specify one or more scopes to trace. (Ex: --trace log level(optional),header,file)\n"
             "\t--verbose:                Verbose mode\n"
             "\t--version, -V:            Display version\n"
             "  Security Options:\n"

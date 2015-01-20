@@ -137,13 +137,13 @@ struct S3PropParser::Internal{
 
 
 
-S3PropParser::S3PropParser(bool flat_flag) : d_ptr(new Internal())
+S3PropParser::S3PropParser(bool flat_flag = false) : d_ptr(new Internal())
 {
     d_ptr->hierarchical = !flat_flag;
 }
 
 
-S3PropParser::S3PropParser(bool flat_flag, std::string fixed_prefix = "") : d_ptr(new Internal())
+S3PropParser::S3PropParser(bool flat_flag = false, std::string fixed_prefix = "") : d_ptr(new Internal())
 {
     d_ptr->hierarchical = !flat_flag;
     d_ptr->prefix_to_remove = fixed_prefix.erase(0,1);

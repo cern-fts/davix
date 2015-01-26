@@ -35,7 +35,7 @@ using namespace std;
 std::string  get_base_listing_options(){
     return "  Listing Options:\n"
            "\t--long-list, -l:          long Listing mode\n"
-           "\t--flat, -f:               S3 bucket flat listing mode\n";
+           "\t--s3-listing:             S3 bucket flat listing mode - flat or hierarchical(default)\n";
 }
 
 static std::string help_msg(const std::string & cmd_path){
@@ -94,7 +94,13 @@ static int get_info(const Tool::OptParams & opts, FILE* filestream, DavixError**
     struct stat st;
     if( f.stat(&opts.params, &st, err) == 0){
         if(opts.pres_flag & LONG_LISTING_FLAG){
-            display_long_file_entry(opts.vec_arg[0], &st, opts, filestream);
+            if( opts.params.getProtocol() == RequestProtocol::AwsS3){
+                std::string tmp(opts.vec_arg[0]);
+                display_long_file_entry(tmp.substr(tmp.rfind('/')+1), &st, opts, filestream);
+            }
+            else{
+                display_long_file_entry(opts.vec_arg[0], &st, opts, filestream);
+            }
         }else{
             display_file_entry(opts.vec_arg[0], opts, filestream);
         }

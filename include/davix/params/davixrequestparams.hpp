@@ -130,11 +130,16 @@ public:
     ///
     const std::pair<AwsSecretKey, AwsAccessKey> & getAwsAutorizationKeys() const;
 
-    /// set hierarchical mode flag for S3 bucket
-    void setS3Flat(const bool s3_flat);
+    enum s3_listing_mode_t {
+        FLAT,
+        HIERARCHICAL
+    } s3_listing_mode;
 
-    /// get hierarchical mode flag for S3 bucket
-    bool getS3Flat() const;
+    /// set listing mode flag for S3 bucket
+    void setS3ListingMode(const s3_listing_mode_t s3_listing_mode);
+
+    /// get listing mode flag for S3 bucket
+    s3_listing_mode_t getS3ListingMode() const;
 
     /// add the CA certificate in the directory 'path' as trusted certificate
     void addCertificateAuthorityPath(const std::string & path);

@@ -83,7 +83,8 @@ struct RequestParamsInternal{
     RequestParamsInternal() :
         _ssl_check(true),
         _redirection(true),
-        _s3_flat(false),
+        //_s3_flat(false),
+        _s3_listing_mode(RequestParams::HIERARCHICAL),
         _ca_path(),
         _x509_data(),
         _idlogpass(),
@@ -119,7 +120,8 @@ struct RequestParamsInternal{
     RequestParamsInternal(const RequestParamsInternal & param_private):
         _ssl_check(param_private._ssl_check),
         _redirection(param_private._redirection),
-        _s3_flat(param_private._s3_flat),
+        //_s3_flat(param_private._s3_flat),
+        _s3_listing_mode(param_private._s3_listing_mode),
         _ca_path(param_private._ca_path),
         _x509_data(param_private._x509_data),
         _idlogpass(param_private._idlogpass),
@@ -144,7 +146,13 @@ struct RequestParamsInternal{
     bool _ssl_check; // ssl CA check
     bool _redirection; // redirection support
     bool _s3_flat; // s3 bucket flat listing mode
-
+/*
+    enum s3_listing_mode_t {
+        FLAT,
+        HIERARCHICAL
+    } s3_listing_mode;
+*/
+    RequestParams::s3_listing_mode_t _s3_listing_mode;
     // CA management
     std::vector<std::string> _ca_path;
 
@@ -309,12 +317,12 @@ const std::pair<AwsSecretKey, AwsAccessKey> & RequestParams::getAwsAutorizationK
     return d_ptr->_aws_cred;
 }
 
-void RequestParams::setS3Flat(const bool s3_flat){
-    d_ptr->_s3_flat = s3_flat;
+void RequestParams::setS3ListingMode(const s3_listing_mode_t s3_listing_mode){
+    d_ptr->_s3_listing_mode = s3_listing_mode;
 }
 
-bool RequestParams::getS3Flat() const{
-    return d_ptr->_s3_flat;
+RequestParams::s3_listing_mode_t RequestParams::getS3ListingMode() const{
+    return d_ptr->_s3_listing_mode;
 }
 
 void RequestParams::addCertificateAuthorityPath(const std::string &path){

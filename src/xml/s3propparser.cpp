@@ -13,17 +13,19 @@ const std::string size_prop = "Size";
 
 const std::string prefix_prop = "Prefix";
 const std::string com_prefix_prop = "CommonPrefixes";
+const std::string listbucketresult_prop = "ListBucketResult";
 
 struct S3PropParser::Internal{
     std::string current;
     std::string prefix;
     std::string prefix_to_remove;
     bool inside_com_prefix;
-    bool hierarchical;    
+    int prop_count;
     std::stack<std::string> stack_status;
     std::deque<FileProperties> props;
 
     FileProperties property;
+    RequestParams::s3_listing_mode_t _s3_listing_mode;
 
     int start_elem(const std::string &elem){
         // new tag, clean content;
@@ -40,6 +42,7 @@ struct S3PropParser::Internal{
         if( StrUtil::compare_ncase(col_prop, elem) ==0){
             DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "collection found", elem.c_str());
             property.clear();
+            prop_count = 0;
         }
 
         // check element, if new entry clear current entry
@@ -48,14 +51,14 @@ struct S3PropParser::Internal{
             property.clear();
         }
 
-        // check element, if common prefixes clear current entry
-        if( hierarchical && StrUtil::compare_ncase(com_prefix_prop, elem) ==0){
+        // check element, if common prefixes set flag
+        if( (_s3_listing_mode == RequestParams::HIERARCHICAL) && StrUtil::compare_ncase(com_prefix_prop, elem) ==0){
             DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "common prefixes found", elem.c_str());
             inside_com_prefix = true;
         }
 
         // check element, if prefix clear current entry
-        if( hierarchical && StrUtil::compare_ncase(prefix_prop, elem) ==0){
+        if( (_s3_listing_mode == RequestParams::HIERARCHICAL) && StrUtil::compare_ncase(prefix_prop, elem) ==0){
             DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "prefix found", elem.c_str());
             property.clear();
         }
@@ -72,27 +75,43 @@ struct S3PropParser::Internal{
         StrUtil::trim(current);
 
         // found prefix 
-        if( hierarchical && 
+        if( (_s3_listing_mode == RequestParams::HIERARCHICAL) && 
                 StrUtil::compare_ncase(prefix_prop, elem) ==0 && 
                 !current.empty()){
             DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "new prefix {}", current.c_str());
             prefix = current;
-            if(inside_com_prefix){
+            if(inside_com_prefix){  // all keys would have been processed by now, just common prefixes left, use as DIRs
                 DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "push new common prefix {}", current.c_str());
+                current = current.erase(current.size()-1,1);
                 property.filename = current.erase(0, prefix_to_remove.size());
+                property.info.mode =  0755 | S_IFDIR;
+                property.info.mode &= ~(S_IFREG);
                 props.push_back(property);
+                prop_count++;
             }
         }
 
         // new name new fileprop
         if( StrUtil::compare_ncase(name_prop, elem) ==0){
-            if(!hierarchical){
+
+            if((_s3_listing_mode == RequestParams::FLAT)){  // flat mode
                 property.filename = current.erase(0,prefix.size());
             }
-            else if(!(prefix.empty() ) && !(StrUtil::compare_ncase(prefix, current) ==0) ){
-                DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "new element {}", elem.c_str());
-                property.filename = current.erase(0, prefix_to_remove.size());
+            else if(prefix.empty()){    // at root level
+                property.filename = current;
             }
+            else if(!prefix.empty()){
+                if(prefix.compare((prefix.size()-1),1,"/")){ // prefix doesn't end with '/', file
+                    property.filename = current;
+                }
+                else if(!(StrUtil::compare_ncase(prefix, current) ==0)){ // folder   
+                    property.filename = current.erase(0, prefix_to_remove.size());
+
+                }
+            }
+
+            if(!property.filename.empty())
+                property.info.mode = 0755;
         }
 
         if( StrUtil::compare_ncase(size_prop, elem) ==0){
@@ -110,7 +129,7 @@ struct S3PropParser::Internal{
         if( StrUtil::compare_ncase(col_prop, elem) ==0){
             DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "push collection", elem.c_str());
             property.filename = current;
-            property.info.mode |=  S_IFDIR;
+            property.info.mode |= S_IFDIR;
             property.info.mode &= ~(S_IFREG);
             props.push_back(property);
         }
@@ -119,11 +138,17 @@ struct S3PropParser::Internal{
         if( StrUtil::compare_ncase(delimiter_prop, elem) ==0){
             DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "push new element {}", elem.c_str());
             props.push_back(property);
+            prop_count++;
         }
 
         // check element, if end common prefix reset flag
-        if( hierarchical && StrUtil::compare_ncase(com_prefix_prop, elem) ==0){
+        if( (_s3_listing_mode == RequestParams::HIERARCHICAL) && StrUtil::compare_ncase(com_prefix_prop, elem) ==0){
             inside_com_prefix = false;
+        }
+       
+        // end of xml respond and still no property, requested key exists but isn't a directory
+        if( (_s3_listing_mode == RequestParams::HIERARCHICAL) && (StrUtil::compare_ncase(listbucketresult_prop, elem) ==0) && (prop_count ==0) ){
+            throw DavixException(davix_scope_directory_listing_str(), StatusCode::IsNotADirectory, "Not a S3 directory");
         }
 
         // reduce stack size
@@ -135,23 +160,32 @@ struct S3PropParser::Internal{
 
 };
 
-
-
-S3PropParser::S3PropParser(bool flat_flag = false) : d_ptr(new Internal())
+S3PropParser::S3PropParser() : d_ptr(new Internal())
 {
-    d_ptr->hierarchical = !flat_flag;
+    S3PropParser(RequestParams::HIERARCHICAL, "");
 }
 
 
-S3PropParser::S3PropParser(bool flat_flag = false, std::string fixed_prefix = "") : d_ptr(new Internal())
+S3PropParser::S3PropParser(RequestParams::s3_listing_mode_t s3_listing_mode = RequestParams::HIERARCHICAL) : d_ptr(new Internal())
 {
-    d_ptr->hierarchical = !flat_flag;
-    d_ptr->prefix_to_remove = fixed_prefix.erase(0,1);
+    S3PropParser(s3_listing_mode, "");
+}
+
+
+S3PropParser::S3PropParser(RequestParams::s3_listing_mode_t s3_listing_mode = RequestParams::HIERARCHICAL, std::string s3_prefix = "") : d_ptr(new Internal())
+{
+    d_ptr->_s3_listing_mode = s3_listing_mode;
+
+    if(!s3_prefix.empty()){
+        if(s3_prefix.compare(s3_prefix.size()-1,1,"/")==0)
+            d_ptr->prefix_to_remove = s3_prefix.erase(0,1);
+        else
+            d_ptr->prefix_to_remove = s3_prefix;
+    }
 }
 
 
 S3PropParser::~S3PropParser(){
-
 }
 
 

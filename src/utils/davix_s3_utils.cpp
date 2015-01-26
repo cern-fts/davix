@@ -153,15 +153,17 @@ Uri s3UriTranslator(const Uri & original_url){
 
     if(!original_url.getPath().empty()){    // there is something after '/', grab it
         std::string tmp = original_url.getPath();
-        if(tmp[tmp.size()-1] != '/'){
-            throw DavixException(davix_scope_directory_listing_str(), StatusCode::IsNotADirectory, "This is not a S3 bucket");   
-        }
+        
+        // if prefix doesn't end with '/', add one to handle query on folder
+        if(tmp.compare(tmp.size()-1,1,"/") != 0)
+             tmp += "/";
+        
         tmp.erase(0,1); 
         prefix += tmp;
     }
     
     ss << delimiter << prefix;    
-    
+
     return Uri(ss.str());
 }
 

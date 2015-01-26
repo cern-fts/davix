@@ -48,6 +48,7 @@ const std::string scope_params = "Davix::Tools::Params";
 #define CONN_TIMEOUT        1011
 #define TIMEOUT_OPS         1012
 #define RETRY_OPT           1013
+#define S3_LISTING_MODE     1014
 
 // LONG OPTS
 
@@ -82,7 +83,7 @@ const std::string scope_params = "Davix::Tools::Params";
 {"verbose", no_argument, 0,  0 }
 
 #define LISTING_LONG_OPTIONS \
-{"flat", no_argument, 0,  'f' }, \
+{"s3-listing", required_argument, 0,  S3_LISTING_MODE }, \
 {"long-list", no_argument, 0,  'l' }
 
 OptParams::OptParams() :
@@ -201,9 +202,14 @@ int parse_davix_options_generic(const std::string &opt_filter,
                 if( set_header_field(optarg, p, err) <0)
                     return -1;
                 break;
-            case 'f':
-                p.params.setS3Flat(true); 
-                break;
+            case S3_LISTING_MODE:
+                {
+                    if(std::string(optarg).compare("flat")==0)
+                        p.params.setS3ListingMode(RequestParams::FLAT); 
+                    else if(std::string(optarg).compare("hierarchical")==0)
+                        p.params.setS3ListingMode(RequestParams::HIERARCHICAL);
+                    break;
+                }
             case CAPATH_OPT:
                 p.params.addCertificateAuthorityPath(optarg);
                 break;

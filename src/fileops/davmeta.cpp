@@ -555,15 +555,15 @@ void s3_start_listing_query(Ptr::Scoped<DirHandle> & handle, Context & context, 
 
     DavixError* tmp_err=NULL;
 
-    if(!params->getS3Flat()){
+    if(params->getS3ListingMode() == RequestParams::HIERARCHICAL){
         Uri new_url = S3::s3UriTranslator(url); 
-        handle.reset(new DirHandle(new GetRequest(context, new_url, &tmp_err), new S3PropParser(params->getS3Flat(), url.getPath())));
+        handle.reset(new DirHandle(new GetRequest(context, new_url, &tmp_err), new S3PropParser(params->getS3ListingMode(), url.getPath())));
     }
     else{
         if(is_a_bucket(url) == false){
            throw DavixException(davix_scope_directory_listing_str(), StatusCode::IsNotADirectory, "This is not a S3 bucket");
         }
-        handle.reset(new DirHandle(new GetRequest(context, url, &tmp_err), new S3PropParser(params->getS3Flat())));
+        handle.reset(new DirHandle(new GetRequest(context, url, &tmp_err), new S3PropParser()));
     }
     checkDavixError(&tmp_err);
 

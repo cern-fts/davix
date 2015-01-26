@@ -205,9 +205,9 @@ int parse_davix_options_generic(const std::string &opt_filter,
             case S3_LISTING_MODE:
                 {
                     if(std::string(optarg).compare("flat")==0)
-                        p.params.setS3ListingMode(RequestParams::FLAT); 
+                        p.params.setS3ListingMode(S3ListingMode::Flat); 
                     else if(std::string(optarg).compare("hierarchical")==0)
-                        p.params.setS3ListingMode(RequestParams::HIERARCHICAL);
+                        p.params.setS3ListingMode(S3ListingMode::Hierarchical);
                     break;
                 }
             case CAPATH_OPT:

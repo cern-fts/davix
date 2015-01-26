@@ -48,6 +48,13 @@ namespace MetalinkMode{
     };
 }
 
+typedef enum S3ListingMode_t{
+    // Hierarchical listing 
+    Hierarchical,
+    // Flat listing
+    Flat
+}S3ListingMode;
+
 
 ///
 /// \brief string for Amazon private key

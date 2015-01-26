@@ -555,7 +555,7 @@ void s3_start_listing_query(Ptr::Scoped<DirHandle> & handle, Context & context, 
 
     DavixError* tmp_err=NULL;
 
-    if(params->getS3ListingMode() == RequestParams::HIERARCHICAL){
+    if(params->getS3ListingMode() == S3ListingMode::Hierarchical){
         Uri new_url = S3::s3UriTranslator(url); 
         handle.reset(new DirHandle(new GetRequest(context, new_url, &tmp_err), new S3PropParser(params->getS3ListingMode(), url.getPath())));
     }

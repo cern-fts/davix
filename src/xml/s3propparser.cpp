@@ -25,7 +25,7 @@ struct S3PropParser::Internal{
     std::deque<FileProperties> props;
 
     FileProperties property;
-    RequestParams::s3_listing_mode_t _s3_listing_mode;
+    S3ListingMode _s3_listing_mode;
 
     int start_elem(const std::string &elem){
         // new tag, clean content;
@@ -52,13 +52,13 @@ struct S3PropParser::Internal{
         }
 
         // check element, if common prefixes set flag
-        if( (_s3_listing_mode == RequestParams::HIERARCHICAL) && StrUtil::compare_ncase(com_prefix_prop, elem) ==0){
+        if( (_s3_listing_mode == S3ListingMode::Hierarchical) && StrUtil::compare_ncase(com_prefix_prop, elem) ==0){
             DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "common prefixes found", elem.c_str());
             inside_com_prefix = true;
         }
 
         // check element, if prefix clear current entry
-        if( (_s3_listing_mode == RequestParams::HIERARCHICAL) && StrUtil::compare_ncase(prefix_prop, elem) ==0){
+        if( (_s3_listing_mode == S3ListingMode::Hierarchical) && StrUtil::compare_ncase(prefix_prop, elem) ==0){
             DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "prefix found", elem.c_str());
             property.clear();
         }
@@ -75,7 +75,7 @@ struct S3PropParser::Internal{
         StrUtil::trim(current);
 
         // found prefix 
-        if( (_s3_listing_mode == RequestParams::HIERARCHICAL) && 
+        if( (_s3_listing_mode == S3ListingMode::Hierarchical) && 
                 StrUtil::compare_ncase(prefix_prop, elem) ==0 && 
                 !current.empty()){
             DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "new prefix {}", current.c_str());
@@ -94,7 +94,7 @@ struct S3PropParser::Internal{
         // new name new fileprop
         if( StrUtil::compare_ncase(name_prop, elem) ==0){
 
-            if((_s3_listing_mode == RequestParams::FLAT)){  // flat mode
+            if((_s3_listing_mode == S3ListingMode::Flat)){  // flat mode
                 property.filename = current.erase(0,prefix.size());
             }
             else if(prefix.empty()){    // at root level
@@ -142,12 +142,12 @@ struct S3PropParser::Internal{
         }
 
         // check element, if end common prefix reset flag
-        if( (_s3_listing_mode == RequestParams::HIERARCHICAL) && StrUtil::compare_ncase(com_prefix_prop, elem) ==0){
+        if( (_s3_listing_mode == S3ListingMode::Hierarchical) && StrUtil::compare_ncase(com_prefix_prop, elem) ==0){
             inside_com_prefix = false;
         }
        
         // end of xml respond and still no property, requested key exists but isn't a directory
-        if( (_s3_listing_mode == RequestParams::HIERARCHICAL) && (StrUtil::compare_ncase(listbucketresult_prop, elem) ==0) && (prop_count ==0) ){
+        if( (_s3_listing_mode == S3ListingMode::Hierarchical) && (StrUtil::compare_ncase(listbucketresult_prop, elem) ==0) && (prop_count ==0) ){
             throw DavixException(davix_scope_directory_listing_str(), StatusCode::IsNotADirectory, "Not a S3 directory");
         }
 
@@ -162,17 +162,17 @@ struct S3PropParser::Internal{
 
 S3PropParser::S3PropParser() : d_ptr(new Internal())
 {
-    S3PropParser(RequestParams::HIERARCHICAL, "");
+    S3PropParser(S3ListingMode::Hierarchical, "");
 }
 
 
-S3PropParser::S3PropParser(RequestParams::s3_listing_mode_t s3_listing_mode = RequestParams::HIERARCHICAL) : d_ptr(new Internal())
+S3PropParser::S3PropParser(S3ListingMode s3_listing_mode = S3ListingMode::Hierarchical) : d_ptr(new Internal())
 {
     S3PropParser(s3_listing_mode, "");
 }
 
 
-S3PropParser::S3PropParser(RequestParams::s3_listing_mode_t s3_listing_mode = RequestParams::HIERARCHICAL, std::string s3_prefix = "") : d_ptr(new Internal())
+S3PropParser::S3PropParser(S3ListingMode s3_listing_mode = S3ListingMode::Hierarchical, std::string s3_prefix = "") : d_ptr(new Internal())
 {
     d_ptr->_s3_listing_mode = s3_listing_mode;
 

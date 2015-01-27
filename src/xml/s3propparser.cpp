@@ -25,7 +25,7 @@ struct S3PropParser::Internal{
     std::deque<FileProperties> props;
 
     FileProperties property;
-    S3ListingMode _s3_listing_mode;
+    S3ListingMode::S3ListingMode _s3_listing_mode;
 
     int start_elem(const std::string &elem){
         // new tag, clean content;
@@ -166,13 +166,13 @@ S3PropParser::S3PropParser() : d_ptr(new Internal())
 }
 
 
-S3PropParser::S3PropParser(S3ListingMode s3_listing_mode = S3ListingMode::Hierarchical) : d_ptr(new Internal())
+S3PropParser::S3PropParser(S3ListingMode::S3ListingMode s3_listing_mode = S3ListingMode::Hierarchical) : d_ptr(new Internal())
 {
     S3PropParser(s3_listing_mode, "");
 }
 
 
-S3PropParser::S3PropParser(S3ListingMode s3_listing_mode = S3ListingMode::Hierarchical, std::string s3_prefix = "") : d_ptr(new Internal())
+S3PropParser::S3PropParser(S3ListingMode::S3ListingMode s3_listing_mode = S3ListingMode::Hierarchical, std::string s3_prefix = "") : d_ptr(new Internal())
 {
     d_ptr->_s3_listing_mode = s3_listing_mode;
 

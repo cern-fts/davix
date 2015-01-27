@@ -48,12 +48,15 @@ namespace MetalinkMode{
     };
 }
 
-typedef enum S3ListingMode_t{
-    // Hierarchical listing 
-    Hierarchical,
-    // Flat listing
-    Flat
-}S3ListingMode;
+namespace S3ListingMode{
+    enum S3ListingMode{
+        // Hierarchical listing 
+        Hierarchical,
+        // Flat listing
+        Flat
+    };
+}
+
 
 
 ///

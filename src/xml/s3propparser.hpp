@@ -15,8 +15,8 @@ class S3PropParser :  public XMLPropParser
 public:
     struct Internal;
     S3PropParser();
-    S3PropParser(S3ListingMode s3_listing_mode);
-    S3PropParser(S3ListingMode s3_listing_mode, std::string s3_prefix);
+    S3PropParser(S3ListingMode::S3ListingMode s3_listing_mode);
+    S3PropParser(S3ListingMode::S3ListingMode s3_listing_mode, std::string s3_prefix);
     virtual ~S3PropParser();
 
     virtual std::deque<FileProperties> & getProperties();

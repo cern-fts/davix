@@ -131,10 +131,10 @@ public:
     const std::pair<AwsSecretKey, AwsAccessKey> & getAwsAutorizationKeys() const;
 
     /// set listing mode flag for S3 bucket
-    void setS3ListingMode(const S3ListingMode s3_listing_mode);
+    void setS3ListingMode(const S3ListingMode::S3ListingMode s3_listing_mode);
 
     /// get listing mode flag for S3 bucket
-    S3ListingMode getS3ListingMode() const;
+    S3ListingMode::S3ListingMode getS3ListingMode() const;
 
     /// add the CA certificate in the directory 'path' as trusted certificate
     void addCertificateAuthorityPath(const std::string & path);

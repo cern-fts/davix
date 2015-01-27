@@ -145,7 +145,7 @@ struct RequestParamsInternal{
     bool _redirection; // redirection support
     bool _s3_flat; // s3 bucket flat listing mode
 
-    S3ListingMode _s3_listing_mode;
+    S3ListingMode::S3ListingMode _s3_listing_mode;
     // CA management
     std::vector<std::string> _ca_path;
 
@@ -310,11 +310,11 @@ const std::pair<AwsSecretKey, AwsAccessKey> & RequestParams::getAwsAutorizationK
     return d_ptr->_aws_cred;
 }
 
-void RequestParams::setS3ListingMode(const S3ListingMode s3_listing_mode){
+void RequestParams::setS3ListingMode(const S3ListingMode::S3ListingMode s3_listing_mode){
     d_ptr->_s3_listing_mode = s3_listing_mode;
 }
 
-S3ListingMode RequestParams::getS3ListingMode() const{
+S3ListingMode::S3ListingMode RequestParams::getS3ListingMode() const{
     return d_ptr->_s3_listing_mode;
 }
 

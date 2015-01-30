@@ -173,7 +173,10 @@ NEONRequest::~NEONRequest(){
     resetRequest();
 }
 
-void NEONRequest::eradicateSession(){
+void NEONRequest::cancelSessionReuse(){
+   // if session registered
+   // cancel any re-use of the session
+   //
    if(_neon_sess.get() != NULL){
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "Connection problem: eradicate session");
        _neon_sess->disable_session_reuse();
@@ -358,7 +361,7 @@ int NEONRequest::negotiateRequest(DavixError** err){
             req_started= req_running == false;
             createError(status, err);
 
-            eradicateSession();
+            cancelSessionReuse();
             ContextExplorer::SessionFactoryFromContext(_c).redirectionClean(_request_type, *_orig);
             return -1;
         }
@@ -584,6 +587,7 @@ dav_ssize_t NEONRequest::readBlock(char* buffer, dav_size_t max_size, DavixError
     _last_read= read_status= ne_read_response_block(_req, buffer, max_size );
     if(read_status <0){
        DavixError::setupError(err, davix_scope_http_request(), StatusCode::ConnectionProblem, "Invalid Read in request");
+       cancelSessionReuse();
        req_running = false;
        return -1;
     }
@@ -707,7 +711,7 @@ int NEONRequest::endRequest(DavixError** err){
         if(_last_read != 0){ // if read content, discard it
             DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_HTTP, "(EndRequest)(Libneon) Operation incomplete, kill the connection");
             ne_abort_request(_req);
-            eradicateSession();
+            cancelSessionReuse();
             _last_read = -1;
 
         }
@@ -717,7 +721,7 @@ int NEONRequest::endRequest(DavixError** err){
             createError(status, err);
             if(tmp_err){
                 DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "(EndRequest)(Libneon) Suppress broken connection {}  -> {} ", tmp_err->getStatus(), tmp_err->getErrMsg());
-                eradicateSession();
+                cancelSessionReuse();
             }
             DavixError::clearError(&tmp_err);
         }

@@ -208,7 +208,7 @@ private:
 
     void configureS3params();
 
-    void eradicateSession();
+    void cancelSessionReuse();
 
     // create initial neon request object
     int createRequest(DavixError** err);

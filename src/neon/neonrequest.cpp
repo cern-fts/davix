@@ -410,7 +410,7 @@ int NEONRequest::negotiateRequest(DavixError** err){
                     endRequest(NULL);
                     return startRequest(err);
                 }
-		end_status = 0;
+                end_status = 0;
                 break;
             default:
                 end_status = 0;
@@ -882,6 +882,7 @@ void NEONRequest::createError(int ne_status, DavixError **err){
 
         default:
             neon_generic_error_mapper(ne_status, code, str);
+            break;
     }
     DavixError::setupError(err, davix_scope_http_request(), code, str);
 }

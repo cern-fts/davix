@@ -272,7 +272,7 @@ ReturnType autoRetryExecutor(HttpIOChain & chain, IOChainContext & io_context, E
             // propagate fatal exceptions and connection error exceptions
             propagateNonRecoverableExceptions(error);
             // we can not recover from connexion timeout
-            // fail
+            // throw exception, cancel IO chain request
             if(error.code() == StatusCode::ConnectionTimeout){
                 throw error;
             }

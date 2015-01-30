@@ -107,9 +107,9 @@ dav_ssize_t HttpIOVecOps::preadVec(IOChainContext & iocontext, const DavIOVecInp
     boost::function<int (dav_off_t &, dav_off_t &)> offsetProvider( boost::bind(davIOVecProvider, input_vec, counter, (dav_ssize_t) count_vec,
                          _1, _2));
 
-    // header line need to be inferior to 8K on Apache2 / Ngix
-    // in Addition, some S3 implementation limit the total header size to 8k....
-    // 7900 bytes maximum for the range seems to be a ood compromise
+    // header line need to be inferior to 8K on Apache2 / ngnix
+    // in Addition, some S3 implementation limit the total header size to 4k....
+    // 3900 bytes maximum for the range seems to be a ood compromise
     std::vector< std::pair<dav_size_t, std::string> > vecRanges = generateRangeHeaders(3900, offsetProvider);
 
 
@@ -119,18 +119,13 @@ dav_ssize_t HttpIOVecOps::preadVec(IOChainContext & iocontext, const DavIOVecInp
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, " -> getPartialVec request for {} chunks", it->first);
 
         if(it->first == 1){ // one chunk only : no need of multi part
-            TRY_DAVIX{
-                if ( (tmp_ret = _start->pread(
-                          iocontext,
-                          (input_vec + p_diff)->diov_buffer,
-                          (input_vec+p_diff)->diov_size,
-                          (input_vec+p_diff)->diov_offset)) < 0){
-                    ret = -1;
-                    break;
-                }
-            }CATCH_DAVIX(&tmp_err);
+            tmp_ret = _start->pread(
+                      iocontext,
+                      (input_vec + p_diff)->diov_buffer,
+                      (input_vec+p_diff)->diov_size,
+                      (input_vec+p_diff)->diov_offset);
 
-            (output_vec+ p_diff)->diov_size = ret;
+            (output_vec+ p_diff)->diov_size = tmp_ret;
             (output_vec+ p_diff)->diov_buffer = (input_vec + p_diff)->diov_buffer;
             p_diff += 1;
             ret += tmp_ret;

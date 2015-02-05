@@ -253,6 +253,9 @@ public:
     /// @return content size, return -1 if chunked
     dav_ssize_t getAnswerSize() const;
 
+    /// get last modified time
+    time_t getLastModified() const;
+
     ///
     ///  clear the current result
     ///

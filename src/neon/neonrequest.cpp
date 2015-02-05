@@ -748,7 +748,7 @@ std::vector<char> & NEONRequest::getAnswerContentVec(){
 }
 
 dav_ssize_t NEONRequest::getAnswerSizeFromHeaders() const{
-    std::string str_file_size;
+    std::string str_file_size="";
     long size=-1;
     if( getAnswerHeader(ans_header_content_length, str_file_size)){
         StrUtil::trim(str_file_size);
@@ -769,6 +769,25 @@ dav_ssize_t NEONRequest::getAnswerSize() const{
         _ans_size = getAnswerSizeFromHeaders();
     return _ans_size;
 }
+
+
+time_t NEONRequest::getLastModified() const{
+    time_t t=0;
+    std::string str_lastmodified;
+    if( getAnswerHeader("Last-Modified", str_lastmodified)){
+        StrUtil::trim(str_lastmodified);
+        try{
+            t = S3::s3TimeConverter(str_lastmodified);
+        }catch(...){
+            str_lastmodified.clear();
+        }
+    }
+    if( str_lastmodified.empty()){
+       DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_HTTP, "Bad server answer: {} Invalid, impossible to determine last modified time");
+    }
+    return t;
+}
+
 
 bool NEONRequest::getAnswerHeader(const std::string &header_name, std::string &value) const{
     if(_req){

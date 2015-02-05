@@ -203,6 +203,11 @@ dav_ssize_t HttpRequest::getAnswerSize() const{
     return d_ptr->getAnswerSize();
 }
 
+time_t HttpRequest::getLastModified() const{
+    return d_ptr->getLastModified();
+}
+
+
 HttpCacheToken* HttpRequest::extractCacheToken()const{
     return NULL;
 }

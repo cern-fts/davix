@@ -141,6 +141,97 @@ int dav_stat_mapper_http(Context& context, const RequestParams* params, const Ur
 }
 
 
+dav_ssize_t incremental_listdir_parsing(HttpRequest* req, XMLPropParser * parser, dav_size_t s_buff, const std::string & scope){
+  //  std::cout << "time 1 pre-fecth" << time(NULL) << std::endl;
+    DavixError* tmp_err=NULL;
+
+    char buffer[s_buff+1];
+    const dav_ssize_t ret = req->readSegment(buffer, s_buff, &tmp_err);
+    checkDavixError(&tmp_err);
+    if(ret >= 0){
+        buffer[ret]= '\0';
+        parser->parseChunk(buffer, ret);
+    }else{
+        throw DavixException(scope, StatusCode::UnknowError, "Unknow readSegment error");
+    }
+
+    return ret;
+}
+
+
+int dav_stat_mapper_S3(Context& context, const RequestParams* params, const Uri & uri, struct StatInfo& st_info){
+    int ret = -1;
+    DavixError * tmp_err=NULL;
+    HeadRequest req(context, uri, &tmp_err);    
+
+    if( tmp_err == NULL){
+        req.setParameters(params);
+        req.executeRequest(&tmp_err);
+        const int code = req.getRequestCode();
+
+        // if 404, target either doesn't exist or is a S3 "directory"
+        if(code == 404){
+            Uri new_url = S3::s3UriTranslator(uri); 
+            DirHandle handle(new GetRequest(context, new_url, &tmp_err), new S3PropParser(params->getS3ListingMode(), uri.getPath()));
+
+            dav_ssize_t s_resu=0;
+
+            const int operation_timeout = params->getOperationTimeout()->tv_sec;
+            HttpRequest & http_req = *(handle.request);
+            XMLPropParser & parser = *(handle.parser);
+
+            time_t timestamp_timeout = time(NULL) + ((operation_timeout)?(operation_timeout):180);
+
+            http_req.setParameters(params);
+
+            http_req.beginRequest(&tmp_err);
+            checkDavixError(&tmp_err);
+
+            check_file_status(http_req, "Davix::Posix::S3Stat");
+
+            size_t prop_size = 0;
+            do{ // first entry
+               TRY_DAVIX{ 
+                    s_resu = incremental_listdir_parsing(&http_req, &parser, 2048, "Davix::Posix::S3Stat");
+               }CATCH_DAVIX(&tmp_err)
+                
+               if(tmp_err && (tmp_err->getStatus() == StatusCode::IsNotADirectory)){
+                  std::ostringstream ss;
+                  ss << uri << " not found";
+                  throw DavixException("Davix::Posix::S3Stat", StatusCode::FileNotFound, ss.str());
+                  return -1;
+               }
+               
+               prop_size = parser.getProperties().size();
+               if(s_resu < 2048 && prop_size <1){ // verify request status : if req done + no data -> error
+                  throw DavixException("Davix::Posix::S3Stat", StatusCode::ParsingError, "Invalid server response, not a S3 listing");
+               }
+               if(timestamp_timeout < time(NULL)){
+                  throw DavixException("Davix::Posix::S3Stat", StatusCode::OperationTimeout, "Operation timeout triggered while getting S3 object's stats");
+               }
+
+            }while( prop_size < 1); // prop < 1 means not enough data
+
+            st_info.mode = 0755;
+            st_info.mode |= S_IFDIR;
+            ret = 0;
+        }
+        else{ // found something, must be a file not directory
+            memset(&st_info, 0, sizeof(struct StatInfo));
+            const dav_ssize_t s = req.getAnswerSize();
+            st_info.size = std::max<dav_ssize_t>(0,s);
+            st_info.mode = 0755 | S_IFREG;
+            st_info.mtime = req.getLastModified();
+            ret = 0;
+        }
+        
+    }
+    checkDavixError(&tmp_err);
+    return ret;
+
+}
+
+
 dav_ssize_t getStatInfo(Context & c, const Uri & url, const RequestParams * p,
                       struct StatInfo& st_info){
     RequestParams params(p);
@@ -150,6 +241,9 @@ dav_ssize_t getStatInfo(Context & c, const Uri & url, const RequestParams * p,
     switch(params.getProtocol()){
          case RequestProtocol::Webdav:
             ret = dav_stat_mapper_webdav(c, &params, url, st_info);
+            break;
+         case RequestProtocol::AwsS3:
+            ret = dav_stat_mapper_S3(c, &params, url, st_info);
             break;
         default:
             ret = dav_stat_mapper_http(c, &params, url, st_info);
@@ -322,22 +416,7 @@ int internal_checksum(Context & c, const Uri & url, const RequestParams *p, std:
 }
 
 
-dav_ssize_t incremental_listdir_parsing(HttpRequest* req, XMLPropParser * parser, dav_size_t s_buff, const std::string & scope){
-  //  std::cout << "time 1 pre-fecth" << time(NULL) << std::endl;
-    DavixError* tmp_err=NULL;
 
-    char buffer[s_buff+1];
-    const dav_ssize_t ret = req->readSegment(buffer, s_buff, &tmp_err);
-    checkDavixError(&tmp_err);
-    if(ret >= 0){
-        buffer[ret]= '\0';
-        parser->parseChunk(buffer, ret);
-    }else{
-        throw DavixException(scope, StatusCode::UnknowError, "Unknow readSegment error");
-    }
-
-    return ret;
-}
 
 bool wedav_get_next_property(Ptr::Scoped<DirHandle> & handle, std::string & name_entry, StatInfo & info){
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, " -> wedav_get_next_property");
@@ -625,9 +704,6 @@ bool S3MetaOps::nextSubItem(IOChainContext &iocontext, std::string &entry_name, 
     }
 
 }
-
-
-
 
 
 } // Davix

@@ -167,6 +167,23 @@ Uri s3UriTranslator(const Uri & original_url){
     return Uri(ss.str());
 }
 
+time_t s3TimeConverter(std::string &s3time){
+    struct tm t;
+    memset(&t, 0, sizeof(struct tm));
+    size_t pos=0;
+    std::string tmp;
+
+    // check which datetime format is used
+    if(strptime(s3time.c_str(), "%a, %d %b %Y %H:%M:%S %z", &t) == NULL){
+        if((pos = s3time.find("T")) != std::string::npos){ // iso 8601
+            tmp = s3time.substr(0,pos) + " " + s3time.substr(pos+1,s3time.find('.',pos)-1);
+            strptime(tmp.c_str(), "%F %T", &t);
+        }
+    }
+    time_t mtime = timegm(&t);
+    return mtime;
+}
+
 
 } // S3
 

@@ -1,4 +1,5 @@
 #include "s3propparser.hpp"
+#include <utils/davix_s3_utils.hpp>
 
 #include <stack>
 #include <utils/davix_logger_internal.hpp>
@@ -14,6 +15,7 @@ const std::string size_prop = "Size";
 const std::string prefix_prop = "Prefix";
 const std::string com_prefix_prop = "CommonPrefixes";
 const std::string listbucketresult_prop = "ListBucketResult";
+const std::string last_modified_prop = "LastModified";
 
 struct S3PropParser::Internal{
     std::string current;
@@ -121,6 +123,17 @@ struct S3PropParser::Internal{
                 property.info.size = size;
             }catch(...){
                 DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "Unable to parse element size");
+            }
+        }
+
+        if( StrUtil::compare_ncase(last_modified_prop, elem) ==0){
+            try{
+                time_t mtime = S3::s3TimeConverter(current);
+                DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "element LastModified {}", current);
+                property.info.mtime = mtime;
+                property.info.ctime = mtime;
+            }catch(...){
+                DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "Unable to parse element LastModified");
             }
         }
 

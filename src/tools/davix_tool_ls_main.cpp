@@ -61,7 +61,7 @@ static void display_long_file_entry(const std::string & filename,  struct stat* 
     ss << Tool::string_from_mode(st->st_mode) << " ";
     ss << Tool::string_from_size_t(static_cast<size_t>(st->st_nlink),4) << " ";
     ss << Tool::string_from_size_t(st->st_size, 9) << " ";
-    ss << Tool::string_from_ptime(st->st_ctime) << " ";
+    ss << Tool::string_from_ptime(st->st_mtime) << " ";
     ss << filename << "\n";
 
     fputs(ss.str().c_str(), filestream);

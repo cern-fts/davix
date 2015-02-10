@@ -563,18 +563,11 @@ void s3StatMapper(Context& context, const RequestParams* params, const Uri & uri
             st_info.mode |= S_IFDIR;
         }
         else if(code == 200){ // found something, must be a file not directory
-            //memset(&st_info, 0, sizeof(struct StatInfo));
-            
-            // check content type and length in respond, if length = 0 & type = application/xml then it's a bucket
             std::string length;
             std::string type;
-
-            req.getAnswerHeader("Content-Length", length);
-            req.getAnswerHeader("Content-type", type);
-
             st_info.mode = 0755;
 
-            if((length == "0") && !(type.compare("application/xml"))) // is bucket
+            if(uri.getPath() == "/") // is bucket
                 st_info.mode |= S_IFDIR;
             else{   // is file
                 st_info.mode |= S_IFREG;
@@ -583,7 +576,8 @@ void s3StatMapper(Context& context, const RequestParams* params, const Uri & uri
                 st_info.mtime = req.getLastModified();
             }
         }
-        
+        if(code == 500)
+            throw DavixException(scope, StatusCode::UnknowError, "Internal Server Error triggered while attempting to get S3 object's stats");
     }
     checkDavixError(&tmp_err);
 }

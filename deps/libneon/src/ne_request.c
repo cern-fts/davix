@@ -1542,7 +1542,6 @@ static int do_connect(ne_session *sess, struct host_info *host)
     }
 
     do {
-        struct timespec current_time;
 
         sess->status.ci.address = host->current;
 	notify_status(sess, ne_status_connecting);
@@ -1556,10 +1555,13 @@ static int do_connect(ne_session *sess, struct host_info *host)
 #endif
 	ret = ne_sock_connect(sess->socket, host->current, host->port);
 
-    if(ret){
+    if(ret && sess->rdtimeout > 0){
+        struct timespec current_time;
         ne_gettime(&current_time);
-        ret = (current_time.tv_sec > deadline_timeout.tv_sec)?(NE_SOCK_TIMEOUT): ret;
-        break;
+        if(current_time.tv_sec > deadline_timeout.tv_sec){
+            ret= NE_SOCK_TIMEOUT;
+            break;
+        }
     }
 
     } while (ret && /* try the next address... */

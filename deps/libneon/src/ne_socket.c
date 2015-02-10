@@ -167,7 +167,7 @@ typedef struct in_addr ne_inet_addr;
 #endif
 #define NE_ISRESET(e) ((e) == ECONNRESET || (e) == ECONNABORTED || (e) == ENOTCONN)
 #define NE_ISCLOSED(e) ((e) == EPIPE)
-#define NE_ISINTR(e) ((e) == EINTR)
+#define NE_ISINTR(e) (((e) == EINTR) && ((e) != EAGAIN))
 #define NE_ISINPROGRESS(e) ((e) == EINPROGRESS)
 #endif
 

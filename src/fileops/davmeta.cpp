@@ -562,12 +562,26 @@ void s3StatMapper(Context& context, const RequestParams* params, const Uri & uri
             st_info.mode = 0755;
             st_info.mode |= S_IFDIR;
         }
-        else{ // found something, must be a file not directory
-            memset(&st_info, 0, sizeof(struct StatInfo));
-            const dav_ssize_t s = req.getAnswerSize();
-            st_info.size = std::max<dav_ssize_t>(0,s);
-            st_info.mode = 0755 | S_IFREG;
-            st_info.mtime = req.getLastModified();
+        else if(code == 200){ // found something, must be a file not directory
+            //memset(&st_info, 0, sizeof(struct StatInfo));
+            
+            // check content type and length in respond, if length = 0 & type = application/xml then it's a bucket
+            std::string length;
+            std::string type;
+
+            req.getAnswerHeader("Content-Length", length);
+            req.getAnswerHeader("Content-type", type);
+
+            st_info.mode = 0755;
+
+            if((length == "0") && !(type.compare("application/xml"))) // is bucket
+                st_info.mode |= S_IFDIR;
+            else{   // is file
+                st_info.mode |= S_IFREG;
+                const dav_ssize_t s = req.getAnswerSize();
+                st_info.size = std::max<dav_ssize_t>(0,s);
+                st_info.mtime = req.getLastModified();
+            }
         }
         
     }

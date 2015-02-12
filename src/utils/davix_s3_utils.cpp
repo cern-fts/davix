@@ -143,9 +143,10 @@ Uri tokenizeRequest(const RequestParams & params, const std::string & method, co
 }
 
 
-Uri s3UriTranslator(const Uri & original_url){
+Uri s3UriTranslator(const Uri & original_url, const RequestParams & params){
     std::string delimiter = "?delimiter=/";
     std::string prefix = "&prefix=";
+    std::string maxKey = "&max-keys=";
 
     std::ostringstream ss;
 
@@ -162,7 +163,7 @@ Uri s3UriTranslator(const Uri & original_url){
         prefix += tmp;
     }
     
-    ss << delimiter << prefix;    
+    ss << delimiter << prefix << maxKey << params.getS3MaxKey();    
 
     return Uri(ss.str());
 }

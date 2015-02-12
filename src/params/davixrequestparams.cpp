@@ -84,6 +84,7 @@ struct RequestParamsInternal{
         _ssl_check(true),
         _redirection(true),
         _s3_listing_mode(S3ListingMode::Hierarchical),
+        _s3_max_key_entries(10000),
         _ca_path(),
         _x509_data(),
         _idlogpass(),
@@ -120,6 +121,7 @@ struct RequestParamsInternal{
         _ssl_check(param_private._ssl_check),
         _redirection(param_private._redirection),
         _s3_listing_mode(param_private._s3_listing_mode),
+        _s3_max_key_entries(param_private._s3_max_key_entries),
         _ca_path(param_private._ca_path),
         _x509_data(param_private._x509_data),
         _idlogpass(param_private._idlogpass),
@@ -143,9 +145,15 @@ struct RequestParamsInternal{
     }
     bool _ssl_check; // ssl CA check
     bool _redirection; // redirection support
-    bool _s3_flat; // s3 bucket flat listing mode
-
+    
+    //bool _s3_flat; // s3 bucket flat listing mode
+    
+    // s3 bucket listing mode
     S3ListingMode::S3ListingMode _s3_listing_mode;
+
+    // Max number of keys returned by a S3 list bucket request
+    int _s3_max_key_entries; 
+
     // CA management
     std::vector<std::string> _ca_path;
 
@@ -316,6 +324,14 @@ void RequestParams::setS3ListingMode(const S3ListingMode::S3ListingMode s3_listi
 
 S3ListingMode::S3ListingMode RequestParams::getS3ListingMode() const{
     return d_ptr->_s3_listing_mode;
+}
+
+void RequestParams::setS3MaxKey(const int s3_max_key_entries){
+    d_ptr->_s3_max_key_entries = s3_max_key_entries;
+}
+
+int RequestParams::getS3MaxKey() const{
+    return d_ptr->_s3_max_key_entries;    
 }
 
 void RequestParams::addCertificateAuthorityPath(const std::string &path){

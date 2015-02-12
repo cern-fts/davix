@@ -519,7 +519,7 @@ void s3StatMapper(Context& context, const RequestParams* params, const Uri & uri
 
         // if 404, target either doesn't exist or is a S3 "directory"
         if(code == 404){
-            Uri new_url = S3::s3UriTranslator(uri); 
+            Uri new_url = S3::s3UriTranslator(uri, params); 
             DirHandle handle(new GetRequest(context, new_url, &tmp_err), new S3PropParser(params->getS3ListingMode(), uri.getPath()));
 
             dav_ssize_t s_resu=0;
@@ -635,7 +635,7 @@ void s3_start_listing_query(Ptr::Scoped<DirHandle> & handle, Context & context, 
     DavixError* tmp_err=NULL;
 
     if(params->getS3ListingMode() == S3ListingMode::Hierarchical){
-        Uri new_url = S3::s3UriTranslator(url); 
+        Uri new_url = S3::s3UriTranslator(url, params); 
         handle.reset(new DirHandle(new GetRequest(context, new_url, &tmp_err), new S3PropParser(params->getS3ListingMode(), url.getPath())));
     }
     else{

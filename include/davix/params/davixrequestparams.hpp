@@ -136,6 +136,12 @@ public:
     /// get listing mode flag for S3 bucket
     S3ListingMode::S3ListingMode getS3ListingMode() const;
 
+    /// set maximum number of key entries return by S3 list object request
+    void setS3MaxKey(const int s3_max_key_entries);
+
+    /// get maximun number of key entries return by S3 list object request
+    int getS3MaxKey() const;
+
     /// add the CA certificate in the directory 'path' as trusted certificate
     void addCertificateAuthorityPath(const std::string & path);
 

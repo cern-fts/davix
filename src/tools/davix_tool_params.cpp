@@ -49,6 +49,7 @@ const std::string scope_params = "Davix::Tools::Params";
 #define TIMEOUT_OPS         1012
 #define RETRY_OPT           1013
 #define S3_LISTING_MODE     1014
+#define S3_MAX_KEYS         1015
 
 // LONG OPTS
 
@@ -84,6 +85,7 @@ const std::string scope_params = "Davix::Tools::Params";
 
 #define LISTING_LONG_OPTIONS \
 {"s3-listing", required_argument, 0,  S3_LISTING_MODE }, \
+{"s3-maxkeys", required_argument, 0,  S3_MAX_KEYS }, \
 {"long-list", no_argument, 0,  'l' }
 
 OptParams::OptParams() :
@@ -210,6 +212,9 @@ int parse_davix_options_generic(const std::string &opt_filter,
                         p.params.setS3ListingMode(S3ListingMode::Hierarchical);
                     break;
                 }
+            case S3_MAX_KEYS:
+                p.params.setS3MaxKey(atoi(optarg));
+                break;
             case CAPATH_OPT:
                 p.params.addCertificateAuthorityPath(optarg);
                 break;

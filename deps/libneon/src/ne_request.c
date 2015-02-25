@@ -1206,12 +1206,15 @@ int ne_begin_request(ne_request *req)
      * then it is impossible to distinguish between a server failure
      * and a connection timeout if an EOF/RST is received.  So don't
      * do that. */
+    
+    /*
     if (!req->flags[NE_REQFLAG_IDEMPOTENT] && req->session->persisted
         && !req->session->flags[NE_SESSFLAG_CONNAUTH]) {
         NE_DEBUG(NE_DBG_HTTP, "req: Closing connection for non-idempotent "
                  "request.\n");
         ne_close_connection(req->session);
     }
+    */
 
     /* Build the request string, and send it */
     data = build_request(req);

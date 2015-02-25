@@ -346,6 +346,7 @@ int NEONRequest::negotiateRequest(DavixError** err){
                 && (
                     strstr(ne_get_error(_neon_sess->get_ne_sess()), "Could not") != NULL
                     || strstr(ne_get_error(_neon_sess->get_ne_sess()), "Connection reset by peer") != NULL
+                    || strstr(ne_get_error(_neon_sess->get_ne_sess()), "Broken pipe") != NULL
                     )){
                DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_HTTP, "Connection problem, retry");
                _number_try++;

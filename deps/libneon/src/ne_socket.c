@@ -339,7 +339,11 @@ int ne_sock_init(void)
 #endif
 
 #if defined(HAVE_SIGNAL)
-    (void) signal(SIGPIPE, SIG_IGN);
+    //(void) signal(SIGPIPE, SIG_IGN);
+    struct sigaction sa;
+    memset( &sa, 0, sizeof(sa) );
+    sa.sa_handler = SIG_IGN;
+    sigaction( SIGPIPE, &sa, NULL);
 #endif
 
 #ifdef USE_CHECK_IPV6

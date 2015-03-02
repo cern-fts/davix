@@ -167,7 +167,7 @@ typedef struct in_addr ne_inet_addr;
 #endif
 #define NE_ISRESET(e) ((e) == ECONNRESET || (e) == ECONNABORTED || (e) == ENOTCONN)
 #define NE_ISCLOSED(e) ((e) == EPIPE)
-#define NE_ISINTR(e) (((e) == EINTR) && ((e) != EAGAIN))
+#define NE_ISINTR(e) (((e) == EINTR) || ((e) == EAGAIN))
 #define NE_ISINPROGRESS(e) ((e) == EINPROGRESS)
 #endif
 
@@ -384,15 +384,18 @@ static int raw_poll(int fdno, int rdwr, int secs)
     int ret;
 #ifdef NE_USE_POLL
     struct pollfd fds;
-    int timeout = secs > 0 ? secs * 1000 : -1;
+    int time_left = (secs > 0)?(secs):(-1);
 
     fds.fd = fdno;
     fds.events = rdwr == 0 ? POLLIN : POLLOUT;
     fds.revents = 0;
 
     do {
-        ret = poll(&fds, 1, timeout);
-    } while (ret < 0 && NE_ISINTR(ne_errno));
+        ret = poll(&fds, 1, 1000);
+        if( ret < 0 && !NE_ISINTR(ne_errno)){
+            break; // error
+        }
+    } while (ret <= 0 && --time_left);
 #else
     fd_set rdfds, wrfds;
     struct timeval timeout, *tvp = (secs >= 0 ? &timeout : NULL);

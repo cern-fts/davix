@@ -71,9 +71,11 @@ std::vector<char> req_webdav_propfind(HttpRequest* req, DavixError** err){
 
     req->addHeaderField("Depth","0");
     req->setRequestMethod("PROPFIND");
+
     if( (ret = req->executeRequest(&tmp_err)) ==0){
         ret = davixRequestToFileStatus(req, davix_scope_stat_str(), &tmp_err);
         res.swap(req->getAnswerContentVec());
+
     }
 
     if(ret != 0)
@@ -89,6 +91,7 @@ int dav_stat_mapper_webdav(Context &context, const RequestParams* params, const 
     DavPropXMLParser parser;
     DavixError * tmp_err=NULL;
     HttpRequest req(context, url, &tmp_err);
+
     if( tmp_err == NULL){
         req.setParameters(params);
 
@@ -519,7 +522,7 @@ void s3StatMapper(Context& context, const RequestParams* params, const Uri & uri
 
         // if 404, target either doesn't exist or is a S3 "directory"
         if(code == 404){
-            Uri new_url = S3::s3UriTranslator(uri, params); 
+            Uri new_url = S3::s3UriTranslator(uri, params, true); 
             DirHandle handle(new GetRequest(context, new_url, &tmp_err), new S3PropParser(params->getS3ListingMode(), uri.getPath()));
 
             dav_ssize_t s_resu=0;
@@ -635,7 +638,11 @@ void s3_start_listing_query(Ptr::Scoped<DirHandle> & handle, Context & context, 
     DavixError* tmp_err=NULL;
 
     if(params->getS3ListingMode() == S3ListingMode::Hierarchical){
-        Uri new_url = S3::s3UriTranslator(url, params); 
+        Uri new_url = S3::s3UriTranslator(url, params, true); 
+        handle.reset(new DirHandle(new GetRequest(context, new_url, &tmp_err), new S3PropParser(params->getS3ListingMode(), url.getPath())));
+    }
+    else if(params->getS3ListingMode() == S3ListingMode::SemiHierarchical){
+        Uri new_url = S3::s3UriTranslator(url, params, false); 
         handle.reset(new DirHandle(new GetRequest(context, new_url, &tmp_err), new S3PropParser(params->getS3ListingMode(), url.getPath())));
     }
     else{

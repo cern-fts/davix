@@ -78,6 +78,14 @@ void printProgressBar(int out_fd, int percent, dav_ssize_t bytes_transfered, dav
 
 int configureMonitorCB(OptParams & opts, Transfer::Type type);
 
+void tokeniseUrl(std::string url, std::deque<std::string>& dirVec);
+
+// mkdir -p, discard front and back entries if trim is true
+int mkdirP(std::string dirPath, bool trim);
+int mkdirP(std::deque<std::string>& dirVec, bool trim);
+
+void batchTransferMonitor(std::string dirPath, int entryCount);
+
 }
 }
 

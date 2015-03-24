@@ -24,6 +24,7 @@
 #include <davix_internal.hpp>
 #include <string_utils/stringutils.hpp>
 #include "davix_tool_util.hpp"
+#include <utils/davix_logger_internal.hpp>
 
 #include <ctype.h>
 #include <simple_getpass/simple_get_pass.h>
@@ -455,6 +456,137 @@ int configureMonitorCB(OptParams & opts, Transfer::Type type){
     return 0;
 }
 
+void tokeniseUrl(std::string url, std::deque<std::string>& dirVec){
+    if(url.empty())
+        return;
 
+    std::string::iterator iter;
+
+    for(iter = url.begin(); iter != url.end(); ){
+        std::string::iterator tmpIter = std::find(iter, url.end(), '/');
+        std::string tmp = std::string(iter, tmpIter);
+        dirVec.push_back(tmp);
+
+        iter = tmpIter;
+        if(tmpIter != url.end())
+            ++iter;
+    }
 }
+
+int mkdirP(std::string url, bool trim){
+
+    int ret = -1;
+
+    std::deque<std::string> dirVec;
+    std::string::iterator iter;
+
+    for(iter = url.begin(); iter != url.end(); ){
+        std::string::iterator tmpIter = std::find(iter, url.end(), '/');
+        std::string tmp = std::string(url.begin(), tmpIter);
+        dirVec.push_back(tmp);
+
+        iter = tmpIter;
+        if(tmpIter != url.end())
+            ++iter;
+    }
+
+    ret = mkdirP(dirVec, trim);
+
+    return ret;
 }
+
+int mkdirP(std::deque<std::string>& dirVec, bool trim){
+    std::deque<std::string> dirList;
+
+    // ignore . entries, don't need to create
+    if(dirVec[0] == "." || dirVec[0] == "./")
+        dirVec.pop_front();
+
+    // discard first and last entry, for cases where first already exists and last is a file to be create/open
+    if(trim){
+        dirVec.pop_front();
+        dirVec.pop_back();
+    }
+
+   /* 
+    //TODO: optimise logic to skip tokens that have been created previously
+    for(unsigned int i=0; i<dirVec.size(); ++i){
+        if(mkdir(dirVec[i].c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) != 0){
+            if(errno == EEXIST) 
+                DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CORE, "Failed to create local directory, {} already exist. Continuing", dirVec[i]);
+            else{
+                std::cout << std::endl << "Failed to create local directory for " << dirVec[i] << std::endl;
+                return -1;
+            }
+        }
+        return 0;
+    }
+    return 0;
+    */
+    if(dirVec.size() == 0)
+        return 0;
+
+    int ret = -1;
+
+    // loop backwards and attempt to create dir with largest depth
+    // break when an existing dir has been found, or one has been created successfully
+    // failed attemps are pushed to queue to retry once we have the location of an existing dir 
+    for(unsigned int i=dirVec.size()-1; i>=0; --i){
+        ret = mkdir(dirVec[i].c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
+        if((ret == 0) || (errno == EEXIST)){
+            break;
+        }
+        else{
+            std::string tmp = dirVec[i];
+            dirList.push_front(tmp);
+        }
+    }
+
+    // at this point we only have to create the dir(s) they do not already exist
+    for(unsigned int ii=0; ii<dirList.size(); ++ii){
+        if(mkdir(dirList[ii].c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) != 0){
+            if(errno == EEXIST) 
+                DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CORE, "Failed to create local directory, {} already exist. Continuing", dirList[ii]);
+            else{
+                std::cout << std::endl << "Failed to create local directory for " << dirList[ii] << std::endl;
+                return -1;
+            }
+        }
+    }
+    return 0;
+}
+
+
+void batchTransferMonitor(std::string dirPath, int entryCount){
+    if(isatty(STDERR_FILENO) !=1)
+        return;
+
+    static bool print_header = false;
+    static Chrono::TimePoint start_time, last_time;
+    Chrono::TimePoint current_time;
+    Chrono::Clock clk(Chrono::Clock::Monolitic, Chrono::Clock::Second);
+
+    current_time = clk.now();
+
+
+    if(print_header == false){
+        last_time = start_time = clk.now();
+        print_header = true;
+    }else{
+        // tty display is slow
+        // display progression only every second
+        if(current_time < (last_time + Chrono::Duration(1)))
+            return;
+    }
+
+    std::cout << "\r" << "In directory: " << dirPath << 
+        "      Files processed: ";
+    std::cout.width(10);
+    std::cout << entryCount <<
+        "                     " << std::flush;
+}
+
+
+} //Tool
+} //Davix

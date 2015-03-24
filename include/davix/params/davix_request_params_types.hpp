@@ -50,8 +50,10 @@ namespace MetalinkMode{
 
 namespace S3ListingMode{
     enum S3ListingMode{
-        // Hierarchical listing 
+        // Full hierarchical listing (depth is 1) 
         Hierarchical,
+        // Semi-hierarchical listing (depth is infinity)
+        SemiHierarchical, 
         // Flat listing
         Flat
     };

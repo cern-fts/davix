@@ -156,9 +156,6 @@ static int preGetCheck(Tool::OptParams & opts, DavixError** err ){
 
     // check target resource is a file or a collection
     if( f.stat(&opts.params, &st, &tmp_err) == 0){
-        if(tmp_err)
-            Tool::errorPrint(&tmp_err);
-
         if(st.st_mode & S_IFDIR && (opts.params.getProtocol() != RequestProtocol::Http)){ // resource requested is a directory
             std::string url(opts.vec_arg[0]);
 
@@ -199,6 +196,8 @@ static int preGetCheck(Tool::OptParams & opts, DavixError** err ){
 
         return (ret >= 0)?0:-1;
     }
+    if(tmp_err)
+    DavixError::propagateError(err, tmp_err);
     return -1;
 }
 

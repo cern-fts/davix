@@ -50,6 +50,7 @@ const std::string scope_params = "Davix::Tools::Params";
 #define RETRY_OPT           1013
 #define S3_LISTING_MODE     1014
 #define S3_MAX_KEYS         1015
+#define RETRY_DELAY_OPT     1016
 
 // LONG OPTS
 
@@ -63,6 +64,7 @@ const std::string scope_params = "Davix::Tools::Params";
 {"redirection", required_argument, 0, REDIRECTION_OPT }, \
 {"conn-timeout", required_argument, 0, CONN_TIMEOUT }, \
 {"retry", required_argument, 0, RETRY_OPT }, \
+{"retry-delay", required_argument, 0, RETRY_DELAY_OPT }, \
 {"timeout", required_argument, 0, TIMEOUT_OPS }, \
 {"trace", required_argument, 0, TRACE_OPTIONS }, \
 {"verbose", no_argument, 0,  0 }, \
@@ -233,6 +235,9 @@ int parse_davix_options_generic(const std::string &opt_filter,
             case RETRY_OPT:
                 p.params.setOperationRetry( parse_int(optarg, argv));
                 break;
+            case RETRY_DELAY_OPT:
+                p.params.setOperationRetryDelay( parse_int(optarg, argv));
+                break;
             case S3_ACCESS_KEY:
                 p.aws_auth.second = optarg;
                 break;
@@ -390,6 +395,8 @@ int parse_davix_put_options(int argc, char** argv, OptParams & p, DavixError** e
 std::string get_common_options(){
            return  "  Common Options:\n"
             "\t--conn-timeout TIME:      Connection timeout in seconds. default: 30\n"
+            "\t--retry NUMBER:           Number of retry attempt in case of an operation failure. default: 10\n"
+            "\t--retry-delay TIME:       Number of seconds to wait between retry attempts. default: 0\n"
             "\t--debug:                  Debug mode\n"
             "\t--header, -H:             Add a header field to the request\n"
             "\t--help, -h:               Display this help message\n"

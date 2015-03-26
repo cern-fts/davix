@@ -137,10 +137,10 @@ public:
     S3ListingMode::S3ListingMode getS3ListingMode() const;
 
     /// set maximum number of key entries return by S3 list object request
-    void setS3MaxKey(const int s3_max_key_entries);
+    void setS3MaxKey(const unsigned long s3_max_key_entries);
 
     /// get maximun number of key entries return by S3 list object request
-    int getS3MaxKey() const;
+    unsigned long getS3MaxKey() const;
 
     /// add the CA certificate in the directory 'path' as trusted certificate
     void addCertificateAuthorityPath(const std::string & path);
@@ -189,6 +189,21 @@ public:
     /// \return
     /// get current number of retry attempt, see \ref setOperationRetry for more details
     int getOperationRetry() const;
+
+
+    ///
+    /// \brief Delay in second between retry attempts
+    ///// \param delay_retry
+    ///
+    /// define the number of seconds between retry attempts in case of slow servers
+    void setOperationRetryDelay(int delay_retry);
+
+
+    ///
+    /// \brief getOperationRetryDelay
+    /// \return
+    /// get current number of seconds between retry attempts, see \ref setOperationRetryDelay for more details
+    int getOperationRetryDelay() const;    
 
 
 #ifdef __DAVIX_HAS_STD_FUNCTION

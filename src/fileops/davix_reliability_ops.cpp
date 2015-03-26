@@ -260,6 +260,7 @@ ReturnType autoRetryExecutor(HttpIOChain & chain, IOChainContext & io_context, E
 
     (void) chain;
     const int max_retry = io_context._reqparams->getOperationRetry();
+    const int retry_delay = io_context._reqparams->getOperationRetryDelay();
     int retry =1;
     const Uri & u = io_context._uri;
 
@@ -287,6 +288,7 @@ ReturnType autoRetryExecutor(HttpIOChain & chain, IOChainContext & io_context, E
             throw DavixException(davix_scope_io_buff(), StatusCode::UnknowError, fmt::format("Unrecoverable error from IOChain on {}", u));
         }
         ++retry;
+        sleep(retry_delay);
     }
 }
 

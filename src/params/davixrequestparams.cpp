@@ -101,7 +101,8 @@ struct RequestParamsInternal{
         _session_flag(SESSION_FLAG_KEEP_ALIVE),
         _state_uid(get_requeste_uid()),
         _transferCb(),
-        retry_number(default_retry_number)
+        retry_number(default_retry_number),
+        retry_delay()
     {
         timespec_clear(&connexion_timeout);
         timespec_clear(&ops_timeout);
@@ -138,7 +139,8 @@ struct RequestParamsInternal{
         _session_flag(param_private._session_flag),
         _state_uid(param_private._state_uid),
         _transferCb(param_private._transferCb),
-        retry_number(param_private.retry_number){
+        retry_number(param_private.retry_number),
+        retry_delay(param_private.retry_delay){
 
         timespec_copy(&(connexion_timeout), &(param_private.connexion_timeout));
         timespec_copy(&(ops_timeout), &(param_private.ops_timeout));
@@ -146,13 +148,11 @@ struct RequestParamsInternal{
     bool _ssl_check; // ssl CA check
     bool _redirection; // redirection support
     
-    //bool _s3_flat; // s3 bucket flat listing mode
-    
     // s3 bucket listing mode
     S3ListingMode::S3ListingMode _s3_listing_mode;
 
     // Max number of keys returned by a S3 list bucket request
-    int _s3_max_key_entries; 
+    unsigned long _s3_max_key_entries; 
 
     // CA management
     std::vector<std::string> _ca_path;
@@ -193,6 +193,9 @@ struct RequestParamsInternal{
 
     // retry attempts
     int retry_number;
+
+    // delay in seconds between retry attempts
+    int retry_delay;
 
     // method
     inline void regenerateStateUid(){
@@ -326,11 +329,11 @@ S3ListingMode::S3ListingMode RequestParams::getS3ListingMode() const{
     return d_ptr->_s3_listing_mode;
 }
 
-void RequestParams::setS3MaxKey(const int s3_max_key_entries){
+void RequestParams::setS3MaxKey(const unsigned long s3_max_key_entries){
     d_ptr->_s3_max_key_entries = s3_max_key_entries;
 }
 
-int RequestParams::getS3MaxKey() const{
+unsigned long RequestParams::getS3MaxKey() const{
     return d_ptr->_s3_max_key_entries;    
 }
 
@@ -376,6 +379,14 @@ void RequestParams::setOperationRetry(int number_retry){
 
 int RequestParams::getOperationRetry() const{
     return d_ptr->retry_number;
+}
+
+void RequestParams::setOperationRetryDelay(int delay_retry){
+    d_ptr->retry_delay = delay_retry;
+}
+
+int RequestParams::getOperationRetryDelay() const{
+    return d_ptr->retry_delay;
 }
 
 void RequestParams::setTransfertMonitorCb(const TransferMonitorCB &cb){

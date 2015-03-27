@@ -81,8 +81,10 @@ static int populateTaskQueue(const Tool::OptParams & opts, std::string uri, std:
     struct stat st;
     struct dirent* d;
     int entry_counter=0;
+    std::string last_success_entry;
 
     std::deque<std::pair<std::string,std::string> > dirQueue;
+    std::deque<std::pair<std::string,std::string> > opQueue;
 
     // set up first entry
     if(!uri.empty()){
@@ -117,33 +119,48 @@ static int populateTaskQueue(const Tool::OptParams & opts, std::string uri, std:
         } 
 
         while( ((d = pos.readdirpp(fd, &st, &tmp_err)) != NULL)){    // if one entry inside a directory fails, the loop exits, the other entires are not processed
+
+            last_success_entry = dirQueue.front().first+d->d_name;
             // for each entry, do a stat to see if it's a directory, if yes, push to dirQueue for further processing    
             if(st.st_mode & S_IFDIR){
                 DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Directory entry found, pushing {}/ to dirQueue", dirQueue.front().first+d->d_name);
                 dirQueue.push_back(std::make_pair(dirQueue.front().first+d->d_name+"/",dirQueue.front().second+"/"+d->d_name));
             }
             else if(!(st.st_mode & S_IFDIR)){
-                //push op to task queue
-                DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to work queue, target is {} and destination is {}.", dirQueue.front().first+d->d_name, dirQueue.front().second+"/"+d->d_name);
-                GetOp* op = new GetOp(opts, (dirQueue.front().first+d->d_name), (dirQueue.front().second+"/"+d->d_name), &tmp_err);
-                tq->pushOp(op);
+                //if we spend too long in here, server will likely close the connection mid-readdirpp, need to get all the entries quickly before processing them
+                opQueue.push_back(std::make_pair(dirQueue.front().first+d->d_name, dirQueue.front().second+"/"+d->d_name));
                 entry_counter++;
             }
-            Tool::batchTransferMonitor(dirQueue.front().first, entry_counter);
+            Tool::batchTransferMonitor(dirQueue.front().first, "Crawling", entry_counter, NULL);
         }
         
         if(tmp_err){
             Tool::errorPrint(&tmp_err);
-            cerr << endl << "Error occured during listing  " << dirQueue.front().first << " Number of entries processed: " << entry_counter << ". Continuing..."<< endl;
+            cerr << endl << "Error occured during listing  " << dirQueue.front().first << " Number of entries processed in current directory: " << entry_counter << ". Continuing..."<< endl;
+            cerr << endl << "Last succesful entry is " << last_success_entry << endl;
         }
 
         entry_counter = 0;
         
         pos.closedirpp(fd, NULL);
+
+        int num_of_ops = opQueue.size();
+
+        for(std::deque<std::pair<std::string,std::string> >::iterator it = opQueue.begin(); it!=opQueue.end(); ++it){
+            //push op to task queue
+            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to work queue, target is {} and destination is {}.", dirQueue.front().first+d->d_name, dirQueue.front().second+"/"+d->d_name);
+            GetOp* op = new GetOp(opts, (opQueue.front().first), (opQueue.front().second));
+            tq->pushOp(op);
+            opQueue.pop_front();
+
+            entry_counter++;
+            Tool::batchTransferMonitor(dirQueue.front().first, "Populating task queue for", entry_counter, num_of_ops);
+        }
+        entry_counter = 0;
         dirQueue.pop_front();
     }
 
-    return (tmp_err && tmp_err)?(-1):0;
+    return (tmp_err)?(-1):0;
 }
 
 static int preGetCheck(Tool::OptParams & opts, DavixError** err ){
@@ -171,6 +188,8 @@ static int preGetCheck(Tool::OptParams & opts, DavixError** err ){
             // if protocol is S3, set listing mode to SemiHierarchical, we want to get every object under the same prefix in one go
             if (opts.params.getProtocol() == RequestProtocol::AwsS3){
                 opts.params.setS3ListingMode(S3ListingMode::SemiHierarchical);
+                // unfortunately s3 defaults max-keys to 1000 and doesn't provide a way to disable the cap, set to large number
+                opts.params.setS3MaxKey(999999999); 
             }
 
             ret = populateTaskQueue(opts, url, opts.output_file_path, &tq, &tmp_err);
@@ -191,14 +210,10 @@ static int preGetCheck(Tool::OptParams & opts, DavixError** err ){
                 close(out_fd);
             }
         }
-        if(tmp_err)
-            DavixError::propagateError(err, tmp_err);
-
-        return (ret >= 0)?0:-1;
     }
     if(tmp_err)
-    DavixError::propagateError(err, tmp_err);
-    return -1;
+        DavixError::propagateError(err, tmp_err);
+    return (ret >= 0)?0:-1;
 }
 
 int main(int argc, char** argv){

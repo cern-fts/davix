@@ -39,17 +39,17 @@ int DavixThread::run(){
 
                 if(op != NULL){
                     state = BUSY;
+
                     int ret = op->executeOp();
-                    if(ret < 0){
-                        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "(DavixThread) Worker thread: {} failed to execute op on {}", 
-                                threadId, op->getTargetUrl());
-                    }
+                    if(ret < 0)
+                        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "(DavixThread) Worker thread: {} failed to execute op on {}.", 
+                                    threadId, op->getTargetUrl());
+                    
                     delete op;
                     state = IDLE;
                 }
                 break;
             }
-
             case STOP:
             {
                 return 0;

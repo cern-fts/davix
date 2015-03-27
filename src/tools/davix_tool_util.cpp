@@ -558,7 +558,7 @@ int mkdirP(std::deque<std::string>& dirVec, bool trim){
 }
 
 
-void batchTransferMonitor(std::string dirPath, int entryCount){
+void batchTransferMonitor(std::string dirPath, std::string msg, int entryCount, int totalEntry){
     if(isatty(STDERR_FILENO) !=1)
         return;
 
@@ -574,17 +574,19 @@ void batchTransferMonitor(std::string dirPath, int entryCount){
         last_time = start_time = clk.now();
         print_header = true;
     }else{
-        // tty display is slow
-        // display progression only every second
         if(current_time < (last_time + Chrono::Duration(1)))
             return;
     }
 
-    std::cout << "\r" << "In directory: " << dirPath << 
+    std::cout << "\r" << msg << " " << dirPath << 
         "      Files processed: ";
     std::cout.width(10);
-    std::cout << entryCount <<
-        "                     " << std::flush;
+    std::cout << entryCount;
+    
+    if(totalEntry != NULL)
+        std::cout << "/" << totalEntry;
+
+    std::cout << "                     " << std::flush;
 }
 
 

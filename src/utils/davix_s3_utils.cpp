@@ -164,12 +164,12 @@ Uri s3UriTranslator(const Uri & original_url, const RequestParams & params, cons
         prefix += tmp;
     }
     
+    ss << prefix << maxKey << params.getS3MaxKey();
+
     // skip delimiter if where we want to list everything after a certain prefix, 
     // useful in cases like GET Collection
     if(addDelimiter)
-        ss << prefix << delimiter << maxKey << params.getS3MaxKey();    
-    else 
-        ss << prefix << maxKey << params.getS3MaxKey();
+        ss << delimiter;    
 
     return Uri(ss.str());
 }

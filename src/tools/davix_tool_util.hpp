@@ -84,7 +84,7 @@ void tokeniseUrl(std::string url, std::deque<std::string>& dirVec);
 int mkdirP(std::string dirPath, bool trim);
 int mkdirP(std::deque<std::string>& dirVec, bool trim);
 
-void batchTransferMonitor(std::string dirPath, int entryCount);
+void batchTransferMonitor(std::string dirPath, std::string msg, int entryCount, int totalEntry);
 
 }
 }

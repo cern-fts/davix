@@ -21,6 +21,10 @@
 #include <davix.hpp>
 #include <tools/davix_tool_params.hpp>
 #include <tools/davix_tool_util.hpp>
+#include <utils/davix_taskqueue.hpp>
+#include <utils/davix_op.hpp>
+#include <utils/davix_thread_pool.hpp>
+#include <utils/davix_logger_internal.hpp>
 #include <cstdio>
 
 
@@ -69,6 +73,117 @@ static int execute_put(const Tool::OptParams & opts, int fd, DavixError** err){
 }
 
 
+static int tryMakeCollection(const Tool::OptParams & opts, std::string dst_path){
+    Context c;
+    DavixError* err=NULL;
+
+    configureContext(c, opts);
+    DavFile f(c,dst_path);
+    f.makeCollection(&opts.params, &err);
+
+    if(err){
+        if(err->getStatus() == StatusCode::FileExist){
+            std::cerr << std::endl << scope_put << " " << dst_path << " already exists, continuing..." << std::endl;
+            DavixError::clearError(&err);
+        }
+        else{
+            Tool::errorPrint(&err);
+            return -1;
+        }
+    }
+    return 0;
+}
+
+static int populateTaskQueue(const Tool::OptParams & opts, std::string src_path, std::string dst_path, DavixTaskQueue* tq, DavixError** err ){
+    struct stat st;
+    DIR* dp;
+    struct dirent *de;
+    int ret = -1;
+    int entry_counter = 0;
+
+    if((dp = opendir(src_path.c_str()) ) == NULL){
+        errno_to_davix_exception(errno, scope_put, std::string("for source file ").append(src_path));
+        return -1;
+    }
+
+    // process entries recursively
+    while ((de = readdir(dp)) != NULL) {
+        if((strcmp(de->d_name, ".")) && (strcmp(de->d_name, ".."))){    // ignore "." and ".." entries
+            if(stat(((src_path+de->d_name).c_str()), &st) == 0){    // check if entry is file or directory
+                if(S_ISDIR(st.st_mode)){    // is directory
+                    if(opts.params.getProtocol() != RequestProtocol::AwsS3){    // if protocol is S3, don't need make collection (not heirarchical)
+                        ret = tryMakeCollection(opts, dst_path+"/"+de->d_name);
+                        if(ret <0)
+                            return ret;
+                    }
+                    ret = populateTaskQueue(opts, src_path+de->d_name+"/", dst_path+"/"+de->d_name, tq, err);
+                }
+                else if(S_ISREG(st.st_mode) && st.st_size > 0){
+                    //push op to task queue
+                    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to work queue, source is {} and destination is {}.", src_path+de->d_name, dst_path+"/"+de->d_name);
+                    PutOp* op = new PutOp(opts, src_path+de->d_name, dst_path+"/"+de->d_name, static_cast<dav_size_t>(st.st_size));
+                    tq->pushOp(op);
+                    entry_counter++;
+                }
+            }
+            else{
+                errno_to_davix_exception(errno, scope_put, std::string("for source file ").append(src_path));
+                return -1;
+            }
+        }
+        Tool::batchTransferMonitor(src_path, "Populating task queue for", entry_counter, NULL);
+    }
+    closedir(dp);
+    return (err)?(-1):0;
+}
+
+
+static int prePutCheck(Tool::OptParams & opts, DavixError** err){
+    struct stat st;
+    int ret = -1;
+    
+    if((ret = stat(opts.input_file_path.c_str(), &st)) != 0){
+        errno_to_davix_exception(errno, scope_put, std::string("for source file ").append(opts.input_file_path));
+        return -1;
+    }
+
+    if(st.st_mode & S_IFDIR){
+        std::string src_path(opts.input_file_path);
+
+        if(src_path[src_path.size()] != '/')
+            src_path += '/';
+
+        DavixTaskQueue tq;
+
+        // create threadpool instance 
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Creating threadpool");
+        DavixThreadPool tp(&tq);
+
+        if(opts.params.getProtocol() != RequestProtocol::AwsS3){    // if protocol is S3, don't need make collection (not heirarchical)
+            ret = tryMakeCollection(opts, opts.vec_arg[1]);
+            if(ret <0)
+                return ret;
+        }
+
+        ret = populateTaskQueue(opts, src_path, opts.vec_arg[1], &tq, err);
+
+        // if task queue is empty, then all work is done, stop workers. Otherwise wait.
+        while(!tq.isEmpty()){
+            sleep(2);
+        }
+        tp.shutdown();
+        Tool::flushFinalLineShell(STDOUT_FILENO);        
+    }
+    else{ // single file to upload, process it normally
+        int fd_in = -1;
+        if(((fd_in = Tool::getInFd(opts, scope_put, err)) > 0) 
+                && (Tool::configureMonitorCB(opts, Transfer::Write)) == 0){
+            execute_put(opts, fd_in, err);
+            close(fd_in);
+        }
+    }
+    return ret;
+}
 
 
 int main(int argc, char** argv){
@@ -76,18 +191,11 @@ int main(int argc, char** argv){
     Tool::OptParams opts;
     DavixError* tmp_err=NULL;
     opts.help_msg = help_msg(argv[0]);
-    int fd_in= -1;
 
-    if( (retcode= Tool::parse_davix_put_options(argc, argv, opts, &tmp_err)) ==0
-        && (retcode = Tool::configureAuth(opts)) == 0
-        && (retcode = Tool::configureMonitorCB(opts, Transfer::Write)) == 0){
-        if( ( fd_in = Tool::getInFd(opts, scope_put, &tmp_err)) > 0){
-            retcode = execute_put(opts, fd_in, &tmp_err);
-            close(fd_in);
-        }
+    if(( (retcode = Tool::parse_davix_put_options(argc, argv, opts, &tmp_err)) == 0)
+        && ((retcode = Tool::configureAuth(opts)) == 0)){
+        retcode = prePutCheck(opts, &tmp_err);
     }
-    
-
     Tool::errorPrint(&tmp_err);
     return retcode;
 }

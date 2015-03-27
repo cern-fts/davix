@@ -55,8 +55,6 @@ int GetOp::executeOp(){
         
         //if getToFd failed, remove the just created blank local file
         if(tmp_err){
-            if(tmp_err->getStatus() == StatusCode::FileNotFound)
-                ret = -2;
             std::cerr << std::endl << _scope << " Failed to GET " << _target_url << std::endl;
             Tool::errorPrint(&tmp_err);
             remove(_destination_url.c_str());
@@ -95,19 +93,61 @@ int GetOp::getOutFd(){
 //-------------------------------------------------
 //----------------------PutOp----------------------
 //-------------------------------------------------
-PutOp::PutOp(Tool::OptParams opts, std::string target_url, std::string destination_url) :
+PutOp::PutOp(Tool::OptParams opts, std::string target_url, std::string destination_url, dav_size_t file_size) :
     DavixOp(opts, target_url, destination_url)
 {
     opType = "PUT";
     _scope = "Davix::DavixOp::PutOp";
+    _file_size = file_size;
+
 }
 
 PutOp::~PutOp(){}
 
 int PutOp::executeOp(){
+    Context c;
+    configureContext(c, _opts);
+    DavixError* tmp_err=NULL;
+    int fd = -1;
+
+    if( (fd = getInFd(&tmp_err)) < 0){
+        if(tmp_err)
+            Tool::errorPrint(&tmp_err);
+        return -1;
+    }
+    
+    TRY_DAVIX{
+        DavFile f(c, _destination_url);
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "{} executing op on ", _scope, _destination_url);
+        f.put(&_opts.params, fd, _file_size);
+        close(fd);
+        return 0;
+    }CATCH_DAVIX(&tmp_err);
+
+    if(fd != -1)
+        close(fd);
+
+    if(tmp_err->getStatus() == StatusCode::FileExist){
+        std::cerr << std::endl << _scope << " " << _destination_url << " already exists, continuing..." << std::endl;
+    }
+    else
+        std::cerr << std::endl << _scope << " Failed to PUT " << _target_url << std::endl;
+        Tool::errorPrint(&tmp_err);
+    return -1;
 }
 
-int PutOp::getInFd(){
+int PutOp::getInFd(DavixError** err){
+    int fd = -1;
+    if(_target_url.empty() == false){
+        if((fd = open(_target_url.c_str(), O_RDONLY)) <0  ){
+            davix_errno_to_davix_error(errno, _scope, std::string("for source file ").append(_target_url), err);
+            return -1;
+        }
+    }else{
+        fd = dup(STDOUT_FILENO);
+    }
+    return fd;
+    
 }
 
 } // namespace Davix

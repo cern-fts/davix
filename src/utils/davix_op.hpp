@@ -48,12 +48,13 @@ private:
 class PutOp : public DavixOp{
 
 public:
-    PutOp(Tool::OptParams opts, std::string target_url, std::string destination_url);
+    PutOp(Tool::OptParams opts, std::string target_url, std::string destination_url, dav_size_t file_size);
     virtual ~PutOp();
     virtual int executeOp();
-    int getInFd();
+    int getInFd(DavixError** err);
 
 private:
+    dav_size_t _file_size;
 
     
 };

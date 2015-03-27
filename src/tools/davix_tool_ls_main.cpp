@@ -35,7 +35,7 @@ using namespace std;
 std::string  get_base_listing_options(){
     return "  Listing Options:\n"
            "\t--long-list, -l:          long Listing mode\n"
-           "\t--s3-listing:             S3 bucket flat listing mode - flat or hierarchical(default)\n"
+           "\t--s3-listing:             S3 bucket listing mode - flat, semi or hierarchical(default)\n"
            "\t--s3-maxkeys:             Maximum number of entries returns by S3 list bucket request. default: 10000\n";
 }
 

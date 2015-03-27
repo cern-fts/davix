@@ -194,7 +194,7 @@ int parse_davix_options_generic(const std::string &opt_filter,
                 p.debug = true;
                 // max log level
                 setLogLevel(DAVIX_LOG_TRACE);
-                setLogScope(DAVIX_LOG_SCOPE_ALL | DAVIX_LOG_SCOPE_NEON | DAVIX_LOG_BODY | DAVIX_LOG_XML);
+                setLogScope(DAVIX_LOG_SCOPE_ALL ^ DAVIX_LOG_XML);
                 break;
             case 'E':
                  p.cred_path = SanitiseTildedPath(optarg);
@@ -212,6 +212,8 @@ int parse_davix_options_generic(const std::string &opt_filter,
                         p.params.setS3ListingMode(S3ListingMode::Flat); 
                     else if(std::string(optarg).compare("hierarchical")==0)
                         p.params.setS3ListingMode(S3ListingMode::Hierarchical);
+                    else if(std::string(optarg).compare("semi")==0)
+                        p.params.setS3ListingMode(S3ListingMode::SemiHierarchical);
                     break;
                 }
             case S3_MAX_KEYS:

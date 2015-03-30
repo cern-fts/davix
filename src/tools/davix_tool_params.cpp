@@ -67,7 +67,6 @@ const std::string scope_params = "Davix::Tools::Params";
 {"retry-delay", required_argument, 0, RETRY_DELAY_OPT }, \
 {"timeout", required_argument, 0, TIMEOUT_OPS }, \
 {"trace", required_argument, 0, TRACE_OPTIONS }, \
-{"verbose", no_argument, 0,  0 }, \
 {"version", no_argument, 0, 'V'}
 
 #define SECURITY_LONG_OPTIONS \
@@ -93,7 +92,6 @@ const std::string scope_params = "Davix::Tools::Params";
 OptParams::OptParams() :
     params(),
     vec_arg(),
-    verbose(false),
     debug(false),
     req_type(),
     help_msg(),
@@ -408,7 +406,6 @@ std::string get_common_options(){
             "\t--redirection OPT:        Transparent redirection support. value=yes|no. default=yes)\n"
             "\t--timeout TIME:           Global timeout for the operation in seconds. default: infinite\n"
             "\t--trace:                  Specify one or more scopes to trace. (Ex: --trace log level(optional),header,file)\n"
-            "\t--verbose:                Verbose mode\n"
             "\t--version, -V:            Display version\n"
             "  Security Options:\n"
             "\t--capath CA_PATH:         Add an additional certificate authority directory\n"

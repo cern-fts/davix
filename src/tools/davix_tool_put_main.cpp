@@ -19,11 +19,12 @@
 */
 
 #include <davix.hpp>
+#include <davix_internal.hpp>
 #include <tools/davix_tool_params.hpp>
 #include <tools/davix_tool_util.hpp>
-#include <utils/davix_taskqueue.hpp>
-#include <utils/davix_op.hpp>
-#include <utils/davix_thread_pool.hpp>
+#include <tools/davix_taskqueue.hpp>
+#include <tools/davix_op.hpp>
+#include <tools/davix_thread_pool.hpp>
 #include <utils/davix_logger_internal.hpp>
 #include <cstdio>
 
@@ -131,7 +132,7 @@ static int populateTaskQueue(const Tool::OptParams & opts, std::string src_path,
                 return -1;
             }
         }
-        Tool::batchTransferMonitor(src_path, "Populating task queue for", entry_counter, NULL);
+        Tool::batchTransferMonitor(src_path, "Populating task queue for", entry_counter, 0);
     }
     closedir(dp);
     return (err)?(-1):0;

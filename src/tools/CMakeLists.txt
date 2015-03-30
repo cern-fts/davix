@@ -12,7 +12,7 @@ LIST(APPEND davix_rm_main_src "davix_tool_rm_main.cpp")
 LIST(APPEND davix_mkcol_main_src "davix_tool_mkcol_main.cpp")
 LIST(APPEND davix_mv_main_src "davix_tool_mv_main.cpp")
 LIST(APPEND davix_copy_main_src "davix_tool_copy_main.cpp")
-LIST(APPEND davix_tool_common_src "${CMAKE_CURRENT_SOURCE_DIR}/davix_tool_params.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/davix_tool_util.cpp" "${SRC_SIMPLE_GET_PASS}")
+LIST(APPEND davix_tool_common_src "${CMAKE_CURRENT_SOURCE_DIR}/davix_tool_params.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/davix_tool_util.cpp" "${SRC_SIMPLE_GET_PASS}" "${CMAKE_CURRENT_SOURCE_DIR}/davix_op.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/davix_taskqueue.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/davix_thread.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/davix_thread_pool.cpp")
 SET(davix_tool_common_src_up "${davix_tool_common_src}" PARENT_SCOPE)
 
 link_directories(${PROJECT_BINARY_DIR}/src/)

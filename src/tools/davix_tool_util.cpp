@@ -583,7 +583,7 @@ void batchTransferMonitor(std::string dirPath, std::string msg, int entryCount, 
     std::cout.width(10);
     std::cout << entryCount;
     
-    if(totalEntry != NULL)
+    if(totalEntry != 0)
         std::cout << "/" << totalEntry;
 
     std::cout << "                     " << std::flush;

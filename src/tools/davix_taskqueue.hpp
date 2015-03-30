@@ -2,8 +2,8 @@
 #define DAVIX_TASKQUEUE_HPP
 
 #include <davix.hpp>
-#include <utils/davix_mutex.hpp>
-#include <utils/davix_op.hpp>
+#include <tools/davix_mutex.hpp>
+#include <tools/davix_op.hpp>
 #include <pthread.h>
 
 #define DEFAULT_WAIT_TIME 30

@@ -1,8 +1,8 @@
 #ifndef DAVIX_THREAD_HPP
 #define DAVIX_THREAD_HPP
 
-#include <utils/davix_op.hpp>
-#include <utils/davix_taskqueue.hpp>
+#include <tools/davix_op.hpp>
+#include <tools/davix_taskqueue.hpp>
 #include <pthread.h>
 
 namespace Davix{

@@ -1,8 +1,8 @@
 #ifndef DAVIX_THREAD_POOL_HPP
 #define DAVIX_THREAD_POOL_HPP
 
-#include <utils/davix_thread.hpp>
-#include <utils/davix_taskqueue.hpp>
+#include <tools/davix_thread.hpp>
+#include <tools/davix_taskqueue.hpp>
 #include <davix_internal.hpp>
 #include <pthread.h>
 

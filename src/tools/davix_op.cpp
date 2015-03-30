@@ -132,7 +132,8 @@ int PutOp::executeOp(){
     }
     else
         std::cerr << std::endl << _scope << " Failed to PUT " << _target_url << std::endl;
-        Tool::errorPrint(&tmp_err);
+
+    Tool::errorPrint(&tmp_err);
     return -1;
 }
 

@@ -23,9 +23,9 @@
 #include <davix.hpp>
 #include <tools/davix_tool_params.hpp>
 #include <tools/davix_tool_util.hpp>
-#include <utils/davix_taskqueue.hpp>
-#include <utils/davix_op.hpp>
-#include <utils/davix_thread_pool.hpp>
+#include <tools/davix_taskqueue.hpp>
+#include <tools/davix_op.hpp>
+#include <tools/davix_thread_pool.hpp>
 #include <utils/davix_logger_internal.hpp>
 
 
@@ -131,7 +131,7 @@ static int populateTaskQueue(const Tool::OptParams & opts, std::string uri, std:
                 opQueue.push_back(std::make_pair(dirQueue.front().first+d->d_name, dirQueue.front().second+"/"+d->d_name));
                 entry_counter++;
             }
-            Tool::batchTransferMonitor(dirQueue.front().first, "Crawling", entry_counter, NULL);
+            Tool::batchTransferMonitor(dirQueue.front().first, "Crawling", entry_counter, 0);
         }
         
         if(tmp_err){

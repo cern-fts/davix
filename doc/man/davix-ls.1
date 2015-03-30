@@ -34,6 +34,21 @@ long Listing mode
 .RE
 .PP     
 
+.RS 2
+\fB\--s3-listing:\fR
+.RE
+.RS 5
+S3 bucket listing mode - flat, semi or hierarchical(default)
+.RE
+.PP   
+
+.RS 2
+\fB\--s3-maxkeys:\fR
+.RE
+.RS 5
+Maximum number of entries returns by S3 list bucket request. default: 10000
+.RE
+.PP   
 
 \fBCommon Options:\fR
 .PP
@@ -126,7 +141,7 @@ body - HTTP bodies
 chain - IO chains info
 .RE
 .RS 8
-core - Config and misc info
+core - Config and Davix command line tools info
 .RE
 .RS 8
 grid - Misc info from 3rd parties
@@ -225,7 +240,6 @@ AWS S3 authentication: secret key
 AWS S3 authentication: access key 
 .RE
 .PP
-
   
 	   
 .SH EXAMPLES

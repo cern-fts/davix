@@ -15,6 +15,11 @@ davix-put \- Upload tool based on libdavix
 .br
 The command supports the protocol Http (http(s)://), WebDav (dav(s)://) and S3 (s3(s)://). 
 .br
+.PP
+Local resources can either be a single file or a collection. 
+.br
+In the case of collection, all sub-collections will also be uploaded.
+.br
 .PP	
 davix-put is powered by libdavix. See libdavix(3) for details.
 
@@ -114,7 +119,7 @@ body - HTTP bodies
 chain - IO chains info
 .RE
 .RS 8
-core - Config and misc info
+core - Config and Davix command line tools info
 .RE
 .RS 8
 grid - Misc info from 3rd parties
@@ -231,6 +236,12 @@ AWS S3 authentication: access key
 .BR
         davix-put /tmp/file https://example.org/dir1/tmpfile -H "Authorization: Bearer mytoken"
 .BR
+.PP
+\fBUpload local directory to a http server
+.BR
+        davix-put mydir http://example.org/dir1
+.BR
+
 
 .SH SEE ALSO
 .BR libdavix(3), davix-put(1), davix-put(1),

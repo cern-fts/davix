@@ -16,6 +16,11 @@ davix-get \- Download tool based on libdavix
 .br
 The command supports the protocol Http (http(s)://), WebDav (dav(s)://) and S3 (s3(s)://). 
 .br
+.PP
+Target resources can either be a single file or a collection. 
+.br
+In the case of collection, all sub-collections will also be downloaded.
+.br
 .PP	
 davix-get is powered by libdavix. See libdavix(3) for details.
 
@@ -115,7 +120,7 @@ body - HTTP bodies
 chain - IO chains info
 .RE
 .RS 8
-core - Config and misc info
+core - Config and Davix command line tools info
 .RE
 .RS 8
 grid - Misc info from 3rd parties
@@ -236,6 +241,11 @@ AWS S3 authentication: access key
 \fBDownload content and print it to stdout, using a OAuth token
 .BR
         davix-get https://example.org/dir1/tmpfile -H "Authorization: Bearer mytoken"
+.BR
+.PP
+\fBDownload collection to a local directory
+.BR
+        davix-get dav://example.org/dir ./mydir
 .BR
 
 .SH SEE ALSO

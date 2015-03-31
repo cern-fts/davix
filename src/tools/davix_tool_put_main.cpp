@@ -103,7 +103,9 @@ static int populateTaskQueue(const Tool::OptParams & opts, std::string src_path,
     int entry_counter = 0;
 
     if((dp = opendir(src_path.c_str()) ) == NULL){
-        errno_to_davix_exception(errno, scope_put, std::string("for source file ").append(src_path));
+        DavixError* tmp_err=NULL;
+        davix_errno_to_davix_error(errno, scope_put, std::string("for source file ").append(src_path), &tmp_err);
+        Tool::errorPrint(&tmp_err);
         return -1;
     }
 
@@ -144,7 +146,9 @@ static int prePutCheck(Tool::OptParams & opts, DavixError** err){
     int ret = -1;
     
     if((ret = stat(opts.input_file_path.c_str(), &st)) != 0){
-        errno_to_davix_exception(errno, scope_put, std::string("for source file ").append(opts.input_file_path));
+        DavixError* tmp_err=NULL;
+        davix_errno_to_davix_error(errno, scope_put, std::string("for source file ").append(opts.input_file_path), &tmp_err);
+        DavixError::propagateError(err, tmp_err);
         return -1;
     }
 

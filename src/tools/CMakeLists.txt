@@ -26,6 +26,7 @@ if(HAVE_CLOCK_GETTIME)
     set(RT_LIBRARIES "rt")
 endif(HAVE_CLOCK_GETTIME)
 
+
 ## davix tool lib
 add_library(davix_tool_lib STATIC ${davix_tool_common_src})
 
@@ -50,7 +51,7 @@ add_dependencies(davix_ls_tool libdavix)
 ## davix get cmd line
 add_executable(davix_get_tool ${davix_get_main_src})
 
-target_link_libraries(davix_get_tool davix_tool_lib davix ${RT_LIBRARIES})
+target_link_libraries(davix_get_tool davix_tool_lib davix pthread ${RT_LIBRARIES})
 set_target_properties(davix_get_tool PROPERTIES
                                 OUTPUT_NAME "davix-get")
 add_dependencies(davix_get_tool libdavix)
@@ -58,7 +59,7 @@ add_dependencies(davix_get_tool libdavix)
 ## davix put cmd line
 add_executable(davix_put_tool ${davix_put_main_src})
 
-target_link_libraries(davix_put_tool davix_tool_lib davix ${RT_LIBRARIES})
+target_link_libraries(davix_put_tool davix_tool_lib davix pthread ${RT_LIBRARIES})
 set_target_properties(davix_put_tool PROPERTIES
                                 OUTPUT_NAME "davix-put")
 add_dependencies(davix_put_tool libdavix)

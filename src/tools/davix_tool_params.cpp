@@ -258,6 +258,7 @@ int parse_davix_options_generic(const std::string &opt_filter,
                 return 1;
             case TRACE_OPTIONS:
                 {
+                    p.debug = true;
                     setLogScope(0);
                     setLogScope(std::string(optarg));
                     setLogLevel(DAVIX_LOG_TRACE);

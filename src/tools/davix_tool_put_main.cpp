@@ -134,7 +134,8 @@ static int populateTaskQueue(const Tool::OptParams & opts, std::string src_path,
                 return -1;
             }
         }
-        Tool::batchTransferMonitor(src_path, "Populating task queue for", entry_counter, 0);
+        if(!opts.debug)
+            Tool::batchTransferMonitor(src_path, "Populating task queue for", entry_counter, 0);
     }
     closedir(dp);
     return (err)?(-1):0;

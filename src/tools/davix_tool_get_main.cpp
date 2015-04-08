@@ -131,7 +131,8 @@ static int populateTaskQueue(const Tool::OptParams & opts, std::string uri, std:
                 opQueue.push_back(std::make_pair(dirQueue.front().first+d->d_name, dirQueue.front().second+"/"+d->d_name));
                 entry_counter++;
             }
-            Tool::batchTransferMonitor(dirQueue.front().first, "Crawling", entry_counter, 0);
+            if(!opts.debug)
+                Tool::batchTransferMonitor(dirQueue.front().first, "Crawling", entry_counter, 0);
         }
         
         if(tmp_err){
@@ -148,13 +149,14 @@ static int populateTaskQueue(const Tool::OptParams & opts, std::string uri, std:
 
         for(std::deque<std::pair<std::string,std::string> >::iterator it = opQueue.begin(); it!=opQueue.end(); ++it){
             //push op to task queue
-            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to work queue, target is {} and destination is {}.", dirQueue.front().first+d->d_name, dirQueue.front().second+"/"+d->d_name);
+            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to work queue, target is {} and destination is {}.", opQueue.front().first, opQueue.front().second);
             GetOp* op = new GetOp(opts, (opQueue.front().first), (opQueue.front().second));
             tq->pushOp(op);
             opQueue.pop_front();
 
             entry_counter++;
-            Tool::batchTransferMonitor(dirQueue.front().first, "Populating task queue for", entry_counter, num_of_ops);
+            if(!opts.debug)
+                Tool::batchTransferMonitor(dirQueue.front().first, "Populating task queue for", entry_counter, num_of_ops);
         }
         entry_counter = 0;
         dirQueue.pop_front();
@@ -176,7 +178,7 @@ static int preGetCheck(Tool::OptParams & opts, DavixError** err ){
         if(st.st_mode & S_IFDIR && (opts.params.getProtocol() != RequestProtocol::Http)){ // resource requested is a directory
             std::string url(opts.vec_arg[0]);
 
-            if (url[url.size()] != '/')
+            if (url[url.size()-1] != '/')
                 url += '/';
             
             DavixTaskQueue tq;

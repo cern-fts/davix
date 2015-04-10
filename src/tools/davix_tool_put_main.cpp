@@ -52,11 +52,9 @@ static std::string help_msg(const std::string & cmd_path){
 }
 
 
-static int execute_put(const Tool::OptParams & opts, int fd, DavixError** err){
+static int execute_put(Context& c, const Tool::OptParams & opts, int fd, DavixError** err){
         const std::string &  src_file = opts.input_file_path;
         const std::string &  dst_file = opts.vec_arg[1];
-        Context c;
-        configureContext(c, opts);
 
         TRY_DAVIX{
             DavFile f(c, dst_file);
@@ -74,11 +72,8 @@ static int execute_put(const Tool::OptParams & opts, int fd, DavixError** err){
 }
 
 
-static int tryMakeCollection(const Tool::OptParams & opts, std::string dst_path){
-    Context c;
+static int tryMakeCollection(Context& c, const Tool::OptParams & opts, std::string dst_path){
     DavixError* err=NULL;
-
-    configureContext(c, opts);
     DavFile f(c,dst_path);
     f.makeCollection(&opts.params, &err);
 
@@ -95,7 +90,7 @@ static int tryMakeCollection(const Tool::OptParams & opts, std::string dst_path)
     return 0;
 }
 
-static int populateTaskQueue(const Tool::OptParams & opts, std::string src_path, std::string dst_path, DavixTaskQueue* tq, DavixError** err ){
+static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::string src_path, std::string dst_path, DavixTaskQueue* tq, DavixError** err ){
     struct stat st;
     DIR* dp;
     struct dirent *de;
@@ -115,16 +110,16 @@ static int populateTaskQueue(const Tool::OptParams & opts, std::string src_path,
             if(stat(((src_path+de->d_name).c_str()), &st) == 0){    // check if entry is file or directory
                 if(S_ISDIR(st.st_mode)){    // is directory
                     if(opts.params.getProtocol() != RequestProtocol::AwsS3){    // if protocol is S3, don't need make collection (not heirarchical)
-                        ret = tryMakeCollection(opts, dst_path+"/"+de->d_name);
+                        ret = tryMakeCollection(c, opts, dst_path+"/"+de->d_name);
                         if(ret <0)
                             return ret;
                     }
-                    ret = populateTaskQueue(opts, src_path+de->d_name+"/", dst_path+"/"+de->d_name, tq, err);
+                    ret = populateTaskQueue(c, opts, src_path+de->d_name+"/", dst_path+"/"+de->d_name, tq, err);
                 }
                 else if(S_ISREG(st.st_mode) && st.st_size > 0){
                     //push op to task queue
                     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to work queue, source is {} and destination is {}.", src_path+de->d_name, dst_path+"/"+de->d_name);
-                    PutOp* op = new PutOp(opts, src_path+de->d_name, dst_path+"/"+de->d_name, static_cast<dav_size_t>(st.st_size));
+                    PutOp* op = new PutOp(opts, src_path+de->d_name, dst_path+"/"+de->d_name, static_cast<dav_size_t>(st.st_size), c);
                     tq->pushOp(op);
                     entry_counter++;
                 }
@@ -145,7 +140,9 @@ static int populateTaskQueue(const Tool::OptParams & opts, std::string src_path,
 static int prePutCheck(Tool::OptParams & opts, DavixError** err){
     struct stat st;
     int ret = -1;
-    
+    Context c;
+    configureContext(c, opts);
+
     if((ret = stat(opts.input_file_path.c_str(), &st)) != 0){
         DavixError* tmp_err=NULL;
         davix_errno_to_davix_error(errno, scope_put, std::string("for source file ").append(opts.input_file_path), &tmp_err);
@@ -166,12 +163,12 @@ static int prePutCheck(Tool::OptParams & opts, DavixError** err){
         DavixThreadPool tp(&tq);
 
         if(opts.params.getProtocol() != RequestProtocol::AwsS3){    // if protocol is S3, don't need make collection (not heirarchical)
-            ret = tryMakeCollection(opts, opts.vec_arg[1]);
+            ret = tryMakeCollection(c, opts, opts.vec_arg[1]);
             if(ret <0)
                 return ret;
         }
 
-        ret = populateTaskQueue(opts, src_path, opts.vec_arg[1], &tq, err);
+        ret = populateTaskQueue(c, opts, src_path, opts.vec_arg[1], &tq, err);
 
         // if task queue is empty, then all work is done, stop workers. Otherwise wait.
         while(!tq.isEmpty()){
@@ -184,7 +181,7 @@ static int prePutCheck(Tool::OptParams & opts, DavixError** err){
         int fd_in = -1;
         if(((fd_in = Tool::getInFd(opts, scope_put, err)) > 0) 
                 && (Tool::configureMonitorCB(opts, Transfer::Write)) == 0){
-            execute_put(opts, fd_in, err);
+            execute_put(c, opts, fd_in, err);
             close(fd_in);
         }
     }

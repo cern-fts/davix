@@ -63,21 +63,18 @@ int get_output_get_fstream(const Tool::OptParams & opts,  const std::string & sc
     return fd;
 }
 
-static int excute_get(const Tool::OptParams & opts, int out_fd, std::string uri, DavixError** err){
+static int excute_get(Context& c, const Tool::OptParams & opts, int out_fd, std::string uri, DavixError** err){
         int ret;
-        Context c;
-        configureContext(c, opts);
         DavFile f(c, uri);
         ret = f.getToFd(&opts.params, out_fd, err);
         return (ret >= 0)?0:-1;
 }
 
-static int populateTaskQueue(const Tool::OptParams & opts, std::string uri, std::string outputPath, DavixTaskQueue* tq, DavixError** err ){
+static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::string uri, DavixTaskQueue* tq, DavixError** err ){
     DAVIX_DIR* fd = NULL;
-    Context c;
-    configureContext(c, opts);
     DavPosix pos(&c);
     DavixError* tmp_err=NULL;
+    std::string outputPath;
     struct stat st;
     struct dirent* d;
     int entry_counter=0;
@@ -85,6 +82,8 @@ static int populateTaskQueue(const Tool::OptParams & opts, std::string uri, std:
 
     std::deque<std::pair<std::string,std::string> > dirQueue;
     std::deque<std::pair<std::string,std::string> > opQueue;
+
+    outputPath = opts.output_file_path;
 
     // set up first entry
     if(!uri.empty()){
@@ -103,6 +102,8 @@ static int populateTaskQueue(const Tool::OptParams & opts, std::string uri, std:
         }
         dirQueue.push_back(std::make_pair(uri, outputPath));
     }
+    else
+        DavixError::setupError(&tmp_err, "Davix::Tool::Get", StatusCode::InvalidArgument, " target URL is empty.");
 
     while(!dirQueue.empty()){
         if( (fd = pos.opendirpp(&opts.params, dirQueue.front().first, &tmp_err)) == NULL){
@@ -118,7 +119,7 @@ static int populateTaskQueue(const Tool::OptParams & opts, std::string uri, std:
             dirQueue.front().first = "s3://"+(Uri(dirQueue.front().first).getHost())+"/";
         } 
 
-        while( ((d = pos.readdirpp(fd, &st, &tmp_err)) != NULL)){    // if one entry inside a directory fails, the loop exits, the other entires are not processed
+        while( ((d = pos.readdirpp(fd, &st, &tmp_err)) != NULL)){    // if one entry insidce a directory fails, the loop exits, the other entires are not processed
 
             last_success_entry = dirQueue.front().first+d->d_name;
             // for each entry, do a stat to see if it's a directory, if yes, push to dirQueue for further processing    
@@ -150,7 +151,7 @@ static int populateTaskQueue(const Tool::OptParams & opts, std::string uri, std:
         for(std::deque<std::pair<std::string,std::string> >::iterator it = opQueue.begin(); it!=opQueue.end(); ++it){
             //push op to task queue
             DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to work queue, target is {} and destination is {}.", opQueue.front().first, opQueue.front().second);
-            GetOp* op = new GetOp(opts, (opQueue.front().first), (opQueue.front().second));
+            GetOp* op = new GetOp(opts, (opQueue.front().first), (opQueue.front().second), c);
             tq->pushOp(op);
             opQueue.pop_front();
 
@@ -161,8 +162,11 @@ static int populateTaskQueue(const Tool::OptParams & opts, std::string uri, std:
         entry_counter = 0;
         dirQueue.pop_front();
     }
-
-    return (tmp_err)?(-1):0;
+    if(tmp_err){
+        DavixError::propagateError(err, tmp_err);
+        return -1;
+    }
+    return 0;
 }
 
 static int preGetCheck(Tool::OptParams & opts, DavixError** err ){
@@ -194,7 +198,7 @@ static int preGetCheck(Tool::OptParams & opts, DavixError** err ){
                 opts.params.setS3MaxKey(999999999); 
             }
 
-            ret = populateTaskQueue(opts, url, opts.output_file_path, &tq, &tmp_err);
+            ret = populateTaskQueue(c, opts, url, &tq, &tmp_err);
             
             // if task queue is empty, then all work is done, stop workers. Otherwise wait.
             while(!tq.isEmpty()){
@@ -207,15 +211,17 @@ static int preGetCheck(Tool::OptParams & opts, DavixError** err ){
             int out_fd= -1;
             if( ( (out_fd = get_output_get_fstream(opts, scope_get, opts.output_file_path, &tmp_err)) > 0)
                 && (Tool::configureMonitorCB(opts, Transfer::Read)) == 0){
-                ret = excute_get(opts, out_fd, opts.vec_arg[0], &tmp_err);
+                ret = excute_get(c, opts, out_fd, opts.vec_arg[0], &tmp_err);
                 Tool::flushFinalLineShell(out_fd);
                 close(out_fd);
             }
         }
     }
-    if(tmp_err)
+    if(tmp_err){
         DavixError::propagateError(err, tmp_err);
-    return (ret >= 0)?0:-1;
+        return -1;
+    }
+    return 0;
 }
 
 int main(int argc, char** argv){

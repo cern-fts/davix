@@ -14,9 +14,10 @@ protected:
     std::string _destination_url;
     std::string opType;
     Tool::OptParams _opts;
+    Context& _c;
     std::string _scope;
 
-    DavixOp(Tool::OptParams opts, std::string target_url, std::string destination_url);
+    DavixOp(const Tool::OptParams& opts, std::string target_url, std::string destination_url, Context& c);
     
     //virtual ~DavixOp();
 
@@ -35,7 +36,7 @@ private:
 class GetOp : public DavixOp{
 
 public:
-    GetOp(Tool::OptParams opts, std::string target_url, std::string destination_url);
+    GetOp(const Tool::OptParams& opts, std::string target_url, std::string destination_url, Context& c);
     virtual ~GetOp();
     virtual int executeOp();
     int getOutFd();
@@ -48,7 +49,7 @@ private:
 class PutOp : public DavixOp{
 
 public:
-    PutOp(Tool::OptParams opts, std::string target_url, std::string destination_url, dav_size_t file_size);
+    PutOp(const Tool::OptParams& opts, std::string target_url, std::string destination_url, dav_size_t file_size, Context& c);
     virtual ~PutOp();
     virtual int executeOp();
     int getInFd(DavixError** err);

@@ -6,10 +6,11 @@ namespace Davix{
 //-------------------------------------------------
 //----------------------DavixOp--------------------
 //-------------------------------------------------
-DavixOp::DavixOp(Tool::OptParams opts, std::string target_url, std::string destination_url) :
+DavixOp::DavixOp(const Tool::OptParams& opts, std::string target_url, std::string destination_url, Context& c) :
     _target_url(target_url),
     _destination_url(destination_url),
     _opts(opts),
+    _c(c),
     _scope()
 {
 }
@@ -32,8 +33,8 @@ std::string DavixOp::getOpType(){
 //-------------------------------------------------
 //----------------------GetOp----------------------
 //-------------------------------------------------
-GetOp::GetOp(Tool::OptParams opts, std::string target_url, std::string destination_url) :
-    DavixOp(opts, target_url, destination_url)
+GetOp::GetOp(const Tool::OptParams& opts, std::string target_url, std::string destination_url, Context& c) :
+    DavixOp(opts, target_url, destination_url, c)
 {
     opType = "GET";
     _scope = "Davix::DavixOp::GetOp";
@@ -45,9 +46,7 @@ int GetOp::executeOp(){
     int ret = -1;
     int fd = -1;
     DavixError* tmp_err=NULL;
-    Context c;
-    configureContext(c, _opts);
-    DavFile f(c, _target_url);
+    DavFile f(_c, _target_url);
 
     if((fd = getOutFd())> 0){
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "{} executing op on ", _scope, _target_url);
@@ -93,8 +92,8 @@ int GetOp::getOutFd(){
 //-------------------------------------------------
 //----------------------PutOp----------------------
 //-------------------------------------------------
-PutOp::PutOp(Tool::OptParams opts, std::string target_url, std::string destination_url, dav_size_t file_size) :
-    DavixOp(opts, target_url, destination_url)
+PutOp::PutOp(const Tool::OptParams& opts, std::string target_url, std::string destination_url, dav_size_t file_size, Context& c) :
+    DavixOp(opts, target_url, destination_url, c)
 {
     opType = "PUT";
     _scope = "Davix::DavixOp::PutOp";
@@ -105,8 +104,6 @@ PutOp::PutOp(Tool::OptParams opts, std::string target_url, std::string destinati
 PutOp::~PutOp(){}
 
 int PutOp::executeOp(){
-    Context c;
-    configureContext(c, _opts);
     DavixError* tmp_err=NULL;
     int fd = -1;
 
@@ -117,7 +114,7 @@ int PutOp::executeOp(){
     }
     
     TRY_DAVIX{
-        DavFile f(c, _destination_url);
+        DavFile f(_c, _destination_url);
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "{} executing op on ", _scope, _destination_url);
         f.put(&_opts.params, fd, _file_size);
         close(fd);

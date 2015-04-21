@@ -46,8 +46,11 @@ struct UriPrivate;
 
 /// @class Uri
 /// @brief Uri parser
-/// convenience class for uri parsing
 ///
+/// convenience class for uri parsing
+///  
+/// @snippet example_code_snippets.cpp Uri example
+
 class DAVIX_EXPORT Uri
 {
 public:

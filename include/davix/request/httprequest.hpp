@@ -77,8 +77,10 @@ namespace RequestFlag{
 }
 
 /// @class HttpRequest
-/// @brief Http low level request interface
-/// HTTPRequest is the main davix class for low level HTTP queries
+/// @brief Http low level request interface.
+///
+/// HTTPRequest is the main davix class for low level HTTP queries. 
+///
 /// HTTPRequest objects are provided by Davix::Context
 ///
 class DAVIX_EXPORT HttpRequest : private NonCopyable
@@ -90,6 +92,7 @@ public:
     /// \param url URL of the resource
     /// \param err Davix error report system
     ///
+    /// @snippet example_code_snippets.cpp HttpRequest uri
     HttpRequest(Context & context, const Uri & url, DavixError** err);
 
     ///
@@ -98,6 +101,7 @@ public:
     /// \param url URL of the resource
     /// \param err Davix error report system
     ///
+    /// @snippet example_code_snippets.cpp HttpRequest
     HttpRequest(Context & context, const std::string & url, DavixError** err);
 
     ///
@@ -112,12 +116,15 @@ public:
     ///  if the content of value of the header field is empty : remove an existing one
     ///  @param field  header field name
     ///  @param value header field value
+    ///
+    /// @snippet example_code_snippets.cpp HttpRequest::addHeaderField
     void addHeaderField(const std::string & field, const std::string & value);
 
     ///
     /// \brief set the request method ( "GET", "PUT", ... )
     /// \param method request method
     ///
+    /// @snippet example_code_snippets.cpp HttpRequest::setRequestMethod
     void setRequestMethod(const std::string & method);
 
 
@@ -125,9 +132,11 @@ public:
     /// \brief set the request parameter
     /// \param parameters Davix Request parameters
     ///
-    ///  define the request parameters, can be used to define parameters
-    ///  like authentication scheme, timeout or user agent.
-    void setParameters(const RequestParams &parameters );
+    ///  define the request parameters, can be used to define parameters 
+    ///  such as authentication scheme, timeout or user agent.
+    ///
+    /// @snippet example_code_snippets.cpp HttpRequest::setParameters
+    void setParameters(const RequestParams &parameters);
 
     ///   @brief execute this request completely
     ///
@@ -135,6 +144,7 @@ public:
     ///   @param err davix error report
     ///   @return 0 on success
     ///
+    /// @snippet example_code_snippets.cpp HttpRequest::executeRequest
     int executeRequest(DavixError** err);
 
     ///
@@ -142,18 +152,21 @@ public:
     ///  an empty string set no request content
     ///  @warning this string is not duplicated internally for performance reasons
     ///
+    ///  @snippet example_code_snippets.cpp HttpRequest::setRequestBody
     void setRequestBody(const std::string & body);
 
     ///
     /// set the content of the request from a buffer
     ///  NULL pointer means a empty content
     ///
+    ///  @snippet example_code_snippets.cpp HttpRequest::setRequestBody
     void setRequestBody(const void * buffer, dav_size_t len_buff);
 
     ///
     /// set the content of the request from a file descriptor
     /// start at offset and read a maximum of len bytes
     ///
+    ///  @snippet example_code_snippets.cpp HttpRequest::setRequestBody
     void setRequestBody(int fd, dav_off_t offset, dav_size_t len);
 
     ///
@@ -171,6 +184,7 @@ public:
     /// @param err : DavixError error report system
     /// @return return 0 if success, or a negative value if an error occures
     ///
+    ///  @snippet example_code_snippets.cpp HttpRequest::beginRequest
     int beginRequest(DavixError** err);
 
     ///
@@ -182,6 +196,7 @@ public:
     /// @param err : DavixError error report system
     /// @return number of bytes readed
     ///
+    ///  @snippet example_code_snippets.cpp HttpRequest::readBlock
     dav_ssize_t readBlock(char* buffer, dav_size_t max_size, DavixError** err);
 
 
@@ -194,6 +209,7 @@ public:
     /// @param err : DavixError error report system
     /// @return number of bytes readed
     ///
+    ///  @snippet example_code_snippets.cpp HttpRequest::readBlock
     dav_ssize_t readBlock(std::vector<char> & buffer, dav_size_t max_size, DavixError** err);
 
     ///
@@ -204,6 +220,7 @@ public:
     /// @param err : DavixError error report system
     /// @return number of bytes readed
     ///
+    ///  @snippet example_code_snippets.cpp HttpRequest::readSegment
     dav_ssize_t readSegment(char* buffer, dav_size_t max_size, DavixError** err);
 
 
@@ -214,6 +231,7 @@ public:
     /// @param err : DavixError error report system
     /// @return number of bytes read
     ///
+    ///  @snippet example_code_snippets.cpp HttpRequest::readToFd
     dav_ssize_t readToFd(int fd, DavixError** err);
 
     ///
@@ -223,6 +241,7 @@ public:
     /// @param err : DavixError error report system
     /// @return number of bytes read
     ///
+    ///  @snippet example_code_snippets.cpp HttpRequest::readToFd
     dav_ssize_t readToFd(int fd, dav_size_t read_size, DavixError** err);
 
     ///
@@ -232,38 +251,54 @@ public:
     /// @param err : DavixError error report system
     /// @return number of bytes readed, if return == max_size -> the line too big
     ///
+    ///  @snippet example_code_snippets.cpp HttpRequest::readLine
     dav_ssize_t readLine(char* buffer, dav_size_t max_size, DavixError** err);
     
     ///
     /// discard the response body
     /// @param err: DavixError error report system
+    ///
+    /// @snippet example_code_snippets.cpp HttpRequest::discardBody
     void discardBody(DavixError** err);
 
     ///
     /// finish a request stated with beginRequest
+    ///
+    /// @snippet example_code_snippets.cpp HttpRequest::endRequest
     int endRequest(DavixError** err);
 
     /// return the body of the answer
+    ///
+    /// @snippet example_code_snippets.cpp HttpRequest::getAnswerContent
     const char* getAnswerContent();
 
     /// return the body of the answer in a vector
+    ///
+    /// @snippet example_code_snippets.cpp HttpRequest::getAnswerContentVec
     std::vector<char>  & getAnswerContentVec();
 
     /// get content length
     /// @return content size, return -1 if chunked
+    ///
+    /// @snippet example_code_snippets.cpp HttpRequest::getAnswerSize
     dav_ssize_t getAnswerSize() const;
 
     /// get last modified time
+    ///
+    /// @snippet example_code_snippets.cpp HttpRequest::getLastModified
     time_t getLastModified() const;
 
     ///
     ///  clear the current result
     ///
+    /// @snippet example_code_snippets.cpp HttpRequest::clearAnswerContent
     void clearAnswerContent();
 
     ///
     /// @return current request code error
     /// undefined if executeRequest or beginRequest has not be called before
+    ///
+    /// @snippet example_code_snippets.cpp HttpRequest::getRequestCode
     int getRequestCode();
 
     ///
@@ -271,6 +306,8 @@ public:
     /// @param header_name : key of the header field
     /// @param value : reference of the string to set
     /// @return true if this header exist or false if it does not
+    ///
+    /// @snippet example_code_snippets.cpp HttpRequest::getAnswerHeader
     bool getAnswerHeader(const std::string & header_name, std::string & value) const;
 
 
@@ -278,6 +315,8 @@ public:
     /// get all the headers associated with this answer
     /// @param value : vector of headers
     /// @return true if this header exist or false if it does not
+    ///
+    /// @snippet example_code_snippets.cpp HttpRequest::getAnswerHeaders
     size_t getAnswerHeaders( HeaderVec & vec_headers) const;
 
 
@@ -315,6 +354,7 @@ public:
     /// \param uri
     /// \param err
     ///
+    /// @snippet example_code_snippets.cpp HttpRequest::GetRequest
     GetRequest(Context & context, const Uri & uri, DavixError** err);
 };
 
@@ -327,6 +367,8 @@ public:
     /// \param context
     /// \param uri
     /// \param err
+    ///
+    /// @snippet example_code_snippets.cpp HttpRequest::PutRequest
     PutRequest(Context & context, const Uri & uri, DavixError** err);
 };
 
@@ -340,6 +382,7 @@ public:
     /// \param uri
     /// \param err
     ///
+    /// @snippet example_code_snippets.cpp HttpRequest::HeadRequest
     HeadRequest(Context & context, const Uri & uri, DavixError** err);
 };
 
@@ -354,6 +397,7 @@ public:
     /// \param uri
     /// \param err
     ///
+    /// @snippet example_code_snippets.cpp HttpRequest::DeleteRequest
     DeleteRequest(Context & context, const Uri & uri, DavixError** err);
 };
 
@@ -368,6 +412,7 @@ public:
     /// \param uri
     /// \param err
     ///
+    /// @snippet example_code_snippets.cpp HttpRequest::PropfindRequest
     PropfindRequest(Context & context, const Uri & uri, DavixError** err);
 };
 

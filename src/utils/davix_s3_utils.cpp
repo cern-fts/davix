@@ -144,14 +144,23 @@ Uri tokenizeRequest(const RequestParams & params, const std::string & method, co
 }
 
 
-Uri s3UriTranslator(const Uri & original_url, const RequestParams & params, const bool addDelimiter){
+Uri s3UriTransformer(const Uri & original_url, const RequestParams & params, const bool addDelimiter){
     std::string delimiter = "&delimiter=/";
     std::string prefix = "?prefix=";
     std::string maxKey = "&max-keys=";
 
+    std::string protocol;
+
+    if(original_url.getString().compare(2,1,"s") == 0){
+        protocol = "s3s://";
+    }
+    else{
+        protocol = "s3://";
+    }
+
     std::ostringstream ss;
 
-    ss << "s3://" << original_url.getHost() << "/";
+    ss << protocol << original_url.getHost() << "/";
 
     if(!original_url.getPath().empty()){    // there is something after '/', grab it
         std::string tmp = original_url.getPath();

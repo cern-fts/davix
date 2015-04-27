@@ -101,6 +101,7 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
     std::string destination(dst.getString());
     std::string delegationEndpoint;
     DavixError *internalError = NULL;
+    bool isS3endpoint = false;
 
     // nstreams as string
     char nstreamsStr[16];
@@ -109,6 +110,18 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
     // Need a copy so we can modify it
     Davix::RequestParams requestParams(parameters);
     requestParams.setTransparentRedirectionSupport(false);
+
+    size_t start_pos;
+
+    // if destination is s3 endpoint, change prefix to http(s) and pre-sign the request as a PUT
+    if(destination.compare(0,2,"s3") == 0){ 
+        destination.replace(0, 2, "http");
+        time_t expiration_time = time(NULL) +3600;
+        Davix::HeaderVec vec;
+        Uri tmp = Davix::S3::tokenizeRequest(requestParams, "PUT", destination, vec, expiration_time);
+        destination = tmp.getString();
+        isS3endpoint = true;
+    }
 
     // Perform COPY hopping through redirections
     HttpRequest* request = NULL;
@@ -138,6 +151,9 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
         request->setRequestMethod("COPY");
         request->addHeaderField("Destination", destination);
         request->addHeaderField("X-Number-Of-Streams", nstreamsStr);
+        // for lcgdm-dav -> S3, add NoHead flag to suppress final head-to-close request
+        if(isS3endpoint)
+            request->addHeaderField("Copy-Flags", "NoHead");
         request->setParameters(requestParams);
         request->beginRequest(&internalError);
         if (internalError) {

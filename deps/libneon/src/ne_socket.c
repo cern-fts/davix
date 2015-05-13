@@ -1722,7 +1722,7 @@ int ne_sock_accept_ssl(ne_socket *sock, ne_ssl_context *ctx)
 
 int ne_sock_connect_ssl(ne_socket *sock, ne_ssl_context *ctx, void *userdata)
 {
-    int ret;
+    int ret = -1;
 
 #if defined(HAVE_OPENSSL)
     SSL *ssl;
@@ -1745,7 +1745,26 @@ int ne_sock_connect_ssl(ne_socket *sock, ne_ssl_context *ctx, void *userdata)
 	set_error(sock, _("Could not create SSL structure"));
 	return NE_SOCK_ERROR;
     }
+   
+    // check sock->fd, if it's blocking set to non-blocking just for SSL_conect
+    int old_flags, new_flags;
+    time_t timeout;
+
+    if (sock->cotimeout)
+        timeout = time(0) + sock->cotimeout;
     
+    // keep the old flags so we can reset them later
+    new_flags = old_flags = fcntl(sock->fd, F_GETFL);
+
+    if(!(new_flags & O_NONBLOCK)){
+        new_flags &= ~O_NONBLOCK;
+    
+        if(fcntl(sock->fd, F_SETFL, new_flags == -1)){
+            set_strerror(sock, errno);
+            return NE_SOCK_ERROR;
+        }
+    }
+
     SSL_set_app_data(ssl, userdata);
     SSL_set_mode(ssl, SSL_MODE_AUTO_RETRY);
     SSL_set_fd(ssl, sock->fd);
@@ -1762,16 +1781,87 @@ int ne_sock_connect_ssl(ne_socket *sock, ne_ssl_context *ctx, void *userdata)
     }
 #endif
     
+
+
     if (ctx->sess)
 	SSL_set_session(ssl, ctx->sess);
-
+/*
     ret = SSL_connect(ssl);
     if (ret != 1) {
-	error_ossl(sock, ret);
-	SSL_free(ssl);
-	sock->ssl = NULL;
-	return NE_SOCK_ERROR;
+        error_ossl(sock, ret);
+        SSL_free(ssl);
+        sock->ssl = NULL;
+        return NE_SOCK_ERROR;
     }
+*/
+
+    // non-blocking SSL handshake 
+    int ready = 0;
+    int expired = 0;
+    int errsv = 0;
+    struct timeval tv;
+
+    while((ret = SSL_connect(ssl)) != 1){
+       
+        fd_set fds;
+        FD_ZERO(&fds);
+        FD_SET(sock->fd, &fds);
+
+        do{
+            tv.tv_sec = 1;
+            switch(SSL_get_error(ssl, ret)){
+                case SSL_ERROR_WANT_WRITE:
+                    ready = select(sock->fd +1, NULL, &fds, NULL, &tv);
+                    break;
+
+                case SSL_ERROR_WANT_READ:
+                    ready = select(sock->fd +1, &fds, NULL, NULL, &tv);
+                    break;
+
+                case SSL_ERROR_WANT_X509_LOOKUP:
+                    ready = select(sock->fd +1, &fds, &fds, NULL, &tv);
+                    break;
+
+                case SSL_ERROR_NONE:
+                case SSL_ERROR_ZERO_RETURN:
+                case SSL_ERROR_WANT_CONNECT:
+                case SSL_ERROR_WANT_ACCEPT:
+                case SSL_ERROR_SYSCALL:
+                    break;
+                
+                case SSL_ERROR_SSL:
+                default: 
+                    set_error(sock, _("Unknown error during SSL handshake"));
+                    return NE_SOCK_ERROR;
+            }
+
+            if(ready == -1)
+                errsv = errno;
+
+            if(time(0) > timeout){
+                expired = 1;
+                break;
+            }
+
+        }while((ready == 0) || (errsv == EINTR) || (errsv == EWOULDBLOCK)); // loop until there is something in the socket or timed out
+
+        if(expired){
+            error_ossl(sock, ret);
+            SSL_free(ssl);
+            sock->ssl = NULL;
+            set_error(sock, _("Connection timed out during SSL handshake"));
+            return NE_SOCK_ERROR;
+        }
+    }
+
+    // reset flags if needed
+    if(new_flags != old_flags){
+        if(fcntl(sock->fd, F_SETFL, old_flags == -1)){
+            set_strerror(sock, errno);
+            return NE_SOCK_ERROR;
+        }
+    }
+
 #elif defined(HAVE_GNUTLS)
     /* DH and RSA params are set in ne_ssl_context_create */
     gnutls_init(&sock->ssl, GNUTLS_CLIENT);

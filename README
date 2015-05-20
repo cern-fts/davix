@@ -58,7 +58,7 @@
 
     - Compile  :
         $ #  For Mac OSX and grid usage, see Compile Davix in embedded mode 
-        $ git clone http://git.cern.ch/pub/davix davix
+        $ git https://github.com/cern-it-sdc-id/davix.git davix
         $ cd davix
         $ mkdir build; cd build
         $ cmake ../
@@ -70,7 +70,7 @@
         - make doc
         
     - Compile Davix in embedded mode ( no dependencies ) :
-        $ git clone http://git.cern.ch/pub/davix davix
+        $ git clone https://github.com/cern-it-sdc-id/davix.git davix
         $ cd davix
         $ git submodule update --recursive --init
         $ mkdir build; cd build
@@ -103,6 +103,7 @@
             davix-put: upload the content of a resource
             davix-cp: copy, support 3rd party copy
             davix-mk: create collection or resource.
+            davix-mv: relocate resource
 
 
 

@@ -1747,7 +1747,7 @@ int ne_sock_connect_ssl(ne_socket *sock, ne_ssl_context *ctx, void *userdata)
     }
    
     // check sock->fd, if it's blocking set to non-blocking just for SSL_conect
-    int old_flags, new_flags;
+    long old_flags, new_flags = 0;
     time_t timeout;
 
     if (sock->cotimeout)
@@ -1757,9 +1757,9 @@ int ne_sock_connect_ssl(ne_socket *sock, ne_ssl_context *ctx, void *userdata)
     new_flags = old_flags = fcntl(sock->fd, F_GETFL);
 
     if(!(new_flags & O_NONBLOCK)){
-        new_flags &= ~O_NONBLOCK;
+        new_flags |= O_NONBLOCK;
     
-        if(fcntl(sock->fd, F_SETFL, new_flags == -1)){
+        if(fcntl(sock->fd, F_SETFL, new_flags) == -1){
             set_strerror(sock, errno);
             return NE_SOCK_ERROR;
         }
@@ -1809,6 +1809,7 @@ int ne_sock_connect_ssl(ne_socket *sock, ne_ssl_context *ctx, void *userdata)
 
         do{
             tv.tv_sec = 1;
+            tv.tv_usec = 0;
             switch(SSL_get_error(ssl, ret)){
                 case SSL_ERROR_WANT_WRITE:
                     ready = select(sock->fd +1, NULL, &fds, NULL, &tv);
@@ -1856,7 +1857,7 @@ int ne_sock_connect_ssl(ne_socket *sock, ne_ssl_context *ctx, void *userdata)
 
     // reset flags if needed
     if(new_flags != old_flags){
-        if(fcntl(sock->fd, F_SETFL, old_flags == -1)){
+        if(fcntl(sock->fd, F_SETFL, old_flags) == -1){
             set_strerror(sock, errno);
             return NE_SOCK_ERROR;
         }

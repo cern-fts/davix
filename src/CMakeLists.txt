@@ -83,8 +83,9 @@ endif(SHARED_LIBRARY)
 
 if(STATIC_LIBRARY)
 
-add_library(libdavix_static  STATIC ${SRC_DAVIX_FULL})
-
+add_definitions(-DA_LIB_NAMESPACE=Davix)
+FILE(GLOB src_alibxx_static "libs/alibxx/*/*.cpp")
+add_library(libdavix_static  STATIC ${SRC_DAVIX_FULL} ${src_alibxx_static})
 
 set_target_properties(libdavix_static PROPERTIES
                             OUTPUT_NAME ${OUTPUT_NAME_DAVIX})

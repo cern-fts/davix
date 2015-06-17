@@ -174,7 +174,6 @@ static int preGetCheck(Tool::OptParams & opts, DavixError** err ){
     configureContext(c, opts);
     File f(c, opts.vec_arg[0]);
     struct stat st;    
-    int ret = -1;
     DavixError* tmp_err=NULL;
 
     // check target resource is a file or a collection
@@ -198,7 +197,7 @@ static int preGetCheck(Tool::OptParams & opts, DavixError** err ){
                 opts.params.setS3MaxKey(999999999); 
             }
 
-            ret = populateTaskQueue(c, opts, url, &tq, &tmp_err);
+            populateTaskQueue(c, opts, url, &tq, &tmp_err);
             
             // if task queue is empty, then all work is done, stop workers. Otherwise wait.
             while(!tq.isEmpty()){
@@ -211,7 +210,7 @@ static int preGetCheck(Tool::OptParams & opts, DavixError** err ){
             int out_fd= -1;
             if( ( (out_fd = get_output_get_fstream(opts, scope_get, opts.output_file_path, &tmp_err)) > 0)
                 && (Tool::configureMonitorCB(opts, Transfer::Read)) == 0){
-                ret = excute_get(c, opts, out_fd, opts.vec_arg[0], &tmp_err);
+                excute_get(c, opts, out_fd, opts.vec_arg[0], &tmp_err);
                 Tool::flushFinalLineShell(out_fd);
                 close(out_fd);
             }

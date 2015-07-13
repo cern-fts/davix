@@ -181,7 +181,7 @@ static int prePutCheck(Tool::OptParams & opts, DavixError** err){
         int fd_in = -1;
         if(((fd_in = Tool::getInFd(opts, scope_put, err)) > 0) 
                 && (Tool::configureMonitorCB(opts, Transfer::Write)) == 0){
-            execute_put(c, opts, fd_in, err);
+            ret = execute_put(c, opts, fd_in, err);
             close(fd_in);
         }
     }

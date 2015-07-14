@@ -59,7 +59,14 @@ namespace S3ListingMode{
     };
 }
 
-
+namespace CopyMode{
+    enum CopyMode{
+        // source push to destination 
+        Push,
+        // destination pull from source
+        Pull 
+    };
+}
 
 ///
 /// \brief string for Amazon private key

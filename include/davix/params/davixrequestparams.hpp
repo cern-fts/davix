@@ -206,6 +206,13 @@ public:
     int getOperationRetryDelay() const;    
 
 
+    /// set copy mode for 3rd party copy
+    void setCopyMode(const CopyMode::CopyMode copy_mode);
+
+    /// get copy mode for 3rd party copy
+    CopyMode::CopyMode getCopyMode() const;
+
+
 #ifdef __DAVIX_HAS_STD_FUNCTION
     ///
     /// @brief setTransfertMonitorCb

@@ -97,11 +97,24 @@ void DavixCopyInternal::setPerformanceCallback(DavixCopy::PerformanceCallback ca
 void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
         unsigned nstreams, DavixError **error)
 {
-    std::string nextSrc(src.getString()), prevSrc(src.getString());
-    std::string destination(dst.getString());
+    //std::string nextSrc(src.getString()), prevSrc(src.getString());
+    //std::string destination(dst.getString());
+    std::string nextSrc, prevSrc, destination;
     std::string delegationEndpoint;
     DavixError *internalError = NULL;
     bool isS3endpoint = false;
+
+    // set source and destination according to copy method
+    if(parameters->getCopyMode() == CopyMode::Push){
+        nextSrc = src.getString();
+        prevSrc = src.getString();
+        destination = dst.getString();
+    }else if(parameters->getCopyMode() == CopyMode::Pull){
+        nextSrc = dst.getString();
+        prevSrc = dst.getString();
+        destination = src.getString();
+    }
+   
 
     // nstreams as string
     char nstreamsStr[16];
@@ -149,7 +162,11 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
         }
 
         request->setRequestMethod("COPY");
-        request->addHeaderField("Destination", destination);
+        if(parameters->getCopyMode() == CopyMode::Push){
+            request->addHeaderField("Destination", destination);
+        }else if(parameters->getCopyMode() == CopyMode::Pull){
+            request->addHeaderField("Source", destination);
+        }
         request->addHeaderField("X-Number-Of-Streams", nstreamsStr);
         // for lcgdm-dav -> S3, add NoHead flag to suppress final head-to-close request
         if(isS3endpoint)

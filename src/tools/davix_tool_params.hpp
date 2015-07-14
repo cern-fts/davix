@@ -68,6 +68,8 @@ struct OptParams{
     int pres_flag;
     // shell flags
     int shell_flag;
+    // input file flag
+    bool has_input_file;
     // modules list
     std::vector<std::string> modules_list;
 };
@@ -80,7 +82,7 @@ int parse_davix_get_options(int argc, char** argv, OptParams & p, DavixError** e
 
 int parse_davix_put_options(int argc, char** argv, OptParams & p, DavixError** err);
 
-
+int parse_davix_copy_options(int argc, char** argv, OptParams & p, DavixError** err);
 
 std::string get_common_options();
 
@@ -91,7 +93,6 @@ std::string get_get_description_options();
 std::string get_put_description_options();
 
 std::string get_copy_description_options();
-
 }
 
 }

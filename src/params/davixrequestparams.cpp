@@ -102,7 +102,8 @@ struct RequestParamsInternal{
         _state_uid(get_requeste_uid()),
         _transferCb(),
         retry_number(default_retry_number),
-        retry_delay()
+        retry_delay(),
+        _copy_mode(CopyMode::Push)
     {
         timespec_clear(&connexion_timeout);
         timespec_clear(&ops_timeout);
@@ -140,7 +141,8 @@ struct RequestParamsInternal{
         _state_uid(param_private._state_uid),
         _transferCb(param_private._transferCb),
         retry_number(param_private.retry_number),
-        retry_delay(param_private.retry_delay){
+        retry_delay(param_private.retry_delay),
+        _copy_mode(param_private._copy_mode){
 
         timespec_copy(&(connexion_timeout), &(param_private.connexion_timeout));
         timespec_copy(&(ops_timeout), &(param_private.ops_timeout));
@@ -197,6 +199,9 @@ struct RequestParamsInternal{
     // delay in seconds between retry attempts
     int retry_delay;
 
+    // 3rd party copy mode
+    CopyMode::CopyMode _copy_mode;
+    
     // method
     inline void regenerateStateUid(){
         _state_uid = get_requeste_uid();
@@ -455,6 +460,16 @@ void RequestParams::setProxyServer(const Uri &proxy_url){
 const Uri* RequestParams::getProxyServer() const{
     return d_ptr->_proxy_server.get();
 }
+
+
+void RequestParams::setCopyMode(const CopyMode::CopyMode copy_mode){
+    d_ptr->_copy_mode = copy_mode;
+}
+
+CopyMode::CopyMode RequestParams::getCopyMode() const{
+    return d_ptr->_copy_mode;
+}
+
 
 // suppress useless warning
 #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"

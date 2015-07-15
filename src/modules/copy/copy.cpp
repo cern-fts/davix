@@ -131,7 +131,11 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
         destination.replace(0, 2, "http");
         time_t expiration_time = time(NULL) +3600;
         Davix::HeaderVec vec;
-        Uri tmp = Davix::S3::tokenizeRequest(requestParams, "PUT", destination, vec, expiration_time);
+        Uri tmp;
+        if (parameters->getCopyMode() == CopyMode::Pull)
+            tmp = Davix::S3::tokenizeRequest(requestParams, "GET", destination, vec, expiration_time);
+        else
+            tmp = Davix::S3::tokenizeRequest(requestParams, "PUT", destination, vec, expiration_time);
         destination = tmp.getString();
         isS3endpoint = true;
     }

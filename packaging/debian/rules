@@ -1,0 +1,38 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+-include /usr/share/dpkg/buildflags.mk
+
+CFLAGS += $(CPPFLAGS)
+CXXFLAGS += $(CPPFLAGS)
+
+export CFLAGS CXXFLAGS LDFLAGS
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	# Remove bundled stuff
+	rm -rf deps/boost_intern
+	rm -rf deps/rapidjson
+	rm -rf deps/strptime
+	rm -rf test/pywebdav
+	# Debian's gtest is not precompiled - link source
+	ln -fs /usr/src/gtest test/unit/gtest
+	dh_auto_configure -- -DLIB_SUFFIX="" -DUNIT_TESTS=TRUE \
+		-DENABLE_THIRD_PARTY_COPY=TRUE
+
+override_dh_auto_build:
+	dh_auto_build -- all doc
+
+override_dh_install:
+	rm debian/tmp/usr/share/doc/davix/LICENSE
+	dh_install --fail-missing
+
+override_dh_auto_clean:
+	rm -f test/unit/gtest
+	dh_auto_clean
+
+override_dh_auto_test:
+	( cd obj-* ; make abi-check )
+	dh_auto_test -- ARGS+="-V -T Test"

@@ -1,0 +1,3 @@
+# The autotools files are not used - build uses cmake
+davix source: outdated-autotools-helper-file deps/libneon/config.*
+

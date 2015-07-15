@@ -1,0 +1,47 @@
+davix (0.4.1-1) unstable; urgency=low
+
+  * Update to version 0.4.1
+
+ -- DMC Devel <dmc-devel@cern.ch>  Wed, 15 Jul 2015 10:00:00 +0200
+
+davix (0.4.0-1) unstable; urgency=medium
+
+  * Update to version 0.4.0
+
+ -- Mattias Ellert <mattias.ellert@fysast.uu.se>  Mon, 08 Dec 2014 16:31:16 +0100
+
+davix (0.3.6-1) unstable; urgency=medium
+
+  * Update to version 0.3.6
+
+ -- Mattias Ellert <mattias.ellert@fysast.uu.se>  Thu, 23 Oct 2014 16:02:47 +0200
+
+davix (0.3.1-1) unstable; urgency=medium
+
+  * Update to version 0.3.1
+
+ -- Mattias Ellert <mattias.ellert@fysast.uu.se>  Tue, 08 Jul 2014 09:59:36 +0200
+
+davix (0.2.8-1) unstable; urgency=medium
+
+  * Update to version 0.2.8
+
+ -- Mattias Ellert <mattias.ellert@fysast.uu.se>  Mon, 23 Dec 2013 04:14:45 +0100
+
+davix (0.2.7-1) unstable; urgency=low
+
+  * Update to version 0.2.7
+
+ -- Mattias Ellert <mattias.ellert@fysast.uu.se>  Wed, 27 Nov 2013 21:54:48 +0100
+
+davix (0.2.2-2) unstable; urgency=low
+
+  * Fix copyright file
+
+ -- Mattias Ellert <mattias.ellert@fysast.uu.se>  Tue, 03 Sep 2013 09:32:50 +0200
+
+davix (0.2.2-1) unstable; urgency=low
+
+  * Initial release (Closes: #719947)
+
+ -- Mattias Ellert <mattias.ellert@fysast.uu.se>  Sat, 10 Aug 2013 03:55:47 +0200

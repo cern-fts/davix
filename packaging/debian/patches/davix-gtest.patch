@@ -1,0 +1,12 @@
+diff -ur davix-0.4.0.orig/test/unit/CMakeLists.txt davix-0.4.0/test/unit/CMakeLists.txt
+--- davix-0.4.0.orig/test/unit/CMakeLists.txt	2014-12-08 12:10:50.000000000 +0100
++++ davix-0.4.0/test/unit/CMakeLists.txt	2014-12-08 16:34:36.920000000 +0100
+@@ -5,6 +5,8 @@
+ include_directories(${PROJECT_SOURCE_DIR}/src "." ${GTEST_INCLUDE_DIRS})
+ include_directories(${HEADER_RAPIDJSON})
+ 
++add_subdirectory(gtest)
++link_directories(${CMAKE_CURRENT_BINARY_DIR}/gtest)
+ 
+ ## alibxx
+ 

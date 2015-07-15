@@ -1,0 +1,6 @@
+usr/include/davix
+usr/lib/libdavix.so
+usr/lib/libdavix_copy.so
+usr/lib/pkgconfig/davix.pc
+usr/lib/pkgconfig/davix_copy.pc
+usr/share/man/man3/libdavix.3

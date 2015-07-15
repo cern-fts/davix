@@ -1,0 +1,38 @@
+Source: davix
+Priority: optional
+Maintainer: Mattias Ellert <mattias.ellert@fysast.uu.se>
+Build-Depends: debhelper (>= 8.0.0), cmake, libxml2-dev, libssl-dev, gsoap, libgridsite-dev, libboost-system-dev, libboost-thread-dev, rapidjson-dev, libgtest-dev, abi-compliance-checker, pkg-config, doxygen
+Standards-Version: 3.9.6
+Section: net
+Homepage: http://dmc.web.cern.ch/projects/davix/home
+
+Package: davix
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libdavix0 (= ${binary:Version})
+Description: Toolkit for http based file management
+ Davix is a toolkit designed for file operations with http based protocols
+ (WebDav, Amazon S3, ...).
+
+Package: libdavix0
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Runtime library for davix
+ Library for davix. Davix is a toolkit designed for file operations with
+ http based protocols (WebDav, Amazon S3, ...).
+
+Package: davix-dev
+Section: libdevel
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libdavix0 (= ${binary:Version})
+Description: Development files for davix
+ Development files for davix. Davix is a toolkit designed for file operations
+ with http based protocols (WebDav, Amazon S3, ...).
+
+Package: davix-doc
+Section: doc
+Architecture: all
+Depends: ${misc:Depends}
+Description: Documentation for davix
+ Documentation and examples for davix. Davix is a toolkit designed for file
+ operations with Http based protocols (WebDav, Amazon S3, ...).

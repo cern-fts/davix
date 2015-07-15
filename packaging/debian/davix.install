@@ -1,0 +1,15 @@
+usr/bin/davix-cp
+usr/bin/davix-get
+usr/bin/davix-http
+usr/bin/davix-ls
+usr/bin/davix-mkdir
+usr/bin/davix-put
+usr/bin/davix-rm
+usr/bin/davix-mv
+usr/share/man/man1/davix-get.1
+usr/share/man/man1/davix-http.1
+usr/share/man/man1/davix-ls.1
+usr/share/man/man1/davix-mkdir.1
+usr/share/man/man1/davix-put.1
+usr/share/man/man1/davix-rm.1
+usr/share/man/man1/davix-mv.1

@@ -130,8 +130,14 @@ int davix_get_metalink_url( Context & c, const Uri & uri,
 
 
     DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CHAIN, "Executing head query to {} for Metalink file", uri.getString());
-    if(tmp_err != NULL || (req.executeRequest(&tmp_err) <0))
+    
+    
+    if(tmp_err != NULL || (req.executeRequest(&tmp_err) <0)) {
+      if (tmp_err) 
         throw DavixException(davix_scope_meta(), tmp_err->getStatus(), tmp_err->getErrMsg());
+      else
+        throw DavixException(davix_scope_meta(), Davix::StatusCode::UnknowError, "Unknown error");
+    }
 
     HeaderVec headers;
     req.getAnswerHeaders(headers);

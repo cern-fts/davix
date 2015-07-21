@@ -169,53 +169,69 @@ static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::stri
     return 0;
 }
 
-static int preGetCheck(Tool::OptParams & opts, DavixError** err ){
+static int preGetCheck(Tool::OptParams & opts, DavixError** err ) {
     Context c;
     configureContext(c, opts);
     File f(c, opts.vec_arg[0]);
     struct stat st;    
     DavixError* tmp_err=NULL;
-
-    // check target resource is a file or a collection
-    if( f.stat(&opts.params, &st, &tmp_err) == 0){
-        if(st.st_mode & S_IFDIR && (opts.params.getProtocol() != RequestProtocol::Http)){ // resource requested is a directory
-            std::string url(opts.vec_arg[0]);
-
-            if (url[url.size()-1] != '/')
-                url += '/';
-            
-            DavixTaskQueue tq;
-
-            // create threadpool instance 
-            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Creating threadpool");
-            DavixThreadPool tp(&tq);
-           
-            // if protocol is S3, set listing mode to SemiHierarchical, we want to get every object under the same prefix in one go
-            if (opts.params.getProtocol() == RequestProtocol::AwsS3){
-                opts.params.setS3ListingMode(S3ListingMode::SemiHierarchical);
-                // unfortunately s3 defaults max-keys to 1000 and doesn't provide a way to disable the cap, set to large number
-                opts.params.setS3MaxKey(999999999); 
-            }
-
-            populateTaskQueue(c, opts, url, &tq, &tmp_err);
-            
-            // if task queue is empty, then all work is done, stop workers. Otherwise wait.
-            while(!tq.isEmpty()){
-                sleep(2);
-            }
-            tp.shutdown();
-            Tool::flushFinalLineShell(STDOUT_FILENO);
+    
+    
+    // Try to understand what to do
+    // If the URL is for plain HTTP then we don't want to stat
+    bool justgetfile = true;
+    
+    if ( opts.vec_arg[0].compare(0, 4, "http") != 0 ) {
+        int r = f.stat(&opts.params, &st, &tmp_err);      
+        if (r && tmp_err) {
+            DavixError::propagateError(err, tmp_err);
+            return -1;
         }
-        else{ // target resource is a file or request protocol is http, just get it normally
-            int out_fd= -1;
-            if( ( (out_fd = get_output_get_fstream(opts, scope_get, opts.output_file_path, &tmp_err)) > 0)
-                && (Tool::configureMonitorCB(opts, Transfer::Read)) == 0){
-                excute_get(c, opts, out_fd, opts.vec_arg[0], &tmp_err);
-                Tool::flushFinalLineShell(out_fd);
-                close(out_fd);
-            }
+      
+        if ( !r && (st.st_mode & S_IFDIR) ) justgetfile = false;
+    }
+    
+    if (justgetfile) {
+        // target resource is a file or request protocol is http, just get it normally
+        int out_fd= -1;
+        if( ( (out_fd = get_output_get_fstream(opts, scope_get, opts.output_file_path, &tmp_err)) > 0)
+                  && (Tool::configureMonitorCB(opts, Transfer::Read)) == 0) {
+          
+            excute_get(c, opts, out_fd, opts.vec_arg[0], &tmp_err);
+            Tool::flushFinalLineShell(out_fd);
+            close(out_fd);
         }
     }
+    else {
+        
+        std::string url(opts.vec_arg[0]);
+        
+        if (url[url.size()-1] != '/')
+            url += '/';
+        
+        DavixTaskQueue tq;
+        
+        // create threadpool instance 
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Creating threadpool");
+        DavixThreadPool tp(&tq);
+        
+        // if protocol is S3, set listing mode to SemiHierarchical, we want to get every object under the same prefix in one go
+        if (opts.params.getProtocol() == RequestProtocol::AwsS3){
+            opts.params.setS3ListingMode(S3ListingMode::SemiHierarchical);
+            // unfortunately s3 defaults max-keys to 1000 and doesn't provide a way to disable the cap, set to large number
+            opts.params.setS3MaxKey(999999999); 
+        }
+        
+        populateTaskQueue(c, opts, url, &tq, &tmp_err);
+        
+        // if task queue is empty, then all work is done, stop workers. Otherwise wait.
+        while(!tq.isEmpty()){
+            sleep(2);
+        }
+        tp.shutdown();
+        Tool::flushFinalLineShell(STDOUT_FILENO);
+    }    
+    
     if(tmp_err){
         DavixError::propagateError(err, tmp_err);
         return -1;

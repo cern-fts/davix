@@ -283,7 +283,10 @@ ReturnType autoRetryExecutor(HttpIOChain & chain, IOChainContext & io_context, E
             if(error.code() == StatusCode::ConnectionTimeout){
                 throw error;
             }
-
+            // we should also just give up if the server responds with 403 or 405
+            else if(error.code() == StatusCode::PermissionRefused){
+                throw error;
+            }
 
             DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_CHAIN, "Operation failure: {}. After {} retry", error.what(), retry);
             if( retry >= max_retry){

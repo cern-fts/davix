@@ -41,11 +41,16 @@ using namespace std;
 
 const std::string scope_get = "Davix::Tools::davix-get";
 
+std::string  get_base_get_options(){
+    return "  Get Options:\n"
+           "\t-r:                       Get directories and their contents recursively\n";
+}
 
 static std::string help_msg(const std::string &cmd_path){
     std::string help_msg = fmt::format("Usage : {} ", cmd_path);
     help_msg += Tool::get_get_description_options();
     help_msg += Tool::get_common_options();
+    help_msg += get_base_get_options();
 
     return help_msg;
 }
@@ -188,7 +193,7 @@ static int preGetCheck(Tool::OptParams & opts, DavixError** err ) {
             return -1;
         }
       
-        if ( !r && (st.st_mode & S_IFDIR) ) justgetfile = false;
+        if ( !r && (st.st_mode & S_IFDIR) && opts.params.getRecursiveMode()) justgetfile = false;
     }
     
     if (justgetfile) {

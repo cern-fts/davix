@@ -212,6 +212,11 @@ public:
     /// get copy mode for 3rd party copy
     CopyMode::CopyMode getCopyMode() const;
 
+    /// set recursive mode for directory operations
+    void setRecursiveMode(const bool recursive_mode);
+
+    /// get recursive mode for directory operations
+    bool getRecursiveMode() const;
 
 #ifdef __DAVIX_HAS_STD_FUNCTION
     ///

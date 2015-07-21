@@ -41,12 +41,16 @@ using namespace std;
 
 const std::string scope_put = "Davix::Tools::davix-put";
 
-
+std::string  get_base_put_options(){
+    return "  Put Options:\n"
+           "\t-r:                       Upload directories and their contents recursively\n";
+}
 
 static std::string help_msg(const std::string & cmd_path){
     std::string help_msg = fmt::format("Usage : {} ", cmd_path);
     help_msg += Tool::get_put_description_options();
     help_msg += Tool::get_common_options();
+    help_msg += get_base_put_options();
 
     return help_msg;
 }
@@ -150,7 +154,7 @@ static int prePutCheck(Tool::OptParams & opts, DavixError** err){
         return -1;
     }
 
-    if(st.st_mode & S_IFDIR){
+    if((st.st_mode & S_IFDIR) && opts.params.getRecursiveMode()){
         std::string src_path(opts.input_file_path);
 
         if(src_path[src_path.size()] != '/')
@@ -168,7 +172,11 @@ static int prePutCheck(Tool::OptParams & opts, DavixError** err){
                 return ret;
         }
 
-        ret = populateTaskQueue(c, opts, src_path, opts.vec_arg[1], &tq, err);
+        std::string url(opts.vec_arg[1]);
+        if (url[url.size()-1] == '/')
+            url.erase(url.size() - 1);
+
+        ret = populateTaskQueue(c, opts, src_path, url, &tq, err);
 
         // if task queue is empty, then all work is done, stop workers. Otherwise wait.
         while(!tq.isEmpty()){

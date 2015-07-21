@@ -83,6 +83,7 @@ struct RequestParamsInternal{
     RequestParamsInternal() :
         _ssl_check(true),
         _redirection(true),
+        _recursive_mode(false),
         _s3_listing_mode(S3ListingMode::Hierarchical),
         _s3_max_key_entries(10000),
         _ca_path(),
@@ -122,6 +123,7 @@ struct RequestParamsInternal{
     RequestParamsInternal(const RequestParamsInternal & param_private):
         _ssl_check(param_private._ssl_check),
         _redirection(param_private._redirection),
+        _recursive_mode(param_private._recursive_mode),
         _s3_listing_mode(param_private._s3_listing_mode),
         _s3_max_key_entries(param_private._s3_max_key_entries),
         _ca_path(param_private._ca_path),
@@ -149,7 +151,8 @@ struct RequestParamsInternal{
     }
     bool _ssl_check; // ssl CA check
     bool _redirection; // redirection support
-    
+    bool _recursive_mode; // recursive mode for get/put collections
+
     // s3 bucket listing mode
     S3ListingMode::S3ListingMode _s3_listing_mode;
 
@@ -470,6 +473,13 @@ CopyMode::CopyMode RequestParams::getCopyMode() const{
     return d_ptr->_copy_mode;
 }
 
+void RequestParams::setRecursiveMode(const bool recursive_mode){
+    d_ptr->_recursive_mode = recursive_mode;
+}
+
+bool RequestParams::getRecursiveMode() const{
+    return d_ptr->_recursive_mode;
+}
 
 // suppress useless warning
 #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"

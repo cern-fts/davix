@@ -305,6 +305,10 @@ int parse_davix_options_generic(const std::string &opt_filter,
                     p.params.setCopyMode(CopyMode::Push);
                 break;                
                 }
+            case 'r':{
+                p.params.setRecursiveMode(true);
+                break;
+                }
             case '?':
                 std::cout <<  p.help_msg;
                 exit(1);
@@ -366,7 +370,7 @@ int parse_davix_ls_options(int argc, char** argv, OptParams & p, DavixError** er
 
 
 int parse_davix_get_options(int argc, char** argv, OptParams & p, DavixError** err){
-    const std::string arg_tool_main= "P:x:H:E:o:OvkV";
+    const std::string arg_tool_main= "P:x:H:E:o:OvkVr";
     const struct option long_options[] = {
         COMMON_LONG_OPTIONS,
         SECURITY_LONG_OPTIONS,
@@ -388,7 +392,7 @@ int parse_davix_get_options(int argc, char** argv, OptParams & p, DavixError** e
 }
 
 int parse_davix_put_options(int argc, char** argv, OptParams & p, DavixError** err){
-    const std::string arg_tool_main= "P:x:H:E:o:vkV";
+    const std::string arg_tool_main= "P:x:H:E:o:vkVr";
     const struct option long_options[] = {
         COMMON_LONG_OPTIONS,
         SECURITY_LONG_OPTIONS,

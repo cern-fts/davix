@@ -1,12 +1,10 @@
 #include <algorithm>
-#include <gridsite.h>
 #include <status/davixstatusrequest.hpp>
 #include <stdsoap2.h>
 #include "delegation1H.h"
 
 #include "delegation.hpp"
-
-#include "../auth/davixx509cred_internal.hpp"
+#include "GRSTx509MakeProxyCert.h"
 
 using namespace Davix;
 

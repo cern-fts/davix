@@ -16,6 +16,14 @@ Uri s3UriTransformer(const Uri & original_url, const RequestParams & params, con
 
 time_t s3TimeConverter(std::string &s3time);
 
+std::string hexPrinter(const unsigned char* data, dav_size_t nbytes);
+
+// MD5 from string
+int calculateMD5(std::string &input, std::string &output);
+
+// MD5 from fd
+int calculateMD5(int fd, std::string &output);
+
 } // S3
 
 

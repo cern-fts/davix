@@ -6,7 +6,8 @@
 #include <string_utils/stringutils.hpp>
 #include <alibxx/crypto/base64.hpp>
 #include <alibxx/crypto/hmacsha1.hpp>
-
+#include <openssl/md5.h>
+#include <sys/mman.h>
 
 namespace Davix{
 
@@ -38,6 +39,23 @@ static std::string extract_bucket(const Uri & uri){
     return std::string(hostname.begin(), it);
 }
 
+static std::string get_md5(HeaderVec & vec){
+    for(HeaderVec::iterator it = vec.begin(); it < vec.end(); it++){
+        if( StrUtil::compare_ncase(it->first, "Content-MD5") ==0){
+            return it->second;
+        }
+    }
+    return "";
+}
+
+static std::string get_type(HeaderVec & vec){
+    for(HeaderVec::iterator it = vec.begin(); it < vec.end(); it++){
+        if( StrUtil::compare_ncase(it->first, "Content-Type") ==0){
+            return it->second;
+        }
+    }
+    return "";
+}
 
 static std::string get_date(HeaderVec & vec){
     for(HeaderVec::iterator it = vec.begin(); it < vec.end(); it++){
@@ -96,11 +114,17 @@ void signRequest(const RequestParams & params, const std::string & method, const
 
     // construct Request token
     ss << method << "\n"
-       << "\n"          // TODO : implement Content-type and md5 parser
-       << "\n"
-       << get_date(headers) << "\n"
-       << getAmzCanonHeaders(headers) << '/' << extract_bucket(url)  << url.getPath();
+       << get_md5(headers) << "\n"            
+       << get_type(headers) << "\n"
+       << get_date(headers) << "\n";
 
+    if((method == "POST") && (url.getQuery() == "delete")){ // work around for S3 batch delete request
+        ss << getAmzCanonHeaders(headers) << '/' << extract_bucket(url)  << url.getPath() << '?' << url.getQuery();
+    }
+    else{
+        ss << getAmzCanonHeaders(headers) << '/' << extract_bucket(url)  << url.getPath();
+    }
+    
     headers.push_back(std::pair<std::string, std::string>("Authorization",  getAwsAuthorizationField(ss.str(), params.getAwsAutorizationKeys().first, params.getAwsAutorizationKeys().second)));
 }
 
@@ -111,10 +135,17 @@ Uri tokenizeRequest(const RequestParams & params, const std::string & method, co
 
     // construct Request token
     ss << method << "\n"
-       << "\n"          // TODO : implement Content-type and md5 parser
-       << "\n"
-       << static_cast<unsigned long long>(expirationTime) << "\n"
-       <<  getAmzCanonHeaders(headers) << '/' << extract_bucket(url)  << url.getPath();
+       << get_md5(headers) << "\n"          
+       << get_type(headers) << "\n"
+       << static_cast<unsigned long long>(expirationTime) << "\n";
+
+    if((method == "POST") && (url.getQuery() == "delete")){ // work around for S3 batch delete request
+        ss << getAmzCanonHeaders(headers) << '/' << extract_bucket(url)  << url.getPath() << '?' << url.getQuery();
+    }
+    else{
+        ss << getAmzCanonHeaders(headers) << '/' << extract_bucket(url)  << url.getPath();
+    }
+
     const std::string signature = getAwsReqToken(ss.str(), params.getAwsAutorizationKeys().first);
 
 
@@ -200,6 +231,45 @@ time_t s3TimeConverter(std::string &s3time){
     return mtime;
 }
 
+// taken from dmlite
+std::string hexPrinter(const unsigned char* data, dav_size_t nbytes){
+    char buffer[nbytes * 2 + 1];
+    char *p;
+
+    p = buffer;
+    for(dav_size_t offset = 0; offset < nbytes; ++offset, p+=2)
+        sprintf(p, "%02x", data[offset]);
+    *p = '\0';
+
+    return std::string(buffer);
+}
+
+int calculateMD5(std::string &input, std::string &output){
+    if(input.empty()) return -1;
+
+    unsigned char result_buf[MD5_DIGEST_LENGTH]; 
+    MD5((unsigned char*)input.c_str(), input.size(), result_buf);
+
+    output = Base64::base64_encode(result_buf, MD5_DIGEST_LENGTH);
+
+    return output.empty() ? -1 : 0;
+}
+
+int calculateMD5(int fd, std::string &output){
+    struct stat statbuf;
+    if(fstat(fd, &statbuf) < 0)
+        return -1;
+
+    unsigned char result_buf[MD5_DIGEST_LENGTH]; 
+
+    void* file_buf = mmap(0, statbuf.st_size, PROT_READ, MAP_SHARED, fd, 0);
+    MD5((unsigned char*)file_buf, statbuf.st_size, result_buf);
+    munmap(file_buf, statbuf.st_size);
+
+    output = Base64::base64_encode(result_buf, MD5_DIGEST_LENGTH);
+
+    return output.empty() ? -1 : 0;
+}
 
 } // S3
 

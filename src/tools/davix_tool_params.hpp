@@ -46,6 +46,7 @@ struct OptParams{
     std::vector<std::string> vec_arg;
     int verbose;
     int debug;
+    int s3_delete_per_request;
     // request command
     std::string req_type;
     // help msg
@@ -83,6 +84,8 @@ int parse_davix_get_options(int argc, char** argv, OptParams & p, DavixError** e
 int parse_davix_put_options(int argc, char** argv, OptParams & p, DavixError** err);
 
 int parse_davix_copy_options(int argc, char** argv, OptParams & p, DavixError** err);
+
+int parse_davix_rm_options(int argc, char** argv, OptParams & p, DavixError** err);
 
 std::string get_common_options();
 

@@ -265,6 +265,18 @@ PutRequest::PutRequest(Context & context, const Uri & uri, DavixError** err) :
 }
 
 ///////////////////////////////////////////////////
+///// Simplified request POST
+////////////////////////////////////////////////////
+
+PostRequest::PostRequest(Context & context, const Uri & uri, DavixError** err) :
+    HttpRequest(context, uri, err)
+{
+    setRequestMethod("POST");
+    //setFlag(RequestFlag::SupportContinue100, true);
+    setFlag(RequestFlag::IdempotentRequest, false);
+}
+
+///////////////////////////////////////////////////
 ///// Simplified request HEAD
 ////////////////////////////////////////////////////
 

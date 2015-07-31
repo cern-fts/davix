@@ -372,6 +372,21 @@ public:
     PutRequest(Context & context, const Uri & uri, DavixError** err);
 };
 
+/// @class PostRequest
+/// @brief Http low level request configured for POST operation
+class PostRequest : public HttpRequest{
+public:
+    ///
+    /// \brief Construct a HttpRequest for POST a operation
+    /// \param context
+    /// \param uri
+    /// \param err
+    ///
+    /// @snippet example_code_snippets.cpp HttpRequest::PutRequest
+    PostRequest(Context & context, const Uri & uri, DavixError** err);
+};
+
+
 /// @class HeadRequest
 /// @brief Http low level request configured for HEAD operation
 class HeadRequest : public HttpRequest{

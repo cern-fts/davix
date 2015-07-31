@@ -99,6 +99,7 @@ OptParams::OptParams() :
     params(),
     vec_arg(),
     debug(false),
+    s3_delete_per_request(20),
     req_type(),
     help_msg(),
     cred_path(),
@@ -309,6 +310,10 @@ int parse_davix_options_generic(const std::string &opt_filter,
                 p.params.setRecursiveMode(true);
                 break;
                 }
+            case 'n':{
+                p.s3_delete_per_request = (atoi(optarg));
+                break;
+                }
             case '?':
                 std::cout <<  p.help_msg;
                 exit(1);
@@ -335,7 +340,7 @@ int parse_davix_options_generic(const std::string &opt_filter,
 
 
 int parse_davix_options(int argc, char** argv, OptParams & p, DavixError** err){
-    const std::string arg_tool_main= "P:x:H:E:X:o:kV";
+    const std::string arg_tool_main= "P:x:H:E:X:o:kVr";
     const struct option long_options[] = {
         COMMON_LONG_OPTIONS,
         SECURITY_LONG_OPTIONS,
@@ -422,6 +427,20 @@ int parse_davix_copy_options(int argc, char** argv, OptParams & p, DavixError** 
         SECURITY_LONG_OPTIONS,
         REQUEST_LONG_OPTIONS,
         COPY_LONG_OPTIONS,
+        {0,         0,                 0,  0 }
+     };
+
+    return parse_davix_options_generic(arg_tool_main, long_options,
+                                       argc, argv,
+                                       p, err);
+}
+
+int parse_davix_rm_options(int argc, char** argv, OptParams & p, DavixError** err){
+    const std::string arg_tool_main= "P:x:H:E:X:o:kVrn:";
+    const struct option long_options[] = {
+        COMMON_LONG_OPTIONS,
+        SECURITY_LONG_OPTIONS,
+        REQUEST_LONG_OPTIONS,
         {0,         0,                 0,  0 }
      };
 

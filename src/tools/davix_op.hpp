@@ -60,6 +60,25 @@ private:
     
 };
     
+
+class DeleteOp : public DavixOp{
+
+public:
+    // for s3 batch delete, need post request and body
+    DeleteOp(const Tool::OptParams& opts, std::string destination_url, Context& c, std::string buf);
+    // for anything else
+    DeleteOp(const Tool::OptParams& opts, std::string destination_url, Context& c);
+    virtual ~DeleteOp();
+    virtual int executeOp();
+    std::string calculateMD5(std::string content, DavixError** err);
+    void parse_deletion_result(int code, const Uri & u, const std::string & scope, const std::vector<char> & body);
+
+private:
+    std::string _buf;
+
+    
+};
+
 }
 
 #endif // DAVIX_OP_HPP

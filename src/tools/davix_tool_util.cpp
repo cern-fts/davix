@@ -531,7 +531,7 @@ int mkdirP(std::deque<std::string>& dirVec, bool trim){
     // loop backwards and attempt to create dir with largest depth
     // break when an existing dir has been found, or one has been created successfully
     // failed attemps are pushed to queue to retry once we have the location of an existing dir 
-    for(unsigned int i=dirVec.size()-1; i>=0; --i){
+    for(int i=dirVec.size()-1; i>=0; --i){
         ret = mkdir(dirVec[i].c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
         if((ret == 0) || (errno == EEXIST)){

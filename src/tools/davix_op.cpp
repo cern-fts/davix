@@ -1,5 +1,8 @@
 #include "davix_op.hpp"
 #include <utils/davix_logger_internal.hpp>
+#include <sstream>
+#include <xml/s3deleteparser.hpp>
+#include <xml/davdeletexmlparser.hpp>
 
 namespace Davix{
 
@@ -147,5 +150,144 @@ int PutOp::getInFd(DavixError** err){
     return fd;
     
 }
+
+
+//-------------------------------------------------
+//--------------------DeleteOp---------------------
+//-------------------------------------------------
+DeleteOp::DeleteOp(const Tool::OptParams& opts, std::string destination_url, Context& c, std::string buf) :
+    DavixOp(opts, "", destination_url, c)
+{
+    opType = "DELETE";
+    _scope = "Davix::DavixOp::DeleteOp";
+    _buf = buf;
+}
+
+DeleteOp::~DeleteOp(){}
+
+int DeleteOp::executeOp(){
+    DavixError* tmp_err=NULL;
+
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "{} executing op on ", _scope, _destination_url);
+
+    if(_opts.params.getProtocol() == RequestProtocol::AwsS3){
+        _destination_url += "/?delete";
+        PostRequest req(_c, _destination_url, &tmp_err);
+
+        if(tmp_err){
+            Tool::errorPrint(&tmp_err);
+            return -1;
+        }
+
+        req.setParameters(_opts.params);
+        
+        std::ostringstream ss;
+        ss << _buf.size();
+
+        // calculate md5 of body and set header fields, these are required for S3 multi-objects delete
+        std::string md5;
+        S3::calculateMD5(_buf, md5);
+
+        req.addHeaderField("Content-MD5", md5);
+        req.addHeaderField("Content-Length", ss.str());
+              
+        req.setRequestBody(_buf);
+
+        req.executeRequest(&tmp_err);
+
+        if(tmp_err){
+            Tool::errorPrint(&tmp_err);
+            return -1;
+        }
+
+        // check response code
+        int code = req.getRequestCode();
+
+        if(!httpcodeIsValid(code)){
+            httpcodeToDavixError(req.getRequestCode(), davix_scope_http_request(), "during S3 multi-objects delete operation", &tmp_err);
+            if(tmp_err){
+                Tool::errorPrint(&tmp_err);
+                return -1;
+            }
+        }
+
+        std::vector<char> body = req.getAnswerContentVec();
+
+        TRY_DAVIX{
+            parse_deletion_result(code, Uri(_destination_url), _scope, body);
+        }CATCH_DAVIX(&tmp_err);
+
+        if(tmp_err){
+            Tool::errorPrint(&tmp_err);
+            return -1;
+        }
+    }
+    else{
+        // cases other than s3, not implenmented for now. WebDAV delete collection already works without the -r switch
+        return -1;
+    }
+    
+    return -1;
+}
+
+void DeleteOp::parse_deletion_result(int code, const Uri & u, const std::string & scope, const std::vector<char> & body){
+    switch(code){
+        case 200:{
+            // if s3 && scope was davix_scope_rm_str() && batch delete, parse body
+            S3DeleteParser parser;
+            parser.parseChunk(&(body[0]), body.size());
+
+            // check if any of the delete request entry is flagged as error, if so, just print them for now
+            if( parser.getDeleteStatus().size() > 0){
+                for(unsigned int i=0; i < parser.getDeleteStatus().size(); ++i){
+                    if(parser.getDeleteStatus().at(i).error){
+                        std::ostringstream ss;
+                        ss << "Error: " << parser.getDeleteStatus().at(i).error_code << 
+                            " -> " << parser.getDeleteStatus().at(i).message << 
+                            " encountered while atempting to delete " << 
+                            parser.getDeleteStatus().at(i).filename;
+
+                        std::cerr << std::endl << ss.str() << std::endl;
+                    }
+                    return;
+                }
+                // if no properties, status were filtered because invalid
+                httpcodeToDavixException(404, scope);
+                return;
+            }
+        }
+        case 201:
+        case 202:
+        case 204:{
+                return;
+        }
+        case 207:{
+            // parse webdav
+            DavDeleteXMLParser parser;
+            parser.parseChunk(&(body[0]), body.size());
+            if( parser.getProperties().size() > 0){
+                for(unsigned int i=0; i < parser.getProperties().size(); ++i){
+                   const int sub_code = parser.getProperties().at(i).req_status;
+                   std::ostringstream ss;
+
+                   ss << "occurred during deletion request for " << parser.getProperties().at(i).filename;
+
+                   if(httpcodeIsValid(sub_code) == false){
+                       httpcodeToDavixException(sub_code, scope, ss.str());
+                   }
+                }
+
+               return;
+            }
+            // if no properties, properties were filtered because invalid
+            httpcodeToDavixException(404, scope);
+            break;
+        }
+    }
+    std::ostringstream ss;
+    ss << " with url " << u.getString();
+    httpcodeToDavixException(code, scope, ss.str());
+}
+
 
 } // namespace Davix

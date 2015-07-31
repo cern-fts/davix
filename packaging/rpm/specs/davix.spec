@@ -31,7 +31,6 @@ BuildRequires:                  libxml2-devel
 BuildRequires:                  openssl-devel
 
 # davix-copy dependencies
-BuildRequires:                  gridsite-devel
 BuildRequires:                  gsoap-devel
 
 # unit tests and abi check

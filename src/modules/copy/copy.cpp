@@ -172,6 +172,10 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
             request->addHeaderField("Source", destination);
         }
         request->addHeaderField("X-Number-Of-Streams", nstreamsStr);
+
+        // for lcgdm-dav, ask for secure redirection in all cases for COPY
+        request->addHeaderField("Secure-Redirection", "1");
+
         // for lcgdm-dav -> S3, add NoHead flag to suppress final head-to-close request
         if(isS3endpoint)
             request->addHeaderField("Copy-Flags", "NoHead");

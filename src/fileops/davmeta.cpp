@@ -22,6 +22,7 @@
 #include "davmeta.hpp"
 
 #include <xml/davpropxmlparser.hpp>
+#include <xml/davdeletexmlparser.hpp>
 #include <xml/metalinkparser.hpp>
 #include <xml/s3propparser.hpp>
 
@@ -191,13 +192,20 @@ void parse_creation_deletion_result(int code, const Uri & u, const std::string &
         }
         case 207:{
             // parse webdav
-            DavPropXMLParser parser;
+            DavDeleteXMLParser parser;
             parser.parseChunk(&(body[0]), body.size());
             if( parser.getProperties().size() > 0){
-               const int sub_code = parser.getProperties().at(0).req_status;
-               if(httpcodeIsValid(sub_code) == false){
-                   httpcodeToDavixException(sub_code, scope);
-               }
+                for(unsigned int i=0; i < parser.getProperties().size(); ++i){
+                   const int sub_code = parser.getProperties().at(i).req_status;
+                   std::ostringstream ss;
+
+                   ss << "occurred during deletion request for " << parser.getProperties().at(i).filename;
+
+                   if(httpcodeIsValid(sub_code) == false){
+                       httpcodeToDavixException(sub_code, scope, ss.str());
+                   }
+                }
+
                return;
             }
             // if no properties, properties were filtered because invalid
@@ -515,25 +523,31 @@ void s3StatMapper(Context& context, const RequestParams* params, const Uri & uri
     DavixError * tmp_err=NULL;
     HeadRequest req(context, uri, &tmp_err);    
 
+    // we need to modify it, hence copy
+    RequestParams p(params);
+    // we just need to know if target has anything inside it
+    p.setS3MaxKey(1);
+
     if( tmp_err == NULL){
-        req.setParameters(params);
+        req.setParameters(p);
         req.executeRequest(&tmp_err);
         const int code = req.getRequestCode();
 
         // if 404, target either doesn't exist or is a S3 "directory"
         if(code == 404){
-            Uri new_url = S3::s3UriTransformer(uri, params, true); 
+            // try to "list" target resource and see if there is anything inside it, if there is, then it's a directory
+            Uri new_url = S3::s3UriTransformer(uri, p, true);
             DirHandle handle(new GetRequest(context, new_url, &tmp_err), new S3PropParser(params->getS3ListingMode(), uri.getPath()));
 
             dav_ssize_t s_resu=0;
 
-            const int operation_timeout = params->getOperationTimeout()->tv_sec;
+            const int operation_timeout = p.getOperationTimeout()->tv_sec;
             HttpRequest & http_req = *(handle.request);
             XMLPropParser & parser = *(handle.parser);
 
             time_t timestamp_timeout = time(NULL) + ((operation_timeout)?(operation_timeout):180);
 
-            http_req.setParameters(params);
+            http_req.setParameters(p);
 
             http_req.beginRequest(&tmp_err);
             checkDavixError(&tmp_err);
@@ -579,7 +593,7 @@ void s3StatMapper(Context& context, const RequestParams* params, const Uri & uri
                 st_info.mtime = req.getLastModified();
             }
         }
-        if(code == 500)
+        else if(code == 500)
             throw DavixException(scope, StatusCode::UnknowError, "Internal Server Error triggered while attempting to get S3 object's stats");
     }
     checkDavixError(&tmp_err);

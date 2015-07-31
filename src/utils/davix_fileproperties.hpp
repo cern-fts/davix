@@ -55,6 +55,30 @@ struct FileProperties
 
 };
 
+struct FileDeleteStatus
+{
+    FileDeleteStatus() :
+        filename(),
+        message(),
+        error_code(),
+        req_status(0),
+        error(false){}
+
+    std::string filename;
+    std::string message;
+    std::string error_code; // for when server return a text code
+    unsigned int  req_status; /* status code of the request associated ( ex: http 200) */
+    bool error;
+
+    inline void clear(){
+        filename.clear();
+        message.clear();
+        error_code.clear();
+        req_status = 0;
+        error = false;
+    }
+};
+
 } // namespace Davix
 
 #endif // DAVIX_FILEPROPERTIES_H

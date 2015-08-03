@@ -48,7 +48,8 @@ const std::string closeTags_entry = "</Key></Object>";
 
 std::string  get_base_rm_options(){
     return "  Delete Options:\n"
-           "\t-r:                       Remove contents recursively, also works on S3 objects for storage systems that supports multi-objects deletion\n";
+           "\t-r:                       Remove contents recursively, also works on S3 objects for storage systems that supports multi-objects deletion\n"
+           "\t-n: NUMBER_OF_KEYS        Number of object keys to include in each delete request, S3 supports up to 1000, but request will likely timeout. Default: 20\n";
 }
 static std::string help_msg(const std::string & cmd_path){
     std::string help_msg = fmt::format("Usage : {} ", cmd_path);

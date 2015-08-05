@@ -80,6 +80,11 @@ void awesomeGridHook(RequestParams& p, HttpRequest & req, Uri & u, RequestPreRun
                       env_grid.key_path,
                       env_grid.cert_path,
                       tmp_err->getErrMsg());
+
+            if(tmp_err){
+                std::cerr << "("<< tmp_err->getErrScope() <<") Error: "<< tmp_err->getErrMsg() << std::endl;
+                DavixError::clearError(&tmp_err);
+            }
         }else{
             // in current state, GRID profiles ignore all manually defined callbacks
             p.setClientCertCallbackX509(NULL, NULL);

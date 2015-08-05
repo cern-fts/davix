@@ -255,6 +255,9 @@ int authCallbackCert(void* userdata, const SessionInfo & info, X509Credential* c
             
             if( (*err)->getStatus() != StatusCode::CredDecryptionError){
                 // credential specific error
+                std::cerr << "("<< (*err)->getErrScope() <<") Error: "<< (*err)->getErrMsg() << std::endl;
+                DavixError::clearError(err);
+
                 return -1;
             }
 
@@ -268,6 +271,9 @@ int authCallbackCert(void* userdata, const SessionInfo & info, X509Credential* c
                     DavixError::setupError(err, "Davix::Tool::Auth",
                                            StatusCode::CredDecryptionError,
                                            "Impossible to use and decrypt client credential");
+                    
+                    std::cerr << "("<< (*err)->getErrScope() <<") Error: "<< (*err)->getErrMsg() << std::endl;
+                    DavixError::clearError(err);
 
                 }
                 return -1;

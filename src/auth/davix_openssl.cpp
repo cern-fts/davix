@@ -101,10 +101,8 @@ ne_ssl_client_cert *SSL_X509_Pem_Read(const std::string & pkeyfile_str, const st
 
     // load cred
     if (BIO_read_filename(in, credfile) <= 0){
-        char reason[512];
-        ERR_error_string_n(ERR_get_error(), reason, sizeof(reason));
         std::ostringstream msg;
-        msg << "impossible to open " << credfile << ": " << reason;
+        msg << "impossible to open " << credfile << ": ";
         opensslErrorMapper(msg.str(), err);
         ERR_clear_error();
         BIO_free(in);
@@ -112,10 +110,8 @@ ne_ssl_client_cert *SSL_X509_Pem_Read(const std::string & pkeyfile_str, const st
 
     }
     if ( (cert = PEM_read_bio_X509(in, NULL, SSL_pem_passwd_cb, (void*) password)) == NULL){
-        char reason[512];
-        ERR_error_string_n(ERR_get_error(), reason, sizeof(reason));
         std::ostringstream msg;
-        msg << "parse PEM credential failed " << credfile << ": " << reason;
+        msg << "parse PEM credential failed " << credfile << ": ";
         opensslErrorMapper(msg.str(), err);
         ERR_clear_error();
         BIO_free(in);

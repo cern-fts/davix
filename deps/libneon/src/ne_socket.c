@@ -1830,7 +1830,14 @@ int ne_sock_connect_ssl(ne_socket *sock, ne_ssl_context *ctx, void *userdata)
                 case SSL_ERROR_SYSCALL:
                     break;
                 
-                case SSL_ERROR_SSL:
+                case SSL_ERROR_SSL:{
+                    int ssl_err_code = ERR_get_error();
+                    char* ssl_err_message = ERR_reason_error_string(ssl_err_code);
+                    ERR_clear_error();
+                    set_error(sock, _(ssl_err_message));
+                    return NE_SOCK_ERROR;
+                }
+
                 default: 
                     set_error(sock, _("Unknown error during SSL handshake"));
                     return NE_SOCK_ERROR;

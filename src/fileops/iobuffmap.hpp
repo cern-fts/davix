@@ -1,6 +1,7 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) 2013  Adrien Devresse <adrien.devresse@cern.ch>, CERN
+ * Copyright (C) CERN 2013  
+ * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public

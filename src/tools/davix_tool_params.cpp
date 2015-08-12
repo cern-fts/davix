@@ -100,6 +100,7 @@ OptParams::OptParams() :
     vec_arg(),
     debug(false),
     s3_delete_per_request(20),
+    threadpool_size(10),
     req_type(),
     help_msg(),
     cred_path(),
@@ -308,6 +309,7 @@ int parse_davix_options_generic(const std::string &opt_filter,
                 }
             case 'r':{
                 p.params.setRecursiveMode(true);
+                p.threadpool_size = atoi(optarg);
                 break;
                 }
             case 'n':{
@@ -340,7 +342,7 @@ int parse_davix_options_generic(const std::string &opt_filter,
 
 
 int parse_davix_options(int argc, char** argv, OptParams & p, DavixError** err){
-    const std::string arg_tool_main= "P:x:H:E:X:o:kVr";
+    const std::string arg_tool_main= "P:x:H:E:X:o:kVr:";
     const struct option long_options[] = {
         COMMON_LONG_OPTIONS,
         SECURITY_LONG_OPTIONS,
@@ -375,7 +377,7 @@ int parse_davix_ls_options(int argc, char** argv, OptParams & p, DavixError** er
 
 
 int parse_davix_get_options(int argc, char** argv, OptParams & p, DavixError** err){
-    const std::string arg_tool_main= "P:x:H:E:o:OvkVr";
+    const std::string arg_tool_main= "P:x:H:E:o:OvkVr:";
     const struct option long_options[] = {
         COMMON_LONG_OPTIONS,
         SECURITY_LONG_OPTIONS,
@@ -397,7 +399,7 @@ int parse_davix_get_options(int argc, char** argv, OptParams & p, DavixError** e
 }
 
 int parse_davix_put_options(int argc, char** argv, OptParams & p, DavixError** err){
-    const std::string arg_tool_main= "P:x:H:E:o:vkVr";
+    const std::string arg_tool_main= "P:x:H:E:o:vkVr:";
     const struct option long_options[] = {
         COMMON_LONG_OPTIONS,
         SECURITY_LONG_OPTIONS,
@@ -436,7 +438,7 @@ int parse_davix_copy_options(int argc, char** argv, OptParams & p, DavixError** 
 }
 
 int parse_davix_rm_options(int argc, char** argv, OptParams & p, DavixError** err){
-    const std::string arg_tool_main= "P:x:H:E:X:o:kVrn:";
+    const std::string arg_tool_main= "P:x:H:E:X:o:kVr:n:";
     const struct option long_options[] = {
         COMMON_LONG_OPTIONS,
         SECURITY_LONG_OPTIONS,

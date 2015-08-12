@@ -62,9 +62,15 @@ int DavixThread::run(){
                     state = BUSY;
 
                     int ret = op->executeOp();
-                    if(ret < 0)
-                        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "(DavixThread) Worker thread: {} failed to execute op on {}.", 
-                                    threadId, op->getTargetUrl());
+                    if(ret < 0){
+                        if(op->getOpType() == "DELETE")
+                            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "(DavixThread) Worker thread: {} failed to execute op on {}.", 
+                                        threadId, op->getDestinationUrl());
+                        else
+                            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "(DavixThread) Worker thread: {} failed to execute op on {}.", 
+                                        threadId, op->getTargetUrl());
+
+                    }
                     
                     delete op;
                     state = IDLE;

@@ -26,9 +26,6 @@
 // default task queue size
 #define DAVIX_DEFAULT_TASKQUEUE_SIZE 20
 
-// default threadpool size
-#define DAVIX_DEFAULT_THREADPOOL_SIZE 10
-
 // default connexion timeout for HTTP/Dav connexion
 #define DAVIX_DEFAULT_CONN_TIMEOUT 30
 

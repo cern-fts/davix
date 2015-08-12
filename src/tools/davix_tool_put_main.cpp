@@ -44,7 +44,7 @@ const std::string scope_put = "Davix::Tools::davix-put";
 
 std::string  get_base_put_options(){
     return "  Put Options:\n"
-           "\t-r:                       Upload directories and their contents recursively\n";
+           "\t-r NUMBER_OF_THREADS:     Upload directories and their contents recursively.\n"; 
 }
 
 static std::string help_msg(const std::string & cmd_path){
@@ -165,7 +165,7 @@ static int prePutCheck(Tool::OptParams & opts, DavixError** err){
 
         // create threadpool instance 
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Creating threadpool");
-        DavixThreadPool tp(&tq);
+        DavixThreadPool tp(&tq, opts.threadpool_size);
 
         if(opts.params.getProtocol() != RequestProtocol::AwsS3){    // if protocol is S3, don't need make collection (not heirarchical)
             ret = tryMakeCollection(c, opts, opts.vec_arg[1]);

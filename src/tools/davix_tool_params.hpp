@@ -47,6 +47,7 @@ struct OptParams{
     int verbose;
     int debug;
     int s3_delete_per_request;
+    int threadpool_size;
     // request command
     std::string req_type;
     // help msg

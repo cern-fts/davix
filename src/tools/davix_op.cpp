@@ -248,7 +248,7 @@ int DeleteOp::executeOp(){
         return -1;
     }
     
-    return -1;
+    return 0;
 }
 
 void DeleteOp::parse_deletion_result(int code, const Uri & u, const std::string & scope, const std::vector<char> & body){

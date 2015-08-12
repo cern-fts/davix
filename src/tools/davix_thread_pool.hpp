@@ -31,14 +31,16 @@ namespace Davix{
 
 class DavixThreadPool{
 public:
-    DavixThreadPool(DavixTaskQueue* tq);
+    DavixThreadPool(DavixTaskQueue* tq, const int pool_size);
     ~DavixThreadPool();
     void init();
     void shutdown();
 private:
-    DavixThread* tp[DAVIX_DEFAULT_THREADPOOL_SIZE];
+    //DavixThread* tp[DAVIX_DEFAULT_THREADPOOL_SIZE];
     DavixTaskQueue* _tq;
     int threadCount;
+    int _pool_size;
+    DavixThread** tp; 
 };
 
 }

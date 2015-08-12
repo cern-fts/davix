@@ -24,39 +24,47 @@
 
 namespace Davix{
 
-DavixThreadPool::DavixThreadPool(DavixTaskQueue* tq) :
+DavixThreadPool::DavixThreadPool(DavixTaskQueue* tq, const int pool_size) :
     _tq(tq),
-    threadCount(0)
+    threadCount(0),
+    _pool_size(pool_size)
 {
     init();
 }
 
 DavixThreadPool::~DavixThreadPool(){
-    for(int i=0; i<DAVIX_DEFAULT_THREADPOOL_SIZE; ++i){
+    for(int i=0; i<_pool_size; ++i){
         if(tp[i])
             delete tp[i]; 
     }
+    if(tp) delete tp;
 }
 
 void DavixThreadPool::init(){
-    for(int i=0; i<DAVIX_DEFAULT_THREADPOOL_SIZE; ++i){
-        tp[i] = NULL;
-        tp[i] = new DavixThread(_tq, i);
-        if(tp[i] != NULL){
-            tp[i]->createWorkerThread();
-            threadCount++;
+    tp = new DavixThread*[_pool_size];
+    
+    if(tp){
+        for(int i=0; i<_pool_size; ++i){
+            tp[i] = NULL;
+            tp[i] = new DavixThread(_tq, i);
+            if(tp[i] != NULL){
+                tp[i]->createWorkerThread();
+                threadCount++;
+            }
+            else
+                std::cerr << std::endl << "Failed to create worker thread: " << i << std::endl;
         }
-        else
-            std::cerr << std::endl << "Failed to create worker thread: " << i << std::endl;
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "(DavixThreadPool) Threadpool initiated. Number of worker threads is: {}", threadCount);
     }
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "(DavixThreadPool) Threadpool initiated. Number of worker threads is: {}", threadCount);
+    else
+        std::cerr << std::endl << "Failed to init threadpool!" << std::endl;
 }
 
 void DavixThreadPool::shutdown(){
     int count = 0;
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "(DavixThreadPool) Shutting down threadpool. Number of threads to join: {}", threadCount);
     _tq->shutdown();
-    for(int i=0; i<DAVIX_DEFAULT_THREADPOOL_SIZE; ++i){
+    for(int i=0; i<_pool_size; ++i){
         if(tp[i] != NULL){
             tp[i]->shutdown();
             if(pthread_join(tp[i]->getWorkerHandle(), NULL) != 0){

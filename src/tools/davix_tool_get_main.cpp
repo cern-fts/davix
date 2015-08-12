@@ -43,7 +43,7 @@ const std::string scope_get = "Davix::Tools::davix-get";
 
 std::string  get_base_get_options(){
     return "  Get Options:\n"
-           "\t-r:                       Get directories and their contents recursively\n";
+           "\t-r NUMBER_OF_THREADS:     Get directories and their contents recursively.\n";
 }
 
 static std::string help_msg(const std::string &cmd_path){
@@ -218,7 +218,7 @@ static int preGetCheck(Tool::OptParams & opts, DavixError** err ) {
         
         // create threadpool instance 
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Creating threadpool");
-        DavixThreadPool tp(&tq);
+        DavixThreadPool tp(&tq, opts.threadpool_size);
         
         // if protocol is S3, set listing mode to SemiHierarchical, we want to get every object under the same prefix in one go
         if (opts.params.getProtocol() == RequestProtocol::AwsS3){

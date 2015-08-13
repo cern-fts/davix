@@ -20,6 +20,7 @@
 */
 
 #include "davix_op.hpp"
+#include "davix_taskqueue.hpp"
 #include <utils/davix_logger_internal.hpp>
 #include <sstream>
 #include <xml/s3deleteparser.hpp>
@@ -308,6 +309,113 @@ void DeleteOp::parse_deletion_result(int code, const Uri & u, const std::string 
     std::ostringstream ss;
     ss << " with url " << u.getString();
     httpcodeToDavixException(code, scope, ss.str());
+}
+
+
+//-------------------------------------------------
+//---------------------ListOp----------------------
+//-------------------------------------------------
+ListOp::ListOp(const Tool::OptParams& opts, std::string target_url, std::string destination_url, Context& c, DavixTaskQueue* tq, DavixTaskQueue* listing_tq) :
+    DavixOp(opts, target_url, destination_url, c)
+{
+    opType = "LIST";
+    _scope = "Davix::DavixOp::ListOp";
+    _tq = tq;
+    _listing_tq = listing_tq;
+}
+
+ListOp::~ListOp(){}
+
+int ListOp::executeOp(){
+    DAVIX_DIR* fd = NULL;
+    DavPosix pos(&_c);
+    DavixError* tmp_err=NULL;
+    std::string outputPath;
+    struct stat st;
+    struct dirent* d;
+    int entry_counter=0;
+    std::string last_success_entry;
+
+    std::deque<std::pair<std::string,std::string> > dirQueue;
+    std::deque<std::pair<std::string,std::string> > opQueue;
+
+    // set up first entry
+    if(!_target_url.empty() && !_destination_url.empty()){
+        dirQueue.push_back(std::make_pair(_target_url, _destination_url));
+    }
+    else
+        DavixError::setupError(&tmp_err, "Davix::ListOp", StatusCode::InvalidArgument, " target or destination URL is empty.");
+
+
+    if( (fd = pos.opendirpp(&_opts.params, dirQueue.front().first, &tmp_err)) == NULL){
+        Tool::errorPrint(&tmp_err);
+
+        // TODO: protential place for DMC-713 fix, perhaps don't return on a 404, just continue
+        return -1;
+    }
+
+    // dir opened successfully, create local dir
+    Tool::mkdirP(dirQueue.front().second, false);
+
+    while( ((d = pos.readdirpp(fd, &st, &tmp_err)) != NULL)){    // if one entry inside a directory fails, the loop exits, the other entires are not processed
+
+        last_success_entry = dirQueue.front().first+d->d_name;
+        // for each entry, do a stat to see if it's a directory, if yes, push to dirQueue for further processing    
+        if(st.st_mode & S_IFDIR){
+            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Directory entry found, pushing {}/ to dirQueue", dirQueue.front().first+d->d_name);
+            dirQueue.push_back(std::make_pair(dirQueue.front().first+d->d_name+"/",dirQueue.front().second+"/"+d->d_name));
+        }
+        else if(!(st.st_mode & S_IFDIR)){
+            //if we spend too long in here, server will likely close the connection mid-readdirpp, need to get all the entries quickly before processing them
+            opQueue.push_back(std::make_pair(dirQueue.front().first+d->d_name, dirQueue.front().second+"/"+d->d_name));
+            entry_counter++;
+        }
+        if(!_opts.debug)
+            Tool::batchTransferMonitor(dirQueue.front().first, "Crawling", entry_counter, 0);
+    } // while readdirpp
+    
+    if(tmp_err){
+        Tool::errorPrint(&tmp_err);
+        std::cerr << std::endl << "Error occured during listing  " << dirQueue.front().first << " Number of entries processed in current directory: " << entry_counter << ". Continuing..."<< std::endl;
+        std::cerr << std::endl << "Last succesful entry is " << last_success_entry << std::endl;
+    }
+
+    entry_counter = 0;
+    
+    pos.closedirpp(fd, NULL);
+    dirQueue.pop_front();
+
+    int num_of_ops = opQueue.size();
+    int num_listing_ops = dirQueue.size();
+
+    for(unsigned int i=0; i < dirQueue.size(); ++i){
+        //push listing op to task queue
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to (listing) work queue, target is {} and destination is {}.", dirQueue[i].first, dirQueue[i].second);
+        ListOp* l_op = new ListOp(_opts, (dirQueue[i].first), (dirQueue[i].second), _c, _tq, _listing_tq);
+        _listing_tq->pushOp(l_op);
+
+        entry_counter++;
+        if(!_opts.debug)
+            Tool::batchTransferMonitor(dirQueue[i].first, "Populating (listing) task queue for", entry_counter, num_listing_ops);
+    }
+    entry_counter = 0;
+ 
+    for(unsigned int i=0; i < opQueue.size(); ++i){
+        //push op to task queue
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to (get) work queue, target is {} and destination is {}.", opQueue[i].first, opQueue[i].second);
+        GetOp* op = new GetOp(_opts, (opQueue[i].first), (opQueue[i].second), _c);
+        _tq->pushOp(op);
+
+        entry_counter++;
+        if(!_opts.debug)
+            Tool::batchTransferMonitor(opQueue[i].first, "Populating (get) task queue for", entry_counter, num_of_ops);
+    }
+      
+    if(tmp_err){
+        Tool::errorPrint(&tmp_err);
+        return -1;
+    }
+    return 0;
 }
 
 

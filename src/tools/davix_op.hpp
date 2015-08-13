@@ -100,6 +100,23 @@ private:
     
 };
 
+// forward declaration
+class DavixTaskQueue;
+
+class ListOp : public DavixOp{
+
+public:
+    ListOp(const Tool::OptParams& opts, std::string target_url, std::string destination_url, Context& c, DavixTaskQueue* tq, DavixTaskQueue* listing_tq);
+    virtual ~ListOp();
+    virtual int executeOp();
+
+private:
+    DavixTaskQueue* _tq;
+    DavixTaskQueue* _listing_tq;
+    //std::deque<std::pair<std::string,std::string> > dirQueue;
+    //std::deque<std::pair<std::string,std::string> > opQueue;   
+};
+
 }
 
 #endif // DAVIX_OP_HPP

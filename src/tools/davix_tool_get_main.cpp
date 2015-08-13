@@ -75,7 +75,7 @@ static int excute_get(Context& c, const Tool::OptParams & opts, int out_fd, std:
         return (ret >= 0)?0:-1;
 }
 
-static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::string uri, DavixTaskQueue* tq, DavixError** err ){
+static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::string uri, DavixTaskQueue* tq, DavixTaskQueue* listing_tq, DavixError** err ){
     DAVIX_DIR* fd = NULL;
     DavPosix pos(&c);
     DavixError* tmp_err=NULL;
@@ -110,69 +110,85 @@ static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::stri
     else
         DavixError::setupError(&tmp_err, "Davix::Tool::Get", StatusCode::InvalidArgument, " target URL is empty.");
 
-    while(!dirQueue.empty()){
-        if( (fd = pos.opendirpp(&opts.params, dirQueue.front().first, &tmp_err)) == NULL){
-            Tool::errorPrint(&tmp_err);
-            return -1;
+    if( (fd = pos.opendirpp(&opts.params, dirQueue.front().first, &tmp_err)) == NULL){
+        Tool::errorPrint(&tmp_err);
+
+        // TODO: protential place for DMC-713 fix, perhaps don't return on a 404, just continue
+        return -1;
+    }
+
+    // dir opened successfully, create local dir
+    Tool::mkdirP(dirQueue.front().second, false);
+
+    //if S3, remove last token of url to accommodate duplicate token in d_name
+    if (opts.params.getProtocol() == RequestProtocol::AwsS3){
+        dirQueue.front().first = "s3://"+(Uri(dirQueue.front().first).getHost())+"/";
+    } 
+
+    while( ((d = pos.readdirpp(fd, &st, &tmp_err)) != NULL)){    // if one entry inside a directory fails, the loop exits, the other entires are not processed
+
+        last_success_entry = dirQueue.front().first+d->d_name;
+        // for each entry, do a stat to see if it's a directory, if yes, push to dirQueue for further processing    
+        if(st.st_mode & S_IFDIR){
+            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Directory entry found, pushing {}/ to dirQueue", dirQueue.front().first+d->d_name);
+            dirQueue.push_back(std::make_pair(dirQueue.front().first+d->d_name+"/",dirQueue.front().second+"/"+d->d_name));
         }
-
-        // dir opened successfully, create local dir
-        Tool::mkdirP(dirQueue.front().second, false);
-
-        //if S3, remove last token of url to accommodate duplicate token in d_name
-        if (opts.params.getProtocol() == RequestProtocol::AwsS3){
-            dirQueue.front().first = "s3://"+(Uri(dirQueue.front().first).getHost())+"/";
-        } 
-
-        while( ((d = pos.readdirpp(fd, &st, &tmp_err)) != NULL)){    // if one entry insidce a directory fails, the loop exits, the other entires are not processed
-
-            last_success_entry = dirQueue.front().first+d->d_name;
-            // for each entry, do a stat to see if it's a directory, if yes, push to dirQueue for further processing    
-            if(st.st_mode & S_IFDIR){
-                DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Directory entry found, pushing {}/ to dirQueue", dirQueue.front().first+d->d_name);
-                dirQueue.push_back(std::make_pair(dirQueue.front().first+d->d_name+"/",dirQueue.front().second+"/"+d->d_name));
-            }
-            else if(!(st.st_mode & S_IFDIR)){
-                //if we spend too long in here, server will likely close the connection mid-readdirpp, need to get all the entries quickly before processing them
-                opQueue.push_back(std::make_pair(dirQueue.front().first+d->d_name, dirQueue.front().second+"/"+d->d_name));
-                entry_counter++;
-            }
-            if(!opts.debug)
-                Tool::batchTransferMonitor(dirQueue.front().first, "Crawling", entry_counter, 0);
+        else if(!(st.st_mode & S_IFDIR)){
+            //if we spend too long in here, server will likely close the connection mid-readdirpp, need to get all the entries quickly before processing them
+            opQueue.push_back(std::make_pair(dirQueue.front().first+d->d_name, dirQueue.front().second+"/"+d->d_name));
+            entry_counter++;
         }
-        
-        if(tmp_err){
-            Tool::errorPrint(&tmp_err);
-            cerr << endl << "Error occured during listing  " << dirQueue.front().first << " Number of entries processed in current directory: " << entry_counter << ". Continuing..."<< endl;
-            cerr << endl << "Last succesful entry is " << last_success_entry << endl;
-        }
+        if(!opts.debug)
+            Tool::batchTransferMonitor(dirQueue.front().first, "Crawling", entry_counter, 0);
+    } // while readdirpp
+    
+    if(tmp_err){
+        Tool::errorPrint(&tmp_err);
+        cerr << endl << "Error occured during listing  " << dirQueue.front().first << " Number of entries processed in current directory: " << entry_counter << ". Continuing..."<< endl;
+        cerr << endl << "Last succesful entry is " << last_success_entry << endl;
+    }
 
-        entry_counter = 0;
-        
-        pos.closedirpp(fd, NULL);
+    entry_counter = 0;
+    
+    pos.closedirpp(fd, NULL);
+    dirQueue.pop_front();
 
-        int num_of_ops = opQueue.size();
-
-        for(std::deque<std::pair<std::string,std::string> >::iterator it = opQueue.begin(); it!=opQueue.end(); ++it){
-            //push op to task queue
-            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to work queue, target is {} and destination is {}.", opQueue.front().first, opQueue.front().second);
-            GetOp* op = new GetOp(opts, (opQueue.front().first), (opQueue.front().second), c);
-            tq->pushOp(op);
-            opQueue.pop_front();
+    int num_of_ops = opQueue.size();
+    int num_listing_ops = dirQueue.size();
+  
+    // if endpoint is S3 then there is no need to crawl namespace recursively, since it's flat
+    if (opts.params.getProtocol() != RequestProtocol::AwsS3){
+        for(unsigned int i=0; i < dirQueue.size(); ++i){
+            //push listing op to task queue
+            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to (listing) work queue, target is {} and destination is {}.", dirQueue[i].first, dirQueue[i].second);
+            ListOp* l_op = new ListOp(opts, (dirQueue[i].first), (dirQueue[i].second), c, tq, listing_tq);
+            listing_tq->pushOp(l_op);
 
             entry_counter++;
             if(!opts.debug)
-                Tool::batchTransferMonitor(dirQueue.front().first, "Populating task queue for", entry_counter, num_of_ops);
+                Tool::batchTransferMonitor(dirQueue[i].first, "Populating (listing) task queue for", entry_counter, num_listing_ops);
         }
         entry_counter = 0;
-        dirQueue.pop_front();
     }
+
+    for(unsigned int i=0; i < opQueue.size(); ++i){
+        //push op to task queue
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to (get) work queue, target is {} and destination is {}.", opQueue[i].first, opQueue[i].second);
+        GetOp* op = new GetOp(opts, (opQueue[i].first), (opQueue[i].second), c);
+        tq->pushOp(op);
+
+        entry_counter++;
+        if(!opts.debug)
+            Tool::batchTransferMonitor(opQueue[i].first, "Populating (get) task queue for", entry_counter, num_of_ops);
+    }
+        
     if(tmp_err){
         DavixError::propagateError(err, tmp_err);
         return -1;
     }
     return 0;
 }
+
 
 static int preGetCheck(Tool::OptParams & opts, DavixError** err ) {
     Context c;
@@ -213,26 +229,33 @@ static int preGetCheck(Tool::OptParams & opts, DavixError** err ) {
         
         if (url[url.size()-1] != '/')
             url += '/';
-        
-        DavixTaskQueue tq;
-        
-        // create threadpool instance 
-        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Creating threadpool");
-        DavixThreadPool tp(&tq, opts.threadpool_size);
-        
+
         // if protocol is S3, set listing mode to SemiHierarchical, we want to get every object under the same prefix in one go
         if (opts.params.getProtocol() == RequestProtocol::AwsS3){
             opts.params.setS3ListingMode(S3ListingMode::SemiHierarchical);
             // unfortunately s3 defaults max-keys to 1000 and doesn't provide a way to disable the cap, set to large number
             opts.params.setS3MaxKey(999999999); 
-        }
+        }        
+
+        DavixTaskQueue tq;  // for get ops
+        DavixTaskQueue listing_tq;  // for listing ops
         
-        populateTaskQueue(c, opts, url, &tq, &tmp_err);
+        // create threadpool instance 
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Creating threadpool");
+        DavixThreadPool tp(&tq, opts.threadpool_size);
+        DavixThreadPool listing_tp(&listing_tq, opts.threadpool_size);
+        
+        populateTaskQueue(c, opts, url, &tq, &listing_tq, &tmp_err);
         
         // if task queue is empty, then all work is done, stop workers. Otherwise wait.
-        while(!tq.isEmpty()){
+        do{
             sleep(2);
-        }
+        }while(!tq.isEmpty() || !listing_tq.isEmpty());
+
+        //debug
+        std::cout << std::endl << std::endl << "get queue size: " << tq.getSize() << std::endl << "list queue size: " << listing_tq.getSize() << std::endl << std::endl;
+
+        listing_tp.shutdown();
         tp.shutdown();
         Tool::flushFinalLineShell(STDOUT_FILENO);
     }    
@@ -243,6 +266,7 @@ static int preGetCheck(Tool::OptParams & opts, DavixError** err ) {
     }
     return 0;
 }
+
 
 int main(int argc, char** argv){
     int retcode=-1;

@@ -67,11 +67,11 @@ static int execute_put(Context& c, const Tool::OptParams & opts, int fd, DavixEr
             if( fstat(fd, &st) != 0){
                 errno_to_davix_exception(errno, scope_put, std::string("for source file ").append(src_file));
             }
-            if( S_ISREG(st.st_mode) && st.st_size > 0){
+            if( S_ISREG(st.st_mode) && (st.st_size >= 0)){
                     f.put(&opts.params, fd, static_cast<dav_size_t>(st.st_size));
                     return 0;
             }
-            throw DavixException(scope_put, StatusCode::SystemError, std::string(dst_file).append("is not a valid regular file"));
+            throw DavixException(scope_put, StatusCode::SystemError, std::string(src_file).append("is not a valid regular file"));
       }CATCH_DAVIX(err);
       return -1;
 }

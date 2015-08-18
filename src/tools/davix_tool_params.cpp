@@ -357,7 +357,7 @@ int parse_davix_options(int argc, char** argv, OptParams & p, DavixError** err){
 
 
 int parse_davix_ls_options(int argc, char** argv, OptParams & p, DavixError** err){
-    const std::string arg_tool_main= "P:x:H:E:vkVlf";
+    const std::string arg_tool_main= "P:x:H:E:vkVlfr:";
     const struct option long_options[] = {
         COMMON_LONG_OPTIONS,
         SECURITY_LONG_OPTIONS,

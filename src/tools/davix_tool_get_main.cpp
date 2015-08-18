@@ -113,7 +113,7 @@ static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::stri
     if( (fd = pos.opendirpp(&opts.params, dirQueue.front().first, &tmp_err)) == NULL){
         Tool::errorPrint(&tmp_err);
 
-        // TODO: protential place for DMC-713 fix, perhaps don't return on a 404, just continue
+        // if the "root" level cannot be found, there is nothing we can do, just quit
         return -1;
     }
 
@@ -161,7 +161,7 @@ static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::stri
         for(unsigned int i=0; i < dirQueue.size(); ++i){
             //push listing op to task queue
             DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to (listing) work queue, target is {} and destination is {}.", dirQueue[i].first, dirQueue[i].second);
-            ListOp* l_op = new ListOp(opts, (dirQueue[i].first), (dirQueue[i].second), c, tq, listing_tq);
+            ListppOp* l_op = new ListppOp(opts, (dirQueue[i].first), (dirQueue[i].second), c, tq, listing_tq);
             listing_tq->pushOp(l_op);
 
             entry_counter++;
@@ -174,6 +174,7 @@ static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::stri
     for(unsigned int i=0; i < opQueue.size(); ++i){
         //push op to task queue
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to (get) work queue, target is {} and destination is {}.", opQueue[i].first, opQueue[i].second);
+        
         GetOp* op = new GetOp(opts, (opQueue[i].first), (opQueue[i].second), c);
         tq->pushOp(op);
 
@@ -251,9 +252,6 @@ static int preGetCheck(Tool::OptParams & opts, DavixError** err ) {
         do{
             sleep(2);
         }while(!tq.isEmpty() || !listing_tq.isEmpty());
-
-        //debug
-        std::cout << std::endl << std::endl << "get queue size: " << tq.getSize() << std::endl << "list queue size: " << listing_tq.getSize() << std::endl << std::endl;
 
         listing_tp.shutdown();
         tp.shutdown();

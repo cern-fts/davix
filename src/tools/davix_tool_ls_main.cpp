@@ -23,7 +23,10 @@
 #include <davix.hpp>
 #include <tools/davix_tool_params.hpp>
 #include <tools/davix_tool_util.hpp>
-
+#include <tools/davix_taskqueue.hpp>
+#include <tools/davix_op.hpp>
+#include <tools/davix_thread_pool.hpp>
+#include <utils/davix_logger_internal.hpp>
 
 // @author : Devresse Adrien
 // main file for davix ls tool
@@ -36,6 +39,7 @@ using namespace std;
 std::string  get_base_listing_options(){
     return "  Listing Options:\n"
            "\t--long-list, -l:          long Listing mode\n"
+           "\t-r NUMBER_OF_THREADS      List directories's content recursively using multiple threads\n"
            "\t--s3-listing:             S3 bucket listing mode - flat, semi or hierarchical(default)\n"
            "\t--s3-maxkeys:             Maximum number of entries returns by S3 list bucket request. default: 10000\n";
 }
@@ -111,8 +115,104 @@ static int get_info(const Tool::OptParams & opts, FILE* filestream, DavixError**
     return -1;
 }
 
+static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::string uri, DavixTaskQueue* listing_tq, DavixError** err, FILE* filestream){
+    DAVIX_DIR* fd = NULL;
+    DavPosix pos(&c);
+    DavixError* tmp_err=NULL;
+    std::string outputPath;
+    struct stat st;
+    struct dirent* d;
+    unsigned long entry_counter = 0;
+    std::string last_success_entry;
 
+    std::deque<std::string> dirQueue;
 
+    // set up first entry
+    if(!uri.empty()){
+        dirQueue.push_back(uri);
+    }
+    else
+        DavixError::setupError(&tmp_err, "Davix::ListOp", StatusCode::InvalidArgument, " target URL is empty.");
+
+    if( (fd = pos.opendirpp(&opts.params, dirQueue.front(), &tmp_err)) == NULL){
+        Tool::errorPrint(&tmp_err);
+        return -1;
+    }
+
+    while( ((d = pos.readdirpp(fd, &st, &tmp_err)) != NULL)){    // if one entry inside a directory fails, the loop exits, the other entires are not processed
+
+        last_success_entry = dirQueue.front()+d->d_name;
+        // for each entry, do a stat to see if it's a directory, if yes, push to dirQueue for further processing    
+        if(st.st_mode & S_IFDIR){
+            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Directory entry found, pushing {}/ to dirQueue", dirQueue.front()+d->d_name);
+            dirQueue.push_back(dirQueue.front()+d->d_name+"/");
+        }
+
+        if(opts.pres_flag & LONG_LISTING_FLAG){
+            display_long_file_entry(d->d_name, &st, opts, filestream);
+        }else{
+            display_file_entry(d->d_name, opts, filestream);
+        }
+    } // while readdirpp
+    
+    if(tmp_err){
+        Tool::errorPrint(&tmp_err);
+        std::cerr << std::endl << "Error occured during listing  " << dirQueue.front() << " Number of entries processed in current directory: " << entry_counter << ". Continuing..."<< std::endl;
+        std::cerr << std::endl << "Last succesful entry is " << last_success_entry << std::endl;
+    }
+
+    pos.closedirpp(fd, NULL);
+    dirQueue.pop_front();
+
+    for(unsigned int i=0; i < dirQueue.size(); ++i){
+        //push listing op to task queue
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to (listing) work queue, target is {}.", dirQueue[i]);
+        ListOp* l_op = new ListOp(opts, dirQueue[i], c, listing_tq, filestream);
+        listing_tq->pushOp(l_op);
+    }
+
+    if(tmp_err){
+        Tool::errorPrint(&tmp_err);
+        return -1;
+    }
+    return 0;
+}
+
+static int recursiveListing(const Tool::OptParams & opts, FILE* filestream, DavixError** err ){
+    Context c;
+    configureContext(c, opts);
+    File f(c, opts.vec_arg[0]);
+    DavixError* tmp_err=NULL;
+
+    std::string url(opts.vec_arg[0]);
+    
+    if (url[url.size()-1] != '/')
+        url += '/';
+
+    DavixTaskQueue listing_tq;  // for listing ops
+    
+    // create threadpool instance 
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Creating threadpool");
+    DavixThreadPool listing_tp(&listing_tq, opts.threadpool_size);
+    
+    populateTaskQueue(c, opts, url, &listing_tq, &tmp_err, filestream);
+    
+    // if task queue is empty, then all work is done, stop workers. Otherwise wait.
+    do{
+        sleep(2);
+    }while(!listing_tq.isEmpty());
+
+    listing_tp.shutdown();
+    Tool::flushFinalLineShell(STDOUT_FILENO);
+
+    
+    if(tmp_err){
+        DavixError::propagateError(err, tmp_err);
+        return -1;
+    }
+    return 0;
+    
+}
 
 int main(int argc, char** argv){
     int retcode;
@@ -123,7 +223,22 @@ int main(int argc, char** argv){
 
     if( (retcode= Tool::parse_davix_ls_options(argc, argv, opts, &tmp_err)) ==0){
         if( (retcode = Tool::configureAuth(opts)) == 0){
-            retcode = listing(opts, fstream, &tmp_err);
+            // if recursive and S3
+            if(opts.params.getRecursiveMode() && (opts.vec_arg[0].compare(0,2,"s3") ==0)){
+                // don't need to use -r switch for S3, just set listing mode to SemiHierarchical and do a normal listing
+                opts.params.setS3ListingMode(S3ListingMode::SemiHierarchical);
+                // unfortunately s3 defaults max-keys to 1000 and doesn't provide a way to disable the cap, set to large number
+                opts.params.setS3MaxKey(999999999); 
+
+                retcode = listing(opts, fstream, &tmp_err);
+            }
+            else if(opts.params.getRecursiveMode()){    // dav recursive listing
+                retcode = recursiveListing(opts, fstream, &tmp_err);
+            }
+            else{   // normal listing
+                retcode = listing(opts, fstream, &tmp_err);
+            }
+            // just a single file
             if(retcode < 0 && tmp_err->getStatus() == StatusCode::IsNotADirectory){
                 DavixError::clearError(&tmp_err);
                 retcode = get_info(opts, fstream, &tmp_err);

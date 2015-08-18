@@ -103,18 +103,34 @@ private:
 // forward declaration
 class DavixTaskQueue;
 
+// ListOp, used in davix-ls for recursively crawling the namespace
 class ListOp : public DavixOp{
 
 public:
-    ListOp(const Tool::OptParams& opts, std::string target_url, std::string destination_url, Context& c, DavixTaskQueue* tq, DavixTaskQueue* listing_tq);
+    ListOp(const Tool::OptParams& opts, std::string target_url, Context& c, DavixTaskQueue* listing_tq, FILE* filestream);
     virtual ~ListOp();
+    virtual int executeOp();
+
+private:
+    DavixTaskQueue* _listing_tq;
+    FILE* _filestream;
+    static void display_file_entry(const std::string & filename, const Tool::OptParams & opts, FILE* filestream);
+    static void display_long_file_entry(const std::string & filename,  struct stat* st, const Tool::OptParams & opts, FILE* filestream);
+};
+
+
+// ListppOp, used in davix-get for recursively crawling namespace and getting files
+// different than ListOp, doesn't print out info of entries, instead, it populates another taskqueue with GetOps
+class ListppOp : public DavixOp{
+
+public:
+    ListppOp(const Tool::OptParams& opts, std::string target_url, std::string destination_url, Context& c, DavixTaskQueue* tq, DavixTaskQueue* listing_tq);
+    virtual ~ListppOp();
     virtual int executeOp();
 
 private:
     DavixTaskQueue* _tq;
     DavixTaskQueue* _listing_tq;
-    //std::deque<std::pair<std::string,std::string> > dirQueue;
-    //std::deque<std::pair<std::string,std::string> > opQueue;   
 };
 
 }

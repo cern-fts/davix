@@ -25,6 +25,7 @@
 #include <davix.hpp>
 #include <tools/davix_tool_params.hpp>
 #include <tools/davix_tool_util.hpp>
+#include <tools/davix_mutex.hpp>
 
 namespace Davix{
 
@@ -107,13 +108,14 @@ class DavixTaskQueue;
 class ListOp : public DavixOp{
 
 public:
-    ListOp(const Tool::OptParams& opts, std::string target_url, Context& c, DavixTaskQueue* listing_tq, FILE* filestream);
+    ListOp(const Tool::OptParams& opts, std::string target_url, Context& c, DavixTaskQueue* listing_tq, FILE* filestream, pthread_mutex_t& output_mutex);
     virtual ~ListOp();
     virtual int executeOp();
 
 private:
     DavixTaskQueue* _listing_tq;
     FILE* _filestream;
+    pthread_mutex_t& _output_mutex;
     static void display_file_entry(const std::string & filename, const Tool::OptParams & opts, FILE* filestream);
     static void display_long_file_entry(const std::string & filename,  struct stat* st, const Tool::OptParams & opts, FILE* filestream);
 };

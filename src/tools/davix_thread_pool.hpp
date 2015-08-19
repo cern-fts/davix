@@ -36,7 +36,6 @@ public:
     void init();
     void shutdown();
 private:
-    //DavixThread* tp[DAVIX_DEFAULT_THREADPOOL_SIZE];
     DavixTaskQueue* _tq;
     int threadCount;
     int _pool_size;

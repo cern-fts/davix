@@ -315,13 +315,14 @@ void DeleteOp::parse_deletion_result(int code, const Uri & u, const std::string 
 //-------------------------------------------------
 //---------------------ListOp----------------------
 //-------------------------------------------------
-ListOp::ListOp(const Tool::OptParams& opts, std::string target_url, Context& c, DavixTaskQueue* listing_tq, FILE* filestream) :
-    DavixOp(opts, target_url, "NULL", c)
+ListOp::ListOp(const Tool::OptParams& opts, std::string target_url, Context& c, DavixTaskQueue* listing_tq, FILE* filestream, pthread_mutex_t& output_mutex) :
+    DavixOp(opts, target_url, "NULL", c),
+    _listing_tq(listing_tq),
+    _filestream(filestream),
+    _output_mutex(output_mutex)
 {
     opType = "LIST";
     _scope = "Davix::DavixOp::ListOp";
-    _listing_tq = listing_tq;
-    _filestream = filestream;
 }
 
 ListOp::~ListOp(){}
@@ -369,7 +370,11 @@ int ListOp::executeOp(){
     }
 
     Uri tmp(_target_url);
-    std::string fullpath = tmp.getHost() + tmp.getPath();
+    std::string fullpath = tmp.getPath();
+    if(fullpath[0] == '/') fullpath.erase(0,1);
+
+    {
+    DavixMutex mutex(_output_mutex);
 
     while( ((d = pos.readdirpp(fd, &st, &tmp_err)) != NULL)){    // if one entry inside a directory fails, the loop exits, the other entires are not processed
 
@@ -385,8 +390,11 @@ int ListOp::executeOp(){
         }else{
             display_file_entry(fullpath+d->d_name, _opts, _filestream);
         }
+
     } // while readdirpp
-    
+    }
+
+
     if(tmp_err){
         Tool::errorPrint(&tmp_err);
         std::cerr << std::endl << "Error occured during listing  " << dirQueue.front() << " Number of entries processed in current directory: " << entry_counter << ". Continuing..."<< std::endl;
@@ -398,11 +406,10 @@ int ListOp::executeOp(){
     pos.closedirpp(fd, NULL);
     dirQueue.pop_front();
 
-    // problem, if we allow ops to push new ops to the task queue, it's bound to deadlock once the queue is filled up
     for(unsigned int i=0; i < dirQueue.size(); ++i){
         //push listing op to task queue
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to (listing) work queue, target is {}.", dirQueue[i]);
-        ListOp* l_op = new ListOp(_opts, dirQueue[i], _c, _listing_tq, _filestream);
+        ListOp* l_op = new ListOp(_opts, dirQueue[i], _c, _listing_tq, _filestream, _output_mutex);
         _listing_tq->pushOp(l_op);
     }
 
@@ -480,9 +487,6 @@ int ListppOp::executeOp(){
     
     pos.closedirpp(fd, NULL);
     dirQueue.pop_front();
-
-    //int num_of_ops = opQueue.size();
-    //int num_listing_ops = dirQueue.size();
 
     for(unsigned int i=0; i < dirQueue.size(); ++i){
         //push listing op to task queue

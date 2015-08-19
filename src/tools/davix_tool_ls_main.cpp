@@ -27,6 +27,7 @@
 #include <tools/davix_op.hpp>
 #include <tools/davix_thread_pool.hpp>
 #include <utils/davix_logger_internal.hpp>
+#include <pthread.h>
 
 // @author : Devresse Adrien
 // main file for davix ls tool
@@ -115,7 +116,7 @@ static int get_info(const Tool::OptParams & opts, FILE* filestream, DavixError**
     return -1;
 }
 
-static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::string uri, DavixTaskQueue* listing_tq, DavixError** err, FILE* filestream){
+static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::string uri, DavixTaskQueue* listing_tq, DavixError** err, FILE* filestream, pthread_mutex_t& output_mutex){
     DAVIX_DIR* fd = NULL;
     DavPosix pos(&c);
     DavixError* tmp_err=NULL;
@@ -139,6 +140,10 @@ static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::stri
         return -1;
     }
 
+    Uri tmp(uri);
+    std::string fullpath = tmp.getPath();
+    if(fullpath[0] == '/') fullpath.erase(0,1);
+
     while( ((d = pos.readdirpp(fd, &st, &tmp_err)) != NULL)){    // if one entry inside a directory fails, the loop exits, the other entires are not processed
 
         last_success_entry = dirQueue.front()+d->d_name;
@@ -149,9 +154,9 @@ static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::stri
         }
 
         if(opts.pres_flag & LONG_LISTING_FLAG){
-            display_long_file_entry(d->d_name, &st, opts, filestream);
+            display_long_file_entry(fullpath+d->d_name, &st, opts, filestream);
         }else{
-            display_file_entry(d->d_name, opts, filestream);
+            display_file_entry(fullpath+d->d_name, opts, filestream);
         }
     } // while readdirpp
     
@@ -167,7 +172,7 @@ static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::stri
     for(unsigned int i=0; i < dirQueue.size(); ++i){
         //push listing op to task queue
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to (listing) work queue, target is {}.", dirQueue[i]);
-        ListOp* l_op = new ListOp(opts, dirQueue[i], c, listing_tq, filestream);
+        ListOp* l_op = new ListOp(opts, dirQueue[i], c, listing_tq, filestream, output_mutex);
         listing_tq->pushOp(l_op);
     }
 
@@ -190,16 +195,20 @@ static int recursiveListing(const Tool::OptParams & opts, FILE* filestream, Davi
         url += '/';
 
     DavixTaskQueue listing_tq;  // for listing ops
-    
+   
+    // init output mutex for child listOps, only one listOp can output to a stream at a given time
+    pthread_mutex_t output_mutex;
+    pthread_mutex_init(&output_mutex, NULL);
+
     // create threadpool instance 
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Creating threadpool");
     DavixThreadPool listing_tp(&listing_tq, opts.threadpool_size);
     
-    populateTaskQueue(c, opts, url, &listing_tq, &tmp_err, filestream);
+    populateTaskQueue(c, opts, url, &listing_tq, &tmp_err, filestream, output_mutex);
     
     // if task queue is empty, then all work is done, stop workers. Otherwise wait.
     do{
-        sleep(2);
+        sleep(3);
     }while(!listing_tq.isEmpty());
 
     listing_tp.shutdown();

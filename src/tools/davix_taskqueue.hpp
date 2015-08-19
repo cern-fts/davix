@@ -28,6 +28,7 @@
 #include <pthread.h>
 
 #define DEFAULT_WAIT_TIME 30
+#define MAX_NUM_OF_LISTING_OPS 2000000
 
 namespace Davix{
 

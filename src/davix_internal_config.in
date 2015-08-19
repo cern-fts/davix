@@ -24,7 +24,7 @@
 #define DAVIX_READ_BLOCK_SIZE 4096
 
 // default task queue size
-#define DAVIX_DEFAULT_TASKQUEUE_SIZE 20
+#define DAVIX_DEFAULT_TASKQUEUE_SIZE 100
 
 // default connexion timeout for HTTP/Dav connexion
 #define DAVIX_DEFAULT_CONN_TIMEOUT 30

@@ -368,6 +368,9 @@ int ListOp::executeOp(){
         return -1;
     }
 
+    Uri tmp(_target_url);
+    std::string fullpath = tmp.getHost() + tmp.getPath();
+
     while( ((d = pos.readdirpp(fd, &st, &tmp_err)) != NULL)){    // if one entry inside a directory fails, the loop exits, the other entires are not processed
 
         last_success_entry = dirQueue.front()+d->d_name;
@@ -378,9 +381,9 @@ int ListOp::executeOp(){
         }
 
         if(_opts.pres_flag & LONG_LISTING_FLAG){
-            display_long_file_entry(d->d_name, &st, _opts, _filestream);
+            display_long_file_entry(fullpath+d->d_name, &st, _opts, _filestream);
         }else{
-            display_file_entry(d->d_name, _opts, _filestream);
+            display_file_entry(fullpath+d->d_name, _opts, _filestream);
         }
     } // while readdirpp
     
@@ -395,6 +398,7 @@ int ListOp::executeOp(){
     pos.closedirpp(fd, NULL);
     dirQueue.pop_front();
 
+    // problem, if we allow ops to push new ops to the task queue, it's bound to deadlock once the queue is filled up
     for(unsigned int i=0; i < dirQueue.size(); ++i){
         //push listing op to task queue
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to (listing) work queue, target is {}.", dirQueue[i]);
@@ -444,7 +448,6 @@ int ListppOp::executeOp(){
     else
         DavixError::setupError(&tmp_err, "Davix::ListppOp", StatusCode::InvalidArgument, " target or destination URL is empty.");
 
-
     if( (fd = pos.opendirpp(&_opts.params, dirQueue.front().first, &tmp_err)) == NULL){
         Tool::errorPrint(&tmp_err);
 
@@ -478,8 +481,8 @@ int ListppOp::executeOp(){
     pos.closedirpp(fd, NULL);
     dirQueue.pop_front();
 
-    int num_of_ops = opQueue.size();
-    int num_listing_ops = dirQueue.size();
+    //int num_of_ops = opQueue.size();
+    //int num_listing_ops = dirQueue.size();
 
     for(unsigned int i=0; i < dirQueue.size(); ++i){
         //push listing op to task queue

@@ -37,22 +37,21 @@ int DavixTaskQueue::pushOp(DavixOp* op){
     
     {
         DavixMutex mutex(tq_mutex);
-        /*
-         *    to.tv_sec = time(NULL) + DEFAULT_WAIT_TIME;
-         *    to.tv_nsec = 0;
-         */
-        while(taskQueue.size() >= DAVIX_DEFAULT_TASKQUEUE_SIZE)
-            pthread_cond_wait(&pushOpConvar, mutex.getMutex());
-        /*
-         *    while(taskQueue.size() >= DAVIX_DEFAULT_TASKQUEUE_SIZE){
-         *        int rc = pthread_cond_timedwait(&pushOpConvar, mutex.getMutex(), &to);
-         *        if(rc == ETIMEDOUT)
-         *        {
-         *            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "PushOp() timed out. Task Queue size is {}", taskQueue.size());
-         *            to.tv_sec = time(NULL) + DEFAULT_WAIT_TIME;
-    }
-    }
-    */
+        
+        // for recursive namespace crawling, we set a hard limit to the number of listing ops are allowed to prevent overflow
+        // not the ideal solution, perhaps disk-backing the queue after a certain threshold would be better
+        if((op->getOpType() == "LIST") || op->getOpType() == "LISTPP"){
+            if(taskQueue.size() > MAX_NUM_OF_LISTING_OPS){
+                // queue size balloning out of control, warn and exit
+                std::cerr << std::endl << "***Task queue's size has exceeded the maximum allowed, exiting programme!***" << std::endl;
+                exit(-1);
+            }
+        }
+        else{
+            while(taskQueue.size() >= DAVIX_DEFAULT_TASKQUEUE_SIZE)
+                pthread_cond_wait(&pushOpConvar, mutex.getMutex());
+        }
+
         taskQueue.push_back(op);
         
     }
@@ -63,7 +62,7 @@ int DavixTaskQueue::pushOp(DavixOp* op){
 
 DavixOp* DavixTaskQueue::popOp(){
     bool dosig = false;
-    DavixOp* op;
+    DavixOp* op = NULL;
     //struct timespec to;
     {
         DavixMutex mutex(tq_mutex);
@@ -99,7 +98,7 @@ DavixOp* DavixTaskQueue::popOp(){
     }
     
     if (dosig) {
-        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "(DavixTaskQueue) Op popped from taskQueue, queue size is now: {}", taskQueue.size());
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "(DavixTaskQueue) {} Op popped from taskQueue, queue size is now: {}", op->getOpType(), taskQueue.size());
         
         pthread_cond_signal(&pushOpConvar);
         return op;
@@ -119,6 +118,7 @@ bool DavixTaskQueue::isEmpty(){
 }
 
 void DavixTaskQueue::shutdown(){
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "(DavixTaskQueue) Commencing shutdown...");
     _shutdown = true;
     pthread_cond_broadcast(&pushOpConvar);
     pthread_cond_broadcast(&popOpConvar);

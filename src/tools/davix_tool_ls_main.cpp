@@ -41,6 +41,7 @@ std::string  get_base_listing_options(){
     return "  Listing Options:\n"
            "\t--long-list, -l:          long Listing mode\n"
            "\t-r NUMBER_OF_THREADS      List directories's content recursively using multiple threads\n"
+           "\t--no-cap:                 Disable size cap on task queue for pending listing operations\n"
            "\t--s3-listing:             S3 bucket listing mode - flat, semi or hierarchical(default)\n"
            "\t--s3-maxkeys:             Maximum number of entries returns by S3 list bucket request. default: 10000\n";
 }
@@ -194,7 +195,7 @@ static int recursiveListing(const Tool::OptParams & opts, FILE* filestream, Davi
     if (url[url.size()-1] != '/')
         url += '/';
 
-    DavixTaskQueue listing_tq;  // for listing ops
+    DavixTaskQueue listing_tq(opts, QueueType::LIFO);  // for listing ops
    
     // init output mutex for child listOps, only one listOp can output to a stream at a given time
     pthread_mutex_t output_mutex;

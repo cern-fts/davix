@@ -30,8 +30,19 @@ DavixTaskQueue::DavixTaskQueue(){
     pthread_cond_init(&popOpConvar, NULL);
     pthread_cond_init(&pushOpConvar, NULL);
     _shutdown = false;
-
+    _no_cap = false;
+    _queueType = QueueType::FIFO;
 }
+
+DavixTaskQueue::DavixTaskQueue(const Tool::OptParams& opts, QueueType::QueueType queueType){
+    pthread_mutex_init(&tq_mutex, NULL);
+    pthread_cond_init(&popOpConvar, NULL);
+    pthread_cond_init(&pushOpConvar, NULL);
+    _shutdown = false;
+    _no_cap = opts.no_cap; 
+    _queueType = queueType;
+}
+
 
 int DavixTaskQueue::pushOp(DavixOp* op){
     
@@ -41,7 +52,7 @@ int DavixTaskQueue::pushOp(DavixOp* op){
         // for recursive namespace crawling, we set a hard limit to the number of listing ops are allowed to prevent overflow
         // not the ideal solution, perhaps disk-backing the queue after a certain threshold would be better
         if((op->getOpType() == "LIST") || op->getOpType() == "LISTPP"){
-            if(taskQueue.size() > MAX_NUM_OF_LISTING_OPS){
+            if(!_no_cap && (taskQueue.size() > MAX_NUM_OF_LISTING_OPS)){
                 // queue size balloning out of control, warn and exit
                 std::cerr << std::endl << "***Task queue's size has exceeded the maximum allowed, exiting programme!***" << std::endl;
                 exit(-1);
@@ -90,12 +101,24 @@ DavixOp* DavixTaskQueue::popOp(){
         }
         
         if(taskQueue.size() > 0){
-            op = taskQueue.front();
-            taskQueue.pop_front();
+            switch(_queueType){
+                case QueueType::FIFO:
+                {
+                    op = taskQueue.front();
+                    taskQueue.pop_front();
+                    break;
+                }
+                case QueueType::LIFO:
+                {
+                    op = taskQueue.back();
+                    taskQueue.pop_back();
+                    break;
+                }
+            }   // end switch
             dosig = true;
         }
         
-    }
+    }   // end mutex scope
     
     if (dosig) {
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "(DavixTaskQueue) {} Op popped from taskQueue, queue size is now: {}", op->getOpType(), taskQueue.size());

@@ -26,15 +26,26 @@
 #include <tools/davix_mutex.hpp>
 #include <tools/davix_op.hpp>
 #include <pthread.h>
+#include <tools/davix_tool_params.hpp>
 
 #define DEFAULT_WAIT_TIME 30
 #define MAX_NUM_OF_LISTING_OPS 2000000
 
 namespace Davix{
 
+namespace QueueType{
+    enum QueueType{
+        // first in first out 
+        FIFO,
+        // last in first out
+        LIFO 
+    };
+}
+
 class DavixTaskQueue{
 public:
     DavixTaskQueue();
+    DavixTaskQueue(const Tool::OptParams& opts, QueueType::QueueType queueType);
     int pushOp(DavixOp* op);
     DavixOp* popOp();
     int getSize();
@@ -47,6 +58,8 @@ private:
     pthread_cond_t popOpConvar;
     pthread_cond_t pushOpConvar;
     bool _shutdown;
+    bool _no_cap;
+    QueueType::QueueType _queueType;
 };
 
 }

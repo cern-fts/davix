@@ -72,6 +72,8 @@ struct OptParams{
     int shell_flag;
     // input file flag
     bool has_input_file;
+    // disable cap on task queue's size
+    bool no_cap;
     // modules list
     std::vector<std::string> modules_list;
 };

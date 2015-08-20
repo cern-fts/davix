@@ -355,16 +355,17 @@ int ListOp::executeOp(){
     unsigned long entry_counter = 0;
     std::string last_success_entry;
 
-    std::deque<std::string> dirQueue;
+    std::deque<std::pair<std::string,std::string> > dirQueue;
+    std::deque<std::string> fileQueue;
 
     // set up first entry
     if(!_target_url.empty()){
-        dirQueue.push_back(_target_url);
+        dirQueue.push_back(std::make_pair(_target_url, _destination_url));
     }
     else
         DavixError::setupError(&tmp_err, "Davix::ListOp", StatusCode::InvalidArgument, " target URL is empty.");
 
-    if( (fd = pos.opendirpp(&_opts.params, dirQueue.front(), &tmp_err)) == NULL){
+    if( (fd = pos.opendirpp(&_opts.params, dirQueue.front().first, &tmp_err)) == NULL){
         Tool::errorPrint(&tmp_err);
         return -1;
     }
@@ -373,44 +374,58 @@ int ListOp::executeOp(){
     std::string fullpath = tmp.getPath();
     if(fullpath[0] == '/') fullpath.erase(0,1);
 
-    {
-    DavixMutex mutex(_output_mutex);
-
     while( ((d = pos.readdirpp(fd, &st, &tmp_err)) != NULL)){    // if one entry inside a directory fails, the loop exits, the other entires are not processed
 
-        last_success_entry = dirQueue.front()+d->d_name;
-        // for each entry, do a stat to see if it's a directory, if yes, push to dirQueue for further processing    
+        last_success_entry = dirQueue.front().first+d->d_name;
+        // for each entry, see if it's a directory, if yes, push to dirQueue for further processing    
         if(st.st_mode & S_IFDIR){
-            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Directory entry found, pushing {}/ to dirQueue", dirQueue.front()+d->d_name);
-            dirQueue.push_back(dirQueue.front()+d->d_name+"/");
+            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Directory entry found, pushing {}/ to dirQueue", dirQueue.front().first+d->d_name);
+            dirQueue.push_back(std::make_pair(dirQueue.front().first+d->d_name+"/", fullpath+d->d_name));
         }
-
-        if(_opts.pres_flag & LONG_LISTING_FLAG){
-            display_long_file_entry(fullpath+d->d_name, &st, _opts, _filestream);
-        }else{
-            display_file_entry(fullpath+d->d_name, _opts, _filestream);
+        else{
+            fileQueue.push_back(fullpath+d->d_name);
         }
 
     } // while readdirpp
-    }
+    
 
 
     if(tmp_err){
         Tool::errorPrint(&tmp_err);
-        std::cerr << std::endl << "Error occured during listing  " << dirQueue.front() << " Number of entries processed in current directory: " << entry_counter << ". Continuing..."<< std::endl;
+        std::cerr << std::endl << "Error occured during listing  " << dirQueue.front().first << " Number of entries processed in current directory: " << entry_counter << ". Continuing..."<< std::endl;
         std::cerr << std::endl << "Last succesful entry is " << last_success_entry << std::endl;
     }
 
     entry_counter = 0;
     
     pos.closedirpp(fd, NULL);
-    dirQueue.pop_front();
+    dirQueue.pop_front();   // discard parent entry
 
-    for(unsigned int i=0; i < dirQueue.size(); ++i){
-        //push listing op to task queue
-        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to (listing) work queue, target is {}.", dirQueue[i]);
-        ListOp* l_op = new ListOp(_opts, dirQueue[i], _c, _listing_tq, _filestream, _output_mutex);
-        _listing_tq->pushOp(l_op);
+    {
+        // lock this part so the output is sync'ed
+        // this should also ensure all the child ops are ordered in the taskqueue
+        DavixMutex mutex(_output_mutex);
+
+        for(unsigned int i=0; i < dirQueue.size(); ++i){
+            //push listing op to task queue
+            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to (listing) work queue, target is {}.", dirQueue[i].first);
+            ListOp* l_op = new ListOp(_opts, dirQueue[i].first, _c, _listing_tq, _filestream, _output_mutex);
+            _listing_tq->pushOp(l_op);
+
+            if(_opts.pres_flag & LONG_LISTING_FLAG){
+                display_long_file_entry(dirQueue[i].second, &st, _opts, _filestream);
+            }else{
+                display_file_entry(dirQueue[i].second, _opts, _filestream);
+            }
+        }
+        for(unsigned int i=0; i < fileQueue.size(); ++i){
+            if(_opts.pres_flag & LONG_LISTING_FLAG){
+                display_long_file_entry(fileQueue[i], &st, _opts, _filestream);
+            }else{
+                display_file_entry(fileQueue[i], _opts, _filestream);
+            }
+        }
+
     }
 
     if(tmp_err){
@@ -467,7 +482,7 @@ int ListppOp::executeOp(){
     while( ((d = pos.readdirpp(fd, &st, &tmp_err)) != NULL)){    // if one entry inside a directory fails, the loop exits, the other entires are not processed
 
         last_success_entry = dirQueue.front().first+d->d_name;
-        // for each entry, do a stat to see if it's a directory, if yes, push to dirQueue for further processing    
+        // for each entry, see if it's a directory, if yes, push to dirQueue for further processing    
         if(st.st_mode & S_IFDIR){
             DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Directory entry found, pushing {}/ to dirQueue", dirQueue.front().first+d->d_name);
             dirQueue.push_back(std::make_pair(dirQueue.front().first+d->d_name+"/",dirQueue.front().second+"/"+d->d_name));

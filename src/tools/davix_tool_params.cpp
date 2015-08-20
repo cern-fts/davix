@@ -52,7 +52,8 @@ const std::string scope_params = "Davix::Tools::Params";
 #define S3_MAX_KEYS         1015
 #define RETRY_DELAY_OPT     1016
 #define HAS_INPUT_FILE      1017
-#define THIRD_PT_COPY_MODE      1018
+#define THIRD_PT_COPY_MODE  1018
+#define DISABLE_LISTING_CAP 1019
 
 // LONG OPTS
 
@@ -90,6 +91,7 @@ const std::string scope_params = "Davix::Tools::Params";
 #define LISTING_LONG_OPTIONS \
 {"s3-listing", required_argument, 0,  S3_LISTING_MODE }, \
 {"s3-maxkeys", required_argument, 0,  S3_MAX_KEYS }, \
+{"no-cap", required_argument, 0, DISABLE_LISTING_CAP}, \
 {"long-list", no_argument, 0,  'l' }
 
 #define COPY_LONG_OPTIONS \
@@ -112,7 +114,8 @@ OptParams::OptParams() :
     aws_auth(),
     pres_flag(0),
     shell_flag(0),
-    has_input_file(false)
+    has_input_file(false),
+    no_cap(false)
 {
 
 }
@@ -306,6 +309,10 @@ int parse_davix_options_generic(const std::string &opt_filter,
                 else if(std::string(optarg).compare("push")==0)
                     p.params.setCopyMode(CopyMode::Push);
                 break;                
+                }
+            case DISABLE_LISTING_CAP:{
+                p.no_cap = true; 
+                break;
                 }
             case 'r':{
                 p.params.setRecursiveMode(true);

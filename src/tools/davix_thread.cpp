@@ -26,10 +26,10 @@ namespace Davix{
 
 DavixThread::DavixThread(DavixTaskQueue* tq, int id) :
     threadId(id),
-    state(IDLE),
-    event(WORK),
     _tq(tq),
-    worker()
+    worker(),
+    state(IDLE),
+    event(WORK)
 {
 }
 

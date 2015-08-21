@@ -77,5 +77,16 @@ void DavixThreadPool::shutdown(){
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "(DavixThreadPool) Threadpool stopped. Number of threads joined: {}/{}", count, threadCount);
 }
 
+int DavixThreadPool::getThreadCount(){
+    return threadCount;
+}
+
+bool DavixThreadPool::allThreadsIdle(){
+    for(int i = 0; i < threadCount; ++i){
+        if(tp[i]->getWorkerState() == DavixThread::WorkerState::BUSY)
+            return false;
+    }
+    return true;
+}
 
 }

@@ -35,6 +35,8 @@ public:
     ~DavixThreadPool();
     void init();
     void shutdown();
+    int getThreadCount();
+    bool allThreadsIdle();
 private:
     DavixTaskQueue* _tq;
     int threadCount;

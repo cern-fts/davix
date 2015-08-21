@@ -136,8 +136,8 @@ static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::stri
         else if(!(st.st_mode & S_IFDIR)){
             //if we spend too long in here, server will likely close the connection mid-readdirpp, need to get all the entries quickly before processing them
             opQueue.push_back(std::make_pair(dirQueue.front().first+d->d_name, dirQueue.front().second+"/"+d->d_name));
-            entry_counter++;
         }
+        entry_counter++;
         if(!opts.debug)
             Tool::batchTransferMonitor(dirQueue.front().first, "Crawling", entry_counter, 0);
     } // while readdirpp
@@ -161,12 +161,14 @@ static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::stri
         for(unsigned int i=0; i < dirQueue.size(); ++i){
             //push listing op to task queue
             DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to (listing) work queue, target is {} and destination is {}.", dirQueue[i].first, dirQueue[i].second);
-            ListppOp* l_op = new ListppOp(opts, (dirQueue[i].first), (dirQueue[i].second), c, tq, listing_tq);
-            listing_tq->pushOp(l_op);
 
             entry_counter++;
+
             if(!opts.debug)
                 Tool::batchTransferMonitor(dirQueue[i].first, "Populating (listing) task queue for", entry_counter, num_listing_ops);
+
+            ListppOp* l_op = new ListppOp(opts, (dirQueue[i].first), (dirQueue[i].second), c, tq, listing_tq);
+            listing_tq->pushOp(l_op);
         }
         entry_counter = 0;
     }
@@ -175,12 +177,13 @@ static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::stri
         //push op to task queue
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to (get) work queue, target is {} and destination is {}.", opQueue[i].first, opQueue[i].second);
         
+        entry_counter++;
+
+        if(!opts.debug)
+            Tool::batchTransferMonitor(opQueue[i].first, "Populating (get) task queue for", entry_counter, num_of_ops);  
+
         GetOp* op = new GetOp(opts, (opQueue[i].first), (opQueue[i].second), c);
         tq->pushOp(op);
-
-        entry_counter++;
-        if(!opts.debug)
-            Tool::batchTransferMonitor(opQueue[i].first, "Populating (get) task queue for", entry_counter, num_of_ops);
     }
         
     if(tmp_err){
@@ -250,11 +253,8 @@ static int preGetCheck(Tool::OptParams & opts, DavixError** err ) {
         
         // if both task queues are empty, then all work is done, stop workers. Otherwise wait.
         do{
-            do{
-                sleep(2);
-            }while(!tq.isEmpty() || !listing_tq.isEmpty());
             sleep(2);
-        }while(!tq.isEmpty() || !listing_tq.isEmpty());
+        }while(!tq.isEmpty() || !listing_tq.isEmpty() || !tp.allThreadsIdle() || !listing_tp.allThreadsIdle());
 
         listing_tp.shutdown();
         tp.shutdown();

@@ -34,7 +34,12 @@ private:
     int threadId;
     bool _isFree;
 
-    enum WorkerState {
+    DavixTaskQueue* _tq;
+    pthread_t worker;
+    pthread_cond_t eventConvar;
+
+public:
+     enum WorkerState {
         IDLE,
         BUSY,
         STOPPING
@@ -44,12 +49,7 @@ private:
         WORK,
         STOP
     }event;
-
-    DavixTaskQueue* _tq;
-    pthread_t worker;
-    pthread_cond_t eventConvar;
-
-public:
+   
     DavixThread(DavixTaskQueue* tq, int id);
     ~DavixThread();
     int createWorkerThread();
@@ -59,7 +59,6 @@ public:
     void shutdown();
     int getThreadId();
     WorkerState getWorkerState();
-    
 };
 
 }

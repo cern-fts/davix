@@ -508,7 +508,6 @@ int ListppOp::executeOp(){
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to (listing) work queue, target is {} and destination is {}.", dirQueue[i].first, dirQueue[i].second);
         ListppOp* l_op = new ListppOp(_opts, (dirQueue[i].first), (dirQueue[i].second), _c, _tq, _listing_tq);
         _listing_tq->pushOp(l_op);
-
     }
  
     for(unsigned int i=0; i < opQueue.size(); ++i){

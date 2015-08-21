@@ -207,9 +207,12 @@ static int recursiveListing(const Tool::OptParams & opts, FILE* filestream, Davi
     
     populateTaskQueue(c, opts, url, &listing_tq, &tmp_err, filestream, output_mutex);
     
-    // if task queue is empty, then all work is done, stop workers. Otherwise wait.
+    // FIXME: here we assume if task queue is empty for a while, then all work is done, but this may not always be the case.
     do{
-        sleep(3);
+        do{
+            sleep(2);
+        }while(!listing_tq.isEmpty());
+        sleep(2);
     }while(!listing_tq.isEmpty());
 
     listing_tp.shutdown();

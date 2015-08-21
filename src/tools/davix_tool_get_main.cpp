@@ -248,8 +248,11 @@ static int preGetCheck(Tool::OptParams & opts, DavixError** err ) {
         
         populateTaskQueue(c, opts, url, &tq, &listing_tq, &tmp_err);
         
-        // if task queue is empty, then all work is done, stop workers. Otherwise wait.
+        // if both task queues are empty, then all work is done, stop workers. Otherwise wait.
         do{
+            do{
+                sleep(2);
+            }while(!tq.isEmpty() || !listing_tq.isEmpty());
             sleep(2);
         }while(!tq.isEmpty() || !listing_tq.isEmpty());
 

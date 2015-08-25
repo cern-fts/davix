@@ -28,6 +28,22 @@
 
 namespace Davix{
 
+namespace WorkerState{
+    enum WorkerState {
+        IDLE,
+        BUSY,
+        STOPPING
+    };
+}
+
+namespace WorkerEvent{
+    enum WorkerEvent {
+        WORK,
+        STOP
+    };
+}
+
+
 class DavixThread{
 
 private:
@@ -39,6 +55,7 @@ private:
     pthread_cond_t eventConvar;
 
 public:
+    /*
      enum WorkerState {
         IDLE,
         BUSY,
@@ -49,7 +66,9 @@ public:
         WORK,
         STOP
     }event;
-   
+    */
+    WorkerState::WorkerState state;
+    WorkerEvent::WorkerEvent event;
     DavixThread(DavixTaskQueue* tq, int id);
     ~DavixThread();
     int createWorkerThread();
@@ -58,7 +77,7 @@ public:
     pthread_t& getWorkerHandle();
     void shutdown();
     int getThreadId();
-    WorkerState getWorkerState();
+    WorkerState::WorkerState getWorkerState();
 };
 
 }

@@ -83,7 +83,7 @@ int DavixThreadPool::getThreadCount(){
 
 bool DavixThreadPool::allThreadsIdle(){
     for(int i = 0; i < threadCount; ++i){
-        if(tp[i]->getWorkerState() == DavixThread::WorkerState::BUSY)
+        if(tp[i]->getWorkerState() == WorkerState::BUSY)
             return false;
     }
     return true;

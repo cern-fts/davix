@@ -28,8 +28,8 @@ DavixThread::DavixThread(DavixTaskQueue* tq, int id) :
     threadId(id),
     _tq(tq),
     worker(),
-    state(IDLE),
-    event(WORK)
+    state(WorkerState::IDLE),
+    event(WorkerEvent::WORK)
 {
 }
 
@@ -53,13 +53,13 @@ int DavixThread::run(){
 
     while(true){
         switch(event){
-            case WORK:
+            case WorkerEvent::WORK:
             {
                 DavixOp* op = NULL;
                 op = _tq->popOp();
 
                 if(op != NULL){
-                    state = BUSY;
+                    state = WorkerState::BUSY;
 
                     int ret = op->executeOp();
                     if(ret < 0){
@@ -73,11 +73,11 @@ int DavixThread::run(){
                     }
                     
                     delete op;
-                    state = IDLE;
+                    state = WorkerState::IDLE;
                 }
                 break;
             }
-            case STOP:
+            case WorkerEvent::STOP:
             {
                 return 0;
                 break;
@@ -100,11 +100,11 @@ int DavixThread::getThreadId(){
 }
 
 void DavixThread::shutdown(){
-    state = STOPPING;
-    event = STOP;
+    state = WorkerState::STOPPING;
+    event = WorkerEvent::STOP;
 }
 
-DavixThread::WorkerState DavixThread::getWorkerState(){
+WorkerState::WorkerState DavixThread::getWorkerState(){
     return state;
 }
 

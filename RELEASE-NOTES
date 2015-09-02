@@ -1,3 +1,49 @@
+
+Version - 0.5.0
+
+** Bug
+    * [DMC-629] - Bulk davs deletion seems to fail every 18 operations as a clock
+    * [DMC-630] - Davix: davposix and davfile stat on S3 objects defaults to HTTP head request, bypasses signing
+    * [DMC-660] - Davix-put does not recognize the --verbose option ?
+    * [DMC-671] - Davix: S3 Uri transformer incorrectly assumes all operations are done without SSL
+    * [DMC-675] - Found a host that hangs Davix indefinitely
+    * [DMC-447] - Davix SSL Error needs to be clarified
+    * [DMC-569] - Davix: libneon has problems with the handling of corrupted or invalid ceritificate
+    * [DMC-691] - davix-put returns 0 ( =OK ) in case of permission denied
+    * [DMC-699] - Bad regression bugs
+    * [DMC-707] - Davix: xml parser does not handle multi-status response correctly for delete
+    * [DMC-193] - DAVIX: Transform and simply the rety mechanism on davix
+    * [DMC-633] - Connection timeout is sometimes triggered before the deadline when the global timeout is default.
+
+** Improvement
+    * [DMC-614] - Davix: Add hierarchical file listing support for S3 bucket
+    * [DMC-621] - Davix: Add last modified date/time to S3 long listing
+    * [DMC-631] - Davix: Add virtual S3 directory stats request handling
+    * [DMC-634] - Davix: Add configurable max-keys param for S3 list object request
+    * [DMC-658] - Davix: Add functionality to support uploading and downloading collections
+    * [DMC-700] - Davix-get should not retry 10 times on err 403 (and maybe others)
+    * [DMC-702] - Davix: Implement Content-Type and Content-MD5 signing for S3 requests
+    * [DMC-715] - Davix: Implement multi-threaded crawler for recursive directory listing
+    * [DMC-716] - Davix: Allow user to specify the number of threads for recursive operations
+    * [DMC-718] - Davix can't copy a 0-sized file
+
+** New Feature
+    * [DMC-665] - Add support for 3rd party copy FROM dav TO s3
+    * [DMC-693] - Add support for pulling http 3rd party copies
+
+** Suggestion
+    * [DMC-668] - Davix-rm: bulk/folder remove
+
+** Task
+    * [DMC-624] - No decent error message if certificate or key are not readable
+    * [DMC-695] - Makes recursive operations on directory optional rather than default (davix-get/put)
+    * [DMC-703] - Davix: Remove gridsite dependency
+    * [DMC-708] - Davix: Add new parser for S3 multi-objects deletion response
+    * [DMC-711] - Davix: Update banner in source files with correct copyright info
+    * [DMC-713] - Shall the davix recursive crawler ignore more common errors and continue ?
+
+
+    
 Version - 0.4.0
 ** Bug Fixes
     * [DMC-443] - Wrong section in .TH tag for libdavix.3

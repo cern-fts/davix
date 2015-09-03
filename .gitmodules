@@ -1,3 +1,6 @@
 [submodule "deps/boost_intern"]
 	path = deps/boost_intern
 	url = https://github.com/cern-it-sdc-id/davix-submodule-boost.git
+[submodule "deps/googletest"]
+	path = deps/googletest
+	url = https://github.com/google/googletest

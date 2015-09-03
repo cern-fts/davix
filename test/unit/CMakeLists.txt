@@ -5,9 +5,14 @@ if(UNIT_TESTS)
 include_directories(${PROJECT_SOURCE_DIR}/src "." ${GTEST_INCLUDE_DIRS})
 include_directories(${HEADER_RAPIDJSON})
 
+## gtest
+set(GTEST ${CMAKE_SOURCE_DIR}/deps/googletest/googletest )
+set(GTEST_BINARY_DIR ${CMAKE_BINARY_DIR}/deps/googletest/googletest )
+
+include_directories(${GTEST}/include)
+add_subdirectory(${GTEST} ${GTEST_BINARY_DIR} )
 
 ## alibxx
-
 
 file(GLOB src_alibxx alibxx/*.cpp)
 file(GLOB src_neon neon/*.cpp)

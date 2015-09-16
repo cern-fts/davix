@@ -242,7 +242,6 @@ void NEONRequest::configureRequest(){
     // reconfigure protos
     configureRequestParamsProto(*_current, params);
 
-    _headers_field.clear();
     std::copy(params.getHeaders().begin(), params.getHeaders().end(), std::back_inserter(_headers_field));
 
     // configure S3 params if needed

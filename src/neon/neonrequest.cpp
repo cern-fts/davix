@@ -242,7 +242,11 @@ void NEONRequest::configureRequest(){
     // reconfigure protos
     configureRequestParamsProto(*_current, params);
 
-    std::copy(params.getHeaders().begin(), params.getHeaders().end(), std::back_inserter(_headers_field));
+    // add custom user headers, but make sure they're only added once
+    // in case of a redirect
+    if(!req_running) {
+        std::copy(params.getHeaders().begin(), params.getHeaders().end(), std::back_inserter(_headers_field));
+    }
 
     // configure S3 params if needed
     if(params.getProtocol() == RequestProtocol::AwsS3)

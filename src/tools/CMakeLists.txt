@@ -34,61 +34,54 @@ add_library(davix_tool_lib STATIC ${davix_tool_common_src})
 ## davix cmd line
 add_executable(davix_tool ${davix_main_src})
 
-target_link_libraries(davix_tool davix_tool_lib davix ${RT_LIBRARIES})
+target_link_libraries(davix_tool davix_tool_lib libdavix ${RT_LIBRARIES})
 set_target_properties(davix_tool PROPERTIES
                                 OUTPUT_NAME "davix-http")
-add_dependencies(davix_tool libdavix)
 
 ## davix ls cmd line
 add_executable(davix_ls_tool ${davix_ls_main_src})
 
-target_link_libraries(davix_ls_tool davix_tool_lib davix ${CMAKE_THREAD_LIBS_INIT} ${RT_LIBRARIES})
+target_link_libraries(davix_ls_tool davix_tool_lib libdavix ${CMAKE_THREAD_LIBS_INIT} ${RT_LIBRARIES})
 set_target_properties(davix_ls_tool PROPERTIES
                                 OUTPUT_NAME "davix-ls")
-add_dependencies(davix_ls_tool libdavix)
 
 
 ## davix get cmd line
 add_executable(davix_get_tool ${davix_get_main_src})
 
-target_link_libraries(davix_get_tool davix_tool_lib davix pthread ${CMAKE_THREAD_LIBS_INIT} ${RT_LIBRARIES})
+target_link_libraries(davix_get_tool davix_tool_lib libdavix pthread ${CMAKE_THREAD_LIBS_INIT} ${RT_LIBRARIES})
 set_target_properties(davix_get_tool PROPERTIES
                                 OUTPUT_NAME "davix-get")
-add_dependencies(davix_get_tool libdavix)
 
 ## davix put cmd line
 add_executable(davix_put_tool ${davix_put_main_src})
 
-target_link_libraries(davix_put_tool davix_tool_lib davix pthread ${CMAKE_THREAD_LIBS_INIT} ${RT_LIBRARIES})
+target_link_libraries(davix_put_tool davix_tool_lib libdavix pthread ${CMAKE_THREAD_LIBS_INIT} ${RT_LIBRARIES})
 set_target_properties(davix_put_tool PROPERTIES
                                 OUTPUT_NAME "davix-put")
-add_dependencies(davix_put_tool libdavix)
 
 
 ## davix del cmd line
 add_executable(davix_mkdir_tool ${davix_mkcol_main_src})
 
-target_link_libraries(davix_mkdir_tool davix_tool_lib davix ${RT_LIBRARIES})
+target_link_libraries(davix_mkdir_tool davix_tool_lib libdavix ${RT_LIBRARIES})
 set_target_properties(davix_mkdir_tool PROPERTIES
                                 OUTPUT_NAME "davix-mkdir")
-add_dependencies(davix_mkdir_tool libdavix)
 
 ## davix rm cmd line
 add_executable(davix_rm_tool ${davix_rm_main_src})
 
-target_link_libraries(davix_rm_tool davix_tool_lib davix ${CMAKE_THREAD_LIBS_INIT} ${RT_LIBRARIES})
+target_link_libraries(davix_rm_tool davix_tool_lib libdavix ${CMAKE_THREAD_LIBS_INIT} ${RT_LIBRARIES})
 set_target_properties(davix_rm_tool PROPERTIES
                                 OUTPUT_NAME "davix-rm")
-add_dependencies(davix_rm_tool libdavix)
 
 ## davix mv cmd line
 add_executable(davix_mv_tool ${davix_mv_main_src})
 
-target_link_libraries(davix_mv_tool davix_tool_lib davix ${RT_LIBRARIES})
+target_link_libraries(davix_mv_tool davix_tool_lib libdavix ${RT_LIBRARIES})
 set_target_properties(davix_mv_tool PROPERTIES
                                 OUTPUT_NAME "davix-mv")
-add_dependencies(davix_mv_tool libdavix)
-    
+
 
 
 install(TARGETS davix_tool davix_ls_tool davix_get_tool davix_put_tool davix_mkdir_tool davix_rm_tool davix_mv_tool
@@ -103,9 +96,9 @@ if (ENABLE_THIRD_PARTY_COPY)
     set_target_properties(davix_cp_tool PROPERTIES
                                 OUTPUT_NAME "davix-cp")
     add_dependencies(davix_cp_tool davix_copy)
-    
+
     install(TARGETS davix_cp_tool
             DESTINATION ${BIN_INSTALL_DIR}/)
-    
+
 endif (ENABLE_THIRD_PARTY_COPY)
 

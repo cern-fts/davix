@@ -6,30 +6,32 @@ message (" Setup tests parameters... ")
 set(BASIC_LOGIN "test")
 set(BASIC_PASSWD "tester")
 
-set(http_dcache "http://sligo.desy.de:2880/pnfs/desy.de/data/dteam/davix-tests/" CACHE STRING "dCache test instance to use")
+set(http_dcache "http://sligo.desy.de:2880/pnfs/desy.de/data/dteam/davix-tests/" CACHE STRING "dCache test instance to use (read-only)")
 
-set(https_dpm "https://dpmhead-trunk.cern.ch/dpm/cern.ch/home/dteam" CACHE STRING "DPM test instance to use")
+set(https_dpm "https://dpmhead-trunk.cern.ch/dpm/cern.ch/home/dteam/davix-tests/" CACHE STRING "DPM test instance to use")
 set(https_dpm_file "${https_dpm}/davix-tests/testread0011")
-set(dav_dpm "davs://dpmhead-trunk.cern.ch/dpm/cern.ch/home/dteam" CACHE STRING "DPM test instance to use throught WebDAV protocol")
+set(dav_dpm "davs://dpmhead-trunk.cern.ch/dpm/cern.ch/home/dteam/davix-tests/" CACHE STRING "DPM test instance to use throught WebDAV protocol")
+
+set(https_dcache "https://prometheus.desy.de/VOs/dteam/" CACHE STRING "dCache test instance to use")
 
 set(http_dynaFed_base "http://federation.desy.de/fed/dynafeds_demo/everywhere/")
 set(http_dynaFed_file "${http_dynaFed_base}/file_1005.txt")
-
-# set(http_desy_base "http://sligo.desy.de:2880/pnfs/desy.de/data/dteam/davix-tests/" CACHE STRING "dCache test instance to use")
-# set(http_desy_mv "http://sligo.desy.de:2880/pnfs/desy.de/data/dteam/" CACHE STRING "dCache test instance to use for rename")
-# set(http_lcgdm_base "https://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam" CACHE STRING "DPM test instance to use" )
-# set(dav_lcgdm_base "davs://lxfsra04a04.cern.ch/dpm/cern.ch/home/dteam" CACHE STRING "DPM test instance to use, Webdav protocol" )
-#set(http_lcgdm_base "https://lxfsra10a01.cern.ch/dpm/cern.ch/home/dteam" CACHE STRING "DPM test instance to use" )
-
-#set(http_storm_base "https://gridhttps-storm-atlas.cr.cnaf.infn.it:8443/webdav/dteam/davix-tests/" CACHE STRING "Storm test instance to use")
 
 # set(metalink_url "http://download.documentfoundation.org/libreoffice/stable/4.3.4/deb/x86_64/LibreOffice_4.3.4_Linux_x86-64_deb.tar.gz")
 # set(metalink3_url "http://download.documentfoundation.org/libreoffice/stable/4.3.4/deb/x86_64/LibreOffice_4.3.4_Linux_x86-64_deb_helppack_en-US.tar.gz.metalink")
 # set(metalink_url_direct "http://download.documentfoundation.org/libreoffice/stable/4.3.4/deb/x86_64/LibreOffice_4.3.4_Linux_x86-64_deb_helppack_en-US.tar.gz.meta4")
 
 
-# dCache tests
+# dCache read-only
 test_dav_endpoint_ronly( "${http_dcache}" "proxy")
+
+# dCache tests
+test_valid_write_read_generic("${https_dcache}" "proxy")
+test_rename("${https_dcache}" "proxy")
+test_dav_endpoint_rw( "${https_dcache}" "proxy")
+# test_valid_delete_all("${https_dcache}"  "proxy")
+test_valid_read_generic("${https_dcache}" "proxy")
+test_valid_write_read_generic("${https_dcache}" "proxy")
 
 
 # DPM tests

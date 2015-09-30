@@ -28,6 +28,7 @@ namespace Davix{
 
 namespace S3{
 
+std::string current_time(std::string format);
 
 void signRequest(const RequestParams & params, const std::string & method, const Uri & url, HeaderVec & headers);
 

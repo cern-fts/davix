@@ -68,6 +68,11 @@ public:
     Uri & operator=(const Uri & orig);
     virtual ~Uri();
 
+    /// append a query parameter to the uri
+    /// @param key : parameter key, not escaped
+    /// @param value : parameter value, not escaped
+    void addQueryParam(const std::string & key, const std::string & value);
+
     /// get a string representation of the full uri
     /// @return return the path or an empty string if error
     const std::string & getString() const;

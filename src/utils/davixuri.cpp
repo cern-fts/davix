@@ -74,6 +74,16 @@ struct UriPrivate{
         }
     }
 
+    void addQueryParam(const std::string & key, const std::string & value) {
+        if(query.size() == 0) {
+            query = key + "=" + value;
+        }
+        else {
+            query += "&" + key + "=" + value;
+        }
+        _update_string();
+    }
+
     void clear(){
         proto.clear();
         userinfo.clear();
@@ -82,6 +92,19 @@ struct UriPrivate{
         query.clear();
         fragment.clear();
         port = 0;
+    }
+
+    void _update_string() {
+        std::ostringstream ss;
+        ss << proto << "://";
+        if(userinfo.size() > 0) ss << "@" << userinfo;
+        ss << host;
+        if(port != 0) ss << ":" << port;
+        ss << path;
+        if(query.size() > 0) ss << "?" << query;
+        if(fragment.size() > 0) ss << "#" << fragment;
+
+        _uri_string = ss.str();
     }
 
     StatusCode::Code code;
@@ -104,6 +127,10 @@ Uri::Uri(const std::string & uri) :
 
 Uri::Uri(const Uri & uri) :
     d_ptr(new UriPrivate(*(uri.d_ptr))){
+}
+
+void Uri::addQueryParam(const std::string & key, const std::string & value) {
+    d_ptr->addQueryParam(Uri::escapeString(key), Uri::escapeString(value));
 }
 
 Uri::~Uri(){

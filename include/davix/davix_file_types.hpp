@@ -79,7 +79,7 @@ enum DAVIX_EXPORT advise_t{
 /// container for base file meta-data, plateform agnostic stat struct
 ///
 struct StatInfo{
-    StatInfo(): size(0), nlink(0), mode(0), atime(0), mtime(0), ctime(0){
+    StatInfo(): size(0), nlink(0), mode(0), atime(0), mtime(0), ctime(0), owner(0), group(0) {
     }
 
     /// size in bytes of the resource
@@ -96,6 +96,10 @@ struct StatInfo{
     time_t mtime;
     /// creation time
     time_t ctime;
+    /// owner UID
+    uid_t owner;
+    /// group UID
+    gid_t group;
 
     /// struct converter from POSIX stat
     inline void fromPosixStat(const struct stat & st){
@@ -105,6 +109,8 @@ struct StatInfo{
         ctime = static_cast<time_t>(st.st_ctime);
         size =  static_cast<dav_size_t>(st.st_size);
         nlink = static_cast<dav_size_t>(st.st_nlink);
+        owner = static_cast<uid_t>(st.st_uid);
+        group = static_cast<gid_t>(st.st_gid);
     }
 
     /// struct converter to POSIX stat
@@ -115,6 +121,8 @@ struct StatInfo{
         st.st_ctime = static_cast<time_t>(ctime);
         st.st_size =  static_cast<off_t>(size);
         st.st_nlink = static_cast<nlink_t>(nlink);
+        st.st_uid = static_cast<uid_t>(owner);
+        st.st_gid = static_cast<gid_t>(group);
         return st;
     }
 };

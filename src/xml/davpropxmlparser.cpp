@@ -176,6 +176,31 @@ static void check_status(DavPropXMLParser::DavxPropXmlIntern & par, const std::s
     errno =0;
 }
 
+static void check_owner_uid(DavPropXMLParser::DavxPropXmlIntern & par, const std::string & value){
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_XML, " owner found -> parse it");
+    std::string str_owner(value);
+    ltrim(str_owner, StrUtil::isSpace());
+    unsigned long res = strtoul(str_owner.c_str(), NULL, 10);
+    if(res != ULONG_MAX){
+       DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_XML, " owner value : {}", res);
+       par._current_props.info.owner = res;
+       return;
+    }
+    DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_XML, "Invalid owner field value");
+}
+
+static void check_group_gid(DavPropXMLParser::DavxPropXmlIntern & par, const std::string & value){
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_XML, " group found -> parse it");
+    std::string str_group(value);
+    ltrim(str_group, StrUtil::isSpace());
+    unsigned long res = strtoul(str_group.c_str(), NULL, 10);
+    if(res != ULONG_MAX){
+       DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_XML, " group value : {}", res);
+       par._current_props.info.group = res;
+       return;
+    }
+    DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_XML, "Invalid group field value");
+}
 
 void init_webdavTree(){
 
@@ -194,8 +219,11 @@ void init_webdavTree(){
     it->addChild(Xml::XmlPTree(Xml::ElementStart, "creationdate", Xml::XmlPTree::ChildrenList(), (void*) &check_creation_date));
     it->addChild(Xml::XmlPTree(Xml::ElementStart, "getcontentlength", Xml::XmlPTree::ChildrenList(), (void*) &check_content_length));
 
+    it->addChild(Xml::XmlPTree(Xml::ElementStart, "owner", Xml::XmlPTree::ChildrenList(), (void*) &check_owner_uid));
+    it->addChild(Xml::XmlPTree(Xml::ElementStart, "group", Xml::XmlPTree::ChildrenList(), (void*) &check_group_gid));
     it->addChild(Xml::XmlPTree(Xml::ElementStart, "mode", Xml::XmlPTree::ChildrenList(), (void*) &check_mode_ext));
     it->addChild(Xml::XmlPTree(Xml::ElementStart, "resourcetype"));
+
     it = (--it->endChildren());
     it->addChild(Xml::XmlPTree(Xml::ElementStart, "collection", Xml::XmlPTree::ChildrenList(), (void*) &check_is_directory));
 }

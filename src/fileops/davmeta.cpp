@@ -47,6 +47,7 @@ static const std::string simple_listing("<propfind xmlns=\"DAV:\"><prop><resourc
 static const std::string stat_listing("<?xml version=\"1.0\" encoding=\"utf-8\" ?><D:propfind xmlns:D=\"DAV:\" xmlns:L=\"LCGDM:\"><D:prop>"
                                       "<D:displayname/><D:getlastmodified/><D:creationdate/><D:getcontentlength/>"
                                       "<D:resourcetype><D:collection/></D:resourcetype><L:mode/>"
+                                      "<D:owner></D:owner><D:group></D:group>"
                                       "</D:prop>"
                                       "</D:propfind>");
 

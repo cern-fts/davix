@@ -93,6 +93,7 @@ struct RequestParamsInternal{
         _call_loginpswwd(NULL),
         _call_loginpswwd_userdata(NULL),
         _aws_cred(),
+        _aws_region(),
         ops_timeout(),
         connexion_timeout(),
         agent_string(default_agent),
@@ -133,6 +134,7 @@ struct RequestParamsInternal{
         _call_loginpswwd(param_private._call_loginpswwd),
         _call_loginpswwd_userdata(param_private._call_loginpswwd_userdata),
         _aws_cred(param_private._aws_cred),
+        _aws_region(param_private._aws_region),
         ops_timeout(),
         connexion_timeout(),
         agent_string(param_private.agent_string),
@@ -170,6 +172,7 @@ struct RequestParamsInternal{
     authCallbackLoginPasswordBasic _call_loginpswwd;
     void* _call_loginpswwd_userdata;
     std::pair<AwsSecretKey, AwsAccessKey> _aws_cred;
+    AwsRegion _aws_region;
 
     // timeout management
     struct timespec ops_timeout;
@@ -328,6 +331,14 @@ void RequestParams::setAwsAuthorizationKeys(const std::string &secret_key, const
 
 const std::pair<AwsSecretKey, AwsAccessKey> & RequestParams::getAwsAutorizationKeys() const{
     return d_ptr->_aws_cred;
+}
+
+void RequestParams::setAwsRegion(const AwsRegion &region) {
+    d_ptr->_aws_region = region;
+}
+
+const AwsRegion & RequestParams::getAwsRegion() const {
+    return d_ptr->_aws_region;
 }
 
 void RequestParams::setS3ListingMode(const S3ListingMode::S3ListingMode s3_listing_mode){

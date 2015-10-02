@@ -25,8 +25,9 @@
 #include <cstring>
 #include <davix_internal.hpp>
 #include <string_utils/stringutils.hpp>
+#include <utils/davix_logger_internal.hpp>
 #include <alibxx/crypto/base64.hpp>
-#include <alibxx/crypto/hmacsha1.hpp>
+#include <alibxx/crypto/hmacsha.hpp>
 #include <openssl/md5.h>
 #include <sys/mman.h>
 
@@ -36,20 +37,41 @@ namespace Davix{
 const std::string prefix_s3_header("x-amz-");
 const std::string prefix_s3_date("x-amz-date");
 
+
+std::string hexEncode(std::string input, std::string separator="") {
+    std::ostringstream ss;
+    //ss << std::hex << std::setw(2) << std::setfill('0');
+    for(std::string::iterator it = input.begin(); it != input.end(); it++) {
+        ss << std::setw(2) << std::setfill('0') << std::hex << (unsigned int) ( (unsigned char) *it) << separator;
+    }
+    return ss.str();
+}
+
 std::string getAwsReqToken(const std::string & stringToSign, const std::string & private_key){
     std::ostringstream ss;
     const std::string hmac = hmac_sha1(private_key, stringToSign);
     ss << Base64::base64_encode((unsigned char*) hmac.c_str(), hmac.size());
-    return Uri::escapeString(ss.str());
+    return ss.str();
 }
 
-std::string getAwsAuthorizationField(const std::string & stringToSign, const std::string & private_key, const std::string & access_key){
+std::string getAwsAuthorizationFieldv2(const std::string & stringToSign, const std::string & private_key, const std::string & access_key){
     std::ostringstream ss;
     const std::string hmac = hmac_sha1(private_key, stringToSign);
     ss << "AWS "<< access_key << ":" << Base64::base64_encode((unsigned char*) hmac.c_str(), hmac.size());
     return ss.str();
 }
 
+std::string getAwsSignaturev4(const std::string & stringToSign, const std::string & private_key,
+                           const std::string & region, const std::string & service) {
+    const std::string date = Davix::S3::current_time("%Y%m%d");
+    const std::string kDate = hmac_sha256("AWS4" + private_key, date);
+    const std::string kRegion = hmac_sha256(kDate, region);
+    const std::string kService = hmac_sha256(kRegion, service);
+
+    const std::string c = "aws4_request";
+    const std::string kSigning = hmac_sha256(kService, c);
+    return hexEncode(hmac_sha256(kSigning, stringToSign));
+}
 
 namespace S3{
 
@@ -75,8 +97,8 @@ static std::string extract_bucket(const Uri & uri){
     return std::string(hostname.begin(), it);
 }
 
-static std::string get_md5(HeaderVec & vec){
-    for(HeaderVec::iterator it = vec.begin(); it < vec.end(); it++){
+static std::string get_md5(const HeaderVec & vec){
+    for(HeaderVec::const_iterator it = vec.begin(); it < vec.end(); it++){
         if( StrUtil::compare_ncase(it->first, "Content-MD5") ==0){
             return it->second;
         }
@@ -84,8 +106,8 @@ static std::string get_md5(HeaderVec & vec){
     return "";
 }
 
-static std::string get_type(HeaderVec & vec){
-    for(HeaderVec::iterator it = vec.begin(); it < vec.end(); it++){
+static std::string get_type(const HeaderVec & vec){
+    for(HeaderVec::const_iterator it = vec.begin(); it < vec.end(); it++){
         if( StrUtil::compare_ncase(it->first, "Content-Type") ==0){
             return it->second;
         }
@@ -113,10 +135,25 @@ bool matchAmzheaders(const std::string & header_key){
             && StrUtil::compare_ncase(header_key, prefix_s3_date) != 0);
 }
 
-std::string getAmzCanonHeaders(HeaderVec & headers){
+HeaderVec getAmzCanonHeaders_vec(const HeaderVec & headers){
+    HeaderVec canon_amz_headers;
+
+    for(HeaderVec::const_iterator it = headers.begin(); it < headers.end(); ++it){
+        std::string header_key = (*it).first, header_value = (*it).second;
+        StrUtil::toLower(StrUtil::trim(header_key));
+        StrUtil::toLower(StrUtil::trim(header_value));
+
+        if( matchAmzheaders(header_key)){
+            canon_amz_headers.push_back(*it);
+        }
+    }
+    return canon_amz_headers;
+}
+
+std::string getAmzCanonHeaders(const HeaderVec & headers) {
     std::string canon_amz_headers;
 
-    for(HeaderVec::iterator it = headers.begin(); it < headers.end(); ++it){
+    for(HeaderVec::const_iterator it = headers.begin(); it < headers.end(); ++it){
         std::string header_key = (*it).first, header_value = (*it).second;
         StrUtil::toLower(StrUtil::trim(header_key));
         StrUtil::toLower(StrUtil::trim(header_value));
@@ -132,13 +169,12 @@ std::string getAmzCanonHeaders(HeaderVec & headers){
     return canon_amz_headers;
 }
 
-
-void signRequest(const RequestParams & params, const std::string & method, const Uri & url, HeaderVec & headers){
+void signRequestv2(const RequestParams & params, const std::string & method, const Uri & url, HeaderVec & headers){
     std::ostringstream ss;
 
     // construct Request token
     ss << method << "\n"
-       << get_md5(headers) << "\n"            
+       << get_md5(headers) << "\n"
        << get_type(headers) << "\n"
        << get_date(headers) << "\n";
 
@@ -148,18 +184,144 @@ void signRequest(const RequestParams & params, const std::string & method, const
     else{
         ss << getAmzCanonHeaders(headers) << '/' << extract_bucket(url)  << url.getPath();
     }
-    
-    headers.push_back(std::pair<std::string, std::string>("Authorization",  getAwsAuthorizationField(ss.str(), params.getAwsAutorizationKeys().first, params.getAwsAutorizationKeys().second)));
+
+    headers.push_back(std::pair<std::string, std::string>("Authorization",  getAwsAuthorizationFieldv2(ss.str(), params.getAwsAutorizationKeys().first, params.getAwsAutorizationKeys().second)));
 }
 
 
-Uri tokenizeRequest(const RequestParams & params, const std::string & method, const Uri & url, HeaderVec & headers, time_t expirationTime){
+// Sign an S3 request by modifying the headers, not the URI
+void signRequest(const RequestParams & params, const std::string & method, const Uri & url, HeaderVec & headers){
+    if(params.getAwsRegion().empty()) {
+        signRequestv2(params, method, url, headers);
+    }
+    else {
+        throw std::runtime_error("v4 header signing not yet implemented");
+    }
+}
 
+
+Uri signURIv4(const RequestParams & params, const std::string & method, const Uri & url, const HeaderVec headers, const time_t expirationTime) {
+    // references
+    // http://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html
+    // http://docs.aws.amazon.com/general/latest/gr/sigv4-create-canonical-request.html
+    DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_S3, "Using S3 v4 signature authentication");
+
+    // calculate canonical headers
+    HeaderVec can_headers = getAmzCanonHeaders_vec(headers);
+    can_headers.push_back(HeaderLine("Host", url.getHost()));
+    std::sort(can_headers.begin(), can_headers.end());
+    std::ostringstream can_headers_str;
+    for(HeaderVec::iterator it = can_headers.begin(); it != can_headers.end(); it++) {
+        can_headers_str << StrUtil::toLower(it->first) << ":" << StrUtil::trim(it->second) << "\n";
+    }
+
+    std::ostringstream signed_headers;
+    for(HeaderVec::iterator it = can_headers.begin(); it != can_headers.end(); it++) {
+        signed_headers << StrUtil::toLower(it->first);
+        if(it+1 != can_headers.end()) {
+            signed_headers << ";";
+        }
+    }
+
+    // calculate query parameters
+    HeaderVec query_params;
+    query_params.push_back(HeaderLine("X-Amz-Algorithm", "AWS4-HMAC-SHA256"));
+
+    std::ostringstream credential;
+    credential << params.getAwsAutorizationKeys().second
+               << "/" << current_time("%Y%m%d")
+               << "/" << params.getAwsRegion()
+               << "/" << "s3"
+               << "/" << "aws4_request";
+
+    query_params.push_back(HeaderLine("X-Amz-Credential", credential.str()));
+
+    // calculate amz date
+    std::string amzdate = current_time("%Y%m%dT%H%M%SZ");
+    query_params.push_back(HeaderLine("X-Amz-Date", amzdate));
+
+    // add timeout
+    std::string expiration = std::to_string(static_cast<unsigned long long>(expirationTime));
+    query_params.push_back(HeaderLine("X-Amz-Expires", expiration));
+
+    // add amz signed headers
+    query_params.push_back(HeaderLine("X-Amz-SignedHeaders", signed_headers.str()));
+
+    // calculate *canonical* query string
+    HeaderVec can_query_params;
+    for(HeaderVec::iterator it = query_params.begin(); it != query_params.end(); it++) {
+        can_query_params.push_back(HeaderLine(Uri::queryParamEscape(it->first), Uri::queryParamEscape(it->second)));
+    }
+    std::sort(can_query_params.begin(), can_query_params.end());
+
+    std::ostringstream can_query_str;
+    for(HeaderVec::iterator it = can_query_params.begin(); it != can_query_params.end(); it++) {
+        can_query_str << it->first << "=" << it->second;
+        if(it+1 != can_query_params.end()) {
+            can_query_str << "&";
+        }
+    }
+
+    // calculate canonical request
+    std::ostringstream canonical_request;
+    canonical_request << method << "\n"
+                      << url.getPath() << "\n"
+                      << can_query_str.str() << "\n"
+                      << can_headers_str.str() << "\n"
+                      << signed_headers.str() << "\n"
+                      << "UNSIGNED-PAYLOAD";
+
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_S3, "Canonical request bytes: {}", hexEncode(canonical_request.str(), " "));
+
+    // calculate canonical request hash
+    std::string can_req_hash = sha256(canonical_request.str().c_str());
+    std::string encoded_hash = hexEncode(can_req_hash);
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_S3, "Canonical request hash: {}", encoded_hash);
+
+    // calculate string to sign
+    std::ostringstream stringToSign;
+    stringToSign << "AWS4-HMAC-SHA256" << "\n"
+                 << amzdate << "\n"
+                 << current_time("%Y%m%d") << "/" << params.getAwsRegion() << "/s3/aws4_request" << "\n"
+                 << encoded_hash;
+
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_S3, "String to sign: {}", stringToSign.str());
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_S3, "String to sign bytes: {}", hexEncode(stringToSign.str(), " "));
+
+    // whew.. now calculate the final signature
+    Uri signedUrl = url;
+
+    std::string signature = getAwsSignaturev4(stringToSign.str(), params.getAwsAutorizationKeys().first,
+                                              params.getAwsRegion(), "s3");
+
+    DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_S3, "Signature: {}", signature);
+    signedUrl.addQueryParam("X-Amz-Signature", signature);
+
+    for(HeaderVec::iterator it = query_params.begin(); it != query_params.end(); it++) {
+        signedUrl.addQueryParam(it->first, it->second);
+    }
+
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_S3, "Signed URL: {}", signedUrl);
+    return signedUrl;
+}
+
+// return a signed s3 URI, does not modify the headers
+Uri signURI(const RequestParams & params, const std::string & method, const Uri & url, const HeaderVec headers, const time_t expirationTime) {
+    if(params.getAwsRegion().empty()) {
+        return tokenizeRequest(params, method, url, headers, std::time(0)+expirationTime);
+    }
+    else {
+        return signURIv4(params, method, url, headers, expirationTime);
+    }
+}
+
+
+Uri tokenizeRequest(const RequestParams & params, const std::string & method, const Uri & url, const HeaderVec & headers, time_t expirationTime){
     std::ostringstream ss;
 
     // construct Request token
     ss << method << "\n"
-       << get_md5(headers) << "\n"          
+       << get_md5(headers) << "\n"
        << get_type(headers) << "\n"
        << static_cast<unsigned long long>(expirationTime) << "\n";
 
@@ -172,30 +334,22 @@ Uri tokenizeRequest(const RequestParams & params, const std::string & method, co
 
     const std::string signature = getAwsReqToken(ss.str(), params.getAwsAutorizationKeys().first);
 
-
-    ss.clear();
-    ss.str("");
-    ss << url.getString();
-    if(url.getQuery().size() ==0){
-        ss << "?";
-    }else{
-        ss << "&";
-    }
-    ss << "AWSAccessKeyId=" << params.getAwsAutorizationKeys().second << "&";
-    ss << "Signature=" << signature << "&";
-    ss << "Expires=" << static_cast<unsigned long long>(expirationTime);
+    Uri signedUri(url);
+    signedUri.addQueryParam("AWSAccessKeyId", params.getAwsAutorizationKeys().second);
+    signedUri.addQueryParam("Signature", signature);
+    signedUri.addQueryParam("Expires", std::to_string(static_cast<unsigned long long>(expirationTime)));
 
     // add amz headers as query parameters
-    for(HeaderVec::iterator it = headers.begin(); it < headers.end(); ++it){
-        if(matchAmzheaders(it->first)){
-            std::string key= it->first, value = it->second;
-            StrUtil::toLower(StrUtil::trim(key));
-            StrUtil::toLower(StrUtil::trim(value));
+    for(HeaderVec::const_iterator it = headers.begin(); it < headers.end(); ++it){
+         if(matchAmzheaders(it->first)){
+             std::string key= it->first, value = it->second;
+             StrUtil::toLower(StrUtil::trim(key));
+             StrUtil::toLower(StrUtil::trim(value));
 
-            ss << "&"<< Uri::escapeString(key) << "=" << Uri::escapeString(value);
-        }
+             signedUri.addQueryParam(key, value);
+         }
     }
-    return Uri(ss.str());
+    return signedUri;
 }
 
 

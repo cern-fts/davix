@@ -30,9 +30,12 @@ namespace S3{
 
 std::string current_time(std::string format);
 
+Uri signURIv4(const RequestParams & params, const std::string & method, const Uri & url, const HeaderVec headers, const time_t expirationTime);
+Uri signURI(const RequestParams & params, const std::string & method, const Uri & url, const HeaderVec headers, const time_t expirationTime);
+
 void signRequest(const RequestParams & params, const std::string & method, const Uri & url, HeaderVec & headers);
 
-Uri tokenizeRequest(const RequestParams & params, const std::string & method, const Uri & url, HeaderVec & headers, time_t expirationTime);
+Uri tokenizeRequest(const RequestParams & params, const std::string & method, const Uri & url, const HeaderVec & headers, time_t expirationTime);
 
 Uri s3UriTransformer(const Uri & original_url, const RequestParams & params, const bool addDelimiter);
 

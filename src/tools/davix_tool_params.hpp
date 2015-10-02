@@ -66,6 +66,8 @@ struct OptParams{
     std::string req_content;
     // s3 auth
     std::pair<std::string, std::string> aws_auth;
+    // s3 region
+    std::string aws_region;
     // presentation flag
     int pres_flag;
     // shell flags

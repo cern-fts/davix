@@ -18,14 +18,12 @@
  *
 */
 
-
-#ifndef HMACSHA1_HPP
-#define HMACSHA1_HPP
+#pragma once
 
 #include <string>
 #include <algorithm>
 
 std::string hmac_sha1(const std::string & key, const std::string & data);
+std::string hmac_sha256(const std::string & key, const std::string & data);
+std::string sha256(const std::string input);
 
-
-#endif // HMACSHA1_HPP

@@ -103,6 +103,7 @@ int configureAuth(OptParams & opts){
     //setup aws creds
     if(opts.aws_auth.first.empty() == false){
         opts.params.setAwsAuthorizationKeys(opts.aws_auth.first, opts.aws_auth.second);
+        opts.params.setAwsRegion(opts.aws_region);
         opts.params.setProtocol(RequestProtocol::AwsS3);
     }
 

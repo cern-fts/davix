@@ -35,5 +35,5 @@
 
 // crypto
 #include "crypto/base64.hpp"
-#include "crypto/hmacsha1.hpp"
+#include "crypto/hmacsha.hpp"
 

@@ -206,6 +206,14 @@ int NEONRequest::createRequest(DavixError** err){
     if( instanceSession(err) < 0)
         return -1;
 
+
+    // reconfigure protos
+    configureRequestParamsProto(*_current, params);
+
+    // configure S3 params if needed
+    if(params.getProtocol() == RequestProtocol::AwsS3)
+        configureS3params();
+
     _req= ne_request_create(_neon_sess->get_ne_sess(), _request_type.c_str(), _current->getPathAndQuery().c_str());
     configureRequest();
 
@@ -239,8 +247,6 @@ bool NEONRequest::checkTimeout(DavixError **err){
 }
 
 void NEONRequest::configureRequest(){
-    // reconfigure protos
-    configureRequestParamsProto(*_current, params);
 
     // add custom user headers, but make sure they're only added once
     // in case of a redirect
@@ -248,9 +254,6 @@ void NEONRequest::configureRequest(){
         std::copy(params.getHeaders().begin(), params.getHeaders().end(), std::back_inserter(_headers_field));
     }
 
-    // configure S3 params if needed
-    if(params.getProtocol() == RequestProtocol::AwsS3)
-        configureS3params();
 
     // setup timeout
     if(_expiration_time.isValid() == false
@@ -283,9 +286,8 @@ void NEONRequest::configureRequest(){
 
 
 void NEONRequest::configureS3params(){
-    HeaderVec vec = _headers_field;
-    S3::signRequest(params, _request_type, *_current, vec);
-    vec.swap(_headers_field);
+    Uri signed_url = S3::signURI(params, _request_type, *_current, _headers_field, NEON_S3_SIGN_DURATION);
+    _current= boost::shared_ptr<Uri>(new Uri(signed_url));
 }
 
 int NEONRequest::processRedirection(int neonCode, DavixError **err){

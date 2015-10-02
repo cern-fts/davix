@@ -21,6 +21,7 @@
 
 #include <davix_internal.hpp>
 #include <utils/davix_uri.hpp>
+#include <boost/algorithm/string/replace.hpp>
 
 
 namespace Davix {
@@ -130,7 +131,7 @@ Uri::Uri(const Uri & uri) :
 }
 
 void Uri::addQueryParam(const std::string & key, const std::string & value) {
-    d_ptr->addQueryParam(Uri::escapeString(key), Uri::escapeString(value));
+    d_ptr->addQueryParam(Uri::queryParamEscape(key), Uri::queryParamEscape(value));
 }
 
 Uri::~Uri(){
@@ -212,6 +213,10 @@ std::string Uri::unescapeString(const std::string & str){
     return davix_path_unescape(str);
 }
 
+std::string Uri::queryParamEscape(const std::string & str) {
+    std::string tmp = escapeString(str);
+    return boost::replace_all_copy(tmp, "/", "%2F");
+}
 
 // FIX IT : does not manage properly ../
 Uri Uri::fromRelativePath(const Uri &uri, const std::string &relPath){

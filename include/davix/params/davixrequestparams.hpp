@@ -132,6 +132,19 @@ public:
     ///
     const std::pair<AwsSecretKey, AwsAccessKey> & getAwsAutorizationKeys() const;
 
+    ///
+    /// \brief define a Amazon S3 bucket region
+    /// \param region the region
+    /// \param access_key public key
+    ///
+    void setAwsRegion(const AwsRegion & region);
+
+    ///
+    /// \brief get Amazon S3 bucket region
+    /// \return the bucket region
+    ///
+    const AwsRegion & getAwsRegion() const;
+
     /// set listing mode flag for S3 bucket
     void setS3ListingMode(const S3ListingMode::S3ListingMode s3_listing_mode);
 

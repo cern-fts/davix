@@ -97,7 +97,10 @@ typedef std::string AwsSecretKey;
 /// \brief string for Amazon public key
 ///
 typedef std::string AwsAccessKey;
-
+///
+/// \brief string for Amazon region
+///
+typedef std::string AwsRegion;
 
 #ifdef __DAVIX_HAS_STD_FUNCTION
 

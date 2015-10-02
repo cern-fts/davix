@@ -54,6 +54,7 @@ const std::string scope_params = "Davix::Tools::Params";
 #define HAS_INPUT_FILE      1017
 #define THIRD_PT_COPY_MODE  1018
 #define DISABLE_LISTING_CAP 1019
+#define S3_REGION           1020
 
 // LONG OPTS
 
@@ -81,6 +82,7 @@ const std::string scope_params = "Davix::Tools::Params";
 {"userpass", required_argument, 0, USER_PASSWORD}, \
 {"s3secretkey", required_argument, 0, S3_SECRET_KEY}, \
 {"s3accesskey", required_argument, 0, S3_ACCESS_KEY}, \
+{"s3region", required_argument, 0, S3_REGION}, \
 {"insecure", no_argument, 0,  'k' }
 
 #define REQUEST_LONG_OPTIONS \
@@ -112,6 +114,7 @@ OptParams::OptParams() :
     userlogpasswd(),
     req_content(),
     aws_auth(),
+    aws_region(),
     pres_flag(0),
     shell_flag(0),
     has_input_file(false),
@@ -255,6 +258,9 @@ int parse_davix_options_generic(const std::string &opt_filter,
                 break;
             case S3_SECRET_KEY:
                 p.aws_auth.first = optarg;
+                break;
+            case S3_REGION:
+                p.aws_region = optarg;
                 break;
             case 'l':
                 p.pres_flag |= LONG_LISTING_FLAG;
@@ -482,6 +488,7 @@ std::string get_common_options(){
             "\t--userpass:               User password for login/password authentication\n"
             "\t--s3secretkey SEC_KEY:    S3 authentication: secret key\n"
             "\t--s3accesskey ACC_KEY:    S3 authentication: access key\n"
+            "\t--s3region REGION:        S3 region (only necessary to authenticate with a v4 signature)\n"
             ;
 }
 

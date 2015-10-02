@@ -140,6 +140,13 @@ public:
     static std::string unescapeString(const std::string & str);
 
     ///
+    /// \brief Escape query parameter
+    /// \param str to escape
+    /// \return encoded string
+
+    static std::string queryParamEscape(const std::string & str);
+
+    ///
     /// \brief create a new Uri from URI and a relative associated path
     /// \param uri original URI
     /// \param relPath relative path

@@ -39,7 +39,7 @@
 namespace Davix {
 
 #define NEON_BUFFER_SIZE        65000
-
+#define NEON_S3_SIGN_DURATION 30
 
 class NEONSessionFactory;
 class NEONSession;

@@ -62,7 +62,7 @@ TEST(testAWS, awsToken){
                       "bWq2s1WEIj+Ydj0vQ697zp+IXMU=");
 
 
-    std::string res = getAwsAuthorizationField(req, p_key, a_key);
+    std::string res = getAwsAuthorizationFieldv2(req, p_key, a_key);
     ASSERT_STREQ(res.c_str(), token.c_str());
 
 }

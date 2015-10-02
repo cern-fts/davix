@@ -45,6 +45,7 @@ namespace Davix{
 
 const char* SCOPE_FILE =    "file";
 const char* SCOPE_HTTP =    "http";
+const char* SCOPE_S3 =      "s3";
 const char* SCOPE_POSIX =   "posix";
 const char* SCOPE_XML =     "xml";
 const char* SCOPE_SSL =     "ssl";
@@ -71,6 +72,7 @@ const std::string davix_log_scope[] = {
     SCOPE_GRID,
     SCOPE_SOCKET,
     SCOPE_LOCKS,
+    SCOPE_S3,
     SCOPE_ALL
 };
 
@@ -139,6 +141,9 @@ void setLogScope(const std::string &scope){
                         mask |= DAVIX_LOG_LOCKS;
                         break;
                     case 12:
+                        mask |= DAVIX_LOG_S3;
+                        break;
+                    case 13:
                         mask |= DAVIX_LOG_SCOPE_ALL;
                         break;
                     default:
@@ -204,6 +209,9 @@ std::string getScopeName(int scope_mask){
             break;
         case DAVIX_LOG_LOCKS:
             scope_name = SCOPE_LOCKS;
+            break;
+        case DAVIX_LOG_S3:
+            scope_name = SCOPE_S3;
             break;
         default:
             scope_name = "Unknown";

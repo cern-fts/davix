@@ -51,12 +51,14 @@ namespace Davix{
 #define DAVIX_LOG_SOCKET     (1<<9)
 #define DAVIX_LOG_LOCKS      (1<<10)
 #define DAVIX_LOG_HTTP       (1<<11)
+#define DAVIX_LOG_S3         (1<<12)
 #define DAVIX_LOG_SCOPE_NEON (1<<29)
 #define DAVIX_LOG_SCOPE_ALL        (~(0) ^ DAVIX_LOG_BODY)
 
 // define string for log scopes
 extern const char* SCOPE_FILE;      // Davix file interface
 extern const char* SCOPE_HTTP;      // Http Request Scope
+extern const char* SCOPE_S3;        // S3 authentication info
 extern const char* SCOPE_POSIX;     // Davix posix interface
 extern const char* SCOPE_XML;       // XML info and parser output
 extern const char* SCOPE_SSL;       // SSL and cert details

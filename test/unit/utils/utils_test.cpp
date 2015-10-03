@@ -167,7 +167,7 @@ TEST(testAuthS3, ReqToTokenWithHeaders){
     vec.push_back(HeaderLine("x-amz-meta-fed-acl", "adevress : rwx, furano : rwx"));
 
     Uri u = S3::tokenizeRequest(params, "PUT", url, vec, static_cast<time_t>(1415835686));
-    Uri resu("http://firwen-bucket.s3.amazonaws.com/testfile1234?AWSAccessKeyId=AKIAIOSFODNN7EXAMPLE&Signature=8DnY/3Te1GOcC01S6BGNHZErJMo%3d&Expires=1415835686&x-amz-meta-fed-acl=adevress%20%3a%20rwx%2c%20furano%20%3a%20rwx");
+    Uri resu("http://firwen-bucket.s3.amazonaws.com/testfile1234?AWSAccessKeyId=AKIAIOSFODNN7EXAMPLE&Signature=8DnY%2F3Te1GOcC01S6BGNHZErJMo%3d&Expires=1415835686&x-amz-meta-fed-acl=adevress%20%3a%20rwx%2c%20furano%20%3a%20rwx");
     std::cout << u << "\n" << resu << std::endl;
     ASSERT_TRUE(StrUtil::compare_ncase(resu.getString(), u.getString()) ==0);
 }

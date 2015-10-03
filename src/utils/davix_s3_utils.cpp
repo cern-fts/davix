@@ -31,6 +31,9 @@
 #include <openssl/md5.h>
 #include <sys/mman.h>
 
+#define SSTR( x ) dynamic_cast< std::ostringstream & >( \
+                ( std::ostringstream() << std::dec << x ) ).str()
+
 namespace Davix{
 
 
@@ -241,7 +244,7 @@ Uri signURIv4(const RequestParams & params, const std::string & method, const Ur
     query_params.push_back(HeaderLine("X-Amz-Date", amzdate));
 
     // add timeout
-    std::string expiration = std::to_string(static_cast<unsigned long long>(expirationTime));
+    std::string expiration = SSTR(expirationTime);
     query_params.push_back(HeaderLine("X-Amz-Expires", expiration));
 
     // add amz signed headers
@@ -337,7 +340,7 @@ Uri tokenizeRequest(const RequestParams & params, const std::string & method, co
     Uri signedUri(url);
     signedUri.addQueryParam("AWSAccessKeyId", params.getAwsAutorizationKeys().second);
     signedUri.addQueryParam("Signature", signature);
-    signedUri.addQueryParam("Expires", std::to_string(static_cast<unsigned long long>(expirationTime)));
+    signedUri.addQueryParam("Expires", SSTR(expirationTime));
 
     // add amz headers as query parameters
     for(HeaderVec::const_iterator it = headers.begin(); it < headers.end(); ++it){

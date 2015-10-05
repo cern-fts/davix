@@ -106,6 +106,7 @@ public:
     const std::string & getQuery() const;
 
     // get the query argument part of the uri as a vector
+    // @return return a vector with all query parameters
     ParamVec getQueryVec() const;
 
     /// Status of the Uri

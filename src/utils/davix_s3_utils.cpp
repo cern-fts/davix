@@ -384,21 +384,21 @@ Uri s3UriTransformer(const Uri & original_url, const RequestParams & params, con
 
     if(!original_url.getPath().empty()){    // there is something after '/', grab it
         std::string tmp = original_url.getPath();
-        
+
         // if prefix doesn't end with '/', add one to handle query on folder
         if(tmp.compare(tmp.size()-1,1,"/") != 0)
              tmp += "/";
-        
-        tmp.erase(0,1); 
-        prefix += tmp;
+
+        tmp.erase(0,1);
+        prefix +=  Uri::queryParamEscape(tmp);
     }
-    
+
     ss << prefix << maxKey << params.getS3MaxKey();
 
-    // skip delimiter if where we want to list everything after a certain prefix, 
+    // skip delimiter if where we want to list everything after a certain prefix,
     // useful in cases like GET Collection
     if(addDelimiter)
-        ss << delimiter;    
+        ss << delimiter;
 
     return Uri(ss.str());
 }

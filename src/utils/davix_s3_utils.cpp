@@ -227,7 +227,7 @@ Uri signURIv4(const RequestParams & params, const std::string & method, const Ur
     }
 
     // calculate query parameters
-    HeaderVec query_params;
+    ParamVec query_params;
     query_params.push_back(HeaderLine("X-Amz-Algorithm", "AWS4-HMAC-SHA256"));
 
     std::ostringstream credential;
@@ -251,14 +251,20 @@ Uri signURIv4(const RequestParams & params, const std::string & method, const Ur
     query_params.push_back(HeaderLine("X-Amz-SignedHeaders", signed_headers.str()));
 
     // calculate *canonical* query string
-    HeaderVec can_query_params;
-    for(HeaderVec::iterator it = query_params.begin(); it != query_params.end(); it++) {
-        can_query_params.push_back(HeaderLine(Uri::queryParamEscape(it->first), Uri::queryParamEscape(it->second)));
+    ParamVec can_query_params;
+    for(ParamVec::iterator it = query_params.begin(); it != query_params.end(); it++) {
+        can_query_params.push_back(ParamLine(Uri::queryParamEscape(it->first), Uri::queryParamEscape(it->second)));
     }
+
+    const ParamVec existing_params = url.getQueryVec();
+    for(ParamVec::const_iterator it = existing_params.begin(); it != existing_params.end(); it++) {
+        can_query_params.push_back(ParamLine(it->first, it->second));
+    }
+
     std::sort(can_query_params.begin(), can_query_params.end());
 
     std::ostringstream can_query_str;
-    for(HeaderVec::iterator it = can_query_params.begin(); it != can_query_params.end(); it++) {
+    for(ParamVec::iterator it = can_query_params.begin(); it != can_query_params.end(); it++) {
         can_query_str << it->first << "=" << it->second;
         if(it+1 != can_query_params.end()) {
             can_query_str << "&";
@@ -274,6 +280,7 @@ Uri signURIv4(const RequestParams & params, const std::string & method, const Ur
                       << signed_headers.str() << "\n"
                       << "UNSIGNED-PAYLOAD";
 
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_S3, "Canonical request: {}", canonical_request.str());
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_S3, "Canonical request bytes: {}", hexEncode(canonical_request.str(), " "));
 
     // calculate canonical request hash
@@ -300,10 +307,11 @@ Uri signURIv4(const RequestParams & params, const std::string & method, const Ur
     DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_S3, "Signature: {}", signature);
     signedUrl.addQueryParam("X-Amz-Signature", signature);
 
-    for(HeaderVec::iterator it = query_params.begin(); it != query_params.end(); it++) {
+    for(ParamVec::iterator it = query_params.begin(); it != query_params.end(); it++) {
         signedUrl.addQueryParam(it->first, it->second);
     }
 
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_S3, "Original URL: {}", url);
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_S3, "Signed URL: {}", signedUrl);
     return signedUrl;
 }
@@ -357,7 +365,7 @@ Uri tokenizeRequest(const RequestParams & params, const std::string & method, co
 
 
 Uri s3UriTransformer(const Uri & original_url, const RequestParams & params, const bool addDelimiter){
-    std::string delimiter = "&delimiter=/";
+    std::string delimiter = "&delimiter=%2F";
     std::string prefix = "?prefix=";
     std::string maxKey = "&max-keys=";
 

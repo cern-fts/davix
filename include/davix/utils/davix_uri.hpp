@@ -105,6 +105,9 @@ public:
     /// @return return the query path string or an empty string if not exist or if error
     const std::string & getQuery() const;
 
+    // get the query argument part of the uri as a vector
+    ParamVec getQueryVec() const;
+
     /// Status of the Uri
     /// see StatusCode::Code
     /// @return StatusCode::OK if success or StatusCode::UriParsingError if error

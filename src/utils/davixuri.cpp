@@ -175,6 +175,31 @@ const std::string & Uri::getPathAndQuery() const {
     return *(d_ptr->query_and_path);
 }
 
+ParamVec Uri::getQueryVec() const {
+    ParamVec params;
+    const std::string paramSeparator = "&";
+    const std::string pairSeparator = "=";
+    const std::string query = getQuery();
+
+    std::string::size_type curr = 0;
+    while(curr < query.length()) {
+        std::string::size_type next = query.find(paramSeparator, curr);
+        if(next == std::string::npos) next = query.length();
+        std::string param = query.substr(curr, next-curr);
+
+        // separate the two parts between '='
+        std::string::size_type eq = param.find(pairSeparator);
+        if(eq == std::string::npos) {
+            params.push_back(ParamLine(param, ""));
+        } else {
+            params.push_back(ParamLine(param.substr(0, eq), param.substr(eq+1, param.length())));
+        }
+
+        curr = next+1;
+    }
+    return params;
+}
+
 const std::string & Uri::getQuery() const{
     return d_ptr->query;
 }

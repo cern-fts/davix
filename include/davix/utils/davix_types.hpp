@@ -86,6 +86,8 @@ namespace Davix{
     typedef std::pair <std::string, std::string> HeaderLine;
     typedef std::vector< HeaderLine > HeaderVec;
 
+    typedef std::pair <std::string, std::string> ParamLine;
+    typedef std::vector< ParamLine > ParamVec;
 
 
 } // Davix

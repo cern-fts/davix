@@ -491,9 +491,16 @@ static bool is_s3_operation(IOChainContext & context){
     return ( proto.compare(0, 2, "s3") ==0 || protocol_flag == RequestProtocol::AwsS3);
 }
 
-void internal_s3_creat_bucket(Context & c, const Uri & url, const RequestParams & params){
+static void internal_s3_create_bucket_or_dir(Context & c, const Uri & url, const RequestParams & params){
     DavixError * tmp_err=NULL;
-    PutRequest req(c, url, &tmp_err);
+
+    /* make sure path ends with a slash, otherwise s3
+       will just create a zero-length file */
+    Uri url2 = url;
+    url2.setPath(url.getPath() + "/");
+
+    PutRequest req(c, url2, &tmp_err);
+    req.addHeaderField("Content-Length", "0");
     checkDavixError(&tmp_err);
 
     req.setParameters(params);
@@ -511,9 +518,8 @@ void S3MetaOps::checksum(IOChainContext &iocontext, std::string &checksm, const 
 }
 
 void S3MetaOps::makeCollection(IOChainContext &iocontext){
-
     if(is_s3_operation(iocontext)){
-        internal_s3_creat_bucket( iocontext._context, iocontext._uri, iocontext._reqparams);
+        internal_s3_create_bucket_or_dir( iocontext._context, iocontext._uri, iocontext._reqparams);
     }else{
         HttpIOChain::makeCollection(iocontext);
     }

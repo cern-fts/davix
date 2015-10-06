@@ -164,6 +164,11 @@ const std::string & Uri::getPath() const {
     return d_ptr->path;
 }
 
+void Uri::setPath(const std::string & path) {
+    d_ptr->path = path;
+    d_ptr->_update_string();
+}
+
 const std::string & Uri::getPathAndQuery() const {
     if(d_ptr->query_and_path.get() == NULL){
         if(d_ptr->query.size() > 0){

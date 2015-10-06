@@ -93,6 +93,9 @@ public:
     /// @return return the path of the Uri or an empty string if error
     const std::string & getPath()const;
 
+    // set the path part of the Uri
+    void setPath(const std::string & path);
+
     /// gextract user information from the URI
     /// @return return the path of the Uri or an empty string if error
     const std::string & getUserInfo() const;

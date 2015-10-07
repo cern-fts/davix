@@ -31,8 +31,7 @@
 #include <openssl/md5.h>
 #include <sys/mman.h>
 
-#define SSTR( x ) dynamic_cast< std::ostringstream & >( \
-                ( std::ostringstream() << std::dec << x ) ).str()
+#define SSTR( x ) (( std::ostringstream() << std::dec << x ).str())
 
 namespace Davix{
 

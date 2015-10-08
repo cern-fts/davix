@@ -355,17 +355,30 @@ int ListOp::executeOp(){
     unsigned long entry_counter = 0;
     std::string last_success_entry;
 
-    std::deque<std::pair<std::string,std::string> > dirQueue;
-    std::deque<std::string> fileQueue;
+    struct DirInfo {
+        std::string fullURL;
+        std::string path;
+        struct stat st;
+        DirInfo(std::string _fullURL, std::string _path, struct stat _st)
+            : fullURL(_fullURL), path(_path), st(_st) {}
+    };
+
+    struct FileInfo {
+        std::string path;
+        struct stat st;
+        FileInfo(std::string _path, struct stat _st)
+            : path(_path), st(_st) {}
+    };
+
+    std::deque<DirInfo> dirQueue;
+    std::deque<FileInfo> fileQueue;
 
     // set up first entry
-    if(!_target_url.empty()){
-        dirQueue.push_back(std::make_pair(_target_url, _destination_url));
-    }
-    else
+    if(_target_url.empty()){
         DavixError::setupError(&tmp_err, "Davix::ListOp", StatusCode::InvalidArgument, " target URL is empty.");
+    }
 
-    if( (fd = pos.opendirpp(&_opts.params, dirQueue.front().first, &tmp_err)) == NULL){
+    if( (fd = pos.opendirpp(&_opts.params, _target_url, &tmp_err)) == NULL){
         Tool::errorPrint(&tmp_err);
         return -1;
     }
@@ -376,30 +389,27 @@ int ListOp::executeOp(){
 
     while( ((d = pos.readdirpp(fd, &st, &tmp_err)) != NULL)){    // if one entry inside a directory fails, the loop exits, the other entires are not processed
 
-        last_success_entry = dirQueue.front().first+d->d_name;
-        // for each entry, see if it's a directory, if yes, push to dirQueue for further processing    
+        last_success_entry = _target_url+d->d_name;
+        // for each entry, see if it's a directory, if yes, push to dirQueue for further processing
         if(st.st_mode & S_IFDIR){
-            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Directory entry found, pushing {}/ to dirQueue", dirQueue.front().first+d->d_name);
-            dirQueue.push_back(std::make_pair(dirQueue.front().first+d->d_name+"/", fullpath+d->d_name));
+            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Directory entry found, pushing {}/ to dirQueue", _target_url+d->d_name);
+            dirQueue.push_back(DirInfo(_target_url+d->d_name+"/", fullpath+d->d_name, st));
         }
         else{
-            fileQueue.push_back(fullpath+d->d_name);
+            fileQueue.push_back(FileInfo(fullpath+d->d_name, st));
         }
 
     } // while readdirpp
-    
 
 
     if(tmp_err){
         Tool::errorPrint(&tmp_err);
-        std::cerr << std::endl << "Error occured during listing  " << dirQueue.front().first << " Number of entries processed in current directory: " << entry_counter << ". Continuing..."<< std::endl;
+        std::cerr << std::endl << "Error occured during listing  " << _target_url << " Number of entries processed in current directory: " << entry_counter << ". Continuing..."<< std::endl;
         std::cerr << std::endl << "Last succesful entry is " << last_success_entry << std::endl;
     }
 
     entry_counter = 0;
-    
     pos.closedirpp(fd, NULL);
-    dirQueue.pop_front();   // discard parent entry
 
     {
         // lock this part so the output is sync'ed
@@ -408,21 +418,21 @@ int ListOp::executeOp(){
 
         for(unsigned int i=0; i < dirQueue.size(); ++i){
             //push listing op to task queue
-            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to (listing) work queue, target is {}.", dirQueue[i].first);
-            ListOp* l_op = new ListOp(_opts, dirQueue[i].first, _c, _listing_tq, _filestream, _output_mutex);
+            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to (listing) work queue, target is {}.", dirQueue[i].fullURL);
+            ListOp* l_op = new ListOp(_opts, dirQueue[i].fullURL, _c, _listing_tq, _filestream, _output_mutex);
             _listing_tq->pushOp(l_op);
 
             if(_opts.pres_flag & LONG_LISTING_FLAG){
-                display_long_file_entry(dirQueue[i].second, &st, _opts, _filestream);
+                display_long_file_entry(dirQueue[i].path, &(dirQueue[i].st), _opts, _filestream);
             }else{
-                display_file_entry(dirQueue[i].second, _opts, _filestream);
+                display_file_entry(dirQueue[i].path, _opts, _filestream);
             }
         }
         for(unsigned int i=0; i < fileQueue.size(); ++i){
             if(_opts.pres_flag & LONG_LISTING_FLAG){
-                display_long_file_entry(fileQueue[i], &st, _opts, _filestream);
+                display_long_file_entry(fileQueue[i].path, &(fileQueue[i].st), _opts, _filestream);
             }else{
-                display_file_entry(fileQueue[i], _opts, _filestream);
+                display_file_entry(fileQueue[i].path, _opts, _filestream);
             }
         }
 

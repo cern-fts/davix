@@ -345,6 +345,22 @@ void ListOp::display_long_file_entry(const std::string & filename,  struct stat*
     fputs(ss.str().c_str(), filestream);
 }
 
+
+struct DirInfo {
+    std::string fullURL;
+    std::string path;
+    struct stat st;
+    DirInfo(std::string _fullURL, std::string _path, struct stat _st)
+        : fullURL(_fullURL), path(_path), st(_st) {}
+};
+
+struct FileInfo {
+    std::string path;
+    struct stat st;
+    FileInfo(std::string _path, struct stat _st)
+        : path(_path), st(_st) {}
+};
+
 int ListOp::executeOp(){
     DAVIX_DIR* fd = NULL;
     DavPosix pos(&_c);
@@ -355,20 +371,6 @@ int ListOp::executeOp(){
     unsigned long entry_counter = 0;
     std::string last_success_entry;
 
-    struct DirInfo {
-        std::string fullURL;
-        std::string path;
-        struct stat st;
-        DirInfo(std::string _fullURL, std::string _path, struct stat _st)
-            : fullURL(_fullURL), path(_path), st(_st) {}
-    };
-
-    struct FileInfo {
-        std::string path;
-        struct stat st;
-        FileInfo(std::string _path, struct stat _st)
-            : path(_path), st(_st) {}
-    };
 
     std::deque<DirInfo> dirQueue;
     std::deque<FileInfo> fileQueue;

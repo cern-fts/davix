@@ -31,7 +31,15 @@
 #include <openssl/md5.h>
 #include <sys/mman.h>
 
-#define SSTR( x ) (( std::ostringstream() << std::dec << x ).str())
+
+template <typename T>
+static inline std::string SSTR(const T& v)
+{
+    std::ostringstream stream;
+    stream << v;
+    return stream.str();
+}
+
 
 namespace Davix{
 

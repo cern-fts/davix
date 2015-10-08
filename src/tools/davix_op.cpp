@@ -26,6 +26,7 @@
 #include <xml/s3deleteparser.hpp>
 #include <xml/davdeletexmlparser.hpp>
 
+
 namespace Davix{
 
 //-------------------------------------------------
@@ -345,19 +346,18 @@ void ListOp::display_long_file_entry(const std::string & filename,  struct stat*
     fputs(ss.str().c_str(), filestream);
 }
 
-
-struct DirInfo {
+struct DirEntry {
     std::string fullURL;
     std::string path;
     struct stat st;
-    DirInfo(std::string _fullURL, std::string _path, struct stat _st)
+    DirEntry(std::string _fullURL, std::string _path, struct stat _st)
         : fullURL(_fullURL), path(_path), st(_st) {}
 };
 
-struct FileInfo {
+struct FileEntry {
     std::string path;
     struct stat st;
-    FileInfo(std::string _path, struct stat _st)
+    FileEntry(std::string _path, struct stat _st)
         : path(_path), st(_st) {}
 };
 
@@ -371,9 +371,8 @@ int ListOp::executeOp(){
     unsigned long entry_counter = 0;
     std::string last_success_entry;
 
-
-    std::deque<DirInfo> dirQueue;
-    std::deque<FileInfo> fileQueue;
+    std::deque< struct DirEntry > dirQueue;
+    std::deque< struct FileEntry > fileQueue;
 
     // set up first entry
     if(_target_url.empty()){
@@ -395,10 +394,10 @@ int ListOp::executeOp(){
         // for each entry, see if it's a directory, if yes, push to dirQueue for further processing
         if(st.st_mode & S_IFDIR){
             DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Directory entry found, pushing {}/ to dirQueue", _target_url+d->d_name);
-            dirQueue.push_back(DirInfo(_target_url+d->d_name+"/", fullpath+d->d_name, st));
+            dirQueue.push_back(DirEntry(_target_url+d->d_name+"/", fullpath+d->d_name, st));
         }
         else{
-            fileQueue.push_back(FileInfo(fullpath+d->d_name, st));
+            fileQueue.push_back(FileEntry(fullpath+d->d_name, st));
         }
 
     } // while readdirpp

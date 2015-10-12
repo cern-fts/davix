@@ -402,6 +402,7 @@ static int send_request_body(ne_request *req, int retry)
     }
 
     if (bytes == 0) {
+        NE_DEBUG(NE_DBG_CORE, "Request body sent successfully");
         return NE_OK;
     } else {
         NE_DEBUG(NE_DBG_HTTP, "Request body provider failed with "

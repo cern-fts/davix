@@ -34,6 +34,10 @@
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
+//#ifdef HAVE_SYS_IOCTL_H
+#include <sys/ioctl.h>
+#include <linux/sockios.h>
+//#endif
 
 #ifdef NE_USE_POLL
 #include <sys/poll.h>
@@ -173,6 +177,8 @@ typedef struct in_addr ne_inet_addr;
 
 /* Socket read timeout */
 #define SOCKET_READ_TIMEOUT 120
+/* Socket step timeout */
+#define SOCKET_STEP_TIMEOUT 10
 
 /* Critical I/O functions on a socket: useful abstraction for easily
  * handling SSL I/O alongside raw socket I/O. */
@@ -506,10 +512,46 @@ static int readable_raw(ne_socket *sock, int secs)
     return (ret == 0) ? NE_SOCK_TIMEOUT : 0;
 }
 
+static int wait_pending_writes(ne_socket *sock, int stepwait)
+{
+    /* If there's any data in the TCP queue,
+       wait until it's been drained */
+
+    int prevpending = INT_MAX, pending = INT_MAX;
+    ssize_t ret;
+    do {
+        /* Ready to read from socket? */
+        ret = readable_raw(sock, stepwait);
+        if(ret == NE_SOCK_ERROR) return ret;
+
+        /* There was a timeout.. */
+        if(ret == NE_SOCK_TIMEOUT) {
+            /* Is there any data pending for writing? */
+            int ioret = ioctl(sock->fd, SIOCOUTQ, &pending);
+            if(ioret == -1) {
+                set_strerror(sock, ne_errno);
+                return NE_SOCK_ERROR;
+            }
+            if(pending > 0 && pending < prevpending) {
+                if(prevpending == INT_MAX) prevpending = -1;
+                NE_DEBUG(NE_DBG_SOCKET, "Pending bytes on TCP send buffer, waiting. (%d bytes)", pending);
+                prevpending = pending;
+            }
+            else {
+                /* Timeout, no change in buffer size since last time.
+                   Connection is probably hung */
+                return NE_SOCK_TIMEOUT;
+            }
+        }
+    } while(ret == NE_SOCK_TIMEOUT);
+    return 0;
+}
+
 static ssize_t read_raw(ne_socket *sock, char *buffer, size_t len)
 {
     ssize_t ret;
-    
+    ret = wait_pending_writes(sock, SOCKET_STEP_TIMEOUT);
+    if (ret) return ret;
     ret = readable_raw(sock, sock->rdtimeout);
     if (ret) return ret;
 

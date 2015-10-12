@@ -68,6 +68,8 @@ struct OptParams{
     std::pair<std::string, std::string> aws_auth;
     // s3 region
     std::string aws_region;
+    // s3 alternate url
+    bool aws_v2_alternate;
     // presentation flag
     int pres_flag;
     // shell flags

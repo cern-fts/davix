@@ -135,7 +135,6 @@ public:
     ///
     /// \brief define a Amazon S3 bucket region
     /// \param region the region
-    /// \param access_key public key
     ///
     void setAwsRegion(const AwsRegion & region);
 
@@ -144,6 +143,18 @@ public:
     /// \return the bucket region
     ///
     const AwsRegion & getAwsRegion() const;
+
+    ///
+    /// \brief set whether we're using an S3 path-based url
+    /// \param alternate whether using an S3 path-based url
+    ///
+    void setAwsv2Alternate(const bool & alternate);
+
+    ///
+    /// \brief get whether we're using an S3 path-based url
+    /// \return whether we're using an S3 path-based url
+    ///
+    const bool & getAwsv2Alternate() const;
 
     /// set listing mode flag for S3 bucket
     void setS3ListingMode(const S3ListingMode::S3ListingMode s3_listing_mode);

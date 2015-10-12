@@ -188,11 +188,18 @@ void signRequestv2(const RequestParams & params, const std::string & method, con
        << get_type(headers) << "\n"
        << get_date(headers) << "\n";
 
-    if((method == "POST") && (url.getQuery() == "delete")){ // work around for S3 batch delete request
-        ss << getAmzCanonHeaders(headers) << '/' << extract_bucket(url)  << url.getPath() << '?' << url.getQuery();
+    ss << getAmzCanonHeaders(headers);
+
+    // when using a path-based url, the bucket name is part of the path
+    if(params.getAwsv2Alternate()) {
+        ss << url.getPath();
     }
-    else{
-        ss << getAmzCanonHeaders(headers) << '/' << extract_bucket(url)  << url.getPath();
+    else {
+        ss << '/' << extract_bucket(url) << url.getPath();
+    }
+
+    if((method == "POST") && (url.getQuery() == "delete")){ // work around for S3 batch delete request
+        ss << '?' << url.getQuery();
     }
 
     headers.push_back(std::pair<std::string, std::string>("Authorization",  getAwsAuthorizationFieldv2(ss.str(), params.getAwsAutorizationKeys().first, params.getAwsAutorizationKeys().second)));
@@ -343,11 +350,18 @@ Uri tokenizeRequest(const RequestParams & params, const std::string & method, co
        << get_type(headers) << "\n"
        << static_cast<unsigned long long>(expirationTime) << "\n";
 
-    if((method == "POST") && (url.getQuery() == "delete")){ // work around for S3 batch delete request
-        ss << getAmzCanonHeaders(headers) << '/' << extract_bucket(url)  << url.getPath() << '?' << url.getQuery();
+    ss << getAmzCanonHeaders(headers);
+
+    // when using a path-based url, the bucket name is part of the path
+    if(params.getAwsv2Alternate()) {
+        ss << url.getPath();
     }
-    else{
-        ss << getAmzCanonHeaders(headers) << '/' << extract_bucket(url)  << url.getPath();
+    else {
+        ss << '/' << extract_bucket(url) << url.getPath();
+    }
+
+    if((method == "POST") && (url.getQuery() == "delete")){ // work around for S3 batch delete request
+        ss << '?' << url.getQuery();
     }
 
     const std::string signature = getAwsReqToken(ss.str(), params.getAwsAutorizationKeys().first);

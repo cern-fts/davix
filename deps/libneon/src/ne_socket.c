@@ -34,10 +34,9 @@
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
-//#ifdef HAVE_SYS_IOCTL_H
+#ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
-#include <linux/sockios.h>
-//#endif
+#endif
 
 #ifdef NE_USE_POLL
 #include <sys/poll.h>
@@ -527,7 +526,7 @@ static int wait_pending_writes(ne_socket *sock, int stepwait)
         /* There was a timeout.. */
         if(ret == NE_SOCK_TIMEOUT) {
             /* Is there any data pending for writing? */
-            int ioret = ioctl(sock->fd, SIOCOUTQ, &pending);
+            int ioret = ioctl(sock->fd, TIOCOUTQ, &pending);
             if(ioret == -1) {
                 set_strerror(sock, ne_errno);
                 return NE_SOCK_ERROR;

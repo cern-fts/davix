@@ -34,8 +34,10 @@
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
-#ifdef HAVE_SYS_IOCTL_H
+
+#ifdef __linux__
 #include <sys/ioctl.h>
+#include <linux/sockios.h>
 #endif
 
 #ifdef NE_USE_POLL
@@ -511,6 +513,7 @@ static int readable_raw(ne_socket *sock, int secs)
     return (ret == 0) ? NE_SOCK_TIMEOUT : 0;
 }
 
+#ifdef __linux__
 static int wait_pending_writes(ne_socket *sock, int stepwait)
 {
     /* If there's any data in the TCP queue,
@@ -526,7 +529,7 @@ static int wait_pending_writes(ne_socket *sock, int stepwait)
         /* There was a timeout.. */
         if(ret == NE_SOCK_TIMEOUT) {
             /* Is there any data pending for writing? */
-            int ioret = ioctl(sock->fd, TIOCOUTQ, &pending);
+            int ioret = ioctl(sock->fd, SIOCOUTQ, &pending);
             if(ioret == -1) {
                 set_strerror(sock, ne_errno);
                 return NE_SOCK_ERROR;
@@ -545,12 +548,15 @@ static int wait_pending_writes(ne_socket *sock, int stepwait)
     } while(ret == NE_SOCK_TIMEOUT);
     return 0;
 }
+#endif
 
 static ssize_t read_raw(ne_socket *sock, char *buffer, size_t len)
 {
     ssize_t ret;
+#ifdef __linux__
     ret = wait_pending_writes(sock, SOCKET_STEP_TIMEOUT);
     if (ret) return ret;
+#endif
     ret = readable_raw(sock, sock->rdtimeout);
     if (ret) return ret;
 

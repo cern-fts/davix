@@ -11,7 +11,8 @@ LAST_ABI_DUMP=@CMAKE_BINARY_DIR@/abi_dump_last.abi.tar.gz
 echo "Generate  new ABI dump...."
 $CHECK_ABI -l davix -dump $LAST_ABI_XML_FILE -dump-path $LAST_ABI_DUMP
 
-echo "Comparing to previous ABI dumps with a $(gcc -dumpversion) compiler version and $(gcc -dumpmachine) arch"
+echo "Looking for abi dumps in @CMAKE_SOURCE_DIR@/dist/abi/abi_dumps/"
+ls @CMAKE_SOURCE_DIR@/dist/abi/abi_dumps/
 shopt -s nullglob
 for i in @CMAKE_SOURCE_DIR@/dist/abi/abi_dumps/*$(gcc -dumpversion | sed 's/^\([0-9]*\)\.\([0-9]*\)\.*.*/\1\2/g')*$(gcc -dumpmachine)*.abi.tar.gz
 do

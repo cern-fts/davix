@@ -64,7 +64,7 @@ std::string getAwsReqToken(const std::string & stringToSign, const std::string &
     return ss.str();
 }
 
-std::string getAwsAuthorizationFieldv2(const std::string & stringToSign, const std::string & private_key, const std::string & access_key){
+std::string getAwsAuthorizationField(const std::string & stringToSign, const std::string & private_key, const std::string & access_key){
     std::ostringstream ss;
     const std::string hmac = hmac_sha1(private_key, stringToSign);
     ss << "AWS "<< access_key << ":" << Base64::base64_encode((unsigned char*) hmac.c_str(), hmac.size());
@@ -202,7 +202,7 @@ void signRequestv2(const RequestParams & params, const std::string & method, con
         ss << '?' << url.getQuery();
     }
 
-    headers.push_back(std::pair<std::string, std::string>("Authorization",  getAwsAuthorizationFieldv2(ss.str(), params.getAwsAutorizationKeys().first, params.getAwsAutorizationKeys().second)));
+    headers.push_back(std::pair<std::string, std::string>("Authorization",  getAwsAuthorizationField(ss.str(), params.getAwsAutorizationKeys().first, params.getAwsAutorizationKeys().second)));
 }
 
 

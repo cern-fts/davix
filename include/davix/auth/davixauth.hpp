@@ -94,8 +94,7 @@ typedef int (*authCallbackLoginPasswordBasic)(void* userdata, const SessionInfo 
 
 
 /// \cond PRIVATE_SYMBOLS
-std::string getAwsAuthorizationFieldv2(const std::string & stringToSign, const std::string & private_key, const std::string & access_key);
-std::string getAwsAuthorizationFieldv4(const std::string & stringToSign, const std::string & private_key, const std::string & access_key);
+std::string getAwsAuthorizationField(const std::string & stringToSign, const std::string & private_key, const std::string & access_key);
 /// \endcond PRIVATE_SYMBOLS
 
 } // namespace Davix

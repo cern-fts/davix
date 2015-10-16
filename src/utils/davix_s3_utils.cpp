@@ -331,7 +331,7 @@ Uri signURIv4(const RequestParams & params, const std::string & method, const Ur
 }
 
 // return a signed s3 URI, does not modify the headers
-Uri signURI(const RequestParams & params, const std::string & method, const Uri & url, const HeaderVec headers, const time_t expirationTime) {
+Uri signURI(const RequestParams & params, const std::string & method, const Uri & url, HeaderVec headers, const time_t expirationTime) {
     if(params.getAwsRegion().empty()) {
         return tokenizeRequest(params, method, url, headers, std::time(0)+expirationTime);
     }
@@ -341,7 +341,7 @@ Uri signURI(const RequestParams & params, const std::string & method, const Uri 
 }
 
 
-Uri tokenizeRequest(const RequestParams & params, const std::string & method, const Uri & url, const HeaderVec & headers, time_t expirationTime){
+Uri tokenizeRequest(const RequestParams & params, const std::string & method, const Uri & url, HeaderVec & headers, time_t expirationTime){
     std::ostringstream ss;
 
     // construct Request token

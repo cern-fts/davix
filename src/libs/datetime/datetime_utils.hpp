@@ -23,6 +23,7 @@
 
 #include <string.h>
 #include <time.h>
+#include <string>
 
 #define DATETIME_UTILS_PARSE_ERROR 1
 #define DATETIME_UTILS_CONV_ERROR 2
@@ -50,5 +51,15 @@ time_t parse_iso8601date(const char* http_date);
 */
 time_t parse_standard_date(const char* http_date);
 
+namespace Davix {
+
+/**
+  give current time as string
+  @param the format string to pass to strftime
+  @return the current time using the requested formatting
+*/
+std::string current_time(std::string format);
+
+}
 
 #endif // DATETIME_UTILS_HPP

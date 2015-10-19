@@ -25,6 +25,7 @@
 #include <cstring>
 #include <davix_internal.hpp>
 #include <string_utils/stringutils.hpp>
+#include <datetime/datetime_utils.hpp>
 #include <utils/davix_logger_internal.hpp>
 #include <alibxx/crypto/base64.hpp>
 #include <alibxx/crypto/hmacsha.hpp>
@@ -73,7 +74,7 @@ std::string getAwsAuthorizationField(const std::string & stringToSign, const std
 
 std::string getAwsSignaturev4(const std::string & stringToSign, const std::string & private_key,
                            const std::string & region, const std::string & service) {
-    const std::string date = Davix::S3::current_time("%Y%m%d");
+    const std::string date = current_time("%Y%m%d");
     const std::string kDate = hmac_sha256("AWS4" + private_key, date);
     const std::string kRegion = hmac_sha256(kDate, region);
     const std::string kService = hmac_sha256(kRegion, service);
@@ -85,21 +86,21 @@ std::string getAwsSignaturev4(const std::string & stringToSign, const std::strin
 
 namespace S3{
 
-std::string current_time(std::string format) {
-    struct tm utc_current;
-    time_t t = time(NULL);
-    char date[255];
+//std::string current_time(std::string format) {
+//    struct tm utc_current;
+//    time_t t = time(NULL);
+//    char date[255];
 
-    date[254]= '\0';
-#ifdef HAVE_GMTIME_R
-    gmtime_r(&t, &utc_current);
-#else
-    struct tm* p_utc = gmtime(&t);
-    memcpy(&utc_current, p_utc, sizeof(struct tm));
-#endif
-    strftime(date, 254, format.c_str(), &utc_current);
-    return std::string(date);
-}
+//    date[254]= '\0';
+//#ifdef HAVE_GMTIME_R
+//    gmtime_r(&t, &utc_current);
+//#else
+//    struct tm* p_utc = gmtime(&t);
+//    memcpy(&utc_current, p_utc, sizeof(struct tm));
+//#endif
+//    strftime(date, 254, format.c_str(), &utc_current);
+//    return std::string(date);
+//}
 
 static std::string extract_bucket(const Uri & uri){
     const std::string & hostname = uri.getHost();

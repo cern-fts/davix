@@ -52,7 +52,9 @@ namespace RequestProtocol{
         // Use Http + Webdav extension
         Webdav,
         // Use Amazon S3 API
-        AwsS3
+        AwsS3,
+        // Use Microsoft Azure API
+        Azure
     };
 }
 
@@ -101,6 +103,11 @@ typedef std::string AwsAccessKey;
 /// \brief string for Amazon region
 ///
 typedef std::string AwsRegion;
+
+///
+/// \brief string for Azure private key
+///
+typedef std::string AzureSecretKey;
 
 #ifdef __DAVIX_HAS_STD_FUNCTION
 

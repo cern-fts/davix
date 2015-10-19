@@ -156,6 +156,18 @@ public:
     ///
     const bool & getAwsv2Alternate() const;
 
+    ///
+    /// \brief set the secret key for Azure authentication
+    /// \param key the secret key
+    ///
+    void setAzureKey(const AzureSecretKey & key);
+
+    ///
+    /// \brief get the secret key used for Azure authentication
+    /// \return the secret key
+    ///
+    const AzureSecretKey & getAzureKey() const;
+
     /// set listing mode flag for S3 bucket
     void setS3ListingMode(const S3ListingMode::S3ListingMode s3_listing_mode);
 

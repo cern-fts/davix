@@ -209,6 +209,8 @@ private:
 
     void configureS3params();
 
+    void configureAzureParams();
+
     void cancelSessionReuse();
 
     // create initial neon request object

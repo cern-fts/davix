@@ -95,6 +95,7 @@ struct RequestParamsInternal{
         _aws_cred(),
         _aws_region(),
         _aws_v2_alternate(false),
+        _azure_key(),
         ops_timeout(),
         connexion_timeout(),
         agent_string(default_agent),
@@ -137,6 +138,7 @@ struct RequestParamsInternal{
         _aws_cred(param_private._aws_cred),
         _aws_region(param_private._aws_region),
         _aws_v2_alternate(param_private._aws_v2_alternate),
+        _azure_key(param_private._azure_key),
         ops_timeout(),
         connexion_timeout(),
         agent_string(param_private.agent_string),
@@ -176,6 +178,7 @@ struct RequestParamsInternal{
     std::pair<AwsSecretKey, AwsAccessKey> _aws_cred;
     AwsRegion _aws_region;
     bool _aws_v2_alternate;
+    AzureSecretKey _azure_key;
 
     // timeout management
     struct timespec ops_timeout;
@@ -350,6 +353,14 @@ void RequestParams::setAwsv2Alternate(const bool &alternate) {
 
 const bool & RequestParams::getAwsv2Alternate() const {
     return d_ptr->_aws_v2_alternate;
+}
+
+void RequestParams::setAzureKey(const AzureSecretKey &key) {
+    d_ptr->_azure_key = key;
+}
+
+const AzureSecretKey & RequestParams::getAzureKey() const {
+    return d_ptr->_azure_key;
 }
 
 void RequestParams::setS3ListingMode(const S3ListingMode::S3ListingMode s3_listing_mode){

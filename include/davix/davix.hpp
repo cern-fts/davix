@@ -76,6 +76,7 @@
 
 /// REST utilities functions
 #include <utils/davix_s3_utils.hpp>
+#include <utils/davix_azure_utils.hpp>
 
 /// hooks for extensions
 #include <hooks/davix_hooks.hpp>

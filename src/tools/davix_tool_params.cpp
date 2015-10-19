@@ -56,6 +56,7 @@ const std::string scope_params = "Davix::Tools::Params";
 #define DISABLE_LISTING_CAP 1019
 #define S3_REGION           1020
 #define S3_V2_ALTERNATE     1021
+#define AZURE_KEY           1022
 
 // LONG OPTS
 
@@ -84,6 +85,7 @@ const std::string scope_params = "Davix::Tools::Params";
 {"s3secretkey", required_argument, 0, S3_SECRET_KEY}, \
 {"s3accesskey", required_argument, 0, S3_ACCESS_KEY}, \
 {"s3region", required_argument, 0, S3_REGION}, \
+{"azurekey", required_argument, 0, AZURE_KEY}, \
 {"s3v2alternate", no_argument, 0, S3_V2_ALTERNATE}, \
 {"insecure", no_argument, 0,  'k' }
 
@@ -268,6 +270,9 @@ int parse_davix_options_generic(const std::string &opt_filter,
             case S3_V2_ALTERNATE:
                 std::cout << "in s3_v2_alternate" << std::endl;
                 p.aws_v2_alternate = true;
+                break;
+            case AZURE_KEY:
+                p.azure_key = optarg;
                 break;
             case 'l':
                 p.pres_flag |= LONG_LISTING_FLAG;
@@ -498,6 +503,7 @@ std::string get_common_options(){
             "\t--s3region REGION:        S3 region (optional - if passed, will authenticate using a v4 signature instead of v2)\n"
             "\t--s3v2alternate:          Pass this flag if you're using v2 authentication along with a path-based S3 URL\n"
             "\t                          A path-based URL contains the bucket name in the path, ie https://s3-someregion.aws.amazon.com/mybucket/file\n"
+            "\t--azurekey AZURE_KEY:     Azure authentication secret key\n"
             ;
 }
 

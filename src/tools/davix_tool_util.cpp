@@ -108,6 +108,12 @@ int configureAuth(OptParams & opts){
         opts.params.setProtocol(RequestProtocol::AwsS3);
     }
 
+    // setup azure creds
+    if(opts.azure_key.empty() == false) {
+        opts.params.setAzureKey(opts.azure_key);
+        opts.params.setProtocol(RequestProtocol::Azure);
+    }
+
     return 0;
 }
 

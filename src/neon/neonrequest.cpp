@@ -214,6 +214,10 @@ int NEONRequest::createRequest(DavixError** err){
     if(params.getProtocol() == RequestProtocol::AwsS3)
         configureS3params();
 
+    // configure azure params if needed
+    if(params.getProtocol() == RequestProtocol::Azure)
+        configureAzureParams();
+
     _req= ne_request_create(_neon_sess->get_ne_sess(), _request_type.c_str(), _current->getPathAndQuery().c_str());
     configureRequest();
 
@@ -288,6 +292,12 @@ void NEONRequest::configureRequest(){
 void NEONRequest::configureS3params(){
     Uri signed_url = S3::signURI(params, _request_type, *_current, _headers_field, NEON_S3_SIGN_DURATION);
     _current= boost::shared_ptr<Uri>(new Uri(signed_url));
+}
+
+// TODO: make static?
+void NEONRequest::configureAzureParams(){
+    Uri signed_url = Azure::signURI(params, _request_type, *_current, _headers_field, NEON_S3_SIGN_DURATION);
+    //_current= boost::shared_ptr<Uri>(new Uri(signed_url));
 }
 
 int NEONRequest::processRedirection(int neonCode, DavixError **err){

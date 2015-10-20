@@ -83,18 +83,22 @@ time_t parse_standard_date(const char* http_date){
     }
 }
 
-std::string Davix::current_time(std::string format) {
-    struct tm utc_current;
-    time_t t = time(NULL);
+std::string Davix::current_time(const std::string format) {
+    return Davix::time_as_string(time(NULL), format);
+}
+
+std::string Davix::time_as_string(const time_t t, const std::string format) {
+    struct tm utc;
     char date[255];
 
-    date[254]= '\0';
+    date[254] = '\0';
 #ifdef HAVE_GMTIME_R
-    gmtime_r(&t, &utc_current);
+    gmtime_r(&t, &utc);
 #else
     struct tm* p_utc = gmtime(&t);
     memcpy(&utc_current, p_utc, sizeof(struct tm));
 #endif
-    strftime(date, 254, format.c_str(), &utc_current);
+    strftime(date, 254, format.c_str(), &utc);
     return std::string(date);
 }
+

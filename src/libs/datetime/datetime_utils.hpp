@@ -58,7 +58,15 @@ namespace Davix {
   @param the format string to pass to strftime
   @return the current time using the requested formatting
 */
-std::string current_time(std::string format);
+std::string current_time(const std::string format);
+
+/**
+  format time_t to string
+  @param the time
+  @param the format string to pass to strftime
+  @return a string using the requested formatting
+*/
+std::string time_as_string(const time_t t, const std::string format);
 
 }
 

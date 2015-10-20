@@ -86,22 +86,6 @@ std::string getAwsSignaturev4(const std::string & stringToSign, const std::strin
 
 namespace S3{
 
-//std::string current_time(std::string format) {
-//    struct tm utc_current;
-//    time_t t = time(NULL);
-//    char date[255];
-
-//    date[254]= '\0';
-//#ifdef HAVE_GMTIME_R
-//    gmtime_r(&t, &utc_current);
-//#else
-//    struct tm* p_utc = gmtime(&t);
-//    memcpy(&utc_current, p_utc, sizeof(struct tm));
-//#endif
-//    strftime(date, 254, format.c_str(), &utc_current);
-//    return std::string(date);
-//}
-
 static std::string extract_bucket(const Uri & uri){
     const std::string & hostname = uri.getHost();
     std::string::const_iterator it = std::find(hostname.begin(), hostname.end(),'.');

@@ -197,7 +197,9 @@ int main(int argc, char** argv){
 
     if( (retcode= Tool::parse_davix_rm_options(argc, argv, opts, &tmp_err)) ==0){
         if( (retcode = Tool::configureAuth(opts)) == 0){
-            if (opts.vec_arg[0].compare(0,4,"http") ==0){
+            if ( opts.params.getAzureKey().size() != 0) {
+                opts.params.setProtocol(RequestProtocol::Azure);
+            }else if (opts.vec_arg[0].compare(0,4,"http") ==0){
                 opts.params.setProtocol(RequestProtocol::Http);
             }else if( opts.vec_arg[0].compare(0,2,"s3") ==0){
                 opts.params.setProtocol(RequestProtocol::AwsS3);

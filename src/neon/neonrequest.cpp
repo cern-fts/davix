@@ -297,7 +297,7 @@ void NEONRequest::configureS3params(){
 // TODO: make static?
 void NEONRequest::configureAzureParams(){
     Uri signed_url = Azure::signURI(params, _request_type, *_current, _headers_field, NEON_S3_SIGN_DURATION);
-    //_current= boost::shared_ptr<Uri>(new Uri(signed_url));
+    _current= boost::shared_ptr<Uri>(new Uri(signed_url));
 }
 
 int NEONRequest::processRedirection(int neonCode, DavixError **err){

@@ -51,7 +51,6 @@ const std::string prefix_s3_date("x-amz-date");
 
 std::string hexEncode(std::string input, std::string separator="") {
     std::ostringstream ss;
-    //ss << std::hex << std::setw(2) << std::setfill('0');
     for(std::string::iterator it = input.begin(); it != input.end(); it++) {
         ss << std::setw(2) << std::setfill('0') << std::hex << (unsigned int) ( (unsigned char) *it) << separator;
     }

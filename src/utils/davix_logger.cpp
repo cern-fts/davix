@@ -45,7 +45,6 @@ namespace Davix{
 
 const char* SCOPE_FILE =    "file";
 const char* SCOPE_HTTP =    "http";
-const char* SCOPE_S3 =      "s3";
 const char* SCOPE_POSIX =   "posix";
 const char* SCOPE_XML =     "xml";
 const char* SCOPE_SSL =     "ssl";
@@ -56,6 +55,7 @@ const char* SCOPE_CORE =    "core";
 const char* SCOPE_GRID =    "grid";
 const char* SCOPE_SOCKET =  "socket";
 const char* SCOPE_LOCKS =   "locks";
+const char* SCOPE_S3 =      "s3";
 const char* SCOPE_ALL =     "all";
 
 

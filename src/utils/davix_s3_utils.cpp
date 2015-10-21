@@ -95,7 +95,7 @@ std::string extract_s3_bucket(const Uri & uri, bool aws_alternate){
         const std::string path = uri.getPath();
         std::size_t pos = path.find("/", 1);
         if(pos == std::string::npos) {
-            throw std::runtime_error("could not determine bucket name when using aws alternate path");
+            return path.substr(1, path.size()-1);
         }
         return path.substr(1, pos-1);
     }
@@ -107,7 +107,7 @@ std::string extract_s3_path(const Uri & uri, bool aws_alternate) {
 
     std::size_t pos = path.find("/", 1);
     if(pos == std::string::npos) {
-        return "";
+        return std::string("/");
     }
 
     return path.substr(pos, path.size());

@@ -69,7 +69,7 @@ struct OptParams{
     // s3 region
     std::string aws_region;
     // s3 alternate url
-    bool aws_v2_alternate;
+    bool aws_alternate;
     // azure key
     std::string azure_key;
     // presentation flag

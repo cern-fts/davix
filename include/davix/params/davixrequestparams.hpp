@@ -148,13 +148,13 @@ public:
     /// \brief set whether we're using an S3 path-based url
     /// \param alternate whether using an S3 path-based url
     ///
-    void setAwsv2Alternate(const bool & alternate);
+    void setAwsAlternate(const bool & alternate);
 
     ///
     /// \brief get whether we're using an S3 path-based url
     /// \return whether we're using an S3 path-based url
     ///
-    const bool & getAwsv2Alternate() const;
+    const bool & getAwsAlternate() const;
 
     ///
     /// \brief set the secret key for Azure authentication

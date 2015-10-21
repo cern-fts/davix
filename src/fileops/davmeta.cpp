@@ -148,7 +148,6 @@ int dav_stat_mapper_http(Context& context, const RequestParams* params, const Ur
 
 
 dav_ssize_t incremental_listdir_parsing(HttpRequest* req, XMLPropParser * parser, dav_size_t s_buff, const std::string & scope){
-  //  std::cout << "time 1 pre-fecth" << time(NULL) << std::endl;
     DavixError* tmp_err=NULL;
 
     char buffer[s_buff+1];
@@ -545,7 +544,7 @@ void s3StatMapper(Context& context, const RequestParams* params, const Uri & uri
         if(code == 404){
             // try to "list" target resource and see if there is anything inside it, if there is, then it's a directory
             Uri new_url = S3::s3UriTransformer(uri, p, true);
-            DirHandle handle(new GetRequest(context, new_url, &tmp_err), new S3PropParser(params->getS3ListingMode(), uri.getPath()));
+            DirHandle handle(new GetRequest(context, new_url, &tmp_err), new S3PropParser(params->getS3ListingMode(), S3::extract_s3_path(uri, params->getAwsAlternate())));
 
             dav_ssize_t s_resu=0;
 
@@ -660,12 +659,12 @@ void s3_start_listing_query(Ptr::Scoped<DirHandle> & handle, Context & context, 
     DavixError* tmp_err=NULL;
 
     if(params->getS3ListingMode() == S3ListingMode::Hierarchical){
-        Uri new_url = S3::s3UriTransformer(url, params, true); 
-        handle.reset(new DirHandle(new GetRequest(context, new_url, &tmp_err), new S3PropParser(params->getS3ListingMode(), url.getPath())));
+        Uri new_url = S3::s3UriTransformer(url, params, true);
+        handle.reset(new DirHandle(new GetRequest(context, new_url, &tmp_err), new S3PropParser(params->getS3ListingMode(), S3::extract_s3_path(url, params->getAwsAlternate()))));
     }
     else if(params->getS3ListingMode() == S3ListingMode::SemiHierarchical){
-        Uri new_url = S3::s3UriTransformer(url, params, false); 
-        handle.reset(new DirHandle(new GetRequest(context, new_url, &tmp_err), new S3PropParser(params->getS3ListingMode(), url.getPath())));
+        Uri new_url = S3::s3UriTransformer(url, params, false);
+        handle.reset(new DirHandle(new GetRequest(context, new_url, &tmp_err), new S3PropParser(params->getS3ListingMode(), S3::extract_s3_path(url, params->getAwsAlternate()))));
     }
     else{
         if(is_a_bucket(url) == false){

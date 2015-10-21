@@ -47,6 +47,10 @@ int calculateMD5(std::string &input, std::string &output);
 // MD5 from fd
 int calculateMD5(int fd, std::string &output);
 
+// extract bucket and path information from a bucket
+std::string extract_s3_bucket(const Uri & uri, bool aws_alternate=false);
+std::string extract_s3_path(const Uri & uri, bool aws_alternate=false);
+
 } // S3
 
 

@@ -94,7 +94,7 @@ struct RequestParamsInternal{
         _call_loginpswwd_userdata(NULL),
         _aws_cred(),
         _aws_region(),
-        _aws_v2_alternate(false),
+        _aws_alternate(false),
         _azure_key(),
         ops_timeout(),
         connexion_timeout(),
@@ -137,7 +137,7 @@ struct RequestParamsInternal{
         _call_loginpswwd_userdata(param_private._call_loginpswwd_userdata),
         _aws_cred(param_private._aws_cred),
         _aws_region(param_private._aws_region),
-        _aws_v2_alternate(param_private._aws_v2_alternate),
+        _aws_alternate(param_private._aws_alternate),
         _azure_key(param_private._azure_key),
         ops_timeout(),
         connexion_timeout(),
@@ -177,7 +177,7 @@ struct RequestParamsInternal{
     void* _call_loginpswwd_userdata;
     std::pair<AwsSecretKey, AwsAccessKey> _aws_cred;
     AwsRegion _aws_region;
-    bool _aws_v2_alternate;
+    bool _aws_alternate;
     AzureSecretKey _azure_key;
 
     // timeout management
@@ -347,12 +347,12 @@ const AwsRegion & RequestParams::getAwsRegion() const {
     return d_ptr->_aws_region;
 }
 
-void RequestParams::setAwsv2Alternate(const bool &alternate) {
-    d_ptr->_aws_v2_alternate = alternate;
+void RequestParams::setAwsAlternate(const bool &alternate) {
+    d_ptr->_aws_alternate = alternate;
 }
 
-const bool & RequestParams::getAwsv2Alternate() const {
-    return d_ptr->_aws_v2_alternate;
+const bool & RequestParams::getAwsAlternate() const {
+    return d_ptr->_aws_alternate;
 }
 
 void RequestParams::setAzureKey(const AzureSecretKey &key) {

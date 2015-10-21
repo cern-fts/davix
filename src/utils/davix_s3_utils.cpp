@@ -85,10 +85,32 @@ std::string getAwsSignaturev4(const std::string & stringToSign, const std::strin
 
 namespace S3{
 
-static std::string extract_bucket(const Uri & uri){
-    const std::string & hostname = uri.getHost();
-    std::string::const_iterator it = std::find(hostname.begin(), hostname.end(),'.');
-    return std::string(hostname.begin(), it);
+std::string extract_s3_bucket(const Uri & uri, bool aws_alternate){
+    if(!aws_alternate) {
+        const std::string & hostname = uri.getHost();
+        std::string::const_iterator it = std::find(hostname.begin(), hostname.end(),'.');
+        return std::string(hostname.begin(), it);
+    }
+    else {
+        const std::string path = uri.getPath();
+        std::size_t pos = path.find("/", 1);
+        if(pos == std::string::npos) {
+            throw std::runtime_error("could not determine bucket name when using aws alternate path");
+        }
+        return path.substr(1, pos-1);
+    }
+}
+
+std::string extract_s3_path(const Uri & uri, bool aws_alternate) {
+    const std::string path = uri.getPath();
+    if(!aws_alternate) return path;
+
+    std::size_t pos = path.find("/", 1);
+    if(pos == std::string::npos) {
+        return "";
+    }
+
+    return path.substr(pos, path.size());
 }
 
 static std::string get_md5(const HeaderVec & vec){
@@ -175,11 +197,11 @@ void signRequestv2(const RequestParams & params, const std::string & method, con
     ss << getAmzCanonHeaders(headers);
 
     // when using a path-based url, the bucket name is part of the path
-    if(params.getAwsv2Alternate()) {
+    if(params.getAwsAlternate()) {
         ss << url.getPath();
     }
     else {
-        ss << '/' << extract_bucket(url) << url.getPath();
+        ss << '/' << extract_s3_bucket(url) << url.getPath();
     }
 
     if((method == "POST") && (url.getQuery() == "delete")){ // work around for S3 batch delete request
@@ -337,11 +359,11 @@ Uri tokenizeRequest(const RequestParams & params, const std::string & method, co
     ss << getAmzCanonHeaders(headers);
 
     // when using a path-based url, the bucket name is part of the path
-    if(params.getAwsv2Alternate()) {
+    if(params.getAwsAlternate()) {
         ss << url.getPath();
     }
     else {
-        ss << '/' << extract_bucket(url) << url.getPath();
+        ss << '/' << extract_s3_bucket(url) << url.getPath();
     }
 
     if((method == "POST") && (url.getQuery() == "delete")){ // work around for S3 batch delete request
@@ -386,9 +408,12 @@ Uri s3UriTransformer(const Uri & original_url, const RequestParams & params, con
     std::ostringstream ss;
 
     ss << protocol << original_url.getHost() << "/";
+    if(params.getAwsAlternate()) {
+        ss << extract_s3_bucket(original_url, params.getAwsAlternate()) << "/";
+    }
 
     if(!original_url.getPath().empty()){    // there is something after '/', grab it
-        std::string tmp = original_url.getPath();
+        std::string tmp = extract_s3_path(original_url, params.getAwsAlternate());
 
         // if prefix doesn't end with '/', add one to handle query on folder
         if(tmp.compare(tmp.size()-1,1,"/") != 0)

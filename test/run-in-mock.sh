@@ -6,7 +6,7 @@
 MOCK_CONFIG_DIR="/etc/mock"
 MOCK_ROOT="epel-6-x86_64"
 SKIP_INIT=0
-OUTPUT_DIR="/tmp/davix-tests/"
+OUTPUT_DIR="$PWD/test-results"
 CORES=$(grep -c ^processor /proc/cpuinfo)
 
 # Get parameters
@@ -62,12 +62,14 @@ mock_cmd --copyin "$PWD" "$MOCK_HOME/davix"
 
 # Compile
 mock_cmd chroot "cd $MOCK_HOME/davix &&
+                 rm -rf build &&
                  mkdir build &&
                  cd build &&
                  cmake .. -DFUNCTIONAL_TESTS=TRUE &&
                  make -j $CORES &&
-                 (ctest --no-compress-output -T Test || True)"
+                 (ctest --no-compress-output -T Test || true)"
 
 # Recover logs
+mkdir -p "${OUTPUT_DIR}"
 rm -rf "${OUTPUT_DIR}/Testing"
 mock_cmd --copyout "$MOCK_HOME/davix/build/Testing" "${OUTPUT_DIR}/Testing"

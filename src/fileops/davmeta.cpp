@@ -591,7 +591,7 @@ void s3StatMapper(Context& context, const RequestParams* params, const Uri & uri
             std::string type;
             st_info.mode = 0755;
 
-            if(uri.getPath() == "/") // is bucket
+            if(S3::extract_s3_path(uri, params->getAwsAlternate()) == "/") // is bucket
                 st_info.mode |= S_IFDIR;
             else{   // is file
                 st_info.mode |= S_IFREG;

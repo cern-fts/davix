@@ -54,7 +54,7 @@ else
 fi
 
 # Install deps
-mock_cmd install cmake git yum-utils
+mock_cmd install cmake git yum-utils abi-compliance-checker boost-devel doxygen gsoap-devel gtest-devel libxml2-devel openssl-devel
 MOCK_HOME="/builddir"
 
 # Copy davix codebase to chroot
@@ -62,7 +62,6 @@ mock_cmd --copyin "$PWD" "$MOCK_HOME/davix"
 
 # Compile
 mock_cmd chroot "cd $MOCK_HOME/davix &&
-                 yum-builddep packaging/rpm/specs/davix.spec &&
                  mkdir build &&
                  cd build &&
                  cmake .. -DFUNCTIONAL_TESTS=TRUE &&

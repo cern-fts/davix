@@ -200,7 +200,7 @@ struct AzurePropParser::Internal {
     std::string prefix_to_remove;
     std::deque<FileProperties> props;
     FileProperties property;
-    bool inside_prefix = false;
+    bool inside_prefix;
 
     int start_elem(const std::string &elem){
         // new tag, clean content;

@@ -29,9 +29,25 @@
 namespace Davix {
 namespace Azure {
 
-static std::string extract_container(const Uri & url) {
+std::string extract_azure_account(const Uri & url) {
     std::string host = url.getHost();
     return host.substr(0, host.find("."));
+}
+
+std::string extract_azure_container(const Uri & url) {
+    std::string path = url.getPath();
+    std::string name = path.substr(1, path.find("/", 1));
+    if(name.compare(name.size()-1,1,"/") == 0) {
+        name.erase(name.size()-1, name.size());
+    }
+    return name;
+}
+
+std::string extract_azure_filename(const Uri & url) {
+    std::string path = url.getPath();
+    std::size_t sep = path.find("/", 1);
+    if(sep == std::string::npos) return "";
+    return path.substr(path.find("/", 1)+1, path.size());
 }
 
 std::string hexEncode(std::string input, std::string separator="") {
@@ -42,18 +58,49 @@ std::string hexEncode(std::string input, std::string separator="") {
     return ss.str();
 }
 
-static std::string permissions_for_method(const std::string & method) {
-    if(method == "GET")
-        return "r";
-    if(method == "PUT")
-        return "w";
-    if(method == "DELETE")
-        return "d";
+Uri transformURI(const Uri & original_url, const RequestParams & params, const bool addDelimiter) {
+    Uri newUri = original_url;
+    newUri.setPath("/" + extract_azure_container(original_url) + "/");
+    newUri.addQueryParam("restype", "container");
+    newUri.addQueryParam("comp", "list");
 
-    return "r";
+    std::string filename = extract_azure_filename(original_url);
+    if(filename[filename.size()-1] != '/') {
+        filename.append("/");
+    }
+
+    // special case: listing top-dir
+    if(filename == "/")
+        filename = "";
+
+    newUri.addQueryParam("prefix", filename);
+    newUri.addQueryParam("delimiter", "/");
+
+    return newUri;
 }
 
-Uri signURI(const RequestParams & params, const std::string & method, const Uri & url, const HeaderVec headers, const time_t signDuration) {
+// wrapper function, try to figure out what resourceType and permissions to use,
+// based on the URL and the method.
+// Try to always give as restrictive permissions as possible.
+Uri signURI(const AzureSecretKey key, const std::string method, const Uri & url, const time_t signDuration) {
+    if(method == "DELETE") {
+        return signURI(key, Azure::Resource::BLOB, Azure::Permission::DELETE, url, signDuration);
+    }
+    else if(method == "PUT") {
+        return signURI(key, Azure::Resource::BLOB, Azure::Permission::WRITE, url, signDuration);
+    }
+    else if(method == "GET") {
+        const std::string filename = extract_azure_filename(url);
+        if(filename.size() == 0) {
+            return signURI(key, Azure::Resource::CONTAINER, Azure::Permission::LIST, url, signDuration);
+        }
+        return signURI(key, Azure::Resource::BLOB, Azure::Permission::READ, url, signDuration);
+    }
+    throw std::runtime_error("unsupported method given to azure");
+}
+
+Uri signURI(const AzureSecretKey key, const Azure::Resource::Type resourceType, const Azure::Permission::Type permissions, const Uri & url,
+            const time_t signDuration) {
     // reference: https://msdn.microsoft.com/en-us/library/azure/dn140255.aspx
     DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_S3, "Signing Azure URL");
 
@@ -61,10 +108,17 @@ Uri signURI(const RequestParams & params, const std::string & method, const Uri 
     const std::string format("%Y-%m-%dT%H:%M:%SZ");
     time_t present = time(NULL);
 
-    std::string signedpermissions = permissions_for_method(method);
+    std::string signedpermissions = permissions;
     std::string signedstart = time_as_string(present, format);
     std::string signedexpiry = time_as_string(present+signDuration, format);
-    std::string canonicalizedresource = "/blob/" + extract_container(url) + url.getPath();
+
+    std::string canonicalizedresource;
+    if(resourceType == Resource::CONTAINER) {
+        canonicalizedresource = "/blob/" + extract_azure_account(url) + "/" + extract_azure_container(url);
+    } else if(resourceType == Resource::BLOB) {
+        canonicalizedresource = "/blob/" + extract_azure_account(url) + url.getPath();
+    }
+
     std::string signedidentifier;
     std::string signedIP;
     std::string signedProtocol;
@@ -91,13 +145,18 @@ Uri signURI(const RequestParams & params, const std::string & method, const Uri 
                  << rsct;
 
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_S3, "string to sign: \n{}", stringToSign.str());
-    std::string decoded_key = Base64::base64_decode(params.getAzureKey());
-    std::string signature = hmac_sha256(decoded_key, stringToSign.str()); // params.getAzureKey());
+    std::string decoded_key = Base64::base64_decode(key);
+    std::string signature = hmac_sha256(decoded_key, stringToSign.str());
     std::string base64sig = Base64::base64_encode((unsigned char*) signature.c_str(), signature.size());
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_S3, "signature: {}", base64sig);
 
     // add query parameters
-    std::string signedresource("b");
+    std::string signedresource;
+    if(resourceType == Resource::CONTAINER) {
+        signedresource = "c";
+    } else if(resourceType == Resource::BLOB) {
+        signedresource = "b";
+    }
 
     Uri signedUrl(url);
     signedUrl.addQueryParam("sv", signedversion);

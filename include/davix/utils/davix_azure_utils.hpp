@@ -27,7 +27,33 @@
 namespace Davix {
 namespace Azure {
 
-Uri signURI(const RequestParams & params, const std::string & method, const Uri & url, const HeaderVec headers, const time_t expirationTime);
+namespace Resource {
+typedef enum {
+    CONTAINER,
+    BLOB
+} Type;
+}
+
+namespace Permission {
+const std::string READ("r");
+const std::string CREATE("c");
+const std::string WRITE("w");
+const std::string LIST("l");
+const std::string DELETE("d");
+
+typedef std::string Type;
+}
+
+std::string extract_azure_filename(const Uri & url);
+std::string extract_azure_container(const Uri & url);
+std::string extract_azure_account(const Uri & url);
+
+Uri transformURI(const Uri & original_url, const RequestParams & params, const bool addDelimiter);
+
+Uri signURI(const AzureSecretKey key, const std::string method, const Uri & url, const time_t signDuration);
+
+Uri signURI(const AzureSecretKey key, const Azure::Resource::Type resourceType, const Azure::Permission::Type permissions, const Uri & url,
+            const time_t signDuration);
 
 } // Azure
 } // Davix

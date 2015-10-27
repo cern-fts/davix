@@ -26,10 +26,12 @@
 #include <xml/davdeletexmlparser.hpp>
 #include <xml/metalinkparser.hpp>
 #include <xml/s3propparser.hpp>
+#include <xml/azurepropparser.hpp>
 
 #include <utils/davix_logger_internal.hpp>
 #include <utils/davix_utils_internal.hpp>
 #include <utils/davix_s3_utils.hpp>
+#include <utils/davix_azure_utils.hpp>
 
 #include <request/httprequest.hpp>
 #include <fileops/fileutils.hpp>
@@ -675,6 +677,7 @@ void s3_start_listing_query(Ptr::Scoped<DirHandle> & handle, Context & context, 
     checkDavixError(&tmp_err);
 
 
+
     const int operation_timeout = params->getOperationTimeout()->tv_sec;
     HttpRequest & http_req = *(handle->request);
     XMLPropParser & parser = *(handle->parser);
@@ -733,5 +736,111 @@ bool S3MetaOps::nextSubItem(IOChainContext &iocontext, std::string &entry_name, 
 
 }
 
+/////////////////////////
+/////////////////////////
+
+AzureMetaOps::AzureMetaOps() : HttpIOChain()
+ {}
+
+AzureMetaOps::~AzureMetaOps(){}
+
+static bool is_azure_operation(IOChainContext & context){
+    return context._reqparams->getProtocol() == RequestProtocol::Azure;
+}
+
+void azureStatMapper(Context& context, const RequestParams* params, const Uri & uri, struct StatInfo& st_info) {
+}
+
+StatInfo & AzureMetaOps::statInfo(IOChainContext & iocontext, StatInfo & st_info) {
+    if(is_azure_operation(iocontext)) {
+        std::cout << "in azure stat info" << std::endl;
+        return HttpIOChain::statInfo(iocontext, st_info);
+
+        //azureStatMapper(iocontext._context, iocontext._reqparams, iocontext._uri, st_info);
+        //return st_info;
+    }
+    else {
+        return HttpIOChain::statInfo(iocontext, st_info);
+    }
+}
+
+static void azure_start_listing_query(Ptr::Scoped<DirHandle> & handle, Context & context, const RequestParams* params, const Uri & url, const std::string & body) {
+    DavixError* tmp_err=NULL;
+    dav_ssize_t s_resu;
+
+    Uri new_url = Davix::Azure::transformURI(url, params, true);
+    handle.reset(new DirHandle(new GetRequest(context, new_url, &tmp_err), new AzurePropParser(Davix::Azure::extract_azure_filename(url))));
+
+    const int operation_timeout = params->getOperationTimeout()->tv_sec;
+    HttpRequest & http_req = *(handle->request);
+    XMLPropParser & parser = *(handle->parser);
+    time_t timestamp_timeout = time(NULL) + ((operation_timeout)?(operation_timeout):180);
+
+    http_req.setParameters(params);
+
+    http_req.beginRequest(&tmp_err);
+    checkDavixError(&tmp_err);
+
+    check_file_status(http_req, davix_scope_directory_listing_str());
+
+    size_t prop_size = 0;
+    do{ // first entry -> container information
+       s_resu = incremental_listdir_parsing(&http_req, &parser, 2048, davix_scope_directory_listing_str());
+
+       prop_size = parser.getProperties().size();
+       if(s_resu < 2048 && prop_size <1){ // verify request status : if req done + no data -> error
+           throw DavixException(davix_scope_directory_listing_str(), StatusCode::IsNotADirectory, "The specified directory does not exist");
+       }
+       if(timestamp_timeout < time(NULL)){
+          throw DavixException(davix_scope_directory_listing_str(), StatusCode::OperationTimeout, "Operation timeout triggered while directory listing");
+       }
+    }while( prop_size < 1); // prop < 1 means not enough data
+
+}
+
+bool azure_get_next_property(Ptr::Scoped<DirHandle> & handle, std::string & name_entry, StatInfo & info) {
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, " -> azure_get_next_property");
+    const size_t read_size = 2048;
+
+    HttpRequest& req = *(handle->request); // setup env again
+    XMLPropParser& parser = *(handle->parser);
+
+    size_t prop_size = parser.getProperties().size();
+    ssize_t s_resu = read_size;
+
+    while( prop_size == 0
+          && s_resu > 0){ // execute request only if no property are available
+
+        // continue the parsing until one more result
+       s_resu = incremental_listdir_parsing(&req, &parser, read_size, "S3::listing");
+       prop_size = parser.getProperties().size();
+    }
+
+    if(prop_size == 0){
+        return false; // end of the request, end of the story
+    }
+
+    FileProperties & front = parser.getProperties().front();
+    name_entry.swap(front.filename);
+    info = front.info;
+    parser.getProperties().pop_front(); // clean the current element
+    return true;
+}
+
+static bool azure_directory_listing(Ptr::Scoped<DirHandle> & handle, Context & context, const RequestParams* params, const Uri & uri, const std::string & body, std::string & name_entry, StatInfo & info){
+    if(handle.get() == NULL){
+        azure_start_listing_query(handle, context, params, uri, body);
+    }
+    return azure_get_next_property(handle, name_entry, info);
+}
+
+bool AzureMetaOps::nextSubItem(IOChainContext &iocontext, std::string &entry_name, StatInfo &info) {
+    if(is_azure_operation(iocontext)){
+        return azure_directory_listing(directoryItem, iocontext._context, iocontext._reqparams, iocontext._uri, stat_listing,
+                                 entry_name, info);
+    }else{
+        return HttpIOChain::nextSubItem(iocontext, entry_name, info);
+    }
+}
 
 } // Davix

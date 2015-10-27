@@ -296,8 +296,10 @@ void NEONRequest::configureS3params(){
 
 // TODO: make static?
 void NEONRequest::configureAzureParams(){
-    Uri signed_url = Azure::signURI(params, _request_type, *_current, _headers_field, NEON_S3_SIGN_DURATION);
-    _headers_field.push_back(HeaderLine("x-ms-blob-type", "BlockBlob"));
+    Uri signed_url = Azure::signURI(params.getAzureKey(), _request_type, *_current, NEON_S3_SIGN_DURATION);
+    if(!req_running && _request_type == "PUT") {
+        _headers_field.push_back(HeaderLine("x-ms-blob-type", "BlockBlob"));
+    }
     _current= boost::shared_ptr<Uri>(new Uri(signed_url));
 }
 

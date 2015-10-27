@@ -19,30 +19,38 @@
  *
 */
 
-#include "chain_factory.hpp"
+#ifndef AZUREPROPPARSER_HPP
+#define AZUREPROPPARSER_HPP
 
-#include "davmeta.hpp"
-#include "httpiovec.hpp"
-#include "davix_reliability_ops.hpp"
-#include "iobuffmap.hpp"
+#include <deque>
 
-namespace Davix{
+#include <davix_internal.hpp>
+#include <xml/davxmlparser.hpp>
+#include <utils/davix_fileproperties.hpp>
+#include <string.h>
+
+namespace Davix {
+
+class AzurePropParser :  public XMLPropParser {
+public:
+    struct Internal;
+    AzurePropParser();
+    AzurePropParser(std::string s3_prefix);
+    virtual ~AzurePropParser();
+
+    virtual std::deque<FileProperties> & getProperties();
 
 
-ChainFactory::ChainFactory(){}
+protected:
+    virtual int parserStartElemCb(int parent, const char *nspace, const char *name, const char **atts);
+    virtual int parserCdataCb(int state, const char *cdata, size_t len);
+    virtual int parserEndElemCb(int state, const char *nspace, const char *name);
 
 
-HttpIOChain& ChainFactory::instanceChain(const CreationFlags & flags, HttpIOChain & c){
-    HttpIOChain* elem;
-    elem= c.add(new MetalinkOps())->add(new AutoRetryOps())->add(new S3MetaOps())->add(new AzureMetaOps())->add(new HttpMetaOps());
+private:
+    Ptr::Scoped<Internal> d_ptr;
+};
 
-    // add posix to the chain if needed
-    if(flags[CHAIN_POSIX] == true){
-        elem = elem->add(new HttpIOBuffer());
-    }
-
-    elem->add(new HttpIO())->add(new HttpIOVecOps());
-    return c;
 }
 
-}
+#endif // S3PROPPARSER_HPP

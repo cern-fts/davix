@@ -86,28 +86,6 @@ private:
 
 };
 
-/// Handle all meta-data operations related to Azure
-class AzureMetaOps : public HttpIOChain{
-public:
-    AzureMetaOps();
-    virtual ~AzureMetaOps();
-
-    // S3 + HTTP checksum computation
-    //virtual void checksum(IOChainContext & iocontext, std::string & checksm, const std::string & chk_algo);
-
-    // get statInfo
-    virtual StatInfo & statInfo(IOChainContext & iocontext, StatInfo & st_info);
-
-    // make collection
-    //virtual void makeCollection(IOChainContext & iocontext);
-
-    // listing
-    virtual bool nextSubItem(IOChainContext &iocontext, std::string &entry_name, StatInfo &info);
-
-private:
-    Ptr::Scoped<DirHandle> directoryItem;
-
-};
 
 
 /*

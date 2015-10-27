@@ -92,7 +92,7 @@ public:
     AzureMetaOps();
     virtual ~AzureMetaOps();
 
-    // S3 + HTTP checksum computation
+    // Azure + HTTP checksum computation
     //virtual void checksum(IOChainContext & iocontext, std::string & checksm, const std::string & chk_algo);
 
     // get statInfo

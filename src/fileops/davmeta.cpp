@@ -589,8 +589,6 @@ void s3StatMapper(Context& context, const RequestParams* params, const Uri & uri
             st_info.mode |= S_IFDIR;
         }
         else if(code == 200){ // found something, must be a file not directory
-            std::string length;
-            std::string type;
             st_info.mode = 0755;
 
             if(S3::extract_s3_path(uri, params->getAwsAlternate()) == "/") // is bucket
@@ -749,15 +747,43 @@ static bool is_azure_operation(IOChainContext & context){
 }
 
 void azureStatMapper(Context& context, const RequestParams* params, const Uri & uri, struct StatInfo& st_info) {
+    const std::string scope = "Davix::azureStatMapper";
+    DavixError * tmp_err=NULL;
+
+    //Context c;
+    HeadRequest req(context, uri, &tmp_err);
+
+    // we need to modify it, hence copy
+    RequestParams p(params);
+    // we just need to know if target has anything inside it
+    //p.setS3MaxKey(1);
+
+    if( tmp_err == NULL){
+        req.setParameters(p);
+        req.executeRequest(&tmp_err);
+        const int code = req.getRequestCode();
+
+        // if 404, target either doesn't exist or is an Azure "directory". TODO: add support to stat directories. must have func tests by then
+        if(code == 404){
+            throw DavixException(scope, StatusCode::FileNotFound, "url not found");
+        }
+        // file exists, parse its info
+        else if(code == 200) {
+            st_info.mode = 0755;
+            st_info.mode |= S_IFREG;
+            const dav_ssize_t s = req.getAnswerSize();
+            st_info.size = std::max<dav_ssize_t>(0,s);
+            st_info.mtime = req.getLastModified();
+        }
+
+    }
+
 }
 
 StatInfo & AzureMetaOps::statInfo(IOChainContext & iocontext, StatInfo & st_info) {
     if(is_azure_operation(iocontext)) {
-        std::cout << "in azure stat info" << std::endl;
-        return HttpIOChain::statInfo(iocontext, st_info);
-
-        //azureStatMapper(iocontext._context, iocontext._reqparams, iocontext._uri, st_info);
-        //return st_info;
+        azureStatMapper(iocontext._context, iocontext._reqparams, iocontext._uri, st_info);
+        return st_info;
     }
     else {
         return HttpIOChain::statInfo(iocontext, st_info);

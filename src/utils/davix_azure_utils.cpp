@@ -96,6 +96,9 @@ Uri signURI(const AzureSecretKey key, const std::string method, const Uri & url,
         }
         return signURI(key, Azure::Resource::BLOB, Azure::Permission::READ, url, signDuration);
     }
+    else if(method == "HEAD") {
+        return signURI(key, Azure::Resource::BLOB, Azure::Permission::READ, url, signDuration);
+    }
     throw std::runtime_error("unsupported method given to azure");
 }
 

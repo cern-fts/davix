@@ -498,7 +498,9 @@ static void internal_s3_create_bucket_or_dir(Context & c, const Uri & url, const
     /* make sure path ends with a slash, otherwise s3
        will just create a zero-length file */
     Uri url2 = url;
-    url2.setPath(url.getPath() + "/");
+    if(url.getPath()[url.getPath().size()-1] != '/') {
+        url2.setPath(url.getPath() + "/");
+    }
 
     PutRequest req(c, url2, &tmp_err);
     req.addHeaderField("Content-Length", "0");

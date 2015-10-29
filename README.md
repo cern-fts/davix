@@ -1,17 +1,18 @@
 # Davix
 [Davix](http://dmc.web.cern.ch/projects/davix/home) aims to make the task of managing files over HTTP-based protocols simple. It is being developed by the IT-SDC-ID section at CERN, and while the project's purpose is its use on the [CERN grid](http://wlcg.web.cern.ch/), the functionality offered is generic.
 
-Davix supports a plethora of authentication methods:
-* x509 user certificate
-* VOMS proxy
-* RFC proxy with VOMS extensions support
-* username / password
-* AWS S3-compatible services
-
 ## HTTP File Management
 HTTP is gaining popularity for file management tasks, beyond its traditional use for serving web pages. It is versatile enough to be fit for this purpose; `PUT`, `MOVE` and `DELETE` requests can be used for basic file manipulation, for example. (uploading, moving, and deleting a file, respectively)
 
 Some common file-management operations are not possible to do with plain HTTP, however, which is why the [WebDAV](https://en.wikipedia.org/wiki/WebDAV) extensions were developed, which davix supports.
+
+Davix also supports a plethora of authentication methods:
+* x509 user certificate
+* VOMS proxy
+* RFC proxy with VOMS extensions support
+* username / password
+* AWS S3 compatible services
+* Microsoft Azure compatible services
 
 ## Usage
 Davix provides a shared library as well as a few command line tools. The library offers two sets of APIs, a file-oriented and a POSIX-like interface.
@@ -44,15 +45,16 @@ cmake ..
 make
 ```
 
-3. Try running an example command:
+You can now try running an example command:
 ```
 ./src/tools/davix-get https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.0.1
 ```
 
 ## Contact
-Suggestions and patches are more than welcome. You can send an email to the [davix-devel](mailto:davix-devel@cern.ch) CERN mailing list, or contact directly the current maintainer, [Georgios Bitzes](mailto:georgios.bitzes@cern.ch).
+Suggestions and patches are more than welcome. You can send an email to the [davix-devel](mailto:davix-devel@cern.ch) CERN mailing list, or contact directly the [current maintainer](mailto:georgios.bitzes@cern.ch).
 
 ## Contributors
 * Adrien Devresse
+* Fabrizio Furano
 * Kwong Tat Cheung
 * Georgios Bitzes

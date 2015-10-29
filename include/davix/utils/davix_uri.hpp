@@ -73,6 +73,10 @@ public:
     /// @param value : parameter value, not escaped
     void addQueryParam(const std::string & key, const std::string & value);
 
+    /// append a path segment to the uri
+    /// @param seg : the segment to add
+    void addPathSegment(const std::string & seg);
+
     /// get a string representation of the full uri
     /// @return return the path or an empty string if error
     const std::string & getString() const;

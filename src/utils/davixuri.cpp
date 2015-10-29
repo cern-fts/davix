@@ -85,6 +85,19 @@ struct UriPrivate{
         _update_string();
     }
 
+    void addPathSegment(const std::string &seg) {
+        if(path.size() == 0) {
+            path = seg;
+        }
+        else if(path[path.size() - 1] == '/') {
+            path += seg;
+        }
+        else {
+            path += "/" + seg;
+        }
+        _update_string();
+    }
+
     void clear(){
         proto.clear();
         userinfo.clear();
@@ -132,6 +145,10 @@ Uri::Uri(const Uri & uri) :
 
 void Uri::addQueryParam(const std::string & key, const std::string & value) {
     d_ptr->addQueryParam(Uri::queryParamEscape(key), Uri::queryParamEscape(value));
+}
+
+void Uri::addPathSegment(const std::string &seg) {
+    d_ptr->addPathSegment(seg);
 }
 
 Uri::~Uri(){

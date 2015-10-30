@@ -19,7 +19,6 @@ const std::string testfile("davix-testfile-");
 #define ASSERT(assertion, msg) \
     if((assertion) == false) throw std::runtime_error( SSTR(__FILE__ << ":" << __LINE__ << " (" << __func__ << "): Assertion " << #assertion << " failed.\n" << msg))
 
-
 void initialization() {
     davix_set_log_level(DAVIX_LOG_ALL);
 }
@@ -86,8 +85,8 @@ void authentication(const po::variables_map &vm, const Auth::Type &auth, Request
     if(auth == Auth::AWS) {
         params.setProtocol(RequestProtocol::AwsS3);
 
-        if(vm.count("s3accesskey") == 0) throw std::invalid_argument("--s3accesskey not specified");
-        if(vm.count("s3secretkey") == 0) throw std::invalid_argument("--s3secretkey not specified");
+        ASSERT(vm.count("s3accesskey") != 0, "--s3accesskey is required when using s3");
+        ASSERT(vm.count("s3secretkey") != 0, "--s3secretkey is required when using s3");
 
         params.setAwsAuthorizationKeys(opt(vm, "s3secretkey"), opt(vm, "s3accesskey"));
         if(vm.count("s3region") != 0) params.setAwsRegion(opt(vm, "s3region"));
@@ -97,7 +96,7 @@ void authentication(const po::variables_map &vm, const Auth::Type &auth, Request
         configure_grid_env("proxy", params);
     }
     else {
-        throw std::invalid_argument("unknown authentication method");
+        ASSERT(false, "unknown authentication method");
     }
 }
 
@@ -126,6 +125,42 @@ void populate(const RequestParams &params, const Uri uri, const int nfiles) {
         std::cout << "File " << i << " uploaded successfully." << std::endl;
         std::cout << u << std::endl;
     }
+}
+
+// confirm that the files listed are the exact same ones uploaded during a populate test
+void listing(const RequestParams &params, const Uri uri, const int nfiles) {
+    DECLARE_TEST();
+    int hits[nfiles+1];
+    for(int i = 0; i <= nfiles; i++) hits[i] = 0;
+
+    Context context;
+    DavFile file(context, params, uri);
+    DavFile::Iterator it = file.listCollection(&params);
+
+    int i = 0;
+    do {
+        i++;
+        std::string name = it.name();
+        std::cout << "Found " << name << std::endl;
+
+        // make sure the filenames are the same as the ones we uploaded
+        ASSERT(name.size() > testfile.size(), "Unexpected filename: " << name);
+        std::string part1 = name.substr(0, testfile.size());
+        std::string part2 = name.substr(testfile.size(), name.size()-1);
+
+        ASSERT(part1 == testfile, "Unexpected filename: " << part1);
+        int num = atoi(part2.c_str());
+        ASSERT(num > 0, "Unexpected file number: " << num);
+        ASSERT(num <= nfiles, "Unexpected file number: " << num);
+        hits[num]++;
+    } while(it.next());
+
+    // count all hits to make sure all have exactly one
+    ASSERT(i == nfiles, "wrong number of files; expected " << nfiles << ", found " << i);
+    for(int i = 1; i <= nfiles; i++)
+        ASSERT(hits[i] == 1, "hits check for file" << i << " failed. Expected 1, found " << hits[i]);
+
+    std::cout << "All OK" << std::endl;
 }
 
 void remove(const RequestParams &params, const Uri uri) {
@@ -167,6 +202,10 @@ int run(int argc, char** argv) {
     else if(cmd[0] == "remove") {
         ASSERT(cmd.size() == 1, "Wrong number of arguments to remove");
         remove(params, uri);
+    }
+    else if(cmd[0] == "listing") {
+        ASSERT(cmd.size() == 2, "Wrong number of arguments to listing");
+        listing(params, uri, atoi(cmd[1].c_str()));
     }
     else {
         ASSERT(false, "Unknown command: " << cmd[0]);

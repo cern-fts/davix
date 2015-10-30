@@ -101,6 +101,8 @@ add_library(test_davix_functional_lib STATIC ${src_davix_test_lib})
 #add_executable(test_mv ${src_test_mv})
 #target_link_libraries(test_mv libdavix test_davix_functional_lib)
 
+include(${CMAKE_SOURCE_DIR}/credentials/creds.cmake)
+
 add_executable(tester ${src_tester})
 target_link_libraries(tester libdavix ${Boost_LIBRARIES} test_davix_functional_lib)
 
@@ -163,11 +165,15 @@ function(runtest params)
     add_test(${testname} tester ${arguments})
 endfunction(runtest)
 
+function(fulltest params)
+    runtest("${params} --command makeCollection")
+    runtest("${params} --command populate 5")
+    runtest("${params} --command listing 5")
+    runtest("${params} --command remove")
+endfunction(fulltest)
+
 function(test_with_proxy uri)
-    set(base "--auth proxy --uri ${uri} ")
-    runtest("${base} --command makeCollection")
-    runtest("${base} --command populate 5")
-    runtest("${base} --command remove")
+    fulltest("--auth proxy --uri ${uri}")
 endfunction(test_with_proxy)
 
 test_with_proxy("https://dpmhead-rc.cern.ch/dpm/cern.ch/home/dteam/davix-tests")

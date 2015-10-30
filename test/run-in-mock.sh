@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Must be run from the top-level directory of the repository
 # ie ~/dev/davix, NOT ~/dev/davix/test
 
@@ -7,7 +7,6 @@ MOCK_CONFIG_DIR="/etc/mock"
 MOCK_ROOT="epel-6-x86_64"
 SKIP_INIT=0
 OUTPUT_DIR="$PWD/test-results"
-CORES=$(grep -c ^processor /proc/cpuinfo)
 
 # Get parameters
 while [ -n "$1" ]; do
@@ -60,14 +59,8 @@ MOCK_HOME="/builddir"
 # Copy davix codebase to chroot
 mock_cmd --copyin "$PWD" "$MOCK_HOME/davix"
 
-# Compile
-mock_cmd chroot "cd $MOCK_HOME/davix &&
-                 rm -rf build &&
-                 mkdir build &&
-                 cd build &&
-                 cmake .. -DFUNCTIONAL_TESTS=TRUE &&
-                 make -j $CORES &&
-                 (ctest --no-compress-output -T Test || true)"
+# run tests
+mock_cmd chroot "cd $MOCK_HOME/davix && test/run-tests.sh"
 
 # Recover logs
 mkdir -p "${OUTPUT_DIR}"

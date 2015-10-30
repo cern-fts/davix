@@ -15,6 +15,8 @@ set -e
 CORES=$(grep -c ^processor /proc/cpuinfo)
 git submodule update --recursive --init
 
+credentials/obtain-proxy.sh
+
 rm -rf build
 mkdir build
 cd build

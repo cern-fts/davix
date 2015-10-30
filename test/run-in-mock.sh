@@ -53,10 +53,16 @@ else
 fi
 
 # Install deps
-mock_cmd install cmake git yum-utils abi-compliance-checker boost-devel doxygen gsoap-devel gtest-devel libxml2-devel openssl-devel
+mock_cmd install cmake git yum-utils abi-compliance-checker boost-devel doxygen gsoap-devel gtest-devel libxml2-devel openssl-devel voms-clients
 MOCK_HOME="/builddir"
 
+# copy grid-security and vomses
+mock_cmd chroot "rm -rf /etc/grid-security /etc/vomses"
+mock_cmd --copyin "/etc/grid-security" "/etc/grid-security"
+mock_cmd --copyin "/etc/vomses" "/etc/vomses"
+
 # Copy davix codebase to chroot
+mock_cmd chroot "rm -rf $MOCK_HOME/davix"
 mock_cmd --copyin "$PWD" "$MOCK_HOME/davix"
 
 # run tests

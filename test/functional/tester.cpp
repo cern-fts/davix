@@ -152,6 +152,23 @@ void populate(const RequestParams &params, const Uri uri, const int nfiles) {
     }
 }
 
+// count the number of files in folder
+void countfiles(const RequestParams &params, const Uri uri, const int nfiles) {
+    DECLARE_TEST();
+    Context context;
+    DavFile file(context, params, uri);
+    DavFile::Iterator it = file.listCollection(&params);
+    int i = 0;
+
+    do {
+        i++;
+    } while(it.next());
+
+    ASSERT(i == nfiles, "wrong number of files; expected " << nfiles << ", found " << i);
+    std::cout << "All OK" << std::endl;
+}
+
+
 // confirm that the files listed are the exact same ones uploaded during a populate test
 void listing(const RequestParams &params, const Uri uri, const int nfiles) {
     DECLARE_TEST();
@@ -257,6 +274,10 @@ int run(int argc, char** argv) {
     else if(cmd[0] == "depopulate") {
         ASSERT(cmd.size() == 2, "Wrong number of arguments to depopulate");
         depopulate(params, uri, atoi(cmd[1].c_str()));
+    }
+    else if(cmd[0] == "countfiles") {
+        ASSERT(cmd.size() == 2, "Wrong number of arguments to countfiles");
+        countfiles(params, uri, atoi(cmd[1].c_str()));
     }
     else {
         ASSERT(false, "Unknown command: " << cmd[0]);

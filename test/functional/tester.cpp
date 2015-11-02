@@ -40,12 +40,14 @@ std::vector<std::string> split(const std::string str, const std::string delim) {
 }
 
 namespace Auth {
-enum Type {AWS, PROXY, NONE};
+enum Type {AWS, PROXY, AZURE, NONE};
 Type fromString(const std::string &str) {
     if(str == "aws")
         return Auth::AWS;
     if(str == "proxy")
         return Auth::PROXY;
+    if(str == "azure")
+        return Auth::AZURE;
     if(str == "none")
         return Auth::NONE;
 
@@ -62,6 +64,7 @@ po::variables_map parse_args(int argc, char** argv) {
         ("s3accesskey", po::value<std::string>(), "s3 access key")
         ("s3secretkey", po::value<std::string>(), "s3 secret key")
         ("s3region", po::value<std::string>(), "s3 region")
+        ("azurekey", po::value<std::string>(), "azure key")
         ("s3alternate", "s3 alternate")
         ("cert", po::value<std::string>(), "path to the proxy certificate to use")
         ("uri", po::value<std::string>(), "uri to test against")
@@ -96,6 +99,12 @@ void authentication(const po::variables_map &vm, const Auth::Type &auth, Request
     }
     else if(auth == Auth::PROXY) {
         configure_grid_env("proxy", params);
+    }
+    else if(auth == Auth::AZURE) {
+        ASSERT(vm.count("azurekey") != 0, "--azurekey is required when using Azure");
+
+        params.setProtocol(RequestProtocol::Azure);
+        params.setAzureKey(opt(vm, "azurekey"));
     }
     else {
         ASSERT(false, "unknown authentication method");

@@ -20,7 +20,9 @@ const std::string testfile("davix-testfile-");
     if((assertion) == false) throw std::runtime_error( SSTR(__FILE__ << ":" << __LINE__ << " (" << __func__ << "): Assertion " << #assertion << " failed.\n" << msg))
 
 void initialization() {
-    davix_set_log_level(DAVIX_LOG_ALL);
+    if(getenv("DEBUG")) {
+        davix_set_log_level(DAVIX_LOG_ALL);
+    }
 }
 
 std::vector<std::string> split(const std::string str, const std::string delim) {
@@ -163,6 +165,24 @@ void listing(const RequestParams &params, const Uri uri, const int nfiles) {
     std::cout << "All OK" << std::endl;
 }
 
+/* upload a file and move it around */
+void putMoveDelete(const RequestParams &params, const Uri uri) {
+    DECLARE_TEST();
+    Uri u = uri;
+    Uri u2 = uri;
+    u.addPathSegment(SSTR(testfile << "put-move-delete"));
+    u2.addPathSegment(SSTR(testfile << "put-move-delete-MOVED"));
+
+    Context context;
+    DavFile file(context, params, u);
+    file.put(&params, testString.c_str(), testString.size());
+
+    DavFile movedFile(context, params, u2);
+    file.move(&params, movedFile);
+
+    movedFile.deletion(&params);
+}
+
 void remove(const RequestParams &params, const Uri uri) {
     DECLARE_TEST();
 
@@ -207,6 +227,10 @@ int run(int argc, char** argv) {
         ASSERT(cmd.size() == 2, "Wrong number of arguments to listing");
         listing(params, uri, atoi(cmd[1].c_str()));
     }
+    else if(cmd[0] == "putMoveDelete") {
+        ASSERT(cmd.size() == 1, "Wrong number of arguments to putMoveDelete");
+        putMoveDelete(params, uri);
+    }
     else {
         ASSERT(false, "Unknown command: " << cmd[0]);
     }
@@ -214,6 +238,7 @@ int run(int argc, char** argv) {
 
 int main(int argc, char** argv) {
     try {
+        initialization();
         run(argc, argv);
     }
     catch(std::exception &e) {

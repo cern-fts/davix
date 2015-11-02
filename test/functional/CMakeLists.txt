@@ -101,8 +101,6 @@ add_library(test_davix_functional_lib STATIC ${src_davix_test_lib})
 #add_executable(test_mv ${src_test_mv})
 #target_link_libraries(test_mv libdavix test_davix_functional_lib)
 
-include(${CMAKE_SOURCE_DIR}/credentials/creds.cmake)
-
 add_executable(tester ${src_tester})
 target_link_libraries(tester libdavix ${Boost_LIBRARIES} test_davix_functional_lib)
 
@@ -176,7 +174,24 @@ function(test_with_proxy uri)
     fulltest("--auth proxy --uri ${uri}")
 endfunction(test_with_proxy)
 
-test_with_proxy("https://dpmhead-rc.cern.ch/dpm/cern.ch/home/dteam/davix-tests")
+function(test_s3 accesskey secretkey uri region use_alt)
+    set(params "--auth aws --s3accesskey ${accesskey} --s3secretkey ${secretkey} --uri ${uri}")
+    if(NOT "${region}" STREQUAL "")
+        set(params "${params} --s3region ${region}")
+    endif()
+
+    if(use_alt MATCHES "^alt$")
+        set(params "${params} --s3alternate")
+    elseif(NOT use_alt MATCHES "^noalt$")
+        message(FATAL_ERROR "Invalid option passed to test_s3 for use_alt: ${use_alt}")
+    endif()
+
+    fulltest(${params})
+endfunction(test_s3)
+
+
+include(${CMAKE_SOURCE_DIR}/credentials/creds.cmake)
+
 
 ### DEPRECATED, to remove soon
 

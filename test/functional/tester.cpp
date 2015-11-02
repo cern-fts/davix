@@ -111,6 +111,20 @@ void authentication(const po::variables_map &vm, const Auth::Type &auth, Request
     }
 }
 
+void depopulate(const RequestParams &params, Uri uri, int nfiles) {
+    DECLARE_TEST();
+
+    for(int i = 1; i <= nfiles; i++) {
+        Context context;
+        Uri u(uri);
+        u.addPathSegment(SSTR(testfile << i));
+        DavFile file(context, params, u);
+        file.deletion(&params);
+        std::cout << "File " << i << " deleted successfully." << std::endl;
+    }
+    std::cout << "All OK" << std::endl;
+}
+
 void makeCollection(const RequestParams &params, Uri uri) {
     DECLARE_TEST();
 
@@ -239,6 +253,10 @@ int run(int argc, char** argv) {
     else if(cmd[0] == "putMoveDelete") {
         ASSERT(cmd.size() == 1, "Wrong number of arguments to putMoveDelete");
         putMoveDelete(params, uri);
+    }
+    else if(cmd[0] == "depopulate") {
+        ASSERT(cmd.size() == 2, "Wrong number of arguments to depopulate");
+        depopulate(params, uri, atoi(cmd[1].c_str()));
     }
     else {
         ASSERT(false, "Unknown command: " << cmd[0]);

@@ -171,8 +171,13 @@ struct S3PropParser::Internal{
         // check element, if end entry push new entry
         if( StrUtil::compare_ncase(delimiter_prop, elem) ==0){
             DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "push new element {}", elem.c_str());
-            props.push_back(property);
-            prop_count++;
+
+            // empty filename? That means this is the first "Contents" entry,
+            // indicating the bucket name, which we have already pushed. Skip.
+            if(property.filename.size() > 0) {
+                props.push_back(property);
+                prop_count++;
+            }
         }
 
         // check element, if end common prefix reset flag

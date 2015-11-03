@@ -1842,65 +1842,50 @@ int ne_sock_connect_ssl(ne_socket *sock, ne_ssl_context *ctx, void *userdata)
     }
 */
 
-    // non-blocking SSL handshake 
-    int ready = 0;
-    int expired = 0;
-    int errsv = 0;
+    // non-blocking SSL handshake
     struct timeval tv;
 
     while((ret = SSL_connect(ssl)) != 1){
-       
         fd_set fds;
         FD_ZERO(&fds);
         FD_SET(sock->fd, &fds);
 
-        do{
-            tv.tv_sec = 1;
-            tv.tv_usec = 0;
-            switch(SSL_get_error(ssl, ret)){
-                case SSL_ERROR_WANT_WRITE:
-                    ready = select(sock->fd +1, NULL, &fds, NULL, &tv);
-                    break;
+        tv.tv_sec = 1;
+        tv.tv_usec = 0;
 
-                case SSL_ERROR_WANT_READ:
-                    ready = select(sock->fd +1, &fds, NULL, NULL, &tv);
-                    break;
-
-                case SSL_ERROR_WANT_X509_LOOKUP:
-                    ready = select(sock->fd +1, &fds, &fds, NULL, &tv);
-                    break;
-
-                case SSL_ERROR_NONE:
-                case SSL_ERROR_ZERO_RETURN:
-                case SSL_ERROR_WANT_CONNECT:
-                case SSL_ERROR_WANT_ACCEPT:
-                case SSL_ERROR_SYSCALL:
-                    break;
-                
-                case SSL_ERROR_SSL:{
-                    int ssl_err_code = ERR_get_error();
-                    char* ssl_err_message = ERR_reason_error_string(ssl_err_code);
-                    ERR_clear_error();
-                    set_error(sock, _(ssl_err_message));
-                    return NE_SOCK_ERROR;
-                }
-
-                default: 
-                    set_error(sock, _("Unknown error during SSL handshake"));
-                    return NE_SOCK_ERROR;
-            }
-
-            if(ready == -1)
-                errsv = errno;
-
-            if(time(0) > timeout){
-                expired = 1;
+        switch(SSL_get_error(ssl, ret)){
+            case SSL_ERROR_WANT_WRITE:
+                select(sock->fd +1, NULL, &fds, NULL, &tv);
                 break;
+
+            case SSL_ERROR_WANT_READ:
+                select(sock->fd +1, &fds, NULL, NULL, &tv);
+                break;
+
+            case SSL_ERROR_WANT_X509_LOOKUP:
+                select(sock->fd +1, &fds, &fds, NULL, &tv);
+                break;
+
+            case SSL_ERROR_NONE:
+            case SSL_ERROR_ZERO_RETURN:
+            case SSL_ERROR_WANT_CONNECT:
+            case SSL_ERROR_WANT_ACCEPT:
+            case SSL_ERROR_SYSCALL:
+                break;
+            case SSL_ERROR_SSL:{
+                int ssl_err_code = ERR_get_error();
+                const char* ssl_err_message = ERR_reason_error_string(ssl_err_code);
+                ERR_clear_error();
+                set_error(sock, _(ssl_err_message));
+                return NE_SOCK_ERROR;
             }
 
-        }while((ready == 0) || (errsv == EINTR) || (errsv == EWOULDBLOCK)); // loop until there is something in the socket or timed out
+            default:
+                set_error(sock, _("Unknown error during SSL handshake"));
+                return NE_SOCK_ERROR;
+        }
 
-        if(expired){
+        if(time(0) > timeout){
             error_ossl(sock, ret);
             SSL_free(ssl);
             sock->ssl = NULL;

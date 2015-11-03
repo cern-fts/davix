@@ -167,8 +167,18 @@ function(fulltest params)
     runtest("${params} --command makeCollection")
     runtest("${params} --command populate 5")
     runtest("${params} --command listing 5")
+    runtest("${params} --command depopulate 3")
+    runtest("${params} --command countfiles 2")
     runtest("${params} --command remove")
 endfunction(fulltest)
+
+function(s3tests params)
+  runtest("${params} --command makeCollection")
+  runtest("${params} --command populate 5")
+  runtest("${params} --command depopulate 3")
+  runtest("${params} --command countfiles 2")
+  runtest("${params} --command depopulate 5")
+endfunction(s3tests)
 
 function(test_with_proxy uri)
     fulltest("--auth proxy --uri ${uri}")
@@ -186,8 +196,16 @@ function(test_s3 accesskey secretkey uri region use_alt)
         message(FATAL_ERROR "Invalid option passed to test_s3 for use_alt: ${use_alt}")
     endif()
 
-    fulltest(${params})
+    s3tests(${params})
 endfunction(test_s3)
+
+function(test_azure azurekey uri)
+    set(params "--auth azure --azurekey ${azurekey} --uri ${uri}")
+
+    runtest("${params} --command populate 5")
+    runtest("${params} --command listing 5")
+    runtest("${params} --command depopulate 5")
+endfunction(test_azure)
 
 
 include(${CMAKE_SOURCE_DIR}/credentials/creds.cmake)

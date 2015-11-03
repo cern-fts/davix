@@ -125,17 +125,43 @@ void depopulate(const RequestParams &params, Uri uri, int nfiles) {
     std::cout << "All OK" << std::endl;
 }
 
+std::string string_from_mode(mode_t mode){
+    const char* rmask ="xwr";
+    std::string str(10,'-');
+
+    str[0] = (S_ISDIR(mode))?'d':'-';
+    for(size_t i=0; i < 9; ++i){
+        str[9-i] = (( mode & (0x01 << i))?(rmask[i%3]):'-');
+    }
+    return str;
+}
+
+void statdir(const RequestParams &params, Uri uri) {
+    DECLARE_TEST();
+    Context context;
+    DavFile file(context, params, uri);
+    StatInfo info;
+    file.statInfo(&params, info);
+    std::cout << string_from_mode(info.mode) << std::endl;
+
+    ASSERT(S_ISDIR(info.mode), "not a directory");
+}
+
 void makeCollection(const RequestParams &params, Uri uri) {
     DECLARE_TEST();
 
     Context context;
     DavFile file(context, params, uri);
     file.makeCollection(&params);
-    std::cout << "Done!" << std::endl;
 
     // make sure it is empty
     DavFile::Iterator it = file.listCollection(&params);
     ASSERT(it.name() == "" && !it.next(), "Newly created directory not empty!");
+
+    // do a stat, make sure it's a dir
+    statdir(params, uri);
+
+    std::cout << "Done!" << std::endl;
 }
 
 void populate(const RequestParams &params, const Uri uri, const int nfiles) {
@@ -167,7 +193,6 @@ void countfiles(const RequestParams &params, const Uri uri, const int nfiles) {
     ASSERT(i == nfiles, "wrong number of files; expected " << nfiles << ", found " << i);
     std::cout << "All OK" << std::endl;
 }
-
 
 // confirm that the files listed are the exact same ones uploaded during a populate test
 void listing(const RequestParams &params, const Uri uri, const int nfiles) {
@@ -278,6 +303,10 @@ int run(int argc, char** argv) {
     else if(cmd[0] == "countfiles") {
         ASSERT(cmd.size() == 2, "Wrong number of arguments to countfiles");
         countfiles(params, uri, atoi(cmd[1].c_str()));
+    }
+    else if(cmd[0] == "statdir") {
+        ASSERT(cmd.size() == 1, "Wrong number of arguments to statdir");
+        statdir(params, uri);
     }
     else {
         ASSERT(false, "Unknown command: " << cmd[0]);

@@ -98,3 +98,30 @@ TEST(testUri, testEscape){
     std::string r = Davix::Uri::unescapeString(Davix::Uri::escapeString(s));
     ASSERT_STREQ(s.c_str(), r.c_str());
 }
+
+TEST(testUri, testTrailingSlashes) {
+    std::vector<std::string> vec;
+    vec.push_back("https://wikipedia.org/wiki/Example");
+    vec.push_back("http://example.org/test");
+
+    std::vector<std::string>::iterator it;
+    for(it = vec.begin(); it != vec.end(); it++) {
+        std::string s = *it;
+        std::string s2 = s + "/";
+
+        Uri uri(s);
+        ASSERT_EQ(uri.getString(), s);
+
+        uri.ensureTrailingSlash();
+        ASSERT_EQ(uri.getString(), s2);
+
+        uri.ensureTrailingSlash();
+        ASSERT_EQ(uri.getString(), s2);
+
+        uri.removeTrailingSlash();
+        ASSERT_EQ(uri.getString(), s);
+
+        uri.removeTrailingSlash();
+        ASSERT_EQ(uri.getString(), s);
+    }
+}

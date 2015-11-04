@@ -86,16 +86,23 @@ struct UriPrivate{
     }
 
     void addPathSegment(const std::string &seg) {
-        if(path.size() == 0) {
-            path = seg;
-        }
-        else if(path[path.size() - 1] == '/') {
-            path += seg;
-        }
-        else {
-            path += "/" + seg;
-        }
+        ensureTrailingSlash();
+        path += seg;
         _update_string();
+    }
+
+    void ensureTrailingSlash() {
+        if(path.size() == 0 || path[path.size() - 1] != '/') {
+            path += "/";
+            _update_string();
+        }
+    }
+
+    void removeTrailingSlash() {
+        if(path.size() != 0 && path[path.size() - 1] == '/') {
+            path.erase(path.size()-1, 1);
+            _update_string();
+        }
     }
 
     void clear(){
@@ -149,6 +156,14 @@ void Uri::addQueryParam(const std::string & key, const std::string & value) {
 
 void Uri::addPathSegment(const std::string &seg) {
     d_ptr->addPathSegment(seg);
+}
+
+void Uri::ensureTrailingSlash() {
+    d_ptr->ensureTrailingSlash();
+}
+
+void Uri::removeTrailingSlash() {
+    d_ptr->removeTrailingSlash();
 }
 
 Uri::~Uri(){

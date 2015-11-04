@@ -77,6 +77,12 @@ public:
     /// @param seg : the segment to add
     void addPathSegment(const std::string & seg);
 
+    /// ensure that the path ends with a trailing slash
+    void ensureTrailingSlash();
+
+    /// remove the path's trailing slash, if it exists
+    void removeTrailingSlash();
+
     /// get a string representation of the full uri
     /// @return return the path or an empty string if error
     const std::string & getString() const;

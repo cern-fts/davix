@@ -125,3 +125,22 @@ TEST(testUri, testTrailingSlashes) {
         ASSERT_EQ(uri.getString(), s);
     }
 }
+
+TEST(testUri, testQueryParamExists) {
+    std::string s("https://example.com/somepath?query1=aaa&query2=bbb&query3=cccc&query4=ddd");
+    Uri uri(s);
+    ASSERT_TRUE(uri.queryParamExists("query1"));
+    ASSERT_TRUE(uri.queryParamExists("query2"));
+    ASSERT_TRUE(uri.queryParamExists("query3"));
+    ASSERT_TRUE(uri.queryParamExists("query4"));
+
+    ASSERT_FALSE(uri.queryParamExists("query5"));
+    ASSERT_FALSE(uri.queryParamExists("query6"));
+    ASSERT_FALSE(uri.queryParamExists("query"));
+    ASSERT_FALSE(uri.queryParamExists("aaa"));
+    ASSERT_FALSE(uri.queryParamExists("bbb"));
+    ASSERT_FALSE(uri.queryParamExists("cccc"));
+    ASSERT_FALSE(uri.queryParamExists("ccc"));
+    ASSERT_FALSE(uri.queryParamExists("ddd"));
+    ASSERT_FALSE(uri.queryParamExists("aaa&query2"));
+}

@@ -166,6 +166,15 @@ void Uri::removeTrailingSlash() {
     d_ptr->removeTrailingSlash();
 }
 
+bool Uri::queryParamExists(const std::string &key) {
+    ParamVec queryVec = this->getQueryVec();
+    for(ParamVec::iterator it = queryVec.begin(); it != queryVec.end(); it++) {
+        if(it->first == key)
+            return true;
+    }
+    return false;
+}
+
 Uri::~Uri(){
     delete d_ptr;
 }

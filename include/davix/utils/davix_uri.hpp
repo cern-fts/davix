@@ -83,6 +83,9 @@ public:
     /// remove the path's trailing slash, if it exists
     void removeTrailingSlash();
 
+    /// check if the given query parameter exists
+    bool queryParamExists(const std::string &param);
+
     /// get a string representation of the full uri
     /// @return return the path or an empty string if error
     const std::string & getString() const;

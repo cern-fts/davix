@@ -161,7 +161,23 @@ void makeCollection(const RequestParams &params, Uri uri) {
     // do a stat, make sure it's a dir
     statdir(params, uri);
 
+    Uri u2 = uri;
+    u2.ensureTrailingSlash();
+    statdir(params, u2);
+
     std::cout << "Done!" << std::endl;
+}
+
+/* stat a file, make sure it's a file */
+void statfile(const RequestParams &params, const Uri uri) {
+    DECLARE_TEST();
+    Context context;
+    DavFile file(context, params, uri);
+    StatInfo info;
+    file.statInfo(&params, info);
+    std::cout << string_from_mode(info.mode) << std::endl;
+
+    ASSERT(! S_ISDIR(info.mode), "not a file");
 }
 
 void populate(const RequestParams &params, const Uri uri, const int nfiles) {
@@ -175,6 +191,8 @@ void populate(const RequestParams &params, const Uri uri, const int nfiles) {
         file.put(NULL, testString.c_str(), testString.size());
         std::cout << "File " << i << " uploaded successfully." << std::endl;
         std::cout << u << std::endl;
+
+        statfile(params, u);
     }
 }
 
@@ -246,6 +264,7 @@ void putMoveDelete(const RequestParams &params, const Uri uri) {
     file.move(&params, movedFile);
 
     movedFile.deletion(&params);
+    std::cout << "All OK" << std::endl;
 }
 
 void remove(const RequestParams &params, const Uri uri) {
@@ -263,7 +282,7 @@ void remove(const RequestParams &params, const Uri uri) {
 
 int run(int argc, char** argv) {
     RequestParams params;
-    params.setOperationRetry(3);
+    params.setOperationRetry(0);
 
     po::variables_map vm = parse_args(argc, argv);
     Auth::Type auth = Auth::fromString(opt(vm, "auth"));
@@ -307,6 +326,10 @@ int run(int argc, char** argv) {
     else if(cmd[0] == "statdir") {
         ASSERT(cmd.size() == 1, "Wrong number of arguments to statdir");
         statdir(params, uri);
+    }
+    else if(cmd[0] == "statfile") {
+        ASSERT(cmd.size() == 1, "Wrong number of arguments to statdir");
+        statfile(params, uri);
     }
     else {
         ASSERT(false, "Unknown command: " << cmd[0]);

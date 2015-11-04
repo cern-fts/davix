@@ -593,8 +593,12 @@ void s3StatMapper(Context& context, const RequestParams* params, const Uri & uri
         else if(code == 200){ // found something, must be a file not directory
             st_info.mode = 0755;
 
-            if(S3::extract_s3_path(uri, params->getAwsAlternate()) == "/") // is bucket
+            std::string s3_path = S3::extract_s3_path(uri, params->getAwsAlternate());
+            if(s3_path == "/") // is bucket
                 st_info.mode |= S_IFDIR;
+            else if(s3_path[s3_path.size()-1] == '/' && req.getAnswerSize() == 0) { // is a directory
+                st_info.mode |= S_IFDIR;
+            }
             else{   // is file
                 st_info.mode |= S_IFREG;
                 const dav_ssize_t s = req.getAnswerSize();

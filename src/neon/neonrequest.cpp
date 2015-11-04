@@ -256,8 +256,16 @@ void NEONRequest::configureRequest(){
     // in case of a redirect
     if(!req_running) {
         std::copy(params.getHeaders().begin(), params.getHeaders().end(), std::back_inserter(_headers_field));
-    }
 
+        /* Doing a PUT to Azure? Add the necessary Microsoft-specific header */
+        if(_request_type == "PUT" &&
+           _current.get()->queryParamExists("sig") &&
+           _current.get()->queryParamExists("sr") &&
+           _current.get()->queryParamExists("sp")) {
+
+            _headers_field.push_back(HeaderLine("x-ms-blob-type", "BlockBlob"));
+        }
+    }
 
     // setup timeout
     if(_expiration_time.isValid() == false
@@ -297,9 +305,6 @@ void NEONRequest::configureS3params(){
 // TODO: make static?
 void NEONRequest::configureAzureParams(){
     Uri signed_url = Azure::signURI(params.getAzureKey(), _request_type, *_current, NEON_S3_SIGN_DURATION);
-    if(!req_running && _request_type == "PUT") {
-        _headers_field.push_back(HeaderLine("x-ms-blob-type", "BlockBlob"));
-    }
     _current= boost::shared_ptr<Uri>(new Uri(signed_url));
 }
 

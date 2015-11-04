@@ -203,6 +203,7 @@ function(test_azure azurekey uri)
     set(params "--auth azure --azurekey ${azurekey} --uri ${uri}")
 
     runtest("${params} --command populate 5")
+    runtest("${params} --command statdir")
     runtest("${params} --command listing 5")
     runtest("${params} --command depopulate 5")
 endfunction(test_azure)

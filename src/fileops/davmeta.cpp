@@ -771,7 +771,38 @@ void azureStatMapper(Context& context, const RequestParams* params, const Uri & 
 
         // if 404, target either doesn't exist or is an Azure "directory". TODO: add support to stat directories. must have func tests by then
         if(code == 404){
-            throw DavixException(scope, StatusCode::FileNotFound, "url not found");
+            Uri new_url = Azure::transformURI(uri, p, true);
+            DirHandle handle(new GetRequest(context, new_url, &tmp_err), new AzurePropParser(Azure::extract_azure_filename(uri)));
+
+            dav_ssize_t s_resu=0;
+
+            const int operation_timeout = p.getOperationTimeout()->tv_sec;
+            HttpRequest & http_req = *(handle.request);
+            XMLPropParser & parser = *(handle.parser);
+
+            time_t timestamp_timeout = time(NULL) + ((operation_timeout)?(operation_timeout):180);
+
+            http_req.setParameters(p);
+
+            http_req.beginRequest(&tmp_err);
+            checkDavixError(&tmp_err);
+            check_file_status(http_req, scope);
+
+            size_t prop_size = 0;
+            do{ // first entry -> container information
+                s_resu = incremental_listdir_parsing(&http_req, &parser, 2048, davix_scope_directory_listing_str());
+
+                prop_size = parser.getProperties().size();
+                if(s_resu < 2048 && prop_size <1){ // verify request status : if req done + no data -> error
+                    throw DavixException(davix_scope_directory_listing_str(), StatusCode::IsNotADirectory, "The specified directory does not exist");
+                }
+                if(timestamp_timeout < time(NULL)){
+                    throw DavixException(davix_scope_directory_listing_str(), StatusCode::OperationTimeout, "Operation timeout triggered while directory listing");
+                }
+            }while( prop_size < 1); // prop < 1 means not enough data
+
+            st_info.mode = 0755;
+            st_info.mode |= S_IFDIR;
         }
         // file exists, parse its info
         else if(code == 200) {

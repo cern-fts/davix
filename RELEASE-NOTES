@@ -1,4 +1,26 @@
 
+Version - 0.6.0
+** Bug
+    * [DMC-736] - Davix parallel compilation has race condition
+    * [DMC-729] - Custom --header option in davix-get is sent twice on a redirect
+    * [DMC-746] - Davix cannot create S3 directory
+    * [DMC-748] - Wrong filesize displayed when recursively listing directories
+    * [DMC-732] - Davix: 120-second timeout with a large TCP buffer and a slow connection
+    * [DMC-761] - Object-based interface returns an extra entry with empty filename in S3
+    * [DMC-762] - Race condition in libneon sometimes triggers erroneous timeout during SSL handshake
+    * [DMC-766] - Statting an S3 directory with a trailing slash returns wrong mode
+
+** Improvement
+    * [DMC-728] - Add gtest as a git submodule in davix
+    * [DMC-760] - Create a robust functional test suite for davix
+    * [DMC-764] - Use a heuristic to find if the special Azure header needs to be added
+
+** New Feature
+    * [DMC-611] - S3: Support for Signature Version 4 needed for new AWS regions
+    * [DMC-654] - Depending if the bucket is in the URL or not, the result is different
+    * [DMC-739] - Support both S3 URL syntaxes
+    * [DMC-755] - Add Azure compatibility to Davix
+
 Version - 0.5.0
 
 ** Bug

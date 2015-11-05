@@ -280,7 +280,7 @@ void remove(const RequestParams &params, const Uri uri) {
     file.deletion(&params);
 }
 
-int run(int argc, char** argv) {
+void run(int argc, char** argv) {
     RequestParams params;
     params.setOperationRetry(0);
 

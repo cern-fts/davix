@@ -90,15 +90,17 @@ std::vector< std::pair<dav_size_t, std::string> > generateRangeHeaders(dav_size_
    while( ( ret = offset_provider(begin, end)) >= 0){
       buffer.str("");
 
+      /* First range? Don't add a coma */
+      if(range_string.size() != offset_value.size())
+          buffer << ",";
       buffer << begin << '-' <<  end;
+
       range_string.append(buffer.str());
       range_size++;
       if(range_string.size() >= max_header_size){
           range_rec.push_back(std::make_pair(range_size, range_string));
           range_size = 0;
           range_string.assign(offset_value);
-      }else{
-          range_string.append(",");
       }
    }
    if(range_size > 0)

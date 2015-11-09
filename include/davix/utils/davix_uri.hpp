@@ -84,7 +84,10 @@ public:
     void removeTrailingSlash();
 
     /// check if the given query parameter exists
-    bool queryParamExists(const std::string &param);
+    bool queryParamExists(const std::string &param) const;
+
+    /// check if the given fragment parameter exists
+    bool fragmentParamExists(const std::string &param) const;
 
     /// get a string representation of the full uri
     /// @return return the path or an empty string if error
@@ -116,6 +119,10 @@ public:
     /// get a concatenation of the path and the query argument of the URI
     /// @return return a path + query arguments concatenation or an empty string if error
     const std::string & getPathAndQuery() const;
+
+    /// get the fragment part of the uri
+    /// @return return the fragment part or an empty string if it does not exist
+    const std::string & getFragment() const;
 
     /// get the query argument part of the uri
     /// @return return the query path string or an empty string if not exist or if error

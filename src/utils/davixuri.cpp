@@ -166,7 +166,7 @@ void Uri::removeTrailingSlash() {
     d_ptr->removeTrailingSlash();
 }
 
-bool Uri::queryParamExists(const std::string &key) {
+bool Uri::queryParamExists(const std::string &key) const {
     ParamVec queryVec = this->getQueryVec();
     for(ParamVec::iterator it = queryVec.begin(); it != queryVec.end(); it++) {
         if(it->first == key)
@@ -221,17 +221,16 @@ const std::string & Uri::getPathAndQuery() const {
     return *(d_ptr->query_and_path);
 }
 
-ParamVec Uri::getQueryVec() const {
+static ParamVec splitParams(const std::string &str) {
     ParamVec params;
     const std::string paramSeparator = "&";
     const std::string pairSeparator = "=";
-    const std::string query = getQuery();
 
     std::string::size_type curr = 0;
-    while(curr < query.length()) {
-        std::string::size_type next = query.find(paramSeparator, curr);
-        if(next == std::string::npos) next = query.length();
-        std::string param = query.substr(curr, next-curr);
+    while(curr < str.length()) {
+        std::string::size_type next = str.find(paramSeparator, curr);
+        if(next == std::string::npos) next = str.length();
+        std::string param = str.substr(curr, next-curr);
 
         // separate the two parts between '='
         std::string::size_type eq = param.find(pairSeparator);
@@ -244,6 +243,23 @@ ParamVec Uri::getQueryVec() const {
         curr = next+1;
     }
     return params;
+}
+
+const std::string & Uri::getFragment() const {
+    return d_ptr->fragment;
+}
+
+bool Uri::fragmentParamExists(const std::string &param) const {
+    ParamVec fragmentVec = splitParams(getFragment());
+    for(ParamVec::iterator it = fragmentVec.begin(); it != fragmentVec.end(); it++) {
+        if(it->first == param)
+            return true;
+    }
+    return false;
+}
+
+ParamVec Uri::getQueryVec() const {
+    return splitParams(getQuery());
 }
 
 const std::string & Uri::getQuery() const{

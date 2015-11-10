@@ -260,6 +260,15 @@ bool Uri::fragmentParamExists(const std::string &param) const {
     return false;
 }
 
+const std::string Uri::getFragmentParam(const std::string &param) const {
+    ParamVec fragmentVec = splitParams(getFragment());
+    for(ParamVec::iterator it = fragmentVec.begin(); it != fragmentVec.end(); it++) {
+        if(it->first == param)
+            return it->second;
+    }
+    return "";
+}
+
 ParamVec Uri::getQueryVec() const {
     return splitParams(getQuery());
 }

@@ -89,6 +89,9 @@ public:
     /// check if the given fragment parameter exists
     bool fragmentParamExists(const std::string &param) const;
 
+    /// get the value of a fragment parameter
+    const std::string getFragmentParam(const std::string &param) const;
+
     /// get a string representation of the full uri
     /// @return return the path or an empty string if error
     const std::string & getString() const;

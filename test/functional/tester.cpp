@@ -278,6 +278,43 @@ void remove(const RequestParams &params, const Uri uri) {
     file.deletion(&params);
 }
 
+void preadvec(const RequestParams &params, const Uri uri, unsigned int nsize) {
+    DECLARE_TEST();
+
+    const int initial_offset = 30;
+    const int length = 5;
+    const int increment = -10;
+
+    Context context;
+    DavFile file(context, params, uri);
+
+    DavIOVecInput inVec[nsize];
+    DavIOVecOuput outVec[nsize];
+
+    int offset = initial_offset;
+    for(int i = 0; i < nsize; i++) {
+        inVec[i].diov_buffer = new char[100];
+        inVec[i].diov_size = length;
+        inVec[i].diov_offset = offset;
+
+        offset += increment;
+    }
+
+    DavixError *err;
+    file.readPartialBufferVec(&params, inVec, outVec, nsize, &err);
+
+    offset = initial_offset;
+    for(int i = 0; i < nsize; i++) {
+        std::string chunk( (char*) outVec[i].diov_buffer);
+        std::cout << "Chunk: " << chunk << std::endl;
+
+        ASSERT(chunk.size() == length, "unexpected chunk size");
+        ASSERT(chunk == testString.substr(offset, length), "wrong chunk contents");
+        offset += increment;
+    }
+    std::cout << "All OK" << std::endl;
+}
+
 void run(int argc, char** argv) {
     RequestParams params;
     params.setOperationRetry(0);
@@ -333,8 +370,12 @@ void run(int argc, char** argv) {
         statdir(params, uri);
     }
     else if(cmd[0] == "statfile") {
-        ASSERT(cmd.size() == 1, "Wrong number of arguments to statdir");
+        ASSERT(cmd.size() == 1, "Wrong number of arguments to statfile");
         statfile(params, uri);
+    }
+    else if(cmd[0] == "preadvec") {
+        ASSERT(cmd.size() == 2, "Wrong number of arguments to preadvec");
+        preadvec(params, uri, atoi(cmd[1].c_str()));
     }
     else {
         ASSERT(false, "Unknown command: " << cmd[0]);

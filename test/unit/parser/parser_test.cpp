@@ -364,17 +364,3 @@ TEST(UriTests, testRelativeUri){
     ASSERT_STREQ("http://datagrid.lbl.gov/testdata/R/test01.data/blabla/test", res.getString().c_str());
 
 }
-
-TEST(UriTests, testFragment) {
-    Davix::Uri u("https://example.com/path?query1=aa&query2=bb#frag1=aa&frag2=bb");
-    ASSERT_EQ(u.getFragment(), "frag1=aa&frag2=bb");
-    ASSERT_TRUE(u.fragmentParamExists("frag1"));
-    ASSERT_TRUE(u.fragmentParamExists("frag2"));
-    ASSERT_FALSE(u.fragmentParamExists("frag3"));
-
-    Davix::Uri u2("https://example.com/path?query1=aa&query2=bb");
-    ASSERT_EQ(u2.getFragment(), "");
-    ASSERT_FALSE(u2.fragmentParamExists("frag1"));
-}
-
-

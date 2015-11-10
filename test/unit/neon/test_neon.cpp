@@ -144,3 +144,21 @@ TEST(testUri, testQueryParamExists) {
     ASSERT_FALSE(uri.queryParamExists("ddd"));
     ASSERT_FALSE(uri.queryParamExists("aaa&query2"));
 }
+
+TEST(testUri, testFragment) {
+    Davix::Uri u("https://example.com/path?query1=aa&query2=bb#frag1=aa&frag2=bb");
+    ASSERT_EQ(u.getFragment(), "frag1=aa&frag2=bb");
+    ASSERT_TRUE(u.fragmentParamExists("frag1"));
+    ASSERT_TRUE(u.fragmentParamExists("frag2"));
+    ASSERT_FALSE(u.fragmentParamExists("frag3"));
+
+    Davix::Uri u2("https://example.com/path?query1=aa&query2=bb");
+    ASSERT_EQ(u2.getFragment(), "");
+    ASSERT_FALSE(u2.fragmentParamExists("frag1"));
+
+    Davix::Uri u3(u);
+    ASSERT_EQ(u.getFragment(), u3.getFragment());
+
+    Davix::Uri u4 = u;
+    ASSERT_EQ(u.getFragment(), u4.getFragment());
+}

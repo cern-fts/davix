@@ -20,9 +20,6 @@ const std::string testfile("davix-testfile-");
     if((assertion) == false) throw std::runtime_error( SSTR(__FILE__ << ":" << __LINE__ << " (" << __func__ << "): Assertion " << #assertion << " failed.\n" << msg))
 
 void initialization() {
-    if(getenv("DEBUG")) {
-        davix_set_log_level(DAVIX_LOG_ALL);
-    }
 }
 
 std::vector<std::string> split(const std::string str, const std::string delim) {
@@ -68,6 +65,7 @@ po::variables_map parse_args(int argc, char** argv) {
         ("s3alternate", "s3 alternate")
         ("cert", po::value<std::string>(), "path to the proxy certificate to use")
         ("uri", po::value<std::string>(), "uri to test against")
+        ("trace", po::value<std::string>(), "debug scope")
         ("command", po::value<std::vector<std::string> >()->multitoken(), "test to run")
         ;
 
@@ -75,7 +73,7 @@ po::variables_map parse_args(int argc, char** argv) {
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
 
-    if (vm.count("help")) {
+    if(vm.count("help")) {
         std::cout << desc << "\n";
         exit(1);
     }
@@ -289,6 +287,13 @@ void run(int argc, char** argv) {
 
     ASSERT(vm.count("command") != 0, "--command is necessary");
     ASSERT(vm.count("uri") != 0, "--uri is necessary");
+
+    if(vm.count("trace") != 0) {
+        std::string scope = opt(vm, "trace");
+        setLogScope(0);
+        setLogScope(scope);
+        setLogLevel(DAVIX_LOG_TRACE);
+    }
 
     std::vector<std::string> cmd = vm["command"].as<std::vector<std::string> >();
     Uri uri = Uri(opt(vm, "uri"));

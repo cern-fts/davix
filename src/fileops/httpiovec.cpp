@@ -86,24 +86,23 @@ int davIOVecProvider(const DavIOVecInput *input_vec, dav_ssize_t & counter, dav_
     return -1;
 }
 
-dav_ssize_t HttpIOVecOps::preadVec(IOChainContext & iocontext, const DavIOVecInput * input_vec,
-                          DavIOVecOuput * output_vec,
-                          const dav_size_t count_vec){
-
-    if(count_vec ==0)
-        return 0;
-
-    if(count_vec ==1){ // one offset read request, no need of multi part
-            const dav_ssize_t res= _start->pread(iocontext, input_vec->diov_buffer, input_vec->diov_size, input_vec->diov_offset);
-            output_vec->diov_buffer = input_vec->diov_buffer;
-            output_vec->diov_size= res;
-            return res;
-    }
-
+// do a multi-range on selected ranges
+MultirangeResult HttpIOVecOps::performMultirange(IOChainContext & iocontext,
+                                     const DavIOVecInput * input_vec,
+                                     DavIOVecOuput * output_vec,
+                                     const dav_size_t count_vec) {
     DavixError * tmp_err=NULL;
     dav_ssize_t tmp_ret=-1, ret = 0;
     ptrdiff_t p_diff=0;
     dav_ssize_t counter = 0;
+    MultirangeResult::OperationResult opresult = MultirangeResult::SUCCESS;
+
+    // calculate total bytes to be read (approximate, since ranges could overlap)
+    dav_ssize_t bytes_to_read = 0;
+    for(dav_size_t i = 0; i < count_vec; i++) {
+        bytes_to_read += (input_vec+i)->diov_size;
+    }
+
     // generator of offset
     boost::function<int (dav_off_t &, dav_off_t &)> offsetProvider( boost::bind(davIOVecProvider, input_vec, counter, (dav_ssize_t) count_vec,
                          _1, _2));
@@ -113,48 +112,125 @@ dav_ssize_t HttpIOVecOps::preadVec(IOChainContext & iocontext, const DavIOVecInp
     // 3900 bytes maximum for the range seems to be a ood compromise
     std::vector< std::pair<dav_size_t, std::string> > vecRanges = generateRangeHeaders(3900, offsetProvider);
 
-
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, " -> getPartialVec operation for {} vectors", count_vec);
 
     for(std::vector< std::pair<dav_size_t, std::string> >::iterator it = vecRanges.begin(); it < vecRanges.end(); ++it){
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, " -> getPartialVec request for {} chunks", it->first);
 
         if(it->first == 1){ // one chunk only : no need of multi part
-            tmp_ret = _start->pread(
-                      iocontext,
-                      (input_vec + p_diff)->diov_buffer,
-                      (input_vec+p_diff)->diov_size,
-                      (input_vec+p_diff)->diov_offset);
-
-            (output_vec+ p_diff)->diov_size = tmp_ret;
-            (output_vec+ p_diff)->diov_buffer = (input_vec + p_diff)->diov_buffer;
+            ret += singleRangeRequest(iocontext, input_vec+p_diff, output_vec+p_diff);
             p_diff += 1;
-            ret += tmp_ret;
-
         }else{
             GetRequest req (iocontext._context, iocontext._uri, &tmp_err);
             if(tmp_err == NULL){
                 RequestParams request_params(iocontext._reqparams);
                 req.setParameters(request_params);
                 req.addHeaderField(req_header_byte_range, it->second);
-                if( (tmp_ret = readPartialBufferVecRequest(req, input_vec+ p_diff, output_vec+ p_diff, it->first, &tmp_err)) <0){
-                    ret = -1;
-                    break;
+
+                if( req.beginRequest(&tmp_err) == 0){
+                    const int retcode = req.getRequestCode();
+
+                    // looks like the server supports multi-range requests.. yay
+                    if(retcode == 206) {
+                        ret = parseMultipartRequest(req, input_vec+p_diff,
+                                                    output_vec+p_diff, count_vec, &tmp_err);
+
+                        // could not parse multipart response - server's broken?
+                        // known to happen with ceph - return code is 206, but only
+                        // returns the first range
+                        if(ret == -1) {
+                            opresult = MultirangeResult::NOMULTIRANGE;
+                            req.endRequest(&tmp_err);
+                            break;
+                        }
+                    }
+                    // no multi-range.. bad server, bad
+                    else if(retcode == 200) {
+                        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Multi-range request resulted in getting the whole file.");
+                        // we have two options: read the entire file or abort current
+                        // request and start a multi-range simulation
+
+                        // if this is a huge file, reading the entire contents is
+                        // definitely not an option
+                        if(req.getAnswerSize() > 1000000 && req.getAnswerSize() > 2*bytes_to_read) {
+                            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "File is too large; will not waste bandwidth, bailing out");
+                            opresult = MultirangeResult::NOMULTIRANGE;
+                            req.endRequest(&tmp_err);
+                        }
+                        else {
+                            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Simulating multi-part response from the contents of the entire file");
+                            opresult = MultirangeResult::SUCCESS_BUT_NO_MULTIRANGE;
+                            ret = simulateMultiPartRequest(req, input_vec, output_vec, count_vec, &tmp_err);
+                        }
+                        break;
+                    }
+                    else {
+                        httpcodeToDavixError(req.getRequestCode(),davix_scope_http_request(),", ", &tmp_err);
+                        ret = -1;
+                        break;
+                    }
+
+                    p_diff += it->first;
+                    ret += tmp_ret;
                 }
-                p_diff += it->first;
-                ret += tmp_ret;
-            }else{
+            } else {
                 ret = -1;
                 break;
             }
         }
-
     }
-
 
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, " <- getPartialVec operation for {} vectors", count_vec);
     checkDavixError(&tmp_err);
-    return ret;
+    return MultirangeResult(opresult, ret);
+}
+
+/* fire off a single, one-range request */
+dav_ssize_t HttpIOVecOps::singleRangeRequest(IOChainContext & iocontext,
+                                     const DavIOVecInput * input,
+                                     DavIOVecOuput * output) {
+    dav_ssize_t size = _start->pread(iocontext,
+                                     input->diov_buffer,
+                                     input->diov_size,
+                                     input->diov_offset);
+
+    output->diov_size = size;
+    output->diov_buffer = input->diov_buffer;
+    return size;
+}
+
+dav_ssize_t HttpIOVecOps::simulateMultirange(IOChainContext & iocontext,
+                                     const DavIOVecInput * input_vec,
+                                     DavIOVecOuput * output_vec,
+                                     const dav_size_t count_vec) {
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Simulating a multi-range request with {} vectors", count_vec);
+    dav_ssize_t size = 0;
+    for(dav_size_t i = 0; i < count_vec; i++) {
+        size += singleRangeRequest(iocontext, input_vec+i, output_vec+i);
+    }
+    return size;
+}
+
+dav_ssize_t HttpIOVecOps::preadVec(IOChainContext & iocontext, const DavIOVecInput * input_vec,
+                          DavIOVecOuput * output_vec,
+                          const dav_size_t count_vec){
+
+    if(count_vec ==0)
+        return 0;
+
+    // a lot of servers do not support multirange... should we even try?
+    if(count_vec == 1 || iocontext._uri.getFragmentParam("multirange") == "false") {
+        return simulateMultirange(iocontext, input_vec, output_vec, count_vec);
+    }
+
+    MultirangeResult res = performMultirange(iocontext, input_vec, output_vec, count_vec);
+    if(res.res == MultirangeResult::SUCCESS || res.res == MultirangeResult::SUCCESS_BUT_NO_MULTIRANGE) {
+        return res.size_bytes;
+    }
+    else {
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Multi-range request has failed, attempting to recover by using multiple single-range requests");
+        return simulateMultirange(iocontext, input_vec, output_vec, count_vec);
+    }
 }
 
 dav_ssize_t HttpIOVecOps::readPartialBufferVecRequest(HttpRequest & _req,
@@ -198,7 +274,6 @@ int http_extract_boundary_from_content_type(const std::string & buffer, std::str
             return 0;
         }
     }
-    HttpIoVecSetupErrorMultiPart(err);
     return -1;
 }
 
@@ -211,7 +286,6 @@ int get_multi_part_info(const HttpRequest& req, std::string & boundary, DavixErr
            && http_extract_boundary_from_content_type(buffer, boundary, err) == 0){
           return 0;
     }
-    HttpIoVecSetupErrorMultiPartBoundary(buffer, err);
     return -1;
 }
 
@@ -334,7 +408,6 @@ dav_ssize_t HttpIOVecOps::parseMultipartRequest(HttpRequest & _req,
 
     if(get_multi_part_info(_req, boundary, err)  != 0 ){
         DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CHAIN, "Invalid Header Content info for multi part request");
-        HttpIoVecSetupErrorMultiPart(err);
         return -1;
     }
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Davix::parseMultipartRequest multi-part boundary {}", boundary);
@@ -454,7 +527,6 @@ static void balance_iterator_windows(MapChunk & m,
     }
 
 }
-
 
 static void fill_concerned_chunk_buffer(MapChunk & m,
                                         MapChunk::iterator & start, MapChunk::iterator & end,

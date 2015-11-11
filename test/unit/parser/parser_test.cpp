@@ -189,7 +189,6 @@ TEST(IOVecMultiPartParser, BoundaryExtract){
     header = " multipart/mixed; boundary=";
     ret = http_extract_boundary_from_content_type(header, boundary, &tmp_err);
     ASSERT_EQ(-1,ret );
-    ASSERT_TRUE(tmp_err != NULL);
     DavixError::clearError(&tmp_err);
 
     boundary = "";

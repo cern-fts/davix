@@ -39,6 +39,16 @@ struct ChunkInfo {
     bool bounded;
 };
 
+
+struct MultirangeResult {
+    enum OperationResult { SUCCESS, NOMULTIRANGE, SUCCESS_BUT_NO_MULTIRANGE };
+    OperationResult res;
+    dav_ssize_t size_bytes;
+
+    MultirangeResult(OperationResult _res, dav_ssize_t _size_bytes)
+        : res(_res), size_bytes(_size_bytes) {}
+};
+
 ////
 /// \brief The HttpIOVecOps class
 ///
@@ -54,6 +64,19 @@ public:
                               const dav_size_t count_vec);
 
 private:
+    dav_ssize_t singleRangeRequest(IOChainContext & iocontext,
+                                   const DavIOVecInput * input,
+                                   DavIOVecOuput * output);
+
+    MultirangeResult performMultirange(IOChainContext & iocontext,
+                              const DavIOVecInput * input_vec,
+                              DavIOVecOuput * output_vec,
+                              const dav_size_t count_vec);
+
+    dav_ssize_t simulateMultirange(IOChainContext & iocontext,
+                              const DavIOVecInput * input_vec,
+                              DavIOVecOuput * output_vec,
+                              const dav_size_t count_vec);
 
     dav_ssize_t readPartialBufferVecRequest(HttpRequest & req,
                               const DavIOVecInput * input_vec,

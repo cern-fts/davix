@@ -63,6 +63,7 @@ public:
     boost::shared_ptr<Uri> redirectionResolveSingle(const std::string & method, const Uri & origin);
 
     void redirectionClean(const std::string & method, const Uri & origin);
+    void redirectionClean(const Uri & origin);
 
     //
     // opts
@@ -81,7 +82,7 @@ private:
     bool _session_caching, _redir_caching;
 
     // redirection pool
-    Cache<std::string, Uri> _redirCache;
+    Cache<std::pair<std::string, std::string>, Uri> _redirCache;
 
     void internal_release_session_handle(ne_session* sess);
     ne_session* create_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);

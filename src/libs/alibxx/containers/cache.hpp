@@ -63,6 +63,19 @@ public:
     }
 
     ///
+    /// \brief return the key that is immediatelly after given key
+    /// \param key
+    /// \return the next key
+    ///
+    const Key upper_bound(const Key & key) {
+        boost::lock_guard<boost::mutex> l(_m);
+        typename Map::iterator it = map.upper_bound( key);
+        if(it == map.end())
+            return Key();
+        return it->first;
+    }
+
+    ///
     /// \brief getSize return the number of object sotred in the cache
     /// \return
     ///

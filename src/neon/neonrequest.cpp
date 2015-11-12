@@ -199,6 +199,12 @@ int NEONRequest::createRequest(DavixError** err){
     }
 
     boost::shared_ptr<Uri> redir_url = ContextExplorer::SessionFactoryFromContext(_c).redirectionResolve(_request_type, *_current);
+
+    // performing an operation which could change the PFN? Clear all cache entries for selected URL
+    if(_request_type == "DELETE" || _request_type == "MOVE") {
+        ContextExplorer::SessionFactoryFromContext(_c).redirectionClean(*_current.get());
+    }
+
     if(redir_url.get() != NULL){
         _current.swap(redir_url);
     }

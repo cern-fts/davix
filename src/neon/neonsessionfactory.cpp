@@ -160,14 +160,13 @@ void NEONSessionFactory::internal_release_session_handle(ne_session* sess){
     _sess_map.insert(std::pair<std::string, ne_session*>(sess_key, sess));
 }
 
-static const std::string redirectionCreateKey(const std::string & method, const Uri & origin){
-    const std::string head_method("HEAD");
-    std::string res;
+static const std::pair<std::string, std::string> redirectionCreateKey(const std::string & method, const Uri & origin){
+    std::string mymethod = method;
+    // cache HEAD and GET on same key
+    if(mymethod == "HEAD")
+        mymethod = "GET";
 
-    res.reserve(method.size() + origin.getString().size() +3);
-    res.append( ((method.compare("GET") ==0)?(head_method):(method))); // cache HEAD and GET on same key
-    res.append("_").append(origin.getString());
-    return res;
+    return std::make_pair(origin.getString(), mymethod);
 }
 
 void NEONSessionFactory::addRedirection( const std::string & method, const Uri & origin, boost::shared_ptr<Uri> dest){
@@ -209,8 +208,16 @@ void NEONSessionFactory::redirectionClean(const std::string & method, const Uri 
     }
 }
 
+void NEONSessionFactory::redirectionClean(const Uri & origin){
+    std::pair<std::string, std::string> query = std::make_pair(origin.getString(), "");
+    while(1) {
+        const std::pair<std::string, std::string> nextkey = _redirCache.upper_bound(query);
+        if(nextkey.first != origin.getString())
+            break;
 
-
+        redirectionClean(nextkey.second, nextkey.first);
+    }
+}
 
 std::string create_map_keys_from_URL(const std::string & protocol, const std::string &host, unsigned int port){
     std::string host_port;

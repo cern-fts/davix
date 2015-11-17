@@ -77,14 +77,22 @@ struct UriPrivate{
         }
     }
 
-    void addQueryParam(const std::string & key, const std::string & value) {
-        if(query.size() == 0) {
-            query = key + "=" + value;
+    void addParam(const std::string & key, const std::string & value, std::string & target) {
+        if(target.size() == 0) {
+            target = key + "=" + value;
         }
         else {
-            query += "&" + key + "=" + value;
+            target += "&" + key + "=" + value;
         }
         _update_string();
+    }
+
+    void addQueryParam(const std::string & key, const std::string & value) {
+        addParam(key, value, query);
+    }
+
+    void addFragmentParam(const std::string & key, const std::string & value) {
+        addParam(key, value, fragment);
     }
 
     void addPathSegment(const std::string &seg) {
@@ -154,6 +162,11 @@ Uri::Uri(const Uri & uri) :
 
 void Uri::addQueryParam(const std::string & key, const std::string & value) {
     d_ptr->addQueryParam(Uri::queryParamEscape(key), Uri::queryParamEscape(value));
+}
+
+
+void Uri::addFragmentParam(const std::string & key, const std::string & value) {
+    d_ptr->addFragmentParam(key, value);
 }
 
 void Uri::addPathSegment(const std::string &seg) {

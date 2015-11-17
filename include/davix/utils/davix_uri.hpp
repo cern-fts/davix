@@ -73,6 +73,11 @@ public:
     /// @param value : parameter value, not escaped
     void addQueryParam(const std::string & key, const std::string & value);
 
+    /// append a fragment parameter to the uri
+    /// @param key : key
+    /// @param value : value
+    void addFragmentParam(const std::string & key, const std::string & value);
+
     /// append a path segment to the uri
     /// @param seg : the segment to add
     void addPathSegment(const std::string & seg);

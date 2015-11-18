@@ -114,15 +114,6 @@ MultirangeResult HttpIOVecOps::performMultirange(IOChainContext & iocontext,
         bytes_to_read += (ranges[i].second - ranges[i].first + 1);
     }
 
-    std::cout << "going to read the following ranges" << std::endl;
-    for(auto it = ranges.begin(); it != ranges.end(); it++) {
-        std::cout << it->first << "-" << it->second << std::endl;
-    }
-
-    // generator of offset
-    //boost::function<int (dav_off_t &, dav_off_t &)> offsetProvider( boost::bind(davIOVecProvider, input_vec, counter, (dav_ssize_t) count_vec,
-    //                     _1, _2));
-
     boost::function<int (dav_off_t &, dav_off_t &)> offsetProvider(boost::bind(davIOVecProvider, ranges, counter, _1, _2));
 
     // header line need to be inferior to 8K on Apache2 / ngnix
@@ -138,9 +129,6 @@ MultirangeResult HttpIOVecOps::performMultirange(IOChainContext & iocontext,
         if(it->first == 1){ // one chunk only : no need of multi part
             ret += singleRangeRequest(iocontext, tree, ranges[p_diff].first, ranges[p_diff].second - ranges[p_diff].first + 1);
             p_diff += 1;
-
-            //ret += singleRangeRequest(iocontext, tree, )
-            //ret += singleRangeRequest(iocontext, input_vec+p_diff, output_vec+p_diff);
         }else{
             GetRequest req (iocontext._context, iocontext._uri, &tmp_err);
             if(tmp_err == NULL){

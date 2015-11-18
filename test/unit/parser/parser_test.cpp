@@ -208,33 +208,6 @@ TEST(IOVecMultiPartParser, BoundaryExtract){
 
 }
 
-
-
-TEST(IOVecMultiPartParser, BoundaryPart){
-    std::string boundary, part;
-    DavixError* tmp_err = NULL;
-    boundary = "gc0p4Jq0M2Yt08jU534c0p";
-    part =  "--gc0p4Jq0M2Yt08jU534c0p";
-
-
-    bool ret =  is_a_start_boundary_part((char*) part.c_str(), part.size(), boundary,
-                                        &tmp_err);
-    ASSERT_TRUE(ret );
-    ASSERT_EQ(NULL, tmp_err);
-
-
-    boundary = "gc0p4Jq0M2Yt08jU534c0p";
-    part =  "--++gc0p4Jq0M2Yt08jU534c0p";
-    ret =  is_a_start_boundary_part((char*) part.c_str(), part.size(), boundary,
-                                        &tmp_err);
-    ASSERT_FALSE(ret);
-    ASSERT_TRUE(tmp_err != NULL);
-    DavixError::clearError(&tmp_err);
-
-
-}
-
-
 int numb_it=0;
 
 static int callback_offset_stupid(dav_off_t & begin, dav_off_t & end){

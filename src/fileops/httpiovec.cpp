@@ -23,6 +23,7 @@
 #include "httpiovec.hpp"
 #include <utils/davix_logger_internal.hpp>
 #include <string_utils/stringutils.hpp>
+#include <IntervalTree.h>
 
 #include <map>
 
@@ -77,49 +78,69 @@ inline char* header_delimiter(char* buffer, dav_size_t len){
 }
 
 // Vector operation option provider
-int davIOVecProvider(const DavIOVecInput *input_vec, dav_ssize_t & counter, dav_ssize_t number, dav_off_t & begin, dav_off_t & end){
+/*int davIOVecProvider(const DavIOVecInput *input_vec, dav_ssize_t & counter, dav_ssize_t number, dav_off_t & begin, dav_off_t & end){
     if(counter < number){
         begin = input_vec[counter].diov_offset;
         end = std::max<dav_off_t>(begin + input_vec[counter].diov_size -1, begin);
         return ++counter;
     }
     return -1;
+}*/
+
+int davIOVecProvider(const SortedRanges ranges, dav_size_t & counter, dav_off_t & begin, dav_off_t & end) {
+    if(counter < ranges.size()) {
+        begin = ranges[counter].first;
+        end = ranges[counter].second;
+        return ++counter;
+    }
+    return -1;
 }
+
 
 // do a multi-range on selected ranges
 MultirangeResult HttpIOVecOps::performMultirange(IOChainContext & iocontext,
-                                     const DavIOVecInput * input_vec,
-                                     DavIOVecOuput * output_vec,
-                                     const dav_size_t count_vec) {
+                                                 const IntervalTree<ElemChunk> &tree,
+                                                 const SortedRanges & ranges) {
+
     DavixError * tmp_err=NULL;
     dav_ssize_t tmp_ret=-1, ret = 0;
     ptrdiff_t p_diff=0;
-    dav_ssize_t counter = 0;
+    dav_size_t counter = 0;
     MultirangeResult::OperationResult opresult = MultirangeResult::SUCCESS;
 
     // calculate total bytes to be read (approximate, since ranges could overlap)
     dav_ssize_t bytes_to_read = 0;
-    for(dav_size_t i = 0; i < count_vec; i++) {
-        bytes_to_read += (input_vec+i)->diov_size;
+    for(dav_size_t i = 0; i < ranges.size(); i++) {
+        bytes_to_read += (ranges[i].second - ranges[i].first + 1);
+    }
+
+    std::cout << "going to read the following ranges" << std::endl;
+    for(auto it = ranges.begin(); it != ranges.end(); it++) {
+        std::cout << it->first << "-" << it->second << std::endl;
     }
 
     // generator of offset
-    boost::function<int (dav_off_t &, dav_off_t &)> offsetProvider( boost::bind(davIOVecProvider, input_vec, counter, (dav_ssize_t) count_vec,
-                         _1, _2));
+    //boost::function<int (dav_off_t &, dav_off_t &)> offsetProvider( boost::bind(davIOVecProvider, input_vec, counter, (dav_ssize_t) count_vec,
+    //                     _1, _2));
+
+    boost::function<int (dav_off_t &, dav_off_t &)> offsetProvider(boost::bind(davIOVecProvider, ranges, counter, _1, _2));
 
     // header line need to be inferior to 8K on Apache2 / ngnix
     // in Addition, some S3 implementation limit the total header size to 4k....
     // 3900 bytes maximum for the range seems to be a ood compromise
     std::vector< std::pair<dav_size_t, std::string> > vecRanges = generateRangeHeaders(3900, offsetProvider);
 
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, " -> getPartialVec operation for {} vectors", count_vec);
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, " -> getPartialVec operation for {} vectors", ranges.size());
 
     for(std::vector< std::pair<dav_size_t, std::string> >::iterator it = vecRanges.begin(); it < vecRanges.end(); ++it){
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, " -> getPartialVec request for {} chunks", it->first);
 
         if(it->first == 1){ // one chunk only : no need of multi part
-            ret += singleRangeRequest(iocontext, input_vec+p_diff, output_vec+p_diff);
+            ret += singleRangeRequest(iocontext, tree, ranges[p_diff].first, ranges[p_diff].second - ranges[p_diff].first + 1);
             p_diff += 1;
+
+            //ret += singleRangeRequest(iocontext, tree, )
+            //ret += singleRangeRequest(iocontext, input_vec+p_diff, output_vec+p_diff);
         }else{
             GetRequest req (iocontext._context, iocontext._uri, &tmp_err);
             if(tmp_err == NULL){
@@ -132,8 +153,7 @@ MultirangeResult HttpIOVecOps::performMultirange(IOChainContext & iocontext,
 
                     // looks like the server supports multi-range requests.. yay
                     if(retcode == 206) {
-                        ret = parseMultipartRequest(req, input_vec+p_diff,
-                                                    output_vec+p_diff, count_vec, &tmp_err);
+                        ret = parseMultipartRequest(req, tree, &tmp_err);
 
                         // could not parse multipart response - server's broken?
                         // known to happen with ceph - return code is 206, but only
@@ -160,7 +180,7 @@ MultirangeResult HttpIOVecOps::performMultirange(IOChainContext & iocontext,
                         else {
                             DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Simulating multi-part response from the contents of the entire file");
                             opresult = MultirangeResult::SUCCESS_BUT_NO_MULTIRANGE;
-                            ret = simulateMultiPartRequest(req, input_vec, output_vec, count_vec, &tmp_err);
+                            ret = simulateMultiPartRequest(req, tree, &tmp_err);
                         }
                         break;
                     }
@@ -180,7 +200,7 @@ MultirangeResult HttpIOVecOps::performMultirange(IOChainContext & iocontext,
         }
     }
 
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, " <- getPartialVec operation for {} vectors", count_vec);
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, " <- getPartialVec operation for {} vectors", ranges.size());
     checkDavixError(&tmp_err);
     return MultirangeResult(opresult, ret);
 }
@@ -199,14 +219,56 @@ dav_ssize_t HttpIOVecOps::singleRangeRequest(IOChainContext & iocontext,
     return size;
 }
 
-dav_ssize_t HttpIOVecOps::simulateMultirange(IOChainContext & iocontext,
-                                     const DavIOVecInput * input_vec,
-                                     DavIOVecOuput * output_vec,
-                                     const dav_size_t count_vec) {
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Simulating a multi-range request with {} vectors", count_vec);
-    dav_ssize_t size = 0;
+// merge user-provided ranges, add them to intervals
+typedef std::multimap<dav_off_t, dav_size_t> MergedRanges;
+static SortedRanges partialMerging(const IntervalTree<ElemChunk> &tree, const dav_size_t mergedist) {
+    MergedRanges merged;
+
+    std::vector<Interval<ElemChunk> > allranges;
+    tree.findContained(0, std::numeric_limits<dav_size_t>::max(), allranges);
+
+    dav_off_t offset = allranges.begin()->start;
+    dav_off_t end = allranges.begin()->stop;
+
+    for(std::vector<Interval<ElemChunk> >::iterator it = allranges.begin(); it != allranges.end(); it++) {
+        if(end+mergedist >= it->start) {
+            end = it->stop;
+        }
+        else {
+            merged.insert(std::make_pair(offset, end));
+            offset = it->start;
+            end = it->stop;
+        }
+    }
+    merged.insert(std::make_pair(offset, end));
+
+    SortedRanges output;
+    for(MergedRanges::iterator it = merged.begin(); it != merged.end(); it++)
+        output.push_back(*it);
+
+    return output;
+}
+
+static IntervalTree<ElemChunk> buildIntervalTree(const DavIOVecInput *in, DavIOVecOuput *out, const dav_size_t count_vec) {
+    std::vector<Interval<ElemChunk> > intervals;
+
     for(dav_size_t i = 0; i < count_vec; i++) {
-        size += singleRangeRequest(iocontext, input_vec+i, output_vec+i);
+        dav_off_t start = in[i].diov_offset;
+        dav_off_t end = start + in[i].diov_size - 1;
+        ElemChunk elem(in+i, out+i);
+
+        intervals.push_back(Interval<ElemChunk>(start, end, elem));
+    }
+    return IntervalTree<ElemChunk>(intervals);
+}
+
+dav_ssize_t HttpIOVecOps::simulateMultirange(IOChainContext & iocontext,
+                                     const IntervalTree<ElemChunk> & tree,
+                                     const SortedRanges & ranges) {
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Simulating a multi-range request with {} vectors", ranges.size());
+    dav_ssize_t size = 0;
+    for(dav_size_t i = 0; i < ranges.size(); i++) {
+        size += singleRangeRequest(iocontext, tree, ranges[i].first, ranges[i].second - ranges[i].first + 1);
     }
     return size;
 }
@@ -214,52 +276,28 @@ dav_ssize_t HttpIOVecOps::simulateMultirange(IOChainContext & iocontext,
 dav_ssize_t HttpIOVecOps::preadVec(IOChainContext & iocontext, const DavIOVecInput * input_vec,
                           DavIOVecOuput * output_vec,
                           const dav_size_t count_vec){
-
     if(count_vec ==0)
         return 0;
 
+    IntervalTree<ElemChunk> tree = buildIntervalTree(input_vec, output_vec, count_vec);
+    SortedRanges sorted = partialMerging(tree, 200);
+
     // a lot of servers do not support multirange... should we even try?
     if(count_vec == 1 || iocontext._uri.getFragmentParam("multirange") == "false") {
-        return simulateMultirange(iocontext, input_vec, output_vec, count_vec);
+        sorted = partialMerging(tree, 2000);
+        return simulateMultirange(iocontext, tree, sorted);
     }
 
-    MultirangeResult res = performMultirange(iocontext, input_vec, output_vec, count_vec);
+    MultirangeResult res = performMultirange(iocontext, tree, sorted);
     if(res.res == MultirangeResult::SUCCESS || res.res == MultirangeResult::SUCCESS_BUT_NO_MULTIRANGE) {
         return res.size_bytes;
     }
     else {
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Multi-range request has failed, attempting to recover by using multiple single-range requests");
-        return simulateMultirange(iocontext, input_vec, output_vec, count_vec);
+        sorted = partialMerging(tree, 1000);
+        return simulateMultirange(iocontext, tree, sorted);
     }
 }
-
-dav_ssize_t HttpIOVecOps::readPartialBufferVecRequest(HttpRequest & _req,
-                          const DavIOVecInput * input_vec,
-                          DavIOVecOuput * output_vec,
-                          const dav_size_t count_vec, DavixError** err){
-    dav_ssize_t ret=-1;
-    DavixError* tmp_err=NULL;
-    DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CHAIN, " -> Davix Vector operation");
-    if( _req.beginRequest(&tmp_err)  == 0){
-        const int retcode = _req.getRequestCode();
-        switch(retcode){
-             case 206: // multipart req
-                 ret = parseMultipartRequest(_req, input_vec,
-                                          output_vec, count_vec, &tmp_err);
-                 break;
-             case 200: // classical req, simulate vector ops
-                 ret = simulateMultiPartRequest(_req, input_vec, output_vec, count_vec, &tmp_err);
-                 break;
-             default:
-                 httpcodeToDavixError(_req.getRequestCode(),davix_scope_http_request(),", ", &tmp_err);
-        }
-    }
-
-    DavixError::propagateError(err, tmp_err);
-    DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CHAIN, " <- Davix Vector operation");
-    return ret;
-}
-
 
 int http_extract_boundary_from_content_type(const std::string & buffer, std::string & boundary, DavixError** err){
     dav_size_t pos_bound;
@@ -279,7 +317,6 @@ int http_extract_boundary_from_content_type(const std::string & buffer, std::str
 
 
 int get_multi_part_info(const HttpRequest& req, std::string & boundary, DavixError** err){
-
     std::string buffer;
 
     if( req.getAnswerHeader(ans_header_content_type, buffer) == true // has content type
@@ -288,11 +325,6 @@ int get_multi_part_info(const HttpRequest& req, std::string & boundary, DavixErr
     }
     return -1;
 }
-
-
-
-
-
 
 // analyze header and try to find size of the part
 // return 0 -> not a content length header, return -1 : not a header or error, return 1 : success
@@ -334,6 +366,30 @@ inline dav_ssize_t parse_multi_part_header_line(HttpRequest& req, char* buffer, 
     return ret;
 }
 
+enum BoundaryType { NORMAL_BOUNDARY, TERMINATING_BOUNDARY, NOT_A_BOUNDARY };
+
+static BoundaryType parseBoundary(char* buffer, const std::string & boundary) {
+    dav_size_t len = strlen(buffer);
+
+    if(len <= 3)
+        return NOT_A_BOUNDARY;
+
+    char *p = buffer;
+    if(*p != '-' || *(p+1) != '-')
+        return NOT_A_BOUNDARY;
+
+    if(strncmp(buffer+2, boundary.c_str(), boundary.size()) != 0)
+        return NOT_A_BOUNDARY;
+
+    if(boundary.size()+2 == len)
+        return NORMAL_BOUNDARY;
+
+    if(boundary.size()+4 == len && *(p+len-2) == '-' && *(p+len-1) == '-')
+        return TERMINATING_BOUNDARY;
+
+    return NOT_A_BOUNDARY;
+}
+
 int  parse_multi_part_header(HttpRequest& req, const std::string & boundary, ChunkInfo & info,
                             int & n_try, DavixError** err){
     dav_ssize_t ret =0;
@@ -352,8 +408,10 @@ int  parse_multi_part_header(HttpRequest& req, const std::string & boundary, Chu
         if(ret == 0) // start with crlf
             return parse_multi_part_header(req, boundary, info, ++n_try, err);
 
-        if( is_a_start_boundary_part(buffer, DAVIX_READ_BLOCK_SIZE, boundary, err) == false)
-            return -1;
+        BoundaryType type = parseBoundary(buffer, boundary);
+        if(type == NOT_A_BOUNDARY) return -1;
+        if(type == TERMINATING_BOUNDARY) return -2;
+
         info.bounded = true;
         return parse_multi_part_header(req, boundary, info, ++n_try, err);
     }
@@ -365,218 +423,114 @@ int  parse_multi_part_header(HttpRequest& req, const std::string & boundary, Chu
     }
     if(ret == 0) // end crlf
         return 0;
+
     HttpIoVecSetupErrorMultiPart(err);
     return -1;
 }
 
-dav_ssize_t copyChunk(HttpRequest & req, const DavIOVecInput *i,
-                               DavIOVecOuput* o, DavixError** err){
+// copy from source to chunk
+static void copyBytes(const char *source, dav_off_t offset, dav_size_t size, ElemChunk &chunk) {
+    dav_off_t chunkOffset = chunk._in->diov_offset;
+    dav_size_t chunkSize = chunk._in->diov_size;
 
+    // first byte from which we'll start copying
+    dav_off_t common_offset = std::max(offset, chunkOffset);
+
+    // the length for which the two segments intersect
+    dav_size_t intersect_dist = std::min(size - (common_offset-offset), chunkSize - (common_offset-chunkOffset));
+
+    memcpy( (char*) chunk._in->diov_buffer+(common_offset-chunkOffset),
+            source+(common_offset-offset), intersect_dist);
+
+    chunk._ou->diov_buffer = chunk._in->diov_buffer;
+    chunk._ou->diov_size = chunkSize;
+}
+
+// find all matching chunks in tree and fill them
+static void fillChunks(const char *source, const IntervalTree<ElemChunk> &tree, dav_off_t offset, dav_size_t size) {
+    std::vector<Interval<ElemChunk> > matches;
+    tree.findContained(offset, offset+size-1, matches);
+
+    for(std::vector<Interval<ElemChunk> >::iterator it = matches.begin(); it != matches.end(); it++) {
+        copyBytes(source, offset, size, it->value);
+    }
+
+    if(matches.size() == 0) {
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "WARNING: Received byte-range from server does not match any in the interval tree");
+    }
+}
+
+dav_ssize_t copyChunk(HttpRequest & req, const IntervalTree<ElemChunk> &tree, dav_off_t offset, dav_size_t size,
+                      DavixError** err){
     DavixError* tmp_err=NULL;
     dav_ssize_t ret;
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Davix::parseMultipartRequest::copyChunk copy {} bytes with offset {}", i->diov_size, i->diov_offset);
-    // if size ==0, request set to 1 byte due to server behavior, read the stupid byte and skip
-    if( i->diov_size ==0){
-        char trash[2];
-        if( (ret = req.readSegment(trash, 1, &tmp_err)) > 0){
-            o->diov_buffer = i->diov_buffer;
-            o->diov_size = 0;
-            ret = 0;
-        }
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Davix::parseMultipartRequest::copyChunk copy {} bytes with offset {}", offset, size);
 
-    } else if( ( ret = req.readSegment((char*)i->diov_buffer, i->diov_size, &tmp_err)) >0){
-        o->diov_buffer = i->diov_buffer;
-        o->diov_size = ret;
-    }
-    if(tmp_err){
+    char buffer[size+1];
+    ret = req.readSegment(buffer, size, &tmp_err);
+    if(ret != (dav_ssize_t) size || tmp_err) {
         DavixError::propagateError(err, tmp_err);
-    }else{
-        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Davix::parseMultipartRequest::copyChunk {} bytes copied with success",ret);
     }
+
+    fillChunks(buffer, tree, offset, size);
     return ret;
 }
 
+dav_ssize_t HttpIOVecOps::singleRangeRequest(IOChainContext & iocontext,
+                                             const IntervalTree<ElemChunk> & tree,
+                                             dav_off_t offset, dav_size_t size) {
+    char buffer[size+1];
+    dav_ssize_t s = _start->pread(iocontext, buffer, size, offset);
+    fillChunks(buffer, tree, offset, s);
+    return s;
+}
 
 dav_ssize_t HttpIOVecOps::parseMultipartRequest(HttpRequest & _req,
-                                            const DavIOVecInput *input_vec,
-                                            DavIOVecOuput * output_vec,
-                                            const dav_size_t count_vec, DavixError** err){
+                                                const IntervalTree<ElemChunk> & tree,
+                                                DavixError** err) {
     std::string boundary;
     dav_ssize_t ret = 0, tmp_ret =0;
-    dav_size_t off=0;
     DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CHAIN, "Davix::parseMultipartRequest multi part parsing");
 
-    if(get_multi_part_info(_req, boundary, err)  != 0 ){
+    if(get_multi_part_info(_req, boundary, err) != 0){
         DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CHAIN, "Invalid Header Content info for multi part request");
         return -1;
     }
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Davix::parseMultipartRequest multi-part boundary {}", boundary);
 
-    while(off < count_vec){
-       DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Davix::parseMultipartRequest try to find chunk offset:{} size {}", input_vec[off].diov_offset, input_vec[off].diov_size);
+    while(1) {
+       DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Davix::parseMultipartRequest parsing a new chunk");
        ChunkInfo infos;
        int n_try = 0;
-       if( (tmp_ret = parse_multi_part_header(_req, boundary, infos,
-                                     n_try, err)) < 0){
-            return -1;
-       }
 
-       if(infos.offset == 0 &&  infos.size == 0 && infos.bounded == true){
-            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Davix::parseMultipartRequest multi-part : end of the request found {} chunks treated on {}", off, count_vec);
-            return ret;
-       }
+       tmp_ret = parse_multi_part_header(_req, boundary, infos, n_try, err);
+       if(tmp_ret == -2) break; // terminating boundary
+       if(tmp_ret == -1) return -1; // error
 
-       if( input_vec[off].diov_size !=0 &&
-               (infos.offset != input_vec[off].diov_offset
-               || infos.size != input_vec[off].diov_size )){
-            HttpIoVecSetupErrorMultiPartSize(err,
-                                            input_vec[off].diov_offset, input_vec[off].diov_size,
-                                             infos.offset, infos.size);
-            return -1;
-       }
-
-       if( (tmp_ret = copyChunk(_req, &input_vec[off], &output_vec[off], err)) <0 )
+       if( (tmp_ret = copyChunk(_req, tree, infos.offset, infos.size, err)) <0 )
            return -1;
 
        ret += tmp_ret;
        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Davix::parseMultipartRequest chunk parsed with success, next chunk..");
-       off++;
     }
 
     // finish with success, dump the remaining part of the query to end the request properly
     char buffer[255];
     while( _req.readBlock(buffer, 255, NULL) > 0);
 
-
-    DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CHAIN, "Davix::parseMultipartRequest end {} {}", off, count_vec);
     return ret;
 }
 
-
-bool is_a_start_boundary_part(char* buffer, dav_size_t s_buff, const std::string & boundary,
-                            DavixError** err){
-    if(s_buff > 3){
-        char * p = buffer;
-        if( *p == '-' && *(p+1)== '-'){
-            if( strcmp(buffer+2, boundary.c_str()) ==0){
-                return true;
-            }
-        }
-    }
-    DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CHAIN, "Invalid boundary delimitation");
-    HttpIoVecSetupErrorMultiPart(err);
-    return false;
-}
-
-
-
-
-
-struct ElemChunk{
-    ElemChunk(const DavIOVecInput* in, DavIOVecOuput* ou) :
-        _in(in),
-        _ou(ou),
-        _cursor((char*) in->diov_buffer){
-        _ou->diov_size=0; // reset elem read status
-        _ou->diov_buffer = _in->diov_buffer;
-    }
-
-    const DavIOVecInput *_in;
-    DavIOVecOuput * _ou;
-    char *_cursor;
-
-};
-
-typedef std::pair<dav_off_t, ElemChunk> PairChunk;
-
-
-typedef std::multimap<dav_off_t, ElemChunk> MapChunk;
-
-
-// order the chunk by offset
-static void fill_map_chunk(MapChunk & m, const DavIOVecInput *input_vec,
-                                    DavIOVecOuput * output_vec,
-                                    const dav_size_t count_vec){
-    for(dav_size_t s = 0; s < count_vec; s++){
-        m.insert(PairChunk(input_vec[s].diov_offset, ElemChunk(&input_vec[s], &output_vec[s])));
-    }
-}
-
-
-static void balance_iterator_windows(MapChunk & m,
-                                     MapChunk::iterator & start, MapChunk::iterator & end,
-                                     dav_ssize_t pos, dav_ssize_t read_size){
-    dav_ssize_t size_part;
-    dav_off_t off_part;
-    for(;start != m.end();){ // move the it to first concerned block
-        size_part = (*start).second._in->diov_size;
-        off_part = (*start).second._in->diov_offset;
-        if(pos > ((dav_ssize_t)off_part) + size_part)
-            start++;
-        else
-            break;
-    }
-
-    const dav_ssize_t end_chunk_pos = pos + read_size;
-    for(;end != m.end();){
-        off_part = (*end).second._in->diov_offset;
-        if(end_chunk_pos > (dav_ssize_t)off_part )
-            end++;
-        else
-            break;
-    }
-
-}
-
-static void fill_concerned_chunk_buffer(MapChunk & m,
-                                        MapChunk::iterator & start, MapChunk::iterator & end,
-                                        char* buffer, dav_ssize_t read_size, dav_ssize_t pos){
-    (void) m;
-    for(MapChunk::iterator it = start; it != end; it++){
-        const dav_ssize_t size_part = (*it).second._in->diov_size;
-        const dav_off_t off_part = (*it).second._in->diov_offset;
-        const dav_ssize_t cur_chunk_size = (*it).second._ou->diov_size;
-        const char* p_buff = (char*) (*it).second._ou->diov_buffer;
-
-        const dav_ssize_t current_chunk_offset = ((dav_ssize_t) off_part + cur_chunk_size);
-        const dav_ssize_t read_offset =  current_chunk_offset - pos;
-        const dav_ssize_t s_needed = std::min(size_part - cur_chunk_size, read_size - read_offset);
-        if(s_needed > 0){
-            memcpy((void*) (p_buff + cur_chunk_size), buffer+ read_offset, s_needed);
-            (*it).second._ou->diov_size += s_needed;
-        }
-    }
-}
-
-static dav_ssize_t sum_all_chunk_size(const MapChunk & cmap){
-
-    dav_ssize_t res =0;
-    for(MapChunk::const_iterator it = cmap.begin(); it != cmap.end(); ++it){
-        res += (*it).second._ou->diov_size;
-    }
-    return res;
-}
-
-dav_ssize_t HttpIOVecOps::simulateMultiPartRequest(HttpRequest & _req, const DavIOVecInput *input_vec,
-                                 DavIOVecOuput * output_vec,
-                   const dav_size_t count_vec, DavixError** err){
+dav_ssize_t HttpIOVecOps::simulateMultiPartRequest(HttpRequest & _req, const IntervalTree<ElemChunk> & tree, DavixError** err) {
     DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CHAIN, " -> Davix vec : 200 full file, simulate vec io");
-    MapChunk cmap;
-    dav_ssize_t total_read_size=0, tmp_read_size;
-    char buffer[DAVIX_READ_BLOCK_SIZE];
-
-    fill_map_chunk(cmap, input_vec, output_vec, count_vec);
-    MapChunk::iterator it_start=cmap.begin(),it_end = cmap.begin();
-    while( (tmp_read_size = _req.readBlock(buffer, DAVIX_READ_BLOCK_SIZE, err)) >0){
-        balance_iterator_windows(cmap, it_start, it_end, total_read_size, tmp_read_size); // re-balance the interested windows
-        fill_concerned_chunk_buffer(cmap, it_start, it_end, buffer, tmp_read_size, total_read_size); // fill the interested window
-        total_read_size += tmp_read_size;
+    char buffer[DAVIX_READ_BLOCK_SIZE+1];
+    dav_ssize_t partial_read_size = 0, total_read_size = 0;
+    while( (partial_read_size = _req.readBlock(buffer, DAVIX_READ_BLOCK_SIZE, err)) >0) {
+        fillChunks(buffer, tree, total_read_size, partial_read_size);
+        total_read_size += partial_read_size;
     }
-    if(tmp_read_size < 0)
-        return -1;
 
-    DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CHAIN, " <- Davix vec : 200 full file, simulate vec io");
-    return sum_all_chunk_size(cmap);
+    return total_read_size;
 }
 
 

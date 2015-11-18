@@ -25,6 +25,7 @@
 #include <davix.hpp>
 #include <fileops/iobuffmap.hpp>
 #include <fileops/httpiochain.hpp>
+#include <IntervalTree.h>
 
 namespace Davix{
 
@@ -39,6 +40,23 @@ struct ChunkInfo {
     bool bounded;
 };
 
+struct ElemChunk{
+    ElemChunk(const DavIOVecInput* in, DavIOVecOuput* ou) :
+        _in(in),
+        _ou(ou),
+        _cursor((char*) in->diov_buffer){
+        _ou->diov_size=0; // reset elem read status
+        _ou->diov_buffer = _in->diov_buffer;
+    }
+
+    const DavIOVecInput *_in;
+    DavIOVecOuput * _ou;
+    char *_cursor;
+
+};
+
+typedef std::multimap<dav_off_t, ElemChunk> MapChunk;
+typedef std::vector<std::pair<dav_off_t, dav_size_t> > SortedRanges;
 
 struct MultirangeResult {
     enum OperationResult { SUCCESS, NOMULTIRANGE, SUCCESS_BUT_NO_MULTIRANGE };
@@ -68,37 +86,27 @@ private:
                                    const DavIOVecInput * input,
                                    DavIOVecOuput * output);
 
+    dav_ssize_t singleRangeRequest(IOChainContext & iocontext,
+                                   const IntervalTree<ElemChunk> & tree,
+                                   dav_off_t offset, dav_size_t size);
+
     MultirangeResult performMultirange(IOChainContext & iocontext,
-                              const DavIOVecInput * input_vec,
-                              DavIOVecOuput * output_vec,
-                              const dav_size_t count_vec);
+                                       const IntervalTree<ElemChunk> &tree,
+                                       const SortedRanges & ranges);
 
     dav_ssize_t simulateMultirange(IOChainContext & iocontext,
-                              const DavIOVecInput * input_vec,
-                              DavIOVecOuput * output_vec,
-                              const dav_size_t count_vec);
-
-    dav_ssize_t readPartialBufferVecRequest(HttpRequest & req,
-                              const DavIOVecInput * input_vec,
-                              DavIOVecOuput * output_vec,
-                              const dav_size_t count_vec, DavixError** err);
+                                   const IntervalTree<ElemChunk> & tree,
+                                   const SortedRanges & ranges);
 
     dav_ssize_t parseMultipartRequest(HttpRequest & req,
-                                      const DavIOVecInput *input_vec,
-                                      DavIOVecOuput * output_vec,
-                                      const dav_size_t count_vec, DavixError** tmp_err);
+                                      const IntervalTree<ElemChunk> & tree,
+                                      DavixError** tmp_err);
 
-    dav_ssize_t simulateMultiPartRequest(HttpRequest & req,
-                                         const DavIOVecInput *input_vec,
-                                         DavIOVecOuput * output_vec,
-                                         const dav_size_t count_vec, DavixError** tmp_err);
-
+    dav_ssize_t simulateMultiPartRequest(HttpRequest & _req,
+                                         const IntervalTree<ElemChunk> & tree,
+                                         DavixError** err);
 };
 
-
-
-bool is_a_start_boundary_part(char* buffer, dav_size_t s_buff, const std::string & boundary,
-                            DavixError** err);
 
 int find_header_params(char* buffer, dav_size_t buffer_len, dav_size_t* part_size, dav_off_t* part_offset);
 
@@ -109,9 +117,6 @@ int parse_multi_part_header(HttpRequest& req, const std::string & boundary, Chun
                             int & n_try, DavixError** err);
 
 int davIOVecProvider(const DavIOVecInput *input_vec, dav_ssize_t & counter, dav_ssize_t number, dav_off_t & begin, dav_off_t & end);
-
-
-
 
 void HttpIoVecSetupErrorMultiPart(DavixError** err);
 

@@ -212,20 +212,24 @@ typedef std::multimap<dav_off_t, dav_size_t> MergedRanges;
 static SortedRanges partialMerging(const IntervalTree<ElemChunk> &tree, const dav_size_t mergedist) {
     MergedRanges merged;
 
-    std::vector<Interval<ElemChunk> > allranges;
-    tree.findContained(0, std::numeric_limits<dav_size_t>::max(), allranges);
+    std::vector<Interval<ElemChunk> > allranges_unsorted;
+    tree.findContained(0, std::numeric_limits<dav_size_t>::max(), allranges_unsorted);
 
-    dav_off_t offset = allranges.begin()->start;
-    dav_off_t end = allranges.begin()->stop;
+    MergedRanges allranges;
+    for(std::vector<Interval<ElemChunk> >::iterator it = allranges_unsorted.begin(); it != allranges_unsorted.end(); it++)
+        allranges.insert(std::make_pair(it->start, it->stop));
 
-    for(std::vector<Interval<ElemChunk> >::iterator it = allranges.begin(); it != allranges.end(); it++) {
-        if(end+mergedist >= it->start) {
-            end = it->stop;
+    dav_off_t offset = allranges.begin()->first;
+    dav_off_t end = allranges.begin()->second;
+
+    for(MergedRanges::iterator it = allranges.begin(); it != allranges.end(); it++) {
+        if(end+mergedist >= it->first) {
+            end = it->second;
         }
         else {
             merged.insert(std::make_pair(offset, end));
-            offset = it->start;
-            end = it->stop;
+            offset = it->first;
+            end = it->second;
         }
     }
     merged.insert(std::make_pair(offset, end));
@@ -437,7 +441,7 @@ static void copyBytes(const char *source, dav_off_t offset, dav_size_t size, Ele
 // find all matching chunks in tree and fill them
 static void fillChunks(const char *source, const IntervalTree<ElemChunk> &tree, dav_off_t offset, dav_size_t size) {
     std::vector<Interval<ElemChunk> > matches;
-    tree.findContained(offset, offset+size-1, matches);
+    tree.findOverlapping(offset, offset+size-1, matches);
 
     for(std::vector<Interval<ElemChunk> >::iterator it = matches.begin(); it != matches.end(); it++) {
         copyBytes(source, offset, size, it->value);

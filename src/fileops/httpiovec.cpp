@@ -24,6 +24,7 @@
 #include <utils/davix_logger_internal.hpp>
 #include <string_utils/stringutils.hpp>
 #include <IntervalTree.h>
+#include <omp.h>
 
 #include <map>
 
@@ -256,9 +257,12 @@ static IntervalTree<ElemChunk> buildIntervalTree(const DavIOVecInput *in, DavIOV
 
 dav_ssize_t HttpIOVecOps::simulateMultirange(IOChainContext & iocontext,
                                      const IntervalTree<ElemChunk> & tree,
-                                     const SortedRanges & ranges) {
+                                     const SortedRanges & ranges,
+                                     const uint nconnections) {
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Simulating a multi-range request with {} vectors", ranges.size());
     dav_ssize_t size = 0;
+
+#pragma omp parallel for num_threads(nconnections) reduction(+:size)
     for(dav_size_t i = 0; i < ranges.size(); i++) {
         size += singleRangeRequest(iocontext, tree, ranges[i].first, ranges[i].second - ranges[i].first + 1);
     }
@@ -274,10 +278,17 @@ dav_ssize_t HttpIOVecOps::preadVec(IOChainContext & iocontext, const DavIOVecInp
     IntervalTree<ElemChunk> tree = buildIntervalTree(input_vec, output_vec, count_vec);
     SortedRanges sorted = partialMerging(tree, 200);
 
+    // number of parallel connections in case of a simulation
+    uint nconnections = 10;
+    if(iocontext._uri.fragmentParamExists("nconnections")) {
+        nconnections = atoi(iocontext._uri.getFragmentParam("nconnections").c_str());
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Setting number of desired parallel connections to {}", nconnections);
+    }
+
     // a lot of servers do not support multirange... should we even try?
     if(count_vec == 1 || iocontext._uri.getFragmentParam("multirange") == "false") {
         sorted = partialMerging(tree, 2000);
-        return simulateMultirange(iocontext, tree, sorted);
+        return simulateMultirange(iocontext, tree, sorted, nconnections);
     }
 
     MultirangeResult res = performMultirange(iocontext, tree, sorted);
@@ -287,7 +298,7 @@ dav_ssize_t HttpIOVecOps::preadVec(IOChainContext & iocontext, const DavIOVecInp
     else {
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Multi-range request has failed, attempting to recover by using multiple single-range requests");
         sorted = partialMerging(tree, 1000);
-        return simulateMultirange(iocontext, tree, sorted);
+        return simulateMultirange(iocontext, tree, sorted, nconnections);
     }
 }
 

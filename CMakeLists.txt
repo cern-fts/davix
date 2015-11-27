@@ -63,6 +63,13 @@ SET(LIBSSL_PKG_INCLUDE_DIRS "${OPENSSL_INCLUDE_DIR}")
 find_package(LibXml2)
 set(LIBXML2_INCLUDE_DIRS ${LIBXML2_INCLUDE_DIR})
 
+# openmp
+find_package(OpenMP)
+if (OPENMP_FOUND)
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
+
 if(BOOST_EXTERNAL)
 find_package(Boost 1.41.0 COMPONENTS thread system program_options)
 endif(BOOST_EXTERNAL)

@@ -96,7 +96,8 @@ private:
 
     dav_ssize_t simulateMultirange(IOChainContext & iocontext,
                                    const IntervalTree<ElemChunk> & tree,
-                                   const SortedRanges & ranges);
+                                   const SortedRanges & ranges,
+                                   uint nconnections);
 
     dav_ssize_t parseMultipartRequest(HttpRequest & req,
                                       const IntervalTree<ElemChunk> & tree,

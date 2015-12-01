@@ -35,7 +35,6 @@ namespace Davix{
 struct LibPath;
 
 
-static const std::string _version = DAVIX_VERSION "-" DAVIX_VERSION_TAG;
 static LibPath lib_path;
 
 
@@ -158,8 +157,8 @@ LibPath::LibPath(){
 
 }
 
-
 const std::string & version(){
+    static const std::string _version = DAVIX_VERSION "-" DAVIX_VERSION_TAG;
     return _version;
 }
 

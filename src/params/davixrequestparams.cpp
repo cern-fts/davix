@@ -94,6 +94,7 @@ struct RequestParamsInternal{
         _call_loginpswwd_userdata(NULL),
         _aws_cred(),
         _aws_region(),
+        _aws_token(),
         _aws_alternate(false),
         _azure_key(),
         ops_timeout(),
@@ -137,6 +138,7 @@ struct RequestParamsInternal{
         _call_loginpswwd_userdata(param_private._call_loginpswwd_userdata),
         _aws_cred(param_private._aws_cred),
         _aws_region(param_private._aws_region),
+        _aws_token(param_private._aws_token),
         _aws_alternate(param_private._aws_alternate),
         _azure_key(param_private._azure_key),
         ops_timeout(),
@@ -177,6 +179,7 @@ struct RequestParamsInternal{
     void* _call_loginpswwd_userdata;
     std::pair<AwsSecretKey, AwsAccessKey> _aws_cred;
     AwsRegion _aws_region;
+    AwsToken _aws_token;
     bool _aws_alternate;
     AzureSecretKey _azure_key;
 
@@ -345,6 +348,14 @@ void RequestParams::setAwsRegion(const AwsRegion &region) {
 
 const AwsRegion & RequestParams::getAwsRegion() const {
     return d_ptr->_aws_region;
+}
+
+void RequestParams::setAwsToken(const AwsToken &token) {
+    d_ptr->_aws_token = token;
+}
+
+const AwsToken & RequestParams::getAwsToken() const {
+    return d_ptr->_aws_token;
 }
 
 void RequestParams::setAwsAlternate(const bool &alternate) {

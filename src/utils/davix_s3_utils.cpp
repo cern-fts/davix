@@ -157,7 +157,7 @@ HeaderVec getAmzCanonHeaders_vec(const HeaderVec & headers){
     for(HeaderVec::const_iterator it = headers.begin(); it < headers.end(); ++it){
         std::string header_key = (*it).first, header_value = (*it).second;
         StrUtil::toLower(StrUtil::trim(header_key));
-        StrUtil::toLower(StrUtil::trim(header_value));
+        StrUtil::trim(header_value);
 
         if( matchAmzheaders(header_key)){
             canon_amz_headers.push_back(*it);
@@ -172,7 +172,7 @@ std::string getAmzCanonHeaders(const HeaderVec & headers) {
     for(HeaderVec::const_iterator it = headers.begin(); it < headers.end(); ++it){
         std::string header_key = (*it).first, header_value = (*it).second;
         StrUtil::toLower(StrUtil::trim(header_key));
-        StrUtil::toLower(StrUtil::trim(header_value));
+        StrUtil::trim(header_value);
 
         if( matchAmzheaders(header_key)){
             canon_amz_headers.reserve(canon_amz_headers.size() + header_key.size() + header_value.size() +1);
@@ -186,6 +186,10 @@ std::string getAmzCanonHeaders(const HeaderVec & headers) {
 }
 
 void signRequestv2(const RequestParams & params, const std::string & method, const Uri & url, HeaderVec & headers){
+    if(params.getAwsToken().size() != 0) {
+        headers.push_back(HeaderLine("x-amz-security-token", params.getAwsToken()));
+    }
+
     std::ostringstream ss;
 
     // construct Request token
@@ -259,6 +263,10 @@ Uri signURIv4(const RequestParams & params, const std::string & method, const Ur
 
     query_params.push_back(HeaderLine("X-Amz-Credential", credential.str()));
 
+    if(params.getAwsToken().size() != 0) {
+        query_params.push_back(HeaderLine("X-Amz-Security-Token", params.getAwsToken()));
+    }
+
     // calculate amz date
     std::string amzdate = current_time("%Y%m%dT%H%M%SZ");
     query_params.push_back(HeaderLine("X-Amz-Date", amzdate));
@@ -331,6 +339,7 @@ Uri signURIv4(const RequestParams & params, const std::string & method, const Ur
         signedUrl.addQueryParam(it->first, it->second);
     }
 
+
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_S3, "Original URL: {}", url);
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_S3, "Signed URL: {}", signedUrl);
     return signedUrl;
@@ -348,6 +357,10 @@ Uri signURI(const RequestParams & params, const std::string & method, const Uri 
 
 
 Uri tokenizeRequest(const RequestParams & params, const std::string & method, const Uri & url, HeaderVec & headers, time_t expirationTime){
+    if(params.getAwsToken().size() != 0) {
+        headers.push_back(HeaderLine("x-amz-security-token", params.getAwsToken()));
+    }
+
     std::ostringstream ss;
 
     // construct Request token
@@ -373,6 +386,7 @@ Uri tokenizeRequest(const RequestParams & params, const std::string & method, co
     const std::string signature = getAwsReqToken(ss.str(), params.getAwsAutorizationKeys().first);
 
     Uri signedUri(url);
+
     signedUri.addQueryParam("AWSAccessKeyId", params.getAwsAutorizationKeys().second);
     signedUri.addQueryParam("Signature", signature);
     signedUri.addQueryParam("Expires", SSTR(expirationTime));
@@ -382,11 +396,12 @@ Uri tokenizeRequest(const RequestParams & params, const std::string & method, co
          if(matchAmzheaders(it->first)){
              std::string key= it->first, value = it->second;
              StrUtil::toLower(StrUtil::trim(key));
-             StrUtil::toLower(StrUtil::trim(value));
+             StrUtil::trim(value);
 
              signedUri.addQueryParam(key, value);
          }
     }
+
     return signedUri;
 }
 

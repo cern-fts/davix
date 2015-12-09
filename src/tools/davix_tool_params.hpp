@@ -68,6 +68,8 @@ struct OptParams{
     std::pair<std::string, std::string> aws_auth;
     // s3 region
     std::string aws_region;
+    // s3 security token
+    std::string aws_token;
     // s3 alternate url
     bool aws_alternate;
     // azure key

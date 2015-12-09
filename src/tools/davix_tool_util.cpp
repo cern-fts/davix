@@ -104,6 +104,7 @@ int configureAuth(OptParams & opts){
     if(opts.aws_auth.first.empty() == false){
         opts.params.setAwsAuthorizationKeys(opts.aws_auth.first, opts.aws_auth.second);
         opts.params.setAwsRegion(opts.aws_region);
+        opts.params.setAwsToken(opts.aws_token);
         opts.params.setAwsAlternate(opts.aws_alternate);
         opts.params.setProtocol(RequestProtocol::AwsS3);
     }

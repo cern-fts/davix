@@ -145,6 +145,18 @@ public:
     const AwsRegion & getAwsRegion() const;
 
     ///
+    /// \brief define an Amazon S3 security token
+    /// \param token the security token
+    ///
+    void setAwsToken(const AwsToken & token);
+
+    ///
+    /// \brief get Amazon S3 security token
+    /// \return the security token
+    ///
+    const AwsToken & getAwsToken() const;
+
+    ///
     /// \brief set whether we're using an S3 path-based url
     /// \param alternate whether using an S3 path-based url
     ///

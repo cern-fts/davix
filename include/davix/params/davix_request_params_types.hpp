@@ -103,6 +103,10 @@ typedef std::string AwsAccessKey;
 /// \brief string for Amazon region
 ///
 typedef std::string AwsRegion;
+///
+/// \brief string for Amazon security token
+///
+typedef std::string AwsToken;
 
 ///
 /// \brief string for Azure private key

@@ -57,6 +57,7 @@ const std::string scope_params = "Davix::Tools::Params";
 #define S3_REGION           1020
 #define S3_ALTERNATE        1021
 #define AZURE_KEY           1022
+#define S3_TOKEN            1023
 
 // LONG OPTS
 
@@ -85,6 +86,7 @@ const std::string scope_params = "Davix::Tools::Params";
 {"s3secretkey", required_argument, 0, S3_SECRET_KEY}, \
 {"s3accesskey", required_argument, 0, S3_ACCESS_KEY}, \
 {"s3region", required_argument, 0, S3_REGION}, \
+{"s3token", required_argument, 0, S3_TOKEN}, \
 {"azurekey", required_argument, 0, AZURE_KEY}, \
 {"s3alternate", no_argument, 0, S3_ALTERNATE}, \
 {"insecure", no_argument, 0,  'k' }
@@ -119,6 +121,7 @@ OptParams::OptParams() :
     req_content(),
     aws_auth(),
     aws_region(),
+    aws_token(),
     aws_alternate(false),
     pres_flag(0),
     shell_flag(0),
@@ -266,6 +269,9 @@ int parse_davix_options_generic(const std::string &opt_filter,
                 break;
             case S3_REGION:
                 p.aws_region = optarg;
+                break;
+            case S3_TOKEN:
+                p.aws_token = optarg;
                 break;
             case S3_ALTERNATE:
                 p.aws_alternate = true;
@@ -500,6 +506,7 @@ std::string get_common_options(){
             "\t--s3secretkey SEC_KEY:    S3 authentication: secret key\n"
             "\t--s3accesskey ACC_KEY:    S3 authentication: access key\n"
             "\t--s3region REGION:        S3 region (optional - if passed, will authenticate using a v4 signature instead of v2)\n"
+            "\t--s3token TOKEN:          S3 security token - used along with STS temporary credentials\n"
             "\t--s3alternate:            Pass this flag if you're using a path-based S3 URL\n"
             "\t                          A path-based URL contains the bucket name in the path, ie https://s3-someregion.amazonaws.com/mybucket/file\n"
             "\t--azurekey AZURE_KEY:     Azure authentication secret key\n"

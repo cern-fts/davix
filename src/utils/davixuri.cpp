@@ -673,7 +673,7 @@ std::string davix_path_escape(const std::string & str)
     for (pnt = (const unsigned char *)path; *pnt != '\0'; pnt++) {
     if (path_escape_ch(*pnt)) {
         /* Escape it - %<hex><hex> */
-        sprintf(p, "%%%02x", (unsigned char) *pnt);
+        sprintf(p, "%%%02X", (unsigned char) *pnt);
         p += 3;
     } else {
         *p++ = *pnt;

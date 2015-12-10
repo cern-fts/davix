@@ -348,7 +348,7 @@ int NEONRequest::startRequest(DavixError **err){
 
 int NEONRequest::negotiateRequest(DavixError** err){
 
-    const int auth_retry_limit = params.getOperationRetry()+1;
+    const int auth_retry_limit = params.getOperationRetry();
     int code, status, end_status = NE_RETRY;
     _last_read = -1;
     _total_read_size = 0;
@@ -367,7 +367,7 @@ int NEONRequest::negotiateRequest(DavixError** err){
 
     req_started = req_running = true;
 
-    while(end_status == NE_RETRY && _number_try < auth_retry_limit){
+    while(end_status == NE_RETRY && _number_try <= auth_retry_limit) {
         DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_HTTP, "NEON start internal request");
 
         if( (status = ne_begin_request(_req)) != NE_OK && status != NE_REDIRECT){
@@ -463,14 +463,12 @@ int NEONRequest::negotiateRequest(DavixError** err){
         _number_try++;
     }
 
-    if(_number_try > auth_retry_limit){
-        if(_neon_sess.get() != NULL) {
-            _neon_sess->getLastError(err);
-            DavixError::setupError(err,davix_scope_http_request(), StatusCode::AuthenticationError,
-                                   "Authentication error, reached maximum number of attempts");
-        }
+    if(end_status == NE_RETRY) {
+        DavixError::setupError(err,davix_scope_http_request(), StatusCode::AuthenticationError,
+                               "Authentication error, reached maximum number of attempts");
         return -2;
     }
+
     return 0;
 }
 

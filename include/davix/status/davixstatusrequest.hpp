@@ -149,6 +149,9 @@ enum Code {
     /// Connection timeout during a redirection
     TimeoutRedirectionError = 0x25,
 
+    /// Too many redirects
+    TooManyRedirects = 0x26,
+
     /// Undefined error
     UnknowError = 0x100
 

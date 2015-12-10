@@ -147,6 +147,7 @@ NEONRequest::NEONRequest(HttpRequest & h, Context& context, const Uri & uri_req)
     _current( new Uri(uri_req)),
     _orig(_current),
     _number_try(0),
+    _redirects(0),
     _total_read_size(0),
     _last_read(-1),
     _vec(),
@@ -347,7 +348,7 @@ int NEONRequest::startRequest(DavixError **err){
 
 int NEONRequest::negotiateRequest(DavixError** err){
 
-    const int auth_retry_limit = params.getOperationRetry();
+    const int auth_retry_limit = params.getOperationRetry()+1;
     int code, status, end_status = NE_RETRY;
     _last_read = -1;
     _total_read_size = 0;
@@ -408,6 +409,14 @@ int NEONRequest::negotiateRequest(DavixError** err){
                 if( (end_status = processRedirection(status, err)) <0){
                    return -1;
                 }
+                _number_try--;
+                _redirects++;
+
+                if(_redirects > NEON_REDIRECT_LIMIT) {
+                    httpcodeToDavixError(code, davix_scope_http_request(), "Too many redirects", err);
+                    return -1;
+                }
+
                 break;
             case 401: // authentification requested, do retry
             case 403:
@@ -454,7 +463,7 @@ int NEONRequest::negotiateRequest(DavixError** err){
         _number_try++;
     }
 
-    if(_number_try >= auth_retry_limit){
+    if(_number_try > auth_retry_limit){
         if(_neon_sess.get() != NULL) {
             _neon_sess->getLastError(err);
             DavixError::setupError(err,davix_scope_http_request(), StatusCode::AuthenticationError,

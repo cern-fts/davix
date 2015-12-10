@@ -40,6 +40,7 @@ namespace Davix {
 
 #define NEON_BUFFER_SIZE        65000
 #define NEON_S3_SIGN_DURATION 30
+#define NEON_REDIRECT_LIMIT 5
 
 class NEONSessionFactory;
 class NEONSession;
@@ -162,6 +163,8 @@ private:
     boost::shared_ptr<Uri>  _current, _orig;
     // req info
     int _number_try;
+    // number of redirects so far
+    int _redirects;
     // read info
     dav_ssize_t _total_read_size, _last_read;
 

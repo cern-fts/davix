@@ -397,7 +397,7 @@ void httpcodeToDavixError(int code, const std::string &scope, const std::string 
         case 505:           /* HTTP Version Not Supported */
         default:
             dav_code = StatusCode::UnknowError;
-            str_msg = "Unexcepted Server Error";
+            str_msg = "Unexpected server error";
             break;
     }
 

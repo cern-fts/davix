@@ -347,7 +347,7 @@ int NEONRequest::startRequest(DavixError **err){
 
 int NEONRequest::negotiateRequest(DavixError** err){
 
-    const int auth_retry_limit = 5;
+    const int auth_retry_limit = params.getOperationRetry();
     int code, status, end_status = NE_RETRY;
     _last_read = -1;
     _total_read_size = 0;
@@ -410,6 +410,7 @@ int NEONRequest::negotiateRequest(DavixError** err){
                 }
                 break;
             case 401: // authentification requested, do retry
+            case 403:
                 ne_discard_response(_req);
                 end_status = ne_end_request(_req);
                 _last_read = -1;
@@ -426,9 +427,8 @@ int NEONRequest::negotiateRequest(DavixError** err){
                     }
 
                     if(end_status == NE_OK){
-                            DavixError::setupError(err,davix_scope_http_request(),
-                                                   StatusCode::AuthentificationError, "401 Unauthorized");
-                            return -1;
+                        httpcodeToDavixError(code, davix_scope_http_request(), "", err);
+                        return -1;
                     }
 
                     createError(end_status, err);
@@ -436,7 +436,6 @@ int NEONRequest::negotiateRequest(DavixError** err){
                 }
                 DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "(NEON) {} code -> request again ", code);
                 break;
-            case 403:
             case 501:
                  // cleanup redirection
                 _number_try++;
@@ -456,9 +455,10 @@ int NEONRequest::negotiateRequest(DavixError** err){
     }
 
     if(_number_try >= auth_retry_limit){
-        if(_neon_sess.get() != NULL && _neon_sess->getLastError(err)){
+        if(_neon_sess.get() != NULL) {
+            _neon_sess->getLastError(err);
             DavixError::setupError(err,davix_scope_http_request(), StatusCode::AuthenticationError,
-                               "Authentication Error, reach maximum number of attempts");
+                                   "Authentication error, reached maximum number of attempts");
         }
         return -2;
     }

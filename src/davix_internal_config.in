@@ -33,7 +33,7 @@
 #define DAVIX_DEFAULT_OPS_TIMEOUT 0
 
 // default retry number
-const int default_retry_number= 10;
+const int default_retry_number= 3;
 
 // c++11
 #cmakedefine HAVE_CXX011_FULL_SUPPORT 1

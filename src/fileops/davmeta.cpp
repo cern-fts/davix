@@ -546,6 +546,7 @@ void s3StatMapper(Context& context, const RequestParams* params, const Uri & uri
 
         // if 404, target either doesn't exist or is a S3 "directory"
         if(code == 404){
+            DavixError::clearError(&tmp_err);
             // try to "list" target resource and see if there is anything inside it, if there is, then it's a directory
             Uri new_url = S3::s3UriTransformer(uri, p, true);
             DirHandle handle(new GetRequest(context, new_url, &tmp_err), new S3PropParser(params->getS3ListingMode(), S3::extract_s3_path(uri, params->getAwsAlternate())));
@@ -771,6 +772,7 @@ void azureStatMapper(Context& context, const RequestParams* params, const Uri & 
 
         // if 404, target either doesn't exist or is an Azure "directory". TODO: add support to stat directories. must have func tests by then
         if(code == 404){
+            DavixError::clearError(&tmp_err);
             Uri new_url = Azure::transformURI(uri, p, true);
             DirHandle handle(new GetRequest(context, new_url, &tmp_err), new AzurePropParser(Azure::extract_azure_filename(uri)));
 

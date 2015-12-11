@@ -311,7 +311,7 @@ PropfindRequest::PropfindRequest(Context & context, const Uri & uri, DavixError*
 
 
 void httpcodeToDavixError(int code, const std::string &scope, const std::string & end_message, StatusCode::Code & dav_code, std::string & err_msg){
-    char const* str_msg = "Status Ok";
+    std::string str_msg = "Status Ok";
     switch (code) {
         case 200:           /* OK */
         case 201:           /* Created */
@@ -397,7 +397,10 @@ void httpcodeToDavixError(int code, const std::string &scope, const std::string 
         case 505:           /* HTTP Version Not Supported */
         default:
             dav_code = StatusCode::UnknowError;
-            str_msg = "Unexpected server error";
+            std::ostringstream ss;
+            ss << "Unexpected server error: " << code;
+            str_msg = ss.str().c_str();
+            std::cout << "str_msg is: " << str_msg << std::endl;
             break;
     }
 

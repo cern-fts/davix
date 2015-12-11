@@ -318,7 +318,7 @@ void preadvec(const RequestParams &params, const Uri uri, const std::string str_
 
     Context context;
     DavFile file(context, params, u);
-    DavixError *err;
+    DavixError *err = NULL;
     file.readPartialBufferVec(&params, inVec, outVec, ranges.size(), &err);
 
     for(size_t i = 0; i < ranges.size(); i++) {

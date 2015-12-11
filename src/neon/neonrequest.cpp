@@ -456,6 +456,9 @@ int NEONRequest::negotiateRequest(DavixError** err){
                 end_status = 0;
                 break;
             default:
+                if(code >= 400) {
+                    httpcodeToDavixError(code, davix_scope_http_request(), "", err);
+                }
                 end_status = 0;
                 break;
 

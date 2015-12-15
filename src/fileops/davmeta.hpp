@@ -48,7 +48,7 @@ public:
 
     // make collection
     virtual void makeCollection(IOChainContext & iocontext);
-    
+
     // move/rename resource
     virtual void move(IOChainContext & iocontext, const std::string & target_url);
 
@@ -71,6 +71,9 @@ public:
 
     // S3 + HTTP checksum computation
     virtual void checksum(IOChainContext & iocontext, std::string & checksm, const std::string & chk_algo);
+
+    // move/rename resource
+    virtual void move(IOChainContext & iocontext, const std::string & target_url);
 
     // get statInfo
     virtual StatInfo & statInfo(IOChainContext & iocontext, StatInfo & st_info);

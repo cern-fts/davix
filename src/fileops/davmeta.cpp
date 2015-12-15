@@ -515,6 +515,60 @@ static void internal_s3_create_bucket_or_dir(Context & c, const Uri & url, const
     checkDavixError(&tmp_err);
 }
 
+void S3MetaOps::move(IOChainContext & iocontext, const std::string & target_url) {
+    const std::string scope = "Davix::S3MetaOps::move";
+    if(!is_s3_operation(iocontext)) {
+        return HttpIOChain::move(iocontext, target_url);
+    }
+
+    Context context = iocontext._context;
+    Uri uri(iocontext._uri);
+    Uri target(target_url);
+
+    // verify both are using the same s3 provider/server
+    std::string p1 = S3::extract_s3_provider(uri);
+    std::string p2 = S3::extract_s3_provider(target);
+
+    if(p1 != p2) {
+        throw DavixException(scope, StatusCode::OperationNonSupported,
+                             "It looks that the two URLs are not using the same S3 provider. Unable to perform the move operation.");
+    }
+
+    std::string source_bucket = S3::extract_s3_bucket(uri);
+    std::string source_path = S3::extract_s3_path(uri);
+
+    DavixError *tmp_err = NULL;
+    PutRequest req(context, target, &tmp_err);
+    checkDavixError(&tmp_err);
+    req.setParameters(iocontext._reqparams);
+    req.addHeaderField("x-amz-copy-source", "/" + source_bucket + source_path);
+
+    req.executeRequest(&tmp_err);
+    checkDavixError(&tmp_err);
+
+    // if copying was successful, delete the source file
+    if(req.getRequestCode() == 200) {
+        std::string region = S3::detect_region(context, uri);
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Detected region for source endpoint: " + region);
+        checkDavixError(&tmp_err);
+
+        DeleteRequest req(context, uri, &tmp_err);
+        checkDavixError(&tmp_err);
+
+        RequestParams p(iocontext._reqparams);
+        p.setAwsRegion(region);
+        req.setParameters(p);
+
+        req.executeRequest(&tmp_err);
+        checkDavixError(&tmp_err);
+    }
+    else {
+        std::stringstream str;
+        str << "Received code " << req.getRequestCode() << " when trying to copy file - will not perform deletion";
+        throw DavixException(scope, StatusCode::UnknowError, str.str());
+    }
+}
+
 
 void S3MetaOps::checksum(IOChainContext &iocontext, std::string &checksm, const std::string &chk_algo){
     internal_checksum(iocontext._context, iocontext._uri, iocontext._reqparams, checksm, chk_algo);

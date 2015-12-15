@@ -84,6 +84,11 @@ std::string getAwsSignaturev4(const std::string & stringToSign, const std::strin
 }
 
 namespace S3{
+std::string extract_s3_provider(const Uri & uri) {
+    const std::string & hostname = uri.getHost();
+    std::string::const_iterator it = std::find(hostname.begin(), hostname.end(),'.');
+    return std::string(it, hostname.end());
+}
 
 std::string extract_s3_bucket(const Uri & uri, bool aws_alternate){
     if(!aws_alternate) {
@@ -111,6 +116,28 @@ std::string extract_s3_path(const Uri & uri, bool aws_alternate) {
     }
 
     return path.substr(pos, path.size());
+}
+
+std::string detect_region(Context &context, const Uri &uri) {
+    DavixError *err = NULL;
+    HeadRequest req(context, uri, &err);
+
+    if(err) {
+        return "";
+    }
+
+    RequestParams p;
+    p.setAwsRegion("");
+    p.setOperationRetry(0);
+
+    req.setParameters(p);
+    req.executeRequest(&err);
+
+    std::string region;
+    if(req.getAnswerHeader("x-amz-region", region)) {
+        return region;
+    }
+    return "";
 }
 
 static std::string get_md5(const HeaderVec & vec){

@@ -223,8 +223,8 @@ static int get_delegation_version(const std::string& ucred, const std::string& p
                 std::string("Could not connect to the delegation endpoint: ") + err_buffer);
     }
 
-    soap_free(soap_v);
     soap_done(soap_v);
+    soap_free(soap_v);
 
 	return version;
 }

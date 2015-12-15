@@ -26,6 +26,8 @@
 #include <alibxx/crypto/hmacsha.hpp>
 #include <alibxx/crypto/base64.hpp>
 
+#define AZURE_TIME_LEEWAY 300
+
 namespace Davix {
 namespace Azure {
 
@@ -112,7 +114,7 @@ Uri signURI(const AzureSecretKey key, const Azure::Resource::Type resourceType, 
     time_t present = time(NULL);
 
     std::string signedpermissions = permissions;
-    std::string signedstart = time_as_string(present-10, format);
+    std::string signedstart = time_as_string(present-AZURE_TIME_LEEWAY, format);
     std::string signedexpiry = time_as_string(present+signDuration, format);
 
     std::string canonicalizedresource;

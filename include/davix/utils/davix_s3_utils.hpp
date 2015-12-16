@@ -52,7 +52,7 @@ std::string extract_s3_provider(const Uri & uri);
 std::string extract_s3_bucket(const Uri & uri, bool aws_alternate=false);
 std::string extract_s3_path(const Uri & uri, bool aws_alternate=false);
 
-std::string detect_region(Context &context, const Uri &uri);
+std::string detect_region(const Uri &uri);
 
 } // S3
 

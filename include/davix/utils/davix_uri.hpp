@@ -120,6 +120,12 @@ public:
     // set the path part of the Uri
     void setPath(const std::string & path);
 
+    // change the protocol of the Uri
+    void setProtocol(const std::string & protocol);
+
+    // change the protocol to either http or https, whichever is appropriate
+    void httpizeProtocol();
+
     /// gextract user information from the URI
     /// @return return the path of the Uri or an empty string if error
     const std::string & getUserInfo() const;

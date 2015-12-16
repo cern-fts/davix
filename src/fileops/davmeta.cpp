@@ -275,7 +275,7 @@ int internal_move(Context & c, const Uri & url, const RequestParams & params, co
     if(tmp_err == NULL){
         req.setParameters(params);
         req.setRequestMethod("MOVE");
-        req.addHeaderField("Destination", target_url);
+        req.addHeaderField("Destination", uri.getString());
 
         if( (ret = req.executeRequest(&tmp_err)) == 0){
                 parse_creation_deletion_result(req.getRequestCode(),  url, davix_scope_mv_str(), req.getAnswerContentVec());
@@ -522,6 +522,7 @@ void S3MetaOps::move(IOChainContext & iocontext, const std::string & target_url)
     }
 
     Context context = iocontext._context;
+    RequestParams params = iocontext._reqparams;
     Uri uri(iocontext._uri);
     Uri target(target_url);
 
@@ -534,8 +535,8 @@ void S3MetaOps::move(IOChainContext & iocontext, const std::string & target_url)
                              "It looks that the two URLs are not using the same S3 provider. Unable to perform the move operation.");
     }
 
-    std::string source_bucket = S3::extract_s3_bucket(uri);
-    std::string source_path = S3::extract_s3_path(uri);
+    std::string source_bucket = S3::extract_s3_bucket(uri, params.getAwsAlternate());
+    std::string source_path = S3::extract_s3_path(uri, params.getAwsAlternate());
 
     DavixError *tmp_err = NULL;
     PutRequest req(context, target, &tmp_err);
@@ -548,7 +549,7 @@ void S3MetaOps::move(IOChainContext & iocontext, const std::string & target_url)
 
     // if copying was successful, delete the source file
     if(req.getRequestCode() == 200) {
-        std::string region = S3::detect_region(context, uri);
+        std::string region = S3::detect_region(uri);
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Detected region for source endpoint: " + region);
         checkDavixError(&tmp_err);
 

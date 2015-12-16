@@ -275,6 +275,9 @@ int internal_move(Context & c, const Uri & url, const RequestParams & params, co
     if(tmp_err == NULL){
         req.setParameters(params);
         req.setRequestMethod("MOVE");
+
+        Uri uri(target_url);
+        uri.httpizeProtocol();
         req.addHeaderField("Destination", uri.getString());
 
         if( (ret = req.executeRequest(&tmp_err)) == 0){

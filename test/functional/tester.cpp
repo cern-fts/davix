@@ -178,6 +178,23 @@ void statfile(const RequestParams &params, const Uri uri) {
     ASSERT(! S_ISDIR(info.mode), "not a file");
 }
 
+void movefile(const RequestParams &params, const Uri uri) {
+    DECLARE_TEST();
+    Context context;
+    Uri u1(uri);
+    Uri u2(uri);
+
+    u1.addPathSegment(SSTR(testfile << 1));
+    u2.addPathSegment(SSTR(testfile << 1 << "-moved"));
+
+    DavFile source(context, params, u1);
+    DavFile dest(context, params, u2);
+
+    source.move(&params, dest);
+    statfile(params, u2);
+    dest.move(&params, source);
+}
+
 void populate(const RequestParams &params, const Uri uri, const int nfiles) {
     DECLARE_TEST();
 
@@ -390,6 +407,10 @@ void run(int argc, char** argv) {
     else if(cmd[0] == "statfile") {
         ASSERT(cmd.size() == 1, "Wrong number of arguments to statfile");
         statfile(params, uri);
+    }
+    else if(cmd[0] == "movefile") {
+        ASSERT(cmd.size() == 1, "Wrong number of arguments to move");
+        movefile(params, uri);
     }
     else if(cmd[0] == "preadvec") {
         if(cmd.size() == 2) {

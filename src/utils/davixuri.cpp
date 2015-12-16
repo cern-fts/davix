@@ -225,6 +225,20 @@ void Uri::setPath(const std::string & path) {
     d_ptr->_update_string();
 }
 
+void Uri::setProtocol(const std::string & protocol) {
+    d_ptr->proto = protocol;
+    d_ptr->_update_string();
+}
+
+void Uri::httpizeProtocol() {
+    if(d_ptr->proto == "s3" || d_ptr->proto == "dav") {
+        setProtocol("http");
+    }
+    if(d_ptr->proto == "s3s" || d_ptr->proto == "davs") {
+        setProtocol("https");
+    }
+}
+
 const std::string & Uri::getPathAndQuery() const {
     if(d_ptr->query_and_path.get() == NULL){
         if(d_ptr->query.size() > 0){

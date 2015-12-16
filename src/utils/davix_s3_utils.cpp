@@ -118,16 +118,17 @@ std::string extract_s3_path(const Uri & uri, bool aws_alternate) {
     return path.substr(pos, path.size());
 }
 
-std::string detect_region(Context &context, const Uri &uri) {
+std::string detect_region(const Uri &uri) {
     DavixError *err = NULL;
-    HeadRequest req(context, uri, &err);
+    Context context;
+    GetRequest req(context, uri, &err);
 
     if(err) {
         return "";
     }
 
     RequestParams p;
-    p.setAwsRegion("");
+    p.setAwsRegion("null");
     p.setOperationRetry(0);
 
     req.setParameters(p);

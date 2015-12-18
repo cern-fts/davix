@@ -755,7 +755,7 @@ void s3_start_listing_query(Ptr::Scoped<DirHandle> & handle, Context & context, 
     check_file_status(http_req, davix_scope_directory_listing_str());
 
     size_t prop_size = 0;
-    do{ // first entry -> bucket informations
+    do{ // first entry -> bucket information
        s_resu = incremental_listdir_parsing(&http_req, &parser, 2048, davix_scope_directory_listing_str());
 
        prop_size = parser.getProperties().size();

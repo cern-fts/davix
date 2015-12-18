@@ -134,7 +134,7 @@ OptParams::OptParams() :
 
 static void option_abort(char** argv){
     std::cerr << argv[0] <<", Error: Wrong argument format\n";
-    std::cerr << "Try '" << argv[0] <<" --help' for more informations" << std::endl;
+    std::cerr << "Try '" << argv[0] <<" --help' for more information" << std::endl;
     exit(-1);
 }
 

@@ -142,9 +142,9 @@ public:
     int closedir(DAVIX_DIR* d, DavixError** err);
 
     /**
-      @brief open a directory for listing with per entry meta-data informations.
+      @brief open a directory for listing with per entry meta-data information.
       
-      Similar to \ref Davix::DavPosix::opendir but provide stat() informations for each entry
+      Similar to \ref Davix::DavPosix::opendir but provide stat() information for each entry
       Supported by Webdav.
 
       @param params request options, can be NULL
@@ -161,7 +161,7 @@ public:
     /**
       @brief execute an readdirpp function
       
-      Similar to \ref Davix::DavPosix::readdir but provide stat() informations for each entry.
+      Similar to \ref Davix::DavPosix::readdir but provide stat() information for each entry.
 
       Supported by Webdav.
 

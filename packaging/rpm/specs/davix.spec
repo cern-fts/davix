@@ -92,6 +92,7 @@ rm -rf test/pywebdav/
 -DDOC_INSTALL_DIR=%{_pkgdocdir} \
 -DGTEST_EXTERNAL=TRUE \
 -DENABLE_THIRD_PARTY_COPY=TRUE \
+-DENABLE_HTML_DOCS=TRUE \
 -DUNIT_TESTS=TRUE \
 %{boost_cmake_flags} \
 .

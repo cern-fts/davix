@@ -45,8 +45,8 @@ struct UriPrivate{
         path(),
         host(),
         query(),
-        port(0),
         fragment(),
+        port(0),
         _uri_string(),
         query_and_path(NULL){}
 
@@ -57,8 +57,8 @@ struct UriPrivate{
         path(orig.path),
         host(orig.host),
         query(orig.query),
-        port(orig.port),
         fragment(orig.fragment),
+        port(orig.port),
         _uri_string(orig._uri_string),
         query_and_path(NULL){ }
 

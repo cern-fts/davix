@@ -40,6 +40,7 @@ set (Boost_NO_BOOST_CMAKE ON)
 
 # components
 option(ENABLE_TOOLS "enable or disable tools " TRUE)
+option(ENABLE_HTML_DOCS "enable or disable generation of HTML documentation" FALSE)
 
 # features
 option(ENABLE_IPV6 "enable or disable IPv6 support " TRUE)

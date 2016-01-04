@@ -10,14 +10,16 @@ if(ENABLE_HTML_DOCS)
   install(DIRECTORY ${l_doc}
     DESTINATION ${DOC_INSTALL_DIR}/html/) # install examples
 
-  find_package(Sphinx REQUIRED)
+  find_package(Sphinx)
 
-  add_custom_target(htmldoc
-    DEPENDS doc
-    COMMAND ${SPHINX_EXECUTABLE}
-    -q -b html
-    "${CMAKE_CURRENT_SOURCE_DIR}/sphinx"
-    "${CMAKE_CURRENT_BINARY_DIR}/sphinx")
+  if(SPHINX_FOUND)
+    add_custom_target(htmldoc
+      DEPENDS doc
+      COMMAND ${SPHINX_EXECUTABLE}
+      -q -b html
+      "${CMAKE_CURRENT_SOURCE_DIR}/sphinx"
+      "${CMAKE_CURRENT_BINARY_DIR}/sphinx")
+  endif(SPHINX_FOUND)
 endif(ENABLE_HTML_DOCS)
 
 FILE(GLOB man1_page ${CMAKE_CURRENT_SOURCE_DIR}/man/*.1)

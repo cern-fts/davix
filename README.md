@@ -21,7 +21,7 @@ Here are some example invocations of the command-line tools.
 
 ```
 # upload a file using a VOMS proxy
-davix-put myfile https://someserver/dir/myfile -E -E /tmp/x509up_u1000
+davix-put myfile https://someserver/dir/myfile -E /tmp/x509up_u1000
 # download a file from an Amazon S3 bucket
 davix-get https://mybucket.s3.amazonaws.com/somefile --s3accesskey [..] --s3secretkey [..]
 # do an ls on a WebDAV-enabled server

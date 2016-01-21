@@ -245,12 +245,14 @@ int parse_davix_options_generic(const std::string &opt_filter,
                 break;
             case USER_LOGIN:
                 p.userlogpasswd.first = optarg;
+                strncpy(optarg, "", strlen(optarg));
                 break;
             case X509_PRIVATE_KEY:
                 p.priv_key = SanitiseTildedPath(optarg).c_str();
                 break;
             case USER_PASSWORD:
                 p.userlogpasswd.second = optarg;
+                strncpy(optarg, "", strlen(optarg));
                 break;
             case DATA_CONTENT:
                 p.req_content = optarg;
@@ -263,21 +265,25 @@ int parse_davix_options_generic(const std::string &opt_filter,
                 break;
             case S3_ACCESS_KEY:
                 p.aws_auth.second = optarg;
+                strncpy(optarg, "", strlen(optarg));
                 break;
             case S3_SECRET_KEY:
                 p.aws_auth.first = optarg;
+                strncpy(optarg, "", strlen(optarg));
                 break;
             case S3_REGION:
                 p.aws_region = optarg;
                 break;
             case S3_TOKEN:
                 p.aws_token = optarg;
+                strncpy(optarg, "", strlen(optarg));
                 break;
             case S3_ALTERNATE:
                 p.aws_alternate = true;
                 break;
             case AZURE_KEY:
                 p.azure_key = optarg;
+                strncpy(optarg, "", strlen(optarg));
                 break;
             case 'l':
                 p.pres_flag |= LONG_LISTING_FLAG;

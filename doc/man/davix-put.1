@@ -6,21 +6,21 @@
 .SH NAME
 davix-put \- Upload tool based on libdavix
 .SH SYNOPSIS
-.PP		
-	    davix-put [options]... local_file url 
-.PP	
-	              
+.PP
+	    davix-put [options]... local_file url
+.PP
+
 .SH DESCRIPTION
 \fBdavix-put\fR is a tool to upload resources to http, Webdav or REST compatible services.
 .br
-The command supports the protocol Http (http(s)://), WebDav (dav(s)://) and S3 (s3(s)://). 
+The command supports the protocol Http (http(s)://), WebDav (dav(s)://) and S3 (s3(s)://).
 .br
 .PP
-Local resources can either be a single file or a collection. 
+Local resources can either be a single file or a collection.
 .br
 In the case of collection, all sub-collections will also be uploaded.
 .br
-.PP	
+.PP
 davix-put is powered by libdavix. See libdavix(3) for details.
 
 .br
@@ -91,7 +91,7 @@ SOCKS5 proxy server URL. (ex: socks5://login:pass@socks.example.org)
 .PP
 
 
-.RS 2	
+.RS 2
 \fB\--trace\fR
 .RE
 .RS 5
@@ -151,7 +151,7 @@ Display version
 \fB\--capath CA_path\fR
 .RE
 .RS 5
-Add an additional certificate authority directory  
+Add an additional certificate authority directory
 .RE
 .PP
 
@@ -159,7 +159,7 @@ Add an additional certificate authority directory
 \fB\--cert, -E cred_path\fR
 .RE
 .RS 5
-Client Certificate in PEM format 
+Client Certificate in PEM format
 .RE
 .PP
 
@@ -167,15 +167,15 @@ Client Certificate in PEM format
 \fB\--key priv_path\fR
 .RE
 .RS 5
-Private key in PEM format  
+Private key in PEM format
 .RE
 .PP
-   
+
 .RS 2
 \fB\--insecure, -k\fR
 .RE
 .RS 5
-Disable SSL credential checks 
+Disable SSL credential checks
 .RE
 .PP
 
@@ -183,7 +183,7 @@ Disable SSL credential checks
 \fB\--userlogin\fR
 .RE
 .RS 5
-User login for login/password authentication  
+User login for login/password authentication
 .RE
 .PP
 
@@ -191,23 +191,23 @@ User login for login/password authentication
 \fB\--userpass\fR
 .RE
 .RS 5
-User password for login/password authentication 
+User password for login/password authentication
 .RE
 .PP
-    
+
 .RS 2
 \fB\--s3secretkey\fR
 .RE
 .RS 5
 AWS S3 authentication: secret key
 .RE
-.PP         
+.PP
 
 .RS 2
 \fB\--s3accesskey\fR
 .RE
 .RS 5
-AWS S3 authentication: access key 
+AWS S3 authentication: access key
 .RE
 .PP
 
@@ -216,6 +216,14 @@ AWS S3 authentication: access key
 .RE
 .RS 5
 AWS S3 authentication: region
+.RE
+.PP
+
+.RS 2
+\fB\--s3token\fR
+.RE
+.RS 5
+AWS S3 security token - used along with STS temporary credentials
 .RE
 .PP
 
@@ -234,8 +242,8 @@ Specify this flag if you need to use a path-based S3 URL
 Azure authentication key
 .RE
 .PP
-  
-	   
+
+
 .SH EXAMPLES
 .PP
 \fBUpload local file to a http server
@@ -245,7 +253,7 @@ Azure authentication key
 .PP
 \fBUpload a local file to a Grid compatible storage
 .BR
-        davix-put -P grid /tmp/file1 davs://grid-storage.example.org/dir1/file1 
+        davix-put -P grid /tmp/file1 davs://grid-storage.example.org/dir1/file1
 
 \fBUpload a resource to a OAuth 2.0 compatible service
 .BR

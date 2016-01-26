@@ -6,18 +6,18 @@
 .SH NAME
 davix-rm \- Deletion tool based on libdavix.
 .SH SYNOPSIS
-.PP		
+.PP
 	    davix-rm [options]... url
-.PP	
-	              
+.PP
+
 .SH DESCRIPTION
 \fBdavix-rm\fR is a tool to delete resources with HTTP, Webdav or REST compatible services.
 .br
 The commands can delete resources and resources containers.
 .br
-It supports the protocol Http (http(s)://), WebDav (dav(s)://) and S3 (s3(s)://). 
+It supports the protocol Http (http(s)://), WebDav (dav(s)://) and S3 (s3(s)://).
 .br
-.PP	
+.PP
 davix-rm is powered by libdavix. See libdavix(3) for details.
 
 .br
@@ -87,7 +87,7 @@ SOCKS5 proxy server URL. (ex: socks5://login:pass@socks.example.org)
 .PP
 
 
-.RS 2	
+.RS 2
 \fB\--trace\fR
 .RE
 .RS 5
@@ -147,7 +147,7 @@ Display version
 \fB\--capath CA_path\fR
 .RE
 .RS 5
-Add an additional certificate authority directory  
+Add an additional certificate authority directory
 .RE
 .PP
 
@@ -155,7 +155,7 @@ Add an additional certificate authority directory
 \fB\--cert, -E cred_path\fR
 .RE
 .RS 5
-Client Certificate in PEM format 
+Client Certificate in PEM format
 .RE
 .PP
 
@@ -163,15 +163,15 @@ Client Certificate in PEM format
 \fB\--key priv_path\fR
 .RE
 .RS 5
-Private key in PEM format  
+Private key in PEM format
 .RE
 .PP
-   
+
 .RS 2
 \fB\--insecure, -k\fR
 .RE
 .RS 5
-Disable SSL credential checks 
+Disable SSL credential checks
 .RE
 .PP
 
@@ -179,7 +179,7 @@ Disable SSL credential checks
 \fB\--userlogin\fR
 .RE
 .RS 5
-User login for login/password authentication  
+User login for login/password authentication
 .RE
 .PP
 
@@ -187,23 +187,23 @@ User login for login/password authentication
 \fB\--userpass\fR
 .RE
 .RS 5
-User password for login/password authentication 
+User password for login/password authentication
 .RE
 .PP
-    
+
 .RS 2
 \fB\--s3secretkey\fR
 .RE
 .RS 5
 AWS S3 authentication: secret key
 .RE
-.PP         
+.PP
 
 .RS 2
 \fB\--s3accesskey\fR
 .RE
 .RS 5
-AWS S3 authentication: access key 
+AWS S3 authentication: access key
 .RE
 .PP
 
@@ -212,6 +212,14 @@ AWS S3 authentication: access key
 .RE
 .RS 5
 AWS S3 authentication: region
+.RE
+.PP
+
+.RS 2
+\fB\--s3token\fR
+.RE
+.RS 5
+AWS S3 security token - used along with STS temporary credentials
 .RE
 .PP
 
@@ -230,8 +238,7 @@ Specify this flag if you need to use a path-based S3 URL
 Azure authentication key
 .RE
 .PP
-  
-	   
+
 .SH EXAMPLES
 .PP
 \fBDelete a file over http

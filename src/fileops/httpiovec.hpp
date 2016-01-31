@@ -81,7 +81,8 @@ public:
                               DavIOVecOuput * output_vec,
                               const dav_size_t count_vec);
 
-private:
+    // these two should have been private, but because of pthread we need to call them from
+    // a function
     dav_ssize_t singleRangeRequest(IOChainContext & iocontext,
                                    const DavIOVecInput * input,
                                    DavIOVecOuput * output);
@@ -89,6 +90,8 @@ private:
     dav_ssize_t singleRangeRequest(IOChainContext & iocontext,
                                    const IntervalTree<ElemChunk> & tree,
                                    dav_off_t offset, dav_size_t size);
+
+private:
 
     MultirangeResult performMultirange(IOChainContext & iocontext,
                                        const IntervalTree<ElemChunk> &tree,

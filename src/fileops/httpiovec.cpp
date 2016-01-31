@@ -224,7 +224,7 @@ static SortedRanges partialMerging(const IntervalTree<ElemChunk> &tree, const da
     dav_off_t end = allranges.begin()->second;
 
     for(MergedRanges::iterator it = allranges.begin(); it != allranges.end(); it++) {
-        if(end+mergedist >= it->first) {
+        if(end + (dav_off_t) mergedist >= it->first) {
             end = it->second;
         }
         else {
@@ -255,6 +255,34 @@ static IntervalTree<ElemChunk> buildIntervalTree(const DavIOVecInput *in, DavIOV
     return IntervalTree<ElemChunk>(intervals);
 }
 
+typedef struct thread_data {
+    HttpIOVecOps *ptr;
+    int thread_no;
+    const SortedRanges *ranges;
+    const IntervalTree<ElemChunk> *tree;
+    IOChainContext *iocontext;
+    dav_size_t start, end;
+
+    dav_ssize_t size;
+} thdata;
+
+void* parallelSingleRange(void *args) {
+
+    thdata *data = (thdata*) args;
+    std::cout << "hello from thread " << data->thread_no << std::endl;
+
+    const SortedRanges & ranges = *data->ranges;
+
+    data->size = 0;
+    for(dav_size_t i = data->start; i < data->end; i++) {
+        data->size += data->ptr->singleRangeRequest(*data->iocontext, *data->tree,
+                                                    ranges[i].first,
+                                                    ranges[i].second - ranges[i].first + 1);
+    }
+    return NULL;
+}
+
+
 dav_ssize_t HttpIOVecOps::simulateMultirange(IOChainContext & iocontext,
                                      const IntervalTree<ElemChunk> & tree,
                                      const SortedRanges & ranges,
@@ -262,10 +290,35 @@ dav_ssize_t HttpIOVecOps::simulateMultirange(IOChainContext & iocontext,
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Simulating a multi-range request with {} vectors", ranges.size());
     dav_ssize_t size = 0;
 
-#pragma omp parallel for num_threads(nconnections) reduction(+:size)
-    for(dav_size_t i = 0; i < ranges.size(); i++) {
-        size += singleRangeRequest(iocontext, tree, ranges[i].first, ranges[i].second - ranges[i].first + 1);
+    uint num_threads = nconnections;
+    if(num_threads > ranges.size()) {
+        num_threads = ranges.size();
     }
+    uint queries_per_thread = ranges.size() / num_threads;
+
+    pthread_t threads[num_threads];
+    thdata data[num_threads];
+    for(uint i = 0; i < num_threads; i++) {
+        data[i].ptr = this;
+        data[i].thread_no = i;
+        data[i].ranges = &ranges;
+        data[i].tree = &tree;
+        data[i].iocontext = &iocontext;
+
+        data[i].start = i*queries_per_thread;
+        data[i].end = data[i].start + queries_per_thread;
+
+        if(i == num_threads - 1) {
+            data[i].end = ranges.size();
+        }
+
+        pthread_create(&threads[i], NULL, parallelSingleRange, (void*) &data[i]);
+    }
+
+    for(uint i = 0; i < num_threads; i++) {
+        pthread_join(threads[i], NULL);
+    }
+
     return size;
 }
 

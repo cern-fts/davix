@@ -317,6 +317,7 @@ dav_ssize_t HttpIOVecOps::simulateMultirange(IOChainContext & iocontext,
 
     for(uint i = 0; i < num_threads; i++) {
         pthread_join(threads[i], NULL);
+        size += data[i].size;
     }
 
     return size;

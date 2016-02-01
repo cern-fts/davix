@@ -24,7 +24,6 @@
 #include <utils/davix_logger_internal.hpp>
 #include <string_utils/stringutils.hpp>
 #include <IntervalTree.h>
-#include <omp.h>
 
 #include <map>
 

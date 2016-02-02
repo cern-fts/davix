@@ -400,7 +400,6 @@ void httpcodeToDavixError(int code, const std::string &scope, const std::string 
             std::ostringstream ss;
             ss << "Unexpected server error: " << code;
             str_msg = ss.str().c_str();
-            std::cout << "str_msg is: " << str_msg << std::endl;
             break;
     }
 

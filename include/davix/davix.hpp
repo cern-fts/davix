@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -77,6 +77,9 @@
 /// REST utilities functions
 #include <utils/davix_s3_utils.hpp>
 #include <utils/davix_azure_utils.hpp>
+
+/// generic utils
+#include <utils/davix_misc_utils.hpp>
 
 /// hooks for extensions
 #include <hooks/davix_hooks.hpp>

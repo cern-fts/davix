@@ -350,6 +350,23 @@ void preadvec(const RequestParams &params, const Uri uri, const std::string str_
     std::cout << "All OK" << std::endl;
 }
 
+void detectwebdav(const RequestParams &params, const Uri uri, bool result) {
+    DECLARE_TEST();
+
+    Context context;
+    DavixError *err = NULL;
+    WebdavSupport::Type res = detect_webdav_support(context, params, uri, &err);
+    if(result) {
+        ASSERT(res == WebdavSupport::YES, "");
+    }
+    else if(!result) {
+        ASSERT(res == WebdavSupport::NO || res == WebdavSupport::UNKNOWN, "");
+    }
+    else {
+      ASSERT(false, "Unknown result");
+    }
+}
+
 void run(int argc, char** argv) {
     RequestParams params;
     params.setOperationRetry(0);
@@ -422,6 +439,21 @@ void run(int argc, char** argv) {
         else {
             ASSERT(false, "Wrong number of arguments to preadvec");
         }
+    }
+    else if(cmd[0] == "detectwebdav") {
+        ASSERT(cmd.size() == 2, "Wrong number of arguments to detectwebdav");
+        bool expected = false;
+        if(cmd[1] == "1") {
+            expected = true;
+        }
+        else if(cmd[1] == "0") {
+            expected = false;
+        }
+        else {
+            ASSERT(false, "Unexpected input for expected result");
+        }
+
+        detectwebdav(params, uri, expected);
     }
     else {
         ASSERT(false, "Unknown command: " << cmd[0]);

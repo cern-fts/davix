@@ -11,7 +11,7 @@ macro(addDoxyGeneration DOXYFILE_LOCATION)
 
 	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${DOXYFILE_LOCATION} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
 
-	add_custom_target(doc
+	add_custom_target(doxygen
 	${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 	COMMENT "Generating API documentation with Doxygen" VERBATIM

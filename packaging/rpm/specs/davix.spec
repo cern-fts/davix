@@ -71,6 +71,7 @@ with Http based protocols (WebDav, Amazon S3, ...).
 Summary:			Documentation for %{name}
 Group:				Documentation
 %if %{?fedora}%{!?fedora:0} >= 10 || %{?rhel}%{!?rhel:0} >= 6
+BuildRequires: python-sphinx
 BuildArch:	noarch
 %endif
 

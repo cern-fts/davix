@@ -14,7 +14,7 @@ if(ENABLE_HTML_DOCS)
 
   if(SPHINX_FOUND)
     add_custom_target(sphinx
-      DEPENDS doc
+      DEPENDS doxygen
       COMMAND ${SPHINX_EXECUTABLE}
       -q -b html
       "${CMAKE_CURRENT_SOURCE_DIR}/sphinx"
@@ -22,6 +22,10 @@ if(ENABLE_HTML_DOCS)
 
     install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/build/sphinx"
      DESTINATION ${DOC_INSTALL_DIR}/html/sphinx) # install examples
+
+    add_custom_target(doc DEPENDS doxygen sphinx)
+  else()
+    add_custom_target(doc DEPENDS doxygen)
   endif(SPHINX_FOUND)
 endif(ENABLE_HTML_DOCS)
 

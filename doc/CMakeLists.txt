@@ -8,17 +8,20 @@ if(ENABLE_HTML_DOCS)
   SET( l_doc "${CMAKE_CURRENT_BINARY_DIR}/build/html/")
 
   install(DIRECTORY ${l_doc}
-    DESTINATION ${DOC_INSTALL_DIR}/html/) # install examples
+    DESTINATION ${DOC_INSTALL_DIR}/html/doxygen) # install examples
 
   find_package(Sphinx)
 
   if(SPHINX_FOUND)
-    add_custom_target(htmldoc
+    add_custom_target(sphinx
       DEPENDS doc
       COMMAND ${SPHINX_EXECUTABLE}
       -q -b html
       "${CMAKE_CURRENT_SOURCE_DIR}/sphinx"
-      "${CMAKE_CURRENT_BINARY_DIR}/sphinx")
+      "${CMAKE_CURRENT_BINARY_DIR}/build/sphinx")
+
+    install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/build/sphinx"
+     DESTINATION ${DOC_INSTALL_DIR}/html/sphinx) # install examples
   endif(SPHINX_FOUND)
 endif(ENABLE_HTML_DOCS)
 

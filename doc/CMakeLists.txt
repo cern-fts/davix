@@ -5,6 +5,9 @@ file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/build/html/")
 
 if(ENABLE_HTML_DOCS)
   addDoxyGeneration("Doxyfile.in")
+  add_custom_target(doc DEPENDS)
+  add_dependencies(doc doxygen)
+
   SET( l_doc "${CMAKE_CURRENT_BINARY_DIR}/build/html/")
 
   install(DIRECTORY ${l_doc}
@@ -23,9 +26,7 @@ if(ENABLE_HTML_DOCS)
     install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/build/sphinx"
      DESTINATION ${DOC_INSTALL_DIR}/html/sphinx) # install examples
 
-    add_custom_target(doc DEPENDS doxygen sphinx)
-  else()
-    add_custom_target(doc DEPENDS doxygen)
+    add_dependencies(doc sphinx)
   endif(SPHINX_FOUND)
 endif(ENABLE_HTML_DOCS)
 

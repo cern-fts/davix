@@ -24,6 +24,7 @@ BuildRoot:			%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildRequires:                  boost141-devel
 %else
 BuildRequires:                  boost-devel
+BuildRequires:                  python-virtualenv
 %endif
 BuildRequires:                  cmake
 BuildRequires:                  doxygen

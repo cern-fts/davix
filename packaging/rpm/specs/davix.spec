@@ -29,7 +29,6 @@ BuildRequires:                  cmake
 BuildRequires:                  doxygen
 BuildRequires:                  libxml2-devel
 BuildRequires:                  openssl-devel
-BuildRequires:                  python-pip
 
 # davix-copy dependencies
 BuildRequires:                  gsoap-devel
@@ -87,7 +86,6 @@ make clean
 %setup -q
 # remove useless embedded components
 rm -rf test/pywebdav/
-pip install sphinx
 
 %build
 %cmake \

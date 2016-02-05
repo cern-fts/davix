@@ -29,6 +29,7 @@ BuildRequires:                  cmake
 BuildRequires:                  doxygen
 BuildRequires:                  libxml2-devel
 BuildRequires:                  openssl-devel
+BuildRequires:                  python-pip
 
 # davix-copy dependencies
 BuildRequires:                  gsoap-devel
@@ -71,7 +72,6 @@ with Http based protocols (WebDav, Amazon S3, ...).
 Summary:			Documentation for %{name}
 Group:				Documentation
 %if %{?fedora}%{!?fedora:0} >= 10 || %{?rhel}%{!?rhel:0} >= 6
-BuildRequires: python-sphinx
 BuildArch:	noarch
 %endif
 
@@ -87,6 +87,7 @@ make clean
 %setup -q
 # remove useless embedded components
 rm -rf test/pywebdav/
+pip install sphinx
 
 %build
 %cmake \

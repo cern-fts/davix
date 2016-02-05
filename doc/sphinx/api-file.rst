@@ -1,6 +1,6 @@
 File-based API
 ==============
 
-.. doxygenclass:: Davix::DavFile
-  :members:
+#.. doxygenclass:: Davix::DavFile
+#  :members:
 

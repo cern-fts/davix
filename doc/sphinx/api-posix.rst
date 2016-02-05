@@ -1,6 +1,7 @@
 POSIX-based API
 ===============
 
-.. doxygenclass:: Davix::DavPosix
-  :members:
+# .. doxygenclass:: Davix::DavPosix
+#  :members:
+
 

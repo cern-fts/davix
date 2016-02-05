@@ -29,10 +29,10 @@ import shlex
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['breathe']
+# extensions = ['breathe']
 
-breathe_projects = { "davix": "/home/gbitzes/dev/davix/build/doc/build/xml" }
-breathe_default_project = "davix"
+# breathe_projects = { "davix": "/home/gbitzes/dev/davix/build/doc/build/xml" }
+# breathe_default_project = "davix"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

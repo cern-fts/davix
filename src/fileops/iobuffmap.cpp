@@ -28,6 +28,7 @@
 #include <http_util/http_util.hpp>
 #include <fileops/httpiovec.hpp>
 #include <fileops/davmeta.hpp>
+#include <system_utils/env_utils.hpp>
 
 
 #include <sstream>
@@ -325,8 +326,12 @@ HttpIOBuffer::~HttpIOBuffer(){
 }
 
 IOBufferLocalFile* createLocalBuffer(){
+    std::string staging = EnvUtils::getEnv("DAVIX_STAGING_AREA", "/tmp");
+    staging += "/.davix_tmp_file_XXXXXX";
+
     char buffer[1024];
-    strcpy(buffer, "/tmp/.davix_tmp_file_XXXXXXXXXXXXXXXXXXXXXXXX");
+    strncpy(buffer, staging.c_str(), 1023);
+
     int fd;
     if( (fd = mkstemp(buffer)) < 0){
         DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CHAIN, "Error during temporary file creation for HTTPIO {}: {}", buffer, strerror(errno));

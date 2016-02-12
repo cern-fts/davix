@@ -298,6 +298,7 @@ struct IOBufferLocalFile{
     virtual ~IOBufferLocalFile(){
         DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CHAIN, "Delete tmp file {}", _filepath);
         unlink(_filepath.c_str());
+        close(_fd);
     }
 
     int _fd;

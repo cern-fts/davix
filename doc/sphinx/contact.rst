@@ -4,7 +4,7 @@ How to get in touch with us
 e-mail
 ------
 
-You can send us an email to the davix-devel <at> cern.ch e-group, or contact the current maintainer: georgios.bitzes <at> cern.ch
+Send us an e-mail to davix-devel <at> cern <dot> ch e-group.
 
 Github
 ------

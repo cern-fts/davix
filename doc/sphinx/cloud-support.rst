@@ -27,12 +27,10 @@ you'll encounter errors. Davix assumes by default that S3 URLs have the first fo
 
   $ davix-get --s3accesskey xxx --s3secretkey yyy --s3region zzz --s3alternate https://s3-region.example.org/bucket-name/dir/file
 
-
-
-
-
 Microsoft Azure
 ---------------
 
+We currently support Microsoft Azure blob storage. It's very similar to S3 and acts as a key-value store,
+letting you retrieve objects (blobs) by specifying their path. All you need is an azure key: ::
 
-
+  $ davix-ls --azurekey xxx https://your-username.blob.core.windows.net/example-bucket/ 

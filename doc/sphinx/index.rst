@@ -39,9 +39,9 @@ There is support for the following authentication methods:
    :caption: API Reference
    :maxdepth: 2
 
-   api-file
-   api-posix
-   api-http
+   File-based API <doxygen/classDavix_1_1DavFile.html#://>
+   POSIX-based API <doxygen/classDavix_1_1DavPosix.html#://>
+   HTTP-based API <doxygen/classDavix_1_1HttpRequest.html#://>
 
 .. toctree::
    :caption: About us

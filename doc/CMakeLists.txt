@@ -17,7 +17,7 @@ if(ENABLE_HTML_DOCS)
       COMMAND ${SPHINX_EXECUTABLE}
       -q -b html
       "${CMAKE_CURRENT_SOURCE_DIR}/sphinx"
-      "${l_doc}/sphinx")
+      "${l_doc}/")
 
     add_dependencies(doc sphinx)
   endif(SPHINX_FOUND)

@@ -1,25 +1,52 @@
-
 Version - 0.6.0
 ** Bug
-    * [DMC-736] - Davix parallel compilation has race condition
+    * [DMC-194] - Davix has performance issues in case of fast small little chunk of data
+    * [DMC-207] - DAVIX : add option in order to report result of failing request
+    * [DMC-654] - Depending if the bucket is in the URL or not, the result is different
     * [DMC-729] - Custom --header option in davix-get is sent twice on a redirect
-    * [DMC-746] - Davix cannot create S3 directory
-    * [DMC-748] - Wrong filesize displayed when recursively listing directories
     * [DMC-732] - Davix: 120-second timeout with a large TCP buffer and a slow connection
+    * [DMC-735] - Davix trunk claims to be version 0.5.1, RPM says 0.5.0
+    * [DMC-736] - Davix parallel compilation has race condition
+    * [DMC-748] - Wrong filesize displayed when recursively listing directories
+    * [DMC-749] - davix-cp segfaults
+    * [DMC-752] - Cached redirects should expire after a DELETE
     * [DMC-761] - Object-based interface returns an extra entry with empty filename in S3
     * [DMC-762] - Race condition in libneon sometimes triggers erroneous timeout during SSL handshake
     * [DMC-766] - Statting an S3 directory with a trailing slash returns wrong mode
+    * [DMC-770] - Fragment identifier not copied over when copying a Davix::Uri object
+    * [DMC-772] - TLS session persistence not working with Amazon S3 servers
+    * [DMC-773] - Davix crashes with an error when doing a vectored read on CEPH
+    * [DMC-778] - Davix static library crash on CentOS7
+    * [DMC-784] - Davix does not respect number of retries set by the user in case of 401 / 403
+    * [DMC-786] - Davix does not set DavixError nor throw an exception for uncommon server errors
+    * [DMC-789] - davix-mv does not filter out dav(s) protocol
+    * [DMC-799] - davix build on MacOS hangs if third party copy is enabled
+    * [DMC-805] - davix leaks file descriptors
 
 ** Improvement
-    * [DMC-728] - Add gtest as a git submodule in davix
+    * [DMC-739] - Support both S3 URL syntaxes
+    * [DMC-745] - Parse owner and group ids
     * [DMC-760] - Create a robust functional test suite for davix
     * [DMC-764] - Use a heuristic to find if the special Azure header needs to be added
+    * [DMC-765] - Make it possible to build davix using clang
+    * [DMC-780] - Add support for short-term S3 credentials
+    * [DMC-785] - Add explicit limit in maximum number of redirects, throw descriptive error if exceeded
 
 ** New Feature
-    * [DMC-611] - S3: Support for Signature Version 4 needed for new AWS regions
-    * [DMC-654] - Depending if the bucket is in the URL or not, the result is different
-    * [DMC-739] - Support both S3 URL syntaxes
     * [DMC-755] - Add Azure compatibility to Davix
+    * [DMC-774] - davix vectored reads - implement range coalescing
+    * [DMC-777] - Vectored reads using multiple connections and threads
+
+** Task
+    * [DMC-611] - S3: Support for Signature Version 4 needed for new AWS regions
+    * [DMC-683] - Davix 0.4.0 static library missing objects
+    * [DMC-728] - Add gtest as a git submodule in davix
+    * [DMC-746] - Davix cannot create S3 directory
+    * [DMC-753] - Make sure that a davix build fails if there are backwards-incompatible ABI chagnes
+    * [DMC-787] - Azure tests are flaky
+    * [DMC-788] - Add support for S3 to davix-mv
+    * [DMC-791] - Create a consolidated and complete place for davix documentation
+    * [DMC-794] - Overwrite sensitive command line parameters
 
 Version - 0.5.0
 

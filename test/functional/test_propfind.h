@@ -1,4 +1,0 @@
-#ifndef TEST_PROPFIND_H
-#define TEST_PROPFIND_H
-
-#endif // TEST_PROPFIND_H

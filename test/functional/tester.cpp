@@ -10,8 +10,7 @@ namespace po = boost::program_options;
 using namespace Davix;
 
 #define SSTR(message) static_cast<std::ostringstream&>(std::ostringstream().flush() << message).str()
-
-#define DECLARE_TEST() std::cout << "Performing test: " << __FUNCTION__ << " on " << uri << std::endl
+#define DECLARE_TEST() std::cout << " ----- Performing test: " << __FUNCTION__ << " on " << uri << std::endl
 
 #include "lorem-ipsum.h" // define std::string teststring
 const std::string testfile("davix-testfile-");

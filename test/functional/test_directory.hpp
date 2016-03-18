@@ -1,5 +1,0 @@
-#ifndef TEST_DIRECTORY_HPP
-#define TEST_DIRECTORY_HPP
-
-
-#endif // TEST_DIRECTORY_HPP

@@ -6,22 +6,17 @@ if(FUNCTIONAL_TESTS)
 set(src_davix_test_lib "davix_test_lib.cpp")
 
 #set( src_test_req "test_request.cpp")
-#set( src_test_prop "test_propfind.cpp")
-#set( src_test_stat "test_stat.cpp" )
-#set( src_test_mkdir "test_mkdir.cpp")
 #set( src_test_checksum "test_checksum.cpp")
 #set( src_test_stat_session "test_stat_session.cpp")
 #set( src_test_rw "davix_rw_test.cpp")
 #set( src_test_opendir "test_opendir.cpp")
 #set( src_test_opendir_partial "test_opendir_partial.cpp")
 #set( src_test_opendirpp "test_opendirpp.cpp")
-#set( src_test_listing "test_listing.cpp")
 #set( src_test_directory "test_directory.cpp")
 #set( src_test_auto_stat_mkdir_check "test_auto_stat_mkdir_check.cpp")
 #set( src_test_auto_rmdir_unlink_delete "test_auto_rmdir_unlink_delete.cpp")
 #set( src_test_valid_read_generic_simple "test_valid_read_generic_simple.cpp")
 #set( src_test_valid_write_read_generic_simple "test_valid_write_read_generic_simple.cpp")
-#set( src_test_valid_write_read_davfile "test_valid_write_read_davfile.cpp")
 #set( src_test_valid_write_read_fd "test_valid_write_read_fd.cpp")
 #set( src_test_valid_write_read_vector_simple "test_valid_write_read_vector_simple.cpp")
 #set( src_tool_read_vector_simple "tool_read_vector_simple.cpp")
@@ -42,17 +37,8 @@ add_library(test_davix_functional_lib STATIC ${src_davix_test_lib})
 #add_executable(test_rw_fd ${src_test_valid_write_read_fd})
 #target_link_libraries(test_rw_fd libdavix test_davix_functional_lib )
 
-#add_executable(test_prop ${src_test_prop} )
-#target_link_libraries(test_prop libdavix ${Boost_LIBRARIES} test_davix_functional_lib)
-
-#add_executable(test_stat ${src_test_stat})
-#target_link_libraries(test_stat libdavix test_davix_functional_lib)
-
 #add_executable(test_stat_auto_check ${src_test_auto_stat_mkdir_check})
 #target_link_libraries(test_stat_auto_check libdavix test_davix_functional_lib)
-
-#add_executable(test_mkdir ${src_test_mkdir})
-#target_link_libraries(test_mkdir libdavix test_davix_functional_lib)
 
 #add_executable(test_checksum ${src_test_checksum})
 #target_link_libraries(test_checksum libdavix test_davix_functional_lib)
@@ -70,8 +56,6 @@ add_library(test_davix_functional_lib STATIC ${src_davix_test_lib})
 #add_executable(test_opendir ${src_test_opendir} )
 #target_link_libraries(test_opendir libdavix test_davix_functional_lib)
 
-#add_executable(test_listing ${src_test_listing} )
-#target_link_libraries(test_listing libdavix test_davix_functional_lib)
 
 #add_executable(test_directory ${src_test_directory} )
 #target_link_libraries(test_directory libdavix test_davix_functional_lib)
@@ -87,9 +71,6 @@ add_library(test_davix_functional_lib STATIC ${src_davix_test_lib})
 
 #add_executable(test_valid_write_read_generic_simple ${src_test_valid_write_read_generic_simple})
 #target_link_libraries(test_valid_write_read_generic_simple libdavix test_davix_functional_lib)
-
-#add_executable(test_valid_write_read_davfile ${src_test_valid_write_read_davfile})
-#target_link_libraries(test_valid_write_read_davfile libdavix test_davix_functional_lib)
 
 #add_executable(test_valid_write_read_vector_simple ${src_test_valid_write_read_vector_simple})
 #target_link_libraries(test_valid_write_read_vector_simple libdavix test_davix_functional_lib)
@@ -233,7 +214,6 @@ include(${CMAKE_SOURCE_DIR}/credentials/creds.cmake)
 
 function(test_dav_endpoint_ronly name cred)
 
-    add_test(test_stat_${name} test_stat ${name} ${cred})
     add_test(test_stat_session_${name} test_stat_session ${cred} ${name} ${name} ${name} ${name} ${name} ${name} ${name})
     add_test(test_opendir_${name} test_opendir ${name} ${cred})
   #  add_test(test_opendir_c_${name} test_opendir_c ${name} ${cred})
@@ -243,12 +223,9 @@ endfunction(test_dav_endpoint_ronly name cred)
 
 function(test_dav_endpoint_rw name cred)
 
-    add_test(test_stat_${name} test_stat ${name} ${cred})
     add_test(test_stat_session_${name} test_stat_session ${cred} ${name} ${name} ${name} ${name} ${name} ${name} ${name})
     add_test(test_opendir_${name} test_opendir ${name} ${cred})
     add_test(test_opendirpp_${name} test_opendirpp ${name} ${cred})
-    add_test(test_listing_${name} test_listing ${name} ${cred})
-    add_test(test_mkdir_${name} test_mkdir ${name} ${cred})
     add_test(test_stat_auto_check_${name} test_stat_auto_check ${name} ${cred})
 endfunction(test_dav_endpoint_rw name cred)
 

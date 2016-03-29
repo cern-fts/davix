@@ -287,8 +287,8 @@ int authCallbackCert(void* userdata, const SessionInfo & info, X509Credential* c
                 }
                 return -1;
              }
+             std::cout << std::endl;
         }
-        std::cout << std::endl;
         return 0;
     }
     if(err && *err == NULL){

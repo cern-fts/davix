@@ -241,8 +241,8 @@ int authCallbackLoginPassword(void* userdata, const SessionInfo & info, std::str
                 ret =0;
             }
         }
+        std::cout << std::endl;
     }
-    std::cout << std::endl;
     if(ret < 0)
         DavixError::setupError(err, "Davix::Tool::Auth",
                                StatusCode::LoginPasswordError,

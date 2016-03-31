@@ -70,19 +70,15 @@ struct DirHandle{
   return a vector with the content of the request if success
 */
 std::vector<char> req_webdav_propfind(HttpRequest* req, DavixError** err){
-    DavixError* tmp_err=NULL;
     int ret =-1;
     std::vector<char> res;
 
     req->addHeaderField("Depth","0");
     req->setRequestMethod("PROPFIND");
 
-    if( (ret = req->executeRequest(&tmp_err)) ==0){
+    if( (ret = req->executeRequest(err)) ==0){
         res.swap(req->getAnswerContentVec());
     }
-
-    if(ret != 0 || !tmp_err)
-        DavixError::propagateError(err, tmp_err);
 
     return res;
 }

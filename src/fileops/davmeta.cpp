@@ -81,7 +81,7 @@ std::vector<char> req_webdav_propfind(HttpRequest* req, DavixError** err){
         res.swap(req->getAnswerContentVec());
     }
 
-    if(ret != 0 || tmp_err == NULL)
+    if(ret != 0 || !tmp_err)
         DavixError::propagateError(err, tmp_err);
 
     return res;

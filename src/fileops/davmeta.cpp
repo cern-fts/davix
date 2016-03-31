@@ -78,12 +78,10 @@ std::vector<char> req_webdav_propfind(HttpRequest* req, DavixError** err){
     req->setRequestMethod("PROPFIND");
 
     if( (ret = req->executeRequest(&tmp_err)) ==0){
-        ret = davixRequestToFileStatus(req, davix_scope_stat_str(), &tmp_err);
         res.swap(req->getAnswerContentVec());
-
     }
 
-    if(ret != 0)
+    if(ret != 0 || tmp_err == NULL)
         DavixError::propagateError(err, tmp_err);
 
     return res;
@@ -306,7 +304,7 @@ int internal_checksum(Context & c, const Uri & url, const RequestParams *p, std:
         req.addHeaderField("Want-Digest", chk_algo);
         req.setParameters(params);
         if( (ret = req.executeRequest(&tmp_err)) == 0
-            && (ret = davixRequestToFileStatus(&req, davix_scope_mkdir_str(), &tmp_err)) >=0){
+            && !tmp_err && (ret = davixRequestToFileStatus(&req, davix_scope_mkdir_str(), &tmp_err)) >=0){
 
             // try simple MD5 ( standard )
             if(compare_ncase(chk_algo, "MD5") == 0){

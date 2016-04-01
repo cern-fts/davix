@@ -219,7 +219,7 @@ bool davix_config_apply(const std::string &filename, const std::string &contents
 bool davix_config_apply(const std::string &filename, Tool::OptParams &params, const std::string &url) {
   Uri uri(url);
   std::string sanitized = Tool::SanitiseTildedPath(filename.c_str());
-  std::ifstream t(sanitized);
+  std::ifstream t(sanitized.c_str());
   if(uri.getHost() != "" && t.good()) {
     std::string contents((std::istreambuf_iterator<char>(t)),
                            std::istreambuf_iterator<char>());

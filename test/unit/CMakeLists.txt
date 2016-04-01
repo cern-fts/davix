@@ -23,8 +23,9 @@ file(GLOB src_session session/*.cpp)
 file(GLOB src_parser xmlparser/*.cpp)
 file(GLOB src_files files/*.cpp)
 file(GLOB src_auth  auth/*.cpp)
+file(GLOB src_parser  parser/*.cpp)
+
 LIST(APPEND src_utils utils/utils_test.cpp ${SRC_STRING_UTILS_CPP})
-LIST(APPEND src_parser parser/parser_test.cpp)
 LIST(APPEND src_httprequest sessionfactory/test_factory.cpp)
 
 

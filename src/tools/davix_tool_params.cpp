@@ -22,6 +22,7 @@
 #include <davix_internal.hpp>
 #include "davix_tool_params.hpp"
 #include "davix_tool_util.hpp"
+#include "davix_config_parser.hpp"
 #include <getopt.h>
 #include <string_utils/stringutils.hpp>
 #include <utils/davix_logger.hpp>
@@ -199,6 +200,11 @@ static struct timespec parse_timeout(const std::string & opt, char** argv){
     timelapse.tv_sec =t;
     timelapse.tv_nsec =0;
     return timelapse;
+}
+
+void parse_davix_config(OptParams &p, std::string url) {
+    if(davix_config_apply("~/.davixrc", p, url)) return;
+    if(davix_config_apply("~/.netrc", p, url)) return;
 }
 
 int parse_davix_options_generic(const std::string &opt_filter,
@@ -386,9 +392,14 @@ int parse_davix_options(int argc, char** argv, OptParams & p, DavixError** err){
         {0,         0,                 0,  0 }
      };
 
-    return parse_davix_options_generic(arg_tool_main, long_options,
+    if( parse_davix_options_generic(arg_tool_main, long_options,
                                        argc, argv,
-                                       p, err);
+                                       p, err) < 0) {
+        return -1;
+    }
+
+    parse_davix_config(p, p.vec_arg[0]);
+    return 0;
 }
 
 
@@ -408,6 +419,7 @@ int parse_davix_ls_options(int argc, char** argv, OptParams & p, DavixError** er
         option_abort(argv);
         return -1;
     }
+    parse_davix_config(p, p.vec_arg[0]);
     return 0;
 }
 
@@ -431,6 +443,7 @@ int parse_davix_get_options(int argc, char** argv, OptParams & p, DavixError** e
     if(p.vec_arg.size() == 2){
         p.output_file_path = p.vec_arg[1];
     }
+    parse_davix_config(p, p.vec_arg[0]);
     return 0;
 }
 
@@ -441,8 +454,6 @@ int parse_davix_put_options(int argc, char** argv, OptParams & p, DavixError** e
         SECURITY_LONG_OPTIONS,
         {0,         0,                 0,  0 }
      };
-
-
 
     if( parse_davix_options_generic(arg_tool_main,
                                     long_options,
@@ -455,6 +466,7 @@ int parse_davix_put_options(int argc, char** argv, OptParams & p, DavixError** e
         return -1;
     }
     p.input_file_path = p.vec_arg[0];
+    parse_davix_config(p, p.vec_arg[1]);
     return 0;
 }
 
@@ -468,9 +480,14 @@ int parse_davix_copy_options(int argc, char** argv, OptParams & p, DavixError** 
         {0,         0,                 0,  0 }
      };
 
-    return parse_davix_options_generic(arg_tool_main, long_options,
+    if(parse_davix_options_generic(arg_tool_main, long_options,
                                        argc, argv,
-                                       p, err);
+                                       p, err) < 0) {
+        return -1;
+    }
+
+    parse_davix_config(p, p.vec_arg[0]);
+    return 0;
 }
 
 int parse_davix_rm_options(int argc, char** argv, OptParams & p, DavixError** err){
@@ -482,15 +499,20 @@ int parse_davix_rm_options(int argc, char** argv, OptParams & p, DavixError** er
         {0,         0,                 0,  0 }
      };
 
-    return parse_davix_options_generic(arg_tool_main, long_options,
+    if( parse_davix_options_generic(arg_tool_main, long_options,
                                        argc, argv,
-                                       p, err);
+                                       p, err) < 0) {
+        return -1;
+    }
+
+    parse_davix_config(p, p.vec_arg[0]);
+    return 0;
 }
 
 std::string get_common_options(){
            return  "  Common Options:\n"
             "\t--conn-timeout TIME:      Connection timeout in seconds. default: 30\n"
-            "\t--retry NUMBER:           Number of retry attempt in case of an operation failure. default: 10\n"
+            "\t--retry NUMBER:           Number of retry attempts in case of an operation failure. default: 3\n"
             "\t--retry-delay TIME:       Number of seconds to wait between retry attempts. default: 0\n"
             "\t--debug:                  Debug mode\n"
             "\t--header, -H:             Add a header field to the request\n"

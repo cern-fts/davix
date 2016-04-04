@@ -268,8 +268,6 @@ typedef struct thread_data {
 void* parallelSingleRange(void *args) {
 
     thdata *data = (thdata*) args;
-    std::cout << "hello from thread " << data->thread_no << std::endl;
-
     const SortedRanges & ranges = *data->ranges;
 
     data->size = 0;

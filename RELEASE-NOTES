@@ -1,3 +1,10 @@
+Version - 0.6.1
+
+** Bug
+    * [DMC-815] - davix: Stray "\n" at the beginning of output when manually specifying a proxy
+    * [DMC-817] - gfal-copy output when copying to davs is quite odd
+** Task
+    * [DMC-819] - davix: Script for 1-step release
 Version - 0.6.0
 ** Bug
     * [DMC-194] - Davix has performance issues in case of fast small little chunk of data

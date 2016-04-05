@@ -150,6 +150,9 @@ make DESTDIR=%{buildroot} install
 
 
 %changelog
+* Tue Apr 05 2016 Georgios Bitzes <georgios.bitzes at cern.ch> - 0.6.2-1
+ - davix 0.6.2 release, see RELEASE-NOTES for changes
+
 * Mon Apr 04 2016 Georgios Bitzes <georgios.bitzes at cern.ch> - 0.6.1-1
  - davix 0.6.1 release, see RELEASE-NOTES for changes
 

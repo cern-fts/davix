@@ -1,3 +1,7 @@
+Version - 0.6.2
+
+** Bug
+  * [DMC-821] - Code for multi-range requests allocates potentially huge buffer on the stack
 Version - 0.6.1
 
 ** Bug

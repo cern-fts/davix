@@ -520,22 +520,28 @@ dav_ssize_t copyChunk(HttpRequest & req, const IntervalTree<ElemChunk> &tree, da
     dav_ssize_t ret;
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Davix::parseMultipartRequest::copyChunk copy {} bytes with offset {}", offset, size);
 
-    char buffer[size+1];
-    ret = req.readSegment(buffer, size, &tmp_err);
+    std::vector<char> buffer;
+    buffer.resize(size+1);
+
+    ret = req.readSegment(&buffer[0], size, &tmp_err);
     if(ret != (dav_ssize_t) size || tmp_err) {
         DavixError::propagateError(err, tmp_err);
     }
+    else {
+        fillChunks(&buffer[0], tree, offset, size);
+    }
 
-    fillChunks(buffer, tree, offset, size);
     return ret;
 }
 
 dav_ssize_t HttpIOVecOps::singleRangeRequest(IOChainContext & iocontext,
                                              const IntervalTree<ElemChunk> & tree,
                                              dav_off_t offset, dav_size_t size) {
-    char buffer[size+1];
-    dav_ssize_t s = _start->pread(iocontext, buffer, size, offset);
-    fillChunks(buffer, tree, offset, s);
+    std::vector<char> buffer;
+    buffer.resize(size+1);
+
+    dav_ssize_t s = _start->pread(iocontext, &buffer[0], size, offset);
+    fillChunks(&buffer[0], tree, offset, s);
     return s;
 }
 

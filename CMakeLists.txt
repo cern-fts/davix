@@ -29,7 +29,7 @@ INCLUDE(CTest)
 set(OUTPUT_NAME_DAVIX "davix")
 set(VERSION_MAJOR 0)
 set(VERSION_MINOR 6)
-set(VERSION_PATCH 1)
+set(VERSION_PATCH 3)
 set(VERSION_STRING ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 set(VERSION_TAG "")
 
@@ -51,6 +51,11 @@ option(ENABLE_THIRD_PARTY_COPY "enable or disable third party copy support" FALS
 option(UNIT_TESTS "enable or disable the unit tests" FALSE)
 option(FUNCTIONAL_TESTS "enable or disable the functional tests" FALSE)
 option(BENCH_TESTS "enable or disable the bench tests" FALSE)
+
+# disable clock_gettime if building a static library
+if(STATIC_LIBRARY)
+    set(HAVE_CLOCK_GETTIME FALSE)
+endif()
 
 # libs checks
 find_package(Threads)

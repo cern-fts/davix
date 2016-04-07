@@ -1,3 +1,11 @@
+Version - 0.6.3
+
+** Bug
+  * [DMC-823] - The davix ROOT plugin does not build because of librt
+Version - 0.6.2
+
+** Bug
+  * [DMC-821] - Code for multi-range requests allocates potentially huge buffer on the stack
 Version - 0.6.1
 
 ** Bug

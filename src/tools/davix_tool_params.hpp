@@ -56,12 +56,15 @@ struct OptParams{
     std::string cred_path;
     // priv key path
     std::string priv_key;
+    // certificate decryption password
+    std::string cred_pass;
     // output file -o
     std::string output_file_path;
     // input file path
     std::string input_file_path;
     // user  login/passwd
     LoginPasswd userlogpasswd;
+    bool userlogpasswd_through_cmdline;
     // request content
     std::string req_content;
     // s3 auth

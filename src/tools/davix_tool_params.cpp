@@ -116,9 +116,11 @@ OptParams::OptParams() :
     help_msg(),
     cred_path(),
     priv_key(),
+    cred_pass(),
     output_file_path(),
     input_file_path(),
     userlogpasswd(),
+    userlogpasswd_through_cmdline(false),
     req_content(),
     aws_auth(),
     aws_region(),
@@ -251,6 +253,7 @@ int parse_davix_options_generic(const std::string &opt_filter,
                 break;
             case USER_LOGIN:
                 p.userlogpasswd.first = optarg;
+                p.userlogpasswd_through_cmdline = true;
                 strncpy(optarg, "", strlen(optarg));
                 break;
             case X509_PRIVATE_KEY:
@@ -258,6 +261,7 @@ int parse_davix_options_generic(const std::string &opt_filter,
                 break;
             case USER_PASSWORD:
                 p.userlogpasswd.second = optarg;
+                p.userlogpasswd_through_cmdline = true;
                 strncpy(optarg, "", strlen(optarg));
                 break;
             case DATA_CONTENT:

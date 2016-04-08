@@ -68,7 +68,7 @@ std::string string_from_ptime(const time_t & t){
 
 dav_ssize_t ask_user_login(std::string & login){
     char l[1024] ={0};
-    (std::cout << "Login: ").flush();
+    (std::cerr << "Login: ").flush();
     std::cin.getline(l, 1023);
     login.assign(l);
     std::fill(l, l+1024,'\0');
@@ -76,10 +76,10 @@ dav_ssize_t ask_user_login(std::string & login){
 }
 
 
-dav_ssize_t ask_user_passwd(std::string & passwd){
+dav_ssize_t ask_user_passwd(std::string & passwd, const std::string &prompt = "Password: "){
     char p[1024] ={0};
-    std::cout << "Password: ";
-    std::cout.flush();
+    std::cerr << prompt;
+    std::cerr.flush();
     if(simple_get_pass(p, 1023) > 0){
         passwd.assign(p);
         std::fill(p, p+1024,'\0');
@@ -219,87 +219,95 @@ std::string mode_to_stringmode(mode_t mode){
     return std::string(res);
 }
 
-
-
-
 int authCallbackLoginPassword(void* userdata, const SessionInfo & info, std::string & login, std::string & password,
                                         int count, DavixError** err){
     (void) info;
     OptParams* opts = static_cast<OptParams*>(userdata);
-    int ret = -1;
-    if(opts->userlogpasswd.first.empty() == false){
+
+    // authentication based on command-line parameters?
+    // never prompt for a password, even if provided credentials are wrong
+    if(opts->userlogpasswd_through_cmdline) {
         login = opts->userlogpasswd.first;
         password = opts->userlogpasswd.second;
-        ret =0;
-    }else {
-        if(count > 0)
-            std::cout << "Authentication Failure, try again:\n";
-        else
-            std::cout << "Authentication needed:\n";
-        if( ask_user_login(login) > 0){
-            if(ask_user_passwd(password) > 0){
-                ret =0;
-            }
-        }
-        std::cout << std::endl;
+        return 0;
     }
-    if(ret < 0)
-        DavixError::setupError(err, "Davix::Tool::Auth",
-                               StatusCode::LoginPasswordError,
-                               "No valid login/password provided");
-    return ret;
+
+    // keyboard-based authentication?
+    // prompt again only if last attempt failed
+    if(count == 0 && !opts->userlogpasswd.first.empty()) {
+        login = opts->userlogpasswd.first;
+        password = opts->userlogpasswd.second;
+        return 0;
+    }
+
+    // need to provide credentials through keyboard
+    if(count == 0) {
+        std::cerr << "Basic authentication - server is asking for username and password:\n";
+    }
+    else {
+        std::cerr << "Authentication failure, try again:\n";
+    }
+
+    if(ask_user_login(login) > 0) {
+        if(ask_user_passwd(password) > 0) {
+            std::cerr << std::endl;
+            opts->userlogpasswd.first = login;
+            opts->userlogpasswd.second = password;
+            return 0;
+        }
+    }
+
+    DavixError::setupError(err, "Davix::Tool::Auth",
+                           StatusCode::LoginPasswordError,
+                           "No valid login/password provided");
+    return -1;
 }
 
 int authCallbackCert(void* userdata, const SessionInfo & info, X509Credential* cert, DavixError** err){
     (void) info;
     OptParams* opts = static_cast<OptParams*>(userdata);
-    const std::string key_path(opts->priv_key), cred_path(opts->cred_path);
+    std::string key_path(opts->priv_key), cred_path(opts->cred_path);
 
-    if(cred_path.empty() == false){
-        // try without password
-        if(  cert->loadFromFilePEM( ((key_path.empty()== false)?(key_path):(cred_path)),
-                                  cred_path,
-                                  "",
-                                  err) <0){
-            
-            if( (*err)->getStatus() != StatusCode::CredDecryptionError){
-                // credential specific error
-                std::cerr << "("<< (*err)->getErrScope() <<") Error: "<< (*err)->getErrMsg() << std::endl;
-                DavixError::clearError(err);
+    if(key_path.empty()) {
+        key_path = cred_path;
+    }
 
-                return -1;
-            }
-
-            // retry with password
-            std::cout << std::endl;
-            DavixError::clearError(err);
-            std::string password;
-            if( ask_user_passwd(password) <0
-                    || cert->loadFromFilePEM(key_path, cred_path, password, err) <0 ){
-                if(err && *err == NULL){
-                    DavixError::setupError(err, "Davix::Tool::Auth",
-                                           StatusCode::CredDecryptionError,
-                                           "Impossible to use and decrypt client credential");
-                    
-                    std::cerr << "("<< (*err)->getErrScope() <<") Error: "<< (*err)->getErrMsg() << std::endl;
-                    DavixError::clearError(err);
-
-                }
-                return -1;
-             }
-             std::cout << std::endl;
+    // empty credentials?
+    if(opts->cred_path.empty()) {
+        if(err && *err == NULL){
+            DavixError::setupError(err, "Davix::Tool::Auth",
+                                   StatusCode::LoginPasswordError,
+                                   "No valid client credential provided");
         }
+        return -1;
+    }
+
+    // try with existing, cached password first
+    if(cert->loadFromFilePEM(key_path, cred_path, opts->cred_pass, err) <0) {
+        if( (*err)->getStatus() != StatusCode::CredDecryptionError || !opts->cred_pass.empty()) {
+            // credential specific error
+            std::cerr << "("<< (*err)->getErrScope() <<") Error: "<< (*err)->getErrMsg() << std::endl;
+            DavixError::clearError(err);
+            return -1;
+        }
+    }
+    else {
         return 0;
     }
-    if(err && *err == NULL){
-        DavixError::setupError(err, "Davix::Tool::Auth",
-                               StatusCode::LoginPasswordError,
-                               "No valid client credential provided");
+
+    // password is empty, prompt user
+    DavixError::clearError(err);
+    if(ask_user_passwd(opts->cred_pass, "Certificate password: ") < 0
+        || cert->loadFromFilePEM(key_path, cred_path, opts->cred_pass, err) < 0) {
+
+        if(err && *err) {
+            std::cerr << "("<< (*err)->getErrScope() <<") Error: "<< (*err)->getErrMsg() << std::endl;
+        }
+        return -1;
     }
-    return -1;
-
+    std::cerr << std::endl;
+    return 0;
 }
-
 
 std::string string_from_mode(mode_t mode){
     const char* rmask ="xwr";

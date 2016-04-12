@@ -19,7 +19,7 @@ extern "C" {
 
 // we should get rid of ifdefs as soon as we have C++11 on all platforms we care about
 void davix_get_monotonic_time(struct timespec *time_value){
-#if __cplusplus <= 201103L
+#if __cplusplus >= 201103L
     using namespace std;
     auto now = chrono::steady_clock::now().time_since_epoch();
     chrono::seconds sec = chrono::duration_cast<chrono::seconds>(now);

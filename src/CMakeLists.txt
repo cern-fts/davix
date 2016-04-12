@@ -25,7 +25,7 @@ endif(HAVE_TR1_SUPPORT)
 configure_file(davix_internal_config.in ${CMAKE_CURRENT_BINARY_DIR}/davix_internal_config.hpp @ONLY)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
-link_directories(${HTTPLIB_PKG_LIBRARY_DIR} ${CRYPTO_PKG_LIBRARY_DIR} 
+link_directories(${HTTPLIB_PKG_LIBRARY_DIR} ${CRYPTO_PKG_LIBRARY_DIR}
                                         ${LIBXML2_PKG_LIBRARY_DIR} )
 
 add_subdirectory(modules/copy)
@@ -53,11 +53,6 @@ add_dependencies(libdavix neon)
 
 target_link_libraries(libdavix  alibxx_core ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES}
                                 ${CMAKE_THREAD_LIBS_INIT} ${SOCKET_PKG_LIBRARIES} ${Boost_LIBRARIES})
-
-if(HAVE_CLOCK_GETTIME)
-    target_link_libraries(libdavix rt)
-endif(HAVE_CLOCK_GETTIME)
-
 
 set_target_properties(libdavix PROPERTIES
                             VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}

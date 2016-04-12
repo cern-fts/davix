@@ -142,28 +142,6 @@ void ne_davix_logger(int scope, const char *msg, ...)
     }
 }
 
-void ne_gettime(struct timespec *time_value){
-// duplicate code with timepoint
-// add support for OSX and other plateform without clock_gettime
-// going to be eradicate with the boost ASIO replacement
-    if(time_value == NULL)
-        return;
-
-
-#ifdef HAVE_CLOCK_GETTIME
-    clock_gettime(CLOCK_MONOTONIC, time_value);
-#elif HAVE_GETTIMEOFDAY
-    // TODO: gettimeofday is vulnerable to time jump
-    // need an OSX specific implementation using Mach micro kernel API
-    struct timeval now;
-    (void) gettimeofday(&now, NULL);
-    time_value->tv_sec  = now.tv_sec;
-    time_value->tv_nsec = now.tv_usec * 1000;
-#else
-#error "No gettimeofday nor clock_gettime: No time support"
-#endif
-}
-
 int ne_has_support(int feature)
 {
     switch (feature) {

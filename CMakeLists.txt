@@ -52,11 +52,6 @@ option(UNIT_TESTS "enable or disable the unit tests" FALSE)
 option(FUNCTIONAL_TESTS "enable or disable the functional tests" FALSE)
 option(BENCH_TESTS "enable or disable the bench tests" FALSE)
 
-# disable clock_gettime if building a static library
-if(STATIC_LIBRARY)
-    set(HAVE_CLOCK_GETTIME FALSE)
-endif()
-
 # libs checks
 find_package(Threads)
 

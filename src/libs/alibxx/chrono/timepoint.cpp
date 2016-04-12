@@ -1,6 +1,52 @@
 #include <davix_internal_config.hpp>
 #include "timepoint.hpp"
 
+#if __cplusplus <= 201103L
+#include <chrono>
+#elif HAVE_CLOCK_GETTIME
+#include <sys/syscall.h>
+#endif
+
+static void gettimeofday_timespec(struct timespec *time_value) {
+    struct timeval now;
+    (void) gettimeofday(&now, NULL);
+    time_value->tv_sec  = now.tv_sec;
+    time_value->tv_nsec = now.tv_usec * 1000;
+}
+
+// also for use inside libneon
+extern "C" {
+
+// we should get rid of ifdefs as soon as we have C++11 on all platforms we care about
+void davix_get_monotonic_time(struct timespec *time_value){
+#if __cplusplus <= 201103L
+    using namespace std;
+    auto now = chrono::steady_clock::now().time_since_epoch();
+    chrono::seconds sec = chrono::duration_cast<chrono::seconds>(now);
+
+    time_value->tv_sec  = sec.count();
+    time_value->tv_nsec = chrono::duration_cast<chrono::nanoseconds>(now - sec).count();
+#elif defined(HAVE_CLOCK_GETTIME)
+#warning "Using clock_gettime"
+    // todo: use the glibc wrapper for clock_gettime once it's available
+    // on all the platforms we care about, instead of issuing a syscall
+    // directly like barbarians
+    //
+    // linking with -lrt is NOT an option because the runtime dependency
+    // is passed on to ROOT, which often needs a static build of davix
+    int ret = syscall(SYS_clock_gettime, CLOCK_MONOTONIC, time_value);
+    if(ret < 0) {
+        std::cerr << "davix: Could not issue a syscall for clock_gettime.. Falling back to non-monotonic gettimeofday" << std::endl;
+        gettimeofday_timespec(time_value);
+    }
+#elif defined(HAVE_GETTIMEOFDAY)
+#warning "No support for a monotonic clock - using gettimeofday instead"
+    gettimeofday_timespec(time_value);
+#else
+#error "No C++11 support (steady_clock), no clock_gettime nor gettimeofday: No time support"
+#endif
+}
+}
 
 namespace A_LIB_NAMESPACE{
 
@@ -91,31 +137,16 @@ Type::UInt64 Duration::toTimeValue() const{
 //////////////////////////////
 
 
-static void get_time(Clock::Type clock_type, struct timespec & time_value){
-#ifdef HAVE_CLOCK_GETTIME
-    clockid_t t;
-    switch(clock_type){
+static void get_time(Clock::Type clock_type, struct timespec & time_value) {
+    switch(clock_type) {
         case Clock::Monolitic:
-            t = CLOCK_MONOTONIC;
+            davix_get_monotonic_time(&time_value);
             break;
         default:
-            t = CLOCK_REALTIME;
+            gettimeofday_timespec(&time_value);
             break;
     }
-    clock_gettime(t, &time_value);
-#elif HAVE_GETTIMEOFDAY
-    // TODO: gettimeofday is vulnerable to time jump
-    // need an OSX specific implementation using Mach micro kernel API
-    struct timeval now;
-    (void) gettimeofday(&now, NULL);
-    time_value.tv_sec  = now.tv_sec;
-    time_value.tv_nsec = now.tv_usec * 1000;
-#else
-#error "No gettimeofday nor clock_gettime: No time support"
-#endif
-
 }
-
 
 Clock::Clock(Type clock_type, Precision tick) : _type(clock_type), _precision(tick){
     (void) _precision;

@@ -1537,7 +1537,7 @@ static int do_connect(ne_session *sess, struct host_info *host)
 
     struct timespec deadline_timeout;
     if(sess->rdtimeout > 0){
-        ne_gettime(&deadline_timeout);
+        davix_get_monotonic_time(&deadline_timeout);
         deadline_timeout.tv_sec += sess->rdtimeout;
     }
 
@@ -1557,7 +1557,7 @@ static int do_connect(ne_session *sess, struct host_info *host)
 
     if(ret && sess->rdtimeout > 0){
         struct timespec current_time;
-        ne_gettime(&current_time);
+        davix_get_monotonic_time(&current_time);
         if(current_time.tv_sec > deadline_timeout.tv_sec){
             ret= NE_SOCK_TIMEOUT;
             break;

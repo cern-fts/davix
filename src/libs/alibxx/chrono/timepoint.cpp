@@ -1,7 +1,7 @@
 #include <davix_internal_config.hpp>
 #include "timepoint.hpp"
 
-#if __cplusplus <= 201103L
+#if __cplusplus >= 201103L
 #include <chrono>
 #elif HAVE_CLOCK_GETTIME
 #include <sys/syscall.h>

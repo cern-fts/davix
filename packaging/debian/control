@@ -1,7 +1,7 @@
 Source: davix
 Priority: optional
 Maintainer: Mattias Ellert <mattias.ellert@fysast.uu.se>
-Build-Depends: debhelper (>= 8.0.0), cmake, libxml2-dev, libssl-dev, gsoap, libboost-system-dev, libboost-thread-dev, libboost-program-options-dev, rapidjson-dev, libgtest-dev, abi-compliance-checker, pkg-config, doxygen
+Build-Depends: debhelper (>= 8.0.0), cmake, libxml2-dev, libssl-dev, gsoap, libboost-system-dev, libboost-thread-dev, rapidjson-dev, abi-compliance-checker, pkg-config, doxygen
 Standards-Version: 3.9.6
 Section: net
 Homepage: http://dmc.web.cern.ch/projects/davix/home

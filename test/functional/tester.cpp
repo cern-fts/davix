@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <iostream>
 #include <vector>
-#include <boost/program_options.hpp>
+#include "optionparser.h"
+#include <sstream>
 
 #include <davix.hpp>
 #include "davix_test_lib.h"
 
-namespace po = boost::program_options;
 using namespace Davix;
 
 #define SSTR(message) static_cast<std::ostringstream&>(std::ostringstream().flush() << message).str()
@@ -36,7 +36,7 @@ std::vector<std::string> split(const std::string str, const std::string delim) {
 }
 
 namespace Auth {
-enum Type {AWS, PROXY, AZURE, NONE};
+enum Type {AWS, PROXY, AZURE, NONE, ILLEGAL};
 Type fromString(const std::string &str) {
     if(str == "aws")
         return Auth::AWS;
@@ -47,61 +47,104 @@ Type fromString(const std::string &str) {
     if(str == "none")
         return Auth::NONE;
 
-    throw std::invalid_argument(SSTR(str << " not a valid authentication method"));
+    return Auth::ILLEGAL;
 };
 };
 
-po::variables_map parse_args(int argc, char** argv) {
-    po::options_description desc("davix functional tests runner");
+static option::ArgStatus option_nonempty(const option::Option& option, bool msg) {
+    if (option.arg != 0 && option.arg[0] != 0)
+        return option::ARG_OK;
+    if (msg) std::cout << "Option '" << option << "' requires a non-empty argument" << std::endl;
+        return option::ARG_ILLEGAL;
+}
 
-    desc.add_options()
-        ("help", "produce help message")
-        ("auth", po::value<std::string>()->default_value("none"), "authentication method to use (proxy, aws, none)")
-        ("s3accesskey", po::value<std::string>(), "s3 access key")
-        ("s3secretkey", po::value<std::string>(), "s3 secret key")
-        ("s3region", po::value<std::string>(), "s3 region")
-        ("azurekey", po::value<std::string>(), "azure key")
-        ("s3alternate", "s3 alternate")
-        ("cert", po::value<std::string>(), "path to the proxy certificate to use")
-        ("uri", po::value<std::string>(), "uri to test against")
-        ("trace", po::value<std::string>(), "debug scope")
-        ("command", po::value<std::vector<std::string> >()->multitoken(), "test to run")
-        ;
 
-    po::variables_map vm;
-    po::store(po::parse_command_line(argc, argv, desc), vm);
-    po::notify(vm);
+namespace Opt {
+enum  Type { UNKNOWN, HELP, AUTH, S3ACCESSKEY, S3SECRETKEY, S3REGION,
+                    AZUREKEY, S3ALTERNATE, CERT, URI, TRACE, COMMAND };
+}
 
-    if(vm.count("help")) {
-        std::cout << desc << "\n";
+bool verify_options_sane(option::Parser &parse, std::vector<option::Option> &options) {
+    if(parse.error()) {
+        std::cout << "Parsing error" << std::endl;
+        return false;
+    }
+
+    if(options[Opt::HELP]) {
+        return false;
+    }
+
+    for(option::Option* opt = options[Opt::UNKNOWN]; opt; opt = opt->next()) {
+        std::cout << "Unknown option: " << std::string(opt->name,opt->namelen) << "\n";
+        return false;
+    }
+
+    for(int i = 0; i < parse.nonOptionsCount(); ++i) {
+        std::cout << "Non-option #" << i << ": " << parse.nonOption(i) << "\n";
+        return false;
+    }
+
+    return true;
+}
+
+std::vector<option::Option> parse_args(int argc, char** argv) {
+    const option::Descriptor usage[] = {
+        {Opt::UNKNOWN, 0, "", "", option::Arg::None, "davix functional tests runner\n"
+                                                     "USAGE: tester [options]\n\n" "Options:" },
+        {Opt::HELP, 0, "", "help", option::Arg::None, " --help \tPrint usage and exit." },
+        {Opt::AUTH, 0, "", "auth", option_nonempty, " --auth \t Authentication method" },
+        {Opt::S3ACCESSKEY, 0, "", "s3accesskey", option_nonempty, " --s3accesskey S3 access key"},
+        {Opt::S3SECRETKEY, 0, "", "s3secretkey", option_nonempty, " --s3secretkey S3 secret key"},
+        {Opt::S3REGION, 0, "", "s3region", option_nonempty, "--s3region S3 region"},
+        {Opt::AZUREKEY, 0, "", "azurekey", option_nonempty, "--azurekey Azure key"},
+        {Opt::S3ALTERNATE, 0, "", "s3alternate", option::Arg::None, "--s3alternate"},
+        {Opt::CERT, 0, "", "cert", option_nonempty, "--cert path to the proxy certificate to use"},
+        {Opt::URI, 0, "", "uri", option_nonempty, "--uri uri to test against"},
+        {Opt::TRACE, 0, "", "trace", option_nonempty, "--trace debug scope"},
+        {Opt::COMMAND, 0, "", "command", option_nonempty, "--command test to run"},
+        {Opt::UNKNOWN, 0, "", "",option::Arg::None, "\nExamples:\n"
+                                               "  tester --auth proxy --uri https://storage/davix-tests --command makeCollection" },
+
+        {0,0,0,0,0,0}
+    };
+
+    option::Stats stats(usage, argc-1, argv+1); // TODO fix argc-1
+    std::vector<option::Option> options(stats.options_max);
+    std::vector<option::Option> buffer(stats.buffer_max);
+    option::Parser parse(usage, argc-1, argv+1, &options[0], &buffer[0]);
+
+    if(!verify_options_sane(parse, options)) {
+        option::printUsage(std::cout, usage);
         exit(1);
     }
-    return vm;
+
+    return options;
 }
 
-std::string opt(const po::variables_map &vm, const std::string key) {
-    return vm[key].as<std::string>();
+std::string retrieve(const std::vector<option::Option> &options,  const Opt::Type key) {
+    if(!options[key]) return "";
+    return options[key].arg;
 }
 
-void authentication(const po::variables_map &vm, const Auth::Type &auth, RequestParams &params) {
+void authentication(const std::vector<option::Option> &opts, const Auth::Type &auth, RequestParams &params) {
     if(auth == Auth::AWS) {
         params.setProtocol(RequestProtocol::AwsS3);
 
-        ASSERT(vm.count("s3accesskey") != 0, "--s3accesskey is required when using s3");
-        ASSERT(vm.count("s3secretkey") != 0, "--s3secretkey is required when using s3");
+        ASSERT(opts[Opt::S3ACCESSKEY] != NULL, "--s3accesskey is required when using s3");
+        ASSERT(opts[Opt::S3SECRETKEY] != NULL, "--s3secretkey is required when using s3");
 
-        params.setAwsAuthorizationKeys(opt(vm, "s3secretkey"), opt(vm, "s3accesskey"));
-        if(vm.count("s3region") != 0) params.setAwsRegion(opt(vm, "s3region"));
-        if(vm.count("s3alternate") != 0) params.setAwsAlternate(true);
+        params.setAwsAuthorizationKeys(retrieve(opts, Opt::S3SECRETKEY), retrieve(opts, Opt::S3ACCESSKEY));
+        if(opts[Opt::S3REGION]) params.setAwsRegion(retrieve(opts, Opt::S3REGION));
+        if(opts[Opt::S3ALTERNATE]) params.setAwsAlternate(true);
     }
     else if(auth == Auth::PROXY) {
         configure_grid_env("proxy", params);
     }
     else if(auth == Auth::AZURE) {
-        ASSERT(vm.count("azurekey") != 0, "--azurekey is required when using Azure");
+        ASSERT(opts[Opt::AZUREKEY] != NULL, "--azurekey is required when using Azure");
 
         params.setProtocol(RequestProtocol::Azure);
-        params.setAzureKey(opt(vm, "azurekey"));
+        params.setAzureKey(retrieve(opts, Opt::AZUREKEY));
     }
     else {
         ASSERT(false, "unknown authentication method");
@@ -366,66 +409,73 @@ void detectwebdav(const RequestParams &params, const Uri uri, bool result) {
     }
 }
 
+void assert_args(const std::vector<std::string> &cmd, int nargs) {
+    ASSERT(cmd.size() != 0, "assert_args called with empty command!");
+    ASSERT(cmd.size() == nargs+1, "Wrong number of arguments to " << cmd[0] << ": " << cmd.size()-1 << ", expected: " << nargs);
+}
+
 void run(int argc, char** argv) {
     RequestParams params;
     params.setOperationRetry(0);
 
-    po::variables_map vm = parse_args(argc, argv);
-    Auth::Type auth = Auth::fromString(opt(vm, "auth"));
+    std::vector<option::Option> opts = parse_args(argc, argv);
+    Auth::Type auth = Auth::fromString(retrieve(opts, Opt::AUTH));
 
-    ASSERT(vm.count("command") != 0, "--command is necessary");
-    ASSERT(vm.count("uri") != 0, "--uri is necessary");
+    ASSERT(opts[Opt::COMMAND] != NULL, "--command is necessary");
+    ASSERT(opts[Opt::URI] != NULL, "--uri is necessary");
+    ASSERT(auth != Auth::ILLEGAL, "--auth is necessary, and can only be one of aws, proxy, azure, none");
 
-    if(vm.count("trace") != 0) {
-        std::string scope = opt(vm, "trace");
+    if(opts[Opt::TRACE]) {
+        std::string scope = retrieve(opts, Opt::TRACE);
         setLogScope(0);
         setLogScope(scope);
         setLogLevel(DAVIX_LOG_TRACE);
     }
 
-    std::vector<std::string> cmd = vm["command"].as<std::vector<std::string> >();
-    Uri uri = Uri(opt(vm, "uri"));
-
-    authentication(vm, auth, params);
+    std::vector<std::string> cmd = split(retrieve(opts, Opt::COMMAND), " ");
+    Uri uri = Uri(retrieve(opts, Opt::URI));
+    authentication(opts, auth, params);
 
     if(cmd[0] == "makeCollection") {
-        ASSERT(cmd.size() == 1, "Wrong number of arguments to makeCollection");
+        assert_args(cmd, 0);
         makeCollection(params, uri);
     }
     else if(cmd[0] == "populate") {
-        ASSERT(cmd.size() == 2, "Wrong number of arguments to populate");
+        assert_args(cmd, 1);
         populate(params, uri, atoi(cmd[1].c_str()));
     }
     else if(cmd[0] == "remove") {
+        assert_args(cmd, 0);
         ASSERT(cmd.size() == 1, "Wrong number of arguments to remove");
         remove(params, uri);
     }
     else if(cmd[0] == "listing") {
-        ASSERT(cmd.size() == 2, "Wrong number of arguments to listing");
+        assert_args(cmd, 1);
         listing(params, uri, atoi(cmd[1].c_str()));
     }
     else if(cmd[0] == "putMoveDelete") {
+        assert_args(cmd, 0);
         ASSERT(cmd.size() == 1, "Wrong number of arguments to putMoveDelete");
         putMoveDelete(params, uri);
     }
     else if(cmd[0] == "depopulate") {
-        ASSERT(cmd.size() == 2, "Wrong number of arguments to depopulate");
+        assert_args(cmd, 1);
         depopulate(params, uri, atoi(cmd[1].c_str()));
     }
     else if(cmd[0] == "countfiles") {
-        ASSERT(cmd.size() == 2, "Wrong number of arguments to countfiles");
+        assert_args(cmd, 1);
         countfiles(params, uri, atoi(cmd[1].c_str()));
     }
     else if(cmd[0] == "statdir") {
-        ASSERT(cmd.size() == 1, "Wrong number of arguments to statdir");
+        assert_args(cmd, 0);
         statdir(params, uri);
     }
     else if(cmd[0] == "statfile") {
-        ASSERT(cmd.size() == 1, "Wrong number of arguments to statfile");
+        assert_args(cmd, 0);
         statfile(params, uri);
     }
     else if(cmd[0] == "movefile") {
-        ASSERT(cmd.size() == 1, "Wrong number of arguments to move");
+        assert_args(cmd, 0);
         movefile(params, uri);
     }
     else if(cmd[0] == "preadvec") {
@@ -440,7 +490,7 @@ void run(int argc, char** argv) {
         }
     }
     else if(cmd[0] == "detectwebdav") {
-        ASSERT(cmd.size() == 2, "Wrong number of arguments to detectwebdav");
+        assert_args(cmd, 1);
         bool expected = false;
         if(cmd[1] == "1") {
             expected = true;

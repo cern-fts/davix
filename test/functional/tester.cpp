@@ -3,6 +3,7 @@
 #include <vector>
 #include "optionparser.h"
 #include <sstream>
+#include <stdexcept>
 
 #include <davix.hpp>
 #include "davix_test_lib.h"

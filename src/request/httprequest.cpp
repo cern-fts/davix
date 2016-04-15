@@ -374,9 +374,12 @@ void httpcodeToDavixError(int code, const std::string &scope, const std::string 
         case 424:           /* Failed Dependency */
         case 501:           /* Not Implemented */
         case 413:           /* Request Entity Too Large */
-        case 507:           /* Insufficient Storage */
             dav_code = StatusCode::ConnectionProblem;
             str_msg = "Server Error";
+            break;
+        case 507:           /* Insufficient Storage */
+            dav_code = StatusCode::InsufficientStorage;
+            str_msg = "Insufficient Storage";
             break;
         case 301:           /* Moved Permanently */
         case 300:           /* Multiple Choices */

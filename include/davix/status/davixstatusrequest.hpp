@@ -152,6 +152,9 @@ enum Code {
     /// Too many redirects
     TooManyRedirects = 0x26,
 
+    /// Insufficient storage
+    InsufficientStorage = 0x27,
+
     /// Undefined error
     UnknowError = 0x100
 

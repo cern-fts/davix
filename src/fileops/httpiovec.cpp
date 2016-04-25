@@ -326,29 +326,36 @@ dav_ssize_t HttpIOVecOps::preadVec(IOChainContext & iocontext, const DavIOVecInp
     if(count_vec ==0)
         return 0;
 
-    IntervalTree<ElemChunk> tree = buildIntervalTree(input_vec, output_vec, count_vec);
-    SortedRanges sorted = partialMerging(tree, 200);
+    // size of merge window
+    dav_size_t mergewindow = 2000;
+    if(iocontext._uri.fragmentParamExists("mergewindow")) {
+        mergewindow = atoi(iocontext._uri.getFragmentParam("mergewindow").c_str());
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Setting mergewindow to {}", mergewindow);
+    }
 
     // number of parallel connections in case of a simulation
-    uint nconnections = 10;
+    uint nconnections = 3;
     if(iocontext._uri.fragmentParamExists("nconnections")) {
         nconnections = atoi(iocontext._uri.getFragmentParam("nconnections").c_str());
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Setting number of desired parallel connections to {}", nconnections);
     }
 
+    IntervalTree<ElemChunk> tree = buildIntervalTree(input_vec, output_vec, count_vec);
+
     // a lot of servers do not support multirange... should we even try?
     if(count_vec == 1 || iocontext._uri.getFragmentParam("multirange") == "false") {
-        sorted = partialMerging(tree, 2000);
+        SortedRanges sorted = partialMerging(tree, mergewindow);
         return simulateMultirange(iocontext, tree, sorted, nconnections);
     }
 
+    SortedRanges sorted = partialMerging(tree, mergewindow);
     MultirangeResult res = performMultirange(iocontext, tree, sorted);
     if(res.res == MultirangeResult::SUCCESS || res.res == MultirangeResult::SUCCESS_BUT_NO_MULTIRANGE) {
         return res.size_bytes;
     }
     else {
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Multi-range request has failed, attempting to recover by using multiple single-range requests");
-        sorted = partialMerging(tree, 1000);
+        sorted = partialMerging(tree, mergewindow);
         return simulateMultirange(iocontext, tree, sorted, nconnections);
     }
 }

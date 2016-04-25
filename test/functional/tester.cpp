@@ -338,23 +338,37 @@ void remove(const RequestParams &params, const Uri uri) {
     file.deletion(&params);
 }
 
-void preadvec(const RequestParams &params, const Uri uri, const std::string str_ranges, std::string options = "") {
+void preadvec(const RequestParams &params, const Uri uri, const std::string str_ranges, std::vector<std::string> options) {
     DECLARE_TEST();
     Uri u = uri;
 
     std::string filename = SSTR(testfile << 1);
-    if(options == "nomulti") {
-        u.addFragmentParam("multirange", "false");
+
+    bool noappend = false;
+    for(std::vector<std::string>::iterator it = options.begin(); it != options.end(); it++) {
+        if(*it == "nomulti") {
+            u.addFragmentParam("multirange", "false");
+        }
+        else if(*it ==  "noappend") {
+            noappend = true;
+        }
+        else if(it->find("nconnections=", 0) == 0) {
+            int nconnections = atoi(it->c_str() + 13);
+            ASSERT(nconnections > 0, "Unable to parse nconnections");
+            u.addFragmentParam("nconnections", SSTR(nconnections));
+        }
+        else if(it->find("mergewindow=", 0) == 0) {
+            int mergewindow = atoi(it->c_str() + 12);
+            ASSERT(mergewindow > 0, "Unable to parse mergewindow");
+            u.addFragmentParam("mergewindow", SSTR(mergewindow));
+        }
+        else {
+            ASSERT(false, "Unknown option to preadvec: " << *it);
+        }
+    }
+
+    if(!noappend) {
         u.addPathSegment(filename);
-    }
-    else if(options == "") {
-        u.addPathSegment(filename);
-    }
-    else if(options == "noappend") {
-        // nothing to do here
-    }
-    else {
-        ASSERT(false, "Unknown option to preadvec");
     }
 
     std::vector<std::string> ranges = split(str_ranges, ",");
@@ -481,10 +495,10 @@ void run(int argc, char** argv) {
     }
     else if(cmd[0] == "preadvec") {
         if(cmd.size() == 2) {
-            preadvec(params, uri, cmd[1]);
+            preadvec(params, uri, cmd[1], std::vector<std::string>());
         }
         else if(cmd.size() == 3) {
-            preadvec(params, uri, cmd[1], cmd[2]);
+            preadvec(params, uri, cmd[1], split(cmd[2], ","));
         }
         else {
             ASSERT(false, "Wrong number of arguments to preadvec");

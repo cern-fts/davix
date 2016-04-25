@@ -142,8 +142,10 @@ function(runtest params cmd)
 endfunction(runtest)
 
 function(preadvectest_single params ranges)
-    runtest("${params}" "preadvec ${ranges}")
-    runtest("${params}" "preadvec ${ranges} nomulti")
+    runtest("${params}" "preadvec ${ranges} mergewindow=1")
+    runtest("${params}" "preadvec ${ranges} mergewindow=1000")
+    runtest("${params}" "preadvec ${ranges} nomulti,mergewindow=1000")
+    runtest("${params}" "preadvec ${ranges} nomulti,mergewindow=1")
 endfunction(preadvectest_single)
 
 function(preadvectest params)

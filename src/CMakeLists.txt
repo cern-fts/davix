@@ -1,26 +1,13 @@
 # main file for src
 
-
-FILE(GLOB src_davix "*.cpp")
-
-FILE(GLOB src_neon "neon/*.cpp")
-FILE(GLOB src_davix_status "status/*.cpp")
-FILE(GLOB src_davix_fileops "fileops/*.cpp")
-FILE(GLOB src_davix_params "params/*.cpp")
-FILE(GLOB src_davix_auth "auth/*.cpp")
-FILE(GLOB src_davix_file "file/*.cpp")
-FILE(GLOB src_davix_deprecated "deprecated/*.cpp")
-FILE(GLOB src_davix_request "request/*.cpp")
-FILE(GLOB src_davix_hooks "hooks/*.cpp")
-FILE(GLOB src_davix_modules "modules/*.cpp")
-FILE(GLOB src_davix_utils "utils/*.cpp")
+FILE(GLOB src_davix
+    "*.cpp" "neon/*.cpp" "status/*.cpp" "fileops/*.cpp"
+    "params/*.cpp" "auth/*.cpp" "file/*.cpp" "deprecated/*.cpp"
+    "request/*.cpp" "hooks/*.cpp" "modules/*.cpp" "utils/*.cpp" "xml/*.cpp"
+)
 
 
 include_directories("libs" ".")
-
-if(HAVE_TR1_SUPPORT)
-
-endif(HAVE_TR1_SUPPORT)
 
 configure_file(davix_internal_config.in ${CMAKE_CURRENT_BINARY_DIR}/davix_internal_config.hpp @ONLY)
 
@@ -30,18 +17,14 @@ link_directories(${HTTPLIB_PKG_LIBRARY_DIR} ${CRYPTO_PKG_LIBRARY_DIR}
 
 add_subdirectory(modules/copy)
 add_subdirectory(libs)
-add_subdirectory(xml)
+
 if(ENABLE_TOOLS)
   add_subdirectory(tools)
 endif()
 
-add_subdirectory(neon)
-SET(SRC_HTTP ${src_neon})
-
-LIST(APPEND SRC_DAVIX_FULL ${src_davix} ${src_davix_request} ${SRC_HTTP}  ${src_xmlparser} ${src_datetime}
-                           ${src_davix_status} ${src_davix_fileops} ${src_davix_utils}
-                           ${src_davix_params} ${src_davix_auth} ${src_davix_file} ${src_davix_deprecated} ${src_davix_hooks} ${src_davix_modules} ${SRC_STRPTIME} ${SRC_MEMPCPY}
-                           ${SRC_STRLCPY} ${SRC_STRING_UTILS_CPP} ${SRC_BASE64} ${SRC_HMACSHA1} )
+LIST(APPEND SRC_DAVIX_FULL ${src_davix} ${src_datetime}
+                           ${SRC_STRPTIME} ${SRC_MEMPCPY} ${SRC_STRLCPY} ${SRC_STRING_UTILS_CPP}
+                           ${SRC_BASE64} ${SRC_HMACSHA1})
 
 
 add_definitions(${HTTPLIB_PKG_CFLAGS} )

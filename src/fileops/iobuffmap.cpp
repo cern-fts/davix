@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -190,8 +190,10 @@ dav_ssize_t HttpIO::pread(IOChainContext & iocontext, void *buf, dav_size_t coun
                     ret = read_segment_request(&req, buf, count, &tmp_err);
 
                     // clean remaining content
-                    char buffer[255];
-                    while( req.readBlock(buffer, 255, NULL) > 0);
+                    if(!tmp_err) {
+                        char buffer[255];
+                        while( req.readBlock(buffer, 255, NULL) > 0);
+                    }
 
                 }else if( req.getRequestCode() == 200){ // full request content -> skip useless content
                     ret = read_truncated_segment_request(&req, buf, count, offset, &tmp_err);

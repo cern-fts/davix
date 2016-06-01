@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -44,22 +44,29 @@ GridEnv createGridEnv(){
     DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CORE, "Add CA path {} to valid CA path list", env.ca_path);
 
     std::string proxy = EnvUtils::getEnv("X509_USER_PROXY", std::string());
-    if(proxy.size() ==0){
-        proxy = fmt::format("/tmp/x509up_u{}", geteuid());
-        if(access(proxy.c_str(), R_OK) !=0){
-            DAVIX_SLOG(DAVIX_LOG_WARNING, DAVIX_LOG_CORE, "Unable to read proxy file {}", proxy);
-            proxy.clear();
-        }
-    }
-    if(proxy.size() > 0){
-        DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CORE, "Define {} proxy certificate for use", proxy);
+    std::string key = EnvUtils::getEnv("X509_USER_KEY", std::string());
+    std::string cert = EnvUtils::getEnv("X509_USER_CERT", std::string());
+
+    std::string standard_location = fmt::format("/tmp/x509up_u{}", geteuid());
+
+    if(!proxy.empty()) {
+        DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CORE, "Using X509_USER_PROXY to supply credentials: {}", proxy);
         env.cert_path = env.key_path = proxy;
-    }else{
-        // No proxy, load simply creds
-        env.key_path = EnvUtils::getEnv("X509_USER_KEY", std::string());
-        env.cert_path = EnvUtils::getEnv("X509_USER_CERT", std::string());
-        DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CORE, "Define to use GRID key {} and GRID cert {} ", env.key_path, env.cert_path);
     }
+    else if(!cert.empty()) {
+        DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CORE, "Using X509_USER_CERT and X509_USER_KEY to supply credentials: {}, {}", cert, key);
+        env.cert_path = cert;
+        env.key_path = key;
+        if(key.empty()) env.key_path = cert;
+    }
+    else if(access(standard_location.c_str(), R_OK) == 0) {
+        DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CORE, "Using standard location for proxy: {}", standard_location);
+        env.cert_path = env.key_path = standard_location;
+    }
+    else {
+        DAVIX_SLOG(DAVIX_LOG_WARNING, DAVIX_LOG_CORE, "Unable to find a proxy or cert/key pair using either X509_USER_* variables or {}", standard_location);
+    }
+
     return env;
 }
 
@@ -72,7 +79,7 @@ void awesomeGridHook(RequestParams& p, HttpRequest & req, Uri & u, RequestPreRun
         p.addCertificateAuthorityPath(env_grid.ca_path);
     }
     // if no cert auth configured, configure one
-    if(env_grid.key_path.size() > 0){
+    if(env_grid.cert_path.size() > 0){
         X509Credential x509;
         DavixError* tmp_err=NULL;
         if( x509.loadFromFilePEM(env_grid.key_path, env_grid.cert_path, "", &tmp_err) <0){

@@ -506,9 +506,12 @@ dav_ssize_t HttpIOBuffer::write(IOChainContext & iocontext, const void *buf, dav
     dav_ssize_t ret =-1;
     dav_size_t write_len = count;
 
+    if(!_opened) {
+        throw DavixException(davix_scope_io_buff(), StatusCode::SystemError, "Impossible to write, descriptor has not been opened");
+    }
 
-    if(_local.get() == NULL || !_opened){
-        throw DavixException(davix_scope_io_buff(), StatusCode::SystemError, "Impossible to write, I/O Error");
+    if(_local.get() == NULL) {
+        throw DavixException(davix_scope_io_buff(), StatusCode::SystemError, "Impossible to write, no buffer. (file was opened only for reading?)");
     }
 
     do{

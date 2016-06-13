@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -51,7 +51,7 @@ static IOChainContext  getIOContext( Context & context, const Uri & uri, const R
 static const std::string simple_listing("<propfind xmlns=\"DAV:\"><prop><resourcetype><collection/></resourcetype></prop></propfind>");
 
 static const std::string stat_listing("<?xml version=\"1.0\" encoding=\"utf-8\" ?><D:propfind xmlns:D=\"DAV:\" xmlns:L=\"LCGDM:\"><D:prop>"
-                                      "<D:displayname/><D:getlastmodified/><D:creationdate/><D:getcontentlength/>"
+                                      "<D:displayname/><D:getlastmodified/><D:creationdate/><D:getcontentlength/><D:quota-used-bytes/>"
                                       "<D:resourcetype><D:collection/></D:resourcetype><L:mode/>"
                                       "</D:prop>"
                                       "</D:propfind>");

@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -128,8 +128,17 @@ static void check_content_length(DavPropXMLParser::DavxPropXmlIntern & par,  con
     }catch(...){
         DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_XML, " Invalid content length value in dav response");
     }
+}
 
-
+static void check_quota_used_bytes(DavPropXMLParser::DavxPropXmlIntern & par,  const std::string & name){
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_XML, " quota used bytes found -> parse it");
+    try{
+        const unsigned long mysize = toType<unsigned long, std::string>()(name);
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_XML, " quota used bytes found -> {}", mysize);
+        par._current_props.info.size = static_cast<off_t>(mysize);
+    }catch(...){
+        DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_XML, " Invalid quota used bytes in dav response");
+    }
 }
 
 static void check_mode_ext(DavPropXMLParser::DavxPropXmlIntern & par, const std::string & name){
@@ -217,6 +226,7 @@ void init_webdavTree(){
 
     it->addChild(Xml::XmlPTree(Xml::ElementStart, "getlastmodified", Xml::XmlPTree::ChildrenList(),  (void*) &check_last_modified));
     it->addChild(Xml::XmlPTree(Xml::ElementStart, "creationdate", Xml::XmlPTree::ChildrenList(), (void*) &check_creation_date));
+    it->addChild(Xml::XmlPTree(Xml::ElementStart, "quota-used-bytes", Xml::XmlPTree::ChildrenList(), (void*) &check_quota_used_bytes));
     it->addChild(Xml::XmlPTree(Xml::ElementStart, "getcontentlength", Xml::XmlPTree::ChildrenList(), (void*) &check_content_length));
 
     it->addChild(Xml::XmlPTree(Xml::ElementStart, "owner", Xml::XmlPTree::ChildrenList(), (void*) &check_owner_uid));

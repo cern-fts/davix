@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -47,7 +47,7 @@ namespace Davix{
 static const std::string simple_listing("<propfind xmlns=\"DAV:\"><prop><resourcetype><collection/></resourcetype></prop></propfind>");
 
 static const std::string stat_listing("<?xml version=\"1.0\" encoding=\"utf-8\" ?><D:propfind xmlns:D=\"DAV:\" xmlns:L=\"LCGDM:\"><D:prop>"
-                                      "<D:displayname/><D:getlastmodified/><D:creationdate/><D:getcontentlength/>"
+                                      "<D:displayname/><D:getlastmodified/><D:creationdate/><D:getcontentlength/><D:quota-used-bytes/>"
                                       "<D:resourcetype><D:collection/></D:resourcetype><L:mode/>"
                                       "<D:owner></D:owner><D:group></D:group>"
                                       "</D:prop>"
@@ -584,7 +584,7 @@ void S3MetaOps::makeCollection(IOChainContext &iocontext){
 void s3StatMapper(Context& context, const RequestParams* params, const Uri & uri, struct StatInfo& st_info){
     const std::string scope = "Davix::s3StatMapper";
     DavixError * tmp_err=NULL;
-    HeadRequest req(context, uri, &tmp_err);    
+    HeadRequest req(context, uri, &tmp_err);
 
     // we need to modify it, hence copy
     RequestParams p(params);
@@ -620,16 +620,16 @@ void s3StatMapper(Context& context, const RequestParams* params, const Uri & uri
 
             size_t prop_size = 0;
             do{ // first entry
-               TRY_DAVIX{ 
+               TRY_DAVIX{
                     s_resu = incremental_listdir_parsing(&http_req, &parser, 2048, scope);
                }CATCH_DAVIX(&tmp_err)
-                
+
                if(tmp_err && (tmp_err->getStatus() == StatusCode::IsNotADirectory)){
                   std::ostringstream ss;
                   ss << uri << " not found";
                   throw DavixException(scope, StatusCode::FileNotFound, ss.str());
                 }
-               
+
                prop_size = parser.getProperties().size();
                if(s_resu < 2048 && prop_size <1){ // verify request status : if req done + no data -> error
                   throw DavixException(scope, StatusCode::ParsingError, "Invalid server response, not a S3 listing");

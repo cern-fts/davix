@@ -99,9 +99,13 @@ add_subdirectory (packaging)
 
 #############################################################################
 ## headers
+configure_file("${CMAKE_SOURCE_DIR}/include/davix/features.hpp.in"
+               "${CMAKE_SOURCE_DIR}/include/davix/features.hpp"
+               @ONLY)
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/davix/
-                DESTINATION ${INCLUDE_INSTALL_DIR}/davix)
+        DESTINATION ${INCLUDE_INSTALL_DIR}/davix
+        PATTERN "*.in" EXCLUDE)
 
 ##############################################################################
 ## Doc file
@@ -118,4 +122,3 @@ CONFIGURE_FILE(
 
 ADD_CUSTOM_TARGET(uninstall
   "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
-

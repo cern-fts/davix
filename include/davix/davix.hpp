@@ -46,6 +46,7 @@
 #endif
 
 #include <davix_file_types.hpp>
+#include <features.hpp>
 
 /// main context
 #include <davixcontext.hpp>

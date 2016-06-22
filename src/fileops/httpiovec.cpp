@@ -525,7 +525,7 @@ dav_ssize_t copyChunk(HttpRequest & req, const IntervalTree<ElemChunk> &tree, da
                       DavixError** err){
     DavixError* tmp_err=NULL;
     dav_ssize_t ret;
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Davix::parseMultipartRequest::copyChunk copy {} bytes with offset {}", offset, size);
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Davix::parseMultipartRequest::copyChunk copy {} bytes with offset {}", size, offset);
 
     std::vector<char> buffer;
     buffer.resize(size+1);

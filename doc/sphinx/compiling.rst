@@ -21,8 +21,7 @@ Ubuntu
 
    sudo apt-get install abi-compliance-checker cmake debhelper doxygen \
                         gsoap libboost-system-dev libboost-thread-dev \
-                        libgridsite-dev libgtest-dev libssl-dev libxml2-dev pkg-config \
-                        rapidjson-dev
+                        libgridsite-dev libgtest-dev libssl-dev libxml2-dev pkg-config 
 
 How to build
 ------------

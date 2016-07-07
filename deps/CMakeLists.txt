@@ -13,10 +13,6 @@ SET(SRC_SIMPLE_GET_PASS "${CMAKE_CURRENT_SOURCE_DIR}/simple_getpass/simple_get_p
 SET(SRC_STRING_UTILS_CPP "${CMAKE_CURRENT_SOURCE_DIR}/string_utils/stringutils.cpp" PARENT_SCOPE)
 
 
-#json parser
-SET(HEADER_RAPIDJSON "${CMAKE_CURRENT_SOURCE_DIR}/rapidjson/include" PARENT_SCOPE)
-
-
 ## boost
 if(NOT Boost_FOUND)
 SET(Boost_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/boost_intern" PARENT_SCOPE)

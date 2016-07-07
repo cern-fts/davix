@@ -40,11 +40,6 @@ Files: deps/libneon/doc deps/libneon/test
 Copyright: 1999-2008 Joe Orton <joe@manyfish.co.uk>
 License: GPL-2+
 
-Files: deps/rapidjson
-Copyright: 2011 Milo Yip (miloyip@gmail.com)
-License: MIT
-Comment: Not used - removed in configure - uses rapidjson-dev instead
-
 Files: deps/strptime
 Copyright: 1996, 1997, 1998, 1999, 2000 Free Software Foundation, Inc.
 License: LGPL-2+

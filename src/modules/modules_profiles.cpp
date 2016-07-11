@@ -41,7 +41,7 @@ GridEnv createGridEnv(){
 
     GridEnv env;
     env.ca_path = EnvUtils::getEnv("X509_CERT_DIR", "/etc/grid-security/certificates/");
-    DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CORE, "Add CA path {} to valid CA path list", env.ca_path);
+    DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CORE, "Adding CA path {} to valid CA path list", env.ca_path);
 
     std::string proxy = EnvUtils::getEnv("X509_USER_PROXY", std::string());
     std::string key = EnvUtils::getEnv("X509_USER_KEY", std::string());
@@ -53,15 +53,15 @@ GridEnv createGridEnv(){
         DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CORE, "Using X509_USER_PROXY to supply credentials: {}", proxy);
         env.cert_path = env.key_path = proxy;
     }
+    else if(access(standard_location.c_str(), R_OK) == 0) {
+        DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CORE, "Using standard location for proxy: {}", standard_location);
+        env.cert_path = env.key_path = standard_location;
+    }
     else if(!cert.empty()) {
         DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CORE, "Using X509_USER_CERT and X509_USER_KEY to supply credentials: {}, {}", cert, key);
         env.cert_path = cert;
         env.key_path = key;
         if(key.empty()) env.key_path = cert;
-    }
-    else if(access(standard_location.c_str(), R_OK) == 0) {
-        DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CORE, "Using standard location for proxy: {}", standard_location);
-        env.cert_path = env.key_path = standard_location;
     }
     else {
         DAVIX_SLOG(DAVIX_LOG_WARNING, DAVIX_LOG_CORE, "Unable to find a proxy or cert/key pair using either X509_USER_* variables or {}", standard_location);

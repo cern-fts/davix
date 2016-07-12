@@ -185,6 +185,7 @@ dav_ssize_t HttpIO::pread(IOChainContext & iocontext, void *buf, dav_size_t coun
         if(req.beginRequest(&tmp_err) ==0){
             if(req.getRequestCode() == 416 ){ // out of file, end of file
                 ret = 0; // end of file
+                DavixError::clearError(&tmp_err);
             }else{
                 if(req.getRequestCode() == 206 ){ // partial request supported, just read !
                     ret = read_segment_request(&req, buf, count, &tmp_err);

@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -172,6 +172,10 @@ MultirangeResult HttpIOVecOps::performMultirange(IOChainContext & iocontext,
                         }
                         break;
                     }
+                    else if(retcode == 416) {
+                      ret = 0;
+                      DavixError::clearError(&tmp_err);
+                    }
                     else {
                         httpcodeToDavixError(req.getRequestCode(),davix_scope_http_request(),", ", &tmp_err);
                         ret = -1;
@@ -180,10 +184,10 @@ MultirangeResult HttpIOVecOps::performMultirange(IOChainContext & iocontext,
 
                     p_diff += it->first;
                     ret += tmp_ret;
+                } else {
+                   ret = -1;
+                   break;
                 }
-            } else {
-                ret = -1;
-                break;
             }
         }
     }
@@ -325,6 +329,10 @@ dav_ssize_t HttpIOVecOps::preadVec(IOChainContext & iocontext, const DavIOVecInp
                           const dav_size_t count_vec){
     if(count_vec ==0)
         return 0;
+
+    for(dav_size_t i = 0; i < count_vec; i++) {
+      output_vec[i].diov_size = 0;
+    }
 
     // size of merge window
     dav_size_t mergewindow = 2000;
@@ -504,7 +512,7 @@ static void copyBytes(const char *source, dav_off_t offset, dav_size_t size, Ele
             source+(common_offset-offset), intersect_dist);
 
     chunk._ou->diov_buffer = chunk._in->diov_buffer;
-    chunk._ou->diov_size = chunkSize;
+    chunk._ou->diov_size += intersect_dist;
 }
 
 // find all matching chunks in tree and fill them

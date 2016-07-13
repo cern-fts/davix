@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -106,9 +106,15 @@ public:
 
     ///
     ///  @brief Vector read operation
-    ///        Albe to do several read on several data chunk in one single operation. 
+    ///        Able to do several read on several data chunk in one single operation.
     ///        Uses Http multi-part when supported by the server,
     ///        simulate a vector read operation otherwise.
+    ///
+    ///        NOTE: The return code is the number of data bytes received from the
+    ///              server, not the total number of bytes written into the buffers.
+    ///              The two might not be equal if range coalescing is performed.
+    ///              Check diov_size of the output vector to make sure the buffers
+    ///              contain the expected number of bytes.
     ///
     ///  @param params Davix request Parameters
     ///  @param input_vec input vectors, parameters
@@ -278,7 +284,7 @@ public:
 
     ///
     ///  @brief Suppress the current entity or collection.
-    ///         
+    ///
     ///  Exception safe version of @ref deletion(const RequestParams* params = NULL)
     ///
     ///  @snippet example_code_snippets.cpp delete no throw

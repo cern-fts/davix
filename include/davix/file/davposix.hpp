@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -35,7 +35,7 @@
   @file davposix.hpp
   @author Devresse Adrien
 
-  @brief POSIX-like API of davix 
+  @brief POSIX-like API of davix
 */
 
 #ifndef __DAVIX_INSIDE__
@@ -74,21 +74,21 @@ public:
 
     /**
       @brief POSIX-like stat() call
-      
-      
+
+
       Behavior similar to the POSIX stat function, see man 3 stat.
-      
+
       Supported by Webdav, Http and S3.
-      
+
       Depending of the protocol, some struct stat field can be ignored.
-      
-      
+
+
       @param params request options, can be NULL
       @param str string url
       @param st stat struct to fill
       @param err Davix error report system
       @return 0 if success, negative value if error
-      
+
       @snippet example_code_snippets.cpp stat
      */
     int stat(const RequestParams* params, const std::string & str, struct stat * st, DavixError** err);
@@ -96,7 +96,7 @@ public:
 
     /**
       @brief 64bits version of /ref Davix::DavPosix::stat.
-      
+
       @snippet example_code_snippets.cpp stat
      */
     int stat64(const RequestParams *params, const std::string & url, StatInfo* st, DavixError** err);
@@ -104,14 +104,14 @@ public:
 
     /**
       @brief open a directory for listing.
-      
+
       behavior similar to the POSIX opendir function.
 
       Supported by Webdav.
 
       @param params request options, can be NULL
       @param url url of the directory to list
-      @param err Davix error report system      
+      @param err Davix error report system
       @return DAVIX_DIR davix readdir handle, NULL if error
 
       @snippet example_code_snippets.cpp opendir
@@ -120,7 +120,7 @@ public:
 
     /**
       @brief read an entry directory.
-           
+
       Behavior similar to the POSIX readdir function.
 
       @param dir directory handle
@@ -132,7 +132,7 @@ public:
     struct dirent* readdir(DAVIX_DIR* dir, DavixError** err);
     /**
        @brief close a directory handle
-       
+
        @param  d directory handle to close
        @param err Davix error report system
        @return 0 if success else a negative value and err is set.
@@ -143,12 +143,12 @@ public:
 
     /**
       @brief open a directory for listing with per entry meta-data information.
-      
+
       Similar to \ref Davix::DavPosix::opendir but provide stat() information for each entry
       Supported by Webdav.
 
       @param params request options, can be NULL
-      @param url url of the directory to list      
+      @param url url of the directory to list
       @param err Davix error report system
       @return DAVIX_DIR davix readdir handle or NULL if error, in this case err is set.
 
@@ -160,7 +160,7 @@ public:
 
     /**
       @brief execute an readdirpp function
-      
+
       Similar to \ref Davix::DavPosix::readdir but provide stat() information for each entry.
 
       Supported by Webdav.
@@ -176,7 +176,7 @@ public:
 
     /**
        @brief close a directory handle
-       
+
        @param  d directory handle to close
        @param err Davix error report system
        @return 0 if success else a negative value and err is set.
@@ -328,15 +328,20 @@ public:
       @brief pread_vec a file in a POSIX-like approach with HTTP(S).
 
             Vector read operation.
-
             Able to do several read operations in one single request.
 
+            NOTE: The return code is the number of data bytes received from the
+                  server, not the total number of bytes written into the buffers.
+                  The two might not be equal if range coalescing is performed.
+                  Check diov_size of the output vector to make sure the buffers
+                  contain the expected number of bytes.
+            
       @param fd davix file descriptor
       @param input_vec input vectors, parameters
       @param output_vec output vectors, results
       @param count_vec number of vector struct
       @param err Davix Error report
-      @return total number of bytes read, or -1 if error occures
+      @return total number of bytes read, or -1 if error occurs.
 
       @snippet example_code_snippets.cpp preadVec
      */
@@ -388,7 +393,7 @@ public:
       @param fd davix file descriptor
       @param err Davix Error report
       @return 0 if success, negative value if error
-    
+
       @snippet example_code_snippets.cpp close
      */
     int close(DAVIX_FD* fd, DavixError** err);

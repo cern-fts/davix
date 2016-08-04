@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -44,7 +44,8 @@ const std::string scope_put = "Davix::Tools::davix-put";
 
 std::string  get_base_put_options(){
     return "  Put Options:\n"
-           "\t-r NUMBER_OF_THREADS:     Upload directories and their contents recursively.\n"; 
+           "\t-r NUMBER_OF_THREADS:     Upload directories and their contents recursively\n"
+           "\t--no-100-continue         Never ask for a 100-Continue from the server (some do not support it)\n";
 }
 
 static std::string help_msg(const std::string & cmd_path){
@@ -163,7 +164,7 @@ static int prePutCheck(Tool::OptParams & opts, DavixError** err){
 
         DavixTaskQueue tq;
 
-        // create threadpool instance 
+        // create threadpool instance
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Creating threadpool");
         DavixThreadPool tp(&tq, opts.threadpool_size);
 
@@ -184,11 +185,11 @@ static int prePutCheck(Tool::OptParams & opts, DavixError** err){
             sleep(2);
         }
         tp.shutdown();
-        Tool::flushFinalLineShell(STDOUT_FILENO);        
+        Tool::flushFinalLineShell(STDOUT_FILENO);
     }
     else{ // single file to upload, process it normally
         int fd_in = -1;
-        if(((fd_in = Tool::getInFd(opts, scope_put, err)) > 0) 
+        if(((fd_in = Tool::getInFd(opts, scope_put, err)) > 0)
                 && (Tool::configureMonitorCB(opts, Transfer::Write)) == 0){
             ret = execute_put(c, opts, fd_in, err);
             close(fd_in);
@@ -211,10 +212,3 @@ int main(int argc, char** argv){
     Tool::errorPrint(&tmp_err);
     return retcode;
 }
-
-
-
-
-
-
-

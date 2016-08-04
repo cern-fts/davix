@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -109,7 +109,8 @@ struct RequestParamsInternal{
         _transferCb(),
         retry_number(default_retry_number),
         retry_delay(),
-        _copy_mode(CopyMode::Push)
+        _copy_mode(CopyMode::Push),
+        _support_100continue(true)
     {
         timespec_clear(&connexion_timeout);
         timespec_clear(&ops_timeout);
@@ -153,7 +154,8 @@ struct RequestParamsInternal{
         _transferCb(param_private._transferCb),
         retry_number(param_private.retry_number),
         retry_delay(param_private.retry_delay),
-        _copy_mode(param_private._copy_mode){
+        _copy_mode(param_private._copy_mode),
+        _support_100continue(param_private._support_100continue) {
 
         timespec_copy(&(connexion_timeout), &(param_private.connexion_timeout));
         timespec_copy(&(ops_timeout), &(param_private.ops_timeout));
@@ -166,7 +168,7 @@ struct RequestParamsInternal{
     S3ListingMode::S3ListingMode _s3_listing_mode;
 
     // Max number of keys returned by a S3 list bucket request
-    unsigned long _s3_max_key_entries; 
+    unsigned long _s3_max_key_entries;
 
     // CA management
     std::vector<std::string> _ca_path;
@@ -217,7 +219,10 @@ struct RequestParamsInternal{
 
     // 3rd party copy mode
     CopyMode::CopyMode _copy_mode;
-    
+
+    // whether server has support for 100-Continue
+    bool _support_100continue;
+
     // method
     inline void regenerateStateUid(){
         _state_uid = get_requeste_uid();
@@ -387,7 +392,7 @@ void RequestParams::setS3MaxKey(const unsigned long s3_max_key_entries){
 }
 
 unsigned long RequestParams::getS3MaxKey() const{
-    return d_ptr->_s3_max_key_entries;    
+    return d_ptr->_s3_max_key_entries;
 }
 
 void RequestParams::addCertificateAuthorityPath(const std::string &path){
@@ -526,6 +531,14 @@ bool RequestParams::getRecursiveMode() const{
     return d_ptr->_recursive_mode;
 }
 
+void RequestParams::set100ContinueSupport(const bool enabled) {
+  d_ptr->_support_100continue = enabled;
+}
+
+bool RequestParams::get100ContinueSupport() const {
+  return d_ptr->_support_100continue;
+}
+
 // suppress useless warning
 #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
 void* RequestParams::getParmState() const{
@@ -539,5 +552,3 @@ void RequestParams::swap(RequestParams & p){
 
 
 } // namespace Davix
-
-

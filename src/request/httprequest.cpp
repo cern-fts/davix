@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -40,7 +40,7 @@ HttpRequest::HttpRequest(NEONRequest* req) : d_ptr(req)
 HttpRequest::HttpRequest(Context & context, const Uri & uri, DavixError** err) :
     d_ptr(new NEONRequest(*this, context,uri)){
 
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "Creat HttpRequest for {}", uri.getString());
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "Create HttpRequest for {}", uri.getString());
     if(uri.getStatus() != StatusCode::OK){
         DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, fmt::format(" {} is not not a valid HTTP or Webdav URL", uri));
     }
@@ -72,6 +72,9 @@ void HttpRequest::addHeaderField(const std::string &field, const std::string &va
 
 void HttpRequest::setParameters(const RequestParams &p){
     d_ptr->setParameters(p);
+
+    setFlag(RequestFlag::SupportContinue100,
+            getFlag(RequestFlag::SupportContinue100) && d_ptr->params.get100ContinueSupport());
 }
 
 void HttpRequest::setRequestBody(const std::string &body){
@@ -273,7 +276,6 @@ PostRequest::PostRequest(Context & context, const Uri & uri, DavixError** err) :
     HttpRequest(context, uri, err)
 {
     setRequestMethod("POST");
-    //setFlag(RequestFlag::SupportContinue100, true);
     setFlag(RequestFlag::IdempotentRequest, false);
 }
 

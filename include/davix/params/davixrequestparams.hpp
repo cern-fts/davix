@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -253,7 +253,7 @@ public:
     /// \brief getOperationRetryDelay
     /// \return
     /// get current number of seconds between retry attempts, see \ref setOperationRetryDelay for more details
-    int getOperationRetryDelay() const;    
+    int getOperationRetryDelay() const;
 
 
     /// set copy mode for 3rd party copy
@@ -267,6 +267,14 @@ public:
 
     /// get recursive mode for directory operations
     bool getRecursiveMode() const;
+
+    /// set whether the server supports 100-continue. If enabled (default), 100-continue
+    /// may or may not be sent to the server, depending on when davix decides it's
+    /// appropriate. If disabled, 100-continue will never be used.
+    void set100ContinueSupport(const bool enabled);
+
+    /// get whether 100-continue support is enabled
+    bool get100ContinueSupport() const;
 
 #ifdef __DAVIX_HAS_STD_FUNCTION
     ///

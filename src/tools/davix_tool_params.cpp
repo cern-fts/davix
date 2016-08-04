@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -59,6 +59,7 @@ const std::string scope_params = "Davix::Tools::Params";
 #define S3_ALTERNATE        1021
 #define AZURE_KEY           1022
 #define S3_TOKEN            1023
+#define NO_100_CONTINUE     1024
 
 // LONG OPTS
 
@@ -102,6 +103,9 @@ const std::string scope_params = "Davix::Tools::Params";
 {"s3-maxkeys", required_argument, 0,  S3_MAX_KEYS }, \
 {"no-cap", required_argument, 0, DISABLE_LISTING_CAP}, \
 {"long-list", no_argument, 0,  'l' }
+
+#define PUT_LONG_OPTIONS \
+{"no-100-continue", no_argument, 0,  NO_100_CONTINUE }
 
 #define COPY_LONG_OPTIONS \
 {"copy-mode", required_argument, 0,  THIRD_PT_COPY_MODE }
@@ -238,7 +242,7 @@ int parse_davix_options_generic(const std::string &opt_filter,
             case S3_LISTING_MODE:
                 {
                     if(std::string(optarg).compare("flat")==0)
-                        p.params.setS3ListingMode(S3ListingMode::Flat); 
+                        p.params.setS3ListingMode(S3ListingMode::Flat);
                     else if(std::string(optarg).compare("hierarchical")==0)
                         p.params.setS3ListingMode(S3ListingMode::Hierarchical);
                     else if(std::string(optarg).compare("semi")==0)
@@ -339,18 +343,18 @@ int parse_davix_options_generic(const std::string &opt_filter,
              }
             case HAS_INPUT_FILE:{
                 p.has_input_file = true;
-                p.input_file_path = optarg; 
+                p.input_file_path = optarg;
                 }
                 break;
             case THIRD_PT_COPY_MODE:{
                 if(std::string(optarg).compare("pull")==0)
-                    p.params.setCopyMode(CopyMode::Pull); 
+                    p.params.setCopyMode(CopyMode::Pull);
                 else if(std::string(optarg).compare("push")==0)
                     p.params.setCopyMode(CopyMode::Push);
-                break;                
+                break;
                 }
             case DISABLE_LISTING_CAP:{
-                p.no_cap = true; 
+                p.no_cap = true;
                 break;
                 }
             case 'r':{
@@ -362,6 +366,10 @@ int parse_davix_options_generic(const std::string &opt_filter,
                 p.s3_delete_per_request = (atoi(optarg));
                 break;
                 }
+            case NO_100_CONTINUE:{
+                p.params.set100ContinueSupport(false);
+                break;
+            }
             case '?':
                 std::cout <<  p.help_msg;
                 exit(1);
@@ -456,6 +464,7 @@ int parse_davix_put_options(int argc, char** argv, OptParams & p, DavixError** e
     const struct option long_options[] = {
         COMMON_LONG_OPTIONS,
         SECURITY_LONG_OPTIONS,
+        PUT_LONG_OPTIONS,
         {0,         0,                 0,  0 }
      };
 

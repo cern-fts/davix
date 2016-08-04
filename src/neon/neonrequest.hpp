@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -32,7 +32,7 @@
 #include <ne_request.h>
 #include <ne_auth.h>
 #include <neon/neonsessionfactory.hpp>
- 
+
 #include <request/httprequest.hpp>
 #include <neon/neonsession.hpp>
 
@@ -79,6 +79,13 @@ public:
      */
     void setRequestMethod(const std::string & request_str){
         _request_type = request_str;
+    }
+
+    /**
+     * get the request command to execute ( GET, POST, PUT, PROPFIND )
+     */
+    std::string getRequestMethod() {
+        return _request_type;
     }
 
     void setParameters(const RequestParams &p ){
@@ -144,7 +151,7 @@ public:
 
     size_t getAnswerHeaders( std::vector<std::pair<std::string, std::string > > & vec_headers) const;
 
-    
+
     // auth method support
     int do_pkcs12_cert_authentification(const char * filename_pkcs12, const char* passwd, DavixError** err);
     int do_login_passwd_authentification(const char *login, const char *passwd, DavixError** err);

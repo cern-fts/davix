@@ -192,7 +192,7 @@ dav_size_t QuotaInfo::getFreeSpace() {
 class QuotaInfoHandler {
 public:
     static void setdptr(QuotaInfo &info, QuotaInfo::Internal &internal) {
-        info.d_ptr = std::make_shared<QuotaInfo::Internal>(internal);
+        info.d_ptr.reset(new QuotaInfo::Internal(internal));
     }
 };
 

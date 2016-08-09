@@ -48,13 +48,13 @@ static IOChainContext  getIOContext( Context & context, const Uri & uri, const R
 
 }
 
-static const std::string simple_listing("<propfind xmlns=\"DAV:\"><prop><resourcetype><collection/></resourcetype></prop></propfind>");
-
-static const std::string stat_listing("<?xml version=\"1.0\" encoding=\"utf-8\" ?><D:propfind xmlns:D=\"DAV:\" xmlns:L=\"LCGDM:\"><D:prop>"
-                                      "<D:displayname/><D:getlastmodified/><D:creationdate/><D:getcontentlength/><D:quota-used-bytes/>"
-                                      "<D:resourcetype><D:collection/></D:resourcetype><L:mode/>"
-                                      "</D:prop>"
-                                      "</D:propfind>");
+// static const std::string simple_listing("<propfind xmlns=\"DAV:\"><prop><resourcetype><collection/></resourcetype></prop></propfind>");
+//
+// static const std::string stat_listing("<?xml version=\"1.0\" encoding=\"utf-8\" ?><D:propfind xmlns:D=\"DAV:\" xmlns:L=\"LCGDM:\"><D:prop>"
+//                                       "<D:displayname/><D:getlastmodified/><D:creationdate/><D:getcontentlength/><D:quota-used-bytes/>"
+//                                       "<D:resourcetype><D:collection/></D:resourcetype><L:mode/>"
+//                                       "</D:prop>"
+//                                       "</D:propfind>");
 
 struct Davix_dir_handle{
 
@@ -334,6 +334,18 @@ int DavPosix::stat64(const RequestParams *params, const std::string & url, StatI
 
         File f(*context, url);
         f.statInfo(params, *st);
+        return 0;
+    }CATCH_DAVIX(err)
+    return -1;
+}
+
+int DavPosix::get_quota(const RequestParams *params, const std::string & url, QuotaInfo *info, DavixError **err) {
+    TRY_DAVIX{
+        if(info == NULL)
+            throw DavixException(davix_scope_meta(), StatusCode::InvalidArgument, "Argument info is NULL");
+
+        File f(*context, url);
+        f.quotaInfo(params, *info);
         return 0;
     }CATCH_DAVIX(err)
     return -1;

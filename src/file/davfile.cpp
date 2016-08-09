@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -311,6 +311,13 @@ StatInfo& DavFile::statInfo(const RequestParams *params, StatInfo &info){
     HttpIOChain chain;
     IOChainContext io_context = d_ptr->getIOContext(params);
     d_ptr->getIOChain(chain).statInfo(io_context, info);
+    return info;
+}
+
+QuotaInfo& DavFile::quotaInfo(const RequestParams *params, QuotaInfo &info) {
+    HttpIOChain chain;
+    IOChainContext io_context = d_ptr->getIOContext(params);
+    d_ptr->getIOChain(chain).quotaInfo(io_context, info);
     return info;
 }
 

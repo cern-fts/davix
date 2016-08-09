@@ -44,8 +44,6 @@ using namespace StrUtil;
 
 namespace Davix{
 
-static const std::string simple_listing("<propfind xmlns=\"DAV:\"><prop><resourcetype><collection/></resourcetype></prop></propfind>");
-
 static const std::string stat_listing("<?xml version=\"1.0\" encoding=\"utf-8\" ?><D:propfind xmlns:D=\"DAV:\" xmlns:L=\"LCGDM:\"><D:prop>"
                                       "<D:displayname/><D:getlastmodified/><D:creationdate/><D:getcontentlength/><D:quota-used-bytes/>"
                                       "<D:resourcetype><D:collection/></D:resourcetype><L:mode/>"
@@ -53,7 +51,10 @@ static const std::string stat_listing("<?xml version=\"1.0\" encoding=\"utf-8\" 
                                       "</D:prop>"
                                       "</D:propfind>");
 
-
+static const std::string quota_stat("<?xml version=\"1.0\" encoding=\"utf-8\" ?><D:propfind xmlns:D=\"DAV:\" xmlns:L=\"LCGDM:\"><D:prop>"
+                                      "<D:quota-used-bytes/><D:quota-available-bytes/>"
+                                      "</D:prop>"
+                                      "</D:propfind>");
 
 struct DirHandle{
 
@@ -177,6 +178,46 @@ dav_ssize_t getStatInfo(Context & c, const Uri & url, const RequestParams * p,
     }
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, " davix_stat <-");
     return ret;
+}
+
+QuotaInfo::QuotaInfo() : d_ptr(new Internal()) { }
+QuotaInfo::~QuotaInfo() { }
+dav_size_t QuotaInfo::getUsedBytes() {
+    return d_ptr->used_bytes;
+}
+dav_size_t QuotaInfo::getFreeSpace() {
+    return d_ptr->free_space;
+}
+
+class QuotaInfoHandler {
+public:
+    static void setdptr(QuotaInfo &info, QuotaInfo::Internal &internal) {
+        info.d_ptr = std::make_shared<QuotaInfo::Internal>(internal);
+    }
+};
+
+void getQuotaInfo(Context & c, const Uri & url, const RequestParams *p, QuotaInfo &info) {
+    DavixError * tmp_err = NULL;
+    HttpRequest req(c, url, &tmp_err);
+    checkDavixError(&tmp_err);
+
+    req.setParameters(*p);
+    req.addHeaderField("Depth","0");
+    req.setRequestMethod("PROPFIND");
+    req.setRequestBody(quota_stat);
+
+    if(req.executeRequest(&tmp_err) == 0 && !tmp_err) {
+        DavPropXMLParser parser;
+        parser.parseChunk(&(req.getAnswerContentVec()[0]), req.getAnswerContentVec().size());
+        std::deque<FileProperties> & props = parser.getProperties();
+        if( props.size() < 1){
+            throw DavixException(davix_scope_stat_str(), Davix::StatusCode::WebDavPropertiesParsingError, "Parsing Error : properties number < 1");
+        }else{
+            QuotaInfoHandler::setdptr(info, props.front().quota);
+        }
+    }
+
+    checkDavixError(&tmp_err);
 }
 
 void parse_creation_deletion_result(int code, const Uri & u, const std::string & scope, const std::vector<char> & body){
@@ -460,6 +501,11 @@ StatInfo & HttpMetaOps::statInfo(IOChainContext & iocontext, StatInfo &st_info){
     memset(&st, 0, sizeof(struct stat));
     getStatInfo(iocontext._context, iocontext._uri, iocontext._reqparams, st_info);
     return st_info;
+}
+
+QuotaInfo & HttpMetaOps::quotaInfo(IOChainContext & iocontext, QuotaInfo &info) {
+    getQuotaInfo(iocontext._context, iocontext._uri, iocontext._reqparams, info);
+    return info;
 }
 
 bool HttpMetaOps::nextSubItem(IOChainContext &iocontext, std::string &entry_name, StatInfo &info){

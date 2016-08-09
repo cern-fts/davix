@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -33,6 +33,15 @@
 namespace Davix {
 
 
+struct QuotaInfo::Internal {
+    dav_size_t free_space;
+    dav_size_t used_bytes;
+
+    Internal() {
+        free_space = 0;
+        used_bytes = 0;
+    }
+};
 
 struct FileProperties
 {
@@ -46,6 +55,7 @@ struct FileProperties
 
     // stat() metadata
     StatInfo info;
+    QuotaInfo::Internal quota;
 
     inline void clear(){
         info = StatInfo();

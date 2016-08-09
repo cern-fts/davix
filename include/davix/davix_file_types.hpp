@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -22,6 +22,7 @@
 #ifndef DAVIX_FILE_TYPES_HPP
 #define DAVIX_FILE_TYPES_HPP
 
+#include <memory>
 #include <utils/davix_types.hpp>
 #include <utils/davix_uri.hpp>
 
@@ -70,6 +71,26 @@ enum DAVIX_EXPORT advise_t{
     AdviseSequential,
     AdviseRandom,
 
+};
+
+///
+/// @brief QuotaInfo struct
+/// @struct QuotaInfo
+/// handler to retrieve quota information
+///
+
+class QuotaInfoHandler;
+
+class QuotaInfo {
+friend class QuotaInfoHandler;
+public:
+    struct Internal;
+    QuotaInfo();
+    ~QuotaInfo();
+    dav_size_t getUsedBytes();
+    dav_size_t getFreeSpace();
+private:
+    std::shared_ptr<Internal> d_ptr;
 };
 
 

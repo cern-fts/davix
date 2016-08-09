@@ -136,8 +136,20 @@ static void check_quota_used_bytes(DavPropXMLParser::DavxPropXmlIntern & par,  c
         const unsigned long mysize = toType<unsigned long, std::string>()(name);
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_XML, " quota used bytes found -> {}", mysize);
         par._current_props.info.size = static_cast<off_t>(mysize);
+        par._current_props.quota.used_bytes = static_cast<off_t>(mysize);
     }catch(...){
         DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_XML, " Invalid quota used bytes in dav response");
+    }
+}
+
+static void check_quota_free_space(DavPropXMLParser::DavxPropXmlIntern & par,  const std::string & name){
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_XML, " quota free space found -> parse it");
+    try{
+        const unsigned long mysize = toType<unsigned long, std::string>()(name);
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_XML, " quota free space found -> {}", mysize);
+        par._current_props.quota.free_space = static_cast<off_t>(mysize);
+    }catch(...){
+        DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_XML, " Invalid quota free space in dav response");
     }
 }
 
@@ -227,6 +239,7 @@ void init_webdavTree(){
     it->addChild(Xml::XmlPTree(Xml::ElementStart, "getlastmodified", Xml::XmlPTree::ChildrenList(),  (void*) &check_last_modified));
     it->addChild(Xml::XmlPTree(Xml::ElementStart, "creationdate", Xml::XmlPTree::ChildrenList(), (void*) &check_creation_date));
     it->addChild(Xml::XmlPTree(Xml::ElementStart, "quota-used-bytes", Xml::XmlPTree::ChildrenList(), (void*) &check_quota_used_bytes));
+    it->addChild(Xml::XmlPTree(Xml::ElementStart, "quota-available-bytes", Xml::XmlPTree::ChildrenList(), (void*) &check_quota_free_space));
     it->addChild(Xml::XmlPTree(Xml::ElementStart, "getcontentlength", Xml::XmlPTree::ChildrenList(), (void*) &check_content_length));
 
     it->addChild(Xml::XmlPTree(Xml::ElementStart, "owner", Xml::XmlPTree::ChildrenList(), (void*) &check_owner_uid));

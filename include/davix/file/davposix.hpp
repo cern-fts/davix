@@ -101,6 +101,11 @@ public:
      */
     int stat64(const RequestParams *params, const std::string & url, StatInfo* st, DavixError** err);
 
+    /**
+      @brief get_quota gives quota information on a directory
+     */
+    int get_quota(const RequestParams *params, const std::string & url, QuotaInfo* st, DavixError** err);
+
 
     /**
       @brief open a directory for listing.
@@ -335,7 +340,7 @@ public:
                   The two might not be equal if range coalescing is performed.
                   Check diov_size of the output vector to make sure the buffers
                   contain the expected number of bytes.
-            
+
       @param fd davix file descriptor
       @param input_vec input vectors, parameters
       @param output_vec output vectors, results

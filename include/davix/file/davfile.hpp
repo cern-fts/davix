@@ -380,6 +380,16 @@ public:
     ///
     void prefetchInfo(off_t offset, dav_size_t size_read, advise_t adv);
 
+    ///
+    /// @brief retrieve quota information
+    ///
+    /// retrieve quota information about a directory
+    ///
+    /// @param params
+    /// @param info
+    ///
+    QuotaInfo & quotaInfo(const RequestParams* params, QuotaInfo & info);
+
 private:
     DavFileInternal* d_ptr;
 

@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -70,6 +70,10 @@ void HttpIOChain::move(IOChainContext & iocontext, const std::string & target_ur
 
 StatInfo & HttpIOChain::statInfo(IOChainContext & iocontext, StatInfo &st_info){
     CHAIN_FORWARD(statInfo(iocontext, st_info));
+}
+
+QuotaInfo & HttpIOChain::quotaInfo(IOChainContext & iocontext, QuotaInfo &info) {
+    CHAIN_FORWARD(quotaInfo(iocontext, info));
 }
 
 bool HttpIOChain::nextSubItem(IOChainContext &iocontext, std::string &entry_name, StatInfo &info){

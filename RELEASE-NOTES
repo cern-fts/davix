@@ -1,3 +1,20 @@
+Version - 0.6.4
+** Bug
+    * [DMC-824] - Impossible to upload directory if authentication method requires entering credentials manually
+    * [DMC-835] - Segfault in libneon when downloading large file with a bad network connection
+
+
+** New Feature
+    * [DMC-871] - Add option to suppress 100-Continue when uploading files
+    * [DMC-874] - Need to report quota free space as well
+
+
+** Task
+    * [DMC-816] - davix: Support for .netrc and .davixrc to store user credentials
+    * [DMC-826] - Fix the clock_gettime / -lrt mess
+    * [DMC-828] - davix: Improve error message when receiving 507 Insufficient Storage
+    * [DMC-850] - davix does not report used space in directories
+    * [DMC-854] - Expose davix version through its public headers
 Version - 0.6.3
 
 ** Bug

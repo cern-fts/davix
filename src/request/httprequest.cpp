@@ -72,9 +72,6 @@ void HttpRequest::addHeaderField(const std::string &field, const std::string &va
 
 void HttpRequest::setParameters(const RequestParams &p){
     d_ptr->setParameters(p);
-
-    setFlag(RequestFlag::SupportContinue100,
-            getFlag(RequestFlag::SupportContinue100) && d_ptr->params.get100ContinueSupport());
 }
 
 void HttpRequest::setRequestBody(const std::string &body){

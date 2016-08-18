@@ -286,7 +286,8 @@ void NEONRequest::configureRequest(){
         ne_add_request_header(_req, _headers_field[i].first.c_str(),  _headers_field[i].second.c_str());
     }
     // setup flags
-    ne_set_request_flag(_req, NE_REQFLAG_EXPECT100, _req_flag & RequestFlag::SupportContinue100);
+    ne_set_request_flag(_req, NE_REQFLAG_EXPECT100, params.get100ContinueSupport() &&
+                        (_req_flag & RequestFlag::SupportContinue100));
     ne_set_request_flag(_req, NE_REQFLAG_IDEMPOTENT, _req_flag & RequestFlag::IdempotentRequest);
 
     // configure connexion parameters for PUT request

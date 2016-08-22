@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -450,7 +450,12 @@ Uri s3UriTransformer(const Uri & original_url, const RequestParams & params, con
 
     std::ostringstream ss;
 
-    ss << protocol << original_url.getHost() << "/";
+    ss << protocol << original_url.getHost();
+    if(original_url.getPort() > 0) {
+      ss << ":" << original_url.getPort();
+    }
+    ss << "/";
+
     if(params.getAwsAlternate()) {
         ss << extract_s3_bucket(original_url, params.getAwsAlternate()) << "/";
     }
@@ -509,7 +514,7 @@ std::string hexPrinter(const unsigned char* data, dav_size_t nbytes){
 int calculateMD5(std::string &input, std::string &output){
     if(input.empty()) return -1;
 
-    unsigned char result_buf[MD5_DIGEST_LENGTH]; 
+    unsigned char result_buf[MD5_DIGEST_LENGTH];
     MD5((unsigned char*)input.c_str(), input.size(), result_buf);
 
     output = Base64::base64_encode(result_buf, MD5_DIGEST_LENGTH);
@@ -522,7 +527,7 @@ int calculateMD5(int fd, std::string &output){
     if(fstat(fd, &statbuf) < 0)
         return -1;
 
-    unsigned char result_buf[MD5_DIGEST_LENGTH]; 
+    unsigned char result_buf[MD5_DIGEST_LENGTH];
 
     void* file_buf = mmap(0, statbuf.st_size, PROT_READ, MAP_SHARED, fd, 0);
     MD5((unsigned char*)file_buf, statbuf.st_size, result_buf);

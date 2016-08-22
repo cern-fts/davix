@@ -4,7 +4,7 @@
 
 INCLUDE (CheckIncludeFiles)
 include(CheckIncludeFileCXX)
-INCLUDE (CheckFunctionExists) 
+INCLUDE (CheckFunctionExists)
 INCLUDE (CheckSymbolExists)
 INCLUDE (CheckLibraryExists)
 INCLUDE (CheckTypeSize)
@@ -20,7 +20,7 @@ CHECK_INCLUDE_FILES(stdlib.h HAVE_STDLIB_H)
 
 ## C++ header files
 CHECK_INCLUDE_FILE_CXX(ext/algorithm HAVE_EXT_ALGORITHM)
-
+CHECK_INCLUDE_FILE_CXX(atomic HAVE_ATOMIC)
 
 ## SYSTEM
 CHECK_INCLUDE_FILES(sys/time.h HAVE_SYSTIME_H)
@@ -51,7 +51,7 @@ CHECK_LIBRARY_EXISTS(rt clock_gettime "time.h" HAVE_CLOCK_GETTIME)
 ## Windows
 SET(CMAKE_EXTRA_INCLUDE_FILES "windows.h")
 CHECK_SYMBOL_EXISTS(SetConsoleMode "windows.h" HAVE_SETCONSOLEMODE)
-SET(CMAKE_EXTRA_INCLUDE_FILES) 
+SET(CMAKE_EXTRA_INCLUDE_FILES)
 
 ## BSD
 
@@ -79,6 +79,4 @@ SET(CMAKE_EXTRA_INCLUDE_FILES "arpa/inet.h")
 
         CHECK_FUNCTION_EXISTS(getaddrinfo HAVE_GETADDRINFO_H)
 
-SET(CMAKE_EXTRA_INCLUDE_FILES) 
-
-
+SET(CMAKE_EXTRA_INCLUDE_FILES)

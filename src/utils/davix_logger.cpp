@@ -26,12 +26,18 @@
 #include <utils/davix_logger.hpp>
 #include <string_utils/stringutils.hpp>
 
+#ifdef HAVE_ATOMIC
+#include <atomic>
+static std::atomic<int> internal_log_level(0);
+static std::atomic<int> internal_log_scope(DAVIX_LOG_SCOPE_ALL);
+#else
+#warning "Setting / getting davix loglevel is not thread-safe!"
+int internal_log_level = 0;
+int internal_log_scope = DAVIX_LOG_SCOPE_ALL;
+#endif
 
 const int BUFFER_SIZE =4096;
 const char* prefix = "DAVIX";
-
-static boost::atomic<int> internal_log_level(0);
-static boost::atomic<int> internal_log_scope(DAVIX_LOG_SCOPE_ALL);
 
 static void (*_fhandler)(void* userdata, int mgs_level, const char* msg) = NULL;
 static void* _log_handler_userdata = NULL;

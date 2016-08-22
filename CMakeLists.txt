@@ -19,8 +19,8 @@ include(DefineInstallationPaths REQUIRED)
 include(ReleaseDebugAutoFlags REQUIRED)
 include(CMakeGeneratePkgConfig REQUIRED)
 include(MacroAddDoxygen REQUIRED)
-include(PortabilityGNUCheck REQUIRED)
 include(CMakeCXX11Support REQUIRED)
+include(PortabilityGNUCheck REQUIRED)
 
 #enable testing
 INCLUDE(CTest)

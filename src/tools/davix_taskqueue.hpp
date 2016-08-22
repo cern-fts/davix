@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Kwong Tat Cheung <kwong.tat.cheung@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -35,10 +35,10 @@ namespace Davix{
 
 namespace QueueType{
     enum QueueType{
-        // first in first out 
+        // first in first out
         FIFO,
         // last in first out
-        LIFO 
+        LIFO
     };
 }
 

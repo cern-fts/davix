@@ -41,7 +41,7 @@ struct Options
         vec_arg(),
         inputfile()
     {
-    } 
+    }
 };
 
 // producer thread arguments
@@ -70,7 +70,7 @@ struct ReaderArgs
 
 int ParseOptions(int argc, char* argv[], Options & p);
 void PrintUsage();
-int ReadSome(long *offs, long *lens, int maxnread, long long &totalbytes, bool &last_iter, Options &p, ifstream& in_file); 
+int ReadSome(long *offs, long *lens, int maxnread, long long &totalbytes, bool &last_iter, Options &p, ifstream& in_file);
 void errorPrint(DavixError ** err);
 void* ThreadRead(void* args);
 void* PopulateQueue(void* args);
@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
     double starttime = 0, openphasetime = 0, endtime = 0, closetime = 0;
     Options opts;
     DAVIX_FD* fd;
-    Context context; 
+    Context context;
     DavixError* tmp_err = NULL;
     string summarypref = "$$$";
     string opt_type = "read";
@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
     starttime = tv.tv_sec + tv.tv_usec / 1000000.0;
     closetime = openphasetime = starttime;
 
-    ParseOptions(argc, argv, opts); 
+    ParseOptions(argc, argv, opts);
     buffer = malloc(BUFFER_SIZE*1024*1024);
 
     cout << endl;
@@ -120,13 +120,13 @@ int main(int argc, char* argv[])
     if(isURL)
     {
         switch(opts.mode)
-        {   
+        {
             case 'r':
-            case 't':    
+            case 't':
             case 'v':
                 {
                     cout << "Opening - " << opts.vec_arg[0] << " --------------------- ";
-                    
+
                     if((fd = infile->open(NULL, opts.vec_arg[0], O_RDONLY, &tmp_err)) != NULL)
                     {
                         cout << "success" << endl;
@@ -161,7 +161,7 @@ int main(int argc, char* argv[])
                 {
                     cerr << endl << "Invaild option." << endl;
                     PrintUsage();
-                    exit(-1);    
+                    exit(-1);
                 }
         } // switch
     } // isURL
@@ -173,9 +173,9 @@ int main(int argc, char* argv[])
         switch(opts.mode)
         {
             case 'r':
-            case 't':    
-            case 'v':   
-                { 
+            case 't':
+            case 'v':
+                {
                     while(!files.eof() && files.good() )
                     {
                         if(!filepath.empty() )
@@ -237,13 +237,13 @@ int main(int argc, char* argv[])
                 {
                     cerr << endl << "Invaild option." << endl;
                     PrintUsage();
-                    exit(-1);   
+                    exit(-1);
                 }
         } // switch
     } // isfile
 
     gettimeofday(&tv, 0);
-    openphasetime = tv.tv_sec + tv.tv_usec / 1000000.0; 
+    openphasetime = tv.tv_sec + tv.tv_usec / 1000000.0;
 
     cout << endl;
 
@@ -262,13 +262,13 @@ int main(int argc, char* argv[])
     ifstream input;
 
     if(opts.hasinputfile == true)
-    {   
+    {
         input.open(opts.inputfile.c_str(),ios::in);
         if(!input)
         {
             std::cerr << endl << "Cannot open input file.";
             return -1;
-        }    
+        }
     }
 
     while((ntoread = ReadSome(v_offsets, v_lens, maxtoread, totalbytestoprocess, last_batch, opts, input)))
@@ -280,20 +280,20 @@ int main(int argc, char* argv[])
             case 'r':   // non-vectored read
                 {
                     for(int i = 0; i < file_count; ++i)
-                    { 
+                    {
                         cout << endl << "Reading - " << filename[i] << endl << endl;
-                        
+
                         for(int j = 0; j < ntoread; j++)
                         {
                             bytes_read = infile->pread(davfd_vec[i], buffer, v_lens[j], v_offsets[j], &tmp_err);
-                            
+
                             if(tmp_err != NULL)
                             {
                                 DavErr_vec.push_back(*tmp_err);
                                 errorPrint(&tmp_err);
                                 iserror = true;
                                 break;
-                            }   
+                            }
                             if(bytes_read <= 0)
                             {
                                 cerr << "---Read (" << j+1 << " of " << ntoread << ") " <<
@@ -339,15 +339,15 @@ int main(int argc, char* argv[])
                 }
 
             case 't':   // threaded read
-                {   
+                {
                     for(int i = 0; i < file_count; ++i)
-                    { 
+                    {
                         cq.SetQueueState(STARTED);
                         pthread_mutex_t mutex;
 
                         cout << endl << "Reading - " << filename[i] << endl << endl;
 
-                        pthread_mutex_init(&mutex,0); 
+                        pthread_mutex_init(&mutex,0);
 
                         // populate producer args
                         ProducerArgs tk_args;
@@ -372,7 +372,7 @@ int main(int argc, char* argv[])
                         r_args.mutex = &mutex;
 
                         pthread_t read_thread[opts.no_of_thread];
-                        
+
                         for(int ii = 0; ii < opts.no_of_thread; ++ii)
                         {
                             pthread_create(&read_thread[ii], NULL, ThreadRead, &r_args);
@@ -391,10 +391,10 @@ int main(int argc, char* argv[])
 
             case 'v':   // vectored read
                 for(int i = 0; i < file_count; ++i)
-                { 
+                {
                     cout << endl << "Reading - " << filename[i] << endl;
                     cout << "Vector size - " << opts.vec_size << endl << endl;
-                   
+
                     int no_of_input = ntoread;
                     int vec_size = 0;
 
@@ -413,7 +413,7 @@ int main(int argc, char* argv[])
                         {
                             if( (k+j) >= MAX_READ_PER_LOOP)
                             {
-                               break; 
+                               break;
                             }
                             inVec[k].diov_offset = v_offsets[k+j];
                             inVec[k].diov_size = v_lens[k+j];
@@ -427,14 +427,14 @@ int main(int argc, char* argv[])
                         }
 
                         bytes_read = infile->preadVec(davfd_vec[i], inVec, outVec, vec_size, &tmp_err);
-                            
+
                         if(tmp_err != NULL)
                         {
                             DavErr_vec.push_back(*tmp_err);
                             errorPrint(&tmp_err);
                             iserror = true;
                             break;
-                        }   
+                        }
                         if(bytes_read <= 0)
                         {
                             cerr << "---Read (" << j+1 << " of " << ntoread << ") " <<
@@ -452,17 +452,17 @@ int main(int argc, char* argv[])
 
                         totalbytesread += bytes_read;
                         totalreadscount++;
-                        
+
                         no_of_input -= opts.vec_size;
                         j += opts.vec_size;
                     }
                 }
                 break;
-        
+
             case 'w':   // write
                 {
                     for(int i = 0; i < file_count; ++i)
-                    { 
+                    {
                         // if file already exists, delete it.
                         dfile_vec[i].deletion(&opts.params, NULL);
 
@@ -478,11 +478,11 @@ int main(int argc, char* argv[])
                             }
                             ret = pwrite(fdd, buffer, v_lens[j], v_offsets[j]);
 
-                            if (ret <= 0) 
+                            if (ret <= 0)
                             {
                                 cout << endl << "---Write (" << j+1 << " of " << ntoread << ") " <<
                                     v_lens[j] << "@" << v_offsets[j] <<
-                                    " returned " << ret << endl;	
+                                    " returned " << ret << endl;
                                 iserror = true;
                                 break;
                             }
@@ -502,7 +502,7 @@ int main(int argc, char* argv[])
                         fseek(tmpf,0,SEEK_END);
                         int size = ftell(tmpf);
 
-                        // upload only if this is the last iteration of the input loop 
+                        // upload only if this is the last iteration of the input loop
                         if(last_batch == true)
                         {
                             retval = df_tmp.putFromFd(&opts.params, fdd, size, &tmp_err);
@@ -527,7 +527,7 @@ int main(int argc, char* argv[])
                 {
                     cerr << endl << "Option not reconised." << endl;
                     PrintUsage();
-                    exit(-1);   
+                    exit(-1);
                     break;
                 }
         }// switch
@@ -536,15 +536,15 @@ int main(int argc, char* argv[])
         {
             totalbytesread = prevtotalbytesread;
             break;
-        }        
-        
+        }
+
         prevtotalbytesread = totalbytesread;
 
     }// while ReadSome
 
     gettimeofday(&tv, 0);
     closetime = tv.tv_sec + tv.tv_usec / 1000000.0;
-   
+
     cout << endl << "--- Closing all files." << endl;
 
     for(unsigned int i = 0; i < davfd_vec.size(); ++i)
@@ -565,7 +565,7 @@ int main(int argc, char* argv[])
     endtime = tv.tv_sec + tv.tv_usec / 1000000.0;
 
     if (iserror) summarypref = "%%%";
-    
+
     cout << fixed;
     cout << endl << "Summary ----------------------------" << endl;
     cout << summarypref << " Start time: " << starttime << endl;
@@ -651,21 +651,21 @@ void errorPrint(DavixError ** err)
 
 
 
-int ReadSome(long *offs, long *lens, int maxnread, long long &totalbytes, bool &last_iter, Options &p, ifstream& in_file) 
+int ReadSome(long *offs, long *lens, int maxnread, long long &totalbytes, bool &last_iter, Options &p, ifstream& in_file)
 {
     if(p.hasinputfile)
     {
-        for (int i = 0; i < maxnread;) 
+        for (int i = 0; i < maxnread;)
         {
             lens[i] = -1;
             offs[i] = -1;
 
-            if (in_file.eof()) 
+            if (in_file.eof())
             {
                 last_iter = true;
                 return i;
             }
-            
+
             in_file >> lens[i] >> offs[i];
 
             if(lens[i] > (BUFFER_SIZE*1024*1024) )
@@ -674,7 +674,7 @@ int ReadSome(long *offs, long *lens, int maxnread, long long &totalbytes, bool &
                 exit(-1);
             }
 
-            if ((lens[i] > 0) && (offs[i] >= 0)) 
+            if ((lens[i] > 0) && (offs[i] >= 0))
             {
                 totalbytes += lens[i];
                 i++;
@@ -685,17 +685,17 @@ int ReadSome(long *offs, long *lens, int maxnread, long long &totalbytes, bool &
     }
     else
     {
-        for (int i = 0; i < maxnread;) 
+        for (int i = 0; i < maxnread;)
         {
             lens[i] = -1;
             offs[i] = -1;
 
-            if (cin.eof()) 
+            if (cin.eof())
             {
                 last_iter = true;
                 return i;
             }
-            
+
             cin >> lens[i] >> offs[i];
 
             if(lens[i] > (BUFFER_SIZE*1024*1024) )
@@ -704,7 +704,7 @@ int ReadSome(long *offs, long *lens, int maxnread, long long &totalbytes, bool &
                 exit(-1);
             }
 
-            if ((lens[i] > 0) && (offs[i] >= 0)) 
+            if ((lens[i] > 0) && (offs[i] >= 0))
             {
                 totalbytes += lens[i];
                 i++;
@@ -712,7 +712,7 @@ int ReadSome(long *offs, long *lens, int maxnread, long long &totalbytes, bool &
         }
         return maxnread;
     }
-}  
+}
 
 
 
@@ -720,9 +720,9 @@ int ReadSome(long *offs, long *lens, int maxnread, long long &totalbytes, bool &
 int ParseOptions(int argc, char* argv[], Options & p)
 {
     const std::string arg_tool_main= "srwdchv:t:i:";
-    
+
     int ret = 0;
-    
+
     if(argc < 2)
     {
         PrintUsage();
@@ -744,7 +744,7 @@ int ParseOptions(int argc, char* argv[], Options & p)
                 {
                     std::cerr << endl << "Vector size must be a positive integer." << endl << endl;
                     exit(-1);
-                }  
+                }
                 break;
 
             case 't':
@@ -754,25 +754,25 @@ int ParseOptions(int argc, char* argv[], Options & p)
                 {
                     std::cerr << endl << "Number of threads must be a positive integer." << endl << endl;
                     exit(-1);
-                }    
+                }
 
             case 'w':
                 p.mode = ret;
-                break;    
+                break;
 
             case 'h':
                 PrintUsage();
                 exit(0);
-                break;    
+                break;
 
             case 'c':
                 p.check = true;
-                break;    
+                break;
 
             case 'd':
                 p.debug = true;
                 davix_set_log_level(15);
-                break;    
+                break;
 
             case 's':
                 p.silent = true;
@@ -781,28 +781,28 @@ int ParseOptions(int argc, char* argv[], Options & p)
             case 'i':
                 p.hasinputfile = true;
                 p.inputfile = optarg;
-                break;   
-                        
+                break;
+
             default:
                 PrintUsage();
-                exit(-1);    
+                exit(-1);
         }// switch
     }// while getopt
 
     ret = -1;
-    
+
     for(int i = optind; i < argc; ++i)
     {
         p.vec_arg.push_back(argv[i]);
         ret = 0;
     }
-    
+
     if(ret != 0 && p.mode != 'h')
     {
         PrintUsage();
         exit(-1);
     }
-    
+
     return ret;
 }
 
@@ -817,7 +817,7 @@ void* PopulateQueue(void* args)
     {
         tk->cq->pushOp(tk->length[i], tk->offset[i], tk->fd);
     }
-    
+
     while(true)
     {
         if(tk->cq->GetQueueSize() == 0)
@@ -841,7 +841,7 @@ void* ThreadRead(void* args)
     buffer = malloc(BUFFER_SIZE*1024*1024);
 
     ReaderArgs* rd = static_cast<ReaderArgs*>(args);
-    
+
     while( rd->cq->GetQueueState() != STOPPED)
     {
         ChunkQueue::worktoken* tk = rd->cq->getOp();
@@ -855,12 +855,12 @@ void* ThreadRead(void* args)
             printf("%s %-20lld\n", "Read: ", bytes_read);
         }
 
-        if (bytes_read <= 0) 
+        if (bytes_read <= 0)
         {
-            cout << "---Read " << 
+            cout << "---Read " <<
                 tk->length << "@" << tk->offset <<
                 " returned " << bytes_read << endl;
-            
+
             *rd->iserror = true;
             errorPrint(&tmp_err);
             delete(tk);
@@ -892,7 +892,7 @@ void PrintUsage()
         "  Options:" << endl <<
         "    -h          Display help and usage." << endl <<
         "    -r          Non-vectored read." << endl <<
-        "    -vn         Vectored read of vector size n." << endl << 
+        "    -vn         Vectored read of vector size n." << endl <<
         "    -tn         Concurrent read of n threads." << endl <<
         "    -d          Debug mode." << endl <<
         "    -s          Silent mode." << endl <<

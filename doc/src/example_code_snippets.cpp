@@ -1,5 +1,5 @@
 /*
- * Example code snippets 
+ * Example code snippets
 */
 
 //-------------------------------------------------------------------------------------------------
@@ -159,7 +159,7 @@ file.put(NULL, &buffer, static_cast<dav_size_t>sizeof(buffer));
 //! [put buffer]
 
 //! [put callback]
-// data provider 
+// data provider
 int myDataProvider(void* buffer, dav_size_t max_size){
     static dav_size_t content_size = 200;
     if(max_size == 0)

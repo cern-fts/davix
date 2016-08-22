@@ -80,14 +80,14 @@ TEST(ConfigParser, T1) {
   Tool::OptParams params;
 
   // no match
-  contents = 
+  contents =
   "machine myhost\n"
   "    login \"mylogin\"\n"
   "    password \"mypass\"\n";
   ASSERT_FALSE(davix_config_apply("null", contents, uri, params));
 
   // match
-  contents = 
+  contents =
   "machine somehost\n"
   "    login \"mylogin\"\n"
   "    password \"mypass\"\n";
@@ -96,7 +96,7 @@ TEST(ConfigParser, T1) {
   ASSERT_EQ(params.userlogpasswd.second, "mypass");
 
   // verify that existing settings are not overwritten
-  contents = 
+  contents =
   "machine somehost\n"
   "    login \"mylogin2\"\n"
   "    password \"mypass2\"\n";
@@ -105,7 +105,7 @@ TEST(ConfigParser, T1) {
   ASSERT_EQ(params.userlogpasswd.second, "mypass");
 
   // match for host, but not path
-  contents = 
+  contents =
   "machine somehost\n"
   "    path /someotherpath\n"
   "        s3accesskey key\n";
@@ -113,7 +113,7 @@ TEST(ConfigParser, T1) {
   ASSERT_EQ(params.aws_auth.second, "");
 
   // match for both host and path + generic host settings
-  contents = 
+  contents =
   "machine somehost\n"
   "    s3secretkey commonkey\n"
   "    path /someotherpath\n"

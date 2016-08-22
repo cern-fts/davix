@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Kwong Tat Cheung <kwong.tat.cheung@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -40,8 +40,8 @@ public:
     {
         pthread_mutex_unlock(&_mutex);
     }
-    
-    void lock() 
+
+    void lock()
     {
         pthread_mutex_lock(&_mutex);
     }

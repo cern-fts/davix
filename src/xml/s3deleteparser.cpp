@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -40,7 +40,7 @@ struct S3DeleteParser::Internal{
     std::string prefix;
     int entry_count;
     std::stack<std::string> stack_status;
-    std::deque<FileDeleteStatus> del_status;   
+    std::deque<FileDeleteStatus> del_status;
     FileDeleteStatus status;
     std::deque<FileProperties> props; // not used
 
@@ -56,7 +56,7 @@ struct S3DeleteParser::Internal{
         }
 
         // check element, if it is "deleted" this recource has beed deleted successfully
-        // or the resource did not exist in the first place, either way, log it 
+        // or the resource did not exist in the first place, either way, log it
         if( StrUtil::compare_ncase(delete_prop, elem) ==0){
             DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "deleted entry found", elem.c_str());
             status.clear();
@@ -87,7 +87,7 @@ struct S3DeleteParser::Internal{
         // if "Key", current is file name
         // if "Code", current is error code
         // if "Message", current is error message
-        
+
         // if "Delete", end of successful delete entry for that resource, push it
         if( StrUtil::compare_ncase(delete_prop, elem) ==0){
             DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "push deleted status for {}", status.filename.c_str());
@@ -96,7 +96,7 @@ struct S3DeleteParser::Internal{
         }
 
 
-        // if "Error", end of error entry for that resource, push it 
+        // if "Error", end of error entry for that resource, push it
         if( StrUtil::compare_ncase(error_prop, elem) ==0){
             DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "push error status for {}", status.filename.c_str());
             del_status.push_back(status);

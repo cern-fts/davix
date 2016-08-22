@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Kwong Tat Cheung <kwong.tat.cheung@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -35,14 +35,14 @@ DavixThreadPool::DavixThreadPool(DavixTaskQueue* tq, const int pool_size) :
 DavixThreadPool::~DavixThreadPool(){
     for(int i=0; i<_pool_size; ++i){
         if(tp[i])
-            delete tp[i]; 
+            delete tp[i];
     }
     if(tp) delete tp;
 }
 
 void DavixThreadPool::init(){
     tp = new DavixThread*[_pool_size];
-    
+
     if(tp){
         for(int i=0; i<_pool_size; ++i){
             tp[i] = NULL;

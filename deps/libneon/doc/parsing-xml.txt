@@ -157,7 +157,7 @@ XML document.  Creating a new parser object is as simple as:
 Next register the handler, passing NULL as the start-element callback,
 and also as userdata, which we don't use here.
 
-  hip_xml_push_handler(parser, my_elms, 
+  hip_xml_push_handler(parser, my_elms,
 		       validate, NULL, endelm,
 		       NULL);
 

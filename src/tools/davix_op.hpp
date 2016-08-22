@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Kwong Tat Cheung <kwong.tat.cheung@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -40,11 +40,11 @@ protected:
     std::string _scope;
 
     DavixOp(const Tool::OptParams& opts, std::string target_url, std::string destination_url, Context& c);
-    
+
     //virtual ~DavixOp();
 
 public:
-    virtual int executeOp()=0; 
+    virtual int executeOp()=0;
     virtual ~DavixOp();
     std::string getTargetUrl();
     std::string getDestinationUrl();
@@ -79,9 +79,9 @@ public:
 private:
     dav_size_t _file_size;
 
-    
+
 };
-    
+
 
 class DeleteOp : public DavixOp{
 
@@ -98,7 +98,7 @@ public:
 private:
     std::string _buf;
 
-    
+
 };
 
 // forward declaration

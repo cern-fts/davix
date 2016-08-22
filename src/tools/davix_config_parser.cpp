@@ -206,7 +206,7 @@ bool davix_config_apply(const std::string &filename, const std::string &contents
         if(active && path != "" && string_starts_with(uri.getPath(), path)) return true;
         path = token;
       }
-      else if(active && string_starts_with(uri.getPath(), path)) { 
+      else if(active && string_starts_with(uri.getPath(), path)) {
         store_option(prevtoken, token, params);
       }
       prevtoken = "";

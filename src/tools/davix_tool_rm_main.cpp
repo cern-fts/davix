@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -84,12 +84,12 @@ static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::stri
         protocol = "s3://";
     }
 
-    host = protocol + Uri(uri).getHost(); 
-        
+    host = protocol + Uri(uri).getHost();
+
     while( (d = pos.readdirpp(fd, &st, &tmp_err)) != NULL ){
         // for every entry
 
-        //TODO: unless user has turned on rr mode, skip entries that end with a '/'? 
+        //TODO: unless user has turned on rr mode, skip entries that end with a '/'?
         //that way we can provide a way to just delete files inside the directory and not the other directories
 
         // format to xml and push to buffer string, for every n entries, create a DeleteOp(PostRequest)
@@ -139,11 +139,11 @@ static int preDeleteCheck(Tool::OptParams & opts, DavixError** err ) {
     Context c;
     configureContext(c, opts);
     DavPosix f(&c);
-    struct stat st;    
+    struct stat st;
     DavixError* tmp_err=NULL;
 
     // see if the requested url actually points to a directory or not
-    int r = f.stat(&opts.params, opts.vec_arg[0], &st, &tmp_err);      
+    int r = f.stat(&opts.params, opts.vec_arg[0], &st, &tmp_err);
     if (tmp_err) {
         DavixError::propagateError(err, tmp_err);
         return -1;
@@ -151,24 +151,24 @@ static int preDeleteCheck(Tool::OptParams & opts, DavixError** err ) {
     if (r && !(st.st_mode & S_IFDIR)){
         DavixError::setupError(&tmp_err, scope_main, StatusCode::IsNotADirectory, "Failed to delete, target is not a directory.");
         DavixError::propagateError(err, tmp_err);
-        return -1; 
+        return -1;
     }
 
     DavixTaskQueue tq;
-    
-    // create threadpool instance 
+
+    // create threadpool instance
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Creating threadpool");
     DavixThreadPool tp(&tq, opts.threadpool_size);
 
     // TODO two modes, one to delete "recursively, one for depth of 1. can probbaly do it in readdirpp
-     
+
     // set listing mode to SemiHierarchical, we want to get every object under the same prefix in one go
     opts.params.setS3ListingMode(S3ListingMode::SemiHierarchical);
     // unfortunately s3 defaults max-keys to 1000 and doesn't provide a way to disable the cap, set to large number
-    opts.params.setS3MaxKey(999999999); 
+    opts.params.setS3MaxKey(999999999);
 
     std::string url(opts.vec_arg[0]);
-    
+
     if (url[url.size()-1] != '/')
         url += '/';
 
@@ -180,7 +180,7 @@ static int preDeleteCheck(Tool::OptParams & opts, DavixError** err ) {
     }
     tp.shutdown();
     Tool::flushFinalLineShell(STDOUT_FILENO);
-        
+
     if(tmp_err){
         DavixError::propagateError(err, tmp_err);
         return -1;

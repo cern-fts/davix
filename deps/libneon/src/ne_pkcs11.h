@@ -1,4 +1,4 @@
-/* 
+/*
    PKCS#11 support for neon
    Copyright (C) 2008, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,7 +6,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -48,7 +48,7 @@ int ne_ssl_pkcs11_provider_init(ne_ssl_pkcs11_provider **provider,
  * not supported.  On success, *provider is set to non-NULL. */
 int ne_ssl_pkcs11_nss_provider_init(ne_ssl_pkcs11_provider **provider,
                                     const char *name, const char *directory,
-                                    const char *cert_prefix, 
+                                    const char *cert_prefix,
                                     const char *key_prefix,
                                     const char *secmod_db);
 

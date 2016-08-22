@@ -28,7 +28,7 @@ void ChunkQueue::pushOp(long len, long oset, DAVIX_FD* davfd)
 
     to.tv_sec = time(NULL) + DEFAULT_WAIT_TIME;
     to.tv_nsec = 0;
-    
+
     while(!pushed)
     {
         if(workqueue.size() < 1000)
@@ -41,15 +41,15 @@ void ChunkQueue::pushOp(long len, long oset, DAVIX_FD* davfd)
             pushed = true;
             break;
         }
-        
+
         int rc = pthread_cond_timedwait(&pushconvar, &workmutex, &to);
         if(rc == ETIMEDOUT)
         {
             std::cerr << std::endl << "pushOp() timed out." << std::endl;
             break;
         }
-            
-    }    
+
+    }
     //signal worker, job available
     pthread_mutex_unlock(&workmutex);
     pthread_cond_signal(&popconvar);
@@ -73,14 +73,14 @@ struct ChunkQueue::worktoken *ChunkQueue::getOp()
             workqueue.pop_front();
             break;
         }
-        
+
         int rc = pthread_cond_timedwait(&popconvar, &workmutex, &to);
         if(rc == ETIMEDOUT)
         {
             std::cerr << std::endl << "getOp() timed out." << std::endl;
             break;
         }
-            
+
     }
 
     pthread_mutex_unlock(&workmutex);
@@ -109,6 +109,6 @@ int ChunkQueue::GetQueueState()
 }
 
 void ChunkQueue::SetQueueState(int new_state)
-{   
+{
     state = new_state;
 }

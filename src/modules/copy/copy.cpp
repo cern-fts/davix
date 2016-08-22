@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -135,7 +135,7 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
         prevSrc = dst.getString();
         destination = src.getString();
     }
-   
+
 
     // nstreams as string
     char nstreamsStr[16];
@@ -148,7 +148,7 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
     size_t start_pos;
 
     // if destination is s3 endpoint, change prefix to http(s) and pre-sign the request as a PUT
-    if(destination.compare(0,2,"s3") == 0){ 
+    if(destination.compare(0,2,"s3") == 0){
         destination.replace(0, 2, "http");
         time_t expiration_time = time(NULL) +3600;
         Davix::HeaderVec vec;

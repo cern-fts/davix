@@ -1,4 +1,4 @@
-/* 
+/*
    HTTP session handling
    Copyright (C) 1999-2009, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,7 +6,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -288,7 +288,7 @@ typedef void (*ne_ssl_provide_fn)(void *userdata, ne_session *sess,
 
 /* Register a function to be called when the server requests a client
  * certificate. */
-void ne_ssl_provide_clicert(ne_session *sess, 
+void ne_ssl_provide_clicert(ne_session *sess,
                             ne_ssl_provide_fn fn, void *userdata);
 
 /* Set the timeout (in seconds) used when reading from a socket.  The

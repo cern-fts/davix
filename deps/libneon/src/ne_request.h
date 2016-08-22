@@ -1,4 +1,4 @@
-/* 
+/*
    HTTP Request Handling
    Copyright (C) 1999-2006, 2008, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,7 +6,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -75,7 +75,7 @@ void ne_set_request_body_fd(ne_request *req, int fd,
  *        <0           : error, abort request; session error string must be set.
  *         0           : ignore 'buffer' contents, end of body.
  *     0 < x <= buflen : buffer contains x bytes of body data.  */
-typedef ssize_t (*ne_provide_body)(void *userdata, 
+typedef ssize_t (*ne_provide_body)(void *userdata,
 				   char *buffer, size_t buflen);
 
 /* Install a callback which is invoked as needed to provide the
@@ -97,7 +97,7 @@ void ne_set_request_body_provider(ne_request *req, ne_off_t length,
 
 /* 'acceptance' callback type. Return non-zero to accept the response,
  * else zero to ignore it. */
-typedef int (*ne_accept_response)(void *userdata, ne_request *req, 
+typedef int (*ne_accept_response)(void *userdata, ne_request *req,
                                   const ne_status *st);
 
 /* An 'acceptance' callback which only accepts 2xx-class responses.
@@ -117,7 +117,7 @@ typedef int (*ne_block_reader)(void *userdata, const char *buf, size_t len);
 
 /* Add a response reader for the given request, with the given
  * acceptance function. userdata is passed as the first argument to
- * the acceptance + reader callbacks. 
+ * the acceptance + reader callbacks.
  *
  * The acceptance callback is called once each time the request is
  * sent: it may be sent >1 time because of authentication retries etc.
@@ -150,12 +150,12 @@ void *ne_response_header_iterate(ne_request *req, void *cursor,
                                  const char **name, const char **value);
 
 /* Adds a header to the request with given name and value. */
-void ne_add_request_header(ne_request *req, const char *name, 
+void ne_add_request_header(ne_request *req, const char *name,
 			   const char *value);
 /* Adds a header to the request with given name, using printf-like
  * format arguments for the value. */
 void ne_print_request_header(ne_request *req, const char *name,
-			     const char *format, ...) 
+			     const char *format, ...)
     ne_attribute((format(printf, 3, 4)));
 
 /* ne_request_dispatch: Sends the given request, and reads the
@@ -251,14 +251,14 @@ typedef void (*ne_free_hooks)(void *cookie);
  * A create_request hook is called exactly once per request. */
 typedef void (*ne_create_request_fn)(ne_request *req, void *userdata,
 				     const char *method, const char *requri);
-void ne_hook_create_request(ne_session *sess, 
+void ne_hook_create_request(ne_session *sess,
 			    ne_create_request_fn fn, void *userdata);
 
 /* Hook called before the request is sent.  'header' is the raw HTTP
  * header before the trailing CRLF is added; more headers can be added
  * here.  A pre_send hook may be called >1 time per request if the
  * request is retried due to a post_send hook returning NE_RETRY. */
-typedef void (*ne_pre_send_fn)(ne_request *req, void *userdata, 
+typedef void (*ne_pre_send_fn)(ne_request *req, void *userdata,
 			       ne_buffer *header);
 void ne_hook_pre_send(ne_session *sess, ne_pre_send_fn fn, void *userdata);
 
@@ -269,7 +269,7 @@ void ne_hook_pre_send(ne_session *sess, ne_pre_send_fn fn, void *userdata);
  * NE_RETRY. */
 typedef void (*ne_post_headers_fn)(ne_request *req, void *userdata,
                                    const ne_status *status);
-void ne_hook_post_headers(ne_session *sess, 
+void ne_hook_post_headers(ne_session *sess,
                           ne_post_headers_fn fn, void *userdata);
 
 /* Hook called after the request is dispatched (request sent, and
@@ -307,7 +307,7 @@ void ne_hook_close_conn(ne_session *sess, ne_close_conn_fn fn, void *userdata);
  *
  * It is unsafe to use any of these functions from a hook function to
  * unregister itself, except for ne_unhook_destroy_request. */
-void ne_unhook_create_request(ne_session *sess, 
+void ne_unhook_create_request(ne_session *sess,
                               ne_create_request_fn fn, void *userdata);
 void ne_unhook_pre_send(ne_session *sess, ne_pre_send_fn fn, void *userdata);
 void ne_unhook_post_headers(ne_session *sess, ne_post_headers_fn fn, void *userdata);
@@ -316,7 +316,7 @@ void ne_unhook_destroy_request(ne_session *sess,
                                ne_destroy_req_fn fn, void *userdata);
 void ne_unhook_destroy_session(ne_session *sess,
                                ne_destroy_sess_fn fn, void *userdata);
-void ne_unhook_close_conn(ne_session *sess, 
+void ne_unhook_close_conn(ne_session *sess,
                           ne_close_conn_fn fn, void *userdata);
 
 /* Store an opaque context for the request, 'priv' is returned by a

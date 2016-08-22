@@ -1,4 +1,4 @@
-/* 
+/*
    socket handling interface
    Copyright (C) 1999-2010, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,7 +6,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -153,7 +153,7 @@ void ne_sock_prebind(ne_socket *sock, const ne_inet_addr *addr,
  * Returns zero on success, NE_SOCK_TIMEOUT if a timeout occurs when a
  * non-zero connect timeout is configured (and is supported), or
  * NE_SOCK_ERROR on failure.  */
-int ne_sock_connect(ne_socket *sock, const ne_inet_addr *addr, 
+int ne_sock_connect(ne_socket *sock, const ne_inet_addr *addr,
                     unsigned int port);
 
 /* Read up to 'count' bytes from socket into 'buffer'.  Returns:
@@ -181,7 +181,7 @@ int ne_sock_block(ne_socket *sock, int n);
 /* Write 'count' bytes of 'data' to the socket.  Guarantees to either
  * write all the bytes or to fail.  Returns 0 on success, or NE_SOCK_*
  * on error. */
-int ne_sock_fullwrite(ne_socket *sock, const char *data, size_t count); 
+int ne_sock_fullwrite(ne_socket *sock, const char *data, size_t count);
 
 /* I/O vector. */
 struct ne_iovec {
@@ -194,7 +194,7 @@ struct ne_iovec {
  * greater than zero and smaller than the system-defined maximum
  * vector limit.  Returns 0 on success, or NE_SOCK_* on error. */
 int ne_sock_fullwritev(ne_socket *sock, const struct ne_iovec *vector,
-                       int count); 
+                       int count);
 
 /* Read an LF-terminated line into 'buffer', and NUL-terminate it.
  * At most 'len' bytes are read (including the NUL terminator).
@@ -295,7 +295,7 @@ enum ne_sock_sversion {
  * by the caller.
  */
 int ne_sock_proxy(ne_socket *sock, enum ne_sock_sversion vers,
-                  const ne_inet_addr *addr, const char *hostname, 
+                  const ne_inet_addr *addr, const char *hostname,
                   unsigned int port,
                   const char *username, const char *password);
 

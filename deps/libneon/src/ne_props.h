@@ -1,4 +1,4 @@
-/* 
+/*
    WebDAV Properties manipulation
    Copyright (C) 1999-2006, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,7 +6,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -81,7 +81,7 @@ const char *ne_propset_lang(const ne_prop_result_set *set,
 /* ne_propset_iterate iterates over a properties result set,
  * calling the callback for each property in the set. userdata is
  * passed as the first argument to the callback. value may be NULL,
- * indicating an error occurred fetching this property: look at 
+ * indicating an error occurred fetching this property: look at
  * status for the error in that case.
  *
  * If the iterator returns non-zero, ne_propset_iterate will return
@@ -94,7 +94,7 @@ typedef int (*ne_propset_iterator)(void *userdata,
 
 /* Iterate over all the properties in 'set', calling 'iterator'
  * for each, passing 'userdata' as the first argument to callback.
- * 
+ *
  * Returns:
  *   whatever value iterator returns.
  */
@@ -174,7 +174,7 @@ typedef struct ne_propfind_handler_s ne_propfind_handler;
  * not registered, this function will return NULL.  */
 void *ne_propfind_current_private(ne_propfind_handler *handler);
 
-/* Create a PROPFIND handler, for the given resource or set of 
+/* Create a PROPFIND handler, for the given resource or set of
  * resources.
  *
  * Depth must be one of NE_DEPTH_*. */
@@ -207,7 +207,7 @@ ne_request *ne_propfind_get_request(ne_propfind_handler *handler);
  * property value elements, for each new resource encountered in the
  * response, the 'creator' callback is called to retrieve a 'private'
  * structure for this resource.  When the private structure is no longer
- * needed, the 'destructor' callback is called to deallocate any 
+ * needed, the 'destructor' callback is called to deallocate any
  * memory, if necessary.
  *
  * Whilst in XML element callbacks you will have registered to handle
@@ -228,7 +228,7 @@ void ne_propfind_set_private(ne_propfind_handler *handler,
 /* Fetch all properties.
  *
  * Returns NE_*. */
-int ne_propfind_allprop(ne_propfind_handler *handler, 
+int ne_propfind_allprop(ne_propfind_handler *handler,
 			ne_props_result result, void *userdata);
 
 /* Fetch all properties with names listed in array 'names', which is
@@ -237,7 +237,7 @@ int ne_propfind_allprop(ne_propfind_handler *handler,
  * 'userdata' as the first argument.
  *
  * Returns NE_*. */
-int ne_propfind_named(ne_propfind_handler *handler, 
+int ne_propfind_named(ne_propfind_handler *handler,
 		      const ne_propname *names,
 		      ne_props_result result, void *userdata);
 

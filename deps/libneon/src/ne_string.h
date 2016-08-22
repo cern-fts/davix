@@ -1,4 +1,4 @@
-/* 
+/*
    String utility functions
    Copyright (C) 1999-2009, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,7 +6,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -35,7 +35,7 @@ NE_BEGIN_DECLS
  * the characters given in 'quotes'.  After returning, *str will point
  * to the next character after the separator, or NULL if no separator
  * character was found.
- * 
+ *
  * ne_qtoken will return NULL if unterminated quotes are found. */
 char *ne_token(char **str, char sep);
 char *ne_qtoken(char **str, char sep, const char *quotes);
@@ -100,7 +100,7 @@ void ne_buffer_qappend(ne_buffer *buf, const unsigned char *data, size_t len);
  * are appended; the number of characters appended (excluding the NUL
  * terminator) is returned.  Behaviour is undefined if 'max' is passed
  * as zero. */
-size_t ne_buffer_snprintf(ne_buffer *buf, size_t max, 
+size_t ne_buffer_snprintf(ne_buffer *buf, size_t max,
                           const char *format, ...)
     ne_attribute((format(printf, 3, 4)));
 

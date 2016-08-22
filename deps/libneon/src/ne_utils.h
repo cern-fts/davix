@@ -1,4 +1,4 @@
-/* 
+/*
    HTTP utility functions
    Copyright (C) 1999-2006, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,7 +6,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -40,7 +40,7 @@
 NE_BEGIN_DECLS
 
 /* Returns a human-readable library version string describing the
- * version and build information; for example: 
+ * version and build information; for example:
  *    "neon 0.2.0: Library build, OpenSSL support" */
 const char *ne_version_string(void);
 

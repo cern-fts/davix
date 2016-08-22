@@ -111,7 +111,7 @@ The Davix targets to:
  @endcode
 
 
- 
+
 <h3>Manual HTTP query:</h3>
  @code{.cpp}
 

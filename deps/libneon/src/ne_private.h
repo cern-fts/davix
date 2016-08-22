@@ -1,4 +1,4 @@
-/* 
+/*
    HTTP Request Handling
    Copyright (C) 1999-2009, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,7 +6,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -21,7 +21,7 @@
 
 /* THIS IS NOT A PUBLIC INTERFACE. You CANNOT include this header file
  * from an application.  */
- 
+
 #ifndef NE_PRIVATE_H
 #define NE_PRIVATE_H
 
@@ -68,7 +68,7 @@ struct ne_session_s {
 
     /* non-zero if connection has been established. */
     int connected;
-    
+
     /* non-zero if connection has persisted beyond one request. */
     int persisted;
 
@@ -94,7 +94,7 @@ struct ne_session_s {
     int use_ssl; /* whether a secure connection is required */
     int in_connect; /* doing a proxy CONNECT */
     int any_proxy_http; /* whether any configured proxy is an HTTP proxy */
-    
+
     enum ne_sock_sversion socks_ver;
     char *socks_user, *socks_password;
 
@@ -109,7 +109,7 @@ struct ne_session_s {
     int rdtimeout, cotimeout; /* read, connect timeouts. */
 
     struct hook *create_req_hooks, *pre_send_hooks, *post_send_hooks,
-        *post_headers_hooks, *destroy_req_hooks, *destroy_sess_hooks, 
+        *post_headers_hooks, *destroy_req_hooks, *destroy_sess_hooks,
         *close_conn_hooks, *private;
 
     char *user_agent; /* full User-Agent: header field */
@@ -148,7 +148,7 @@ NE_PRIVATE void ne__ssl_set_verify_err(ne_session *sess, int failures);
 
 /* Return non-zero if hostname from certificate (cn) matches hostname
  * used for session (hostname); follows RFC2818 logic. */
-NE_PRIVATE int ne__ssl_match_hostname(const char *cn, size_t cnlen, 
+NE_PRIVATE int ne__ssl_match_hostname(const char *cn, size_t cnlen,
                                       const char *hostname);
 
 #endif /* HTTP_PRIVATE_H */

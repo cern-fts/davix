@@ -37,7 +37,7 @@ typedef struct
 	ne_acl_property,
 	ne_acl_all
     } apply;
-    
+
     enum {
 	ne_acl_grant,
 	ne_acl_deny

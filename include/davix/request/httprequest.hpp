@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -79,7 +79,7 @@ namespace RequestFlag{
 /// @class HttpRequest
 /// @brief Http low level request interface.
 ///
-/// HTTPRequest is the main davix class for low level HTTP queries. 
+/// HTTPRequest is the main davix class for low level HTTP queries.
 ///
 /// HTTPRequest objects are provided by Davix::Context
 ///
@@ -132,7 +132,7 @@ public:
     /// \brief set the request parameter
     /// \param parameters Davix Request parameters
     ///
-    ///  define the request parameters, can be used to define parameters 
+    ///  define the request parameters, can be used to define parameters
     ///  such as authentication scheme, timeout or user agent.
     ///
     /// @snippet example_code_snippets.cpp HttpRequest::setParameters
@@ -253,7 +253,7 @@ public:
     ///
     ///  @snippet example_code_snippets.cpp HttpRequest::readLine
     dav_ssize_t readLine(char* buffer, dav_size_t max_size, DavixError** err);
-    
+
     ///
     /// discard the response body
     /// @param err: DavixError error report system

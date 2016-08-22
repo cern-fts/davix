@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -48,7 +48,7 @@ public:
 
     // make collection
     virtual void makeCollection(IOChainContext & iocontext);
-    
+
     // move/rename resource
     virtual void move(IOChainContext & iocontext, const std::string & target_url);
 

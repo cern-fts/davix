@@ -1,4 +1,4 @@
-/* 
+/*
    WebDAV Class 2 locking operations
    Copyright (C) 1999-2006, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,7 +6,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -114,7 +114,7 @@ struct ne_lock *ne_lockstore_next(ne_lock_store *store);
 
 /* Find a lock in the store for the given server, and with the given
  * path. */
-struct ne_lock *ne_lockstore_findbyuri(ne_lock_store *store, 
+struct ne_lock *ne_lockstore_findbyuri(ne_lock_store *store,
 				       const ne_uri *uri);
 
 /* Issue a LOCK request for the given lock.  Requires that the uri,
@@ -133,10 +133,10 @@ int ne_lock_refresh(ne_session *sess, struct ne_lock *lock);
 /* Callback for lock discovery.  If 'lock' is NULL, something went
  * wrong performing lockdiscovery for the resource, look at 'status'
  * for the details.
- * 
+ *
  * If lock is non-NULL, at least lock->uri and lock->token will be
  * filled in; and status will be NULL. */
-typedef void (*ne_lock_result)(void *userdata, const struct ne_lock *lock, 
+typedef void (*ne_lock_result)(void *userdata, const struct ne_lock *lock,
 			       const ne_uri *uri, const ne_status *status);
 
 /* Perform lock discovery on the given path.  'result' is called with

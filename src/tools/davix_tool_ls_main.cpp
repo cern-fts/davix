@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -148,7 +148,7 @@ static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::stri
     while( ((d = pos.readdirpp(fd, &st, &tmp_err)) != NULL)){    // if one entry inside a directory fails, the loop exits, the other entires are not processed
 
         last_success_entry = dirQueue.front()+d->d_name;
-        // for each entry, do a stat to see if it's a directory, if yes, push to dirQueue for further processing    
+        // for each entry, do a stat to see if it's a directory, if yes, push to dirQueue for further processing
         if(st.st_mode & S_IFDIR){
             DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Directory entry found, pushing {}/ to dirQueue", dirQueue.front()+d->d_name);
             dirQueue.push_back(dirQueue.front()+d->d_name+"/");
@@ -160,7 +160,7 @@ static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::stri
             display_file_entry(fullpath+d->d_name, opts, filestream);
         }
     } // while readdirpp
-    
+
     if(tmp_err){
         Tool::errorPrint(&tmp_err);
         std::cerr << std::endl << "Error occured during listing  " << dirQueue.front() << " Number of entries processed in current directory: " << entry_counter << ". Continuing..."<< std::endl;
@@ -191,22 +191,22 @@ static int recursiveListing(const Tool::OptParams & opts, FILE* filestream, Davi
     DavixError* tmp_err=NULL;
 
     std::string url(opts.vec_arg[0]);
-    
+
     if (url[url.size()-1] != '/')
         url += '/';
 
     DavixTaskQueue listing_tq(opts, QueueType::LIFO);  // for listing ops
-   
+
     // init output mutex for child listOps, only one listOp can output to a stream at a given time
     pthread_mutex_t output_mutex;
     pthread_mutex_init(&output_mutex, NULL);
 
-    // create threadpool instance 
+    // create threadpool instance
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Creating threadpool");
     DavixThreadPool listing_tp(&listing_tq, opts.threadpool_size);
-    
+
     populateTaskQueue(c, opts, url, &listing_tq, &tmp_err, filestream, output_mutex);
-    
+
     do{
         sleep(2);
     }while((!listing_tq.isEmpty()) || !(listing_tp.allThreadsIdle()));
@@ -215,13 +215,13 @@ static int recursiveListing(const Tool::OptParams & opts, FILE* filestream, Davi
     listing_tp.shutdown();
     Tool::flushFinalLineShell(STDOUT_FILENO);
 
-    
+
     if(tmp_err){
         DavixError::propagateError(err, tmp_err);
         return -1;
     }
     return 0;
-    
+
 }
 
 int main(int argc, char** argv){
@@ -238,7 +238,7 @@ int main(int argc, char** argv){
                 // don't need to use -r switch for S3, just set listing mode to SemiHierarchical and do a normal listing
                 opts.params.setS3ListingMode(S3ListingMode::SemiHierarchical);
                 // unfortunately s3 defaults max-keys to 1000 and doesn't provide a way to disable the cap, set to large number
-                opts.params.setS3MaxKey(999999999); 
+                opts.params.setS3MaxKey(999999999);
 
                 retcode = listing(opts, fstream, &tmp_err);
             }

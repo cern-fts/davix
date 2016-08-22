@@ -1,4 +1,4 @@
-/* 
+/*
    neon-specific test utils
    Copyright (C) 2001-2008, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,12 +6,12 @@
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
-  
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-  
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
@@ -92,9 +92,9 @@ struct socks_server {
         fail_init_close,
         fail_init_trunc,
         fail_no_auth,
-        fail_bogus_auth, 
-        fail_auth_close, 
-        fail_auth_denied 
+        fail_bogus_auth,
+        fail_auth_close,
+        fail_auth_denied
     } failure;
     unsigned int expect_port;
     ne_inet_addr *expect_addr;
@@ -109,5 +109,5 @@ struct socks_server {
 int socks_server(ne_socket *sock, void *userdata);
 
 int full_write(ne_socket *sock, const char *data, size_t len);
-    
+
 #endif /* UTILS_H */

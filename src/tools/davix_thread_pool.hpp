@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Kwong Tat Cheung <kwong.tat.cheung@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -41,7 +41,7 @@ private:
     DavixTaskQueue* _tq;
     int threadCount;
     int _pool_size;
-    DavixThread** tp; 
+    DavixThread** tp;
 };
 
 }

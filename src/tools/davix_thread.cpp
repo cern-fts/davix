@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Kwong Tat Cheung <kwong.tat.cheung@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -64,14 +64,14 @@ int DavixThread::run(){
                     int ret = op->executeOp();
                     if(ret < 0){
                         if(op->getOpType() == "DELETE")
-                            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "(DavixThread) Worker thread: {} failed to execute op on {}.", 
+                            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "(DavixThread) Worker thread: {} failed to execute op on {}.",
                                         threadId, op->getDestinationUrl());
                         else
-                            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "(DavixThread) Worker thread: {} failed to execute op on {}.", 
+                            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "(DavixThread) Worker thread: {} failed to execute op on {}.",
                                         threadId, op->getTargetUrl());
 
                     }
-                    
+
                     delete op;
                     state = WorkerState::IDLE;
                 }

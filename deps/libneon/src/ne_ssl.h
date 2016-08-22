@@ -1,4 +1,4 @@
-/* 
+/*
    SSL/TLS abstraction layer for neon
    Copyright (C) 2003-2006, 2009, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,7 +6,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -93,7 +93,7 @@ const ne_ssl_dname *ne_ssl_cert_subject(const ne_ssl_certificate *cert);
 /* Calculate the certificate digest ("fingerprint") and format it as a
  * NUL-terminated hex string in 'digest', of the form "aa:bb:...:ff".
  * Returns zero on success or non-zero if there was an internal error
- * whilst calculating the digest.  'digest' must be at least 
+ * whilst calculating the digest.  'digest' must be at least
  * NE_SSL_DIGESTLEN bytes in length. */
 int ne_ssl_cert_digest(const ne_ssl_certificate *cert, char *digest);
 
@@ -194,7 +194,7 @@ int ne_ssl_context_trust_add_ca_path(ne_ssl_context * ctx, const char* path);
 int ne_ssl_context_keypair(ne_ssl_context *ctx,
                            const char *cert, const char *key);
 
-/* Server mode: set client cert verification options: required is non-zero if 
+/* Server mode: set client cert verification options: required is non-zero if
  * a client cert is required, if ca_names is non-NULL it is a filename containing
  * a set of PEM certs from which CA names are sent in the ccert request. */
 int ne_ssl_context_set_verify(ne_ssl_context *ctx, int required,

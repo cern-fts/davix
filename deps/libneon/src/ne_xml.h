@@ -1,4 +1,4 @@
-/* 
+/*
    neon XML parser interface
    Copyright (C) 1999-2007, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,7 +6,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -56,7 +56,7 @@ NE_BEGIN_DECLS
  *    0  =>  decline this element (NE_XML_DECLINE)
  *   >0  =>  accept this element; value is state for this element.
  *
- * The 'parent' integer is the state returned by the handler of the 
+ * The 'parent' integer is the state returned by the handler of the
  * parent element.   The attributes array gives name/value pairs
  * in atts[n] and atts[n+1] from n=0 up to atts[n]==NULL. */
 typedef int ne_xml_startelm_cb(void *userdata, int parent,
@@ -70,7 +70,7 @@ typedef int ne_xml_startelm_cb(void *userdata, int parent,
 typedef int ne_xml_cdata_cb(void *userdata, int state,
                             const char *cdata, size_t len);
 /* End element callback; may return non-zero to abort the parse. */
-typedef int ne_xml_endelm_cb(void *userdata, int state, 
+typedef int ne_xml_endelm_cb(void *userdata, int state,
                              const char *nspace, const char *name);
 
 typedef struct ne_xml_parser_s ne_xml_parser;
@@ -81,7 +81,7 @@ ne_xml_parser *ne_xml_create(void);
 /* Push a new handler on the stack of parser 'p'. 'cdata' and/or
  * 'endelm' may be NULL; startelm must be non-NULL. */
 void ne_xml_push_handler(ne_xml_parser *p,
-                         ne_xml_startelm_cb *startelm, 
+                         ne_xml_startelm_cb *startelm,
                          ne_xml_cdata_cb *cdata,
                          ne_xml_endelm_cb *endelm,
                          void *userdata);
@@ -123,7 +123,7 @@ int ne_xml_currentline(ne_xml_parser *p);
  * context-specific; if called outside a start_element callback,
  * behaviour is undefined. */
 const char *ne_xml_get_attr(ne_xml_parser *parser,
-			    const char **attrs, const char *nspace, 
+			    const char **attrs, const char *nspace,
 			    const char *name);
 
 /* From a start_element callback, resolve a given XML Namespace
@@ -133,7 +133,7 @@ const char *ne_xml_get_attr(ne_xml_parser *parser,
  * prefix, returns the default namespace URI or the empty string if
  * none is defined.  Note that this call is context-specific; if
  * called outside a start_element callback, behaviour is undefined. */
-const char *ne_xml_resolve_nspace(ne_xml_parser *parser, 
+const char *ne_xml_resolve_nspace(ne_xml_parser *parser,
                                   const char *prefix, size_t length);
 
 /* Return the encoding of the document being parsed.  May return NULL

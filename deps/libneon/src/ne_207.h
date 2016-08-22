@@ -1,4 +1,4 @@
-/* 
+/*
    WebDAV 207 multi-status response handling
    Copyright (C) 1999-2006, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,7 +6,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -68,7 +68,7 @@ typedef struct ne_207_parser_s ne_207_parser;
 /* Create 207 parser an add the handlers the the given parser's
  * handler stack.  URI references in the 207 response will be resolved
  * relative to the base URI 'base'. */
-ne_207_parser *ne_207_create(ne_xml_parser *parser, const ne_uri *base, 
+ne_207_parser *ne_207_create(ne_xml_parser *parser, const ne_uri *base,
                              void *userdata);
 
 /* Register response handling callbacks. */
@@ -77,7 +77,7 @@ void ne_207_set_response_handlers(ne_207_parser *p,
                                   ne_207_end_response *end);
 
 /* Register propstat handling callbacks. */
-void ne_207_set_propstat_handlers(ne_207_parser *p, 
+void ne_207_set_propstat_handlers(ne_207_parser *p,
                                   ne_207_start_propstat *start,
                                   ne_207_end_propstat *end);
 

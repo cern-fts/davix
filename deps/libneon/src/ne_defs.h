@@ -1,4 +1,4 @@
-/* 
+/*
    Standard definitions for neon headers
    Copyright (C) 2003-2008, 2010, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,7 +6,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -61,7 +61,7 @@ typedef off_t ne_off_t;
 #if __GNUC__ > 3
 #define ne_attribute_sentinel __attribute__((sentinel))
 #else
-#define ne_attribute_sentinel 
+#define ne_attribute_sentinel
 #endif
 #define ne_attribute(x) __attribute__(x)
 #else

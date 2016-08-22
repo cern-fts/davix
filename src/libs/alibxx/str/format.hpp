@@ -125,7 +125,7 @@ void format(BasicFormatter<Char> &f, const Char *&format_str, const T &value);
   \rst
   A string reference. It can be constructed from a C string or
   ``std::string``.
-  
+
   You can use one of the following typedefs for common character types:
 
   +------------+-------------------------+
@@ -1529,7 +1529,7 @@ class BasicWriter {
   /**
     \rst
     Writes formatted data.
-    
+
     *args* is an argument list representing arbitrary arguments.
 
     **Example**::

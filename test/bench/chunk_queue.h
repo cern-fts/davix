@@ -1,4 +1,4 @@
-#ifndef CHUNK_QUEUE 
+#ifndef CHUNK_QUEUE
 #define CHUNK_QUEUE
 
 #include <pthread.h>
@@ -17,11 +17,11 @@ public:
     ChunkQueue();
     ~ChunkQueue();
 
-    struct worktoken 
+    struct worktoken
     {
         long length;
-        long offset; 
-        DAVIX_FD* fd;       
+        long offset;
+        DAVIX_FD* fd;
     };
 
     void pushOp(long len, long oset, DAVIX_FD* davfd);
@@ -38,11 +38,11 @@ private:
 
     /// Queue of the pending operations
     std::deque<worktoken*> workqueue;
-    
+
     pthread_mutex_t workmutex;
     pthread_cond_t popconvar;
     pthread_cond_t pushconvar;
-    
+
     int state;
 };
 

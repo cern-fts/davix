@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -348,7 +348,7 @@ std::string SanitiseTildedPath(const char * path){
         std::string newpath(path);
         newpath.erase(0, 1);
         const char * val = std::getenv("HOME");
-        
+
         if(val != NULL){
             newpath.insert(0, val);
         }
@@ -356,7 +356,7 @@ std::string SanitiseTildedPath(const char * path){
             newpath.insert(0, "/");
         }
         return newpath;
-    }   
+    }
     return std::string(path);
 }
 
@@ -436,7 +436,7 @@ void printProgressBar(int out_fd, int percent, dav_ssize_t bytes_transfered, dav
     struct winsize win;
     ioctl(out_fd, TIOCGWINSZ, &win);
 
-    
+
     // w = width of bar, r = 100/w
     double w = static_cast<double>(win.ws_row)/1.5;
     double r = 100/w;
@@ -453,9 +453,9 @@ void printProgressBar(int out_fd, int percent, dav_ssize_t bytes_transfered, dav
 
     std::cout << "\r" "[" << bar << "] ";
     std::cout.width(3);
-    std::cout << percent << "%     " << 
+    std::cout << percent << "%     " <<
         normalize_unit(bytes_transfered) << 'B' << "/" << normalize_unit(size) << 'B';
-    std::cout.width(10); 
+    std::cout.width(10);
     std::cout << normalize_unit(baudrate) << "B/s" <<
         "                     " << std::flush;
 
@@ -531,11 +531,11 @@ int mkdirP(std::deque<std::string>& dirVec, bool trim){
         dirVec.pop_back();
     }
 
-   /* 
+   /*
     //TODO: optimise logic to skip tokens that have been created previously
     for(unsigned int i=0; i<dirVec.size(); ++i){
         if(mkdir(dirVec[i].c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) != 0){
-            if(errno == EEXIST) 
+            if(errno == EEXIST)
                 DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CORE, "Failed to create local directory, {} already exist. Continuing", dirVec[i]);
             else{
                 std::cout << std::endl << "Failed to create local directory for " << dirVec[i] << std::endl;
@@ -553,7 +553,7 @@ int mkdirP(std::deque<std::string>& dirVec, bool trim){
 
     // loop backwards and attempt to create dir with largest depth
     // break when an existing dir has been found, or one has been created successfully
-    // failed attemps are pushed to queue to retry once we have the location of an existing dir 
+    // failed attemps are pushed to queue to retry once we have the location of an existing dir
     for(int i=dirVec.size()-1; i>=0; --i){
         ret = mkdir(dirVec[i].c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
@@ -569,7 +569,7 @@ int mkdirP(std::deque<std::string>& dirVec, bool trim){
     // at this point we only have to create the dir(s) they do not already exist
     for(unsigned int ii=0; ii<dirList.size(); ++ii){
         if(mkdir(dirList[ii].c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) != 0){
-            if(errno == EEXIST) 
+            if(errno == EEXIST)
                 DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CORE, "Failed to create local directory, {} already exist. Continuing", dirList[ii]);
             else{
                 std::cout << std::endl << "Failed to create local directory for " << dirList[ii] << std::endl;
@@ -601,11 +601,11 @@ void batchTransferMonitor(std::string dirPath, std::string msg, int entryCount, 
             return;
     }
 
-    std::cout << "\r" << msg << " " << dirPath << 
+    std::cout << "\r" << msg << " " << dirPath <<
         "      Files processed: ";
     std::cout.width(10);
     std::cout << entryCount;
-    
+
     if(totalEntry != 0)
         std::cout << "/" << totalEntry;
 

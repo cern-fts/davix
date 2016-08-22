@@ -74,7 +74,7 @@ public:
     typedef Interval<T,K> interval;
     typedef std::vector<interval> intervalVector;
     typedef IntervalTree<T,K> intervalTree;
-    
+
     intervalVector intervals;
     intervalTree* left;
     intervalTree* right;
@@ -86,7 +86,7 @@ public:
         , center(0)
     { }
 
-    IntervalTree<T,K>(const intervalTree& other) 
+    IntervalTree<T,K>(const intervalTree& other)
         : left(NULL)
         , right(NULL)
     {
@@ -144,7 +144,7 @@ public:
             K leftp = 0;
             K rightp = 0;
             K centerp = 0;
-            
+
             if (leftextent || rightextent) {
                 leftp = leftextent;
                 rightp = rightextent;

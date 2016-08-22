@@ -1,4 +1,4 @@
-/* 
+/*
    HTTP authentication routines
    Copyright (C) 1999-2009, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,7 +6,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -70,7 +70,7 @@ void ne_set_proxy_auth(ne_session *sess, ne_auth_creds creds, void *userdata);
  * password, and certain aspects of the request, so prevents passive
  * attackers from obtaining the credentials; active attackers can
  * still modify most of the request/response if using an unsecured
- * channel. */ 
+ * channel. */
 #define NE_AUTH_DIGEST (0x0002)
 
 /* NE_AUTH_NEGOTIATE: Negotiate uses GSSAPI/SSPI, or NTLM, to
@@ -118,9 +118,9 @@ void ne_set_proxy_auth(ne_session *sess, ne_auth_creds creds, void *userdata);
  * ne_add_proxy_auth are used for a given session, the caller must
  * ensure that the order in which those calls are made reflects the
  * precedence of protocols to be used. */
-void ne_add_server_auth(ne_session *sess, unsigned protocol, 
+void ne_add_server_auth(ne_session *sess, unsigned protocol,
                         ne_auth_creds creds, void *userdata);
-void ne_add_proxy_auth(ne_session *sess, unsigned protocol, 
+void ne_add_proxy_auth(ne_session *sess, unsigned protocol,
                        ne_auth_creds creds, void *userdata);
 
 /* Clear any cached authentication credentials for the given

@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Kwong Tat Cheung <kwong.tat.cheung@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -39,16 +39,16 @@ DavixTaskQueue::DavixTaskQueue(const Tool::OptParams& opts, QueueType::QueueType
     pthread_cond_init(&popOpConvar, NULL);
     pthread_cond_init(&pushOpConvar, NULL);
     _shutdown = false;
-    _no_cap = opts.no_cap; 
+    _no_cap = opts.no_cap;
     _queueType = queueType;
 }
 
 
 int DavixTaskQueue::pushOp(DavixOp* op){
-    
+
     {
         DavixMutex mutex(tq_mutex);
-        
+
         // for recursive namespace crawling, we set a hard limit to the number of listing ops are allowed to prevent overflow
         // not the ideal solution, perhaps disk-backing the queue after a certain threshold would be better
         if((op->getOpType() == "LIST") || op->getOpType() == "LISTPP"){
@@ -64,7 +64,7 @@ int DavixTaskQueue::pushOp(DavixOp* op){
         }
 
         taskQueue.push_back(op);
-        
+
     }
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "(DavixTaskQueue) {} Op pushed to taskQueue, target is {}, queue size is now: {}", op->getOpType(), op->getTargetUrl(), taskQueue.size());
     pthread_cond_signal(&popOpConvar);
@@ -77,14 +77,14 @@ DavixOp* DavixTaskQueue::popOp(){
     //struct timespec to;
     {
         DavixMutex mutex(tq_mutex);
-        
-        
+
+
         while(taskQueue.empty() && !_shutdown){
             /*
              *        to.tv_sec = time(NULL) + DEFAULT_WAIT_TIME;
              *        to.tv_nsec = 0;
              *        int rc = pthread_cond_timedwait(&popOpConvar, mutex.getMutex(), &to);
-             * 
+             *
              *        if(rc == ETIMEDOUT)
              *        {
              *            std::cerr << std::endl << "(DavixTaskQueue) PopOp() timed out." << std::endl;
@@ -93,13 +93,13 @@ DavixOp* DavixTaskQueue::popOp(){
         }
         */
             pthread_cond_wait(&popOpConvar, mutex.getMutex());
-            
+
             if(_shutdown){
                 DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "(DavixTaskQueue) Shutting down task queue, queue size is: {}", taskQueue.size());
                 return NULL;
             }
         }
-        
+
         if(taskQueue.size() > 0){
             switch(_queueType){
                 case QueueType::FIFO:
@@ -117,16 +117,16 @@ DavixOp* DavixTaskQueue::popOp(){
             }   // end switch
             dosig = true;
         }
-        
+
     }   // end mutex scope
-    
+
     if (dosig) {
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "(DavixTaskQueue) {} Op popped from taskQueue, queue size is now: {}", op->getOpType(), taskQueue.size());
-        
+
         pthread_cond_signal(&pushOpConvar);
         return op;
     }
-    
+
     return NULL;
 }
 

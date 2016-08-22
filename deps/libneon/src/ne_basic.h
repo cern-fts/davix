@@ -1,4 +1,4 @@
-/* 
+/*
    HTTP/1.1 methods
    Copyright (C) 1999-2008, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,7 +6,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -41,7 +41,7 @@ int ne_put(ne_session *sess, const char *path, int fd);
 #define NE_DEPTH_INFINITE (2)
 
 /* For ne_copy and ne_move:
- * 
+ *
  * If a resource exists at "dest" and overwrite is zero, the operation
  * will fail; if overwrite is non-zero, any existing resource will
  * be over-written.
@@ -139,11 +139,11 @@ typedef struct {
  * This will write to the CURRENT position of f; so if you want
  * to do a resume download, use:
  *      struct ne_content_range range;
- *      range.start = resume_from; 
+ *      range.start = resume_from;
  *      range.end = range.start + 999;  (= 1000 bytes)
  *      fseek(myfile, resume_from, SEEK_SET);
  *      ne_get_range(sess, path, &range, myfile); */
-int ne_get_range(ne_session *sess, const char *path, 
+int ne_get_range(ne_session *sess, const char *path,
 		 ne_content_range *range, int fd);
 
 /* Post using buffer as request-body: stream response into f */

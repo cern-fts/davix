@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Kwong Tat Cheung <kwong.tat.cheung@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -77,7 +77,7 @@ int GetOp::executeOp(){
     if((fd = getOutFd())> 0){
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "{} executing op on ", _scope, _target_url);
         ret = f.getToFd(&_opts.params, fd, &tmp_err);
-        
+
         //if getToFd failed, remove the just created blank local file
         if(tmp_err){
             std::cerr << std::endl << _scope << " Failed to GET " << _target_url << std::endl;
@@ -111,7 +111,7 @@ int GetOp::getOutFd(){
     }else{
         fd = dup(STDOUT_FILENO);
     }
-    return fd;    
+    return fd;
 }
 
 
@@ -138,7 +138,7 @@ int PutOp::executeOp(){
             Tool::errorPrint(&tmp_err);
         return -1;
     }
-    
+
     TRY_DAVIX{
         DavFile f(_c, _destination_url);
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "{} executing op on ", _scope, _destination_url);
@@ -171,7 +171,7 @@ int PutOp::getInFd(DavixError** err){
         fd = dup(STDOUT_FILENO);
     }
     return fd;
-    
+
 }
 
 
@@ -203,7 +203,7 @@ int DeleteOp::executeOp(){
         }
 
         req.setParameters(_opts.params);
-        
+
         std::ostringstream ss;
         ss << _buf.size();
 
@@ -213,7 +213,7 @@ int DeleteOp::executeOp(){
 
         req.addHeaderField("Content-MD5", md5);
         req.addHeaderField("Content-Length", ss.str());
-              
+
         req.setRequestBody(_buf);
 
         req.executeRequest(&tmp_err);
@@ -249,7 +249,7 @@ int DeleteOp::executeOp(){
         // cases other than s3, not implenmented for now. WebDAV delete collection already works without the -r switch
         return -1;
     }
-    
+
     return 0;
 }
 
@@ -265,9 +265,9 @@ void DeleteOp::parse_deletion_result(int code, const Uri & u, const std::string 
                 for(unsigned int i=0; i < parser.getDeleteStatus().size(); ++i){
                     if(parser.getDeleteStatus().at(i).error){
                         std::ostringstream ss;
-                        ss << "Error: " << parser.getDeleteStatus().at(i).error_code << 
-                            " -> " << parser.getDeleteStatus().at(i).message << 
-                            " encountered while atempting to delete " << 
+                        ss << "Error: " << parser.getDeleteStatus().at(i).error_code <<
+                            " -> " << parser.getDeleteStatus().at(i).message <<
+                            " encountered while atempting to delete " <<
                             parser.getDeleteStatus().at(i).filename;
 
                         std::cerr << std::endl << ss.str() << std::endl;
@@ -467,7 +467,7 @@ int ListppOp::executeOp(){
     DavixError* tmp_err=NULL;
     std::string outputPath;
     struct stat st;
-    struct dirent* d; 
+    struct dirent* d;
     unsigned long entry_counter=0;
     std::string last_success_entry;
 
@@ -493,7 +493,7 @@ int ListppOp::executeOp(){
     while( ((d = pos.readdirpp(fd, &st, &tmp_err)) != NULL)){    // if one entry inside a directory fails, the loop exits, the other entires are not processed
 
         last_success_entry = dirQueue.front().first+d->d_name;
-        // for each entry, see if it's a directory, if yes, push to dirQueue for further processing    
+        // for each entry, see if it's a directory, if yes, push to dirQueue for further processing
         if(st.st_mode & S_IFDIR){
             DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Directory entry found, pushing {}/ to dirQueue", dirQueue.front().first+d->d_name);
             dirQueue.push_back(std::make_pair(dirQueue.front().first+d->d_name+"/",dirQueue.front().second+"/"+d->d_name));
@@ -504,13 +504,13 @@ int ListppOp::executeOp(){
             entry_counter++;
         }
     } // while readdirpp
-    
+
     if(tmp_err){
         Tool::errorPrint(&tmp_err);
         std::cerr << std::endl << "Error occured during listing  " << dirQueue.front().first << " Number of entries processed in current directory: " << entry_counter << ". Continuing..."<< std::endl;
         std::cerr << std::endl << "Last successful entry is " << last_success_entry << std::endl;
     }
-    
+
     pos.closedirpp(fd, NULL);
     dirQueue.pop_front();
 
@@ -520,15 +520,15 @@ int ListppOp::executeOp(){
         ListppOp* l_op = new ListppOp(_opts, (dirQueue[i].first), (dirQueue[i].second), _c, _tq, _listing_tq);
         _listing_tq->pushOp(l_op);
     }
- 
+
     for(unsigned int i=0; i < opQueue.size(); ++i){
         //push op to task queue
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to (get) work queue, target is {} and destination is {}.", opQueue[i].first, opQueue[i].second);
-        
+
         GetOp* op = new GetOp(_opts, (opQueue[i].first), (opQueue[i].second), _c);
         _tq->pushOp(op);
     }
-      
+
     if(tmp_err){
         Tool::errorPrint(&tmp_err);
         return -1;

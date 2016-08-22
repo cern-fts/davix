@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -97,9 +97,9 @@ const std::string last_modified_prop = "LastModified";
     int end_elem(const std::string &elem){
         StrUtil::trim(current);
 
-        // found prefix 
-        if( (_s3_listing_mode == S3ListingMode::Hierarchical) && 
-                StrUtil::compare_ncase(prefix_prop, elem) ==0 && 
+        // found prefix
+        if( (_s3_listing_mode == S3ListingMode::Hierarchical) &&
+                StrUtil::compare_ncase(prefix_prop, elem) ==0 &&
                 !current.empty()){
             DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "new prefix {}", current.c_str());
             prefix = current;
@@ -127,7 +127,7 @@ const std::string last_modified_prop = "LastModified";
                 if(prefix.compare((prefix.size()-1),1,"/")){ // prefix doesn't end with '/', file
                     property.filename = current;
                 }
-                else if(!(StrUtil::compare_ncase(prefix, current) ==0)){ // folder   
+                else if(!(StrUtil::compare_ncase(prefix, current) ==0)){ // folder
                     property.filename = current.erase(0, prefix_to_remove.size());
 
                 }

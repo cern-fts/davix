@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -95,7 +95,7 @@ static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::stri
         // if output path is not specified, default to current directory
         if(outputPath.empty()){
             std::deque<std::string> dirVec;
-           
+
             std::string tmp = Uri(uri).getPath();
             if(tmp == "/"){ // no output path and no token in url to use as default, fallback to ./temp
                 outputPath = "./temp";
@@ -123,12 +123,12 @@ static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::stri
     //if S3, remove last token of url to accommodate duplicate token in d_name
     if (opts.params.getProtocol() == RequestProtocol::AwsS3){
         dirQueue.front().first = "s3://"+(Uri(dirQueue.front().first).getHost())+"/";
-    } 
+    }
 
     while( ((d = pos.readdirpp(fd, &st, &tmp_err)) != NULL)){    // if one entry inside a directory fails, the loop exits, the other entires are not processed
 
         last_success_entry = dirQueue.front().first+d->d_name;
-        // for each entry, do a stat to see if it's a directory, if yes, push to dirQueue for further processing    
+        // for each entry, do a stat to see if it's a directory, if yes, push to dirQueue for further processing
         if(st.st_mode & S_IFDIR){
             DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Directory entry found, pushing {}/ to dirQueue", dirQueue.front().first+d->d_name);
             dirQueue.push_back(std::make_pair(dirQueue.front().first+d->d_name+"/",dirQueue.front().second+"/"+d->d_name));
@@ -141,7 +141,7 @@ static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::stri
         if(!opts.debug)
             Tool::batchTransferMonitor(dirQueue.front().first, "Crawling", entry_counter, 0);
     } // while readdirpp
-    
+
     if(tmp_err){
         Tool::errorPrint(&tmp_err);
         cerr << endl << "Error occured during listing  " << dirQueue.front().first << " Number of entries processed in current directory: " << entry_counter << ". Continuing..."<< endl;
@@ -149,13 +149,13 @@ static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::stri
     }
 
     entry_counter = 0;
-    
+
     pos.closedirpp(fd, NULL);
     dirQueue.pop_front();
 
     int num_of_ops = opQueue.size();
     int num_listing_ops = dirQueue.size();
-  
+
     // if endpoint is S3 then there is no need to crawl namespace recursively, since it's flat
     if (opts.params.getProtocol() != RequestProtocol::AwsS3){
         for(unsigned int i=0; i < dirQueue.size(); ++i){
@@ -176,16 +176,16 @@ static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::stri
     for(unsigned int i=0; i < opQueue.size(); ++i){
         //push op to task queue
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to (get) work queue, target is {} and destination is {}.", opQueue[i].first, opQueue[i].second);
-        
+
         entry_counter++;
 
         if(!opts.debug)
-            Tool::batchTransferMonitor(opQueue[i].first, "Populating (get) task queue for", entry_counter, num_of_ops);  
+            Tool::batchTransferMonitor(opQueue[i].first, "Populating (get) task queue for", entry_counter, num_of_ops);
 
         GetOp* op = new GetOp(opts, (opQueue[i].first), (opQueue[i].second), c);
         tq->pushOp(op);
     }
-        
+
     if(tmp_err){
         DavixError::propagateError(err, tmp_err);
         return -1;
@@ -198,39 +198,39 @@ static int preGetCheck(Tool::OptParams & opts, DavixError** err ) {
     Context c;
     configureContext(c, opts);
     File f(c, opts.vec_arg[0]);
-    struct stat st;    
+    struct stat st;
     DavixError* tmp_err=NULL;
-    
-    
+
+
     // Try to understand what to do
     // If the URL is for plain HTTP then we don't want to stat
     bool justgetfile = true;
-    
+
     if ( opts.vec_arg[0].compare(0, 4, "http") != 0 ) {
-        int r = f.stat(&opts.params, &st, &tmp_err);      
+        int r = f.stat(&opts.params, &st, &tmp_err);
         if (r && tmp_err) {
             DavixError::propagateError(err, tmp_err);
             return -1;
         }
-      
+
         if ( !r && (st.st_mode & S_IFDIR) && opts.params.getRecursiveMode()) justgetfile = false;
     }
-    
+
     if (justgetfile) {
         // target resource is a file or request protocol is http, just get it normally
         int out_fd= -1;
         if( ( (out_fd = get_output_get_fstream(opts, scope_get, opts.output_file_path, &tmp_err)) > 0)
                   && (Tool::configureMonitorCB(opts, Transfer::Read)) == 0) {
-          
+
             excute_get(c, opts, out_fd, opts.vec_arg[0], &tmp_err);
             Tool::flushFinalLineShell(out_fd);
             close(out_fd);
         }
     }
     else {
-        
+
         std::string url(opts.vec_arg[0]);
-        
+
         if (url[url.size()-1] != '/')
             url += '/';
 
@@ -238,19 +238,19 @@ static int preGetCheck(Tool::OptParams & opts, DavixError** err ) {
         if (opts.params.getProtocol() == RequestProtocol::AwsS3){
             opts.params.setS3ListingMode(S3ListingMode::SemiHierarchical);
             // unfortunately s3 defaults max-keys to 1000 and doesn't provide a way to disable the cap, set to large number
-            opts.params.setS3MaxKey(999999999); 
-        }        
+            opts.params.setS3MaxKey(999999999);
+        }
 
         DavixTaskQueue tq;  // for get ops
         DavixTaskQueue listing_tq;  // for listing ops
-        
-        // create threadpool instance 
+
+        // create threadpool instance
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Creating threadpool");
         DavixThreadPool tp(&tq, opts.threadpool_size);
         DavixThreadPool listing_tp(&listing_tq, opts.threadpool_size);
-        
+
         populateTaskQueue(c, opts, url, &tq, &listing_tq, &tmp_err);
-        
+
         // if both task queues are empty, then all work is done, stop workers. Otherwise wait.
         do{
             sleep(2);
@@ -259,8 +259,8 @@ static int preGetCheck(Tool::OptParams & opts, DavixError** err ) {
         listing_tp.shutdown();
         tp.shutdown();
         Tool::flushFinalLineShell(STDOUT_FILENO);
-    }    
-    
+    }
+
     if(tmp_err){
         DavixError::propagateError(err, tmp_err);
         return -1;

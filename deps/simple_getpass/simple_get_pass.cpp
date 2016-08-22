@@ -58,17 +58,17 @@ int simple_get_pass(char* passwd, size_t max_size){
 #elif HAVE_SETCONSOLEMODE
 	HANDLE hstdin = GetStdHandle(STD_INPUT_HANDLE);
 	DWORD mode;
-	
+
 	if (!GetConsoleMode(hstdin, &mode))
 		return -1;
 
 	if (hstdin == INVALID_HANDLE_VALUE || !(SetConsoleMode(hstdin, 0)))
-		return -1; 
+		return -1;
     std::cin.getline(passwd, max_size);
     ret = strlen(passwd);
-	
+
 	if (!SetConsoleMode(hstdin, mode))
-		return -1;		
+		return -1;
 #else
     char* p;
     if((p = getpass("")) == NULL)

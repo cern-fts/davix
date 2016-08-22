@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -73,10 +73,10 @@ namespace MetalinkMode{
 
 namespace S3ListingMode{
     enum S3ListingMode{
-        // Full hierarchical listing (depth is 1) 
+        // Full hierarchical listing (depth is 1)
         Hierarchical,
         // Semi-hierarchical listing (depth is infinity)
-        SemiHierarchical, 
+        SemiHierarchical,
         // Flat listing
         Flat
     };
@@ -84,10 +84,10 @@ namespace S3ListingMode{
 
 namespace CopyMode{
     enum CopyMode{
-        // source push to destination 
+        // source push to destination
         Push,
         // destination pull from source
-        Pull 
+        Pull
     };
 }
 

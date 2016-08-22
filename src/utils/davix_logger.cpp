@@ -1,6 +1,6 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013  
+ * Copyright (C) CERN 2013
  * Author: Adrien Devresse <adrien.devresse@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
@@ -30,8 +30,8 @@
 const int BUFFER_SIZE =4096;
 const char* prefix = "DAVIX";
 
-static int internal_log_level = 0;
-static int internal_log_scope = DAVIX_LOG_SCOPE_ALL;
+static boost::atomic<int> internal_log_level(0);
+static boost::atomic<int> internal_log_scope(DAVIX_LOG_SCOPE_ALL);
 
 static void (*_fhandler)(void* userdata, int mgs_level, const char* msg) = NULL;
 static void* _log_handler_userdata = NULL;
@@ -274,8 +274,3 @@ extern "C"  void davix_set_log_handler( void (*fhandler)(void* userdata, int mgs
     _fhandler = fhandler;
     _log_handler_userdata = userdata;
 }
-
-
-
-
-

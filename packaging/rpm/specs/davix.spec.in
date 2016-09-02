@@ -4,6 +4,8 @@
 # EL5 compat for boost, cmake
 %if 0%{?el5}
 %global boost_cmake_flags -DBOOST_INCLUDEDIR=/usr/include/boost141 -DBOOST_LIBRARYDIR=%{_libdir}/boost141
+%elseif 0%{?el6}
+%global boost_cmake_flags -DBOOST_INCLUDEDIR=/usr/include/boost148 -DBOOST_LIBRARYDIR=%{_libdir}/boost148
 %else
 %global boost_cmake_flags -DBOOST_INCLUDEDIR=/usr/include
 %endif
@@ -22,6 +24,9 @@ BuildRoot:			%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 #main lib dependencies
 %if 0%{?el5}
 BuildRequires:                  boost141-devel
+%elseif 0%{?el6}
+BuildRequires:                  boost148-devel
+BuildRequires:                  python-virtualenv
 %else
 BuildRequires:                  boost-devel
 BuildRequires:                  python-virtualenv

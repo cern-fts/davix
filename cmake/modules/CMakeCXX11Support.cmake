@@ -22,9 +22,6 @@ else(CMAKE_COMPILER_IS_GNUCXX)
    SET(CXX11_FLAG_ENABLE "-std=c++0x")
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
-# necessary to test C++11 featurs in CMakeCXX11Support.cmake
-SET(CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS} ${CXX11_FLAG_ENABLE}")
-
 ## Check TR1
 CHECK_CXX_SOURCE_COMPILES("
 #include <tr1/functional>

@@ -306,8 +306,16 @@ void NEONRequest::configureRequest(){
 
 
 void NEONRequest::configureS3params(){
-    Uri signed_url = S3::signURI(params, _request_type, *_current, _headers_field, NEON_S3_SIGN_DURATION);
-    _current= boost::shared_ptr<Uri>(new Uri(signed_url));
+    // strange workaround to get S3 compatibility on gcloud to work
+    if(params.getAwsRegion().empty()) {
+        HeaderVec vec = _headers_field;
+        S3::signRequest(params, _request_type, *_current, vec);
+        vec.swap(_headers_field);
+    }
+    else {
+        Uri signed_url = S3::signURI(params, _request_type, *_current, _headers_field, NEON_S3_SIGN_DURATION);
+        _current= boost::shared_ptr<Uri>(new Uri(signed_url));
+    }
 }
 
 // TODO: make static?

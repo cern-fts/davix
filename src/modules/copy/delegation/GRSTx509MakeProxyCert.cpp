@@ -90,6 +90,13 @@ static time_t GRSTasn1TimeToTimeT(const unsigned char *asn1time, size_t len)
 }
 
 
+#if OPENSSL_VERSION_NUMBER < 0x1000000fL
+int EVP_PKEY_base_id(const EVP_PKEY *pkey)
+{
+    return EVP_PKEY_type(pkey->type);
+}
+#endif
+
 int GRSTx509MakeProxyCert(char **proxychain, FILE *debugfp,
                           char *reqtxt, char *cert, char *key, int minutes)
 ///
@@ -382,7 +389,7 @@ int GRSTx509MakeProxyCert(char **proxychain, FILE *debugfp,
   X509_NAME_ENTRY_free(ent);
 
   /* sign the certificate with the signing private key */
-  if ( EVP_PKEY_base_id(CApkey) == EVP_PKEY_RSA)
+  if (EVP_PKEY_base_id(CApkey) == EVP_PKEY_RSA)
     digest = EVP_md5();
   else
     {

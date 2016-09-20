@@ -52,9 +52,3 @@ You can now try running an example command:
 
 ## Contact
 Suggestions and patches are more than welcome. You can send an email to the [davix-devel](mailto:davix-devel@cern.ch) CERN mailing list, or contact directly the [current maintainer](mailto:georgios.bitzes@cern.ch).
-
-## Contributors
-* Adrien Devresse
-* Fabrizio Furano
-* Kwong Tat Cheung
-* Georgios Bitzes

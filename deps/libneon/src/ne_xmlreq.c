@@ -1,4 +1,4 @@
-/* 
+/*
    XML/HTTP response handling
    Copyright (C) 2004-2006, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,7 +6,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -59,7 +59,7 @@ int ne_xml_parse_response(ne_request *req, ne_xml_parser *parser)
             return parse_error(ne_get_session(req), parser);
     } else {
         return NE_ERROR;
-    }    
+    }
 }
 
 /* Returns non-zero if given content-type is an XML media type,
@@ -68,7 +68,7 @@ static int media_type_is_xml(const ne_content_type *ctype)
 {
     size_t stlen;
 
-    return 
+    return
         (ne_strcasecmp(ctype->type, "text") == 0
          && ne_strcasecmp(ctype->subtype, "xml") == 0)
         || (ne_strcasecmp(ctype->type, "application") == 0
@@ -86,10 +86,10 @@ int ne_xml_dispatch_request(ne_request *req, ne_xml_parser *parser)
 
         ret = ne_begin_request(req);
         if (ret) break;
-        
+
         if (ne_get_status(req)->klass == 2) {
             ne_content_type ctype;
-            
+
             if (ne_get_content_type(req, &ctype) == 0) {
                 parseit = media_type_is_xml(&ctype);
                 ne_free(ctype.value);
@@ -100,7 +100,7 @@ int ne_xml_dispatch_request(ne_request *req, ne_xml_parser *parser)
             ret = ne_xml_parse_response(req, parser);
         else
             ret = ne_discard_response(req);
-        
+
         if (ret == NE_OK)
             ret = ne_end_request(req);
     } while (ret == NE_RETRY);

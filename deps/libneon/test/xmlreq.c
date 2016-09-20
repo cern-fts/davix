@@ -1,4 +1,4 @@
-/* 
+/*
    Test cases for the ne_xmlreq.h interface.
    Copyright (C) 2005-2006, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,12 +6,12 @@
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
-  
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-  
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
@@ -57,22 +57,22 @@ static int success(void)
     ne_xml_parser *parser;
     int flag = 0;
 
-    CALL(make_session(&sess, single_serve_string, 
+    CALL(make_session(&sess, single_serve_string,
                       "HTTP/1.1 200 OK\r\n"
                       "Content-Type: text/xml\r\n"
                       "Connection: close\r\n" "\r\n"
                       "<?xml version='1.0' encoding='UTF-8'?>\n"
                       "<hello/>"));
-    
+
     req = ne_request_create(sess, "PARSE", "/");
     parser = ne_xml_create();
 
     ne_xml_push_handler(parser, startelm, NULL, NULL, &flag);
-    
+
     ONREQ(ne_xml_dispatch_request(req, parser));
 
     ONN("XML parser not invoked", !flag);
-    
+
     ne_xml_destroy(parser);
     ne_request_destroy(req);
     ne_session_destroy(sess);
@@ -84,22 +84,22 @@ static int failure(void)
     ne_session *sess;
     ne_request *req;
     ne_xml_parser *parser;
-    
-    CALL(make_session(&sess, single_serve_string, 
+
+    CALL(make_session(&sess, single_serve_string,
                       "HTTP/1.1 200 OK\r\n"
                       "Content-Type: text/xml\r\n"
                       "Connection: close\r\n" "\r\n"
                       "<?xml version='1.0' encoding='UTF-8'?>\n"
                       "<hello>"));
-    
+
     req = ne_request_create(sess, "PARSE", "/");
     parser = ne_xml_create();
-    
+
     ONN("XML parse did not fail",
         ne_xml_dispatch_request(req, parser) == NE_OK);
 
     NE_DEBUG(NE_DBG_HTTP, "error string: %s\n", ne_get_error(sess));
-    
+
     ONV(strstr(ne_get_error(sess), "200 OK") != NULL,
         ("no error string set on parse error: '%s'", ne_get_error(sess)));
 
@@ -145,19 +145,19 @@ static int types(void)
                     ts[n].type);
 
         CALL(make_session(&sess, single_serve_string, resp));
-    
+
         req = ne_request_create(sess, "PARSE", "/");
         parser = ne_xml_create();
-        
+
         ne_xml_push_handler(parser, startelm, NULL, NULL, &flag);
-        
+
         ONREQ(ne_xml_dispatch_request(req, parser));
-        
+
         ONV(flag && !ts[n].is_xml,
             ("XML parser invoked for non-XML type: %s", ts[n].type));
         ONV(!flag && ts[n].is_xml,
             ("XML parser not invoked for XML type: %s", ts[n].type));
-        
+
         ne_xml_destroy(parser);
         ne_request_destroy(req);
         ne_session_destroy(sess);

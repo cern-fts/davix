@@ -44,21 +44,21 @@ struct ne_ssl_pkcs11_provider_s {
 
 /* To do list for PKCS#11 support:
 
-   - propagate error strings back to ne_session; use new 
+   - propagate error strings back to ne_session; use new
    pakchois_error() for pakchois API 0.2
    - add API to specify a particular slot number to use for clicert
    - add API to specify a particular cert ID for clicert
-   - find a certificate which has an issuer matching the 
+   - find a certificate which has an issuer matching the
      CA dnames given by GnuTLS
    - make sure subject name matches between pubkey and privkey
-   - check error handling & fail gracefully if the token is 
+   - check error handling & fail gracefully if the token is
    ejected mid-session
-   - add API to enumerate/search provided certs and allow 
+   - add API to enumerate/search provided certs and allow
      direct choice? (or just punt)
-   - the session<->provider interface requires that 
+   - the session<->provider interface requires that
    one clicert is used for all sessions.  remove this limitation
    - add API to import all CA certs as trusted
-   (CKA_CERTIFICATE_CATEGORY seems to be unused unfortunately; 
+   (CKA_CERTIFICATE_CATEGORY seems to be unused unfortunately;
     just add all X509 certs with CKA_TRUSTED set to true))
    - make DSA work
 
@@ -74,7 +74,7 @@ struct ne_ssl_pkcs11_provider_s {
 /* RSA_METHOD ->rsa_sign calback. */
 static int pk11_rsa_sign(int type,
                          const unsigned char *m, unsigned int mlen,
-                         unsigned char *sigret, unsigned int *siglen, 
+                         unsigned char *sigret, unsigned int *siglen,
                          const RSA *r)
 {
     ne_ssl_pkcs11_provider *prov = (ne_ssl_pkcs11_provider *)r->meth->app_data;
@@ -146,22 +146,22 @@ static RSA_METHOD *pk11_rsa_method(ne_ssl_pkcs11_provider *prov)
 
     m->name = "neon PKCS#11";
     m->rsa_sign = pk11_rsa_sign;
-    
+
     m->init = pk11_rsa_init;
     m->finish = pk11_rsa_finish;
-    
+
     /* This is hopefully under complete control of the RSA_METHOD,
      * otherwise there is nowhere to put this. */
     m->app_data = (char *)prov;
 
     m->flags = RSA_METHOD_FLAG_NO_CHECK;
-    
-    return m;    
+
+    return m;
 }
 #endif
 
 static int pk11_find_x509(ne_ssl_pkcs11_provider *prov,
-                          pakchois_session_t *pks, 
+                          pakchois_session_t *pks,
                           unsigned char *certid, unsigned long *cid_len)
 {
     struct ck_attribute a[3];
@@ -205,7 +205,7 @@ static int pk11_find_x509(ne_ssl_pkcs11_provider *prov,
 
         if (pakchois_get_attribute_value(pks, obj, a, 3) == CKR_OK) {
             ne_ssl_client_cert *cc;
-            
+
 #ifdef HAVE_GNUTLS
             cc = ne__ssl_clicert_exkey_import(value, a[0].value_len);
 #else
@@ -225,7 +225,7 @@ static int pk11_find_x509(ne_ssl_pkcs11_provider *prov,
     }
 
     pakchois_find_objects_final(pks);
-    return found;    
+    return found;
 }
 
 #ifdef HAVE_OPENSSL
@@ -235,7 +235,7 @@ static int pk11_find_x509(ne_ssl_pkcs11_provider *prov,
 #define KEYTYPE_IS_DSA(kt) (kt == CKK_DSA)
 #endif
 
-static int pk11_find_pkey(ne_ssl_pkcs11_provider *prov, 
+static int pk11_find_pkey(ne_ssl_pkcs11_provider *prov,
                           pakchois_session_t *pks,
                           unsigned char *certid, unsigned long cid_len)
 {
@@ -295,7 +295,7 @@ static int find_client_cert(ne_ssl_pkcs11_provider *prov,
     unsigned long cid_len = sizeof certid;
 
     /* TODO: match cert subject too. */
-    return pk11_find_x509(prov, pks, certid, &cid_len) 
+    return pk11_find_x509(prov, pks, certid, &cid_len)
         && pk11_find_pkey(prov, pks, certid, cid_len);
 }
 
@@ -341,7 +341,7 @@ static int pk11_sign_callback(gnutls_session_t session,
     signature->data = gnutls_malloc(siglen);
     signature->size = siglen;
 
-    rv = pakchois_sign(prov->session, hash->data, hash->size, 
+    rv = pakchois_sign(prov->session, hash->data, hash->size,
                        signature->data, &siglen);
     if (rv != CKR_OK) {
         NE_DEBUG(NE_DBG_SSL, "pk11: Sign2 failed.");
@@ -360,7 +360,7 @@ static void terminate_string(unsigned char *str, size_t len)
 
     while ((*ptr == ' ' || *ptr == '\t' || *ptr == '\0') && ptr >= str)
         ptr--;
-    
+
     if (ptr == str - 1)
         str[0] = '\0';
     else if (ptr == str + len - 1)
@@ -418,7 +418,7 @@ static int pk11_login(ne_ssl_pkcs11_provider *prov, ck_slot_id_t slot_id,
         /* If login has been attempted once already, check the token
          * status again, the flags might change. */
         if (attempt) {
-            if (pakchois_get_token_info(prov->module, slot_id, 
+            if (pakchois_get_token_info(prov->module, slot_id,
                                         &tinfo) != CKR_OK) {
                 NE_DEBUG(NE_DBG_SSL, "pk11: GetTokenInfo failed");
                 /* TODO: propagate error. */
@@ -430,7 +430,7 @@ static int pk11_login(ne_ssl_pkcs11_provider *prov, ck_slot_id_t slot_id,
             flags |= NE_SSL_P11PIN_COUNT_LOW;
         if (tinfo.flags & CKF_USER_PIN_FINAL_TRY)
             flags |= NE_SSL_P11PIN_FINAL_TRY;
-        
+
         terminate_string(tinfo.label, sizeof tinfo.label);
 
         if (prov->pin_fn(prov->pin_data, attempt++,
@@ -440,7 +440,7 @@ static int pk11_login(ne_ssl_pkcs11_provider *prov, ck_slot_id_t slot_id,
         }
 
         rv = pakchois_login(pks, CKU_USER, (unsigned char *)pin, strlen(pin));
-        
+
         /* Try to scrub the pin off the stack.  Clever compilers will
          * probably optimize this away, oh well. */
         memset(pin, 0, sizeof pin);
@@ -496,12 +496,12 @@ static void pk11_provide(void *userdata, ne_session *sess,
             NE_DEBUG(NE_DBG_SSL, "pk11: slot empty, ignoring");
             continue;
         }
-        
-        rv = pakchois_open_session(prov->module, slots[n], 
+
+        rv = pakchois_open_session(prov->module, slots[n],
                                    CKF_SERIAL_SESSION,
                                    NULL, NULL, &pks);
         if (rv != CKR_OK) {
-            NE_DEBUG(NE_DBG_SSL, "pk11: could not open slot, %ld (%ld: %ld)", 
+            NE_DEBUG(NE_DBG_SSL, "pk11: could not open slot, %ld (%ld: %ld)",
                      rv, n, slots[n]);
             continue;
         }
@@ -538,7 +538,7 @@ int ne_ssl_pkcs11_provider_init(ne_ssl_pkcs11_provider **provider,
                                 const char *name)
 {
     pakchois_module_t *pm;
-    
+
     if (pakchois_module_load(&pm, name) == CKR_OK) {
         return pk11_init(provider, pm);
     }
@@ -549,12 +549,12 @@ int ne_ssl_pkcs11_provider_init(ne_ssl_pkcs11_provider **provider,
 
 int ne_ssl_pkcs11_nss_provider_init(ne_ssl_pkcs11_provider **provider,
                                     const char *name, const char *directory,
-                                    const char *cert_prefix, 
+                                    const char *cert_prefix,
                                     const char *key_prefix,
                                     const char *secmod_db)
 {
     pakchois_module_t *pm;
-    
+
     if (pakchois_module_nssload(&pm, name, directory, cert_prefix,
                                 key_prefix, secmod_db) == CKR_OK) {
         return pk11_init(provider, pm);
@@ -572,7 +572,7 @@ void ne_ssl_pkcs11_provider_pin(ne_ssl_pkcs11_provider *provider,
     provider->pin_data = userdata;
 }
 
-void ne_ssl_set_pkcs11_provider(ne_session *sess, 
+void ne_ssl_set_pkcs11_provider(ne_session *sess,
                                 ne_ssl_pkcs11_provider *provider)
 {
 #ifdef HAVE_GNUTLS
@@ -605,7 +605,7 @@ int ne_ssl_pkcs11_provider_init(ne_ssl_pkcs11_provider **provider,
 
 int ne_ssl_pkcs11_nss_provider_init(ne_ssl_pkcs11_provider **provider,
                                     const char *name, const char *directory,
-                                    const char *cert_prefix, 
+                                    const char *cert_prefix,
                                     const char *key_prefix,
                                     const char *secmod_db)
 {

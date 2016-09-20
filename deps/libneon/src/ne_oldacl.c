@@ -76,7 +76,7 @@ static ne_buffer *acl_body(const ne_acl_entry *right, int count)
 	}
 
 	ne_buffer_concat(body, "</principal>" EOL "<", type, ">" EOL, NULL);
-	
+
 	if (right[m].read == 0)
 	    ne_buffer_concat(body,
 			     "<privilege>" "<read/>" "</privilege>" EOL,

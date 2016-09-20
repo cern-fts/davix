@@ -1,4 +1,4 @@
-/* 
+/*
    Tests for LFS support in neon
    Copyright (C) 2004-2006, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,12 +6,12 @@
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
-  
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-  
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
@@ -50,10 +50,10 @@ static int make_sparse_file(void)
 
     ONN("could not create large file " SPARSE, fd < 0);
     ONN("seek to point", lseek64(fd, point, SEEK_SET) != point);
-    ONN("could not write to file", 
+    ONN("could not write to file",
         write(fd, data, strlen(data)) != (ssize_t)strlen(data));
     ONN("close failed", close(fd));
-    
+
     return OK;
 }
 
@@ -69,7 +69,7 @@ static int serve_check_body(ne_socket *sock, void *userdata)
                     "\r\n");
     } else {
         char buf[20];
-        
+
         if (ne_sock_fullread(sock, buf, clength) == 0) {
             SEND_STRING(sock, "HTTP/1.0 200 OK Then!\r\n\r\n");
         }
@@ -87,7 +87,7 @@ static int send_high_offset(void)
     ONN("could not open sparse file", fd < 0);
 
     CALL(make_session(&sess, serve_check_body, NULL));
-    
+
     req = ne_request_create(sess, "PUT", "/sparse");
     ne_set_request_body_fd(req, fd, point, strlen(data));
     ret = ne_request_dispatch(req);
@@ -105,7 +105,7 @@ static int send_high_offset(void)
 #define RESPSTR "4295008256"
 #else
 #define RESPSIZE INT64_C(2147491840) /* 2^31+8192 */
-#define RESPSTR "2147491840" 
+#define RESPSTR "2147491840"
 #endif
 
 /* Reads a request, sends a large response, reads a request, then
@@ -117,11 +117,11 @@ static int serve_large_response(ne_socket *sock, void *ud)
 
     CALL(discard_request(sock));
 
-    SEND_STRING(sock, 
+    SEND_STRING(sock,
                 "HTTP/1.1 200 OK\r\n"
                 "Content-Length: " RESPSTR "\r\n"
                 "Server: BigFileServerTM\r\n" "\r\n");
-    
+
     memset(empty, 0, sizeof empty);
 
     for (n = 0; n < RESPSIZE/sizeof(empty); n++) {
@@ -132,12 +132,12 @@ static int serve_large_response(ne_socket *sock, void *ud)
     }
 
     NE_DEBUG(NE_DBG_SOCKET, "Wrote %d lots of %d\n", n, (int)sizeof empty);
-    
+
     CALL(discard_request(sock));
 
     SEND_STRING(sock, "HTTP/1.1 200 OK\r\n"
                 "Connection: close\r\n\r\n");
-    
+
     return 0;
 }
 
@@ -172,9 +172,9 @@ static int read_large_response(void)
 #ifdef NE_DEBUGGING
     ne_debug_init(ne_debug_stream, old_mask);
 #endif
-        
+
     ONV(ret, ("request failed: %s", ne_get_error(sess)));
-    ONV(count != RESPSIZE, 
+    ONV(count != RESPSIZE,
         ("response body was %" NE_FMT_OFF64_T " not %" NE_FMT_OFF64_T,
          count, RESPSIZE));
 

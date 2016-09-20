@@ -1,4 +1,4 @@
-/* 
+/*
    Dummy ACL tests
    Copyright (C) 2001-2003, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,12 +6,12 @@
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
-  
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-  
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
@@ -30,15 +30,15 @@ static int test_acl(const char *uri, ne_acl_entry *es, int nume)
 {
     ne_session *sess;
 
-    CALL(make_session(&sess, single_serve_string, 
+    CALL(make_session(&sess, single_serve_string,
 		      "HTTP/1.1 200 OK\r\n"
 		      "Connection: close\r\n\r\n"));
-    
+
     ON(ne_acl_set(sess, uri, es, nume));
-    
+
     CALL(await_server());
     ne_session_destroy(sess);
-    
+
     return OK;
 }
 
@@ -60,7 +60,7 @@ static int deny_all(void)
 
     e.apply = ne_acl_all;
     e.type = ne_acl_deny;
-    
+
     CALL(test_acl("/foo", &e, 1));
 
     return OK;
@@ -77,7 +77,7 @@ static int deny_one(void)
     CALL(test_acl("/foo", &e, 1));
 
     return OK;
-}       
+}
 
 static int deny_byprop(void)
 {

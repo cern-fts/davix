@@ -1,4 +1,4 @@
-/* 
+/*
    Stupidly simple test framework
    Copyright (C) 2001-2009, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,12 +6,12 @@
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
-  
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-  
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
@@ -103,7 +103,7 @@ void t_warning(const char *str, ...)
     warnings++;
     warned++;
     putchar('\n');
-}    
+}
 
 #define TEST_DEBUG \
 (NE_DBG_HTTP | NE_DBG_SOCKET | NE_DBG_HTTPBODY | NE_DBG_HTTPAUTH | \
@@ -118,7 +118,7 @@ W(m); if (use_colour) W("\033[00m\n"); } while (0);
 /* Signal handler for child processes. */
 static void child_segv(int signo)
 {
-    signal(SIGSEGV, SIG_DFL); 
+    signal(SIGSEGV, SIG_DFL);
     signal(SIGABRT, SIG_DFL);
     W_RED("Fatal signal in child!");
     kill(getpid(), SIGSEGV);
@@ -142,7 +142,7 @@ static void parent_segv(int signo)
 
 void in_child(void)
 {
-    ne_debug_init(child_debug, TEST_DEBUG);    
+    ne_debug_init(child_debug, TEST_DEBUG);
     NE_DEBUG(TEST_DEBUG, "**** Child forked for test %s ****\n", test_name);
     signal(SIGSEGV, child_segv);
     signal(SIGABRT, child_segv);
@@ -154,7 +154,7 @@ static const char dots[] = "......................";
 static void print_prefix(int n)
 {
     if (quiet) {
-        printf("\r%s%.*s %2u/%2u ", test_suite, 
+        printf("\r%s%.*s %2u/%2u ", test_suite,
                (int) (strlen(dots) - strlen(test_suite)), dots,
                n + 1, count);
     }
@@ -163,7 +163,7 @@ static void print_prefix(int n)
 	    printf("    %s ", dots);
         }
         else {
-            printf("\r%2d. %s%.*s ", n, test_name, 
+            printf("\r%2d. %s%.*s ", n, test_name,
                (int) (strlen(dots) - strlen(test_name)), dots);
         }
     }
@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
 {
     int n;
     char *tmp;
-    
+
     /* get basename(argv[0]) */
     test_suite = strrchr(argv[0], '/');
     if (test_suite == NULL) {
@@ -228,9 +228,9 @@ int main(int argc, char *argv[])
 
     /* enable debugging for real. */
     ne_debug_init(debug, TEST_DEBUG);
-    NE_DEBUG(TEST_DEBUG | NE_DBG_FLUSH, "Version string: %s\n", 
+    NE_DEBUG(TEST_DEBUG | NE_DBG_FLUSH, "Version string: %s\n",
              ne_version_string());
-    
+
     /* another silly test. */
     NE_DEBUG(0, "This message should also go to /dev/null");
 
@@ -245,7 +245,7 @@ int main(int argc, char *argv[])
 
     if (!quiet)
         printf("-> running `%s':\n", test_suite);
-    
+
     for (count = 0; tests[count].fn; count++)
         /* nullop */;
 
@@ -264,7 +264,7 @@ int main(int argc, char *argv[])
 	test_num = n;
 	warned = 0;
 	fflush(stdout);
-	NE_DEBUG(TEST_DEBUG, "******* Running test %d: %s ********\n", 
+	NE_DEBUG(TEST_DEBUG, "******* Running test %d: %s ********\n",
 		 n, test_name);
 
 	/* run the test. */
@@ -287,7 +287,7 @@ int main(int argc, char *argv[])
             fprintf(debug, "Blocks leaked (expected): ");
             ne_alloc_dump(debug);
             is_xleaky = 1;
-        } 
+        }
 #endif
 
         if (tests[n].flags & T_EXPECT_FAIL) {
@@ -306,11 +306,11 @@ int main(int argc, char *argv[])
 	case OK:
 	    passes++;
             if (is_xfail) {
-                COL("32;07"); 
+                COL("32;07");
                 printf("XFAIL");
             } else if (!quiet) {
-                COL("32"); 
-                printf("pass"); 
+                COL("32");
+                printf("pass");
             }
             NOCOL;
             if (quiet && is_xfail) {
@@ -371,7 +371,7 @@ int main(int argc, char *argv[])
 	}
 
 	reap_server();
-            
+
         if (quiet) {
             print_prefix(n);
         }
@@ -379,7 +379,7 @@ int main(int argc, char *argv[])
 
     /* discount skipped tests */
     if (skipped) {
-        if (!quiet) 
+        if (!quiet)
             printf("-> %d %s.\n", skipped,
                    skipped == 1 ? "test was skipped" : "tests were skipped");
 	n -= skipped;
@@ -392,18 +392,18 @@ int main(int argc, char *argv[])
             printf("<- all tests skipped for `%s'.\n", test_suite);
     } else {
         if (quiet) {
-            printf("\r%s%.*s %2u/%2u ", test_suite, 
+            printf("\r%s%.*s %2u/%2u ", test_suite,
                    (int) (strlen(dots) - strlen(test_suite)), dots,
                    passes, count);
             if (fails == 0) {
-                COL("32"); 
+                COL("32");
                 printf("passed");
                 NOCOL;
                 putchar(' ');
             }
             else {
                 printf("passed, %d failed ", fails);
-            }                       
+            }
             if (skipped)
                 printf("(%d skipped) ", skipped);
         }
@@ -413,11 +413,11 @@ int main(int argc, char *argv[])
                    test_suite, n, passes, fails, 100*(float)passes/n);
 	if (warnings) {
 	    if (quiet) {
-                printf("(%d warning%s)\n", warnings, 
+                printf("(%d warning%s)\n", warnings,
                        warnings==1?"s":"");
             }
             else {
-                printf("-> %d warning%s issued.\n", warnings, 
+                printf("-> %d warning%s issued.\n", warnings,
                        warnings==1?" was":"s were");
             }
         }
@@ -430,14 +430,14 @@ int main(int argc, char *argv[])
 	fprintf(stderr, "Error closing debug.log: %s\n", strerror(errno));
 	fails = 1;
     }
-       
+
     if (fclose(child_debug)) {
 	fprintf(stderr, "Error closing child.log: %s\n", strerror(errno));
 	fails = 1;
     }
 
     ne_sock_exit();
-    
+
     return fails;
 }
 

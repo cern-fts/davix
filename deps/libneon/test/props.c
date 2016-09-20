@@ -1,4 +1,4 @@
-/* 
+/*
    Tests for property handling
    Copyright (C) 2002-2008, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,12 +6,12 @@
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
-  
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-  
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
@@ -48,8 +48,8 @@ static int patch_simple(void)
 	{ &p_beta, ne_propremove, NULL },
 	{ NULL, ne_propset, NULL }
     };
-    
-    CALL(make_session(&sess, single_serve_string, 
+
+    CALL(make_session(&sess, single_serve_string,
 		      "HTTP/1.1 200 Goferit\r\n"
 		      "Connection: close\r\n\r\n"));
     ONREQ(ne_proppatch(sess, "/fish", ops));
@@ -68,13 +68,13 @@ static void dummy_results(void *ud, const ne_uri *uri,
 /* Regression tests for propfind bodies which caused segfaults. */
 static int regress(void)
 {
-    static const char *bodies[] = { 
+    static const char *bodies[] = {
 	RESP207 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
 	"<multistatus xmlns=\"DAV:\">"
 	"<response><propstat><prop><href>"
 	"</href></prop></propstat></response>"
 	"</multistatus>",
-	
+
 	/* segfaults with neon <= 0.23.5 */
 	RESP207 "<?xml version=\"1.0\"?><D:multistatus xmlns:D=\"DAV:\">"
 	"<D:response><D:href>/foo/</D:href>"
@@ -106,7 +106,7 @@ static int regress(void)
 
 static int patch_regress(void)
 {
-    static const char *bodies[] = { 
+    static const char *bodies[] = {
 	/* format string handling bugs with neon <= 0.24.4 */
 	RESP207 "<?xml version=\"1.0\"?><D:multistatus xmlns:D=\"DAV:\">"
 	"<D:response><D:href>/foo/</D:href>"
@@ -123,7 +123,7 @@ static int patch_regress(void)
     ne_session *sess;
     int n;
     static const ne_propname pn = { "DAV:", "foobar" };
-    ne_proppatch_operation pops[] = { 
+    ne_proppatch_operation pops[] = {
         { &pn, ne_propset, "fish" },
         { NULL, ne_propset, NULL }
     };
@@ -201,14 +201,14 @@ static int tos_startprop(void *userdata, int parent,
                          const char *nspace, const char *name,
                          const char **atts)
 {
-    if (parent == NE_207_STATE_PROP && 
-        strcmp(nspace, "DAV:") == 0 && 
+    if (parent == NE_207_STATE_PROP &&
+        strcmp(nspace, "DAV:") == 0 &&
         (strcmp(name, "propone") == 0 || strcmp(name, "proptwo") == 0)) {
         /* Handle this! */
         struct propctx *ctx = userdata;
         char *resphref = ne_207_get_current_response(ctx->p207);
         char *pstathref = ne_207_get_current_propstat(ctx->p207);
-        
+
         ne_buffer_concat(ctx->buf, "start-prop[", resphref, ",", pstathref,
                          ",", name, "];", NULL);
 
@@ -309,23 +309,23 @@ static int two_oh_seven(void)
           "start-resp[/foo];end-resp[/foo];" },
 
         /* test for response status handling */
-        { MULTI_207(RESP_207("/bar", STAT_207("200 OK"))), 
+        { MULTI_207(RESP_207("/bar", STAT_207("200 OK"))),
           "start-resp[/bar];end-resp[/bar]-status={200 OK};" },
 
         /* test that empty description == NULL description argument */
-        { MULTI_207(RESP_207("/bar", STAT_207("200 OK") DESCR_207(""))), 
+        { MULTI_207(RESP_207("/bar", STAT_207("200 OK") DESCR_207(""))),
           "start-resp[/bar];end-resp[/bar]-status={200 OK};" },
 
         /* test multiple responses */
         { MULTI_207(RESP_207("/hello/world", STAT_207("200 OK"))
-                    RESP_207("/foo/bar", STAT_207("999 French Fries"))), 
+                    RESP_207("/foo/bar", STAT_207("999 French Fries"))),
           "start-resp[/hello/world];end-resp[/hello/world]-status={200 OK};"
           "start-resp[/foo/bar];end-resp[/foo/bar]"
-          "-status={999 French Fries};" 
+          "-status={999 French Fries};"
         },
 
         /* test multiple propstats in mulitple responses */
-        { MULTI_207(RESP_207("/al/pha", 
+        { MULTI_207(RESP_207("/al/pha",
                              PSTAT_207(STAT_207("321 Une"))
                              PSTAT_207(STAT_207("432 Deux"))
                              PSTAT_207(STAT_207("543 Trois")))
@@ -364,14 +364,14 @@ static int two_oh_seven(void)
           "end-pstat[/pstat-1];end-resp[/pstat];" },
 
         /* tests for responsedescription handling */
-        { MULTI_207(RESP_207("/bar", STAT_207("200 OK") DESCR_207(DESCR_REM))), 
+        { MULTI_207(RESP_207("/bar", STAT_207("200 OK") DESCR_207(DESCR_REM))),
           "start-resp[/bar];end-resp[/bar]-status={200 OK}"
           "-descr={" DESCR_REM "};" },
 
         { MULTI_207(RESP_207("/bar",
                              PSTAT_207(STAT_207("456 Too Hungry")
                                        DESCR_207("Not enough food available"))
-                             STAT_207("200 OK") DESCR_207("Not " DESCR_REM))), 
+                             STAT_207("200 OK") DESCR_207("Not " DESCR_REM))),
           "start-resp[/bar];"
           "start-pstat[/bar-1];end-pstat[/bar-1]-status={456 Too Hungry}"
           "-descr={Not enough food available};"
@@ -379,12 +379,12 @@ static int two_oh_seven(void)
 
         /* intermingle some random elements and cdata to make sure
          * they are ignored. */
-        { MULTI_207("<D:fish-food/>blargl" 
+        { MULTI_207("<D:fish-food/>blargl"
                     RESP_207("/b<ping-pong/>ar", "<D:sausages/>"
-                             PSTAT_207("<D:hello-mum/>blergl") 
+                             PSTAT_207("<D:hello-mum/>blergl")
                              STAT_207("200 <pong-ping/> OK") "foop"
-                             DESCR_207(DESCR_REM) "carroon") 
-                    "carapi"), 
+                             DESCR_207(DESCR_REM) "carroon")
+                    "carapi"),
           "start-resp[/bar];start-pstat[/bar-1];end-pstat[/bar-1];"
           "end-resp[/bar]-status={200 OK}-descr={" DESCR_REM "};" },
 
@@ -405,7 +405,7 @@ static int two_oh_seven(void)
     size_t n;
 
     for (n = 0; n < sizeof(ts)/sizeof(ts[0]); n++)
-        CALL(run_207_response(ts[n][0], ts[n][1]));        
+        CALL(run_207_response(ts[n][0], ts[n][1]));
 
     return OK;
 }
@@ -417,11 +417,11 @@ static int simple_iterator(void *vbuf, const ne_propname *name,
     char code[20];
     ne_buffer *buf = vbuf;
 
-    ne_buffer_concat(buf, "prop:[{", name->nspace, ",", 
+    ne_buffer_concat(buf, "prop:[{", name->nspace, ",",
                      name->name, "}=", NULL);
     if (value)
         ne_buffer_concat(buf, "'", value, "'", NULL);
-    else 
+    else
         ne_buffer_zappend(buf, "#novalue#");
     sprintf(code, ":{%d ", st->code);
     if (st->reason_phrase)
@@ -444,10 +444,10 @@ static void simple_results(void *buf, const ne_uri *uri,
 static int diffcmp(const char *expected, const char *actual)
 {
     size_t n;
-    
+
     if (!strcmp(expected, actual)) return OK;
 
-    NE_DEBUG(NE_DBG_HTTP, 
+    NE_DEBUG(NE_DBG_HTTP,
              "diffcmp: Expect: [%s]\n"
              "diffcmp: Actual: [%s]\n",
              expected, actual);
@@ -485,19 +485,19 @@ static void pf_destructor(void *userdata, void *private)
     NE_DEBUG(NE_DBG_HTTP, "pf: Destructor at %s\n", cookie);
 
     ne_buffer_concat(buf, "destructor[", cookie, "]//", NULL);
-    
+
     ne_free(cookie);
 }
 
-  
-/* PROPFIND test type. */     
-enum pftype { 
+
+/* PROPFIND test type. */
+enum pftype {
     PF_SIMPLE, /* using ne_simple_propfind */
     PF_NAMED,  /* using ne_propfind_named */
     PF_ALLPROP /* using ne_propfind_allprop */
 };
 
-static int run_propfind(const ne_propname *props, char *resp, 
+static int run_propfind(const ne_propname *props, char *resp,
                         int depth, const char *expected, enum pftype type)
 {
     ne_session *sess;
@@ -511,12 +511,12 @@ static int run_propfind(const ne_propname *props, char *resp,
     }
     else {
         ne_propfind_handler *hdl;
-        
+
         hdl = ne_propfind_create(sess, "/propfind", depth);
 
         ne_propfind_set_private(hdl, pf_creator, pf_destructor,
                                 buf);
-        
+
         if (type == PF_NAMED) {
             ONREQ(ne_propfind_named(hdl, props, simple_results, buf));
         }
@@ -555,7 +555,7 @@ static int propfind(void)
           "results(/foop,prop:[{DAV:,fishbone}='hello, world':{212 Well OK}];)//",
           0, PF_SIMPLE },
         /* property with some nested elements. */
-        { FISHBONE_RESP("this is <foo/> a property <bar><lemon>fish</lemon></bar> value", 
+        { FISHBONE_RESP("this is <foo/> a property <bar><lemon>fish</lemon></bar> value",
                         "299 Just About OK"),
           "results(/foop,prop:[{DAV:,fishbone}="
           "'this is <foo></foo> a property "
@@ -564,7 +564,7 @@ static int propfind(void)
           0, PF_SIMPLE },
 
         /* failed to fetch a property. */
-        { FISHBONE_RESP("property value is ignored", 
+        { FISHBONE_RESP("property value is ignored",
                         "404 Il n'ya pas de property"),
           "results(/foop,prop:[{DAV:,fishbone}=#novalue#:"
           "{404 Il n'ya pas de property}];)//",
@@ -576,7 +576,7 @@ static int propfind(void)
         { MULTI_207(RESP_207("/alpha", PSTAT_207(APROP_207("fishbone", "unseen")))
                     RESP_207("/beta", PSTAT_207(APROP_207("fishbone", "hello, world")
                                                 STAT_207("200 OK")))),
-          "results(/beta,prop:[{DAV:,fishbone}='hello, world':{200 OK}];)//", 0, 
+          "results(/beta,prop:[{DAV:,fishbone}='hello, world':{200 OK}];)//", 0,
           PF_SIMPLE },
 #endif
 
@@ -597,7 +597,7 @@ static int propfind(void)
                                        "<D:status>\r\nHTTP/1.1 200 OK </D:status>"))),
           "results(/alpha,prop:[{DAV:,alpha}='beta':{200 OK}];)//",
           0, PF_SIMPLE},
-        
+
         /* attribute handling. */
         { MULTI_207(RESP_207("\r\nhttp://localhost:7777/alpha ",
                              PSTAT_207(PROPS_207("<D:alpha>"
@@ -605,7 +605,7 @@ static int propfind(void)
                                        "<D:status>\r\nHTTP/1.1 200 OK </D:status>"))),
           "results(/alpha,prop:[{DAV:,alpha}='<DAV:foo DAV:fee='bar' bar='fee'>beta</DAV:foo>':{200 OK}];)//",
           0, PF_SIMPLE},
-        
+
 
         /* "complex" propfinds. */
 
@@ -644,10 +644,10 @@ static int unbounded_response(const char *header, const char *repeats)
     dbg = ne_debug_mask;
 
     ONN("unbounded PROPFIND response did not fail",
-        ne_simple_propfind(sess, "/", 0, NULL, 
+        ne_simple_propfind(sess, "/", 0, NULL,
                            dummy_results, NULL) != NE_ERROR);
 
-    CALL(reap_server());    
+    CALL(reap_server());
     ne_session_destroy(sess);
     return OK;
 }
@@ -678,6 +678,6 @@ ne_test tests[] = {
     T(patch_regress),
     T(unbounded_props),
     T(unbounded_propstats),
-    T(NULL) 
+    T(NULL)
 };
 

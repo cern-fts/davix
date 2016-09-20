@@ -1,4 +1,4 @@
-/* 
+/*
    Tests for 3xx redirect interface (ne_redirect.h)
    Copyright (C) 2002-2003, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,12 +6,12 @@
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
-  
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-  
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
@@ -48,7 +48,7 @@ static int serve_redir(ne_socket *sock, void *ud)
 
     CALL(discard_request(sock));
 
-    ne_snprintf(buf, BUFSIZ, 
+    ne_snprintf(buf, BUFSIZ,
 		"HTTP/1.0 %d Get Ye Away\r\n"
 		"Content-Length: 0\r\n"
 		"Location: %s\r\n\n",
@@ -74,10 +74,10 @@ static int check_redir(struct redir_args *args, const char *expect)
     ne_session *sess;
     const ne_uri *loc;
     char *unp;
-    
+
     CALL(make_session(&sess, serve_redir, args));
     ne_redirect_register(sess);
-    
+
     CALL(process_redir(sess, args->path, &loc));
     ONN("redirect location was NULL", loc == NULL);
 
@@ -104,7 +104,7 @@ static int simple(void)
         {0, NULL, NULL}
     };
     int n;
-    
+
     for (n = 0; args[n].code; n++)
         CALL(check_redir(&args[n], DEST));
 
@@ -123,12 +123,12 @@ static int relative_1(void)
     struct redir_args args = {302, "norman", "/foo/bar"};
     return check_redir(&args, "http://localhost:7777/foo/norman");
 }
-    
+
 static int relative_2(void)
 {
     struct redir_args args = {302, "wishbone", "/foo/bar/"};
     return check_redir(&args, "http://localhost:7777/foo/bar/wishbone");
-}    
+}
 
 #if 0
 /* could implement failure on self-referential redirects, but
@@ -137,12 +137,12 @@ static int relative_2(void)
 static int fail_loop(void)
 {
     ne_session *sess;
-    
+
     CALL(make_session(&sess, serve_redir, "http://localhost:7777/foo/bar"));
 
     ne_redirect_register(sess);
 
-    ONN("followed looping redirect", 
+    ONN("followed looping redirect",
 	any_request(sess, "/foo/bar") != NE_ERROR);
 
     ne_session_destroy(sess);
@@ -161,7 +161,7 @@ static int no_redirect(void)
     ne_redirect_register(sess);
     ONN("initial redirect non-NULL", ne_redirect_location(sess));
 
-    CALL(spawn_server(7777, single_serve_string, 
+    CALL(spawn_server(7777, single_serve_string,
                       "HTTP/1.0 200 OK\r\n\r\n\r\n"));
     ONREQ(any_request(sess, "/noredir"));
     CALL(await_server());
@@ -184,6 +184,6 @@ ne_test tests[] = {
     T(relative_1),
     T(relative_2),
     T(no_redirect),
-    T(NULL) 
+    T(NULL)
 };
 

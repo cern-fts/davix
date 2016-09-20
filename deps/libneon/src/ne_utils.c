@@ -1,4 +1,4 @@
-/* 
+/*
    HTTP utility functions
    Copyright (C) 1999-2006, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,7 +6,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -64,10 +64,10 @@ void ne_debug_init(FILE *stream, int mask)
     /* If possible, turn off buffering on the debug log.  this is very
      * helpful if debugging segfaults. */
     if (stream) setvbuf(stream, NULL, _IONBF, 0);
-#endif        
+#endif
 }
 
-void ne_debug(int ch, const char *template, ...) 
+void ne_debug(int ch, const char *template, ...)
 {
     va_list params;
     if ((ch & ne_debug_mask) == 0) return;
@@ -82,7 +82,7 @@ void ne_debug(int ch, const char *template, ...)
 #define NE_STRINGIFY(x) # x
 #define NE_EXPAT_VER(x,y,z) NE_STRINGIFY(x) "." NE_STRINGIFY(y) "." NE_STRINGIFY(z)
 
-static const char version_string[] = "neon " NEON_VERSION ": " 
+static const char version_string[] = "neon " NEON_VERSION ": "
 #ifdef NEON_IS_LIBRARY
   "Library build"
 #else

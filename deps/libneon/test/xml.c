@@ -1,4 +1,4 @@
-/* 
+/*
    neon test suite
    Copyright (C) 2002-2007, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,12 +6,12 @@
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
-  
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-  
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
@@ -45,7 +45,7 @@ struct context {
     ne_xml_parser *parser;
 };
 
-/* A set of SAX handlers which serialize SAX events back into a 
+/* A set of SAX handlers which serialize SAX events back into a
  * pseudo-XML-like string. */
 static int startelm(void *userdata, int state,
                     const char *nspace, const char *name,
@@ -67,7 +67,7 @@ static int startelm(void *userdata, int state,
     else if (strncmp(name, EVAL_SPECIFIC, strlen(EVAL_SPECIFIC)) == 0) {
         const char *which = name + strlen(EVAL_SPECIFIC);
         const char *r = ne_xml_resolve_nspace(ctx->parser, which, strlen(which));
-        
+
         ne_buffer_concat(ctx->buf, name, "=[", r, "]", NULL);
         return NE_XML_DECLINE;
     }
@@ -132,17 +132,17 @@ static int startelm_state(void *userdata, int parent,
     for (n = 0; atts[n]; n += 2) {
         if (strcmp(atts[n], "parent") == 0) {
             int expected = atoi(atts[n+1]);
-            
+
             if (expected != parent) {
                 char err[50];
-                sprintf(err, "parent state of %s was %d not %d", name, parent, 
+                sprintf(err, "parent state of %s was %d not %d", name, parent,
                     expected);
                 ne_buffer_zappend(ctx->buf, err);
             }
         }
     }
 
-    return atoi(name+1);    
+    return atoi(name+1);
 }
 
 static int endelm_state(void *userdata, int state,
@@ -150,10 +150,10 @@ static int endelm_state(void *userdata, int state,
 {
     int expected = atoi(name + 1);
     struct context *ctx = userdata;
-    
+
     if (state != expected)
         ne_buffer_concat(ctx->buf, "wrong state in endelm of ", name, NULL);
-    
+
     return 0;
 }
 
@@ -193,7 +193,7 @@ enum match_type {
     match_chunked /* parse the document one byte at a time */
 };
 
-static int parse_match(const char *doc, const char *result, 
+static int parse_match(const char *doc, const char *result,
                        enum match_type t)
 {
     const char *origdoc = doc;
@@ -201,7 +201,7 @@ static int parse_match(const char *doc, const char *result,
     ne_buffer *buf = ne_buffer_create();
     int ret;
     struct context ctx;
-    
+
     ctx.buf = buf;
     ctx.parser = p;
 
@@ -225,24 +225,24 @@ static int parse_match(const char *doc, const char *result,
         ne_xml_parse(p, "", 0);
     }
 
-    ONV(ret != ne_xml_failed(p), 
+    ONV(ret != ne_xml_failed(p),
         ("'%s': ne_xml_failed gave %d not %d", origdoc, ne_xml_failed(p), ret));
 
     if (t == match_invalid)
-        ONV(ret != ABORT, 
-            ("for '%s': parse got %d not abort failure: %s", origdoc, ret, 
+        ONV(ret != ABORT,
+            ("for '%s': parse got %d not abort failure: %s", origdoc, ret,
              buf->data));
     else
         ONV(ret, ("for '%s': parse failed: %s", origdoc, ne_xml_get_error(p)));
-    
+
     if (t == match_encoding) {
         const char *enc = ne_xml_doc_encoding(p);
-        ONV(strcmp(enc, result), 
+        ONV(strcmp(enc, result),
             ("for '%s': encoding was `%s' not `%s'", origdoc, enc, result));
     }
     else if (t == match_valid || t == match_chunked) {
         ONV(strcmp(result, buf->data),
-            ("for '%s': result mismatch: %s not %s", origdoc, buf->data, 
+            ("for '%s': result mismatch: %s not %s", origdoc, buf->data,
              result));
     }
 
@@ -260,7 +260,7 @@ static int matches(void)
 	const char *in, *out;
         enum match_type invalid;
     } ms[] = {
-        
+
         /*** Simplest tests ***/
 	{ PFX "<hello/>", "<{}hello></{}hello>"},
 	{ PFX "<hello foo='bar'/>",
@@ -281,7 +281,7 @@ static int matches(void)
 
 	/*** Tests for namespace handling. ***/
 #define NSA "xmlns:foo='bar'"
-	{ PFX "<foo:widget " NSA "/>", 
+	{ PFX "<foo:widget " NSA "/>",
 	  "<{bar}widget " NSA ">"
 	  "</{bar}widget>" },
 	/* inherited namespace expansion. */
@@ -289,17 +289,17 @@ static int matches(void)
 	  "<{}widget " NSA ">" E("bar", "norman") "</{}widget>"},
 	{ PFX "<widget " NSA " xmlns:abc='def' xmlns:g='z'>"
           "<foo:norman/></widget>",
-	  "<{}widget " NSA " xmlns:abc='def' xmlns:g='z'>" 
+	  "<{}widget " NSA " xmlns:abc='def' xmlns:g='z'>"
           E("bar", "norman") "</{}widget>"},
 	/* empty namespace default takes precedence. */
 	{ PFX "<widget xmlns='foo'><smidgen xmlns=''><norman/>"
 	  "</smidgen></widget>",
-	  "<{foo}widget xmlns='foo'><{}smidgen xmlns=''>" 
-	  E("", "norman") 
+	  "<{foo}widget xmlns='foo'><{}smidgen xmlns=''>"
+	  E("", "norman")
 	  "</{}smidgen></{foo}widget>" },
         /* inherited empty namespace default */
         { PFX "<bar xmlns='foo'><grok xmlns=''><fish/></grok></bar>",
-          "<{foo}bar xmlns='foo'><{}grok xmlns=''>" 
+          "<{foo}bar xmlns='foo'><{}grok xmlns=''>"
           E("", "fish") "</{}grok></{foo}bar>" },
 
 	/* regression test for neon <= 0.23.5 with libxml2, where the
@@ -313,7 +313,7 @@ static int matches(void)
         { PFX "<hello><decline>fish</decline>"
           "<world><decline/>yes</world>goodbye<decline/></hello>",
           "<{}hello><{}world>yes</{}world>goodbye</{}hello>" },
-        { PFX 
+        { PFX
           "<hello><decline><nested>fish</nested>bar</decline><fish/></hello>",
           "<{}hello>" E("", "fish") "</{}hello>" },
         /* tests for nested SAX handlers */
@@ -489,7 +489,7 @@ static int fail_parse(void)
 
         ne_xml_parse(p, docs[n], strlen(docs[n]));
         ne_xml_parse(p, "", 0);
-        ONV(ne_xml_failed(p) <= 0, 
+        ONV(ne_xml_failed(p) <= 0,
             ("`%s' did not get positive parse error", docs[n]));
 
         err = ne_xml_get_error(p);
@@ -497,14 +497,14 @@ static int fail_parse(void)
         ONV(strstr(err, "parse error") == NULL
             && strstr(err, "Invalid Byte Order Mark") == NULL,
             ("bad error %s", err));
-        
+
         ne_xml_destroy(p);
     }
 
     return OK;
 }
 
-static int check_attrib(ne_xml_parser *p, const char **atts, 
+static int check_attrib(ne_xml_parser *p, const char **atts,
                         const char *nspace, const char *name,
                         const char *value)
 {
@@ -535,7 +535,7 @@ static int startelm_attrib(void *userdata, int state,
                            const char **atts)
 {
     ne_xml_parser *p = userdata;
-    
+
     if (strcmp(name, "hello") == 0) {
         CALL(check_attrib(p, atts, NULL, "first", "second"));
         CALL(check_attrib(p, atts, NULL, "third", ""));
@@ -575,17 +575,17 @@ static int errors(void)
 {
     ne_xml_parser *p = ne_xml_create();
     const char *err;
-    
+
     ONV(strcmp(ne_xml_get_error(p), "Unknown error") != 0,
         ("initial error string unspecified"));
 
     ne_xml_set_error(p, "Fish food");
     err = ne_xml_get_error(p);
-    
+
     ONV(strcmp(err, "Fish food"), ("wrong error %s!", err));
 
     ne_xml_destroy(p);
-    return 0;        
+    return 0;
 }
 
 ne_test tests[] = {

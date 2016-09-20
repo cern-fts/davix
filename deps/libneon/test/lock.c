@@ -1,4 +1,4 @@
-/* 
+/*
    lock tests
    Copyright (C) 2002-2006, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,12 +6,12 @@
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
-  
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-  
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
@@ -49,7 +49,7 @@ static char *activelock(enum ne_lock_scope scope,
 			const char *token_href)
 {
     static char buf[BUFSIZ];
-    
+
     ne_snprintf(buf, BUFSIZ,
 		"<D:activelock>\n"
 		"<D:locktype><D:write/></D:locktype>\n"
@@ -63,7 +63,7 @@ static char *activelock(enum ne_lock_scope scope,
 		depth, owner, timeout, token_href);
 
     return buf;
-}	
+}
 
 /* return body of LOCK response for given lock. */
 static char *lock_response(enum ne_lock_scope scope,
@@ -73,7 +73,7 @@ static char *lock_response(enum ne_lock_scope scope,
 			   const char *token_href)
 {
     static char buf[BUFSIZ];
-    sprintf(buf, 
+    sprintf(buf,
 	    "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
 	    "<D:prop xmlns:D=\"DAV:\">"
 	    "<D:lockdiscovery>%s</D:lockdiscovery></D:prop>\n",
@@ -92,7 +92,7 @@ static char *multi_lock_response(struct ne_lock **locks)
 		      "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
 		      "<D:prop xmlns:D=\"DAV:\">"
 		      "<D:lockdiscovery>");
-    
+
     for (n = 0; locks[n] != NULL; n++) {
 	char *lk = activelock(locks[n]->scope, locks[n]->depth,
 			      locks[n]->owner, locks[n]->timeout,
@@ -156,7 +156,7 @@ static int store_single(void)
 
     ONN("lock not found by URI", lk2 == NULL);
     ONN("other lock found by URI", lk2 != lk);
-    
+
     ne_lockstore_remove(store, lk);
 
     ONN("store not empty after removing lock",
@@ -167,7 +167,7 @@ static int store_single(void)
 
     ne_lockstore_destroy(store);
     ne_lock_destroy(lk);
-    
+
     return OK;
 }
 
@@ -198,7 +198,7 @@ static int store_several(void)
 	ne_lockstore_findbyuri(store, &lk->uri) != lk);
     ONN("second find failed",
 	ne_lockstore_findbyuri(store, &lk2->uri) != lk2);
-    
+
     ne_lockstore_remove(store, lk);
     ne_lock_destroy(lk);
 
@@ -213,7 +213,7 @@ static int store_several(void)
 	ne_lockstore_first(store) != NULL);
 
     ne_lockstore_destroy(store);
-    
+
     return OK;
 }
 
@@ -256,7 +256,7 @@ static const char *verify_if_expect;
 static void got_if_header(char *value)
 {
     verify_if = !strcmp(verify_if_expect, value);
-    NE_DEBUG(NE_DBG_HTTP, "Verified If header, %d: got [%s] expected [%s]\n", 
+    NE_DEBUG(NE_DBG_HTTP, "Verified If header, %d: got [%s] expected [%s]\n",
 	     verify_if, value, verify_if_expect);
 }
 
@@ -277,9 +277,9 @@ static int serve_verify_if(ne_socket *sock, void *userdata)
     } else {
 	ON(SEND_STRING(sock, "HTTP/1.1 403 Wrong If Header" EOL));
     }
-    
+
     ON(SEND_STRING(sock, "Connection: close" EOL EOL));
-    
+
     return OK;
 }
 
@@ -302,7 +302,7 @@ static int do_request(ne_session *sess, const char *path, int depth,
 
     ONV(ne_get_status(req)->code != 200,
 	("request failed: %s", ne_get_error(sess)));
-    
+
     ne_request_destroy(req);
 
     return OK;
@@ -321,8 +321,8 @@ static int submit_test(const char *lockpath, int lockdepth,
     struct ne_lock *lk = ne_lock_create();
     char *expect_if;
     int ret;
-    
-    expect_if = ne_concat("<http://localhost:7777", lockpath, 
+
+    expect_if = ne_concat("<http://localhost:7777", lockpath,
 			  "> (<somelocktoken>)", NULL);
     CALL(make_session(&sess, serve_verify_if, expect_if));
     ne_free(expect_if);
@@ -331,7 +331,7 @@ static int submit_test(const char *lockpath, int lockdepth,
     lk->uri.path = ne_strdup(lockpath);
     lk->token = ne_strdup("somelocktoken");
     lk->depth = lockdepth;
-    
+
     /* register the lock store, and add our lock for "/foo" to it. */
     ne_lockstore_register(store, sess);
     ne_lockstore_add(store, lk);
@@ -401,7 +401,7 @@ static int lock_compare(const char *ctx,
     ONV(ne_uri_cmp(&a->uri, &b->uri) != 0,
 	("URI comparison failed for %s: %s not %s", ctx,
 	 ne_uri_unparse(&a->uri), ne_uri_unparse(&b->uri)));
-    ONV(a->depth != b->depth, 
+    ONV(a->depth != b->depth,
 	("%s depth was %d not %d", ctx, a->depth, b->depth));
     ONV(a->scope != b->scope,
 	("%s scope was %d not %d", ctx, a->scope, b->scope));
@@ -423,7 +423,7 @@ static int discover(void)
     char *response;
     int ret;
     struct result_args args;
-    
+
     args.lock = ne_lock_create();
 
     args.lock->owner = ne_strdup("someowner");
@@ -461,7 +461,7 @@ static int lock_shared(void)
 (l)->owner = strdup("owner " s); \
 (l)->uri.path = strdup("/" s); (l)->uri.host = strdup("localhost"); \
 (l)->uri.scheme = strdup("http"); (l)->uri.port = 7777; } while (0)
-    
+
     resplocks[0] = ne_lock_create();
     resplocks[1] = ne_lock_create();
     resplocks[2] = NULL;
@@ -471,7 +471,7 @@ static int lock_shared(void)
     resplocks[1]->timeout = 200;
 
     rbody = multi_lock_response(resplocks);
-    
+
     resp = ne_concat("HTTP/1.1 200 OK\r\n" "Server: neon-test-server\r\n"
 		     "Content-type: application/xml" EOL
 		     "Lock-Token: <opaquelocktoken:beta>" EOL
@@ -490,7 +490,7 @@ static int lock_shared(void)
     CALL(await_server());
 
     CALL(lock_compare("returned lock", resplocks[1], lock));
-    
+
     ne_session_destroy(sess);
     ne_lock_destroy(lock);
     ne_lock_destroy(resplocks[0]);
@@ -510,14 +510,14 @@ static int fail_discover(void)
 {
     ne_session *sess;
     int ret;
-    
-    CALL(make_session(&sess, single_serve_string, 
+
+    CALL(make_session(&sess, single_serve_string,
                       "HTTP/1.0 207 OK\r\n" "Connection: close\r\n" "\r\n"
                       "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                       "<D:multistatus xmlns:D='DAV:'>\n"
                       "<D:response><D:href>/foo/bar</D:href><D:propstat>\n"
                       "</parse this, my friend>\n"));
-    
+
     ret = ne_lock_discover(sess, "/foo", dummy_discover, NULL);
     CALL(await_server());
 
@@ -594,8 +594,8 @@ static int fail_noheader(void)
 
     ret = ne_lock(sess, lock);
     ONN("LOCK request did not fail", ret != NE_ERROR);
-    
-    ONV(strstr(ne_get_error(sess), 
+
+    ONV(strstr(ne_get_error(sess),
                "LOCK response missing Lock-Token header") == NULL,
         ("unexpected error: %s", ne_get_error(sess)));
 

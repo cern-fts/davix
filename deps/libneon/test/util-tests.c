@@ -1,4 +1,4 @@
-/* 
+/*
    utils tests
    Copyright (C) 2001-2006, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,12 +6,12 @@
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
-  
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-  
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
@@ -74,7 +74,7 @@ static const char *bad_sl[] = {
     "HTTP",
     "H\0TP/1.1 100 OK",
     NULL
-};  
+};
 
 static int status_lines(void)
 {
@@ -87,13 +87,13 @@ static int status_lines(void)
 	ONV(accept_sl[n].major != s.major_version, ("valid #%d: major", n));
 	ONV(accept_sl[n].minor != s.minor_version, ("valid #%d: minor", n));
 	ONV(accept_sl[n].code != s.code, ("valid #%d: code", n));
-	ONV(strcmp(accept_sl[n].rp, s.reason_phrase), 
+	ONV(strcmp(accept_sl[n].rp, s.reason_phrase),
 	    ("valid #%d: reason phrase", n));
         ne_free(s.reason_phrase);
     }
-    
+
     for (n = 0; bad_sl[n] != NULL; n++) {
-	ONV(ne_parse_statusline(bad_sl[n], &s) == 0, 
+	ONV(ne_parse_statusline(bad_sl[n], &s) == 0,
 	    ("invalid #%d", n));
     }
 
@@ -129,7 +129,7 @@ static int md5(void)
 
     ne_md5_to_ascii(digest_md5("", 0, buf), ascii);
     ONN("MD5(null)", strcmp(ascii, "d41d8cd98f00b204e9800998ecf8427e"));
-    
+
     ne_md5_to_ascii(digest_md5("foobar", 7, buf), ascii);
     ONN("MD5(foobar)", strcmp(ascii, "b4258860eea29e875e2ee4019763b2bb"));
 
@@ -141,7 +141,7 @@ static int md5(void)
 
     ne_ascii_to_md5(ascii, (unsigned char *)buf2);
     ON(memcmp(buf, buf2, 16));
-    
+
     return OK;
 }
 
@@ -191,9 +191,9 @@ static int parse_dates(void)
 	case d_rfc1123: res = ne_rfc1123_parse(str); break;
 	default: res = -1; break;
 	}
-	
+
 	ONV(res == -1, ("date %d parse", n));
-	
+
 #define FT "%" NE_FMT_TIME_T
 	ONV(res != good_dates[n].time, (
 	    "date %d incorrect (" FT " not " FT ")", n,
@@ -210,7 +210,7 @@ static int regress_dates(void)
         "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
     };
     size_t n;
-    
+
     for (n = 0; n < sizeof(dates)/sizeof(dates[0]); n++) {
         ne_rfc1036_parse(dates[n]);
         ne_iso8601_parse(dates[n]);
@@ -248,15 +248,15 @@ static int versioning(void)
 static int version_string(void)
 {
     char buf[1024];
-    
+
     ne_snprintf(buf, sizeof buf, "%s", ne_version_string());
-    
+
     NE_DEBUG(NE_DBG_HTTP, "Version string: %s\n", buf);
 
     ONN("version string too long", strlen(buf) > 200);
     ONN("version string contained newline", strchr(buf, '\n') != NULL);
 
-    return OK;    
+    return OK;
 }
 
 static int support(void)
@@ -282,17 +282,17 @@ static int support(void)
     ONN("LFS support advertised", ne_has_support(NE_FEATURE_LFS));
 #endif
 #ifdef NE_HAVE_TS_SSL
-    ONN("Thread-safe SSL support not advertised", 
+    ONN("Thread-safe SSL support not advertised",
         !ne_has_support(NE_FEATURE_TS_SSL));
 #else
-    ONN("Thread-safe SSL support advertised", 
+    ONN("Thread-safe SSL support advertised",
         ne_has_support(NE_FEATURE_TS_SSL));
 #endif
 #ifdef NE_HAVE_I18N
-    ONN("i18n support not advertised", 
+    ONN("i18n support not advertised",
         !ne_has_support(NE_FEATURE_I18N));
 #else
-    ONN("i18n SSL support advertised", 
+    ONN("i18n SSL support advertised",
         ne_has_support(NE_FEATURE_I18N));
 #endif
     return OK;

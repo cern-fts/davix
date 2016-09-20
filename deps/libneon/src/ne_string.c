@@ -1,4 +1,4 @@
-/* 
+/*
    String utility functions
    Copyright (C) 1999-2007, 2009, Joe Orton <joe@manyfish.co.uk>
    strcasecmp/strncasecmp implementations are:
@@ -9,7 +9,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -50,7 +50,7 @@ char *ne_token(char **str, char separator)
 	/* no separator found: return end of string. */
 	*str = NULL;
     }
-    
+
     return ret;
 }
 
@@ -60,15 +60,15 @@ char *ne_qtoken(char **str, char separator, const char *quotes)
 
     for (pnt = *str; *pnt != '\0'; pnt++) {
 	char *quot = strchr(quotes, *pnt);
-	
+
 	if (quot) {
 	    char *qclose = strchr(pnt+1, *quot);
-	    
+
 	    if (!qclose) {
 		/* no closing quote: invalid string. */
 		return NULL;
 	    }
-	    
+
 	    pnt = qclose;
 	} else if (*pnt == separator) {
 	    /* found end of token. */
@@ -95,7 +95,7 @@ char *ne_shave(char *str, const char *whitespace)
 
     /* pnt points at the NUL terminator. */
     pnt = &ret[strlen(ret)];
-    
+
     while (pnt > ret && strchr(whitespace, *(pnt-1)) != NULL) {
 	pnt--;
     }
@@ -104,20 +104,20 @@ char *ne_shave(char *str, const char *whitespace)
     return ret;
 }
 
-void ne_buffer_clear(ne_buffer *buf) 
+void ne_buffer_clear(ne_buffer *buf)
 {
     memset(buf->data, 0, buf->length);
     buf->used = 1;
-}  
+}
 
 /* Grows for given size, returns 0 on success, -1 on error. */
-void ne_buffer_grow(ne_buffer *buf, size_t newsize) 
+void ne_buffer_grow(ne_buffer *buf, size_t newsize)
 {
 #define NE_BUFFER_GROWTH 512
     if (newsize > buf->length) {
 	/* If it's not big enough already... */
 	buf->length = ((newsize / NE_BUFFER_GROWTH) + 1) * NE_BUFFER_GROWTH;
-	
+
 	/* Reallocate bigger buffer */
 	buf->data = ne_realloc(buf->data, buf->length);
     }
@@ -134,7 +134,7 @@ static size_t count_concat(va_list *ap)
     return total;
 }
 
-static void do_concat(char *str, va_list *ap) 
+static void do_concat(char *str, va_list *ap)
 {
     char *next;
 
@@ -156,14 +156,14 @@ void ne_buffer_concat(ne_buffer *buf, ...)
 
     va_start(ap, buf);
     total = buf->used + count_concat(&ap);
-    va_end(ap);    
+    va_end(ap);
 
     /* Grow the buffer */
     ne_buffer_grow(buf, total);
-    
-    va_start(ap, buf);    
+
+    va_start(ap, buf);
     do_concat(buf->data + buf->used - 1, &ap);
-    va_end(ap);    
+    va_end(ap);
 
     buf->used = total;
     buf->data[total - 1] = '\0';
@@ -186,17 +186,17 @@ char *ne_concat(const char *str, ...)
     va_end(ap);
 
     ret[total] = '\0';
-    return ret;    
+    return ret;
 }
 
 /* Append zero-terminated string... returns 0 on success or -1 on
  * realloc failure. */
-void ne_buffer_zappend(ne_buffer *buf, const char *str) 
+void ne_buffer_zappend(ne_buffer *buf, const char *str)
 {
     ne_buffer_append(buf, str, strlen(str));
 }
 
-void ne_buffer_append(ne_buffer *buf, const char *data, size_t len) 
+void ne_buffer_append(ne_buffer *buf, const char *data, size_t len)
 {
     ne_buffer_grow(buf, buf->used + len);
     memcpy(buf->data + buf->used - 1, data, len);
@@ -216,15 +216,15 @@ size_t ne_buffer_snprintf(ne_buffer *buf, size_t max, const char *fmt, ...)
     va_end(ap);
     buf->used += ret;
 
-    return ret;    
+    return ret;
 }
 
-ne_buffer *ne_buffer_create(void) 
+ne_buffer *ne_buffer_create(void)
 {
     return ne_buffer_ncreate(512);
 }
 
-ne_buffer *ne_buffer_ncreate(size_t s) 
+ne_buffer *ne_buffer_ncreate(size_t s)
 {
     ne_buffer *buf = ne_malloc(sizeof(*buf));
     buf->data = ne_malloc(s);
@@ -234,7 +234,7 @@ ne_buffer *ne_buffer_ncreate(size_t s)
     return buf;
 }
 
-void ne_buffer_destroy(ne_buffer *buf) 
+void ne_buffer_destroy(ne_buffer *buf)
 {
     ne_free(buf->data);
     ne_free(buf);
@@ -256,21 +256,21 @@ void ne_buffer_altered(ne_buffer *buf)
 /* ascii_quote[n] gives the number of bytes needed by
  * ne_buffer_qappend() to append character 'n'. */
 static const unsigned char ascii_quote[256] = {
-    4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 
-    4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 
-    4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 
-    4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 
-    4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 
-    4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 
-    4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 
-    4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 
-    4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 
+    4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+    4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4,
+    4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+    4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+    4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+    4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+    4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+    4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+    4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
     4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
 };
 
@@ -278,22 +278,22 @@ static const char hex_chars[16] = "0123456789ABCDEF";
 
 /* Return the expected number of bytes needed to append the string
  * beginning at byte 's', where 'send' points to the last byte after
- * 's'. */ 
+ * 's'. */
 static size_t qappend_count(const unsigned char *s, const unsigned char *send)
 {
     const unsigned char *p;
     size_t ret;
-    
+
     for (p = s, ret = 0; p < send; p++) {
         ret += ascii_quote[*p];
     }
 
     return ret;
-}       
+}
 
 /* Append the string 's', up to but not including 'send', to string
  * 'dest', quoting along the way.  Returns pointer to NUL. */
-static char *quoted_append(char *dest, const unsigned char *s, 
+static char *quoted_append(char *dest, const unsigned char *s,
                            const unsigned char *send)
 {
     const unsigned char *p;
@@ -313,7 +313,7 @@ static char *quoted_append(char *dest, const unsigned char *s,
 
     /* NUL terminate after the last character */
     *q = '\0';
-    
+
     return q;
 }
 
@@ -328,7 +328,7 @@ void ne_buffer_qappend(ne_buffer *buf, const unsigned char *data, size_t len)
     qs = buf->data + buf->used - 1;
 
     q = quoted_append(qs, data, dend);
-    
+
     /* used already accounts for a NUL, so increment by number of
      * characters appended, *before* the NUL. */
     buf->used += q - qs;
@@ -344,33 +344,33 @@ char *ne_strnqdup(const unsigned char *data, size_t len)
     return dest;
 }
 
-static const char b64_alphabet[] =  
+static const char b64_alphabet[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "abcdefghijklmnopqrstuvwxyz"
     "0123456789+/=";
-    
+
 char *ne_base64(const unsigned char *text, size_t inlen)
 {
     /* The tricky thing about this is doing the padding at the end,
      * doing the bit manipulation requires a bit of concentration only */
     char *buffer, *point;
     size_t outlen;
-    
+
     /* Use 'buffer' to store the output. Work out how big it should be...
      * This must be a multiple of 4 bytes */
 
     outlen = (inlen*4)/3;
     if ((inlen % 3) > 0) /* got to pad */
 	outlen += 4 - (inlen % 3);
-    
+
     buffer = ne_malloc(outlen + 1); /* +1 for the \0 */
-    
+
     /* now do the main stage of conversion, 3 bytes at a time,
      * leave the trailing bytes (if there are any) for later */
 
     for (point=buffer; inlen>=3; inlen-=3, text+=3) {
-	*(point++) = b64_alphabet[ (*text)>>2 ]; 
-	*(point++) = b64_alphabet[ ((*text)<<4 & 0x30) | (*(text+1))>>4 ]; 
+	*(point++) = b64_alphabet[ (*text)>>2 ];
+	*(point++) = b64_alphabet[ ((*text)<<4 & 0x30) | (*(text+1))>>4 ];
 	*(point++) = b64_alphabet[ ((*(text+1))<<2 & 0x3c) | (*(text+2))>>6 ];
 	*(point++) = b64_alphabet[ (*(text+2)) & 0x3f ];
     }
@@ -380,7 +380,7 @@ char *ne_base64(const unsigned char *text, size_t inlen)
 	/* We always have one trailing byte */
 	*(point++) = b64_alphabet[ (*text)>>2 ];
 	*(point++) = b64_alphabet[ (((*text)<<4 & 0x30) |
-				     (inlen==2?(*(text+1))>>4:0)) ]; 
+				     (inlen==2?(*(text+1))>>4:0)) ];
 	*(point++) = (inlen==1?'=':b64_alphabet[ (*(text+1))<<2 & 0x3c ]);
 	*(point++) = '=';
     }
@@ -410,7 +410,7 @@ size_t ne_unbase64(const char *data, unsigned char **out)
     const unsigned char *in;
 
     if (inlen == 0 || (inlen % 4) != 0) return 0;
-    
+
     outp = *out = ne_malloc(inlen * 3 / 4);
 
     for (in = (const unsigned char *)data; *in; in += 4) {
@@ -440,37 +440,37 @@ size_t ne_unbase64(const char *data, unsigned char **out)
 /* Character map array; ascii_clean[n] = isprint(n) ? n : 0x20.  Used
  * by ne_strclean as a locale-independent isprint(). */
 static const unsigned char ascii_clean[256] = {
-    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 
-    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 
-    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 
-    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 
-    0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 
-    0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f, 
-    0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 
-    0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f, 
-    0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 
-    0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f, 
-    0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 
-    0x58, 0x59, 0x5a, 0x5b, 0x5c, 0x5d, 0x5e, 0x5f, 
-    0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 
-    0x68, 0x69, 0x6a, 0x6b, 0x6c, 0x6d, 0x6e, 0x6f, 
-    0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 
-    0x78, 0x79, 0x7a, 0x7b, 0x7c, 0x7d, 0x7e, 0x20, 
-    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 
-    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 
-    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 
-    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 
-    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 
-    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 
-    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 
-    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 
-    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 
-    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 
-    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 
-    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 
-    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 
-    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 
-    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 
+    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+    0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
+    0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f,
+    0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37,
+    0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f,
+    0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47,
+    0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4f,
+    0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57,
+    0x58, 0x59, 0x5a, 0x5b, 0x5c, 0x5d, 0x5e, 0x5f,
+    0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67,
+    0x68, 0x69, 0x6a, 0x6b, 0x6c, 0x6d, 0x6e, 0x6f,
+    0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77,
+    0x78, 0x79, 0x7a, 0x7b, 0x7c, 0x7d, 0x7e, 0x20,
+    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+    0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
     0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20
 };
 
@@ -568,7 +568,7 @@ static const unsigned char ascii_tolower[256] = {
 0xe8, 0xe9, 0xea, 0xeb, 0xec, 0xed, 0xee, 0xef,
 0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7,
 0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff
-};    
+};
 
 #define TOLOWER(ch) ascii_tolower[ch]
 
@@ -585,14 +585,14 @@ int ne_strcasecmp(const char *s1, const char *s2)
 
     if (p1 == p2)
         return 0;
-    
+
     do {
         c1 = TOLOWER(*p1++);
         c2 = TOLOWER(*p2++);
         if (c1 == '\0')
             break;
     } while (c1 == c2);
-    
+
     return c1 - c2;
 }
 
@@ -601,16 +601,16 @@ int ne_strncasecmp(const char *s1, const char *s2, size_t n)
     const unsigned char *p1 = (const unsigned char *) s1;
     const unsigned char *p2 = (const unsigned char *) s2;
     unsigned char c1, c2;
-    
+
     if (p1 == p2 || n == 0)
         return 0;
-    
+
     do {
         c1 = TOLOWER(*p1++);
         c2 = TOLOWER(*p2++);
         if (c1 == '\0' || c1 != c2)
             return c1 - c2;
     } while (--n > 0);
-    
+
     return c1 - c2;
 }

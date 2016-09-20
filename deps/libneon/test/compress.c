@@ -1,4 +1,4 @@
-/* 
+/*
    tests for compressed response handling.
    Copyright (C) 2001-2008, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,12 +6,12 @@
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
-  
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-  
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
@@ -83,7 +83,7 @@ static int reader(void *ud, const char *block, size_t len)
 	b->data += len;
 	b->len -= len;
 #if EXTRA_DEBUG
-        NE_DEBUG(NE_DBG_HTTP, "reader: OK, %d bytes remaining\n", 
+        NE_DEBUG(NE_DBG_HTTP, "reader: OK, %d bytes remaining\n",
                  (int)b->len);
 #endif
     }
@@ -95,11 +95,11 @@ static int file2buf(int fd, ne_buffer *buf)
 {
     char buffer[BUFSIZ];
     ssize_t n;
-    
+
     while ((n = read(fd, buffer, BUFSIZ)) > 0) {
 	ne_buffer_append(buf, buffer, n);
     }
-    
+
     return 0;
 }
 
@@ -113,7 +113,7 @@ static int do_fetch(const char *realfn, const char *gzipfn,
     struct serve_file_args sfargs;
     ne_decompress *dc;
     struct string body;
-    
+
     fd = open(realfn, O_RDONLY);
     ONN("failed to open file", fd < 0);
     file2buf(fd, buf);
@@ -121,7 +121,7 @@ static int do_fetch(const char *realfn, const char *gzipfn,
 
     body.data = buf->data;
     body.len = buf->used - 1;
-    
+
     failed = f_partial;
 
     if (gzipfn) {
@@ -132,9 +132,9 @@ static int do_fetch(const char *realfn, const char *gzipfn,
 	sfargs.headers = NULL;
     }
     sfargs.chunks = chunked;
-    
+
     CALL(make_session(&sess, serve_file, &sfargs));
-    
+
     req = ne_request_create(sess, "GET", "/");
     dc = ne_decompress_reader(req, ne_accept_2xx, reader, &body);
 
@@ -149,7 +149,7 @@ static int do_fetch(const char *realfn, const char *gzipfn,
 #endif
 
     ONN("file not served", ne_get_status(req)->code != 200);
-    
+
     ONN("decompress succeeded", expect_fail && !ret);
     ONV(!expect_fail && ret, ("decompress failed: %s", ne_get_error(sess)));
 
@@ -270,7 +270,7 @@ static int notcomp_empty(void)
     return fetch("empty.gz", NULL, 0);
 }
 
-static int auth_cb(void *userdata, const char *realm, int tries, 
+static int auth_cb(void *userdata, const char *realm, int tries,
 		   char *un, char *pw)
 {
     strcpy(un, "foo");
@@ -279,13 +279,13 @@ static int auth_cb(void *userdata, const char *realm, int tries,
 }
 
 static int retry_compress_helper(ne_accept_response acceptor,
-                                 struct double_serve_args *args, 
+                                 struct double_serve_args *args,
                                  struct string *expect)
 {
     ne_session *sess;
     ne_request *req;
     ne_decompress *dc;
-    
+
     CALL(make_session(&sess, double_serve_sstring, args));
 
     ne_set_server_auth(sess, auth_cb, NULL);
@@ -295,7 +295,7 @@ static int retry_compress_helper(ne_accept_response acceptor,
     failed = f_partial;
 
     ONREQ(ne_request_dispatch(req));
-    
+
     ne_decompress_destroy(dc);
 
     ONN("got bad response body", failed != f_complete);
@@ -310,7 +310,7 @@ static int retry_compress_helper(ne_accept_response acceptor,
 
 #define SSTRING(x) { x, sizeof(x) - 1 }
 
-static struct double_serve_args retry_gz_args = { 
+static struct double_serve_args retry_gz_args = {
     SSTRING("HTTP/1.1 401 Get Away\r\n"
             "Content-Encoding: gzip\r\n"
             "WWW-Authenticate: Basic realm=WallyWorld\r\n"
@@ -414,7 +414,7 @@ static int compress_abort(void)
     ONV(strcmp(ne_get_error(sess), READER_ABORT_ERR),
         ("session error was %s not %s",
          ne_get_error(sess), READER_ABORT_ERR));
-    
+
     reap_server();
     ne_decompress_destroy(dc);
     ne_request_destroy(req);
@@ -437,9 +437,9 @@ ne_test tests[] = {
     T(fail_corrupt2),
     T(fail_empty),
     T(notcomp_empty),
-    T(chunked_1b), 
+    T(chunked_1b),
     T(chunked_1b_wn),
-    T(chunked_12b), 
+    T(chunked_12b),
     T(chunked_20b),
     T(chunked_10b),
     T(chunked_10b_wn),

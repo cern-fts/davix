@@ -1,4 +1,4 @@
-/* 
+/*
    Handling of compressed HTTP responses
    Copyright (C) 2001-2006, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,7 +6,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -106,9 +106,9 @@ struct ne_decompress_s {
  */
 static int parse_header(ne_decompress *ctx)
 {
-    NE_DEBUG(NE_DBG_HTTP, "ID1: %d  ID2: %d, cmeth %d, flags %d", 
+    NE_DEBUG(NE_DBG_HTTP, "ID1: %d  ID2: %d, cmeth %d, flags %d",
              HDR_ID1(ctx), HDR_ID2(ctx), HDR_CMETH(ctx), HDR_FLAGS(ctx));
-    
+
     if (HDR_ID1(ctx) != ID1 || HDR_ID2(ctx) != ID2 || HDR_CMETH(ctx) != 8) {
 	ne_set_error(ctx->session, "Compressed stream invalid");
 	return HDR_ERROR;
@@ -116,7 +116,7 @@ static int parse_header(ne_decompress *ctx)
 
     NE_DEBUG(NE_DBG_HTTP, "mtime: %d, xflags: %d, os: %d",
 	     HDR_MTIME(ctx), HDR_XFLAGS(ctx), HDR_OS(ctx));
-    
+
     /* TODO: we can only handle one NUL-terminated extensions field
      * currently.  Really, we should count the number of bits set, and
      * skip as many fields as bits set (bailing if any reserved bits
@@ -130,18 +130,18 @@ static int parse_header(ne_decompress *ctx)
     }
 
     NE_DEBUG(NE_DBG_HTTP, "compress: Good stream.");
-    
+
     ctx->state = NE_Z_INFLATING;
     return HDR_DONE;
 }
 
 /* Process extra 'len' bytes of 'buf' which were received after the
  * DEFLATE data. */
-static int process_footer(ne_decompress *ctx, 
+static int process_footer(ne_decompress *ctx,
 			   const unsigned char *buf, size_t len)
 {
     if (len + ctx->footcount > 8) {
-        ne_set_error(ctx->session, 
+        ne_set_error(ctx->session,
                      "Too many bytes (%" NE_FMT_SIZE_T ") in gzip footer",
                      len);
         return -1;
@@ -156,7 +156,7 @@ static int process_footer(ne_decompress *ctx,
 	    } else {
 		NE_DEBUG(NE_DBG_HTTP, "compress: End of response; checksum mismatch: "
 			 "given %lu vs computed %lu\n", crc, ctx->checksum);
-		ne_set_error(ctx->session, 
+		ne_set_error(ctx->session,
 			     "Checksum invalid for compressed stream");
                 return -1;
 	    }
@@ -193,25 +193,25 @@ static int do_inflate(ne_decompress *ctx, const char *buf, size_t len)
     ctx->zstr.avail_in = len;
     ctx->zstr.next_in = (unsigned char *)buf;
     ctx->zstr.total_in = 0;
-    
+
     do {
 	ctx->zstr.avail_out = sizeof ctx->outbuf;
 	ctx->zstr.next_out = (unsigned char *)ctx->outbuf;
 	ctx->zstr.total_out = 0;
-	
+
 	ret = inflate(&ctx->zstr, Z_NO_FLUSH);
-	
-	NE_DEBUG(NE_DBG_HTTP, 
+
+	NE_DEBUG(NE_DBG_HTTP,
 		 "compress: inflate %d, %ld bytes out, %d remaining\n",
 		 ret, ctx->zstr.total_out, ctx->zstr.avail_in);
 #if 0
 	NE_DEBUG(NE_DBG_HTTPBODY,
-		 "Inflated body block (%ld):\n[%.*s]\n", 
-		 ctx->zstr.total_out, (int)ctx->zstr.total_out, 
+		 "Inflated body block (%ld):\n[%.*s]\n",
+		 ctx->zstr.total_out, (int)ctx->zstr.total_out,
 		 ctx->outbuf);
 #endif
 	/* update checksum. */
-	ctx->checksum = crc32(ctx->checksum, (unsigned char *)ctx->outbuf, 
+	ctx->checksum = crc32(ctx->checksum, (unsigned char *)ctx->outbuf,
 			      ctx->zstr.total_out);
 
 	/* pass on the inflated data, if any */
@@ -219,9 +219,9 @@ static int do_inflate(ne_decompress *ctx, const char *buf, size_t len)
             int rret = ctx->reader(ctx->userdata, ctx->outbuf,
                                    ctx->zstr.total_out);
             if (rret) return rret;
-        }	
+        }
     } while (ret == Z_OK && ctx->zstr.avail_in > 0);
-    
+
     if (ret == Z_STREAM_END) {
 	NE_DEBUG(NE_DBG_HTTP, "compress: end of data stream, %d bytes remain.",
 		 ctx->zstr.avail_in);
@@ -263,7 +263,7 @@ static int gz_reader(void *ud, const char *buf, size_t len)
 	/* else: truncated response, fail. */
 	ne_set_error(ctx->session, "Compressed response was truncated");
 	return NE_ERROR;
-    }        
+    }
 
     switch (ctx->state) {
     case NE_Z_PASSTHROUGH:
@@ -349,7 +349,7 @@ static int gz_reader(void *ud, const char *buf, size_t len)
 	}
 
 	NE_DEBUG(NE_DBG_HTTP,
-		 "compresss: skipped %" NE_FMT_SIZE_T " header bytes.\n", 
+		 "compresss: skipped %" NE_FMT_SIZE_T " header bytes.\n",
 		 zbuf - buf);
 	/* found end of string. */
 	len -= (1 + zbuf - buf);
@@ -380,7 +380,7 @@ static void gz_pre_send(ne_request *r, void *ud, ne_buffer *req)
 
     if (ctx->request == r) {
         NE_DEBUG(NE_DBG_HTTP, "compress: Initialization.");
-        
+
         /* (Re-)Initialize the context */
         ctx->state = NE_Z_BEFORE_DATA;
         if (ctx->zstrinit) inflateEnd(&ctx->zstr);
@@ -418,7 +418,7 @@ ne_decompress *ne_decompress_reader(ne_request *req, ne_accept_response acpt,
 
     ne_hook_pre_send(ne_get_session(req), gz_pre_send, ctx);
 
-    return ctx;    
+    return ctx;
 }
 
 void ne_decompress_destroy(ne_decompress *ctx)

@@ -1,4 +1,4 @@
-/* 
+/*
    Stubs for SSL support when no SSL library has been configured
    Copyright (C) 2002-2006, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,7 +6,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -42,7 +42,7 @@ int ne_ssl_cert_cmp(const ne_ssl_certificate *c1, const ne_ssl_certificate *c2)
 }
 
 const ne_ssl_certificate *ne_ssl_cert_signedby(const ne_ssl_certificate *cert)
-{ 
+{
     return NULL;
 }
 
@@ -90,7 +90,7 @@ ne_ssl_context *ne_ssl_context_create(int mode)
 void ne_ssl_context_trustcert(ne_ssl_context *ctx, const ne_ssl_certificate *cert)
 {}
 
-int ne_ssl_context_set_verify(ne_ssl_context *ctx, 
+int ne_ssl_context_set_verify(ne_ssl_context *ctx,
                               int required,
                               const char *ca_names,
                               const char *verify_cas)
@@ -141,5 +141,5 @@ ne_ssl_certificate *ne_ssl_cert_import(const char *data)
     return NULL;
 }
 
-void ne_ssl_set_clicert(ne_session *sess, const ne_ssl_client_cert *cc) 
+void ne_ssl_set_clicert(ne_session *sess, const ne_ssl_client_cert *cc)
 {}

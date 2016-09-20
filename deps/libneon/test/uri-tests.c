@@ -1,4 +1,4 @@
-/* 
+/*
    URI handling tests
    Copyright (C) 2001-2006, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,12 +6,12 @@
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
-  
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-  
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
@@ -82,21 +82,21 @@ static int escapes(void)
         char *esc = ne_path_escape(paths[n].plain), *un;
 
         ONCMP(paths[n].escaped, esc, paths[n].plain, "escape");
-        
+
         un = ne_path_unescape(esc);
 
         ONCMP(paths[n].plain, un, paths[n].plain, "unescape");
         ne_free(un);
-        ne_free(esc);   
+        ne_free(esc);
     }
 
-    ONN("unescape accepted invalid URI", 
+    ONN("unescape accepted invalid URI",
         ne_path_unescape("/foo%zzbar") != NULL);
-    ONN("unescape accepted invalid URI", 
+    ONN("unescape accepted invalid URI",
         ne_path_unescape("/foo%1zbar") != NULL);
 
     return OK;
-}    
+}
 
 static int parents(void)
 {
@@ -113,11 +113,11 @@ static int parents(void)
 	{ NULL, NULL }
     };
     int n;
-    
+
     for (n = 0; ps[n].path != NULL; n++) {
 	char *p = ne_path_parent(ps[n].path);
 	if (ps[n].parent == NULL) {
-	    ONV(p != NULL, ("parent of `%s' was `%s' not NULL", 
+	    ONV(p != NULL, ("parent of `%s' was `%s' not NULL",
 			    ps[n].path, p));
 	} else {
 	    ONV(p == NULL, ("parent of `%s' was NULL", ps[n].path));
@@ -190,8 +190,8 @@ static int cmp(void)
         ONV(ne_uri_parse(eq[n].right, &beta),
             ("could not parse right URI '%s'", eq[n].right));
 
-        r1 = ne_uri_cmp(&alpha, &beta); 
-        r2 = ne_uri_cmp(&beta, &alpha); 
+        r1 = ne_uri_cmp(&alpha, &beta);
+        r2 = ne_uri_cmp(&beta, &alpha);
 
         ONV(r1 != 0,
             ("cmp('%s', '%s') = %d not zero",
@@ -215,8 +215,8 @@ static int cmp(void)
         ONV(ne_uri_parse(diff[n].right, &beta),
             ("could not parse right URI '%s'", diff[n].right));
 
-        r1 = ne_uri_cmp(&alpha, &beta); 
-        r2 = ne_uri_cmp(&beta, &alpha); 
+        r1 = ne_uri_cmp(&alpha, &beta);
+        r2 = ne_uri_cmp(&beta, &alpha);
 
         ONV(r1 == 0,
             ("'%s' and '%s' did not compare as different",
@@ -290,16 +290,16 @@ static int parse(void)
         { "ftp://ftp.is.co.za/rfc/rfc1808.txt", "ftp", "ftp.is.co.za", 0, "/rfc/rfc1808.txt", NULL, NULL, NULL },
         { "http://www.ietf.org/rfc/rfc2396.txt", "http", "www.ietf.org", 0, "/rfc/rfc2396.txt", NULL, NULL, NULL },
         { "ldap://[2001:db8::7]/c=GB?objectClass?one", "ldap", "[2001:db8::7]", 0, "/c=GB", NULL, "objectClass?one", NULL },
-        { "mailto:John.Doe@example.com", "mailto", NULL, 0, "John.Doe@example.com", NULL, NULL, NULL }, 
+        { "mailto:John.Doe@example.com", "mailto", NULL, 0, "John.Doe@example.com", NULL, NULL, NULL },
         { "news:comp.infosystems.www.servers.unix", "news", NULL, 0, "comp.infosystems.www.servers.unix", NULL, NULL, NULL },
         { "tel:+1-816-555-1212", "tel", NULL, 0, "+1-816-555-1212", NULL, NULL, NULL },
         { "telnet://192.0.2.16:80/", "telnet", "192.0.2.16", 80, "/", NULL, NULL, NULL },
-        { "urn:oasis:names:specification:docbook:dtd:xml:4.1.2", "urn", NULL, 0, 
-          "oasis:names:specification:docbook:dtd:xml:4.1.2", NULL}, 
+        { "urn:oasis:names:specification:docbook:dtd:xml:4.1.2", "urn", NULL, 0,
+          "oasis:names:specification:docbook:dtd:xml:4.1.2", NULL},
 
         /* userinfo */
         { "ftp://jim:bob@jim.com", "ftp", "jim.com", 0, "/", "jim:bob", NULL, NULL },
-        { "ldap://fred:bloggs@fish.com/foobar", "ldap", "fish.com", 0, 
+        { "ldap://fred:bloggs@fish.com/foobar", "ldap", "fish.com", 0,
           "/foobar", "fred:bloggs", NULL, NULL },
 
         /* IPv6 literals: */
@@ -309,7 +309,7 @@ static int parse(void)
         { "ftp://[feed::cafe]:555", "ftp", "[feed::cafe]", 555, "/", NULL, NULL, NULL },
 
         { "DAV:", "DAV", NULL, 0, "", NULL, NULL, NULL },
-        
+
         /* Some odd cases: heir-part and relative-ref will both match
          * with a zero-length expansion of "authority" (since *
          * reg-name can be zero-length); so a triple-slash URI-ref
@@ -317,7 +317,7 @@ static int parse(void)
          * followed by a path of "/". */
         { "foo:///", "foo", "", 0, "/", NULL, NULL, NULL },
         { "///", NULL, "", 0, "/", NULL, NULL, NULL },
-        /* port grammar is "*DIGIT" so may be empty: */        
+        /* port grammar is "*DIGIT" so may be empty: */
         { "ftp://[feed::cafe]:", "ftp", "[feed::cafe]", 0, "/", NULL, NULL, NULL },
         { "ftp://[feed::cafe]:/", "ftp", "[feed::cafe]", 0, "/", NULL, NULL, NULL },
         { "http://foo:/", "http", "foo", 0, "/", NULL, NULL, NULL },
@@ -368,7 +368,7 @@ static int failparse(void)
 	NULL
     };
     int n;
-    
+
     for (n = 0; uris[n] != NULL; n++) {
 	ne_uri p;
 	ONV(ne_uri_parse(uris[n], &p) == 0,
@@ -404,7 +404,7 @@ static int unparse(void)
 
 	ONV(ne_uri_parse(uris[n], &parsed),
 	    ("failed to parse %s", uris[n]));
-	
+
         if (parsed.port == 0 && parsed.scheme)
             parsed.port = ne_uri_defaultport(parsed.scheme);
 
@@ -412,12 +412,12 @@ static int unparse(void)
 
 	ONV(strcmp(unp, uris[n]),
 	    ("unparse got %s from %s", unp, uris[n]));
-	
+
         ne_uri_free(&parsed);
 	ne_free(unp);
     }
 
-    return OK;    
+    return OK;
 }
 
 #define BASE "http://a/b/c/d;p?q"
@@ -506,15 +506,15 @@ static int resolve(void)
         ONV(ne_uri_parse(ts[n].relative, &relative),
             ("could not parse input URI '%s'", ts[n].relative));
 
-        ONN("bad pointer was returned", 
+        ONN("bad pointer was returned",
             ne_uri_resolve(&base, &relative, &resolved) != &resolved);
 
         ONN("NULL path after resolve", resolved.path == NULL);
 
         actual = ne_uri_unparse(&resolved);
-        
+
         ONCMP(ts[n].expected, actual, ts[n].relative, "output mismatch");
-        
+
         ne_uri_free(&relative);
         ne_uri_free(&resolved);
         ne_uri_free(&base);

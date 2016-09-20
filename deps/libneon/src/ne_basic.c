@@ -1,4 +1,4 @@
-/* 
+/*
    Basic HTTP and WebDAV methods
    Copyright (C) 1999-2008, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,7 +6,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -50,7 +50,7 @@
 #include "ne_dates.h"
 #include "ne_internal.h"
 
-int ne_getmodtime(ne_session *sess, const char *uri, time_t *modtime) 
+int ne_getmodtime(ne_session *sess, const char *uri, time_t *modtime)
 {
     ne_request *req = ne_request_create(sess, "HEAD", uri);
     const char *value;
@@ -58,12 +58,12 @@ int ne_getmodtime(ne_session *sess, const char *uri, time_t *modtime)
 
     ret = ne_request_dispatch(req);
 
-    value = ne_get_response_header(req, "Last-Modified"); 
+    value = ne_get_response_header(req, "Last-Modified");
 
     if (ret == NE_OK && ne_get_status(req)->klass != 2) {
 	*modtime = -1;
 	ret = NE_ERROR;
-    } 
+    }
     else if (value) {
         *modtime = ne_httpdate_parse(value);
     }
@@ -85,7 +85,7 @@ typedef struct stat struct_stat;
 #endif
 
 /* PUT's from fd to URI */
-int ne_put(ne_session *sess, const char *uri, int fd) 
+int ne_put(ne_session *sess, const char *uri, int fd)
 {
     ne_request *req;
     struct_stat st;
@@ -99,7 +99,7 @@ int ne_put(ne_session *sess, const char *uri, int fd)
                      ne_strerror(errnum, buf, sizeof buf));
         return NE_ERROR;
     }
-    
+
     req = ne_request_create(sess, "PUT", uri);
 
 #ifdef NE_HAVE_DAV
@@ -108,9 +108,9 @@ int ne_put(ne_session *sess, const char *uri, int fd)
 #endif
 
     ne_set_request_body_fd(req, fd, 0, st.st_size);
-	
+
     ret = ne_request_dispatch(req);
-    
+
     if (ret == NE_OK && ne_get_status(req)->klass != 2)
 	ret = NE_ERROR;
 
@@ -134,7 +134,7 @@ static int dispatch_to_fd(ne_request *req, int fd, const char *range)
 
     do {
         const char *value;
-        
+
         ret = ne_begin_request(req);
         if (ret != NE_OK) break;
 
@@ -142,7 +142,7 @@ static int dispatch_to_fd(ne_request *req, int fd, const char *range)
 
         /* For a 206 response, check that a Content-Range header is
          * given which matches the Range request header. */
-        if (range && st->code == 206 
+        if (range && st->code == 206
             && (value == NULL || strncmp(value, "bytes ", 6) != 0
                 || strncmp(range + 6, value + 6, rlen)
                 || (range[5 + rlen] != '-' && value[6 + rlen] != '/'))) {
@@ -162,7 +162,7 @@ static int dispatch_to_fd(ne_request *req, int fd, const char *range)
     return ret;
 }
 
-static int get_range_common(ne_session *sess, const char *uri, 
+static int get_range_common(ne_session *sess, const char *uri,
                             const char *brange, int fd)
 
 {
@@ -191,20 +191,20 @@ static int get_range_common(ne_session *sess, const char *uri,
 	else if (status->klass != 2) {
 	    ret = NE_ERROR;
 	}
-    } 
-    
+    }
+
     ne_request_destroy(req);
 
     return ret;
 }
 
-int ne_get_range(ne_session *sess, const char *uri, 
+int ne_get_range(ne_session *sess, const char *uri,
 		 ne_content_range *range, int fd)
 {
     char brange[64];
 
     if (range->end == -1) {
-        ne_snprintf(brange, sizeof brange, "bytes=%" FMT_NE_OFF_T "-", 
+        ne_snprintf(brange, sizeof brange, "bytes=%" FMT_NE_OFF_T "-",
                     range->start);
     }
     else {
@@ -223,7 +223,7 @@ int ne_get(ne_session *sess, const char *uri, int fd)
     int ret;
 
     ret = dispatch_to_fd(req, fd, NULL);
-    
+
     if (ret == NE_OK && ne_get_status(req)->klass != 2) {
 	ret = NE_ERROR;
     }
@@ -245,7 +245,7 @@ int ne_post(ne_session *sess, const char *uri, int fd, const char *buffer)
     ne_set_request_body_buffer(req, buffer, strlen(buffer));
 
     ret = dispatch_to_fd(req, fd, NULL);
-    
+
     if (ret == NE_OK && ne_get_status(req)->klass != 2) {
 	ret = NE_ERROR;
     }
@@ -266,13 +266,13 @@ int ne_get_content_type(ne_request *req, ne_content_type *ct)
     }
 
     ct->value = ne_strdup(value);
-    
+
     stype = strchr(ct->value, '/');
 
     *stype++ = '\0';
     ct->type = ct->value;
     ct->charset = NULL;
-    
+
     sep = strchr(stype, ';');
 
     if (sep) {
@@ -294,7 +294,7 @@ int ne_get_content_type(ne_request *req, ne_content_type *ct)
 
     /* set subtype, losing any trailing whitespace */
     ct->subtype = ne_shave(stype, " \t");
-    
+
     if (ct->charset == NULL && ne_strcasecmp(ct->type, "text") == 0) {
         /* 3280§3.1: text/xml without charset implies us-ascii. */
         if (ne_strcasecmp(ct->subtype, "xml") == 0)
@@ -303,7 +303,7 @@ int ne_get_content_type(ne_request *req, ne_content_type *ct)
         else
             ct->charset = "ISO-8859-1";
     }
-    
+
     return 0;
 }
 
@@ -331,7 +331,7 @@ static const struct options_map {
 static void parse_dav_header(const char *value, unsigned int *caps)
 {
     char *tokens = ne_strdup(value), *pnt = tokens;
-    
+
     *caps = 0;
 
     do {
@@ -339,7 +339,7 @@ static void parse_dav_header(const char *value, unsigned int *caps)
         unsigned n;
 
         if (!tok) break;
-        
+
         tok = ne_shave(tok, " \r\t\n");
 
         for (n = 0; n < sizeof(options_map)/sizeof(options_map[0]); n++) {
@@ -348,7 +348,7 @@ static void parse_dav_header(const char *value, unsigned int *caps)
             }
         }
     } while (pnt != NULL);
-    
+
     ne_free(tokens);
 }
 
@@ -357,13 +357,13 @@ int ne_options2(ne_session *sess, const char *uri, unsigned int *caps)
     ne_request *req = ne_request_create(sess, "OPTIONS", uri);
     int ret = ne_request_dispatch(req);
     const char *header = ne_get_response_header(req, "DAV");
-    
+
     if (header) parse_dav_header(header, caps);
- 
+
     if (ret == NE_OK && ne_get_status(req)->klass != 2) {
 	ret = NE_ERROR;
     }
-    
+
     ne_request_destroy(req);
 
     return ret;
@@ -374,7 +374,7 @@ int ne_options(ne_session *sess, const char *path,
 {
     int ret;
     unsigned int capmask = 0;
-    
+
     memset(caps, 0, sizeof *caps);
 
     ret = ne_options2(sess, path, &capmask);
@@ -382,7 +382,7 @@ int ne_options(ne_session *sess, const char *path,
     caps->dav_class1 = capmask & NE_CAP_DAV_CLASS1 ? 1 : 0;
     caps->dav_class2 = capmask & NE_CAP_DAV_CLASS2 ? 1 : 0;
     caps->dav_executable = capmask & NE_CAP_MODDAV_EXEC ? 1 : 0;
-    
+
     return ret;
 }
 
@@ -406,7 +406,7 @@ void ne_add_depth_header(ne_request *req, int depth)
 }
 
 static int copy_or_move(ne_session *sess, int is_move, int overwrite,
-			int depth, const char *src, const char *dest) 
+			int depth, const char *src, const char *dest)
 {
     ne_request *req = ne_request_create( sess, is_move?"MOVE":"COPY", src );
 
@@ -428,30 +428,30 @@ static int copy_or_move(ne_session *sess, int is_move, int overwrite,
         ne_add_request_header(req, "Destination", dest);
     }
     else {
-        ne_print_request_header(req, "Destination", "%s://%s%s", 
-                                ne_get_scheme(sess), 
+        ne_print_request_header(req, "Destination", "%s://%s%s",
+                                ne_get_scheme(sess),
                                 ne_get_server_hostport(sess), dest);
     }
-    
+
     ne_add_request_header(req, "Overwrite", overwrite?"T":"F");
 
     return ne_simple_request(sess, req);
 }
 
 int ne_copy(ne_session *sess, int overwrite, int depth,
-	     const char *src, const char *dest) 
+	     const char *src, const char *dest)
 {
     return copy_or_move(sess, 0, overwrite, depth, src, dest);
 }
 
 int ne_move(ne_session *sess, int overwrite,
-	     const char *src, const char *dest) 
+	     const char *src, const char *dest)
 {
     return copy_or_move(sess, 1, overwrite, 0, src, dest);
 }
 
 /* Deletes the specified resource. (and in only two lines of code!) */
-int ne_delete(ne_session *sess, const char *uri) 
+int ne_delete(ne_session *sess, const char *uri)
 {
     ne_request *req = ne_request_create(sess, "DELETE", uri);
 
@@ -459,7 +459,7 @@ int ne_delete(ne_session *sess, const char *uri)
     ne_lock_using_resource(req, uri, NE_DEPTH_INFINITE);
     ne_lock_using_parent(req, uri);
 #endif
-    
+
     /* joe: I asked on the DAV WG list about whether we might get a
      * 207 error back from a DELETE... conclusion, you shouldn't if
      * you don't send the Depth header, since we might be an HTTP/1.1
@@ -471,7 +471,7 @@ int ne_delete(ne_session *sess, const char *uri)
     return ne_simple_request(sess, req);
 }
 
-int ne_mkcol(ne_session *sess, const char *uri) 
+int ne_mkcol(ne_session *sess, const char *uri)
 {
     ne_request *req;
     char *real_uri;
@@ -489,7 +489,7 @@ int ne_mkcol(ne_session *sess, const char *uri)
     ne_lock_using_resource(req, real_uri, 0);
     ne_lock_using_parent(req, real_uri);
 #endif
-    
+
     ret = ne_simple_request(sess, req);
 
     ne_free(real_uri);

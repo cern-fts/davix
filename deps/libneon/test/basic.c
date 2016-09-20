@@ -1,4 +1,4 @@
-/* 
+/*
    Tests for high-level HTTP interface (ne_basic.h)
    Copyright (C) 2002-2008, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,12 +6,12 @@
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
-  
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-  
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
@@ -49,7 +49,7 @@ static int content_type(void)
 	/* text/ subtypes default to charset ISO-8859-1, per 2616. */
 	{ "text/lemon", "text", "lemon", "ISO-8859-1" },
         /* text/xml defaults to charset us-ascii, per 3280 */
-        { "text/xml", "text", "xml", "us-ascii" },        
+        { "text/xml", "text", "xml", "us-ascii" },
 #undef TXU
 #define TXU "text", "xml", "utf-8"
 	/* 2616 doesn't *say* that charset can be quoted, but bets are
@@ -82,13 +82,13 @@ static int content_type(void)
         ne_snprintf(resp, sizeof resp,
                     "HTTP/1.0 200 OK\r\n" "Content-Length: 0\r\n"
                     "Content-Type: %s\r\n" "\r\n", ctypes[n].value);
-        
+
         CALL(make_session(&sess, single_serve_string, resp));
 
         req = ne_request_create(sess, "GET", "/anyfoo");
         ONREQ(ne_request_dispatch(req));
         rv = ne_get_content_type(req, &ct);
-        
+
         ONV(rv == 0 && !ctypes[n].type,
             ("expected c-t parse failure for %s", ctypes[n].value));
 
@@ -99,7 +99,7 @@ static int content_type(void)
         ne_session_destroy(sess);
         CALL(await_server());
 
-        if (rv) continue;	
+        if (rv) continue;
 
 	ONV(strcmp(ct.type, ctypes[n].type),
 	    ("for `%s': type was `%s'", ctypes[n].value, ct.type));
@@ -109,9 +109,9 @@ static int content_type(void)
 
 	ONV(ctypes[n].charset && ct.charset == NULL,
 	    ("for `%s': charset unset", ctypes[n].value));
-	
+
 	ONV(ctypes[n].charset == NULL && ct.charset != NULL,
-	    ("for `%s': unexpected charset `%s'", ctypes[n].value, 
+	    ("for `%s': unexpected charset `%s'", ctypes[n].value,
 	     ct.charset));
 
 	ONV(ctypes[n].charset && ct.charset &&
@@ -135,17 +135,17 @@ static int do_range(off_t start, off_t end, const char *fail,
     int fd, ret;
 
     CALL(make_session(&sess, single_serve_string, resp));
-    
+
     range.start = start;
     range.end = end;
-    
+
     fd = open("/dev/null", O_WRONLY);
-    
+
     ret = ne_get_range(sess, "/foo", &range, fd);
 
     close(fd);
     CALL(await_server());
-    
+
     if (fail) {
 #if 0
 	t_warning("error was %s", ne_get_error(sess));
@@ -154,7 +154,7 @@ static int do_range(off_t start, off_t end, const char *fail,
     } else {
 	ONREQ(ret);
     }
-    
+
     ne_session_destroy(sess);
     return OK;
 }
@@ -247,20 +247,20 @@ static int dav_capabilities(void)
         ne_session_destroy(sess);
     }
 
-    return OK;	
+    return OK;
 }
 
 static int get(void)
 {
     ne_session *sess;
     int fd;
-    
-    CALL(make_session(&sess, single_serve_string, 
+
+    CALL(make_session(&sess, single_serve_string,
                       "HTTP/1.0 200 OK\r\n"
                       "Content-Length: 5\r\n"
                       "\r\n"
                       "abcde"));
-    
+
     fd = open("/dev/null", O_WRONLY);
     ONREQ(ne_get(sess, "/getit", fd));
     close(fd);
@@ -282,6 +282,6 @@ ne_test tests[] = {
     T(fail_range_unsatify),
     T(dav_capabilities),
     T(get),
-    T(NULL) 
+    T(NULL)
 };
 

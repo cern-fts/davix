@@ -1,4 +1,4 @@
-/* 
+/*
    Authentication tests
    Copyright (C) 2001-2009, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,12 +6,12 @@
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
-  
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-  
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
@@ -46,17 +46,17 @@ static int auth_failed;
 
 #define EOL "\r\n"
 
-static int auth_cb(void *userdata, const char *realm, int tries, 
+static int auth_cb(void *userdata, const char *realm, int tries,
 		   char *un, char *pw)
 {
     if (strcmp(realm, "WallyWorld")) {
         NE_DEBUG(NE_DBG_HTTP, "Got wrong realm '%s'!\n", realm);
         return -1;
-    }    
+    }
     strcpy(un, username);
     strcpy(pw, password);
     return tries;
-}		   
+}
 
 static void auth_hdr(char *value)
 {
@@ -74,9 +74,9 @@ static void auth_hdr(char *value)
 static int send_response(ne_socket *sock, const char *hdr, int code, int eoc)
 {
     char buffer[BUFSIZ];
-    
+
     sprintf(buffer, "HTTP/1.1 %d Blah Blah" EOL, code);
-    
+
     if (hdr) {
 	strcat(buffer, hdr);
 	strcat(buffer, EOL);
@@ -87,7 +87,7 @@ static int send_response(ne_socket *sock, const char *hdr, int code, int eoc)
     } else {
 	strcat(buffer, "Content-Length: 0" EOL EOL);
     }
-	
+
     return SEND_STRING(sock, buffer);
 }
 
@@ -140,7 +140,7 @@ static int basic(void)
         /* multi-header case 1 */
         "WWW-Authenticate: BarFooScheme\r\n"
         CHAL_WALLY,
-        
+
         /* multi-header cases 1 */
         CHAL_WALLY "\r\n"
         "WWW-Authenticate: BarFooScheme bar=\"foo\"",
@@ -154,15 +154,15 @@ static int basic(void)
         "WWW-Authenticate: Basic realm=\"WallyWorld\" , BarFooScheme"
     };
     size_t n;
-    
+
     for (n = 0; n < sizeof(hdrs)/sizeof(hdrs[0]); n++) {
         ne_session *sess;
-        
+
         CALL(make_session(&sess, auth_serve, (void *)hdrs[n]));
         ne_set_server_auth(sess, auth_cb, NULL);
-        
+
         CALL(any_2xx_request(sess, "/norman"));
-        
+
         ne_session_destroy(sess);
         CALL(await_server());
     }
@@ -180,18 +180,6 @@ static int retry_serve(ne_socket *sock, void *ud)
 
     discard_request(sock);
     send_response(sock, NULL, 200, 0);
-    
-    discard_request(sock);
-    send_response(sock, CHAL_WALLY, 401, 0);
-
-    discard_request(sock);
-    send_response(sock, NULL, 200, 0);
-
-    discard_request(sock);
-    send_response(sock, NULL, 200, 0);
-
-    discard_request(sock);
-    send_response(sock, NULL, 200, 0);
 
     discard_request(sock);
     send_response(sock, CHAL_WALLY, 401, 0);
@@ -200,6 +188,18 @@ static int retry_serve(ne_socket *sock, void *ud)
     send_response(sock, NULL, 200, 0);
 
     discard_request(sock);
+    send_response(sock, NULL, 200, 0);
+
+    discard_request(sock);
+    send_response(sock, NULL, 200, 0);
+
+    discard_request(sock);
+    send_response(sock, CHAL_WALLY, 401, 0);
+
+    discard_request(sock);
+    send_response(sock, NULL, 200, 0);
+
+    discard_request(sock);
     send_response(sock, CHAL_WALLY, 401, 0);
 
     discard_request(sock);
@@ -210,11 +210,11 @@ static int retry_serve(ne_socket *sock, void *ud)
 
     discard_request(sock);
     send_response(sock, NULL, 200, 0);
-    
+
     return OK;
 }
 
-static int retry_cb(void *userdata, const char *realm, int tries, 
+static int retry_cb(void *userdata, const char *realm, int tries,
 		    char *un, char *pw)
 {
     int *count = userdata;
@@ -243,7 +243,7 @@ static int retry_cb(void *userdata, const char *realm, int tries,
 	    *count += 1;
 	    return 0;
 	} else {
-	    t_context("On retry after failure #%d, tries was %d", 
+	    t_context("On retry after failure #%d, tries was %d",
 		      *count, tries);
 	    *count = -1;
 	    return 1;
@@ -269,7 +269,7 @@ static int retries(void)
 {
     ne_session *sess;
     int count = 0;
-    
+
     CALL(make_session(&sess, retry_serve, NULL));
 
     ne_set_server_auth(sess, retry_cb, &count);
@@ -303,7 +303,7 @@ static int retries(void)
     count++;
 
     /* Second request is 401'ed first time, then will succeed if
-     * retried.  0.18.0 didn't reset the attempt counter though so 
+     * retried.  0.18.0 didn't reset the attempt counter though so
      * this didn't work. */
     ONV(any_request(sess, "/foo") == NE_AUTH,
 	("auth failed on second try, should have succeeded: %s", ne_get_error(sess)));
@@ -321,10 +321,10 @@ static int forget_regress(void)
     ne_session *sess = ne_session_create("http", "localhost", 7777);
     ne_forget_auth(sess);
     ne_session_destroy(sess);
-    return OK;    
+    return OK;
 }
 
-static int fail_auth_cb(void *ud, const char *realm, int attempt, 
+static int fail_auth_cb(void *ud, const char *realm, int attempt,
 			char *un, char *pw)
 {
     return 1;
@@ -493,7 +493,7 @@ static int check_digest(struct digest_state *state, struct digest_parms *parms)
 
 /* Verify that Digest auth request header, 'header', meets expected
  * state and parameters. */
-static int verify_digest_header(struct digest_state *state, 
+static int verify_digest_header(struct digest_state *state,
                                 struct digest_parms *parms,
                                 char *header)
 {
@@ -514,7 +514,7 @@ static int verify_digest_header(struct digest_state *state,
 
         val = strchr(name, '=');
         ONV(val == NULL, ("bad name/value pair: %s", val));
-        
+
         *val++ = '\0';
 
         val = ne_shave(val, "\"\' ");
@@ -532,9 +532,9 @@ static int verify_digest_header(struct digest_state *state,
 
         if (ne_strcasecmp(name, "nc") == 0) {
             long nc = strtol(val, NULL, 16);
-            
-            ONV(nc != state->nc, 
-                ("got bad nonce count: %ld (%s) not %ld", 
+
+            ONV(nc != state->nc,
+                ("got bad nonce count: %ld (%s) not %ld",
                  nc, val, state->nc));
 
             state->ncval = ne_strdup(val);
@@ -558,7 +558,7 @@ static int verify_digest_header(struct digest_state *state,
     if (parms->rfc2617) {
         DIGCMP(qop);
     }
-        
+
     if (newstate.cnonce) {
         state->cnonce = ne_strdup(newstate.cnonce);
     }
@@ -571,7 +571,7 @@ static int verify_digest_header(struct digest_state *state,
     CALL(check_digest(state, parms));
 
     state->nc++;
-    
+
     return OK;
 }
 
@@ -615,7 +615,7 @@ static char *make_authinfo_header(struct digest_state *state,
         }
         if (parms->failure != fail_ai_omit_cnonce) {
             ne_buffer_concat(buf, "cnonce=\"", cnonce, "\", ", NULL);
-        } 
+        }
         if (parms->failure != fail_ai_omit_digest) {
             ne_buffer_concat(buf, "rspauth=\"", digest, "\", ", NULL);
         }
@@ -626,7 +626,7 @@ static char *make_authinfo_header(struct digest_state *state,
         }
         ne_buffer_czappend(buf, "qop=\"auth\"");
     }
-    
+
     return ne_buffer_finish(buf);
 }
 
@@ -636,15 +636,15 @@ static char *make_digest_header(struct digest_state *state,
     ne_buffer *buf = ne_buffer_create();
     const char *algorithm;
 
-    algorithm = parms->failure == fail_bogus_alg ? "fish" 
+    algorithm = parms->failure == fail_bogus_alg ? "fish"
         : state->algorithm;
 
-    ne_buffer_concat(buf, 
+    ne_buffer_concat(buf,
                      parms->proxy ? "Proxy-Authenticate"
                      : "WWW-Authenticate",
                      ": Digest "
                      "realm=\"", parms->realm, "\", ", NULL);
-    
+
     if (parms->rfc2617) {
         ne_buffer_concat(buf, "algorithm=\"", algorithm, "\", ",
                          "qop=\"", state->qop, "\", ", NULL);
@@ -675,7 +675,7 @@ static int serve_digest(ne_socket *sock, void *userdata)
     struct digest_parms *parms = userdata;
     struct digest_state state;
     char resp[NE_BUFSIZ];
-    
+
     if (parms->proxy)
         state.uri = "http://www.example.com/fish";
     else if (parms->domain)
@@ -756,13 +756,13 @@ static int serve_digest(ne_socket *sock, void *userdata)
         }
         else if (parms->send_ainfo) {
             char *ai = make_authinfo_header(&state, parms);
-            
+
             ne_snprintf(resp, sizeof resp,
                         "HTTP/1.1 200 Well, if you insist\r\n"
                         "Content-Length: 0\r\n"
                         "%s\r\n"
                         "\r\n", ai);
-            
+
             ne_free(ai);
         } else {
             ne_snprintf(resp, sizeof resp,
@@ -792,7 +792,7 @@ static int test_digest(struct digest_parms *parms)
         sess = ne_session_create("http", "www.example.com", 80);
         ne_session_proxy(sess, "localhost", 7777);
         ne_set_proxy_auth(sess, auth_cb, NULL);
-    } 
+    }
     else {
         sess = ne_session_create("http", "localhost", 7777);
         ne_set_server_auth(sess, auth_cb, NULL);
@@ -803,7 +803,7 @@ static int test_digest(struct digest_parms *parms)
     do {
         CALL(any_2xx_request(sess, "/fish"));
     } while (--parms->num_requests);
-    
+
     ne_session_destroy(sess);
     return await_server();
 }
@@ -827,7 +827,7 @@ static int digest(void)
         /* 2069 + stale */
         { "WallyWorld", "this-is-a-nonce", NULL, NULL, 0, 1, 0, 0, 0, 3, 2, fail_not },
 
-        /* RFC 2069-style */ 
+        /* RFC 2069-style */
         { "WallyWorld", "lah-di-da-di-dah", NULL, NULL, 0, 0, 0, 0, 0, 1, 0, fail_not },
         { "WallyWorld", "fee-fi-fo-fum", "opaque-string", NULL, 0, 0, 0, 0, 0, 1, 0, fail_not },
         { "WallyWorld", "fee-fi-fo-fum", "opaque-string", NULL, 0, 1, 0, 0, 0, 1, 0, fail_not },
@@ -840,7 +840,7 @@ static int digest(void)
         { NULL }
     };
     size_t n;
-    
+
     for (n = 0; parms[n].realm; n++) {
         CALL(test_digest(&parms[n]));
 
@@ -871,7 +871,7 @@ static int digest_failures(void)
     size_t n;
 
     memset(&parms, 0, sizeof parms);
-    
+
     parms.realm = "WallyWorld";
     parms.nonce = "random-invented-string";
     parms.opaque = NULL;
@@ -891,10 +891,10 @@ static int digest_failures(void)
 
         NE_DEBUG(NE_DBG_HTTP, ">>> New Digest failure test, "
                  "expecting failure '%s'\n", fails[n].message);
-        
+
         ne_set_server_auth(sess, auth_cb, NULL);
         CALL(spawn_server(7777, serve_digest, &parms));
-        
+
         ret = any_2xx_request(sess, "/fish");
         ONV(ret == NE_OK,
             ("request success; expecting error '%s'",
@@ -905,7 +905,7 @@ static int digest_failures(void)
              ne_get_error(sess), fails[n].message));
 
         ne_session_destroy(sess);
-        
+
         if (fails[n].mode == fail_bogus_alg
             || fails[n].mode == fail_req0_stale) {
             reap_server();
@@ -917,7 +917,7 @@ static int digest_failures(void)
     return OK;
 }
 
-static int fail_cb(void *userdata, const char *realm, int tries, 
+static int fail_cb(void *userdata, const char *realm, int tries,
 		   char *un, char *pw)
 {
     ne_buffer *buf = userdata;
@@ -952,25 +952,25 @@ static int fail_challenge(void)
         /* Multiple challenge failure cases: */
         { "Basic, Digest",
           "missing parameter in Digest challenge, missing realm in Basic challenge" },
-        
+
         { "Digest realm=\"foo\", algorithm=MD5, qop=auth, nonce=\"foo\","
           " Basic realm=\"foo\"",
           "rejected Digest challenge, rejected Basic challenge" },
 
-        { "WhizzBangAuth realm=\"foo\", " 
+        { "WhizzBangAuth realm=\"foo\", "
           "Basic realm='foo'",
           "ignored WhizzBangAuth challenge, rejected Basic challenge" },
         { "", "could not parse challenge" },
 
         /* neon 0.26.x regression in "attempt" handling. */
-        { "Basic realm=\"foo\", " 
+        { "Basic realm=\"foo\", "
           "Digest realm=\"bar\", algorithm=MD5, qop=auth, nonce=\"foo\"",
           "rejected Digest challenge, rejected Basic challenge"
           , "<bar, 0><foo, 1>"  /* Digest challenge first, Basic second. */
         }
     };
     unsigned n;
-    
+
     for (n = 0; n < sizeof(ts)/sizeof(ts[0]); n++) {
         char resp[512];
         ne_session *sess;
@@ -982,11 +982,11 @@ static int fail_challenge(void)
                     "WWW-Authenticate: %s\r\n"
                     "Content-Length: 0\r\n" "\r\n",
                     ts[n].resp);
-        
+
         CALL(make_session(&sess, single_serve_string, resp));
 
         ne_set_server_auth(sess, fail_cb, buf);
-        
+
         ret = any_2xx_request(sess, "/fish");
         ONV(ret == NE_OK,
             ("request success; expecting error '%s'",
@@ -995,9 +995,9 @@ static int fail_challenge(void)
         ONV(strstr(ne_get_error(sess), ts[n].error) == NULL,
             ("request fails with error '%s'; expecting '%s'",
              ne_get_error(sess), ts[n].error));
-        
+
         if (ts[n].challs) {
-            ONCMP(ts[n].challs, buf->data, "challenge callback", 
+            ONCMP(ts[n].challs, buf->data, "challenge callback",
                   "invocation order");
         }
 
@@ -1014,12 +1014,12 @@ struct multi_context {
     ne_buffer *buf;
 };
 
-static int multi_cb(void *userdata, const char *realm, int tries, 
+static int multi_cb(void *userdata, const char *realm, int tries,
                     char *un, char *pw)
 {
     struct multi_context *ctx = userdata;
 
-    ne_buffer_snprintf(ctx->buf, 128, "[id=%d, realm=%s, tries=%d]", 
+    ne_buffer_snprintf(ctx->buf, 128, "[id=%d, realm=%s, tries=%d]",
                        ctx->id, realm, tries);
 
     return -1;
@@ -1037,7 +1037,7 @@ static int multi_handler(void)
                       "WWW-Authenticate: Basic realm='fish',"
                       " Digest realm='food', algorithm=MD5, qop=auth, nonce=gaga\r\n"
                       "Content-Length: 0\r\n" "\r\n"));
-    
+
     for (n = 0; n < 2; n++) {
         c[n].buf = buf;
         c[n].id = n + 1;
@@ -1045,13 +1045,13 @@ static int multi_handler(void)
 
     ne_add_server_auth(sess, NE_AUTH_BASIC, multi_cb, &c[0]);
     ne_add_server_auth(sess, NE_AUTH_DIGEST, multi_cb, &c[1]);
-    
+
     any_request(sess, "/fish");
-    
+
     ONCMP("[id=2, realm=food, tries=0]"
           "[id=1, realm=fish, tries=0]", buf->data,
           "multiple callback", "invocation order");
-    
+
     ne_session_destroy(sess);
     ne_buffer_destroy(buf);
 
@@ -1082,7 +1082,7 @@ static int domains(void)
     CALL(any_2xx_request(sess, "/fish"));
     CALL(any_2xx_request(sess, "/fish/2"));
     CALL(any_2xx_request(sess, "*"));
-    
+
     ne_session_destroy(sess);
 
     return await_server();
@@ -1108,7 +1108,7 @@ static int CVE_2008_3746(void)
     ne_session_proxy(sess, "localhost", 7777);
 
     any_2xx_request(sess, "/fish/0");
-    
+
     ne_session_destroy(sess);
 
     return await_server();
@@ -1117,7 +1117,7 @@ static int CVE_2008_3746(void)
 static int defaults(void)
 {
     ne_session *sess;
-    
+
     CALL(make_session(&sess, auth_serve, CHAL_WALLY));
     ne_add_server_auth(sess, NE_AUTH_DEFAULT, auth_cb, NULL);
     CALL(any_2xx_request(sess, "/norman"));
@@ -1141,7 +1141,7 @@ static int serve_forgotten(ne_socket *sock, void *userdata)
     auth_failed = 0;
     got_header = fail_hdr;
     want_header = "Authorization";
-    
+
     CALL(discard_request(sock));
     if (auth_failed) {
         /* Should not get initial Auth header.  Eek. */
@@ -1149,7 +1149,7 @@ static int serve_forgotten(ne_socket *sock, void *userdata)
         return 0;
     }
     send_response(sock, CHAL_WALLY, 401, 0);
-    
+
     got_header = auth_hdr;
     CALL(discard_request(sock));
     if (auth_failed) {
@@ -1157,15 +1157,15 @@ static int serve_forgotten(ne_socket *sock, void *userdata)
         return 0;
     }
     send_response(sock, NULL, 200, 0);
-    
+
     ne_sock_read_timeout(sock, 5);
 
     /* Last time; should get no Auth header. */
     got_header = fail_hdr;
     CALL(discard_request(sock));
     send_response(sock, NULL, auth_failed ? 500 : 200, 1);
-    
-    return 0;                  
+
+    return 0;
 }
 
 static int forget(void)
@@ -1175,15 +1175,15 @@ static int forget(void)
     CALL(make_session(&sess, serve_forgotten, NULL));
 
     ne_set_server_auth(sess, auth_cb, NULL);
-    
+
     CALL(any_2xx_request(sess, "/norman"));
-    
+
     ne_forget_auth(sess);
 
     CALL(any_2xx_request(sess, "/norman"));
 
     ne_session_destroy(sess);
-    
+
     return await_server();
 }
 

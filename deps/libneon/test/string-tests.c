@@ -1,4 +1,4 @@
-/* 
+/*
    String handling tests
    Copyright (C) 2001-2007, 2009, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,12 +6,12 @@
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
-  
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-  
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
@@ -65,7 +65,7 @@ static int buf_concat2(void)
 #define RES "alphabetagammadeltaepsilonetatheta"
     ne_buffer *s = ne_buffer_create();
     ON(s == NULL);
-    ne_buffer_concat(s, "alpha", "beta", "gamma", "delta", "epsilon", 
+    ne_buffer_concat(s, "alpha", "beta", "gamma", "delta", "epsilon",
 		     "eta", "theta", NULL);
     ONCMP(s->data, RES);
     ON(ne_buffer_size(s) != strlen(RES));
@@ -101,7 +101,7 @@ static int append(void)
     ON(ne_buffer_size(s) != 13);
     ne_buffer_destroy(s);
     return OK;
-}    
+}
 
 static int grow(void)
 {
@@ -166,7 +166,7 @@ static int token1(void)
     char *str = ne_strdup("a,b,c,d"), *pnt = str;
 
     TEST("a"); TEST("b"); TEST("c"); LASTTEST("d");
-    
+
     ne_free(str);
     return OK;
 }
@@ -174,7 +174,7 @@ static int token1(void)
 static int token2(void)
 {
     char *str = ne_strdup("norman,fishing, elsewhere"), *pnt = str;
-    
+
     TEST("norman"); TEST("fishing"); LASTTEST(" elsewhere");
 
     ne_free(str);
@@ -187,14 +187,14 @@ static int nulls(void)
 
     TEST("alpha"); TEST(""); LASTTEST("gamma");
     ne_free(str);
-    
+
     pnt = str = ne_strdup(",,,wooo");
     TEST(""); TEST(""); TEST(""); LASTTEST("wooo");
     ne_free(str);
 
     pnt = str = ne_strdup("wooo,,,");
     TEST("wooo"); TEST(""); TEST(""); LASTTEST("");
-    ne_free(str);    
+    ne_free(str);
 
     return OK;
 }
@@ -214,14 +214,14 @@ static int empty(void)
 
 static int quoted(void)
 {
-    char *str = 
+    char *str =
 	ne_strdup("alpha,'beta, a fish called HELLO!?',sandwiches");
     char *pnt = str;
-    
+
     QTEST("alpha");
     QTEST("'beta, a fish called HELLO!?'");
     QLASTTEST("sandwiches");
-    
+
     ne_free(str);
     return OK;
 }
@@ -229,10 +229,10 @@ static int quoted(void)
 static int badquotes(void)
 {
     char *str = ne_strdup("alpha,'blah"), *pnt = str;
-    
+
     QTEST("alpha");
     ON(ne_qtoken(&pnt, ',', QUOTES) != NULL);
-    
+
     ne_free(str);
     return OK;
 }
@@ -295,10 +295,10 @@ static int shave_regress(void)
 static int combo(void)
 {
     char *str = ne_strdup("  fred , mary, jim , alice, david"), *pnt = str;
-    
+
     TEST("fred"); TEST("mary"); TEST("jim"); TEST("alice");
     LASTTEST("david");
-    
+
     ne_free(str);
     return 0;
 }
@@ -313,18 +313,18 @@ ne_free(str); } while (0)
     CAT("", ("", NULL));
     CAT("", ("", "", "", NULL));
     CAT("alpha", ("", "a", "lph", "", "a", NULL));
-    return OK;    
+    return OK;
 }
 
 static int str_errors(void)
 {
     char expect[200], actual[200];
-    
+
     strncpy(expect, strerror(ENOENT), sizeof(expect));
     ONN("ne_strerror did not return passed-in buffer",
 	ne_strerror(ENOENT, actual, sizeof(actual)) != actual);
-    
-    ONV(strcmp(expect, actual), 
+
+    ONV(strcmp(expect, actual),
 	("error from ENOENT was `%s' not `%s'", actual, expect));
 
     /* Test truncated error string is still NUL-terminated. */
@@ -333,7 +333,7 @@ static int str_errors(void)
     ONN("truncated string had wrong length", strlen(actual) != 5);
 
     ne_strerror(-1, actual, 6);
-    ONN("truncated string for bad error had wrong length", 
+    ONN("truncated string for bad error had wrong length",
         strlen(actual) != 5);
 
     return OK;
@@ -345,11 +345,11 @@ static int strnzcpy(void)
 
     ne_strnzcpy(buf, "abcdefghi", sizeof buf);
     ONV(strcmp(buf, "abcd"), ("result was `%s' not `abcd'", buf));
-    
-    ne_strnzcpy(buf, "ab", sizeof buf);
-    ONV(strcmp(buf, "ab"), ("result was `%s' not `ab'", buf));    
 
-    return OK;    
+    ne_strnzcpy(buf, "ab", sizeof buf);
+    ONV(strcmp(buf, "ab"), ("result was `%s' not `ab'", buf));
+
+    return OK;
 }
 
 #define FOX_STRING "The quick brown fox jumped over the lazy dog"
@@ -369,13 +369,13 @@ static int cleaner(void)
         NULL,
     };
     unsigned int n;
-    
+
     for (n = 0; strings[n]; n+=2) {
         char *act = ne_strclean(ne_strdup(strings[n]));
-        
-        ONV(strcmp(act, strings[n+1]), 
+
+        ONV(strcmp(act, strings[n+1]),
             ("cleansed to `%s' not `%s'", act, strings[n+1]));
-        
+
         ne_free(act);
     }
 
@@ -390,16 +390,16 @@ static int b64_check(const unsigned char *raw, size_t len,
     char *encoded = ne_base64(raw, len);
     unsigned char *decoded;
     size_t dlen;
-    
-    ONV(strcmp(encoded, expected), 
+
+    ONV(strcmp(encoded, expected),
         ("base64(\"%s\") gave \"%s\" not \"%s\"", raw, encoded, expected));
-    
+
     dlen = ne_unbase64(encoded, &decoded);
-    ONV(dlen != len, 
+    ONV(dlen != len,
         ("decoded `%s' length was %" NE_FMT_SIZE_T " not %" NE_FMT_SIZE_T,
          expected, dlen, len));
 
-    ONV(memcmp(raw, decoded, dlen), 
+    ONV(memcmp(raw, decoded, dlen),
         ("decoded `%s' as `%.*s' not `%.*s'",
          expected, (int)dlen, decoded, (int)dlen, raw));
 
@@ -425,7 +425,7 @@ static int base64(void)
 #define B64B(x, l, y) CALL(b64_check((unsigned char *)x, l, y))
 #define B64(x, y) B64B(x, strlen(x), y)
 
-    /* invent these with 
+    /* invent these with
      *  $ printf "string" | uuencode -m blah
      */
     B64("a", "YQ==");
@@ -433,9 +433,9 @@ static int base64(void)
     B64("ccc", "Y2Nj");
     B64("Hello, world", "SGVsbG8sIHdvcmxk");
     B64("Aladdin:open sesame", "QWxhZGRpbjpvcGVuIHNlc2FtZQ==");
-    B64("I once saw a dog called norman.\n", 
+    B64("I once saw a dog called norman.\n",
 	"SSBvbmNlIHNhdyBhIGRvZyBjYWxsZWQgbm9ybWFuLgo=");
-    B64("The quick brown fox jumped over the lazy dog", 
+    B64("The quick brown fox jumped over the lazy dog",
 	"VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wZWQgb3ZlciB0aGUgbGF6eSBkb2c=");
 
     /* binary data..
@@ -443,7 +443,7 @@ static int base64(void)
      *   $ printf "string" | uuencode -m blah # get the base64
      */
     B64B("\0\0\0\0\0\n", 6, "AAAAAAAK");
-    B64B("I once wished \0 upon a \0 fish.", 30, 
+    B64B("I once wished \0 upon a \0 fish.", 30,
 	 "SSBvbmNlIHdpc2hlZCAAIHVwb24gYSAAIGZpc2gu");
     B64B("\201\202\203\204", 4, "gYKDhA==");
 
@@ -459,7 +459,7 @@ static int base64(void)
 static int unbase64(void)
 {
     static const char *ts[] = {
-        "", "a", "ab", "abc", 
+        "", "a", "ab", "abc",
         "}bcd", "a}cd", "ab}d", "abc}", "    ",
         "^bcd", "a^cd", "ab^d", "abc^",
         "====", "=bcd", "a=cd", "ab=d", "a==d", "a=c=",
@@ -496,16 +496,16 @@ static int printing(void)
         memset(buf, 'A', sizeof buf);
 
         ret = ne_snprintf(buf, ts[n].pass, "%s", ts[n].in);
-        
+
         ONCMP(buf, ts[n].out);
-        ONV(ret != ts[n].ret, 
+        ONV(ret != ts[n].ret,
             ("got return value %" NE_FMT_SIZE_T " not %" NE_FMT_SIZE_T,
              ret, ts[n].ret));
 
         /* byte past the NUL must still be 'A' */
         ONN("buffer over-ran!", buf[ret + 1] != 'A');
     }
-    
+
     return OK;
 }
 
@@ -525,12 +525,12 @@ static int casecmp(void)
         { NULL, NULL, 0 }
     };
     size_t n;
-    
+
     for (n = 0; ts[n].left; n++) {
         int actual;
 
         actual = ne_strcasecmp(ts[n].left, ts[n].right);
-        
+
         ONV(ts[n].expect == 0 && actual != 0,
             ("strcasecmp(%s, %s) gave %d, expected 0",
              ts[n].left, ts[n].right, actual));
@@ -558,7 +558,7 @@ static int casencmp(void)
         int expect;
     } ts[] = {
         { "abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 30, 0 },
-        { "abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 10, 0 }, 
+        { "abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", 10, 0 },
         { "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz", 0, 0 },
         { "foo", "bar", 3, 1 },
         { "bar", "foo", 4, -1 },
@@ -569,12 +569,12 @@ static int casencmp(void)
         { NULL, NULL, 0, 0 }
     };
     size_t n;
-    
+
     for (n = 0; ts[n].left; n++) {
         int actual;
 
         actual = ne_strncasecmp(ts[n].left, ts[n].right, ts[n].n);
-        
+
         ONV(ts[n].expect == 0 && actual != 0,
             ("strncasecmp(%s, %s, %" NE_FMT_SIZE_T ") gave %d, expected 0",
              ts[n].left, ts[n].right, ts[n].n, actual));
@@ -602,11 +602,11 @@ static int buf_print(void)
     ne_buffer_snprintf(buf, 20, "bar-%s-asda", "norman");
     ne_buffer_czappend(buf, "-bloo");
     ONN("snprintf return value", ne_buffer_snprintf(buf, 2, "---") != 1);
-    
+
     ONCMP(buf->data, "foo-bar-norman-asda-bloo-");
 
     ne_buffer_destroy(buf);
-    
+
     return OK;
 }
 
@@ -636,11 +636,11 @@ static int qappend(void)
         ONCMP(buf->data, ts[n].out);
 
         ONV(strlen(buf->data) + 1 != buf->used,
-            ("bad buffer length for '%s': %" NE_FMT_SIZE_T, 
+            ("bad buffer length for '%s': %" NE_FMT_SIZE_T,
              ts[n].out, buf->used));
-        
+
         s = ne_strnqdup(in, ts[n].inlen);
-        
+
         ONCMP(s, ts[n].out);
 
         ne_free(s);

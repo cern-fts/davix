@@ -65,12 +65,12 @@ static int v5fail(ne_socket *sock, unsigned int code, const char *context)
         err = _("failure");
         break;
     case V5_REPLY_DISALLOW:
-        err = _("connection not permitted"); 
+        err = _("connection not permitted");
         break;
     case V5_REPLY_NET_UNREACH:
         err = _("network unreachable");
         break;
-    case V5_REPLY_HOST_UNREACH: 
+    case V5_REPLY_HOST_UNREACH:
         err = _("host unreachable");
         break;
     case V5_REPLY_TTL_EXPIRED:
@@ -79,14 +79,14 @@ static int v5fail(ne_socket *sock, unsigned int code, const char *context)
     case V5_REPLY_CMD_UNSUPPORTED:
         err = _("command not supported");
         break;
-    case V5_REPLY_TYPE_UNSUPPORTED: 
+    case V5_REPLY_TYPE_UNSUPPORTED:
         err = _("address type not supported");
         break;
     default:
         ne_sock_set_error(sock, _("%s: unrecognized error (%u)"), context, code);
         return NE_SOCK_ERROR;
     }
-    
+
     ne_sock_set_error(sock, "%s: %s", context, err);
     return NE_SOCK_ERROR;
 }
@@ -135,7 +135,7 @@ static int v5_proxy(ne_socket *sock, const ne_inet_addr *addr,
     else if (msg[0] != V5_VERSION) {
         return fail(sock, _("Invalid version in proxy response"));
     }
-    
+
     /* Authenticate, if necessary. */
     switch (msg[1]) {
     case V5_AUTH_NONE:
@@ -156,7 +156,7 @@ static int v5_proxy(ne_socket *sock, const ne_inet_addr *addr,
         if (ret) {
             return sofail(sock, ret, _("Could not send login message"));
         }
-        
+
         n = ne_sock_fullread(sock, (char *)msg, 2);
         if (n) {
             return sofail(sock, ret, _("Could not read login reply"));
@@ -173,7 +173,7 @@ static int v5_proxy(ne_socket *sock, const ne_inet_addr *addr,
     default:
         return fail(sock, _("Unexpected authentication method chosen"));
     }
-    
+
     /* Send the CONNECT command. */
     p = msg;
     *p++ = V5_VERSION;
@@ -190,7 +190,7 @@ static int v5_proxy(ne_socket *sock, const ne_inet_addr *addr,
             len = 16;
             *p++ = V5_ADDR_IPV6;
         }
-        
+
         memcpy(p, ne_iaddr_raw(addr, raw), len);
         p += len;
     }
@@ -220,7 +220,7 @@ static int v5_proxy(ne_socket *sock, const ne_inet_addr *addr,
     if (msg[1] != V5_REPLY_OK) {
         return v5fail(sock, msg[1], _("Could not connect"));
     }
-    
+
     switch (msg[3]) {
     case V5_ADDR_IPV4:
         len = 4;
@@ -231,7 +231,7 @@ static int v5_proxy(ne_socket *sock, const ne_inet_addr *addr,
     case V5_ADDR_FQDN:
         n = ne_sock_read(sock, (char *)msg, 1);
         if (n != 1) {
-            return sofail(sock, n, 
+            return sofail(sock, n,
                             _("Could not read FQDN length in connect reply"));
         }
         len = msg[0];
@@ -276,14 +276,14 @@ static int v4fail(ne_socket *sock, unsigned int code, const char *context)
                           context, code);
         return NE_SOCK_ERROR;
     }
-    
+
     ne_sock_set_error(sock, "%s: %s", context, err);
     return NE_SOCK_ERROR;
 }
 
 /* SOCKS v4 or v4A proxy. */
 static int v4_proxy(ne_socket *sock, enum ne_sock_sversion vers,
-                    const ne_inet_addr *addr, const char *hostname, 
+                    const ne_inet_addr *addr, const char *hostname,
                     unsigned int port, const char *username)
 {
     unsigned char msg[1024], raw[16], *p;
@@ -300,7 +300,7 @@ static int v4_proxy(ne_socket *sock, enum ne_sock_sversion vers,
         /* A bogus address is used to signify use of the hostname,
          * 0.0.0.X where X != 0. */
         memcpy(p, "\x00\x00\x00\xff", 4);
-    } 
+    }
     else {
         /* API precondition that addr is IPv4; if it's not this will
          * just copy out the first four bytes of the v6 address;
@@ -315,13 +315,13 @@ static int v4_proxy(ne_socket *sock, enum ne_sock_sversion vers,
         p += len;
     }
     *p++ = '\0';
-    
+
     if (vers == NE_SOCK_SOCKSV4A) {
         unsigned int len = strlen(hostname) & 0xff;
         memcpy(p, hostname, len);
         p += len;
         *p++ = '\0';
-    }    
+    }
 
     ret = ne_sock_fullwrite(sock, (char *)msg, p - msg);
     if (ret) {
@@ -332,7 +332,7 @@ static int v4_proxy(ne_socket *sock, enum ne_sock_sversion vers,
     if (n) {
         return sofail(sock, ret, _("Could not read response from proxy"));
     }
-    
+
     if (msg[1] != V4_REP_OK) {
         return v4fail(sock, ret, _("Could not connect"));
     }
@@ -341,7 +341,7 @@ static int v4_proxy(ne_socket *sock, enum ne_sock_sversion vers,
 }
 
 int ne_sock_proxy(ne_socket *sock, enum ne_sock_sversion vers,
-                  const ne_inet_addr *addr, const char *hostname, 
+                  const ne_inet_addr *addr, const char *hostname,
                   unsigned int port,
                   const char *username, const char *password)
 {

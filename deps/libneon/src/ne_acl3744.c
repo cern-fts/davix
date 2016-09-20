@@ -86,7 +86,7 @@ static ne_buffer *acl_body(const ne_acl_entry *right, int count)
 	    break;
 	}
 
-	ne_buffer_concat(body, "</principal>" EOL 
+	ne_buffer_concat(body, "</principal>" EOL
                          "<", type, ">" EOL, NULL);
 
 	if ((right[m].privileges & NE_ACL_READ) == NE_ACL_READ)

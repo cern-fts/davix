@@ -1,4 +1,4 @@
-/* 
+/*
    WebDAV 207 multi-status response handling
    Copyright (C) 1999-2006, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,7 +6,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -49,7 +49,7 @@ struct ne_207_parser_s {
     ne_buffer *cdata;
 
     /* remember whether we are in a response: the validation
-     * doesn't encapsulate this since we only count as being 
+     * doesn't encapsulate this since we only count as being
      * "in a response" when we've seen the href element. */
     int in_response;
 
@@ -106,12 +106,12 @@ void *ne_207_get_current_propstat(ne_207_parser *p)
 }
 
 /* return non-zero if (child, parent) is an interesting element */
-static int can_handle(int parent, int child) 
+static int can_handle(int parent, int child)
 {
     return (parent == 0 && child == ELM_multistatus) ||
         (parent == ELM_multistatus && child == ELM_response) ||
-        (parent == ELM_response && 
-         (child == ELM_href || child == ELM_status || 
+        (parent == ELM_response &&
+         (child == ELM_href || child == ELM_status ||
           child == ELM_propstat || child == ELM_responsedescription)) ||
         (parent == ELM_propstat &&
          (child == ELM_prop || child == ELM_status ||
@@ -129,9 +129,9 @@ static int cdata_207(void *userdata, int state, const char *buf, size_t len)
     return 0;
 }
 
-static int start_element(void *userdata, int parent, 
-                         const char *nspace, const char *name, 
-                         const char **atts) 
+static int start_element(void *userdata, int parent,
+                         const char *nspace, const char *name,
+                         const char **atts)
 {
     ne_207_parser *p = userdata;
     int state = ne_xml_mapid(map207, NE_XML_MAPLEN(map207), nspace, name);
@@ -160,7 +160,7 @@ static int start_element(void *userdata, int parent,
 
 #define HAVE_CDATA(p) ((p)->cdata->used > 1)
 
-static int 
+static int
 end_element(void *userdata, int state, const char *nspace, const char *name)
 {
     ne_207_parser *p = userdata;
@@ -194,7 +194,7 @@ end_element(void *userdata, int state, const char *nspace, const char *name)
 	    if (ne_parse_statusline(cdata, &p->status)) {
 		char buf[500];
 		NE_DEBUG(NE_DBG_HTTP, "Status line: %s", cdata);
-		ne_snprintf(buf, 500, 
+		ne_snprintf(buf, 500,
 			    _("Invalid HTTP status line in status element "
                               "at line %d of response:\nStatus line was: %s"),
 			    ne_xml_currentline(p->parser), cdata);
@@ -229,7 +229,7 @@ end_element(void *userdata, int state, const char *nspace, const char *name)
     return 0;
 }
 
-ne_207_parser *ne_207_create(ne_xml_parser *parser, const ne_uri *base, 
+ne_207_parser *ne_207_create(ne_xml_parser *parser, const ne_uri *base,
                              void *userdata)
 {
     ne_207_parser *p = ne_calloc(sizeof *p);
@@ -242,11 +242,11 @@ ne_207_parser *ne_207_create(ne_xml_parser *parser, const ne_uri *base,
 
     /* Add handler for the standard 207 elements */
     ne_xml_push_handler(parser, start_element, cdata_207, end_element, p);
-    
+
     return p;
 }
 
-void ne_207_destroy(ne_207_parser *p) 
+void ne_207_destroy(ne_207_parser *p)
 {
     if (p->status.reason_phrase) ne_free(p->status.reason_phrase);
     ne_buffer_destroy(p->cdata);
@@ -288,7 +288,7 @@ static void handle_error(struct context *ctx, const ne_status *status,
 	char buf[50];
 	ctx->is_error = 1;
 	sprintf(buf, "%d", status->code);
-	ne_buffer_concat(ctx->buf, ctx->href, ": ", 
+	ne_buffer_concat(ctx->buf, ctx->href, ": ",
 			 buf, " ", status->reason_phrase, "\n", NULL);
 	if (description != NULL) {
 	    /* TODO: these can be multi-line. Would be good to
@@ -306,7 +306,7 @@ static void end_response(void *userdata, void *response,
     handle_error(ctx, status, description);
 }
 
-static void 
+static void
 end_propstat(void *userdata, void *propstat,
 	     const ne_status *status, const char *description)
 {
@@ -329,7 +329,7 @@ int ne_simple_request(ne_session *sess, ne_request *req)
     ne_fill_server_uri(sess, &base);
     base.path = ne_strdup("/");
     p207 = ne_207_create(p, &base, &ctx);
-    ne_uri_free(&base);    
+    ne_uri_free(&base);
 
     /* The error string is progressively written into the
      * ne_buffer by the element callbacks */
@@ -337,14 +337,14 @@ int ne_simple_request(ne_session *sess, ne_request *req)
 
     ne_207_set_response_handlers(p207, start_response, end_response);
     ne_207_set_propstat_handlers(p207, NULL, end_propstat);
-    
+
     ne_add_response_body_reader(req, ne_accept_207, ne_xml_parse_v, p);
 
     ret = ne_request_dispatch(req);
 
     if (ret == NE_OK) {
 	if (ne_get_status(req)->code == 207) {
-	    if (ne_xml_failed(p)) { 
+	    if (ne_xml_failed(p)) {
 		/* The parse was invalid */
 		ne_set_error(sess, "%s", ne_xml_get_error(p));
 		ret = NE_ERROR;
@@ -368,4 +368,4 @@ int ne_simple_request(ne_session *sess, ne_request *req)
 
     return ret;
 }
-    
+

@@ -1,4 +1,4 @@
-/* 
+/*
    Framework for testing with a server process
    Copyright (C) 2001-2008, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,12 +6,12 @@
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
-  
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-  
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
@@ -105,7 +105,7 @@ static int do_listen(struct in_addr addr, int port)
     int val = 1;
 
     setsockopt(ls, SOL_SOCKET, SO_REUSEADDR, (void *)&val, sizeof(int));
-    
+
     saddr.sin_addr = addr;
     saddr.sin_port = htons(port);
     saddr.sin_family = AF_INET;
@@ -148,7 +148,7 @@ static int close_socket(ne_socket *sock)
 #ifdef HAVE_SHUTDOWN
     char buf[20];
     int fd = ne_sock_fd(sock);
-    
+
     shutdown(fd, 0);
     while (ne_sock_read(sock, buf, sizeof buf) > 0);
 #endif
@@ -203,7 +203,7 @@ int spawn_server_addr(int bind_local, int port, server_fn fn, void *ud)
     /* avoid using uninitialized variable. */
     fds[0] = fds[1] = 0;
 #endif
-    
+
     child = fork();
 
     ONN("fork server", child == -1);
@@ -223,13 +223,13 @@ int spawn_server_addr(int bind_local, int port, server_fn fn, void *ud)
 	if (ret) {
 	    printf("server child failed: %s\n", test_context);
 	}
-	
+
 	/* and quit the child. */
         NE_DEBUG(NE_DBG_HTTP, "child exiting with %d\n", ret);
 	exit(ret);
     } else {
 	char ch;
-	
+
 #ifdef USE_PIPE
 	if (read(fds[0], &ch, 1) < 0)
 	    perror("parent read");
@@ -259,13 +259,13 @@ int spawn_server_repeat(int port, server_fn fn, void *userdata, int n)
 #endif
 
     child = fork();
-    
+
     if (child == 0) {
 	/* this is the child. */
 	int listener, count = 0;
-	
+
 	in_child();
-	
+
 	listener = do_listen(lh_addr, port);
 
 #ifdef USE_PIPE
@@ -292,12 +292,12 @@ int spawn_server_repeat(int port, server_fn fn, void *userdata, int n)
 	    /* don't send back notification to parent more than
 	     * once. */
 	}
-	
+
 	NE_DEBUG(NE_DBG_HTTP, "child aborted.\n");
 	close(listener);
 
 	exit(-1);
-    
+
     } else {
 	char ch;
 	/* this is the parent. wait for the child to get ready */
@@ -335,13 +335,13 @@ int await_server(void)
     int status, code;
 
     (void) wait(&status);
-    
+
     /* so that we aren't reaped by mistake. */
     child = 0;
 
     if (WIFEXITED(status)) {
         code = WEXITSTATUS(status);
-        
+
         ONV(code,
             ("server process terminated abnormally: %s (%d)",
              code == FAIL ? "FAIL" : "error", code));
@@ -357,7 +357,7 @@ int await_server(void)
 int reap_server(void)
 {
     int status;
-    
+
     if (child != 0) {
 	(void) kill(child, SIGTERM);
 	minisleep();
@@ -389,7 +389,7 @@ int discard_request(ne_socket *sock)
 	if (strncasecmp(buffer, "content-length:", 15) == 0) {
 	    clength = atoi(buffer + 16);
 	}
-	if (got_header != NULL && want_header != NULL && 
+	if (got_header != NULL && want_header != NULL &&
 	    strncasecmp(buffer, want_header, offset) == 0 &&
 	    buffer[offset] == ':') {
 	    char *value = buffer + offset + 1;
@@ -397,7 +397,7 @@ int discard_request(ne_socket *sock)
 	    got_header(ne_shave(value, "\r\n"));
 	}
     } while (strcmp(buffer, "\r\n") != 0);
-    
+
     return OK;
 }
 
@@ -411,7 +411,7 @@ int discard_body(ne_socket *sock)
 	NE_DEBUG(NE_DBG_HTTP, "Discarding %" NE_FMT_SIZE_T " bytes.\n",
 		 bytes);
 	ret = ne_sock_read(sock, buf, bytes);
-	ONV(ret < 0, ("socket read failed (%" NE_FMT_SSIZE_T "): %s", 
+	ONV(ret < 0, ("socket read failed (%" NE_FMT_SSIZE_T "): %s",
 		      ret, ne_sock_error(sock)));
 	clength -= ret;
 	NE_DEBUG(NE_DBG_HTTP, "Got %" NE_FMT_SSIZE_T " bytes.\n", ret);
@@ -434,7 +434,7 @@ int serve_file(ne_socket *sock, void *ud)
 
     fd = open(args->fname, O_RDONLY);
     if (fd < 0) {
-	SEND_STRING(sock, 
+	SEND_STRING(sock,
 		    "HTTP/1.0 404 File Not Found\r\n"
 		    "Content-Length: 0\r\n\r\n");
 	return 0;
@@ -446,10 +446,10 @@ int serve_file(ne_socket *sock, void *ud)
     if (args->chunks) {
 	sprintf(buffer, "Transfer-Encoding: chunked\r\n");
     } else {
-	sprintf(buffer, "Content-Length: %" NE_FMT_OFF_T "\r\n", 
+	sprintf(buffer, "Content-Length: %" NE_FMT_OFF_T "\r\n",
 		st.st_size);
-    } 
-    
+    }
+
     if (args->headers) {
 	strcat(buffer, args->headers);
     }
@@ -463,7 +463,7 @@ int serve_file(ne_socket *sock, void *ud)
 
     if (args->chunks) {
 	char buf[1024];
-	
+
 	while ((ret = read(fd, &buf, args->chunks)) > 0) {
 	    /* this is a small integer, cast it explicitly to avoid
 	     * warnings with printing an ssize_t. */
@@ -472,9 +472,9 @@ int serve_file(ne_socket *sock, void *ud)
 	    ONN("writing body", ne_sock_fullwrite(sock, buf, ret));
 	    SEND_STRING(sock, "\r\n");
 	}
-	
+
 	SEND_STRING(sock, "0\r\n\r\n");
-	
+
     } else {
 	while ((ret = read(fd, buffer, BUFSIZ)) > 0) {
 	    ONN("writing body", ne_sock_fullwrite(sock, buffer, ret));

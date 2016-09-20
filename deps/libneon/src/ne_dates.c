@@ -1,4 +1,4 @@
-/* 
+/*
    Date manipulation routines
    Copyright (C) 1999-2006, Joe Orton <joe@manyfish.co.uk>
    Copyright (C) 2004 Jiang Lei <tristone@deluxe.ocn.ne.jp>
@@ -7,7 +7,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -56,10 +56,10 @@
 /* asctime: Wed Jun 30 21:49:08 1993 */
 #define ASCTIME_FORMAT "%3s %3s %2d %2d:%2d:%2d %4d"
 
-static const char rfc1123_weekdays[7][4] = { 
-    "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" 
+static const char rfc1123_weekdays[7][4] = {
+    "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
 };
-static const char short_months[12][4] = { 
+static const char short_months[12][4] = {
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 };
@@ -90,10 +90,10 @@ time_t gmt_to_local_win32(void)
 
     if (dwStandardDaylight == TIME_ZONE_ID_STANDARD)
         bias += tzinfo.StandardBias;
-    
+
     if (dwStandardDaylight == TIME_ZONE_ID_DAYLIGHT)
         bias += tzinfo.DaylightBias;
-    
+
     return (- bias * 60);
 }
 #endif
@@ -109,16 +109,16 @@ char *ne_rfc1123_date(time_t anytime) {
     ret = ne_malloc(29 + 1); /* dates are 29 chars long */
 /*  it goes: Sun, 06 Nov 1994 08:49:37 GMT */
     ne_snprintf(ret, 30, RFC1123_FORMAT,
-		rfc1123_weekdays[gmt->tm_wday], gmt->tm_mday, 
-		short_months[gmt->tm_mon], 1900 + gmt->tm_year, 
+		rfc1123_weekdays[gmt->tm_wday], gmt->tm_mday,
+		short_months[gmt->tm_mon], 1900 + gmt->tm_year,
 		gmt->tm_hour, gmt->tm_min, gmt->tm_sec);
-    
+
     return ret;
 }
 
 /* Takes an ISO-8601-formatted date string and returns the time_t.
  * Returns (time_t)-1 if the parse fails. */
-time_t ne_iso8601_parse(const char *date) 
+time_t ne_iso8601_parse(const char *date)
 {
     struct tm gmt = {0};
     int off_hour, off_min;
@@ -164,13 +164,13 @@ time_t ne_iso8601_parse(const char *date)
 
 /* Takes an RFC1123-formatted date string and returns the time_t.
  * Returns (time_t)-1 if the parse fails. */
-time_t ne_rfc1123_parse(const char *date) 
+time_t ne_rfc1123_parse(const char *date)
 {
     struct tm gmt = {0};
     char wkday[4], mon[4];
     int n;
     time_t result;
-    
+
 /*  it goes: Sun, 06 Nov 1994 08:49:37 GMT */
     n = sscanf(date, RFC1123_FORMAT,
 	    wkday, &gmt.tm_mday, mon, &gmt.tm_year, &gmt.tm_hour,
@@ -189,7 +189,7 @@ time_t ne_rfc1123_parse(const char *date)
 }
 
 /* Takes a string containing a RFC1036-style date and returns the time_t */
-time_t ne_rfc1036_parse(const char *date) 
+time_t ne_rfc1036_parse(const char *date)
 {
     struct tm gmt = {0};
     int n;
@@ -225,7 +225,7 @@ time_t ne_rfc1036_parse(const char *date)
 /* (as)ctime dates are like:
  *    Wed Jun 30 21:49:08 1993
  */
-time_t ne_asctime_parse(const char *date) 
+time_t ne_asctime_parse(const char *date)
 {
     struct tm gmt = {0};
     int n;
@@ -233,7 +233,7 @@ time_t ne_asctime_parse(const char *date)
     time_t result;
 
     n = sscanf(date, ASCTIME_FORMAT,
-		wkday, mon, &gmt.tm_mday, 
+		wkday, mon, &gmt.tm_mday,
 		&gmt.tm_hour, &gmt.tm_min, &gmt.tm_sec,
 		&gmt.tm_year);
     /* portable to check n here? */

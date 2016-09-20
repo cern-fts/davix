@@ -1,4 +1,4 @@
-/* 
+/*
    Tests for session handling
    Copyright (C) 2002-2006, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,12 +6,12 @@
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
-  
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-  
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
@@ -37,7 +37,7 @@ static int fill_uri(void)
 {
     ne_uri uri = {0};
     ne_session *sess = ne_session_create("http", "localhost", 7777);
-    
+
     ne_fill_server_uri(sess, &uri);
 
     ONCMP("localhost", uri.host, "fill_uri", "host");
@@ -56,10 +56,10 @@ static int fill_proxy_uri(void)
     ne_session *sess = ne_session_create("http", "localhost", 7777);
 
     ne_fill_proxy_uri(sess, &uri);
-    
+
     ONN("no proxy host should be set", uri.host != NULL);
     ONN("no proxy port should be set", uri.port != 0);
-    
+
     ne_session_proxy(sess, "www.example.com", 345);
 
     ne_fill_proxy_uri(sess, &uri);
@@ -115,7 +115,7 @@ static int hostports(void)
 static int errors(void)
 {
     ne_session *sess = ne_session_create("http", "foo.com", 80);
-    
+
 #define EXPECT "foo, hello world, 100, bar!"
 
     ne_set_error(sess, "foo, %s, %d, bar!", "hello world", 100);
@@ -126,7 +126,7 @@ static int errors(void)
 #undef EXPECT
 
     ne_session_destroy(sess);
-    return OK;    
+    return OK;
 }
 
 #define ID1 "foo"
@@ -148,7 +148,7 @@ ONN(msg, ne_get_session_private(sess, id) != val)
     PRIV("unknown id wrong", "no such ID", NULL);
 
     ne_session_destroy(sess);
-    return OK;    
+    return OK;
 }
 
 /* test that ne_session_create doesn't really care what scheme you
@@ -166,7 +166,7 @@ static int get_scheme(void)
             ("scheme was `%s' not `%s'!", ne_get_scheme(sess), schemes[n]));
         ne_session_destroy(sess);
     }
-    
+
     return OK;
 }
 

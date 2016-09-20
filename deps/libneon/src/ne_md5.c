@@ -75,7 +75,7 @@ static const unsigned char fillbuf[64] = { 0x80, 0 /* , 0, 0, ...  */ };
 
 /* Initialize structure containing state of computation.
    (RFC 1321, 3.3: Step 3)  */
-static void 
+static void
 md5_init_ctx (struct md5_ctx *ctx)
 {
   ctx->A = 0x67452301;
@@ -95,7 +95,7 @@ ne_md5_create_ctx(void)
   return ctx;
 }
 
-extern void 
+extern void
 ne_md5_reset_ctx(struct ne_md5_ctx *ctx)
 {
   md5_init_ctx(ctx);
@@ -427,7 +427,7 @@ md5_process_block (const void *buffer, size_t len, struct md5_ctx *ctx)
 
 /* Writes the ASCII representation of the MD5 digest into the
  * given buffer, which must be at least 33 characters long. */
-void ne_md5_to_ascii(const unsigned char md5_buf[16], char *buffer) 
+void ne_md5_to_ascii(const unsigned char md5_buf[16], char *buffer)
 {
     int count;
     for (count = 0; count<16; count++) {
@@ -439,7 +439,7 @@ void ne_md5_to_ascii(const unsigned char md5_buf[16], char *buffer)
 
 /* Reads the ASCII representation of an MD5 digest. The buffer must
  * be at least 32 characters long. */
-void ne_ascii_to_md5(const char *buffer, unsigned char md5_buf[16]) 
+void ne_ascii_to_md5(const char *buffer, unsigned char md5_buf[16])
 {
     int count;
     for (count = 0; count<16; count++) {

@@ -1,4 +1,4 @@
-/* 
+/*
    URI manipulation routines.
    Copyright (C) 1999-2006, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,7 +6,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -58,11 +58,11 @@
 #define DG (0x0400) /* DIGIT */
 #define AL (0x0800) /* ALPHA */
 
-#define GD (0x1000) /* gen-delims    = "#" / "[" / "]" 
+#define GD (0x1000) /* gen-delims    = "#" / "[" / "]"
                      * ... except ":", "/", "@", and "?" */
 
 #define SD (0x2000) /* sub-delims    = "!" / "$" / "&" / "'" / "(" / ")"
-                     *               / "*" / "+" / "," / ";" / "=" 
+                     *               / "*" / "+" / "," / ";" / "="
                      * ... except "+" which is PS */
 
 #define OT (0x4000) /* others */
@@ -102,19 +102,19 @@ static const unsigned int uri_chars[256] = {
 /*   5x */ AL, AL, AL, AL, AL, AL, AL, AL, AL, AL, AL, GD, OT, GD, OT, US,
 /*   6x */ OT, AL, AL, AL, AL, AL, AL, AL, AL, AL, AL, AL, AL, AL, AL, AL,
 /*   7x */ AL, AL, AL, AL, AL, AL, AL, AL, AL, AL, AL, OT, OT, OT, TD, OT,
-/*   8x */ OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, 
-/*   9x */ OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, 
-/*   Ax */ OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, 
-/*   Bx */ OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, 
-/*   Cx */ OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, 
-/*   Dx */ OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, 
-/*   Ex */ OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, 
+/*   8x */ OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT,
+/*   9x */ OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT,
+/*   Ax */ OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT,
+/*   Bx */ OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT,
+/*   Cx */ OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT,
+/*   Dx */ OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT,
+/*   Ex */ OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT,
 /*   Fx */ OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT
 };
 
 #define uri_lookup(ch) (uri_chars[(unsigned char)ch])
 
-char *ne_path_parent(const char *uri) 
+char *ne_path_parent(const char *uri)
 {
     size_t len = strlen(uri);
     const char *pnt = uri + len - 1;
@@ -129,7 +129,7 @@ char *ne_path_parent(const char *uri)
     return ne_strndup(uri, pnt - uri + 1);
 }
 
-int ne_path_has_trailing_slash(const char *uri) 
+int ne_path_has_trailing_slash(const char *uri)
 {
     size_t len = strlen(uri);
     return ((len > 0) &&
@@ -160,7 +160,7 @@ int ne_uri_parse(const char *uri, ne_uri *parsed)
     if (uri_lookup(*p) & URI_ALPHA) {
         while (uri_lookup(*p) & URI_SCHEME)
             p++;
-        
+
         if (*p == ':') {
             parsed->scheme = ne_strndup(uri, p - s);
             s = p + 1;
@@ -174,7 +174,7 @@ int ne_uri_parse(const char *uri, ne_uri *parsed)
 
         /* => s = "//" authority path-abempty (from expansion of
          * either heir-part of relative-part)  */
-        
+
         /* authority = [ userinfo "@" ] host [ ":" port ] */
 
         s = pa = s + 2; /* => s = authority */
@@ -182,7 +182,7 @@ int ne_uri_parse(const char *uri, ne_uri *parsed)
         while (*pa != '/' && *pa != '\0')
             pa++;
         /* => pa = path-abempty */
-        
+
         p = s;
         while (p < pa && uri_lookup(*p) & URI_USERINFO)
             p++;
@@ -222,8 +222,8 @@ int ne_uri_parse(const char *uri, ne_uri *parsed)
                 parsed->port = UINT_MAX;
         }
         parsed->host = ne_strndup(s, p - s);
-        
-        s = pa;        
+
+        s = pa;
 
         if (*s == '\0') {
             s = "/"; /* FIXME: scheme-specific. */
@@ -253,7 +253,7 @@ int ne_uri_parse(const char *uri, ne_uri *parsed)
 
         if (*s == '?') {
             parsed->query = ne_strndup(s + 1, p - s - 1);
-            
+
             if (*p != '\0') {
                 s = p++;
 
@@ -272,7 +272,7 @@ int ne_uri_parse(const char *uri, ne_uri *parsed)
             return -1;
         }
     }
-    
+
     return 0;
 }
 
@@ -285,7 +285,7 @@ static char *merge_paths(const ne_uri *base, const char *path)
     if (base->host && base->path[0] == '\0') {
         return ne_concat("/", path, NULL);
     }
-    
+
     p = strrchr(base->path, '/');
     if (p == NULL) {
         return ne_strdup(path);
@@ -313,7 +313,7 @@ static char *remove_dot_segments(const char *path)
         /* case 2.A: */
         if (strncmp(in, "./", 2) == 0) {
             in += 2;
-        } 
+        }
         else if (strncmp(in, "../", 3) == 0) {
             in += 3;
         }
@@ -422,7 +422,7 @@ ne_uri *ne_uri_resolve(const ne_uri *base, const ne_uri *relative,
         }
         if (base->scheme) target->scheme = ne_strdup(base->scheme);
     }
-    
+
     if (relative->fragment) target->fragment = ne_strdup(relative->fragment);
 
     return target;
@@ -452,14 +452,14 @@ void ne_uri_free(ne_uri *u)
     memset(u, 0, sizeof *u);
 }
 
-char *ne_path_unescape(const char *uri) 
+char *ne_path_unescape(const char *uri)
 {
     const char *pnt;
     char *ret, *retpos, buf[5] = { "0x00" };
     retpos = ret = ne_malloc(strlen(uri) + 1);
     for (pnt = uri; *pnt != '\0'; pnt++) {
 	if (*pnt == '%') {
-	    if (!isxdigit((unsigned char) pnt[1]) || 
+	    if (!isxdigit((unsigned char) pnt[1]) ||
 		!isxdigit((unsigned char) pnt[2])) {
 		/* Invalid URI */
                 ne_free(ret);
@@ -479,7 +479,7 @@ char *ne_path_unescape(const char *uri)
  * percent-encoded. */
 #define path_escape_ch(ch) (uri_lookup(ch) & URI_ESCAPE)
 
-char *ne_path_escape(const char *path) 
+char *ne_path_escape(const char *path)
 {
     const unsigned char *pnt;
     char *ret, *p;
@@ -527,7 +527,7 @@ char *ne_path_escape(const char *path)
 int ne_uri_cmp(const ne_uri *u1, const ne_uri *u2)
 {
     int n;
-    
+
     CMP(path);
     CASECMP(host);
     CASECMP(scheme);
@@ -543,7 +543,7 @@ int ne_uri_cmp(const ne_uri *u1, const ne_uri *u2)
 #undef CMPWITH
 
 /* TODO: implement properly */
-int ne_path_compare(const char *a, const char *b) 
+int ne_path_compare(const char *a, const char *b)
 {
     int ret = ne_strcasecmp(a, b);
     if (ret) {
@@ -578,9 +578,9 @@ char *ne_uri_unparse(const ne_uri *uri)
             ne_buffer_concat(buf, uri->userinfo, "@", NULL);
         }
         ne_buffer_zappend(buf, uri->host);
-        
+
         if (uri->port > 0
-            && (!uri->scheme 
+            && (!uri->scheme
                 || ne_uri_defaultport(uri->scheme) != uri->port)) {
             char str[20];
             ne_snprintf(str, 20, ":%d", uri->port);
@@ -593,7 +593,7 @@ char *ne_uri_unparse(const ne_uri *uri)
     if (uri->query) {
         ne_buffer_concat(buf, "?", uri->query, NULL);
     }
-    
+
     if (uri->fragment) {
         ne_buffer_concat(buf, "#", uri->fragment, NULL);
     }
@@ -601,9 +601,9 @@ char *ne_uri_unparse(const ne_uri *uri)
     return ne_buffer_finish(buf);
 }
 
-/* Give it a path segment, it returns non-zero if child is 
+/* Give it a path segment, it returns non-zero if child is
  * a child of parent. */
-int ne_path_childof(const char *parent, const char *child) 
+int ne_path_childof(const char *parent, const char *child)
 {
     char *root = ne_strdup(child);
     int ret;

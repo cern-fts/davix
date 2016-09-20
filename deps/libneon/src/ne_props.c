@@ -1,4 +1,4 @@
-/* 
+/*
    WebDAV property manipulation
    Copyright (C) 2000-2008, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,7 +6,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -45,7 +45,7 @@ struct ne_propfind_handler_s {
     int has_props; /* whether we've already written some
 		    * props to the body. */
     ne_buffer *body;
-    
+
     ne_207_parser *parser207;
     ne_xml_parser *parser;
 
@@ -53,7 +53,7 @@ struct ne_propfind_handler_s {
     ne_props_create_complex creator;
     ne_props_destroy_complex destructor;
     void *cd_userdata;
-    
+
     /* Current propset, or NULL if none being processed. */
     ne_prop_result_set *current;
 
@@ -92,10 +92,10 @@ struct ne_prop_result_set_s {
 
 #define MAX_PROP_COUNTER (1024)
 
-static int 
+static int
 startelm(void *userdata, int state, const char *name, const char *nspace,
 	 const char **atts);
-static int 
+static int
 endelm(void *userdata, int state, const char *name, const char *nspace);
 
 /* Handle character data; flat property value. */
@@ -119,13 +119,13 @@ ne_request *ne_propfind_get_request(ne_propfind_handler *handler)
     return handler->request;
 }
 
-static int propfind(ne_propfind_handler *handler, 
+static int propfind(ne_propfind_handler *handler,
 		    ne_props_result results, void *userdata)
 {
     int ret;
     ne_request *req = handler->request;
 
-    /* Register the flat property handler to catch any properties 
+    /* Register the flat property handler to catch any properties
      * which the user isn't handling as 'complex'. */
     ne_xml_push_handler(handler->parser, startelm, chardata, endelm, handler);
 
@@ -136,8 +136,8 @@ static int propfind(ne_propfind_handler *handler,
 			       ne_buffer_size(handler->body));
 
     ne_add_request_header(req, "Content-Type", NE_XML_MEDIA_TYPE);
-    
-    ne_add_response_body_reader(req, ne_accept_207, ne_xml_parse_v, 
+
+    ne_add_response_body_reader(req, ne_accept_207, ne_xml_parse_v,
 				  handler->parser);
 
     ret = ne_request_dispatch(req);
@@ -156,20 +156,20 @@ static void set_body(ne_propfind_handler *hdl, const ne_propname *names)
 {
     ne_buffer *body = hdl->body;
     int n;
-    
+
     if (!hdl->has_props) {
 	ne_buffer_czappend(body, "<prop>\n");
 	hdl->has_props = 1;
     }
 
     for (n = 0; names[n].name != NULL; n++) {
-	ne_buffer_concat(body, "<", names[n].name, " xmlns=\"", 
+	ne_buffer_concat(body, "<", names[n].name, " xmlns=\"",
 			 NSPACE(names[n].nspace), "\"/>\n", NULL);
     }
 
 }
 
-int ne_propfind_allprop(ne_propfind_handler *handler, 
+int ne_propfind_allprop(ne_propfind_handler *handler,
 			 ne_props_result results, void *userdata)
 {
     ne_buffer_czappend(handler->body, "<allprop/></propfind>\n");
@@ -186,13 +186,13 @@ int ne_propfind_named(ne_propfind_handler *handler, const ne_propname *props,
 
 
 /* The easy one... PROPPATCH */
-int ne_proppatch(ne_session *sess, const char *uri, 
+int ne_proppatch(ne_session *sess, const char *uri,
 		 const ne_proppatch_operation *items)
 {
     ne_request *req = ne_request_create(sess, "PROPPATCH", uri);
     ne_buffer *body = ne_buffer_create();
     int n, ret;
-    
+
     /* Create the request body */
     ne_buffer_czappend(body, "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n"
                        "<D:propertyupdate xmlns:D=\"DAV:\">");
@@ -203,7 +203,7 @@ int ne_proppatch(ne_session *sess, const char *uri,
 	/* <set><prop><prop-name>value</prop-name></prop></set> */
 	ne_buffer_concat(body, "<D:", elm, "><D:prop>"
 			 "<", items[n].name->name, NULL);
-	
+
 	if (items[n].name->nspace) {
 	    ne_buffer_concat(body, " xmlns=\"", items[n].name->nspace, "\"", NULL);
 	}
@@ -214,21 +214,21 @@ int ne_proppatch(ne_session *sess, const char *uri,
 	    ne_buffer_append(body, ">", 1);
 	}
 
-	ne_buffer_concat(body, "</", items[n].name->name, "></D:prop></D:", elm, 
+	ne_buffer_concat(body, "</", items[n].name->name, "></D:prop></D:", elm,
                          ">\n", NULL);
-    }	
+    }
 
     ne_buffer_czappend(body, "</D:propertyupdate>\n");
 
     ne_set_request_body_buffer(req, body->data, ne_buffer_size(body));
     ne_add_request_header(req, "Content-Type", NE_XML_MEDIA_TYPE);
-    
+
 #ifdef NE_HAVE_DAV
     ne_lock_using_resource(req, uri, NE_DEPTH_ZERO);
 #endif
 
     ret = ne_simple_request(sess, req);
-    
+
     ne_buffer_destroy(body);
 
     return ret;
@@ -255,7 +255,7 @@ static int pnamecmp(const ne_propname *pn1, const ne_propname *pn2)
 static int findprop(const ne_prop_result_set *set, const ne_propname *pname,
 		    struct propstat **pstat_ret, struct prop **prop_ret)
 {
-    
+
     int ps, p;
 
     for (ps = 0; ps < set->numpstats; ps++) {
@@ -279,7 +279,7 @@ const char *ne_propset_value(const ne_prop_result_set *set,
 			      const ne_propname *pname)
 {
     struct prop *prop;
-    
+
     if (findprop(set, pname, NULL, &prop)) {
 	return NULL;
     } else {
@@ -317,7 +317,7 @@ int ne_propset_iterate(const ne_prop_result_set *set,
     for (ps = 0; ps < set->numpstats; ps++) {
 	for (p = 0; p < set->pstats[ps].numprops; p++) {
 	    struct prop *prop = &set->pstats[ps].props[p];
-	    int ret = iterator(userdata, &prop->pname, prop->value, 
+	    int ret = iterator(userdata, &prop->pname, prop->value,
 			       &set->pstats[ps].status);
 	    if (ret)
 		return ret;
@@ -332,7 +332,7 @@ const ne_status *ne_propset_status(const ne_prop_result_set *set,
 				      const ne_propname *pname)
 {
     struct propstat *pstat;
-    
+
     if (findprop(set, pname, &pstat, NULL)) {
 	/* TODO: it is tempting to return a dummy status object here
 	 * rather than NULL, which says "Property result was not given
@@ -371,14 +371,14 @@ static void *start_propstat(void *userdata, void *response)
         ne_xml_set_error(hdl->parser, _("Response exceeds maximum property count"));
         return NULL;
     }
-    
+
     n = set->numpstats;
     set->pstats = ne_realloc(set->pstats, sizeof(struct propstat) * (n+1));
     set->numpstats = n+1;
 
     pstat = &set->pstats[n];
     memset(pstat, 0, sizeof(*pstat));
-    
+
     /* And return this as the new pstat. */
     return &set->pstats[n];
 }
@@ -393,7 +393,7 @@ static int startelm(void *userdata, int parent,
     const char *lang;
 
     /* Just handle all children of propstat and their descendants. */
-    if ((parent != NE_207_STATE_PROP && parent != ELM_flatprop) 
+    if ((parent != NE_207_STATE_PROP && parent != ELM_flatprop)
         || pstat == NULL)
         return NE_XML_DECLINE;
 
@@ -404,7 +404,7 @@ static int startelm(void *userdata, int parent,
             const char **a = atts;
 
             ne_buffer_concat(hdl->value, "<", nspace, name, NULL);
-            
+
             while (a[0] && hdl->value->used < MAX_FLATPROP_LEN) {
                 const char *nsep = strchr(a[0], ':'), *pfx;
 
@@ -412,9 +412,9 @@ static int startelm(void *userdata, int parent,
                  * Ignore a failure to resolve the namespace prefix. */
                 pfx = nsep ? ne_xml_resolve_nspace(hdl->parser,
                                                    a[0], nsep - a[0]) : NULL;
-                
+
                 if (pfx) {
-                    ne_buffer_concat(hdl->value, " ", pfx, nsep + 1, "='", 
+                    ne_buffer_concat(hdl->value, " ", pfx, nsep + 1, "='",
                                      a[1], "'", NULL);
                 }
                 else {
@@ -427,7 +427,7 @@ static int startelm(void *userdata, int parent,
         }
 
         return ELM_flatprop;
-    }        
+    }
 
     /* Enforce maximum number of properties per resource to prevent a
      * memory exhaustion attack by a hostile server. */
@@ -453,7 +453,7 @@ static int startelm(void *userdata, int parent,
     }
     prop->value = NULL;
 
-    NE_DEBUG(NE_DBG_XML, "Got property #%d: {%s}%s.", n, 
+    NE_DEBUG(NE_DBG_XML, "Got property #%d: {%s}%s.", n,
 	     NSPACE(prop->nspace), prop->name);
 
     /* This is under discussion at time of writing (April '01), and it
@@ -495,7 +495,7 @@ static int endelm(void *userdata, int state,
     return 0;
 }
 
-static void end_propstat(void *userdata, void *pstat_v, 
+static void end_propstat(void *userdata, void *pstat_v,
 			 const ne_status *status,
 			 const char *description)
 {
@@ -518,7 +518,7 @@ static void end_propstat(void *userdata, void *pstat_v,
      * we can't rely on that here. */
     if (status->klass != 2) {
 	int n;
-	
+
 	for (n = 0; n < pstat->numprops; n++) {
 	    ne_free(pstat->props[n].value);
 	    pstat->props[n].value = NULL;
@@ -535,7 +535,7 @@ static void free_propset(ne_propfind_handler *handler,
                          ne_prop_result_set *set)
 {
     int n;
-    
+
     if (handler->destructor && set->private) {
         handler->destructor(handler->cd_userdata, set->private);
     }
@@ -549,7 +549,7 @@ static void free_propset(ne_propfind_handler *handler,
             ne_free(p->props[m].name);
             if (p->props[m].lang) ne_free(p->props[m].lang);
             if (p->props[m].value) ne_free(p->props[m].value);
-            p->props[m].nspace = p->props[m].lang = 
+            p->props[m].nspace = p->props[m].lang =
                 p->props[m].value = NULL;
 	}
 
@@ -599,15 +599,15 @@ ne_propfind_create(ne_session *sess, const char *uri, int depth)
 
     ne_add_depth_header(ret->request, depth);
 
-    ne_207_set_response_handlers(ret->parser207, 
+    ne_207_set_response_handlers(ret->parser207,
 				  start_response, end_response);
 
     ne_207_set_propstat_handlers(ret->parser207, start_propstat,
 				  end_propstat);
 
     /* The start of the request body is fixed: */
-    ne_buffer_czappend(ret->body, 
-                       "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" 
+    ne_buffer_czappend(ret->body,
+                       "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                        "<propfind xmlns=\"DAV:\">");
 
     ne_uri_free(&base);
@@ -625,7 +625,7 @@ void ne_propfind_destroy(ne_propfind_handler *handler)
     ne_xml_destroy(handler->parser);
     ne_buffer_destroy(handler->body);
     ne_request_destroy(handler->request);
-    ne_free(handler);    
+    ne_free(handler);
 }
 
 int ne_simple_propfind(ne_session *sess, const char *href, int depth,
@@ -641,9 +641,9 @@ int ne_simple_propfind(ne_session *sess, const char *href, int depth,
     } else {
 	ret = ne_propfind_allprop(hdl, results, userdata);
     }
-	
+
     ne_propfind_destroy(hdl);
-    
+
     return ret;
 }
 

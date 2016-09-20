@@ -1,4 +1,4 @@
-/* 
+/*
    HTTP session handling
    Copyright (C) 1999-2009, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,7 +6,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -77,7 +77,7 @@ static void free_proxies(ne_session *sess)
     sess->any_proxy_http = 0;
 }
 
-void ne_session_destroy(ne_session *sess) 
+void ne_session_destroy(ne_session *sess)
 {
     struct hook *hk;
 
@@ -94,7 +94,7 @@ void ne_session_destroy(ne_session *sess)
     if (sess->connected) {
         ne_close_connection(sess);
     }
-    
+
     destroy_hooks(sess->create_req_hooks);
     destroy_hooks(sess->pre_send_hooks);
     destroy_hooks(sess->post_headers_hooks);
@@ -119,7 +119,7 @@ void ne_session_destroy(ne_session *sess)
 
     if (sess->server_cert)
         ne_ssl_cert_free(sess->server_cert);
-    
+
     if (sess->client_cert)
         ne_ssl_clicert_free(sess->client_cert);
 #endif
@@ -144,7 +144,7 @@ static void set_hostport(struct host_info *host, unsigned int defaultport)
 
 /* Stores the hostname/port in *info, setting up the "hostport"
  * segment correctly. */
-static void set_hostinfo(struct host_info *hi, enum proxy_type type, 
+static void set_hostinfo(struct host_info *hi, enum proxy_type type,
                          const char *hostname, unsigned int port)
 {
     hi->hostname = ne_strdup(hostname);
@@ -164,7 +164,7 @@ ne_session *ne_session_create(const char *scheme,
 
     /* use SSL if scheme is https */
     sess->use_ssl = !strcmp(scheme, "https");
-    
+
     /* set the hostname/port */
     set_hostinfo(&sess->server, PROXY_NONE, hostname, port);
     set_hostport(&sess->server, sess->use_ssl?443:80);
@@ -175,7 +175,7 @@ ne_session *ne_session_create(const char *scheme,
 
         sess->ssl_context = ne_ssl_context_create(0);
         sess->flags[NE_SESSFLAG_SSLv2] = 1;
-        
+
         /* If the hostname parses as an IP address, don't
          * enable SNI by default. */
         ia = ne_iaddr_parse(hostname, ne_iaddr_ipv4);
@@ -184,7 +184,7 @@ ne_session *ne_session_create(const char *scheme,
 
         if (ia) {
             ne_iaddr_free(ia);
-        } 
+        }
         else {
             sess->flags[NE_SESSFLAG_TLS_SNI] = 1;
         }
@@ -210,11 +210,11 @@ void ne_session_proxy(ne_session *sess, const char *hostname,
     sess->proxies = ne_calloc(sizeof *sess->proxies);
 
     sess->any_proxy_http = 1;
-    
+
     set_hostinfo(sess->proxies, PROXY_HTTP, hostname, port);
 }
 
-void ne_session_socks_proxy(ne_session *sess, enum ne_sock_sversion vers, 
+void ne_session_socks_proxy(ne_session *sess, enum ne_sock_sversion vers,
                             const char *hostname, unsigned int port,
                             const char *username, const char *password)
 {
@@ -251,18 +251,18 @@ void ne_session_system_proxy(ne_session *sess, unsigned int flags)
 
     /* Get list of pseudo-URIs from libproxy: */
     proxies = px_proxy_factory_get_proxies(pxf, url);
-    
+
     for (n = 0, lasthi = &sess->proxies; proxies[n]; n++) {
         enum proxy_type ptype;
 
         ne_uri_free(&uri);
 
-        NE_DEBUG(NE_DBG_HTTP, "sess: libproxy #%u=%s", 
+        NE_DEBUG(NE_DBG_HTTP, "sess: libproxy #%u=%s",
                  n, proxies[n]);
 
         if (ne_uri_parse(proxies[n], &uri))
             continue;
-        
+
         if (!uri.scheme) continue;
 
         if (ne_strcasecmp(uri.scheme, "http") == 0)
@@ -277,7 +277,7 @@ void ne_session_system_proxy(ne_session *sess, unsigned int flags)
         /* Hostname/port required for http/socks schemes. */
         if (ptype != PROXY_NONE && !(uri.host && uri.port))
             continue;
-        
+
         /* Do nothing if libproxy returned only a single "direct://"
          * entry -- a single "direct" (noop) proxy is equivalent to
          * having none. */
@@ -287,9 +287,9 @@ void ne_session_system_proxy(ne_session *sess, unsigned int flags)
         NE_DEBUG(NE_DBG_HTTP, "sess: Got proxy %s://%s:%d",
                  uri.scheme, uri.host ? uri.host : "(none)",
                  uri.port);
-        
+
         hi = *lasthi = ne_calloc(sizeof *hi);
-        
+
         if (ptype == PROXY_NONE) {
             /* A "direct" URI requires an attempt to connect directly to
              * the origin server, so dup the server details. */
@@ -331,7 +331,7 @@ void ne_set_addrlist(ne_session *sess, const ne_inet_addr **addrs, size_t n)
 
     for (i = 0; i < n; i++) {
         *lasthi = hi = ne_calloc(sizeof *hi);
-        
+
         hi->proxy = PROXY_NONE;
         hi->network = addrs[i];
         hi->port = sess->server.port;
@@ -342,7 +342,7 @@ void ne_set_addrlist(ne_session *sess, const ne_inet_addr **addrs, size_t n)
 
 void ne_set_localaddr(ne_session *sess, const ne_inet_addr *addr)
 {
-    sess->local_addr = addr;    
+    sess->local_addr = addr;
 }
 
 void ne_set_error(ne_session *sess, const char *format, ...)
@@ -380,7 +380,7 @@ static void progress_notifier(void *userdata, ne_session_status status,
     ne_session *sess = userdata;
 
     if (status == ne_status_sending || status == ne_status_recving) {
-        sess->progress_cb(sess->progress_ud, info->sr.progress, info->sr.total);    
+        sess->progress_cb(sess->progress_ud, info->sr.progress, info->sr.total);
     }
 }
 
@@ -419,7 +419,7 @@ void ne_set_connect_timeout(ne_session *sess, int timeout)
 void ne_set_useragent(ne_session *sess, const char *token)
 {
     if (sess->user_agent) ne_free(sess->user_agent);
-    sess->user_agent = ne_malloc(strlen(UAHDR) + strlen(AGENT) + 
+    sess->user_agent = ne_malloc(strlen(UAHDR) + strlen(AGENT) +
                                  strlen(token) + 1);
 #ifdef HAVE_STPCPY
     strcpy(stpcpy(stpcpy(sess->user_agent, UAHDR), token), AGENT);
@@ -473,7 +473,7 @@ void ne_close_connection(ne_session *sess)
 
         if (sess->notify_cb) {
             sess->status.cd.hostname = sess->nexthop->hostname;
-            sess->notify_cb(sess->notify_ud, ne_status_disconnected, 
+            sess->notify_cb(sess->notify_ud, ne_status_disconnected,
                             &sess->status);
         }
 
@@ -498,7 +498,7 @@ void ne_ssl_set_verify(ne_session *sess, ne_ssl_verify_fn fn, void *userdata)
     sess->ssl_verify_ud = userdata;
 }
 
-void ne_ssl_provide_clicert(ne_session *sess, 
+void ne_ssl_provide_clicert(ne_session *sess,
 			  ne_ssl_provide_fn fn, void *userdata)
 {
     sess->ssl_provide_fn = fn;
@@ -530,7 +530,7 @@ void ne_ssl_cert_validity(const ne_ssl_certificate *cert, char *from, char *unti
     char *date;
 
     ne_ssl_cert_validity_time(cert, &tf, &tu);
-    
+
     if (from) {
         if (tf != (time_t) -1) {
             date = ne_rfc1123_date(tf);
@@ -541,7 +541,7 @@ void ne_ssl_cert_validity(const ne_ssl_certificate *cert, char *from, char *unti
             ne_strnzcpy(from, _("[invalid date]"), NE_SSL_VDATELEN);
         }
     }
-        
+
     if (until) {
         if (tu != (time_t) -1) {
             date = ne_rfc1123_date(tu);
@@ -605,7 +605,7 @@ int ne__ssl_match_hostname(const char *cn, size_t cnlen, const char *hostname)
         ia = ne_iaddr_parse(hostname, ne_iaddr_ipv4);
         if (ia == NULL)
             ia = ne_iaddr_parse(hostname, ne_iaddr_ipv6);
-        
+
         if (ia) {
             NE_DEBUG(NE_DBG_SSL, "ssl: Denying wildcard match for numeric "
                      "IP address.\n");
@@ -645,7 +645,7 @@ static void add_hook(struct hook **hooks, const char *id, void_fn fn, void *ud)
     hk->next = NULL;
 }
 
-void ne_hook_create_request(ne_session *sess, 
+void ne_hook_create_request(ne_session *sess,
 			    ne_create_request_fn fn, void *userdata)
 {
     ADD_HOOK(sess->create_req_hooks, fn, userdata);
@@ -661,7 +661,7 @@ void ne_hook_post_send(ne_session *sess, ne_post_send_fn fn, void *userdata)
     ADD_HOOK(sess->post_send_hooks, fn, userdata);
 }
 
-void ne_hook_post_headers(ne_session *sess, ne_post_headers_fn fn, 
+void ne_hook_post_headers(ne_session *sess, ne_post_headers_fn fn,
                           void *userdata)
 {
     ADD_HOOK(sess->post_headers_hooks, fn, userdata);
@@ -670,7 +670,7 @@ void ne_hook_post_headers(ne_session *sess, ne_post_headers_fn fn,
 void ne_hook_destroy_request(ne_session *sess,
 			     ne_destroy_req_fn fn, void *userdata)
 {
-    ADD_HOOK(sess->destroy_req_hooks, fn, userdata);    
+    ADD_HOOK(sess->destroy_req_hooks, fn, userdata);
 }
 
 void ne_hook_destroy_session(ne_session *sess,
@@ -707,7 +707,7 @@ static void remove_hook(struct hook **hooks, void_fn fn, void *ud)
 
 #define REMOVE_HOOK(hooks, fn, ud) remove_hook(&hooks, (void_fn)fn, ud)
 
-void ne_unhook_create_request(ne_session *sess, 
+void ne_unhook_create_request(ne_session *sess,
                               ne_create_request_fn fn, void *userdata)
 {
     REMOVE_HOOK(sess->create_req_hooks, fn, userdata);
@@ -718,7 +718,7 @@ void ne_unhook_pre_send(ne_session *sess, ne_pre_send_fn fn, void *userdata)
     REMOVE_HOOK(sess->pre_send_hooks, fn, userdata);
 }
 
-void ne_unhook_post_headers(ne_session *sess, ne_post_headers_fn fn, 
+void ne_unhook_post_headers(ne_session *sess, ne_post_headers_fn fn,
 			    void *userdata)
 {
     REMOVE_HOOK(sess->post_headers_hooks, fn, userdata);
@@ -732,7 +732,7 @@ void ne_unhook_post_send(ne_session *sess, ne_post_send_fn fn, void *userdata)
 void ne_unhook_destroy_request(ne_session *sess,
                                ne_destroy_req_fn fn, void *userdata)
 {
-    REMOVE_HOOK(sess->destroy_req_hooks, fn, userdata);    
+    REMOVE_HOOK(sess->destroy_req_hooks, fn, userdata);
 }
 
 void ne_unhook_destroy_session(ne_session *sess,

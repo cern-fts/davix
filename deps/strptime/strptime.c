@@ -24,7 +24,7 @@
  * 				<http://www.r-project.org/> with locale support removed.
  *        Support for Windows locales added by Nils Durner for PlibC
  */
- 
+
 #include <davix_internal_config.hpp>
 
 //#include "plibc_private.h"
@@ -128,7 +128,7 @@ enum locale_status { not, loc, raw };
 void conv_winpic(char *win, char **posix)
 {
   char *src, *dst;
-  
+
   src = win;
   *posix = dst = malloc(strlen(src) * 2 + 1);
   while(*src)
@@ -144,7 +144,7 @@ void conv_winpic(char *win, char **posix)
               src += 5; // yyyyy
             else
               src += 4; // yyyy
-            
+
             dst += 2;
           }
           else // yyy
@@ -185,14 +185,14 @@ void conv_winpic(char *win, char **posix)
         else // MM
         {
           strcpy(dst, "%m");
-          src += 2;        
+          src += 2;
         }
       else // M
       {
         strcpy(dst, "%m");
         src += 1;
       }
-      
+
       dst += 2;
     }
     else if (src[0] == 'd')
@@ -220,7 +220,7 @@ void conv_winpic(char *win, char **posix)
         strcpy(dst, "%d");
         src++;
       }
-      
+
       dst += 2;
     }
     else if (src[0] == 'g' && src[1] == 'g')
@@ -276,9 +276,9 @@ void conv_winpic(char *win, char **posix)
       *dst = *src;
       dst++;
       src++;
-    }    
+    }
   }
-  
+
   dst[0] = 0;
 }
 
@@ -427,10 +427,10 @@ strptime_internal (const char *rp, const char *fmt, struct tm *tm,
       unsigned int loc;
       char winpic[100];
       int ret;
-      
+
       loc = GetThreadLocale();
       GetLocaleInfo(loc, LOCALE_SSHORTDATE, winpic, 100);
-      
+
       conv_winpic(winpic, &pic);
       ret = recursive(pic);
       free(pic);
@@ -530,10 +530,10 @@ strptime_internal (const char *rp, const char *fmt, struct tm *tm,
       unsigned int loc;
       char winpic[100];
       int ret;
-      
+
       loc = GetThreadLocale();
       GetLocaleInfo(loc, LOCALE_STIMEFORMAT, winpic, 100);
-      
+
       conv_winpic(winpic, &pic);
       ret = recursive(pic);
       free(pic);

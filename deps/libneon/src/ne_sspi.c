@@ -1,4 +1,4 @@
-/* 
+/*
    Microsoft SSPI based authentication routines
    Copyright (C) 2004-2005, Vladimir Berezniker @ http://public.xdi.org/=vmpn
    Copyright (C) 2007, Yves Martin  <ymartin59@free.fr>
@@ -7,7 +7,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -339,7 +339,7 @@ static char *canonical_hostname(const char *serverName)
 {
     char *hostname;
     ne_sock_addr *addresses;
-    
+
     /* DNS resolution.  It would be useful to be able to use the
      * AI_CANONNAME flag where getaddrinfo() is available, but the
      * reverse-lookup is sufficient and simpler. */

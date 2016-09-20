@@ -1,4 +1,4 @@
-/* 
+/*
    HTTP-redirect support
    Copyright (C) 1999-2007, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,7 +6,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -85,7 +85,7 @@ static int post_send(ne_request *req, void *private, const ne_status *status)
 
     /* free last uri. */
     ne_uri_free(&red->uri);
-    
+
     /* Parse the Location header */
     if (ne_uri_parse(location, &red->uri) || red->uri.path == NULL) {
         red->valid = 0;
@@ -119,7 +119,7 @@ static void free_redirect(void *cookie)
 void ne_redirect_register(ne_session *sess)
 {
     struct redirect *red = ne_calloc(sizeof *red);
-    
+
     red->sess = sess;
 
     ne_hook_create_request(sess, create, red);

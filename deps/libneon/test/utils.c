@@ -1,4 +1,4 @@
-/* 
+/*
    Utility functions for HTTP client tests
    Copyright (C) 2001-2008, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,12 +6,12 @@
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
    (at your option) any later version.
-  
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-  
+
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
@@ -45,7 +45,7 @@ static int serve_response(ne_socket *s, const char *response)
     CALL(discard_body(s));
     ONN("failed to send response", SEND_STRING(s, response));
     return OK;
-}    
+}
 
 int single_serve_string(ne_socket *s, void *userdata)
 {
@@ -60,7 +60,7 @@ int double_serve_sstring(ne_socket *s, void *userdata)
 
     CALL(discard_request(s));
     CALL(discard_body(s));
-    
+
     str = &args->first;
     NE_DEBUG(NE_DBG_SOCKET, "Serving string: [[[%.*s]]]\n",
 	     (int)str->len, str->data);
@@ -87,7 +87,7 @@ int many_serve_string(ne_socket *s, void *userdata)
 {
     int n;
     struct many_serve_args *args = userdata;
-    
+
     for (n = 0; n < args->count; n++) {
 	NE_DEBUG(NE_DBG_HTTP, "Serving response %d\n", n);
 	CALL(serve_response(s, args->str));
@@ -138,7 +138,7 @@ int serve_sstring(ne_socket *sock, void *ud)
 	     (int)str->len, str->data);
 
     ONN("write failed", ne_sock_fullwrite(sock, str->data, str->len));
-    
+
     return 0;
 }
 
@@ -149,12 +149,12 @@ int serve_sstring_slowly(ne_socket *sock, void *ud)
 
     NE_DEBUG(NE_DBG_SOCKET, "Slowly serving string: [[[%.*s]]]\n",
 	     (int)str->len, str->data);
-    
+
     for (n = 0; n < str->len; n++) {
 	ONN("write failed", ne_sock_fullwrite(sock, &str->data[n], 1));
 	minisleep();
     }
-    
+
     return 0;
 }
 
@@ -168,7 +168,7 @@ int serve_infinite(ne_socket *sock, void *ud)
 
     while (server_send(sock, i->repeat, strlen(i->repeat)) == 0)
         /* nullop */;
-    
+
     return OK;
 }
 

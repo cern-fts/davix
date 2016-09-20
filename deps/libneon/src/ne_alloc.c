@@ -1,4 +1,4 @@
-/* 
+/*
    Replacement memory allocation handling etc.
    Copyright (C) 1999-2005, Joe Orton <joe@manyfish.co.uk>
 
@@ -6,7 +6,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -51,14 +51,14 @@ void ne_oom_callback(ne_oom_callback_fn callback)
     }						\
 } while(0);
 
-void *ne_malloc(size_t len) 
+void *ne_malloc(size_t len)
 {
     void *ptr;
     DO_MALLOC(ptr, len);
     return ptr;
 }
 
-void *ne_calloc(size_t len) 
+void *ne_calloc(size_t len)
 {
     void *ptr;
     DO_MALLOC(ptr, len);
@@ -84,7 +84,7 @@ void ne_free(void *ptr)
 }
 #endif
 
-char *ne_strdup(const char *s) 
+char *ne_strdup(const char *s)
 {
     char *ret;
     DO_MALLOC(ret, strlen(s) + 1);
@@ -137,7 +137,7 @@ static void *tracking_malloc(size_t len, const char *file, int line)
 	if (oom) oom();
 	abort();
     }
-    
+
     block = malloc(sizeof *block);
     if (block != NULL) {
         block->ptr = ptr;
@@ -175,7 +175,7 @@ void *ne_realloc_ml(void *ptr, size_t s, const char *file, int line)
         if (oom) oom();
         abort();
     }
-    
+
     for (b = blocks; b != NULL; b = b->next) {
         if (b->ptr == ptr) {
             ne_alloc_used += s - b->len;
@@ -208,7 +208,7 @@ void ne_free_ml(void *ptr)
     for (b = blocks; b != NULL; last = b, b = b->next) {
         if (b->ptr == ptr) {
             ne_alloc_used -= b->len;
-            if (last) 
+            if (last)
                 last->next = b->next;
             else
                 blocks = b->next;

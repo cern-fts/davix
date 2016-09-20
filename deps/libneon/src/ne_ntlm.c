@@ -1,4 +1,4 @@
-/* 
+/*
    Handling of NTLM Authentication
    Copyright (C) 2003, Daniel Stenberg <daniel@haxx.se>
    Copyright (C) 2009, Kai Sommerfeld <kso@openoffice.org>
@@ -7,7 +7,7 @@
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -21,7 +21,7 @@
 */
 
 /* NTLM details:
-   
+
    http://davenport.sourceforge.net/ntlm.html
    http://www.innovation.ch/java/ntlm.html
 
@@ -229,8 +229,8 @@ static ntlm ne_input_ntlm(ne_ntlm_context *ctx,
       memcpy(ctx->nonce, &buffer[24], 8);
 
     /* at index decimal 20, there's a 32bit NTLM flag field */
-      
-    if (buffer) ne_free(buffer); 
+
+    if (buffer) ne_free(buffer);
   }
   else {
     if(ctx->state >= NTLMSTATE_TYPE1)
@@ -316,7 +316,7 @@ static void mkhash(char *password,
 
   if (len > 14)
     len = 14;
-  
+
   for (i=0; i<len; i++)
     pw[i] = toupper(password[i]);
 
@@ -330,7 +330,7 @@ static void mkhash(char *password,
     setup_des_key(pw, DESKEY(ks));
     DES_ecb_encrypt((DES_cblock *)magic, (DES_cblock *)lmbuffer,
                     DESKEY(ks), DES_ENCRYPT);
-  
+
     setup_des_key(pw+7, DESKEY(ks));
     DES_ecb_encrypt((DES_cblock *)magic, (DES_cblock *)(lmbuffer+8),
                     DESKEY(ks), DES_ENCRYPT);
@@ -384,13 +384,13 @@ static int ne_output_ntlm(ne_ntlm_context *ctx)
   if(!ctx->user || !ctx->passwd)
     /* no user, no auth */
     return 0; /* OK */
-  
+
   switch(ctx->state) {
   case NTLMSTATE_TYPE1:
   default: /* for the weird cases we (re)start here */
     hostoff = 32;
     domoff = hostoff + hostlen;
-    
+
     /* Create and send a type-1 message:
 
     Index Description          Content
@@ -443,7 +443,7 @@ static int ne_output_ntlm(ne_ntlm_context *ctx)
     ctx->requestToken = ne_base64(ntlmbuf, size);
 
     break;
-    
+
   case NTLMSTATE_TYPE2:
     /* We received the type-2 already, create a type-3 message:
 
@@ -461,7 +461,7 @@ static int ne_output_ntlm(ne_ntlm_context *ctx)
     52 (64) start of data block
 
     */
-  
+
   {
     int lmrespoff;
     int ntrespoff;
@@ -511,25 +511,25 @@ static int ne_output_ntlm(ne_ntlm_context *ctx)
                     "%c%c" /* NT-response allocated space */
                     "%c%c" /* NT-response offset */
                     "%c%c" /* 2 zeroes */
-                    
+
                     "%c%c"  /* domain length */
                     "%c%c"  /* domain allocated space */
                     "%c%c"  /* domain name offset */
                     "%c%c"  /* 2 zeroes */
-                    
+
                     "%c%c"  /* user length */
                     "%c%c"  /* user allocated space */
                     "%c%c"  /* user offset */
                     "%c%c"  /* 2 zeroes */
-                    
+
                     "%c%c"  /* host length */
                     "%c%c"  /* host allocated space */
                     "%c%c"  /* host offset */
                     "%c%c%c%c%c%c"  /* 6 zeroes */
-                    
+
                     "\xff\xff"  /* message length */
                     "%c%c"  /* 2 zeroes */
-                    
+
                     "\x01\x82" /* flags */
                     "%c%c"  /* 2 zeroes */
 
@@ -546,7 +546,7 @@ static int ne_output_ntlm(ne_ntlm_context *ctx)
                     SHORTPAIR(0x18),
                     SHORTPAIR(lmrespoff),
                     0x0, 0x0,
-                    
+
 #ifdef USE_NTRESPONSES
                     SHORTPAIR(0x18),  /* NT-response length, twice */
                     SHORTPAIR(0x18),
@@ -566,12 +566,12 @@ static int ne_output_ntlm(ne_ntlm_context *ctx)
                     SHORTPAIR(userlen),
                     SHORTPAIR(useroff),
                     0x0, 0x0,
-                    
+
                     SHORTPAIR(hostlen),
                     SHORTPAIR(hostlen),
                     SHORTPAIR(hostoff),
                     0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-             
+
                     0x0, 0x0,
 
                     0x0, 0x0);
@@ -599,7 +599,7 @@ static int ne_output_ntlm(ne_ntlm_context *ctx)
     }
 
 #ifdef USE_NTRESPONSES
-    if(size < ((int)sizeof(ntlmbuf) - 0x18)) {      
+    if(size < ((int)sizeof(ntlmbuf) - 0x18)) {
       memcpy(&ntlmbuf[size], ntresp, 0x18);
       size += 0x18;
     }
@@ -633,7 +633,7 @@ ne_ntlm_context *ne__ntlm_create_context(const char *userName, const char *passw
     ctx->state = NTLMSTATE_NONE;
     ctx->user = ne_strdup(userName);
     ctx->passwd = ne_strdup(password);
-    
+
     return ctx;
 }
 
@@ -641,13 +641,13 @@ void ne__ntlm_destroy_context(ne_ntlm_context *context)
 {
     if (context->user)
         ne_free(context->user);
-    
+
     if (context->passwd)
         ne_free(context->passwd);
-    
+
     if (context->requestToken)
         ne_free(context->requestToken);
-    
+
     ne_free(context);
 }
 
@@ -662,7 +662,7 @@ int ne__ntlm_authenticate(ne_ntlm_context *context, const char *responseToken)
         if (context->state <= NTLMSTATE_TYPE3) {
 	  ntlm ntlmstatus = ne_input_ntlm(context, responseToken);
 
-	  if (ntlmstatus != NTLM_FINE) { 
+	  if (ntlmstatus != NTLM_FINE) {
 	    return -1;
 	  }
 	}

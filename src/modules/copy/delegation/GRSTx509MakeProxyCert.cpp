@@ -382,7 +382,7 @@ int GRSTx509MakeProxyCert(char **proxychain, FILE *debugfp,
   X509_NAME_ENTRY_free(ent);
 
   /* sign the certificate with the signing private key */
-  if (EVP_PKEY_type(CApkey->type) == EVP_PKEY_RSA)
+  if ( EVP_PKEY_base_id(CApkey) == EVP_PKEY_RSA)
     digest = EVP_md5();
   else
     {

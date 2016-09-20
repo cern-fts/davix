@@ -1987,16 +1987,19 @@ int ne_sock_sessid(ne_socket *sock, unsigned char *buf, size_t *buflen)
     sess = SSL_get0_session(sock->ssl);
 
     if (!buf) {
-        *buflen = sess->session_id_length;
+        SSL_SESSION_get_id(sess, buflen);
         return 0;
     }
 
-    if (*buflen < sess->session_id_length) {
+    unsigned int session_id_length;
+    const unsigned char* session_id = SSL_SESSION_get_id(sess, &session_id_length);
+
+    if (*buflen < session_id_length) {
         return -1;
     }
 
-    *buflen = sess->session_id_length;
-    memcpy(buf, sess->session_id, *buflen);
+    *buflen = session_id_length;
+    memcpy(buf, session_id, *buflen);
     return 0;
 #endif
 #else

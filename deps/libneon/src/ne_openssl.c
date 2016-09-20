@@ -128,12 +128,12 @@ char *ne_ssl_readable_dname(const ne_ssl_dname *name)
 
         /* Skip commonName or emailAddress except if there is no other
          * attribute in dname. */
-	if ((OBJ_cmp(ent->object, cname) && OBJ_cmp(ent->object, email)) ||
+	if ((OBJ_cmp(X509_NAME_ENTRY_get_object(ent), cname) && OBJ_cmp(X509_NAME_ENTRY_get_object(ent), email)) ||
             (!flag && n == 1)) {
  	    if (flag++)
 		ne_buffer_append(dump, ", ", 2);
 
-            if (append_dirstring(dump, ent->value))
+            if (append_dirstring(dump, X509_NAME_ENTRY_get_data(ent)))
                 ne_buffer_czappend(dump, "???");
 	}
     }
@@ -475,6 +475,17 @@ static int check_certificate(ne_session *sess, SSL *ssl, ne_ssl_certificate *cha
     return ret;
 }
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+void X509_up_ref(X509 *x)
+{
+    x->references++;
+}
+void EVP_PKEY_up_ref(EVP_PKEY *pkey)
+{
+    pkey->references++;
+}
+#endif
+
 /* Duplicate a client certificate, which must be in the decrypted state. */
 static ne_ssl_client_cert *dup_client_cert(const ne_ssl_client_cert *cc)
 {
@@ -488,15 +499,15 @@ static ne_ssl_client_cert *dup_client_cert(const ne_ssl_client_cert *cc)
 
     populate_cert(&newcc->cert, cc->cert.subject);
 
-    cc->cert.subject->references++;
-    cc->pkey->references++;
+    X509_up_ref(cc->cert.subject);
+    EVP_PKEY_up_ref(cc->pkey);
 
     if(cc->cert.chain != NULL){
     	    int count, n;
 	    newcc->cert.chain = sk_X509_dup(cc->cert.chain);
 	    count = sk_X509_num(newcc->cert.chain);
 	    for (n = 0; n < count; ++n) {
-	      sk_X509_value(newcc->cert.chain, n)->references++;
+	      X509_up_ref(sk_X509_value(newcc->cert.chain, n));
 	    }
      }
 
@@ -540,8 +551,8 @@ static int provide_client_cert(SSL *ssl, X509 **cert, EVP_PKEY **pkey)
 
         ne_ssl_client_cert *const cc = sess->client_cert;
         NE_DEBUG(NE_DBG_SSL, "Supplying client certificate.");
-        cc->pkey->references++;
-        cc->cert.subject->references++;
+        EVP_PKEY_up_ref(cc->pkey);
+        X509_up_ref(cc->cert.subject);
         *cert = cc->cert.subject;
         *pkey = cc->pkey;
 
@@ -664,8 +675,14 @@ void ne_ssl_context_destroy(ne_ssl_context *ctx)
  * sufficient. */
 static int SSL_SESSION_cmp(SSL_SESSION *a, SSL_SESSION *b)
 {
-    return a->session_id_length == b->session_id_length
-        && memcmp(a->session_id, b->session_id, a->session_id_length) == 0;
+    unsigned int len1;
+    const unsigned char *session_id1 = SSL_SESSION_get_id(a, &len1);
+
+    unsigned int len2;
+    const unsigned char *session_id2 = SSL_SESSION_get_id(a, &len2);
+
+    return len1 == len2
+        && memcmp(session_id1, session_id2, len1) == 0;
 }
 #endif
 
@@ -1251,9 +1268,13 @@ static void thread_lock_neon(int mode, int n, const char *file, int line)
 #define ID_CALLBACK_IS_NEON (CRYPTO_get_id_callback() == thread_id_neon)
 #endif
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#define OPENSSL_malloc_init CRYPTO_malloc_init
+#endif
+
 int ne__ssl_init(void)
 {
-    CRYPTO_malloc_init();
+    OPENSSL_malloc_init();
     SSL_load_error_strings();
     SSL_library_init();
     OpenSSL_add_all_algorithms();

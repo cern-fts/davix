@@ -27,6 +27,7 @@
 #include <modules/modules_profiles.hpp>
 #include <neon/neonsessionfactory.hpp>
 #include <davix_context_internal.hpp>
+#include <set>
 
 boost::mutex contexts_mutex;
 std::set<Davix::Context*> contexts_alive;

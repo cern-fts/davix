@@ -28,7 +28,23 @@
 #include <neon/neonsessionfactory.hpp>
 #include <davix_context_internal.hpp>
 
+boost::mutex contexts_mutex;
+std::set<Davix::Context*> contexts_alive;
 
+void child_fork_handler() {
+  boost::lock_guard<boost::mutex> lock(contexts_mutex);
+
+  std::set<Davix::Context*>::iterator it;
+  for(it = contexts_alive.begin(); it != contexts_alive.end(); it++) {
+    (*it)->clearCache();
+  }
+}
+
+struct ForkHandler {
+  ForkHandler() {
+    pthread_atfork(NULL, NULL, child_fork_handler);
+  }
+} forkHandler;
 
 namespace Davix{
 
@@ -86,10 +102,14 @@ struct ContextInternal
 Context::Context() :
     _intern(new ContextInternal(new NEONSessionFactory()))
 {
+  boost::lock_guard<boost::mutex> lock(contexts_mutex);
+  contexts_alive.insert(this);
 }
 
 Context::Context(const Context &c) :
     _intern(new ContextInternal(*(c._intern))){
+  boost::lock_guard<boost::mutex> lock(contexts_mutex);
+  contexts_alive.insert(this);
 }
 
 Context & Context::operator=(const Context & c){
@@ -102,6 +122,8 @@ Context & Context::operator=(const Context & c){
 }
 
 Context::~Context(){
+    boost::lock_guard<boost::mutex> lock(contexts_mutex);
+    contexts_alive.erase(this);
     delete _intern;
 }
 
@@ -118,6 +140,9 @@ bool Context::getSessionCaching() const{
     return _intern->_fsess->getSessionCaching();
 }
 
+void Context::clearCache() {
+  _intern->_fsess.reset(new NEONSessionFactory());
+}
 
 HttpRequest* Context::createRequest(const std::string & url, DavixError** err){
     return new HttpRequest(*this, Uri(url), err);
@@ -170,4 +195,3 @@ const std::string & getLibPath(){
 
 
 } // End Davix
-

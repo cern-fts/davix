@@ -110,6 +110,9 @@ public:
     /// get session caching status
     bool getSessionCaching() const;
 
+    /// clear both redirect and session cache
+    void clearCache();
+
 private:
     // internal context
     ContextInternal* _intern;

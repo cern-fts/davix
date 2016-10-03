@@ -1,6 +1,11 @@
 # Davix
 [Davix](http://dmc.web.cern.ch/projects/davix/home) aims to make the task of managing files over HTTP-based protocols simple. It is being developed by the IT-SDC-ID section at CERN, and while the project's purpose is its use on the [CERN grid](http://wlcg.web.cern.ch/), the functionality offered is generic.
 
+## Documentation
+
+Click [here](https://dmc-docs.web.cern.ch/dmc-docs/docs/davix-epel/html/) to view the documentation of the latest released version, or [here](https://dmc-docs.web.cern.ch/dmc-docs/docs/davix-development/html/) for the version under development. (devel branch)
+
+
 ## HTTP File Management
 HTTP is gaining popularity for file management tasks, beyond its traditional use for serving web pages. It is versatile enough to be fit for this purpose; `PUT`, `MOVE` and `DELETE` requests can be used for basic file manipulation, for example. (uploading, moving, and deleting a file, respectively)
 

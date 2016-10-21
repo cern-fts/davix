@@ -355,6 +355,23 @@ public:
     /// fast operation
     void swap(RequestParams & params);
 
+    /// get the number of retries that davix should perform in case
+    /// it receives 202-Accepted on a GET request
+    int getAcceptedRetry() const;
+
+    /// set the number of retries that davix should perform in case
+    /// it receives 202-Accepted on a GET request
+    /// @param num_tries the number of retries
+    void setAcceptedRetry(int num_retries);
+
+    /// get the delay in seconds between retries that davix should
+    /// perform in case it receives 202-Accepted on a GET request
+    int getAcceptedRetryDelay() const;
+
+    /// set the delay in seconds between retries that davix should
+    /// perform in case it receives 202-Accepted on a GET request
+    /// @param delay the delay in seconds
+    void setAcceptedRetryDelay(int delay);
 private:
 
    // dptr

@@ -200,6 +200,7 @@ private:
     int _last_request_flag;
 
     std::vector< std::pair<std::string, std::string > > _headers_field;
+    int _accepted_202_retries;
 
     ////////////////////////////////////////////
     // Private Members

@@ -166,7 +166,8 @@ NEONRequest::NEONRequest(HttpRequest & h, Context& context, const Uri & uri_req)
     req_started(false),
     req_running(false),
     _last_request_flag(0),
-    _headers_field(){
+    _headers_field(),
+    _accepted_202_retries(0) {
 }
 
 
@@ -411,6 +412,21 @@ int NEONRequest::negotiateRequest(DavixError** err){
         _last_read =1;
         code = getRequestCode();
         switch(code){
+            case 202:
+                // azure will reply with 202 when deleting files :(
+                // Only activate retries on GET.
+                if(_request_type != "GET") goto default_label;
+
+                _accepted_202_retries++;
+                if(_accepted_202_retries <= params.getAcceptedRetry()) {
+                  std::cerr << "DAVIX: Received 202-Accepted, sleeping for " <<
+                    params.getAcceptedRetryDelay() << " seconds before retrying. (attempt " <<
+                    _accepted_202_retries << " out of " << params.getAcceptedRetry() << ")" << std::endl;
+                  sleep(params.getAcceptedRetryDelay());
+                  requestCleanup();
+                  return startRequest(err);
+                }
+                goto default_label;
             case 301:
             case 302:
             case 303:
@@ -465,6 +481,7 @@ int NEONRequest::negotiateRequest(DavixError** err){
                 end_status = 0;
                 break;
             default:
+            default_label:
                 if(code >= 400) {
                     httpcodeToDavixError(code, davix_scope_http_request(), "", err);
                 }

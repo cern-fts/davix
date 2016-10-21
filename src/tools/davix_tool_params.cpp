@@ -35,31 +35,33 @@ namespace Tool{
 const std::string scope_params = "Davix::Tools::Params";
 
 
-#define CAPATH_OPT          1000
-#define DEBUG_OPT           1001
-#define USER_LOGIN          1002
-#define USER_PASSWORD       1003
-#define DATA_CONTENT        1004
-#define S3_SECRET_KEY       1005
-#define S3_ACCESS_KEY       1006
-#define X509_PRIVATE_KEY    1007
-#define TRACE_OPTIONS       1008
-#define REDIRECTION_OPT     1009
-#define METALINK_OPT        1010
-#define CONN_TIMEOUT        1011
-#define TIMEOUT_OPS         1012
-#define RETRY_OPT           1013
-#define S3_LISTING_MODE     1014
-#define S3_MAX_KEYS         1015
-#define RETRY_DELAY_OPT     1016
-#define HAS_INPUT_FILE      1017
-#define THIRD_PT_COPY_MODE  1018
-#define DISABLE_LISTING_CAP 1019
-#define S3_REGION           1020
-#define S3_ALTERNATE        1021
-#define AZURE_KEY           1022
-#define S3_TOKEN            1023
-#define NO_100_CONTINUE     1024
+#define CAPATH_OPT             1000
+#define DEBUG_OPT              1001
+#define USER_LOGIN             1002
+#define USER_PASSWORD          1003
+#define DATA_CONTENT           1004
+#define S3_SECRET_KEY          1005
+#define S3_ACCESS_KEY          1006
+#define X509_PRIVATE_KEY       1007
+#define TRACE_OPTIONS          1008
+#define REDIRECTION_OPT        1009
+#define METALINK_OPT           1010
+#define CONN_TIMEOUT           1011
+#define TIMEOUT_OPS            1012
+#define RETRY_OPT              1013
+#define S3_LISTING_MODE        1014
+#define S3_MAX_KEYS            1015
+#define RETRY_DELAY_OPT        1016
+#define HAS_INPUT_FILE         1017
+#define THIRD_PT_COPY_MODE     1018
+#define DISABLE_LISTING_CAP    1019
+#define S3_REGION              1020
+#define S3_ALTERNATE           1021
+#define AZURE_KEY              1022
+#define S3_TOKEN               1023
+#define NO_100_CONTINUE        1024
+#define ACCEPTED_RETRY         1025
+#define ACCEPTED_RETRY_DELAY   1026
 
 // LONG OPTS
 
@@ -103,6 +105,10 @@ const std::string scope_params = "Davix::Tools::Params";
 {"s3-maxkeys", required_argument, 0,  S3_MAX_KEYS }, \
 {"no-cap", required_argument, 0, DISABLE_LISTING_CAP}, \
 {"long-list", no_argument, 0,  'l' }
+
+#define GET_LONG_OPTIONS \
+{"accepted-retry", required_argument, 0, ACCEPTED_RETRY}, \
+{"accepted-retry-delay", required_argument, 0, ACCEPTED_RETRY_DELAY}
 
 #define PUT_LONG_OPTIONS \
 {"no-100-continue", no_argument, 0,  NO_100_CONTINUE }
@@ -370,6 +376,13 @@ int parse_davix_options_generic(const std::string &opt_filter,
                 p.params.set100ContinueSupport(false);
                 break;
             }
+            case ACCEPTED_RETRY:
+                std::cout << "in accepted retry" << std::endl;
+                p.params.setAcceptedRetry(atoi(optarg));
+                break;
+            case ACCEPTED_RETRY_DELAY:
+                p.params.setAcceptedRetryDelay(atoi(optarg));
+                break;
             case '?':
                 std::cout <<  p.help_msg;
                 exit(1);
@@ -441,6 +454,7 @@ int parse_davix_get_options(int argc, char** argv, OptParams & p, DavixError** e
     const struct option long_options[] = {
         COMMON_LONG_OPTIONS,
         SECURITY_LONG_OPTIONS,
+        GET_LONG_OPTIONS,
         {0,         0,                 0,  0 }
      };
 

@@ -110,7 +110,9 @@ struct RequestParamsInternal{
         retry_number(default_retry_number),
         retry_delay(),
         _copy_mode(CopyMode::Push),
-        _support_100continue(true)
+        _support_100continue(true),
+        _accepted_retry(180), // wait for half an hour by default
+        _accepted_delay(10)
     {
         timespec_clear(&connexion_timeout);
         timespec_clear(&ops_timeout);
@@ -155,7 +157,9 @@ struct RequestParamsInternal{
         retry_number(param_private.retry_number),
         retry_delay(param_private.retry_delay),
         _copy_mode(param_private._copy_mode),
-        _support_100continue(param_private._support_100continue) {
+        _support_100continue(param_private._support_100continue),
+        _accepted_retry(param_private._accepted_retry),
+        _accepted_delay(param_private._accepted_delay) {
 
         timespec_copy(&(connexion_timeout), &(param_private.connexion_timeout));
         timespec_copy(&(ops_timeout), &(param_private.ops_timeout));
@@ -222,6 +226,12 @@ struct RequestParamsInternal{
 
     // whether server has support for 100-Continue
     bool _support_100continue;
+
+    // number of retries in case davix receives 202-Accepted
+    int _accepted_retry;
+
+    // delay in seconds between retries in case davix receives 202-Accepted
+    int _accepted_delay;
 
     // method
     inline void regenerateStateUid(){
@@ -537,6 +547,22 @@ void RequestParams::set100ContinueSupport(const bool enabled) {
 
 bool RequestParams::get100ContinueSupport() const {
   return d_ptr->_support_100continue;
+}
+
+int RequestParams::getAcceptedRetry() const {
+  return d_ptr->_accepted_retry;
+}
+
+void RequestParams::setAcceptedRetry(int retries) {
+  d_ptr->_accepted_retry = retries;
+}
+
+int RequestParams::getAcceptedRetryDelay() const {
+  return d_ptr->_accepted_delay;
+}
+
+void RequestParams::setAcceptedRetryDelay(int delay) {
+  d_ptr->_accepted_delay = delay;
 }
 
 // suppress useless warning

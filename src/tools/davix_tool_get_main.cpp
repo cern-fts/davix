@@ -43,6 +43,8 @@ const std::string scope_get = "Davix::Tools::davix-get";
 
 std::string  get_base_get_options(){
     return "  Get Options:\n"
+           "\t--accepted-retry:         Number of retries upon receiving 202-Accepted. default: 180\n"
+           "\t--accepted-retry-delay:   Time in seconds to wait between 202-Accepted retries. default: 10\n"
            "\t-r NUMBER_OF_THREADS:     Get directories and their contents recursively.\n";
 }
 
@@ -283,4 +285,3 @@ int main(int argc, char** argv){
 
     return retcode;
 }
-

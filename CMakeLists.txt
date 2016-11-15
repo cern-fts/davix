@@ -92,7 +92,11 @@ include_directories( ${CMAKE_SOURCE_DIR}/src/libs/)
 
 add_subdirectory (src)
 add_subdirectory (doc)
-add_subdirectory (dist)
+
+if(EXISTS "${CMAKE_SOURCE_DIR}/dist/CMakeLists.txt")
+  add_subdirectory (dist)
+endif()
+
 add_subdirectory (test)
 add_subdirectory (packaging)
 

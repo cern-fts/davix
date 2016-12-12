@@ -165,6 +165,14 @@ public:
     ///
     bool operator==(const Uri & u2) const;
 
+    ///
+    /// \brief Join two paths
+    /// \param left URL or filesystem path
+    //  \param right Directory chunk, unescaped
+    /// \return The join of left and right, correctly escaped if left is a URL
+    //          and not a filesystem path
+    ///
+    static std::string join(const std::string &left, const std::string &right);
 
     ///
     /// \brief Escape string

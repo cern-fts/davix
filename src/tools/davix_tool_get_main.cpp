@@ -133,11 +133,11 @@ static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::stri
         // for each entry, do a stat to see if it's a directory, if yes, push to dirQueue for further processing
         if(st.st_mode & S_IFDIR){
             DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Directory entry found, pushing {}/ to dirQueue", dirQueue.front().first+d->d_name);
-            dirQueue.push_back(std::make_pair(dirQueue.front().first+d->d_name+"/",dirQueue.front().second+"/"+d->d_name));
+            dirQueue.push_back(std::make_pair(Uri::join(dirQueue.front().first, d->d_name)+"/", Uri::join(dirQueue.front().second, d->d_name)));
         }
         else if(!(st.st_mode & S_IFDIR)){
             //if we spend too long in here, server will likely close the connection mid-readdirpp, need to get all the entries quickly before processing them
-            opQueue.push_back(std::make_pair(dirQueue.front().first+d->d_name, dirQueue.front().second+"/"+d->d_name));
+            opQueue.push_back(std::make_pair(Uri::join(dirQueue.front().first, d->d_name), Uri::join(dirQueue.front().second, d->d_name)));
         }
         entry_counter++;
         if(!opts.debug)

@@ -343,6 +343,24 @@ std::string Uri::queryParamEscape(const std::string & str) {
     return boost::replace_all_copy(tmp, "/", "%2F");
 }
 
+// Determine whether this is a URL, and if so, URI-escape the right part.
+// Otherwise, simple string concatenation.
+std::string Uri::join(const std::string &left, const std::string &right) {
+    Uri leftUri(left);
+
+    if(leftUri.getStatus() != StatusCode::OK) {
+        if(left.size() == 0 || left[left.size()-1] != '/') {
+            return left + "/" + right;
+        }
+        return left + right;
+    }
+
+    leftUri.ensureTrailingSlash();
+    return leftUri.getString() + Uri::escapeString(right);
+}
+
+
+
 // FIX IT : does not manage properly ../
 Uri Uri::fromRelativePath(const Uri &uri, const std::string &relPath){
     std::ostringstream ss;
@@ -712,5 +730,3 @@ std::ostream& operator<< (std::ostream& stream, const Davix::Uri & _u){
 	stream << _u.getString();
 	return stream;
 }
-
-

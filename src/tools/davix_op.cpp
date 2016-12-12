@@ -390,14 +390,14 @@ int ListOp::executeOp(){
 
     while( ((d = pos.readdirpp(fd, &st, &tmp_err)) != NULL)){    // if one entry inside a directory fails, the loop exits, the other entires are not processed
 
-        last_success_entry = _target_url+d->d_name;
+        last_success_entry = Uri::join(_target_url, d->d_name);
         // for each entry, see if it's a directory, if yes, push to dirQueue for further processing
         if(st.st_mode & S_IFDIR){
             DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Directory entry found, pushing {}/ to dirQueue", _target_url+d->d_name);
-            dirQueue.push_back(DirEntry(_target_url+d->d_name+"/", fullpath+d->d_name, st));
+            dirQueue.push_back(DirEntry(Uri::join(_target_url, d->d_name)+"/", Uri::join(fullpath, d->d_name), st));
         }
         else{
-            fileQueue.push_back(FileEntry(fullpath+d->d_name, st));
+            fileQueue.push_back(FileEntry(Uri::join(fullpath, d->d_name), st));
         }
 
     } // while readdirpp
@@ -492,15 +492,15 @@ int ListppOp::executeOp(){
 
     while( ((d = pos.readdirpp(fd, &st, &tmp_err)) != NULL)){    // if one entry inside a directory fails, the loop exits, the other entires are not processed
 
-        last_success_entry = dirQueue.front().first+d->d_name;
+        last_success_entry = Uri::join(dirQueue.front().first, d->d_name);
         // for each entry, see if it's a directory, if yes, push to dirQueue for further processing
         if(st.st_mode & S_IFDIR){
             DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Directory entry found, pushing {}/ to dirQueue", dirQueue.front().first+d->d_name);
-            dirQueue.push_back(std::make_pair(dirQueue.front().first+d->d_name+"/",dirQueue.front().second+"/"+d->d_name));
+            dirQueue.push_back(std::make_pair(Uri::join(dirQueue.front().first, d->d_name)+"/",Uri::join(dirQueue.front().second, d->d_name)));
         }
         else if(!(st.st_mode & S_IFDIR)){
             //if we spend too long in here, server will likely close the connection mid-readdirpp, need to get all the entries quickly before processing them
-            opQueue.push_back(std::make_pair(dirQueue.front().first+d->d_name, dirQueue.front().second+"/"+d->d_name));
+            opQueue.push_back(std::make_pair(Uri::join(dirQueue.front().first, d->d_name), Uri::join(dirQueue.front().second, d->d_name)));
             entry_counter++;
         }
     } // while readdirpp

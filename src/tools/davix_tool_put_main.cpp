@@ -116,16 +116,16 @@ static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::stri
             if(stat(((src_path+de->d_name).c_str()), &st) == 0){    // check if entry is file or directory
                 if(S_ISDIR(st.st_mode)){    // is directory
                     if(opts.params.getProtocol() != RequestProtocol::AwsS3){    // if protocol is S3, don't need make collection (not heirarchical)
-                        ret = tryMakeCollection(c, opts, dst_path+"/"+de->d_name);
+                        ret = tryMakeCollection(c, opts, Uri::join(dst_path, de->d_name));
                         if(ret <0)
                             return ret;
                     }
-                    ret = populateTaskQueue(c, opts, src_path+de->d_name+"/", dst_path+"/"+de->d_name, tq, err);
+                    ret = populateTaskQueue(c, opts, Uri::join(src_path, de->d_name)+"/", Uri::join(dst_path, de->d_name), tq, err);
                 }
                 else if(S_ISREG(st.st_mode) && st.st_size > 0){
                     //push op to task queue
                     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Adding item to work queue, source is {} and destination is {}.", src_path+de->d_name, dst_path+"/"+de->d_name);
-                    PutOp* op = new PutOp(opts, src_path+de->d_name, dst_path+"/"+de->d_name, static_cast<dav_size_t>(st.st_size), c);
+                    PutOp* op = new PutOp(opts, Uri::join(src_path, de->d_name), Uri::join(dst_path, de->d_name), static_cast<dav_size_t>(st.st_size), c);
                     tq->pushOp(op);
                     entry_counter++;
                 }

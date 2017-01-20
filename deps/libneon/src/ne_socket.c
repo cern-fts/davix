@@ -554,7 +554,7 @@ static ssize_t read_raw(ne_socket *sock, char *buffer, size_t len)
 {
     ssize_t ret;
 #ifdef __linux__
-    ret = wait_pending_writes(sock, SOCKET_STEP_TIMEOUT);
+    ret = wait_pending_writes(sock, sock->rdtimeout);
     if (ret) return ret;
 #endif
     ret = readable_raw(sock, sock->rdtimeout);

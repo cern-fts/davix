@@ -8,12 +8,12 @@ include(CMakeStringHelpers REQUIRED)
 
 
 SET(CMAKE_PKGCONFIG_TEMPLATE "prefix=@PREFIX@
-exec_prefix=@PREFIX@ 
+exec_prefix=@PREFIX@
 libdir=@LIBDIR_VAR
 includedir=@INCLUDE_VAR@
 
-Name: @NAME_PROJECT@                           
-Description: @DESCRIPTION_PROJECT@ 
+Name: @NAME_PROJECT@
+Description: @DESCRIPTION_PROJECT@
 Version: @VERSION_PROJECT@
 URL: @URL_PROJECT@
 Requires: @REQUIRES_PROJECT@
@@ -25,13 +25,13 @@ Cflags: @CFLAGS_PROJECT@
 
 
 SET(CMAKE_PKGCONFIG_TEMPLATE_BASE "
-prefix=@PREFIX@  
+prefix=@PREFIX@
 exec_prefix= \\\${prefix}
 libdir= @LIBDIR_VAR@
 includedir=@INCLUDE_VAR@
 
-Name: @NAME_PROJECT@                           
-Description: @DESCRIPTION_PROJECT@ 
+Name: @NAME_PROJECT@
+Description: @DESCRIPTION_PROJECT@
 Version: @VERSION_PROJECT@
 Requires: @REQUIRES_PROJECT@
 Libs: @LIBS_PROJECT@

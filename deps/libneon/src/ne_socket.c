@@ -177,7 +177,7 @@ typedef struct in_addr ne_inet_addr;
 #endif
 
 /* Socket read timeout */
-#define SOCKET_READ_TIMEOUT 120
+#define SOCKET_READ_TIMEOUT 3600
 /* Socket step timeout */
 #define SOCKET_STEP_TIMEOUT 10
 

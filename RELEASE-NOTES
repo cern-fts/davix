@@ -1,3 +1,17 @@
+Version - 0.6.5
+
+** Bug
+    * [DMC-877] - Davix seems to ignore the port number in a S3 URL
+    * [DMC-889] - davix should clear any old cached sessions after a fork
+    * [DMC-903] - davix does not always respect the option to disable transparent redirects
+    * [DMC-904] - davix does not properly escape URLs in recursive / parallel operations
+    * [DMC-912] - Davix seems not to honour the timeouts
+
+** Improvement
+    * [DMC-867] - Honour 202-accepted and retry a request
+    * [DMC-876] - Setting log level and log scope should be thread-safe
+    * [DMC-887] - Switch over to using header parameters for the S3 signature
+    * [DMC-888] - Add support for openssl-1.1.0
 Version - 0.6.4
 ** Bug
     * [DMC-824] - Impossible to upload directory if authentication method requires entering credentials manually

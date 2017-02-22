@@ -1,3 +1,9 @@
+davix (0.6.6-1) unstable; urgency=low
+
+  * Update to version 0.6.6
+
+ -- Alejandro Alvarez Ayllon <alejandro.alvarez.ayllon at cern.ch>  Wed, 22 Feb 2017 09:23:00 +0100
+
 davix (0.6.5-1) unstable; urgency=low
 
   * Update to version 0.6.5

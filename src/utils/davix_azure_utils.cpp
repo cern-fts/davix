@@ -127,7 +127,7 @@ Uri signURI(const AzureSecretKey key, const Azure::Resource::Type resourceType, 
     std::string signedidentifier;
     std::string signedIP;
     std::string signedProtocol;
-    std::string signedversion("2015-04-05");
+    std::string signedversion("2016-05-31");
     std::string rscc;
     std::string rscd;
     std::string rsce;

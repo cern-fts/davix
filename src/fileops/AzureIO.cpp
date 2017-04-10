@@ -146,7 +146,7 @@ dav_ssize_t AzureIO::writeFromCb(IOChainContext & iocontext, const DataProviderF
   DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Azure write: size {}, splitting into blocks", size);
   std::vector<char> buffer;
 
-  const size_t MAX_CHUNK_SIZE = 1024 * 1024 * 100; // 100 MB
+  const dav_size_t MAX_CHUNK_SIZE = 1024 * 1024 * 100; // 100 MB
   buffer.resize(std::max(MAX_CHUNK_SIZE, size) + 10);
 
   // generate UUID to use as blockid prefix

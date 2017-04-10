@@ -35,7 +35,7 @@ add_dependencies(libdavix neon)
 
 
 target_link_libraries(libdavix  alibxx_core ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES}
-                                ${CMAKE_THREAD_LIBS_INIT} ${SOCKET_PKG_LIBRARIES} ${Boost_LIBRARIES})
+                                ${CMAKE_THREAD_LIBS_INIT} ${SOCKET_PKG_LIBRARIES} ${Boost_LIBRARIES} ${UUID_LIBRARIES})
 
 set_target_properties(libdavix PROPERTIES
                             VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}
@@ -75,6 +75,3 @@ install(TARGETS libdavix_static
 endif(STATIC_LIBRARY)
 
 SET(davix_tool_common_src "${davix_tool_common_src_up}" PARENT_SCOPE)
-
-
-

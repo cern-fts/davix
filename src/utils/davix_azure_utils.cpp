@@ -114,6 +114,7 @@ Uri signURI(const AzureSecretKey key, const Azure::Resource::Type resourceType, 
     time_t present = time(NULL);
 
     std::string signedpermissions = permissions;
+    if(permissions == Azure::Permission::WRITE) signedpermissions = "acw";
     std::string signedstart = time_as_string(present-AZURE_TIME_LEEWAY, format);
     std::string signedexpiry = time_as_string(present+signDuration, format);
 

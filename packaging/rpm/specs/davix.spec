@@ -31,10 +31,13 @@ BuildRequires:                  python-virtualenv
 BuildRequires:                  boost-devel
 BuildRequires:                  python-virtualenv
 %endif
+BuildRequires:                  libuuid-devel
 BuildRequires:                  cmake
 BuildRequires:                  doxygen
 BuildRequires:                  libxml2-devel
 BuildRequires:                  openssl-devel
+
+Requires: libuuid
 
 # davix-copy dependencies
 BuildRequires:                  gsoap-devel
@@ -81,7 +84,7 @@ BuildArch:	noarch
 %endif
 
 %description doc
-Documentation and examples for %{name}. Davix is a toolkit designed 
+Documentation and examples for %{name}. Davix is a toolkit designed
 for file operations with Http based protocols (WebDav, Amazon S3, ...).
 
 %clean
@@ -201,5 +204,3 @@ make DESTDIR=%{buildroot} install
 
 * Wed Jun 05 2013 Adrien Devresse <adevress at cern.ch> - 0.2.2-2
  - Initial EPEL release
- 
- 

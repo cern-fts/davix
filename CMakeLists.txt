@@ -75,6 +75,8 @@ set(NE_HAVE_SSL 1)
 add_subdirectory(deps)
 
 
+#libuuid
+find_package(uuid)
 
 
 ## general defs

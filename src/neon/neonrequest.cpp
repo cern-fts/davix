@@ -269,14 +269,6 @@ void NEONRequest::configureRequest(){
         std::copy(params.getHeaders().begin(), params.getHeaders().end(), std::back_inserter(_headers_field));
     }
 
-    /* Doing a PUT to Azure? Add the necessary Microsoft-specific header */
-    if(_request_type == "PUT" &&
-       _current.get()->queryParamExists("sig") &&
-       _current.get()->queryParamExists("sr") &&
-       _current.get()->queryParamExists("sp")) {
-
-        _headers_field.push_back(HeaderLine("x-ms-blob-type", "BlockBlob"));
-    }
 
     // setup timeout
     if(_expiration_time.isValid() == false

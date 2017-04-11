@@ -22,5 +22,5 @@ mkdir build
 cd build
 cmake -DFUNCTIONAL_TESTS=TRUE -DUNIT_TESTS=TRUE -DENABLE_THIRD_PARTY_COPY=TRUE ..
 make -j $CORES
-make abi-check
+# make abi-check
 (ctest --no-compress-output -T Test || true)

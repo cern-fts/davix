@@ -59,6 +59,7 @@ void AzureIO::writeChunk(IOChainContext & iocontext, const char* buff, dav_size_
   Uri url(iocontext._uri);
   url.addQueryParam("comp", "block");
   url.addQueryParam("blockid", blockid);
+  url.addFragmentParam("azuremechanism", "true");
 
   PutRequest req(iocontext._context, url, &tmp_err);
   if(!tmp_err){
@@ -82,6 +83,7 @@ void AzureIO::commitChunks(IOChainContext & iocontext, const std::vector<std::st
   DavixError * tmp_err=NULL;
   Uri url(iocontext._uri);
   url.addQueryParam("comp", "blocklist");
+  url.addFragmentParam("azuremechanism", "true");
 
   std::stringstream body;
   body << "<?xml version=\"1.0\" encoding=\"utf-8\"?><BlockList>";

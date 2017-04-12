@@ -29,7 +29,7 @@
 #include <davix_context_internal.hpp>
 #include <neon/neonsession.hpp>
 #include <fileops/fileutils.hpp>
-
+#include <fileops/AzureIO.hpp>
 
 
 
@@ -167,7 +167,9 @@ NEONRequest::NEONRequest(HttpRequest & h, Context& context, const Uri & uri_req)
     req_running(false),
     _last_request_flag(0),
     _headers_field(),
-    _accepted_202_retries(0) {
+    _accepted_202_retries(0),
+    _early_termination(0),
+    _early_termination_error(NULL) {
 }
 
 
@@ -261,6 +263,10 @@ bool NEONRequest::checkTimeout(DavixError **err){
     return false;
 }
 
+static dav_ssize_t iocontext_content_provider(HttpBodyProvider provider, void* udata, void* buffer, dav_size_t size) {
+    return provider(udata, (char*) buffer, size);
+}
+
 void NEONRequest::configureRequest(){
 
     // add custom user headers, but make sure they're only added once
@@ -269,6 +275,38 @@ void NEONRequest::configureRequest(){
         std::copy(params.getHeaders().begin(), params.getHeaders().end(), std::back_inserter(_headers_field));
     }
 
+    /* Doing a PUT to Azure? Horrific workaround to enforce the odd two-step
+       custom Azure procedure, even when receiving a redirect. */
+    if(_request_type == "PUT" &&
+         _current.get()->queryParamExists("sig") &&
+         _current.get()->queryParamExists("sr") &&
+         _current.get()->queryParamExists("sp") && !_current.get()->fragmentParamExists("azuremechanism")) {
+
+        IOChainContext iocontext(_c, *_current, &params);
+
+        using std::placeholders::_1;
+        using std::placeholders::_2;
+
+        try {
+          AzureIO azureio;
+
+          if(_fd_content > 0) {
+              azureio.writeFromFd(iocontext, _fd_content, _content_len);
+          }
+          else if(_content_provider.callback) {
+              DataProviderFun provider = std::bind(iocontext_content_provider, _content_provider.callback, _content_provider.udata, _1, _2);
+              azureio.writeFromCb(iocontext, provider, _content_len);
+          }
+          else if(_content_ptr && _content_len > 0) {
+              throw DavixException("neon request", StatusCode::InvalidArgument, "unable to use Azure PUT by providing a direct string");
+          }
+        }
+        catch(DavixException &e) {
+            e.toDavixError(&_early_termination_error);
+        }
+
+        _early_termination = true;
+    }
 
     // setup timeout
     if(_expiration_time.isValid() == false
@@ -429,6 +467,12 @@ int NEONRequest::negotiateRequest(DavixError** err){
                 if( (end_status = processRedirection(status, err)) <0){
                    return -1;
                 }
+
+                if(_early_termination) {
+                    end_status = 0;
+                    break;
+                }
+
                 _number_try--;
                 _redirects++;
 
@@ -800,6 +844,10 @@ void NEONRequest::clearAnswerContent(){
 
 
 int NEONRequest::getRequestCode(){
+    if(_early_termination) {
+        if(!_early_termination_error) return 200;
+        return _early_termination_error->getStatus();
+    }
     return ne_get_status(_req)->code;
 }
 
@@ -912,6 +960,7 @@ void NEONRequest::setRequestBody(HttpBodyProvider provider, dav_size_t len, void
 
 
 void NEONRequest::freeRequest(){
+    DavixError::clearError(&_early_termination_error);
     if(_req != NULL){
         ne_request_destroy(_req);
         _req=NULL;

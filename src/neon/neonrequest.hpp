@@ -202,6 +202,9 @@ private:
     std::vector< std::pair<std::string, std::string > > _headers_field;
     int _accepted_202_retries;
 
+    bool _early_termination;
+    DavixError* _early_termination_error;
+
     ////////////////////////////////////////////
     // Private Members
     dav_ssize_t getAnswerSizeFromHeaders() const;

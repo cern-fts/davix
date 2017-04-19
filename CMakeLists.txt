@@ -34,10 +34,6 @@ set(VERSION_STRING ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 set(VERSION_TAG "")
 
 
-# dependency mode
-option(BOOST_EXTERNAL "Enable the usage of an external boost dependency" TRUE)
-set (Boost_NO_BOOST_CMAKE ON)
-
 # components
 option(ENABLE_TOOLS "enable or disable tools " TRUE)
 option(ENABLE_HTML_DOCS "enable or disable generation of HTML documentation" FALSE)
@@ -64,10 +60,6 @@ SET(LIBSSL_PKG_INCLUDE_DIRS "${OPENSSL_INCLUDE_DIR}")
 find_package(LibXml2)
 set(LIBXML2_INCLUDE_DIRS ${LIBXML2_INCLUDE_DIR})
 
-if(BOOST_EXTERNAL)
-find_package(Boost 1.41.0 COMPONENTS thread system)
-endif(BOOST_EXTERNAL)
-
 #const
 set(HAVE_OPENSSL 1)
 set(NE_HAVE_SSL 1)
@@ -87,7 +79,6 @@ add_definitions( -D__STDC_LIMIT_MACROS )     # C99 limit macros
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_FLAG_ENABLE}")
 
-include_directories( ${Boost_INCLUDE_DIRS})
 include_directories( ${HTTPLIB_PKG_INCLUDE_DIRS} ${GLIB2_PKG_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/deps ${CMAKE_CURRENT_SOURCE_DIR}/deps/libneon/src/ )
 include_directories( ${CMAKE_SOURCE_DIR}/include/davix )
 include_directories( ${CMAKE_SOURCE_DIR}/src/libs/)

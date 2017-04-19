@@ -34,7 +34,7 @@ add_executable(g_test_unit_davix_exe ${src_context} ${src_session} ${src_credent
                 ${src_httprequest} ${src_datetime} ${src_neon} ${src_parser} ${src_auth} ${src_utils} ${src_parser} ${SRC_BASE64}
                 ${SRC_HMACSHA1} ${davix_tool_common_src} ${src_files} ${src_alibxx})
 
-target_link_libraries(g_test_unit_davix_exe alibxx_core libdavix gtest gtest_main ${CMAKE_THREAD_LIBS_INIT} ${LIBSSL_PKG_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(g_test_unit_davix_exe alibxx_core libdavix gtest gtest_main ${CMAKE_THREAD_LIBS_INIT} ${LIBSSL_PKG_LIBRARIES})
 add_dependencies(g_test_unit_davix_exe libdavix)
 
 

@@ -12,7 +12,7 @@ SL6/CentOS7
 ::
 
    sudo yum install openssl-devel libxml2-devel gtest-devel gsoap-devel \
-                    doxygen cmake boost-devel abi-compliance-checker
+                    doxygen cmake abi-compliance-checker
 
 Ubuntu
 ~~~~~~
@@ -20,8 +20,7 @@ Ubuntu
 ::
 
    sudo apt-get install abi-compliance-checker cmake debhelper doxygen \
-                        gsoap libboost-system-dev libboost-thread-dev \
-                        libgridsite-dev libgtest-dev libssl-dev libxml2-dev pkg-config 
+                        gsoap libgridsite-dev libgtest-dev libssl-dev libxml2-dev pkg-config
 
 How to build
 ------------
@@ -43,11 +42,6 @@ Unit tests
 
 Add ``-DUNIT_TESTS=TRUE`` to the cmake invocation, then run the tests with ``make test``.
 
-Compile davix in embedded mode (no dependencies)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Add ``-D BOOST_EXTERNAL=NO`` to cmake.
-
 Functional tests
 ~~~~~~~~~~~~~~~~
 
@@ -55,8 +49,8 @@ Running functional tests requires authentication credentials, so they are not en
 add ``-DFUNCTIONAL_TESTS=TRUE`` to cmake.
 
 You will see that davix no longer compiles - it expects to find the file ``credentials/creds.cmake``. This
-is the file which orchestrates which functional tests are run. 
-Here is an example - this is the file which runs our nightly build functional tests. 
+is the file which orchestrates which functional tests are run.
+Here is an example - this is the file which runs our nightly build functional tests.
 Passwords were removed for obvious reasons. ::
 
   ### tests using a proxy
@@ -93,7 +87,7 @@ Passwords were removed for obvious reasons. ::
 
 Since this file contains sensitive information, access to it should be restricted and it should *never*
 be committed to the source repository.
- 
+
 The ``test_with_proxy`` function uses the default grid-style proxy, ``/tmp/x509_u$uid``. It should be
 generated beforehand.
 

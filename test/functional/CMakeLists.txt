@@ -83,7 +83,7 @@ add_library(test_davix_functional_lib STATIC ${src_davix_test_lib})
 #target_link_libraries(test_mv libdavix test_davix_functional_lib)
 
 add_executable(tester ${src_tester})
-target_link_libraries(tester libdavix ${Boost_LIBRARIES} test_davix_functional_lib)
+target_link_libraries(tester libdavix test_davix_functional_lib)
 
 function(assert_not_empty var)
     if("${var}" STREQUAL "")
@@ -263,5 +263,3 @@ endfunction(test_rename url cred)
 # include(ctest_functional.cmake)
 
 endif(FUNCTIONAL_TESTS)
-
-

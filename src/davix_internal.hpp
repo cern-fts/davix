@@ -45,13 +45,6 @@
 #include <limits>
 #include <utility>
 
-#ifndef NO_BOOST_INCLUDE
-// boost
-#include <boost/bind.hpp>
-#include <boost/thread.hpp>
-
-#endif
-
 // C includes
 #include <cstddef>
 #include <cstring>

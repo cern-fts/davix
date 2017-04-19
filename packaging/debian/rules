@@ -13,7 +13,6 @@ export CFLAGS CXXFLAGS LDFLAGS
 
 override_dh_auto_configure:
 	# Remove bundled stuff
-	rm -rf deps/boost_intern
 	rm -rf deps/strptime
 	rm -rf test/pywebdav
 	# Debian's gtest is not precompiled - link source

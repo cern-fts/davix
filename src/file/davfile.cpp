@@ -263,10 +263,8 @@ static dav_ssize_t buffer_mapper(void* buffer, dav_size_t max_size, const char* 
 }
 
 void DavFile::put(const RequestParams *params, const char *buffer, dav_size_t size_write){
-    using namespace boost;
     dav_size_t written_bytes=0;
-    put(params, bind(buffer_mapper, _1, _2, buffer, size_write, &written_bytes), size_write);
-
+    put(params, std::bind(&buffer_mapper, std::placeholders::_1, std::placeholders::_2, buffer, size_write, &written_bytes), size_write);
 }
 
 

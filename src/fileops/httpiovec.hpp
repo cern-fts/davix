@@ -120,8 +120,6 @@ int http_extract_boundary_from_content_type(const std::string & buffer, std::str
 int parse_multi_part_header(HttpRequest& req, const std::string & boundary, ChunkInfo & info,
                             int & n_try, DavixError** err);
 
-int davIOVecProvider(const DavIOVecInput *input_vec, dav_ssize_t & counter, dav_ssize_t number, dav_off_t & begin, dav_off_t & end);
-
 void HttpIoVecSetupErrorMultiPart(DavixError** err);
 
 } // Davix

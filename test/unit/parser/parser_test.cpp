@@ -5,8 +5,6 @@
 #include <fileops/httpiovec.hpp>
 #include <fileops/fileutils.hpp>
 #include <gtest/gtest.h>
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
 
 using namespace Davix;
 
@@ -89,12 +87,10 @@ int parse_range(std::istringstream & stream, size_t & n, dav_off_t & begin, dav_
 // with this number of element, the result will be exactly 178 *2 = 356 elems
 // regression test for LCGUTIL-456
 TEST(IOVecMultiPartPaser, generateSingularRangeTest){
-    using namespace boost;
-
     std::string singular_vector_range(singular_vector_range_cstr);
     std::istringstream stream(singular_vector_range);
     size_t n =0;
-    OffsetCallback generator_range( boost::bind(&parse_range, boost::ref(stream), boost::ref(n), _1, _2));
+    OffsetCallback generator_range( std::bind(&parse_range, std::ref(stream), std::ref(n), std::placeholders::_1, std::placeholders::_2));
 
     std::vector< std::pair<dav_size_t, std::string> > res = generateRangeHeaders(3900, generator_range);
     ASSERT_EQ(356, n);
@@ -109,12 +105,10 @@ TEST(IOVecMultiPartPaser, generateSingularRangeTest){
 // with this number of element, the result will be exactly 178 *2 = 356 elems
 // regression test for LCGUTIL-456
 TEST(IOVecMultiPartPaser, generateNormalRangeTest){
-    using namespace boost;
-
     std::string singular_vector_range(normal_vector_range_cstr);
     std::istringstream stream(singular_vector_range);
     size_t n =0;
-    OffsetCallback generator_range( boost::bind(&parse_range, boost::ref(stream), boost::ref(n), _1, _2));
+    OffsetCallback generator_range( std::bind(&parse_range, std::ref(stream), std::ref(n), std::placeholders::_1, std::placeholders::_2));
 
     std::vector< std::pair<dav_size_t, std::string> > res = generateRangeHeaders(3900, generator_range);
 

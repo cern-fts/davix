@@ -19,6 +19,7 @@
  *
 */
 
+#include <iomanip>
 #include <uuid/uuid.h>
 #include <algorithm>
 #include "AzureIO.hpp"

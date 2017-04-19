@@ -35,7 +35,6 @@ davix-ls https://someserver/dir
 
 ## Compiling
 1. Install the necessary dependencies:
-   * boost, boost-devel
    * cmake
    * libxml2-devel
    * openssl-devel

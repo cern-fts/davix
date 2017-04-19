@@ -33,10 +33,9 @@ namespace Davix{
 
 
 using namespace StrUtil;
-using namespace boost;
 
-typedef function< dav_ssize_t (IOChainContext &)> FuncIO;
-typedef function< StatInfo & (IOChainContext &) > FuncStatInfo;
+typedef std::function< dav_ssize_t (IOChainContext &)> FuncIO;
+typedef std::function< StatInfo & (IOChainContext &) > FuncStatInfo;
 
 
 static bool metalink_support_disabled=false;
@@ -240,18 +239,18 @@ std::vector<File> & MetalinkOps::getReplicas(IOChainContext & iocontext, std::ve
 }
 
 StatInfo & MetalinkOps::statInfo(IOChainContext &iocontext, StatInfo &st_info){
-    FuncStatInfo func(bind(&HttpIOChain::statInfo, _next.get(), _1, ref(st_info)));
+    FuncStatInfo func(std::bind(&HttpIOChain::statInfo, _next.get(), std::placeholders::_1, std::ref(st_info)));
     return metalinkExecutor<FuncStatInfo, StatInfo &>(*this, iocontext, func);
 }
 
 dav_ssize_t MetalinkOps::read(IOChainContext &iocontext, void *buf, dav_size_t count){
-    FuncIO func(bind(&HttpIOChain::read, _next.get(),_1, buf, count));
+    FuncIO func(std::bind(&HttpIOChain::read, _next.get(), std::placeholders::_1, buf, count));
     return metalinkExecutor<FuncIO, dav_ssize_t>(*this, iocontext, func);
 }
 
 dav_ssize_t MetalinkOps::pread(IOChainContext &iocontext, void *buf, dav_size_t count, dav_off_t offset){
 
-    FuncIO func(bind(&HttpIOChain::pread, _next.get(),_1, buf, count, offset));
+    FuncIO func(std::bind(&HttpIOChain::pread, _next.get(), std::placeholders::_1, buf, count, offset));
     return metalinkExecutor<FuncIO, dav_ssize_t>(*this, iocontext, func);
 }
 
@@ -260,13 +259,13 @@ dav_ssize_t MetalinkOps::preadVec(IOChainContext & iocontext, const DavIOVecInpu
                           DavIOVecOuput * output_vec,
                           const dav_size_t count_vec){
 
-    FuncIO func(bind(&HttpIOChain::preadVec, _next.get(),_1, input_vec, output_vec, count_vec));
+    FuncIO func(std::bind(&HttpIOChain::preadVec, _next.get(), std::placeholders::_1, input_vec, output_vec, count_vec));
     return metalinkExecutor<FuncIO, dav_ssize_t>(*this, iocontext, func);
 }
 
 // read to fd Metalink manager
 dav_ssize_t MetalinkOps::readToFd(IOChainContext & iocontext, int fd, dav_size_t size){
-    FuncIO func(bind(&HttpIOChain::readToFd, _next.get(), _1, fd, size));
+    FuncIO func(bind(&HttpIOChain::readToFd, _next.get(), std::placeholders::_1, fd, size));
     return metalinkExecutor<FuncIO, dav_ssize_t>(*this, iocontext, func);
 }
 
@@ -335,18 +334,18 @@ AutoRetryOps::~AutoRetryOps(){
 
 
 StatInfo & AutoRetryOps::statInfo(IOChainContext &iocontext, StatInfo &st_info){
-    FuncStatInfo func(bind(&HttpIOChain::statInfo, _next.get(), _1, ref(st_info)));
+    FuncStatInfo func(bind(&HttpIOChain::statInfo, _next.get(), std::placeholders::_1, std::ref(st_info)));
     return autoRetryExecutor<FuncStatInfo, StatInfo &>(*this, iocontext, func);
 }
 
 dav_ssize_t AutoRetryOps::read(IOChainContext &iocontext, void *buf, dav_size_t count){
-    FuncIO func(bind(&HttpIOChain::read, _next.get(),_1, buf, count));
+    FuncIO func(bind(&HttpIOChain::read, _next.get(), std::placeholders::_1, buf, count));
     return autoRetryExecutor<FuncIO, dav_ssize_t>(*this, iocontext, func);
 }
 
 dav_ssize_t AutoRetryOps::pread(IOChainContext &iocontext, void *buf, dav_size_t count, dav_off_t offset){
 
-    FuncIO func(bind(&HttpIOChain::pread, _next.get(),_1, buf, count, offset));
+    FuncIO func(bind(&HttpIOChain::pread, _next.get(), std::placeholders::_1, buf, count, offset));
     return autoRetryExecutor<FuncIO, dav_ssize_t>(*this, iocontext, func);
 }
 
@@ -355,13 +354,13 @@ dav_ssize_t AutoRetryOps::preadVec(IOChainContext & iocontext, const DavIOVecInp
                           DavIOVecOuput * output_vec,
                           const dav_size_t count_vec){
 
-    FuncIO func(bind(&HttpIOChain::preadVec, _next.get(),_1, input_vec, output_vec, count_vec));
+    FuncIO func(bind(&HttpIOChain::preadVec, _next.get(), std::placeholders::_1, input_vec, output_vec, count_vec));
     return autoRetryExecutor<FuncIO, dav_ssize_t>(*this, iocontext, func);
 }
 
 // read to fd Metalink manager
 dav_ssize_t AutoRetryOps::readToFd(IOChainContext & iocontext, int fd, dav_size_t size){
-    FuncIO func(bind(&HttpIOChain::readToFd, _next.get(), _1, fd, size));
+    FuncIO func(bind(&HttpIOChain::readToFd, _next.get(), std::placeholders::_1, fd, size));
     return autoRetryExecutor<FuncIO, dav_ssize_t>(*this, iocontext, func);
 }
 

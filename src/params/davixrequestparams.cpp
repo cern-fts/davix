@@ -290,7 +290,7 @@ void RequestParams::setClientCertX509(const X509Credential & cli_cert){
     d_ptr->regenerateStateUid();
     X509Data* x509 = X509Data::reset(d_ptr->_x509_data);
     x509->_cred = cli_cert;
-    x509->_x509_fun = bind(&X509Data::cred_callback, x509, _1, _2);
+    x509->_x509_fun = std::bind(&X509Data::cred_callback, x509, std::placeholders::_1, std::placeholders::_2);
 }
 
 void RequestParams::setClientLoginPassword(const std::string & login, const std::string & password){
@@ -314,7 +314,7 @@ void RequestParams::setClientCertCallbackX509(authCallbackClientCertX509 callbac
     d_ptr->regenerateStateUid();
     X509Data* x509 = X509Data::reset(d_ptr->_x509_data);
     x509->_pair = std::make_pair(callback, userdata);
-    x509->_x509_fun = bind(&X509Data::c_callback, x509, _1, _2);
+    x509->_x509_fun = std::bind(&X509Data::c_callback, x509, std::placeholders::_1, std::placeholders::_2);
 }
 
 

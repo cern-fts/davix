@@ -21,6 +21,7 @@
 
 #include <utils/davix_s3_utils.hpp>
 
+#include <iomanip>
 #include <ctime>
 #include <cstring>
 #include <davix_internal.hpp>

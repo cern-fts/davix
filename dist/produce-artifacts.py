@@ -83,7 +83,6 @@ def create_source_releases():
 
     sh("tar -cvzf {name}-embedded-{release}.tar.gz --transform 's/{foldername}/{name}-embedded-{release}/' {foldername}".format(
                   name=args.name, release=args.release, foldername=foldername))
-    shutil.rmtree("{0}/deps/boost_intern".format(foldername))
     sh("tar -cvzf {name}-{release}.tar.gz --transform 's/{foldername}/{name}-{release}/' {foldername}".format(
                   name=args.name, release=args.release, foldername=foldername))
 

@@ -10,7 +10,7 @@ OUTPUT_DIR="$PWD/test-results"
 
 # Get parameters
 while [ -n "$1" ]; do
-    case "$1" in 
+    case "$1" in
         "--configdir")
             shift
             MOCK_CONFIG_DIR=$1
@@ -53,7 +53,7 @@ else
 fi
 
 # Install deps
-mock_cmd install cmake git yum-utils abi-compliance-checker boost-devel doxygen gsoap-devel gtest-devel libxml2-devel openssl-devel voms-clients libuuid-devel
+mock_cmd install cmake git yum-utils abi-compliance-checker doxygen gsoap-devel gtest-devel libxml2-devel openssl-devel voms-clients libuuid-devel
 MOCK_HOME="/builddir"
 
 # copy grid-security and vomses

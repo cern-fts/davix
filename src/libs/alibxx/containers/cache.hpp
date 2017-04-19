@@ -5,9 +5,6 @@
 #include <map>
 #include <limits>
 #include <utility>
-
-#ifndef NO_BOOST_INCLUDE
-
 #include <mutex>
 
 
@@ -129,6 +126,3 @@ protected:
 
 
 }
-
-
-#endif

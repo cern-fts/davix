@@ -24,7 +24,6 @@
 
 #include <davix.hpp>
 #include <utils/davix_fileproperties.hpp>
-#include <boost/function.hpp>
 
 namespace Davix {
 
@@ -45,7 +44,7 @@ void check_file_status(HttpRequest & req, const std::string & scope);
 void setup_offset_request(HttpRequest* req, const dav_off_t *start_len, const dav_size_t *size_read, const dav_size_t number_ops);
 
 
-typedef boost::function<int (dav_off_t &, dav_off_t &)> OffsetCallback;
+typedef std::function<int (dav_off_t &, dav_off_t &)> OffsetCallback;
 
 std::vector< std::pair<dav_size_t, std::string> > generateRangeHeaders(dav_size_t max_header_size, OffsetCallback & offset_provider);
 

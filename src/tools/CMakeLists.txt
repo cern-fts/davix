@@ -25,8 +25,6 @@ SET(davix_tool_common_src_up "${davix_tool_common_src}" PARENT_SCOPE)
 link_directories(${PROJECT_BINARY_DIR}/src/)
 
 
-add_definitions(-DNO_BOOST_INCLUDE)
-
 ## davix tool lib
 add_library(davix_tool_lib STATIC ${davix_tool_common_src})
 
@@ -101,4 +99,3 @@ if (ENABLE_THIRD_PARTY_COPY)
             DESTINATION ${BIN_INSTALL_DIR}/)
 
 endif (ENABLE_THIRD_PARTY_COPY)
-

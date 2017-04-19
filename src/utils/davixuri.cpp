@@ -21,7 +21,6 @@
 
 #include <davix_internal.hpp>
 #include <utils/davix_uri.hpp>
-#include <boost/algorithm/string/replace.hpp>
 
 
 namespace Davix {
@@ -340,7 +339,20 @@ std::string Uri::unescapeString(const std::string & str){
 
 std::string Uri::queryParamEscape(const std::string & str) {
     std::string tmp = escapeString(str);
-    return boost::replace_all_copy(tmp, "/", "%2F");
+
+    // replace all '/' with '%2F'
+    std::stringstream ss;
+    for(size_t i = 0; i < tmp.size(); i++) {
+        if(tmp[i] == '/') {
+            ss << "%2F";
+        }
+        else {
+            ss << tmp[i];
+        }
+    }
+
+    return ss.str();
+
 }
 
 // Determine whether this is a URL, and if so, URI-escape the right part.

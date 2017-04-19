@@ -19,6 +19,7 @@
  *
  */
 
+#include <iomanip>
 #include <utils/davix_azure_utils.hpp>
 #include <datetime/datetime_utils.hpp>
 #include <davix_internal.hpp>

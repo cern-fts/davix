@@ -114,7 +114,7 @@ MultirangeResult HttpIOVecOps::performMultirange(IOChainContext & iocontext,
         bytes_to_read += (ranges[i].second - ranges[i].first + 1);
     }
 
-    boost::function<int (dav_off_t &, dav_off_t &)> offsetProvider(boost::bind(davIOVecProvider, ranges, counter, _1, _2));
+    std::function<int (dav_off_t &, dav_off_t &)> offsetProvider = std::bind(&davIOVecProvider, ranges, std::ref(counter), std::placeholders::_1, std::placeholders::_2);
 
     // header line need to be inferior to 8K on Apache2 / ngnix
     // in Addition, some S3 implementation limit the total header size to 4k....

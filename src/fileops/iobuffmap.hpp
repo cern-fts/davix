@@ -113,7 +113,7 @@ protected:
     advise_t _last_advise;
 
     // locker
-    boost::recursive_mutex _rwlock;
+    std::recursive_mutex _rwlock;
     // write cache
     Ptr::Scoped<IOBufferLocalFile> _local;
 

@@ -379,7 +379,7 @@ bool HttpIOBuffer::open(IOChainContext & iocontext, int flags){
 }
 
 dav_ssize_t HttpIOBuffer::read(IOChainContext & iocontext, void *buf, dav_size_t count){
-    boost::recursive_mutex::scoped_lock l(_rwlock);
+    std::lock_guard<std::recursive_mutex> l(_rwlock);
     DavixError* tmp_err = NULL;
     dav_ssize_t ret =-1;
 
@@ -458,7 +458,7 @@ void HttpIOBuffer::prefetchInfo(IOChainContext & iocontext, off_t offset, dav_si
 
 
 void HttpIOBuffer::resetIO(IOChainContext & iocontext){
-    boost::recursive_mutex::scoped_lock l(_rwlock);
+    std::lock_guard<std::recursive_mutex> l(_rwlock);
 
     if(_read_req){
         delete _read_req;
@@ -470,7 +470,7 @@ void HttpIOBuffer::resetIO(IOChainContext & iocontext){
 
 
 void HttpIOBuffer::commitLocal(IOChainContext & iocontext){
-    boost::recursive_mutex::scoped_lock l(_rwlock);
+    std::lock_guard<std::recursive_mutex> l(_rwlock);
     if(_local.get()){
         struct stat st;
         memset(&st,0, sizeof(struct stat));
@@ -484,7 +484,7 @@ void HttpIOBuffer::commitLocal(IOChainContext & iocontext){
 
 dav_off_t HttpIOBuffer::lseek(IOChainContext & iocontext, dav_off_t offset, int flags){
     (void) iocontext;
-    boost::recursive_mutex::scoped_lock l(_rwlock);
+    std::lock_guard<std::recursive_mutex> l(_rwlock);
     switch(flags){
         case SEEK_CUR:
             _pos += offset;
@@ -503,7 +503,7 @@ dav_off_t HttpIOBuffer::lseek(IOChainContext & iocontext, dav_off_t offset, int 
 
 dav_ssize_t HttpIOBuffer::write(IOChainContext & iocontext, const void *buf, dav_size_t count){
     (void) iocontext;
-    boost::recursive_mutex::scoped_lock l(_rwlock);
+    std::lock_guard<std::recursive_mutex> l(_rwlock);
     dav_ssize_t ret =-1;
     dav_size_t write_len = count;
 

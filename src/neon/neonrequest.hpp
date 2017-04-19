@@ -167,7 +167,7 @@ private:
 
 
     ne_request * _req;
-    boost::shared_ptr<Uri>  _current, _orig;
+    std::shared_ptr<Uri>  _current, _orig;
     // req info
     int _number_try;
     // number of redirects so far

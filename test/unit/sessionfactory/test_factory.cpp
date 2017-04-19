@@ -8,8 +8,8 @@ TEST(testRedirectCache, testCacheSimple){
     davix_set_log_level(DAVIX_LOG_ALL);
 
 
-    boost::shared_ptr<Uri> dest(new Uri("http://sffsdfsd.com/dsffds/fsdfsdsdf"));
-    boost::shared_ptr<Uri> dest2(new Uri("http://sffsdfsd.com/dsffds/fsdfsdsdf"));
+    std::shared_ptr<Uri> dest(new Uri("http://sffsdfsd.com/dsffds/fsdfsdsdf"));
+    std::shared_ptr<Uri> dest2(new Uri("http://sffsdfsd.com/dsffds/fsdfsdsdf"));
     Uri u("http://higgs.boson/is/watchingus");
 
     Uri u_sec("https://higgs.boson/is/watchingus");
@@ -39,10 +39,10 @@ TEST(testRedirectCache, testCacheChainRedirection){
 
     Uri u("http://higgs.boson/is/watchingus");
 
-    boost::shared_ptr<Uri> url1(new Uri("http://sffsdfsd.com/dsffds/fsdfsdsdf"));
-    boost::shared_ptr<Uri> url2(new Uri("http://server2.com/dsffds/sfdfdsfsdfdsfdsfds"));
-    boost::shared_ptr<Uri> url3(new Uri("http://server2.com:8080/dsffds/sfdfdsfsdfdsfdsfds"));
-    boost::shared_ptr<Uri> url4(new Uri("http://server3.com/dsffds/fsdaaaaa"));
+    std::shared_ptr<Uri> url1(new Uri("http://sffsdfsd.com/dsffds/fsdfsdsdf"));
+    std::shared_ptr<Uri> url2(new Uri("http://server2.com/dsffds/sfdfdsfsdfdsfdsfds"));
+    std::shared_ptr<Uri> url3(new Uri("http://server2.com:8080/dsffds/sfdfdsfsdfdsfdsfds"));
+    std::shared_ptr<Uri> url4(new Uri("http://server3.com/dsffds/fsdaaaaa"));
 
     NEONSessionFactory f;
     f.addRedirection("GET", u, url1);
@@ -65,8 +65,8 @@ TEST(testRedirectCache, test_GET_HEAD){
 
     Uri u("http://higgs.boson/is/watchingus");
 
-    boost::shared_ptr<Uri> url1(new Uri("http://sffsdfsd.com/dsffds/fsdfsdsdf"));
-    boost::shared_ptr<Uri> url2(new Uri("http://server2.com/dsffds/sfdfdsfsdfdsfdsfds"));
+    std::shared_ptr<Uri> url1(new Uri("http://sffsdfsd.com/dsffds/fsdfsdsdf"));
+    std::shared_ptr<Uri> url2(new Uri("http://server2.com/dsffds/sfdfdsfsdfdsfdsfds"));
 
     NEONSessionFactory f;
     f.addRedirection("GET", u, url1);
@@ -87,8 +87,3 @@ TEST(testRedirectCache, test_GET_HEAD){
     ASSERT_TRUE(f.redirectionResolve("GET", u) == url1);
     ASSERT_TRUE(f.redirectionResolve("HEAD", u) == url1);
 }
-
-
-
-
-

@@ -51,14 +51,14 @@ struct X509Data{
 
     X509Credential _cred;
 
-    static X509Data* instance(boost::shared_ptr<X509Data> & cred_ptr){
+    static X509Data* instance(std::shared_ptr<X509Data> & cred_ptr){
         if(cred_ptr.get() == NULL){
             cred_ptr.reset(new X509Data());
         }
         return cred_ptr.get();
     }
 
-    static X509Data* reset(boost::shared_ptr<X509Data> & cred_ptr){
+    static X509Data* reset(std::shared_ptr<X509Data> & cred_ptr){
         cred_ptr.reset(new X509Data());
         return cred_ptr.get();
     }
@@ -178,7 +178,7 @@ struct RequestParamsInternal{
     std::vector<std::string> _ca_path;
 
     // auth info
-    boost::shared_ptr<X509Data> _x509_data;
+    std::shared_ptr<X509Data> _x509_data;
 
     std::pair<std::string,std::string> _idlogpass;
     authCallbackLoginPasswordBasic _call_loginpswwd;
@@ -204,7 +204,7 @@ struct RequestParamsInternal{
     HeaderVec _customhdr;
 
     // Proxy server URI
-    boost::shared_ptr<Uri> _proxy_server;
+    std::shared_ptr<Uri> _proxy_server;
 
     // session flag
     int _session_flag;

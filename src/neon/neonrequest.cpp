@@ -202,7 +202,7 @@ int NEONRequest::createRequest(DavixError** err){
        resetRequest();
     }
 
-    boost::shared_ptr<Uri> redir_url;
+    std::shared_ptr<Uri> redir_url;
     if(this->params.getTransparentRedirectionSupport()) {
         redir_url = ContextExplorer::SessionFactoryFromContext(_c).redirectionResolve(_request_type, *_current);
     }
@@ -348,14 +348,14 @@ void NEONRequest::configureS3params(){
     }
     else {
         Uri signed_url = S3::signURI(params, _request_type, *_current, _headers_field, NEON_S3_SIGN_DURATION);
-        _current= boost::shared_ptr<Uri>(new Uri(signed_url));
+        _current= std::shared_ptr<Uri>(new Uri(signed_url));
     }
 }
 
 // TODO: make static?
 void NEONRequest::configureAzureParams(){
     Uri signed_url = Azure::signURI(params.getAzureKey(), _request_type, *_current, NEON_S3_SIGN_DURATION);
-    _current= boost::shared_ptr<Uri>(new Uri(signed_url));
+    _current= std::shared_ptr<Uri>(new Uri(signed_url));
 }
 
 int NEONRequest::processRedirection(int neonCode, DavixError **err){
@@ -566,7 +566,7 @@ bool NEONRequest::requestCleanup(){
 }
 
 int NEONRequest::redirectRequest(DavixError **err){
-    boost::shared_ptr<Uri> old_uri;
+    std::shared_ptr<Uri> old_uri;
     const ne_uri * new_uri = ne_redirect_location(_neon_sess->get_ne_sess());
     if(!new_uri){
         DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, "Impossible to get the new redirected destination");
@@ -578,7 +578,7 @@ int NEONRequest::redirectRequest(DavixError **err){
 
     // setup new path & session target
     old_uri = _current;
-    _current= boost::shared_ptr<Uri>(new Uri(dst_uri));
+    _current= std::shared_ptr<Uri>(new Uri(dst_uri));
     ne_free(dst_uri);
     ContextExplorer::SessionFactoryFromContext(_c).addRedirection(_request_type, *old_uri, _current);
 

@@ -27,8 +27,6 @@
 #include <utils/davix_uri.hpp>
 
 #include <neon/neonrequest.hpp>
-#include <boost/thread/locks.hpp>
-#include <boost/thread/mutex.hpp>
 #include <alibxx/containers/cache.hpp>
 
 namespace Davix {
@@ -56,12 +54,12 @@ public:
     // Redirecton caching
     //
 
-    void addRedirection( const std::string & method, const Uri & origin, boost::shared_ptr<Uri> dest);
+    void addRedirection( const std::string & method, const Uri & origin, std::shared_ptr<Uri> dest);
 
     // try to find cached redirection, resolve a full chain
-    boost::shared_ptr<Uri> redirectionResolve(const std::string & method, const Uri & origin);
+    std::shared_ptr<Uri> redirectionResolve(const std::string & method, const Uri & origin);
     // try to find a cached redirection, resolve only one element
-    boost::shared_ptr<Uri> redirectionResolveSingle(const std::string & method, const Uri & origin);
+    std::shared_ptr<Uri> redirectionResolveSingle(const std::string & method, const Uri & origin);
 
     void redirectionClean(const std::string & method, const Uri & origin);
     void redirectionClean(const Uri & origin);
@@ -89,7 +87,7 @@ private:
     ne_session* create_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);
     ne_session* create_recycled_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);
 
-    boost::shared_ptr<Uri> redirectionResolveSingleIntern(const std::string & method, const Uri & origin);
+    std::shared_ptr<Uri> redirectionResolveSingleIntern(const std::string & method, const Uri & origin);
 
 };
 

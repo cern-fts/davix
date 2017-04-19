@@ -170,30 +170,30 @@ static const std::pair<std::string, std::string> redirectionCreateKey(const std:
     return std::make_pair(origin.getString(), mymethod);
 }
 
-void NEONSessionFactory::addRedirection( const std::string & method, const Uri & origin, boost::shared_ptr<Uri> dest){
+void NEONSessionFactory::addRedirection( const std::string & method, const Uri & origin, std::shared_ptr<Uri> dest){
     if(_redir_caching){
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "Add cached redirection <{} {} {}>", method.c_str(), origin.getString().c_str(), dest->getString().c_str());
         _redirCache.insert(redirectionCreateKey(method, origin), dest);
     }
 }
 
-boost::shared_ptr<Uri> NEONSessionFactory::redirectionResolve(const std::string & method, const Uri & origin){
-    boost::shared_ptr<Uri> res = redirectionResolveSingle(method, origin);
+std::shared_ptr<Uri> NEONSessionFactory::redirectionResolve(const std::string & method, const Uri & origin){
+    std::shared_ptr<Uri> res = redirectionResolveSingle(method, origin);
     if(res.get() != NULL){
-        boost::shared_ptr<Uri> res_rec = redirectionResolve(method, *res);
+        std::shared_ptr<Uri> res_rec = redirectionResolve(method, *res);
         if(res_rec.get() != NULL)
             return res_rec;
     }
     return res;
 }
 
-boost::shared_ptr<Uri> NEONSessionFactory::redirectionResolveSingleIntern(const std::string & method, const Uri & origin){
+std::shared_ptr<Uri> NEONSessionFactory::redirectionResolveSingleIntern(const std::string & method, const Uri & origin){
     return  _redirCache.find(redirectionCreateKey(method, origin));
 }
 
 
-boost::shared_ptr<Uri> NEONSessionFactory::redirectionResolveSingle(const std::string & method, const Uri & origin){
-    boost::shared_ptr<Uri> res = redirectionResolveSingleIntern(method, origin);
+std::shared_ptr<Uri> NEONSessionFactory::redirectionResolveSingle(const std::string & method, const Uri & origin){
+    std::shared_ptr<Uri> res = redirectionResolveSingleIntern(method, origin);
     if(res.get() != NULL){
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "Found redirection  <{} {} {}>", method.c_str(), origin.getString().c_str(), res->getString().c_str());
     }
@@ -201,7 +201,7 @@ boost::shared_ptr<Uri> NEONSessionFactory::redirectionResolveSingle(const std::s
 }
 
 void NEONSessionFactory::redirectionClean(const std::string & method, const Uri & origin){
-    boost::shared_ptr<Uri> res = redirectionResolveSingleIntern(method, origin);
+    std::shared_ptr<Uri> res = redirectionResolveSingleIntern(method, origin);
     if(res.get() != NULL){
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "Delete Cached redirection for <{} {} {}>", method.c_str(), origin.getString().c_str(), res->getString().c_str());
         _redirCache.erase(redirectionCreateKey(method, origin));

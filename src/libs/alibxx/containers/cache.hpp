@@ -8,7 +8,6 @@
 
 #ifndef NO_BOOST_INCLUDE
 
-#include <boost/shared_ptr.hpp>
 #include <mutex>
 
 
@@ -19,8 +18,8 @@ namespace A_LIB_NAMESPACE{
 ///
 template <class Key, class Value, class CompareT = std::less<Key> >
 class Cache {
-    typedef std::map<Key, boost::shared_ptr<Value> > Map;
-    typedef boost::shared_ptr<Value> shrPtr_type;
+    typedef std::map<Key, std::shared_ptr<Value> > Map;
+    typedef std::shared_ptr<Value> shrPtr_type;
 
 public:
     Cache(size_t max_size = std::numeric_limits<size_t>::max()) :

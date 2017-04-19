@@ -27,7 +27,7 @@ TEST(ALibxx, CacheTest){
 
     ASSERT_TRUE(cache.find("hello").get() == NULL);
 
-    boost::shared_ptr<DummyStruct> dumb( new DummyStruct());
+    std::shared_ptr<DummyStruct> dumb( new DummyStruct());
     dumb->dude = "bob";
 
     ASSERT_STREQ("bob",cache.insert("hello", dumb)->dude.c_str());
@@ -58,4 +58,3 @@ TEST(ALibxx, CacheTest){
     cache.clear();
     ASSERT_EQ(0, cache.getSize());
 }
-

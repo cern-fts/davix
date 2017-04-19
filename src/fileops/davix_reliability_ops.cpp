@@ -19,6 +19,7 @@
  *
 */
 
+#include <mutex>
 #include <davix_internal.hpp>
 #include "davix_reliability_ops.hpp"
 
@@ -39,7 +40,7 @@ typedef function< StatInfo & (IOChainContext &) > FuncStatInfo;
 
 
 static bool metalink_support_disabled=false;
-static once_flag metalink_once = BOOST_ONCE_INIT;
+static std::once_flag metalink_once;
 
 
 void propagateNonRecoverableExceptions(DavixException & e){
@@ -55,7 +56,7 @@ void metalink_check(){
 }
 
 static bool isMetalinkDisabled(const RequestParams* params){
-    call_once(metalink_check, metalink_once);
+    std::call_once(metalink_once, metalink_check);
     return (params != NULL && params->getMetalinkMode() == MetalinkMode::Disable) || metalink_support_disabled;
 }
 
@@ -366,4 +367,3 @@ dav_ssize_t AutoRetryOps::readToFd(IOChainContext & iocontext, int fd, dav_size_
 
 
 } // namespace Davix
-

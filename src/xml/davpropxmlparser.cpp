@@ -35,7 +35,7 @@ const Xml::XmlPTree prop_node(Xml::ElementStart, "propstat");
 const Xml::XmlPTree prop_collection(Xml::ElementStart, "collection");
 static Ptr::Scoped<Xml::XmlPTree> webDavTree;
 
-static boost::once_flag _l_init = BOOST_ONCE_INIT;
+static std::once_flag _l_init;
 
 struct DavPropXMLParser::DavxPropXmlIntern{
     DavxPropXmlIntern() : _stack(),
@@ -254,7 +254,7 @@ void init_webdavTree(){
 DavPropXMLParser::DavPropXMLParser() :
     d_ptr(new DavxPropXmlIntern())
 {
-    boost::call_once(init_webdavTree, _l_init);
+    std::call_once(_l_init, init_webdavTree);
 }
 
 DavPropXMLParser::~DavPropXMLParser(){

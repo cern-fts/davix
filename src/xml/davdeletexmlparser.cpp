@@ -36,7 +36,7 @@ const Xml::XmlPTree prop_response(Xml::ElementStart, "response");
 
 static Ptr::Scoped<Xml::XmlPTree> webDavTree;
 
-static boost::once_flag _l_init = BOOST_ONCE_INIT;
+static std::once_flag _l_init;
 
 struct DavDeleteXMLParser::DavxDeleteXmlIntern{
     DavxDeleteXmlIntern() : _stack(),
@@ -132,7 +132,7 @@ static void init_webdavTree(){
 DavDeleteXMLParser::DavDeleteXMLParser() :
     d_ptr(new DavxDeleteXmlIntern())
 {
-    boost::call_once(init_webdavTree, _l_init);
+    std::call_once(_l_init, init_webdavTree);
 }
 
 DavDeleteXMLParser::~DavDeleteXMLParser(){

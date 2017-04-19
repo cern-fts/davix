@@ -29,7 +29,7 @@
 
 namespace Davix {
 
-static boost::once_flag neon_once = BOOST_ONCE_INIT;
+static std::once_flag neon_once;
 
 static void init_neon(){
     ne_sock_init();
@@ -51,7 +51,7 @@ NEONSessionFactory::NEONSessionFactory() :
     _redir_caching(!redirCachingDisabled()),
     _redirCache(256)
 {
-    boost::call_once(&init_neon, neon_once);
+    std::call_once(neon_once, &init_neon);
     DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CORE, "HTTP/SSL Session caching {}", (_session_caching?"ENABLED":"DISABLED"));
     DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CORE, "Redirection Session caching {}", (_redir_caching?"ENABLED":"DISABLED"));
 }

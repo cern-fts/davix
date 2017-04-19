@@ -23,6 +23,7 @@
 #define DAVIX_NEONSESSIONFACTORY_H
 
 #include <map>
+#include <mutex>
 #include <utils/davix_uri.hpp>
 
 #include <neon/neonrequest.hpp>
@@ -78,7 +79,7 @@ public:
 private:
     // session pool
     std::multimap<std::string, ne_session*> _sess_map;
-    boost::mutex _sess_mut;
+    std::mutex _sess_mut;
     bool _session_caching, _redir_caching;
 
     // redirection pool

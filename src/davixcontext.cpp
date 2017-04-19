@@ -28,12 +28,13 @@
 #include <neon/neonsessionfactory.hpp>
 #include <davix_context_internal.hpp>
 #include <set>
+#include <mutex>
 
-boost::mutex contexts_mutex;
+std::mutex contexts_mutex;
 std::set<Davix::Context*> contexts_alive;
 
 void child_fork_handler() {
-  boost::lock_guard<boost::mutex> lock(contexts_mutex);
+  std::lock_guard<std::mutex> lock(contexts_mutex);
 
   std::set<Davix::Context*>::iterator it;
   for(it = contexts_alive.begin(); it != contexts_alive.end(); it++) {
@@ -103,13 +104,13 @@ struct ContextInternal
 Context::Context() :
     _intern(new ContextInternal(new NEONSessionFactory()))
 {
-  boost::lock_guard<boost::mutex> lock(contexts_mutex);
+  std::lock_guard<std::mutex> lock(contexts_mutex);
   contexts_alive.insert(this);
 }
 
 Context::Context(const Context &c) :
     _intern(new ContextInternal(*(c._intern))){
-  boost::lock_guard<boost::mutex> lock(contexts_mutex);
+  std::lock_guard<std::mutex> lock(contexts_mutex);
   contexts_alive.insert(this);
 }
 
@@ -123,7 +124,7 @@ Context & Context::operator=(const Context & c){
 }
 
 Context::~Context(){
-    boost::lock_guard<boost::mutex> lock(contexts_mutex);
+    std::lock_guard<std::mutex> lock(contexts_mutex);
     contexts_alive.erase(this);
     delete _intern;
 }

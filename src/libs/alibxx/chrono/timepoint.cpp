@@ -1,5 +1,6 @@
 #include <davix_internal_config.hpp>
 #include "timepoint.hpp"
+#include <sys/time.h>
 
 #if __cplusplus >= 201103L
 #include <chrono>

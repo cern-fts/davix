@@ -9,8 +9,7 @@
 #ifndef NO_BOOST_INCLUDE
 
 #include <boost/shared_ptr.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/locks.hpp>
+#include <mutex>
 
 
 namespace A_LIB_NAMESPACE{
@@ -40,7 +39,7 @@ public:
     /// \return
     ///
     shrPtr_type insert(const Key & key, const shrPtr_type & value){
-        boost::lock_guard<boost::mutex> l(_m);
+        std::lock_guard<std::mutex> l(_m);
         auto_clean();
         std::pair< typename Map::iterator, bool > stored = map.insert(std::pair<Key,shrPtr_type> (key, value) );
         if(stored.second)
@@ -55,7 +54,7 @@ public:
     /// \return
     ///
     shrPtr_type find(const Key & key){
-        boost::lock_guard<boost::mutex> l(_m);
+        std::lock_guard<std::mutex> l(_m);
         typename Map::iterator it = map.find( key);
         if(it == map.end())
             return shrPtr_type();
@@ -68,7 +67,7 @@ public:
     /// \return the next key
     ///
     const Key upper_bound(const Key & key) {
-        boost::lock_guard<boost::mutex> l(_m);
+        std::lock_guard<std::mutex> l(_m);
         typename Map::iterator it = map.upper_bound( key);
         if(it == map.end())
             return Key();
@@ -80,7 +79,7 @@ public:
     /// \return
     ///
     size_t getSize() const{
-        boost::lock_guard<boost::mutex> l(_m);
+        std::lock_guard<std::mutex> l(_m);
         return map.size();
     }
 
@@ -90,7 +89,7 @@ public:
     /// \return
     ///
     shrPtr_type take( const Key & key){
-        boost::lock_guard<boost::mutex> l(_m);
+        std::lock_guard<std::mutex> l(_m);
         typename Map::iterator it = map.find( key);
         if(it == map.end())
             return shrPtr_type();
@@ -104,12 +103,12 @@ public:
     /// \return
     ///
     bool erase( const Key & key){
-        boost::lock_guard<boost::mutex> l(_m);
+        std::lock_guard<std::mutex> l(_m);
         return ( map.erase(key) != 0);
     }
 
     void clear(){
-        boost::lock_guard<boost::mutex> l(_m);
+        std::lock_guard<std::mutex> l(_m);
         map.clear();
     }
 
@@ -118,7 +117,7 @@ protected:
     CompareT cmp;
     Map map;
     size_t _max_size;
-    mutable boost::mutex _m;
+    mutable std::mutex _m;
 
     void auto_clean(){
         if(map.size() == _max_size){
@@ -134,4 +133,3 @@ protected:
 
 
 #endif
-

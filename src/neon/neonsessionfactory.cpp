@@ -21,6 +21,7 @@
 
 #include <string>
 #include <algorithm>
+#include <mutex>
 #include <davix_internal.hpp>
 #include "neonsessionfactory.hpp"
 
@@ -56,7 +57,7 @@ NEONSessionFactory::NEONSessionFactory() :
 }
 
 NEONSessionFactory::~NEONSessionFactory(){
-    boost::lock_guard<boost::mutex> lock(_sess_mut);
+    std::lock_guard<std::mutex> lock(_sess_mut);
     for(std::multimap<std::string, ne_session*>::iterator it = _sess_map.begin(); it != _sess_map.end(); ++it){
         ne_session_destroy(it->second);
     }
@@ -128,7 +129,7 @@ ne_session* NEONSessionFactory::create_recycled_session(const RequestParams & pa
 
     if(params.getKeepAlive()){
         ne_session* se= NULL;
-        boost::lock_guard<boost::mutex> lock(_sess_mut);
+        std::lock_guard<std::mutex> lock(_sess_mut);
         std::multimap<std::string, ne_session*>::iterator it;
         if( (it = _sess_map.find(create_map_keys_from_URL(protocol, host, port))) != _sess_map.end()){
             DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "cached ne_session found ! taken from cache ");
@@ -150,7 +151,7 @@ void NEONSessionFactory::internal_release_session_handle(ne_session* sess){
     // clear sensitive data
     // none
     //
-    boost::lock_guard<boost::mutex> lock(_sess_mut);
+    std::lock_guard<std::mutex> lock(_sess_mut);
     std::multimap<std::string, ne_session*>::iterator it;
     std::string sess_key;
     sess_key.append(ne_get_scheme(sess)).append(ne_get_server_hostport(sess));

@@ -390,7 +390,9 @@ int GRSTx509MakeProxyCert(char **proxychain, FILE *debugfp,
 
   /* sign the certificate with the signing private key */
   if (EVP_PKEY_base_id(CApkey) == EVP_PKEY_RSA)
-    digest = EVP_md5();
+    {
+        digest = EVP_sha512();
+    }
   else
     {
       mpcerror(debugfp,

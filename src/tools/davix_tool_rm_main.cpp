@@ -218,6 +218,8 @@ int main(int argc, char** argv){
                 DavFile f(c,opts.vec_arg[0]);
                 f.deletion(&opts.params, &tmp_err);
             }
+
+            if(tmp_err != NULL) retcode = 1;
         }
     }
     Tool::errorPrint(&tmp_err);

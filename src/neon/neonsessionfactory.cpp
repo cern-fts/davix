@@ -57,7 +57,7 @@ NEONSessionFactory::NEONSessionFactory() :
 }
 
 NEONSessionFactory::~NEONSessionFactory(){
-    // std::lock_guard<std::mutex> lock(_sess_mut);
+    std::lock_guard<std::mutex> lock(_sess_mut);
     for(std::multimap<std::string, ne_session*>::iterator it = _sess_map.begin(); it != _sess_map.end(); ++it){
         ne_session_destroy(it->second);
     }

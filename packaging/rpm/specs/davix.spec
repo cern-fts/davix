@@ -81,11 +81,11 @@ rm -rf test/pywebdav/
 
 %build
 # setup a virtualenv with sphinx
-%if %{?fedora}%{!?fedora:0} >= 10 || %{?rhel}%{!?rhel:0} >= 7
-virtualenv /tmp/sphinx-venv
-source /tmp/sphinx-venv/bin/activate
-pip install sphinx
-%endif
+#%if %{?fedora}%{!?fedora:0} >= 10 || %{?rhel}%{!?rhel:0} >= 7
+#virtualenv /tmp/sphinx-venv
+#source /tmp/sphinx-venv/bin/activate
+# pip install sphinx
+#%endif
 
 %cmake \
 -DDOC_INSTALL_DIR=%{_pkgdocdir} \

@@ -1,3 +1,12 @@
+Version - 0.6.6
+
+** Bug
+    * [DMC-937] - davix unable to upload files to Azure larger than a certain size
+    * [DMC-939] - Use SHA512 for 3rd party copy delegated proxy
+    * [DMC-944] - Remove the buggy davix fork-handler
+** Improvement
+    * [DMC-938] - Remove boost from davix
+
 Version - 0.6.5
 
 ** Bug

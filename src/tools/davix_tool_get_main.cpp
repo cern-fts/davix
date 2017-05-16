@@ -278,7 +278,7 @@ int main(int argc, char** argv){
     opts.help_msg = help_msg(argv[0]);
 
     if( (retcode= Tool::parse_davix_get_options(argc, argv, opts, &tmp_err)) ==0
-        && (retcode = Tool::configureAuth(opts)) == 0){
+        && (retcode = Tool::configureAuth(opts)) == 0 && checkProtocolSanity(opts, opts.vec_arg[0], &tmp_err)){
             retcode = preGetCheck(opts, &tmp_err);
     }
     Tool::errorPrint(&tmp_err);

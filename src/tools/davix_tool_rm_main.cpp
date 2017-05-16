@@ -197,38 +197,32 @@ int main(int argc, char** argv){
 
     if( (retcode= Tool::parse_davix_rm_options(argc, argv, opts, &tmp_err)) ==0){
         if( (retcode = Tool::configureAuth(opts)) == 0){
-            if ( opts.params.getAzureKey().size() != 0) {
-                opts.params.setProtocol(RequestProtocol::Azure);
-            }else if (opts.vec_arg[0].compare(0,4,"http") ==0){
-                opts.params.setProtocol(RequestProtocol::Http);
-            }else if( opts.vec_arg[0].compare(0,2,"s3") ==0){
-                opts.params.setProtocol(RequestProtocol::AwsS3);
-            }else if ( opts.vec_arg[0].compare(0, 3,"dav") ==0){
-                opts.params.setProtocol(RequestProtocol::Webdav);
-            }
+            if(checkProtocolSanity(opts, opts.vec_arg[0], &tmp_err)) {
+                if ( opts.params.getAzureKey().size() != 0) {
+                    opts.params.setProtocol(RequestProtocol::Azure);
+                }else if (opts.vec_arg[0].compare(0,4,"http") ==0){
+                    opts.params.setProtocol(RequestProtocol::Http);
+                }else if( opts.vec_arg[0].compare(0,2,"s3") ==0){
+                    opts.params.setProtocol(RequestProtocol::AwsS3);
+                }else if ( opts.vec_arg[0].compare(0, 3,"dav") ==0){
+                    opts.params.setProtocol(RequestProtocol::Webdav);
+                }
 
-            // only s3 needs special treatment, WebDAV delete on collection already works
-            if((opts.params.getProtocol() == RequestProtocol::AwsS3) && (opts.params.getRecursiveMode())){
-                preDeleteCheck(opts, &tmp_err);
-            }
-            else{
-                Context c;
-                configureContext(c, opts);
+                // only s3 needs special treatment, WebDAV delete on collection already works
+                if((opts.params.getProtocol() == RequestProtocol::AwsS3) && (opts.params.getRecursiveMode())){
+                    preDeleteCheck(opts, &tmp_err);
+                }
+                else{
+                    Context c;
+                    configureContext(c, opts);
 
-                DavFile f(c,opts.vec_arg[0]);
-                f.deletion(&opts.params, &tmp_err);
+                    DavFile f(c,opts.vec_arg[0]);
+                    f.deletion(&opts.params, &tmp_err);
+                }
+                if(tmp_err != NULL) retcode = 1;
             }
-
-            if(tmp_err != NULL) retcode = 1;
         }
     }
     Tool::errorPrint(&tmp_err);
     return retcode;
 }
-
-
-
-
-
-
-

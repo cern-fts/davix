@@ -59,18 +59,13 @@ int main(int argc, char** argv){
     if( (retcode= Tool::parse_davix_options(argc, argv, opts, &tmp_err)) ==0){
         Context c;
         if( (retcode = Tool::configureAuth(opts)) == 0){
-            configureContext(c, opts);
-            DavFile f(c,opts.vec_arg[0]);
-            f.makeCollection(&opts.params, &tmp_err);
+            if(checkProtocolSanity(opts, opts.vec_arg[0], &tmp_err)) {
+              configureContext(c, opts);
+              DavFile f(c,opts.vec_arg[0]);
+              f.makeCollection(&opts.params, &tmp_err);
+            }
         }
     }
     Tool::errorPrint(&tmp_err);
     return retcode;
 }
-
-
-
-
-
-
-

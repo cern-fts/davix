@@ -118,6 +118,26 @@ int configureAuth(OptParams & opts){
     return 0;
 }
 
+bool startswith(const std::string &str, const std::string &prefix) {
+  if(prefix.size() > str.size()) return false;
+
+  for(size_t i = 0; i < prefix.size(); i++) {
+    if(str[i] != prefix[i]) return false;
+  }
+  return true;
+}
+
+const std::string scope_params = "Davix::Tools::Params";
+bool checkProtocolSanity(OptParams &opts, const std::string &url, DavixError **err) {
+    if(!opts.aws_auth.first.empty()) {
+        if(!startswith(url, "s3://") && !startswith(url, "s3s://") && !startswith(url, "http://") && !startswith(url, "https://")) {
+            DavixError::setupError(err, scope_params, StatusCode::InvalidArgument, fmt::format(" S3 credentials cannot be used with the protocol given in this URL : {}", url));
+            return false;
+        }
+    }
+    return true;
+}
+
 
 static void printHookHeaders(char symbol, const std::string & first_msg, const std::string & start_line){
     std::string req_header(start_line);

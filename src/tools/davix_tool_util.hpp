@@ -37,6 +37,8 @@ dav_ssize_t writeToFd(int fd, const std::string & str);
 
 int configureAuth(OptParams & opts);
 
+bool checkProtocolSanity(OptParams &opts, const std::string &url, DavixError **err);
+
 void configureContext(Context &context, const OptParams & opts);
 
 void errorPrint(DavixError ** err);

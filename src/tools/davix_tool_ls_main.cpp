@@ -233,35 +233,30 @@ int main(int argc, char** argv){
 
     if( (retcode= Tool::parse_davix_ls_options(argc, argv, opts, &tmp_err)) ==0){
         if( (retcode = Tool::configureAuth(opts)) == 0){
-            // if recursive and S3
-            if(opts.params.getRecursiveMode() && (opts.vec_arg[0].compare(0,2,"s3") ==0)){
-                // don't need to use -r switch for S3, just set listing mode to SemiHierarchical and do a normal listing
-                opts.params.setS3ListingMode(S3ListingMode::SemiHierarchical);
-                // unfortunately s3 defaults max-keys to 1000 and doesn't provide a way to disable the cap, set to large number
-                opts.params.setS3MaxKey(999999999);
+            if(checkProtocolSanity(opts, opts.vec_arg[0], &tmp_err)) {
+              // if recursive and S3
+              if(opts.params.getRecursiveMode() && (opts.vec_arg[0].compare(0,2,"s3") ==0)){
+                  // don't need to use -r switch for S3, just set listing mode to SemiHierarchical and do a normal listing
+                  opts.params.setS3ListingMode(S3ListingMode::SemiHierarchical);
+                  // unfortunately s3 defaults max-keys to 1000 and doesn't provide a way to disable the cap, set to large number
+                  opts.params.setS3MaxKey(999999999);
 
-                retcode = listing(opts, fstream, &tmp_err);
-            }
-            else if(opts.params.getRecursiveMode()){    // dav recursive listing
-                retcode = recursiveListing(opts, fstream, &tmp_err);
-            }
-            else{   // normal listing
-                retcode = listing(opts, fstream, &tmp_err);
-            }
-            // just a single file
-            if(retcode < 0 && tmp_err->getStatus() == StatusCode::IsNotADirectory){
-                DavixError::clearError(&tmp_err);
-                retcode = get_info(opts, fstream, &tmp_err);
+                  retcode = listing(opts, fstream, &tmp_err);
+              }
+              else if(opts.params.getRecursiveMode()){    // dav recursive listing
+                  retcode = recursiveListing(opts, fstream, &tmp_err);
+              }
+              else{   // normal listing
+                  retcode = listing(opts, fstream, &tmp_err);
+              }
+              // just a single file
+              if(retcode < 0 && tmp_err->getStatus() == StatusCode::IsNotADirectory){
+                  DavixError::clearError(&tmp_err);
+                  retcode = get_info(opts, fstream, &tmp_err);
+              }
             }
         }
     }
     Tool::errorPrint(&tmp_err);
     return retcode;
 }
-
-
-
-
-
-
-

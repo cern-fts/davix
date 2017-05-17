@@ -255,6 +255,7 @@ void signRequest(const RequestParams & params, const std::string & method, const
     }
 }
 
+#define SSTR(message) static_cast<std::ostringstream&>(std::ostringstream().flush() << message).str()
 
 Uri signURIv4(const RequestParams & params, const std::string & method, const Uri & url, const HeaderVec headers, const time_t expirationTime) {
     // references
@@ -262,9 +263,19 @@ Uri signURIv4(const RequestParams & params, const std::string & method, const Ur
     // http://docs.aws.amazon.com/general/latest/gr/sigv4-create-canonical-request.html
     DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_S3, "Using S3 v4 signature authentication");
 
+    // using a non-default port?
+    bool defaultPort;
+    std::string portPart;
+
+    defaultPort = (url.getPort() == 0);
+    defaultPort |= (url.getPort() == 80 && (url.getProtocol() == "http" || url.getProtocol() == "s3"));
+    defaultPort |= (url.getPort() == 443 && (url.getProtocol() == "https" || url.getProtocol() == "s3s"));
+
+    if(!defaultPort) portPart = SSTR(":" << url.getPort());
+
     // calculate canonical headers
     HeaderVec can_headers = getAmzCanonHeaders_vec(headers);
-    can_headers.push_back(HeaderLine("Host", url.getHost()));
+    can_headers.push_back(HeaderLine("Host", SSTR(url.getHost() << portPart)));
     std::sort(can_headers.begin(), can_headers.end());
     std::ostringstream can_headers_str;
     for(HeaderVec::iterator it = can_headers.begin(); it != can_headers.end(); it++) {

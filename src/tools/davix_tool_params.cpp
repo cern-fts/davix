@@ -173,7 +173,12 @@ static int set_header_field(const std::string & arg, OptParams & p, DavixError**
         DavixError::setupError(err, scope_params, StatusCode::InvalidArgument, " Invalid header field argument");
         return -1;
     }
-    p.params.addHeader(arg.substr(0,pos), arg.substr(pos+1));
+
+    dav_size_t value_pos = pos+1;
+    if(arg.size() > pos+1 && arg[pos+1] == ' ') {
+        value_pos = pos+2;
+    }
+    p.params.addHeader(arg.substr(0,pos), arg.substr(value_pos));
     return 0;
 }
 

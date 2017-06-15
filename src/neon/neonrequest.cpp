@@ -428,7 +428,7 @@ int NEONRequest::negotiateRequest(DavixError** err){
                 return startRequest(err);
             }
 
-            if( status == NE_CONNECT &&  requestCleanup() ){
+            if( (status == NE_CONNECT || status == NE_LOOKUP) &&  requestCleanup() ){
                 DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_HTTP, "Impossible to connect to {}, retry from origin {}", _current->getString(), _orig->getString());
                 _number_try++;
                 return startRequest(err);

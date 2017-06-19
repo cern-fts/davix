@@ -33,8 +33,10 @@ namespace Davix {
 
 const char * default_agent = "libdavix/" DAVIX_VERSION;
 volatile int state_value =0;
+std::mutex state_value_mtx;
 
 inline int get_requeste_uid(){
+    std::lock_guard<std::mutex> lock(state_value_mtx);
     state_value +=1;
     return state_value;
 }

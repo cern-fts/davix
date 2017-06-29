@@ -58,6 +58,7 @@ typedef unsigned char ne_d2i_uchar;
 typedef const unsigned char ne_d2i_uchar;
 #endif
 
+#include "time.h"
 
 #define NE_SSL_UNHANDLED (0x20) /* failure bit for unhandled case. */
 
@@ -165,7 +166,9 @@ void ne_ssl_clicert_free(ne_ssl_client_cert *cc)
  * 'NE_SSL_VDATELEN'. */
 static time_t asn1time_to_timet(const ASN1_TIME *atm)
 {
-    struct tm tm = {0};
+    struct tm tm;
+    memset(&tm, 0, sizeof(struct tm));
+    
     int i = atm->length;
 
     if (i < 10)

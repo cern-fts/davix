@@ -27,11 +27,15 @@
 
 #include <utils/davix_logger_internal.hpp>
 
+std::mutex * Davix::NEONSessionFactory::_glb_mut = 0;
+
 namespace Davix {
 
 static std::once_flag neon_once;
 
+
 static void init_neon(){
+    NEONSessionFactory::initGlbMutex();
     ne_sock_init();
 }
 
@@ -173,7 +177,10 @@ static const std::pair<std::string, std::string> redirectionCreateKey(const std:
 void NEONSessionFactory::addRedirection( const std::string & method, const Uri & origin, std::shared_ptr<Uri> dest){
     if(_redir_caching){
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "Add cached redirection <{} {} {}>", method.c_str(), origin.getString().c_str(), dest->getString().c_str());
+        {
+          std::lock_guard<std::mutex> lock(_redirCache);
         _redirCache.insert(redirectionCreateKey(method, origin), dest);
+        }
     }
 }
 
@@ -193,6 +200,7 @@ std::shared_ptr<Uri> NEONSessionFactory::redirectionResolveSingleIntern(const st
 
 
 std::shared_ptr<Uri> NEONSessionFactory::redirectionResolveSingle(const std::string & method, const Uri & origin){
+    std::lock_guard<std::mutex> lock(_redirCache);
     std::shared_ptr<Uri> res = redirectionResolveSingleIntern(method, origin);
     if(res.get() != NULL){
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "Found redirection  <{} {} {}>", method.c_str(), origin.getString().c_str(), res->getString().c_str());
@@ -200,23 +208,49 @@ std::shared_ptr<Uri> NEONSessionFactory::redirectionResolveSingle(const std::str
     return res;
 }
 
-void NEONSessionFactory::redirectionClean(const std::string & method, const Uri & origin){
-    std::shared_ptr<Uri> res = redirectionResolveSingleIntern(method, origin);
-    if(res.get() != NULL){
+void NEONSessionFactory::redirectionCleanIntern(const std::string & method, const Uri & origin){
+  
+    Uri org1(origin);
+    while(1) {
+      std::shared_ptr<Uri> res = redirectionResolveSingleIntern(method, org1);
+      if(res.get() == NULL)
+        break;
+      
+      
+      DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "Delete Cached redirection for <{} {} {}>", method.c_str(), origin.getString().c_str(), res->getString().c_str());
+      org1 = *res;
+      _redirCache.erase(redirectionCreateKey(method, *res));
+      
+    }
+    /*
+    do {
+      std::shared_ptr<Uri> res = redirectionResolveSingleIntern(method, origin);
+      if(res.get() != NULL){
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "Delete Cached redirection for <{} {} {}>", method.c_str(), origin.getString().c_str(), res->getString().c_str());
         _redirCache.erase(redirectionCreateKey(method, origin));
         redirectionClean(method, *res);
-    }
+      }*/
 }
+
+
+
+void NEONSessionFactory::redirectionClean(const std::string & method, const Uri & origin){
+  
+  std::lock_guard<std::mutex> lock(_redirCache);
+  redirectionCleanIntern(method, origin);
+
+}
+
 
 void NEONSessionFactory::redirectionClean(const Uri & origin){
     std::pair<std::string, std::string> query = std::make_pair(origin.getString(), "");
+    std::lock_guard<std::mutex> lock(_redirCache);
     while(1) {
         const std::pair<std::string, std::string> nextkey = _redirCache.upper_bound(query);
         if(nextkey.first != origin.getString())
             break;
 
-        redirectionClean(nextkey.second, nextkey.first);
+        redirectionCleanIntern(nextkey.second, nextkey.first);
     }
 }
 

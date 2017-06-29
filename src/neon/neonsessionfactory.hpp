@@ -36,6 +36,7 @@ class HttpRequest;
 class NEONSessionFactory
 {
     friend class NEONRequest;
+    friend class NEONSession;
 public:
     NEONSessionFactory();
     virtual ~NEONSessionFactory();
@@ -73,11 +74,19 @@ public:
     inline bool getSessionCaching() const {
         return _session_caching;
     }
+    
+    static void initGlbMutex() {
+      NEONSessionFactory::_glb_mut = new std::mutex();
+    }
+protected:
+    static std::mutex *_glb_mut;
 
 private:
     // session pool
     std::multimap<std::string, ne_session*> _sess_map;
     std::mutex _sess_mut;
+    
+    
     bool _session_caching, _redir_caching;
 
     // redirection pool
@@ -88,7 +97,7 @@ private:
     ne_session* create_recycled_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);
 
     std::shared_ptr<Uri> redirectionResolveSingleIntern(const std::string & method, const Uri & origin);
-
+    void redirectionCleanIntern(const std::string & method, const Uri & origin);
 };
 
 void parse_http_neon_url(const std::string & url, std::string & protocol,

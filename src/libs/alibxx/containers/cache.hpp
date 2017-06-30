@@ -11,18 +11,16 @@
 namespace A_LIB_NAMESPACE{
 
 ///
-/// Thread Safe Cache container. Thread safe in the sense that it must be locked from outside
+/// Thread Safe Cache container
 ///
 template <class Key, class Value, class CompareT = std::less<Key> >
-
-// We inherit from mutex to be able to lock the cache altogether also from outside
-class Cache : public std::mutex {
+class Cache {
     typedef std::map<Key, std::shared_ptr<Value> > Map;
     typedef std::shared_ptr<Value> shrPtr_type;
 
 public:
     Cache(size_t max_size = std::numeric_limits<size_t>::max()) :
-        cmp(CompareT()), map(cmp), _max_size(max_size) {}
+        cmp(CompareT()), map(cmp), _max_size(max_size), _m(){}
 
     ~Cache(){}
 
@@ -37,6 +35,7 @@ public:
     /// \return
     ///
     shrPtr_type insert(const Key & key, const shrPtr_type & value){
+        std::lock_guard<std::mutex> l(_m);
         auto_clean();
         std::pair< typename Map::iterator, bool > stored = map.insert(std::pair<Key,shrPtr_type> (key, value) );
         if(stored.second)
@@ -51,6 +50,7 @@ public:
     /// \return
     ///
     shrPtr_type find(const Key & key){
+        std::lock_guard<std::mutex> l(_m);
         typename Map::iterator it = map.find( key);
         if(it == map.end())
             return shrPtr_type();
@@ -63,6 +63,7 @@ public:
     /// \return the next key
     ///
     const Key upper_bound(const Key & key) {
+        std::lock_guard<std::mutex> l(_m);
         typename Map::iterator it = map.upper_bound( key);
         if(it == map.end())
             return Key();
@@ -74,6 +75,7 @@ public:
     /// \return
     ///
     size_t getSize() const{
+        std::lock_guard<std::mutex> l(_m);
         return map.size();
     }
 
@@ -83,6 +85,7 @@ public:
     /// \return
     ///
     shrPtr_type take( const Key & key){
+        std::lock_guard<std::mutex> l(_m);
         typename Map::iterator it = map.find( key);
         if(it == map.end())
             return shrPtr_type();
@@ -96,10 +99,12 @@ public:
     /// \return
     ///
     bool erase( const Key & key){
+        std::lock_guard<std::mutex> l(_m);
         return ( map.erase(key) != 0);
     }
 
     void clear(){
+        std::lock_guard<std::mutex> l(_m);
         map.clear();
     }
 
@@ -108,9 +113,10 @@ protected:
     CompareT cmp;
     Map map;
     size_t _max_size;
+    mutable std::mutex _m;
 
     void auto_clean(){
-        if(map.size() >= _max_size){
+        if(map.size() == _max_size){
             map.clear();
         }
     }

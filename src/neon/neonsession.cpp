@@ -141,10 +141,7 @@ NEONSession::NEONSession(Context & c, const Uri & uri, const RequestParams & p, 
     reused(false),
     _u(uri)
 {
-  
-        std::lock_guard<std::mutex> lock(*_f._glb_mut);
         _f.createNeonSession(p, uri, &_sess, err);
-  
         if(_sess)
             configureSession(_sess, _u, p, &NEONSession::provide_login_passwd_fn, this, &NEONSession::authNeonCliCertMapper, this, reused);
 }
@@ -153,11 +150,8 @@ NEONSession::NEONSession(Context & c, const Uri & uri, const RequestParams & p, 
 NEONSession::~NEONSession(){
 #   ifndef _DISABLE_SESSION_REUSE
         if(_sess){
-          
-            if(_session_recycling) {
-                std::lock_guard<std::mutex> lock(*_f._glb_mut);
+            if(_session_recycling)
                 _f.storeNeonSession(_sess);
-            }
             else
                 ne_session_destroy(_sess);
         }
@@ -168,7 +162,7 @@ NEONSession::~NEONSession(){
 
 void configureSession(ne_session *_sess, const Uri & _u, const RequestParams &params, ne_auth_creds lp_callback, void* lp_userdata,
                       ne_ssl_provide_fn cred_callback,  void* cred_userdata, bool & reused){
-  
+
     void* state = ne_get_session_private(_sess,davix_neon_key);
     if(state != NULL){
         reused = true;

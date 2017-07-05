@@ -168,7 +168,7 @@ static time_t asn1time_to_timet(const ASN1_TIME *atm)
 {
     struct tm tm;
     memset(&tm, 0, sizeof(struct tm));
-    
+
     int i = atm->length;
 
     if (i < 10)
@@ -481,11 +481,11 @@ static int check_certificate(ne_session *sess, SSL *ssl, ne_ssl_certificate *cha
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
 void X509_up_ref(X509 *x)
 {
-    x->references++;
+    CRYPTO_add(&x->references,1,CRYPTO_LOCK_X509);
 }
 void EVP_PKEY_up_ref(EVP_PKEY *pkey)
 {
-    pkey->references++;
+    CRYPTO_add(&pkey->references,1,CRYPTO_LOCK_EVP_PKEY);
 }
 #endif
 

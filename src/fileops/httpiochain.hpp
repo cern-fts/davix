@@ -41,8 +41,10 @@ class HttpIOChain;
 // stores state for readToFd operations - necessary, so as not to write the same
 // data again to an fd after a retry / metalink recovery.
 struct FdHandler {
-    int fd = -1;
-    dav_ssize_t bytes_written_to_fd = 0;
+    FdHandler() : fd(-1), bytes_written_to_fd(0) { }
+  
+    int fd;
+    dav_ssize_t bytes_written_to_fd;
 };
 
 

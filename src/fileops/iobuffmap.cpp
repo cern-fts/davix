@@ -210,10 +210,16 @@ dav_ssize_t HttpIO::pread(IOChainContext & iocontext, void *buf, dav_size_t coun
     return ret;
 }
 
+#define SSTR(message) static_cast<std::ostringstream&>(std::ostringstream().flush() << message).str()
 
 dav_ssize_t HttpIO::readToFd(IOChainContext & iocontext, int fd, dav_size_t read_size){
     DavixError * tmp_err=NULL;
     dav_ssize_t ret = -1;
+
+    if(iocontext.fdHandler.fd != fd) {
+        iocontext.fdHandler.fd = fd;
+        iocontext.fdHandler.bytes_written_to_fd = 0;
+    }
 
     DAVIX_SCOPE_TRACE(DAVIX_LOG_CHAIN, fun_readToFd);
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "request size {}", read_size);
@@ -221,6 +227,11 @@ dav_ssize_t HttpIO::readToFd(IOChainContext & iocontext, int fd, dav_size_t read
     if(!tmp_err){
         RequestParams params(iocontext._reqparams);
         req.setParameters(iocontext._reqparams);
+        if(iocontext.fdHandler.bytes_written_to_fd > 0) {
+            DAVIX_SLOG(DAVIX_LOG_WARNING, DAVIX_LOG_CHAIN, "{} bytes were already written to fd before transfer failed; attempting to resume from that point on", iocontext.fdHandler.bytes_written_to_fd);
+            req.addHeaderField("Range", SSTR("bytes=" << iocontext.fdHandler.bytes_written_to_fd << "-"));
+        }
+
         ret = req.beginRequest(&tmp_err);
         if(!tmp_err){
             if(httpcodeIsValid(req.getRequestCode()) == false){
@@ -232,6 +243,9 @@ dav_ssize_t HttpIO::readToFd(IOChainContext & iocontext, int fd, dav_size_t read
         }
     }
 
+    if(ret > 0) {
+        iocontext.fdHandler.bytes_written_to_fd += ret;
+    }
 
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "read size {}", ret);
     checkDavixError(&tmp_err);

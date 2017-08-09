@@ -38,6 +38,13 @@ class HttpIOChain;
     }while(0)
 
 
+// stores state for readToFd operations - necessary, so as not to write the same
+// data again to an fd after a retry / metalink recovery.
+struct FdHandler {
+    int fd = -1;
+    dav_ssize_t bytes_written_to_fd = 0;
+};
+
 
 // parameter handler for any IO Chain operation
 struct IOChainContext{
@@ -68,6 +75,9 @@ struct IOChainContext{
     // Operation parameter
     Chrono::TimePoint _end_time;
 
+    // Keep track of how many bytes we've written to an fd, so as to avoid
+    // writing the same bytes again in an event of retries / metalink recovery
+    FdHandler fdHandler;
 };
 
 // Davix IO chain

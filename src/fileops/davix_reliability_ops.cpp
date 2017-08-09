@@ -69,14 +69,18 @@ ReturnType metalinkTryReplicas(HttpIOChain & chain, IOChainContext & io_context,
     // get all replicas from Metalink
     chain.getReplicas(io_context, replicas);
     for(std::vector<File>::iterator it = replicas.begin();it != replicas.end(); ++it){
+        IOChainContext internal_context(io_context._context, it->getUri(), io_context._reqparams);
+        internal_context.fdHandler = io_context.fdHandler;
+
         try{
-            IOChainContext internal_context(io_context._context, it->getUri(), io_context._reqparams);
             return fun(internal_context);
         }catch(DavixException & replica_error){
             DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_CHAIN, "Fail access to replica {}: {}", it->getUri(), replica_error.what());
         }catch(...){
             DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_CHAIN, "Fail access to replica: Unknown Error");
         }
+
+        io_context.fdHandler = internal_context.fdHandler;
         // check timeout again between two iterations
         io_context.checkTimeout();
     }

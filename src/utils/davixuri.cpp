@@ -748,6 +748,7 @@ std::string Uri::queryParamEscape(const std::string & str) {
     } else {
       *p++ = *pnt;
     }
+    count++;
   }
   *p = '\0';
   return std::string(buffer);

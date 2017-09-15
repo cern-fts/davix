@@ -78,10 +78,15 @@ struct UriPrivate{
 
     void addParam(const std::string & key, const std::string & value, std::string & target) {
         if(target.size() == 0) {
-            target = key + "=" + value;
+            target = key;
+            target.append("=");
+            target.append(value);
         }
         else {
-            target += "&" + key + "=" + value;
+            target.append("&");
+            target.append(key);
+            target.append("=");
+            target.append(value);
         }
         _update_string();
     }

@@ -337,23 +337,7 @@ std::string Uri::unescapeString(const std::string & str){
     return davix_path_unescape(str);
 }
 
-std::string Uri::queryParamEscape(const std::string & str) {
-    std::string tmp = escapeString(str);
 
-    // replace all '/' with '%2F'
-    std::stringstream ss;
-    for(size_t i = 0; i < tmp.size(); i++) {
-        if(tmp[i] == '/') {
-            ss << "%2F";
-        }
-        else {
-            ss << tmp[i];
-        }
-    }
-
-    return ss.str();
-
-}
 
 // Determine whether this is a URL, and if so, URI-escape the right part.
 // Otherwise, simple string concatenation.
@@ -497,6 +481,8 @@ unsigned int httpUriGetPort(const Uri & uri){
 
 /* any characters which should be path-escaped: */
 #define URI_ESCAPE ((URI_GENDELIM & ~(FS)) | URI_SUBDELIM | OT | PC)
+/* any characters which should be path-escaped in a query parm: */
+#define URI_ESCAPEQRYPARM (URI_GENDELIM | URI_SUBDELIM | OT | PC)
 
 static const unsigned int uri_chars[256] = {
 /* 0xXX    x0      x2      x4      x6      x8      xA      xC      xE     */
@@ -517,6 +503,7 @@ static const unsigned int uri_chars[256] = {
 /*   Ex */ OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT,
 /*   Fx */ OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT, OT
 };
+
 
 #define uri_lookup(ch) (uri_chars[(unsigned char)ch])
 
@@ -730,10 +717,50 @@ std::string davix_path_escape(const std::string & str)
 #undef path_escape_ch
 
 
+
+
+
+
+
+#define qryparm_escape_ch(ch) (uri_lookup(ch) & URI_ESCAPEQRYPARM)
+
+// In a header line we also have to encode %2F '/'
+// We can safely assume that a queryparm will not exceed 4KB
+// in order to save one more malloc in this frequently used function
+std::string Uri::queryParamEscape(const std::string & str) {
+  
+  const unsigned char *pnt, *path= (const unsigned char*)(str.c_str());
+  char *p;
+  
+  char buffer[4096];
+  p = buffer;
+  int count = 0;
+  for (pnt = (const unsigned char *)path; (*pnt != '\0') && (count < 4095); pnt++) {
+    if (qryparm_escape_ch(*pnt)) {
+      /* Escape it - %<hex><hex> */
+      sprintf(p, "%%%02X", (unsigned char) *pnt);
+      p += 3;
+    } else {
+      *p++ = *pnt;
+    }
+  }
+  *p = '\0';
+  return std::string(buffer);
+  
+  
+}
+#undef qryparm_escape_ch
+
+
+
 std::ostream& operator<< (std::ostream& stream, const Davix::Uri & _u){
     stream << _u.getString();
     return stream;
 }
+
+
+
+
 
 } // namespace Davix
 
@@ -742,3 +769,16 @@ std::ostream& operator<< (std::ostream& stream, const Davix::Uri & _u){
 	stream << _u.getString();
 	return stream;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

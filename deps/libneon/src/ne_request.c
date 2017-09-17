@@ -535,7 +535,7 @@ void ne_set_request_body_fd(ne_request *req, int fd,
 
 void ne_set_request_flag(ne_request *req, ne_request_flag flag, int value)
 {
-    if (flag < NE_SESSFLAG_LAST) {
+    if (flag < NE_REQFLAG_LAST) {
         req->flags[flag] = value;
     }
 }

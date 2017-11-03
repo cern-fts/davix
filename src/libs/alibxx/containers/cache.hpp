@@ -87,10 +87,11 @@ public:
     shrPtr_type take( const Key & key){
         std::lock_guard<std::mutex> l(_m);
         typename Map::iterator it = map.find( key);
-        if(it == map.end())
-            return shrPtr_type();
-        map.erase(key);
-        return it->second;
+        if(it == map.end()) return shrPtr_type();
+
+        shrPtr_type ret = it->second;
+        map.erase(it);
+        return ret;
     }
 
     ///

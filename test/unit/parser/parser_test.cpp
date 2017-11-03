@@ -246,3 +246,25 @@ TEST(UriTests, testRelativeUri){
     ASSERT_STREQ("http://datagrid.lbl.gov/testdata/R/test01.data/blabla/test", res.getString().c_str());
 
 }
+
+TEST(UriTests, addParamWithSlashes) {
+    Davix::Uri u("http://datagrid.lbl.gov/testdata/R/test01.data");
+    ASSERT_EQ(u.getString(), "http://datagrid.lbl.gov/testdata/R/test01.data");
+
+    u.addQueryParam("test1", "test2");
+    u.addQueryParam("test1/with/slashes", "aaa/aaa");
+    u.addQueryParam("test1!with?evil*chars", "aaa/aaa");
+
+    ASSERT_EQ(u.getString(), "http://datagrid.lbl.gov/testdata/R/test01.data?test1=test2&test1%2Fwith%2Fslashes=aaa%2Faaa&test1%21with%3Fevil%2Achars=aaa%2Faaa");
+
+    std::string hugeKey, hugeVal;
+    hugeKey.resize(8000);
+    hugeVal.resize(8000);
+
+    for(uint64_t i = 0; i < 8000; i++) {
+        hugeKey[i] = '/';
+        hugeVal[i] = '/';
+    }
+
+    u.addQueryParam(hugeKey, hugeVal);
+}

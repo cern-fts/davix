@@ -268,3 +268,29 @@ TEST(UriTests, addParamWithSlashes) {
 
     u.addQueryParam(hugeKey, hugeVal);
 }
+
+TEST(UriTests, ips) {
+    Davix::Uri u("http://192.168.1.1/testdata/R/test01.data");
+    ASSERT_EQ(u.getStatus(), StatusCode::OK);
+    ASSERT_EQ(u.getString(), "http://192.168.1.1/testdata/R/test01.data");
+    ASSERT_EQ(u.getPort(), 0);
+    ASSERT_EQ(u.getHost(), "192.168.1.1");
+
+    u = Davix::Uri("http://192.168.1.1:123/testdata/R/test01.data");
+    ASSERT_EQ(u.getStatus(), StatusCode::OK);
+    ASSERT_EQ(u.getString(), "http://192.168.1.1:123/testdata/R/test01.data");
+    ASSERT_EQ(u.getPort(), 123);
+    ASSERT_EQ(u.getHost(), "192.168.1.1");
+
+    u = Davix::Uri("http://[2001:1458:301:a8ae::100:23]:443/testdata/R/test01.data");
+    ASSERT_EQ(u.getStatus(), StatusCode::OK);
+    ASSERT_EQ(u.getString(), "http://[2001:1458:301:a8ae::100:23]:443/testdata/R/test01.data");
+    ASSERT_EQ(u.getPort(), 443);
+    ASSERT_EQ(u.getHost(), "[2001:1458:301:a8ae::100:23]");
+
+    u = Davix::Uri("http://[2001:1458:301:a8ae::100:23]/testdata/R/test01.data");
+    ASSERT_EQ(u.getStatus(), StatusCode::OK);
+    ASSERT_EQ(u.getString(), "http://[2001:1458:301:a8ae::100:23]/testdata/R/test01.data");
+    ASSERT_EQ(u.getPort(), 0);
+    ASSERT_EQ(u.getHost(), "[2001:1458:301:a8ae::100:23]");
+}

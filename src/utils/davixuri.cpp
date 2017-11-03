@@ -592,9 +592,11 @@ int davix_uri_parse(const std::string & uri_str, UriPrivate & res)
             /* No colon; => p = path-abempty */
         } else if (p + 1 != pa) {
             /* => p = colon */
-            res.port = atoi(p + 1);
-            if( res.port  == 0)
-                 res.port  = UINT_MAX;
+            if(*p == ':') {
+              res.port = atoi(p + 1);
+              if( res.port  == 0)
+                res.port  = UINT_MAX;
+            }
         }
         res.host.assign(s, p - s);
 

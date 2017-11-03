@@ -42,7 +42,7 @@ HttpRequest::HttpRequest(Context & context, const Uri & uri, DavixError** err) :
 
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "Create HttpRequest for {}", uri.getString());
     if(uri.getStatus() != StatusCode::OK){
-        DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, fmt::format(" {} is not not a valid HTTP or Webdav URL", uri));
+        DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, fmt::format(" {} is not a valid HTTP or Webdav URL", uri));
     }
 }
 
@@ -51,7 +51,7 @@ HttpRequest::HttpRequest(Context & context, const std::string & url, DavixError*
     Uri uri(url);
     d_ptr= new NEONRequest(*this, context, uri);
     if(uri.getStatus() != StatusCode::OK){
-        DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, fmt::format(" {} is not not a valid HTTP or Webdav URL", uri));
+        DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, fmt::format(" {} is not a valid HTTP or Webdav URL", uri));
     }
 }
 

@@ -247,7 +247,7 @@ TEST(UriTests, testRelativeUri){
 
 }
 
-TEST(DISABLED_UriTests, addParamWithSlashes) {
+TEST(UriTests, addParamWithSlashes) {
     Davix::Uri u("http://datagrid.lbl.gov/testdata/R/test01.data");
     ASSERT_EQ(u.getString(), "http://datagrid.lbl.gov/testdata/R/test01.data");
 

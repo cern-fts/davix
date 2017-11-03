@@ -33,7 +33,7 @@ const std::string void_str("");
 
 int davix_uri_parse(const std::string & uri_str, UriPrivate & res);
 int davix_uri_cmp(const UriPrivate &u1, const UriPrivate &u2);
-std::string davix_path_escape(const std::string & str);
+std::string davix_path_escape(const std::string & str, bool escapeSlashes);
 std::string davix_path_unescape(const std::string & str);
 
 struct UriPrivate{
@@ -335,7 +335,7 @@ bool Uri::operator ==(const Uri & u2) const{
 
 
 std::string Uri::escapeString(const std::string & str){
-    return davix_path_escape(str);
+    return davix_path_escape(str, false);
 }
 
 std::string Uri::unescapeString(const std::string & str){
@@ -343,20 +343,7 @@ std::string Uri::unescapeString(const std::string & str){
 }
 
 std::string Uri::queryParamEscape(const std::string & str) {
-    std::string tmp = escapeString(str);
-
-    // replace all '/' with '%2F'
-    std::stringstream ss;
-    for(size_t i = 0; i < tmp.size(); i++) {
-        if(tmp[i] == '/') {
-            ss << "%2F";
-        }
-        else {
-            ss << tmp[i];
-        }
-    }
-
-    return ss.str();
+    return davix_path_escape(str, true);
 }
 
 // Determine whether this is a URL, and if so, URI-escape the right part.
@@ -702,16 +689,18 @@ std::string davix_path_unescape(const std::string & str)
 
 /* CH must be an unsigned char; evaluates to 1 if CH should be
  * percent-encoded. */
-#define path_escape_ch(ch) (uri_lookup(ch) & URI_ESCAPE)
+inline bool path_escape_ch(const char ch, bool escapeSlashes) {
+    return (uri_lookup(ch) & URI_ESCAPE) || (escapeSlashes && ch == '/');
+}
 
-std::string davix_path_escape(const std::string & str)
+std::string davix_path_escape(const std::string & str, bool escapeSlashes)
 {
     const unsigned char *pnt, *path= (const unsigned char*)(str.c_str());
     char *p;
     size_t count = 0;
 
     for (pnt = (const unsigned char *)path; *pnt != '\0'; pnt++) {
-        count += path_escape_ch(*pnt);
+        count += path_escape_ch(*pnt, escapeSlashes);
     }
 
     if (count == 0) {
@@ -721,7 +710,7 @@ std::string davix_path_escape(const std::string & str)
     char buffer[str.size() + 2 * count + 1];
     p = buffer;
     for (pnt = (const unsigned char *)path; *pnt != '\0'; pnt++) {
-    if (path_escape_ch(*pnt)) {
+    if (path_escape_ch(*pnt, escapeSlashes)) {
         /* Escape it - %<hex><hex> */
         sprintf(p, "%%%02X", (unsigned char) *pnt);
         p += 3;

@@ -2,6 +2,12 @@ davix (0.6.7-1) unstable; urgency=low
 
   * Update to version 0.6.7
 
+ -- Georgios Bitzes <georgios.bitzes at cern.ch>  Tue, 07 Nov 2017 14:08:40 +0100
+
+davix (0.6.7-1) unstable; urgency=low
+
+  * Update to version 0.6.7
+
  -- Georgios Bitzes <georgios.bitzes at cern.ch>  Wed, 17 May 2017 09:46:22 +0200
 
 davix (0.6.6-1) unstable; urgency=low

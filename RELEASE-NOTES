@@ -1,3 +1,12 @@
+Version - 0.6.7
+** Bug
+    * [DMC-950] - davix calculates invalid v4 s3 signature when using a non-default port
+    * [DMC-957] - davix appends an extra space with --header
+    * [DMC-961] - A neon session never retries after DNS lookup failure
+    * [DMC-969] - davix increments the refcount for OpenSSL structures in a non-atomic way
+    * [DMC-993] - Use-after-free in the davix cache
+** Improvement
+    * [DMC-958] - Resume on xfer with metalinks creates file with a wrong filesize
 Version - 0.6.6
 
 ** Bug

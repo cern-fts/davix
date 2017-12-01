@@ -1,3 +1,5 @@
 credentials/
 build/
 include/davix/features.hpp
+packaging/davix.spec
+version.cmake

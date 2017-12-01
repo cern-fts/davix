@@ -7,7 +7,7 @@ set -e
 
 git submodule update --recursive --init
 mkdir -p build
-./genversion.py --template include/davix/features.spec.in --out include/davix/features.spec
+./genversion.py --template include/davix/features.hpp.in --out include/davix/features.hpp
 ./genversion.py --template packaging/davix.spec.in --out packaging/davix.spec
 ./genversion.py --template version.cmake.in --out version.cmake
 

@@ -16,7 +16,8 @@ add_custom_command(
 )
 
 #-------------------------------------------------------------------------------
-# Regenerate version.cmake at _configure_ time.
+# Regenerate version.cmake at _configure_ time. Important since the above
+# only regenerates it at compile time.
 #-------------------------------------------------------------------------------
 execute_process(
   COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/genversion.py --template version.cmake.in --out version.cmake

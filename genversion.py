@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 ################################################################################
 ## Script to generate version numbers from git tags.                          ##
@@ -156,7 +156,14 @@ def applyTemplate(templateContent, replacements):
     return newContent
 
 def sh(cmd):
-    return subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT).decode("utf-8")
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True, stderr=subprocess.STDOUT)
+    output, unused_err = process.communicate()
+    retcode = process.poll()
+
+    if retcode:
+        raise Exception("Command {0} exited with code {1}".format(cmd, retcode))
+
+    return output
 
 def getFile(filename):
     try:

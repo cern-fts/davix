@@ -19,6 +19,7 @@ BuildRequires:                  cmake
 BuildRequires:                  doxygen
 BuildRequires:                  libxml2-devel
 BuildRequires:                  openssl-devel
+BuildRequires:                  python3
 
 Requires: libuuid
 

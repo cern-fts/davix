@@ -15,7 +15,7 @@ cc7:
 
 slc6:
   stage: build
-  image: gitlab-registry.cern.ch/linuxsupport/cc7-base
+  image: gitlab-registry.cern.ch/linuxsupport/slc6-base
   script:
     - yum install -y git rpm-build
     - packaging/gitlab-build.sh

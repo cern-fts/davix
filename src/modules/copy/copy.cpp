@@ -338,6 +338,7 @@ void DavixCopyInternal::monitorPerformanceMarkers(Davix::HttpRequest *request,
         }
         else if (strncasecmp("success", p, 7) == 0)
         {
+            request->discardBody(&daverr);
             break;
         }
         else if (strncasecmp("aborted", p, 7) == 0)

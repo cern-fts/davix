@@ -130,7 +130,7 @@ dav_ssize_t HttpRequest::readBlock(std::vector<char> & buffer, dav_size_t max_si
 }
 
 dav_ssize_t HttpRequest::readSegment(char* buffer, dav_size_t max_size, DavixError** err){
-    return d_ptr->readSegment(buffer, max_size, err);
+    return d_ptr->readSegment(buffer, max_size, false, err);
 }
 
 dav_ssize_t HttpRequest::readLine(char *buffer, dav_size_t max_size, DavixError **err){
@@ -150,7 +150,7 @@ void HttpRequest::discardBody(DavixError** err){
     dav_ssize_t read;
     TRY_DAVIX{
         do {
-            read = d_ptr->readSegment(buffer, sizeof(buffer), err);
+            read = d_ptr->readSegment(buffer, sizeof(buffer), false, err);
         } while (read > 0 && *err == NULL);
     }CATCH_DAVIX(err)
 }

@@ -113,7 +113,7 @@ public:
     */
     dav_ssize_t readBlock(char* buffer, dav_size_t max_size,DavixError** err);
 
-    dav_ssize_t readSegment(char* buffer, dav_size_t size_read,  DavixError**err);
+    dav_ssize_t readSegment(char* buffer, dav_size_t size_read, bool stop_at_line_boundary, DavixError** err);
 
     dav_ssize_t readLine(char* buffer, dav_size_t max_size, DavixError** err);
 

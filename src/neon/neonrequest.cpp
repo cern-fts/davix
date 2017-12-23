@@ -770,7 +770,7 @@ dav_ssize_t NEONRequest::readLine(char* buffer, dav_size_t max_size, DavixError*
        return (ret >= 0)?(ret + n_bytes):-1;
     }
 
-    if( ( ret = readSegment(buffer, max_size, err)) >= 0){
+    if( ( ret = readSegment(buffer, max_size, true, err)) >= 0){
         // search for crlf
         char* p_endline;
         p_endline = std::find(buffer, buffer+ret, '\n');
@@ -784,23 +784,31 @@ dav_ssize_t NEONRequest::readLine(char* buffer, dav_size_t max_size, DavixError*
 }
 
 
-dav_ssize_t NEONRequest::readSegment(char* p_buff, dav_size_t size_read,  DavixError**err){
+dav_ssize_t NEONRequest::readSegment(char* p_buff, dav_size_t size_read, bool stop_at_line_boundary, DavixError**err){
     DavixError* tmp_err=NULL;
     dav_ssize_t ret, tmp_ret;
     dav_size_t s_read= size_read;
     ret = tmp_ret = 0;
     DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_HTTP, "Davix::Request::readSegment: want to read {} bytes ", size_read);
+    bool early_stop = false;
 
     do{
         tmp_ret= readBlock(p_buff, s_read, &tmp_err);
-        if(tmp_ret > 0){ // tmp_ret bytes readed
+
+        if(tmp_ret > 0 && std::find(p_buff, p_buff+tmp_ret, '\n') != p_buff+tmp_ret) {
+            early_stop = true;
+        }
+
+        if(tmp_ret > 0){ // tmp_ret bytes read
             ret += tmp_ret;
         }
+
         if(ret > 0 && ret < (dav_ssize_t) size_read){
             p_buff+= tmp_ret;
             s_read -= tmp_ret;
         }
-    }while( tmp_ret > 0
+
+    }while( !early_stop && tmp_ret > 0
             &&  ret < (dav_ssize_t) size_read);
 
     if(tmp_err){

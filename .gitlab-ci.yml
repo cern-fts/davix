@@ -30,7 +30,7 @@ docs:
   stage: publish
   image: gitlab-registry.cern.ch/linuxsupport/cc7-base
   script:
-    - yum install -y git rpm-build python-argparse tar cmake python2-sphinx
+    - yum install -y git rpm-build python-argparse tar cmake python2-sphinx make
     - packaging/make-docs.sh
   tags:
     - docker-cc7

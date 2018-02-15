@@ -3,7 +3,7 @@
 
 ## Documentation
 
-Click [here](https://dmc-docs.web.cern.ch/dmc-docs/docs/davix-epel/html/) to view the documentation of the latest released version, or [here](https://dmc-docs.web.cern.ch/dmc-docs/docs/davix-development/html/) for the version under development. (devel branch)
+Click [here](https://dmc-docs.web.cern.ch/dmc-docs/versions/docs/davix-epel/html/) to view the documentation of the latest released version, or [here](https://dmc-docs.web.cern.ch/dmc-docs/versions/docs/davix-development/html/) for the version under development. (devel branch)
 
 
 ## HTTP File Management

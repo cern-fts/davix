@@ -6,7 +6,7 @@ set -e
 #-------------------------------------------------------------------------------
 git submodule update --init --recursive
 ./packaging/make-srpm.sh
-sudo yum-builddep -y build/SRPMS/*
+yum-builddep -y build/SRPMS/*
 
 #-------------------------------------------------------------------------------
 # Generate a docs folder - run this from the root of the git repository.

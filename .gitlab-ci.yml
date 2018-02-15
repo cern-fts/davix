@@ -1,5 +1,6 @@
 stages:
 - build
+- publish
 
 cc7:
   stage: build
@@ -24,3 +25,15 @@ slc6:
   artifacts:
     paths:
     - "$CI_JOB_NAME"
+
+docs:
+  stage: publish
+  image: gitlab-registry.cern.ch/linuxsupport/cc7-base
+  script:
+    - yum install -y git rpm-build python-argparse tar cmake python2-sphinx
+    - packaging/make-docs.sh
+  tags:
+    - docker-cc7
+  artifacts:
+    paths:
+    - build

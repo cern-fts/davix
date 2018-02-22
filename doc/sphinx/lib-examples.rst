@@ -688,18 +688,18 @@ Davix::DavixException
 
 .. code-block:: cpp
 
-    throw DavixException(“Where”, “What”, “This is what has happened...”);
+    throw DavixException("Where", "What", "This is what has happened...");
 
 * Catch a ``DavixException``
 
 .. code-block:: cpp
 
     TRY_DAVIX{
-        DavFile myDavCollection(c, Uri(“davs://example.org/doomed_to_fail”));
+        DavFile myDavCollection(c, Uri("davs://example.org/doomed_to_fail"));
             myDavCollection.deletion(NULL);
     }CATCH_DAVIX(&err){
         std::cerr << err->getErrScope() <<
-        “ Error code: “ << err->getStatus() <<
+        " Error code: " << err->getStatus() <<
         " Error: " << err->getErrMsg() << std::endl;
 
         // handle error or propagate

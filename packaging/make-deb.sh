@@ -42,14 +42,7 @@ apt install -y ./davix-build-deps*
 rm -f davix-build-deps*
 
 #-------------------------------------------------------------------------------
-# Build dsc
+# Build packages
 #-------------------------------------------------------------------------------
 pushd "${BUILD_ARENA}/davix-${VERSION_FULL}"
-debuild -us -uc -S
-
-#-------------------------------------------------------------------------------
-# Build debian packages
-#-------------------------------------------------------------------------------
-popd
-pushd "${BUILD_ARENA}"
-pbuilder build --buildresult . *.dsc
+debuild -us -uc

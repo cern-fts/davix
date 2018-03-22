@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #-------------------------------------------------------------------------------
-# Generate a source RPM - run this from the root fo the git repository.
+# Generate a source RPM - run this from the root of the git repository.
 #-------------------------------------------------------------------------------
 
 VERSION_FULL=$(./genversion.py --template-string "@VERSION_FULL@")

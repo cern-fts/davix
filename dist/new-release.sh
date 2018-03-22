@@ -68,8 +68,8 @@ function edit_rpm_spec {
 function edit_release_notes {
   echo "Patching release notes.."
   merged=$(mktemp)
-  cat $release_notes RELEASE-NOTES > $merged
-  mv $merged RELEASE-NOTES
+  cat $release_notes RELEASE-NOTES.md > $merged
+  mv $merged RELEASE-NOTES.md
 }
 
 function edit_deb_changelog {

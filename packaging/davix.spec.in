@@ -138,7 +138,7 @@ make DESTDIR=%{buildroot} install
 %files doc
 %defattr (-,root,root)
 %{_pkgdocdir}/LICENSE
-%{_pkgdocdir}/RELEASE-NOTES
+%{_pkgdocdir}/RELEASE-NOTES.md
 %{_pkgdocdir}/html/
 
 

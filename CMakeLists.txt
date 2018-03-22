@@ -128,7 +128,7 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/davix/
 
 ##############################################################################
 ## Doc file
-install(FILES RELEASE-NOTES LICENSE
+install(FILES RELEASE-NOTES.md LICENSE
                 DESTINATION ${DOC_INSTALL_DIR}/) # install release notes
 
 

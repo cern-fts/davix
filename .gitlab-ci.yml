@@ -31,6 +31,7 @@ ubuntu-artful:
   image: ubuntu:artful
   script:
     - ci/debian/prepare.sh
+    - pbuilder create
     - packaging/make-deb.sh
     - mkdir ${CI_JOB_NAME}
     - cp -r build/debian-build-arena/*.{deb,ddeb,dsc} ${CI_JOB_NAME}

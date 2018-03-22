@@ -35,10 +35,16 @@ cp -r packaging/debian "${BUILD_ARENA}/davix-${VERSION_FULL}"
 cp "${BUILD_DIR}/${TARBALL}" "${BUILD_ARENA}/davix_${VERSION_FULL}.orig.tar.gz"
 
 #-------------------------------------------------------------------------------
+# Install build dependencies.
+#-------------------------------------------------------------------------------
+mk-build-deps "${BUILD_DIR}/../packaging/debian/control"
+apt install -y ./davix-build-deps*
+rm -f davix-build-deps*
+
+#-------------------------------------------------------------------------------
 # Build dsc
 #-------------------------------------------------------------------------------
 pushd "${BUILD_ARENA}/davix-${VERSION_FULL}"
-mk-build-deps --install "${BUILD_DIR}/../packaging/debian/control" --remove
 debuild -us -uc -S
 
 #-------------------------------------------------------------------------------

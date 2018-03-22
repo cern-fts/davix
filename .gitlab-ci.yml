@@ -38,6 +38,19 @@ ubuntu-artful:
     paths:
     - "$CI_JOB_NAME"
 
+debian-jessie:
+  stage: build
+  image: debian:jessie
+  script:
+    - ci/debian/prepare.sh
+    - packaging/make-deb.sh
+    - mkdir ${CI_JOB_NAME}
+    - cp -r build/debian-build-arena/*.{deb,ddeb,dsc} ${CI_JOB_NAME}
+  artifacts:
+    paths:
+    - "$CI_JOB_NAME"
+
+
 docs:
   stage: publish
   image: gitlab-registry.cern.ch/linuxsupport/cc7-base

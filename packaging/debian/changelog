@@ -1,15 +1,3 @@
-davix (0.6.7.18.018ed60.dirty-1) unstable; urgency=low
-
-  * Update to version 0.6.7.18.018ed60.dirty
-
- -- Georgios Bitzes <georgios.bitzes@cern.ch>  Thu, 22 Mar 2018 14:58:51 +0100
-
-davix (0.6.8-1) unstable; urgency=low
-
-  * Update to version 0.6.8
-
- -- Georgios Bitzes <georgios.bitzes at cern.ch>  Tue, 01 Dec 2017 10:10:00 +0100
-
 davix (0.6.7-1) unstable; urgency=low
 
   * Update to version 0.6.7

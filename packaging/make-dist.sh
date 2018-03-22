@@ -12,6 +12,11 @@ mkdir -p build
 ./genversion.py --template version.cmake.in --out version.cmake
 
 #-------------------------------------------------------------------------------
+# Patch debian changelog for current version, if needed.
+#-------------------------------------------------------------------------------
+packaging/patch-deb-changelog.sh "$(git log -1 --pretty=format:'%an')" "$(git log -1 --pretty=format:'%ae')"
+
+#-------------------------------------------------------------------------------
 # Extract version number, we need this for the archive name
 #-------------------------------------------------------------------------------
 VERSION_FULL=$(./genversion.py --template-string "@VERSION_FULL@")

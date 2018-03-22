@@ -32,5 +32,4 @@ override_dh_auto_clean:
 	dh_auto_clean
 
 override_dh_auto_test:
-	( cd obj-* ; make abi-check )
 	dh_auto_test -- ARGS+="-V -T Test"

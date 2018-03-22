@@ -5,6 +5,7 @@ AUTHOR_NAME=${1}
 AUTHOR_EMAIL=${2}
 
 VERSION_FULL=$(./genversion.py --template-string "@VERSION_FULL@")
+cp packaging/debian-changelog packaging/debian/changelog
 
 if grep --quiet --fixed-strings "davix (${VERSION_FULL}" packaging/debian/changelog; then
   printf "Changelog does not need patching.\n"

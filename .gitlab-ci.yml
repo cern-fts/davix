@@ -45,7 +45,7 @@ debian-jessie:
     - ci/debian/prepare.sh
     - packaging/make-deb.sh
     - mkdir ${CI_JOB_NAME}
-    - cp -r build/debian-build-arena/*.{deb,ddeb,dsc} ${CI_JOB_NAME}
+    - cp -r build/debian-build-arena/*.{deb,dsc} ${CI_JOB_NAME}
   artifacts:
     paths:
     - "$CI_JOB_NAME"

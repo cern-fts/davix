@@ -37,9 +37,7 @@ cp "${BUILD_DIR}/${TARBALL}" "${BUILD_ARENA}/davix_${VERSION_FULL}.orig.tar.gz"
 #-------------------------------------------------------------------------------
 # Install build dependencies.
 #-------------------------------------------------------------------------------
-mk-build-deps "${BUILD_DIR}/../packaging/debian/control"
-apt install -y ./davix-build-deps*
-rm -f davix-build-deps*
+mk-build-deps --install --remove "${BUILD_DIR}/../packaging/debian/control" --tool "apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y"
 
 #-------------------------------------------------------------------------------
 # Build packages

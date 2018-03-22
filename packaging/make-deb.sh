@@ -38,6 +38,7 @@ cp "${BUILD_DIR}/${TARBALL}" "${BUILD_ARENA}/davix_${VERSION_FULL}.orig.tar.gz"
 # Build dsc
 #-------------------------------------------------------------------------------
 pushd "${BUILD_ARENA}/davix-${VERSION_FULL}"
+mk-build-deps --install "${BUILD_DIR}/../packaging/debian/control" --remove
 debuild -us -uc -S
 
 #-------------------------------------------------------------------------------

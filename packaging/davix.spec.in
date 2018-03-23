@@ -30,7 +30,6 @@ BuildRequires:                  gsoap-devel
 %if %{?fedora}%{!?fedora:0} >= 10 || %{?rhel}%{!?rhel:0} >= 6
 BuildRequires:                  abi-compliance-checker
 %endif
-BuildRequires:                  gtest-devel
 
 Requires:                       %{name}-libs%{?_isa} = %{version}-%{release}
 

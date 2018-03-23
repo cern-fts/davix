@@ -103,11 +103,12 @@ docs:
 rpms:
   stage: publish
   image: gitlab-registry.cern.ch/linuxsupport/cc7-base
-  tags:
-    - docker-cc7
   dependencies:
     - cc7
     - slc6
   script:
-    - yum install -y python sudo
+    - yum install -y python sssd-client sudo createrepo
     - for platform in cc7 slc6; do sudo -u stci -H packaging/repo-manager.py --action add --base /eos/project/s/storage-ci/www/davix --ref ${CI_COMMIT_REF_NAME} --packages ${platform}/RPMS/* ${platform}/SRPMS/* ; done
+  tags:
+    - docker-cc7
+  retry: 2

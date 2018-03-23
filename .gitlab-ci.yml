@@ -40,6 +40,54 @@ fedora-25:
     paths:
     - "$CI_JOB_NAME"
 
+fedora-26:
+  stage: build
+  image: fedora:26
+  script:
+    - ci/fedora/packages.sh
+    - ci/common-rpm-build.sh
+    - mkdir ${CI_JOB_NAME}
+    - cp -r /root/rpmbuild/RPMS build/SRPMS ${CI_JOB_NAME}
+  artifacts:
+    paths:
+    - "$CI_JOB_NAME"
+
+fedora-27:
+  stage: build
+  image: fedora:27
+  script:
+    - ci/fedora/packages.sh
+    - ci/common-rpm-build.sh
+    - mkdir ${CI_JOB_NAME}
+    - cp -r /root/rpmbuild/RPMS build/SRPMS ${CI_JOB_NAME}
+  artifacts:
+    paths:
+    - "$CI_JOB_NAME"
+
+fedora-28:
+  stage: build
+  image: fedora:28
+  script:
+    - ci/fedora/packages.sh
+    - ci/common-rpm-build.sh
+    - mkdir ${CI_JOB_NAME}
+    - cp -r /root/rpmbuild/RPMS build/SRPMS ${CI_JOB_NAME}
+  artifacts:
+    paths:
+    - "$CI_JOB_NAME"
+
+fedora-rawhide:
+  stage: build
+  image: fedora:rawhide
+  script:
+    - ci/fedora/packages.sh
+    - ci/common-rpm-build.sh
+    - mkdir ${CI_JOB_NAME}
+    - cp -r /root/rpmbuild/RPMS build/SRPMS ${CI_JOB_NAME}
+  artifacts:
+    paths:
+    - "$CI_JOB_NAME"
+
 ubuntu-artful:
   stage: build
   image: ubuntu:artful

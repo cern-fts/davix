@@ -93,6 +93,7 @@ docs:
   image: gitlab-registry.cern.ch/linuxsupport/cc7-base
   script:
     - yum install -y git rpm-build python-argparse tar cmake python2-sphinx make sssd-client sudo
+    - pip install --upgrade sphinx
     - packaging/make-docs.sh
     - mv build/doc/build/html docs
     - chown -R stci docs

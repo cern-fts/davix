@@ -123,3 +123,12 @@ docs:
   artifacts:
     paths:
     - build
+
+rpms:
+  stage: publish
+  image: gitlab-registry.cern.ch/linuxsupport/cc7-base
+  dependencies:
+    - cc7
+    - slc6
+  script:
+    - for platform in cc7 slc6; do sudo -u stci -H packaging/repo-manager.py --action add --base /eos/project/s/storage-ci/www/davix --ref ${CI_COMMIT_REF_NAME} --packages ${platform}/RPMS/* ${platform}/SRPMS/* ; done

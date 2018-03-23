@@ -127,6 +127,8 @@ docs:
 rpms:
   stage: publish
   image: gitlab-registry.cern.ch/linuxsupport/cc7-base
+  tags:
+    - docker-cc7
   dependencies:
     - cc7
     - slc6

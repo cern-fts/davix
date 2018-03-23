@@ -19,10 +19,7 @@ BuildRequires:                  cmake
 BuildRequires:                  doxygen
 BuildRequires:                  libxml2-devel
 BuildRequires:                  openssl-devel
-
-%if %{?rhel}%{!?rhel:0} <= 6
-BuildRequires:                  python-argparse
-%endif
+%{?el6:BuildRequires: python-argparse}
 
 Requires: libuuid
 

@@ -456,7 +456,7 @@ int NEONRequest::negotiateRequest(DavixError** err){
                     params.getAcceptedRetryDelay() << " seconds before retrying. (attempt " <<
                     _accepted_202_retries << " out of " << params.getAcceptedRetry() << ")" << std::endl;
                   sleep(params.getAcceptedRetryDelay());
-                  requestCleanup();
+                  endRequest(NULL);
                   return startRequest(err);
                 }
                 goto default_label;

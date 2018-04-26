@@ -42,11 +42,17 @@
 // tcp no delay
 #cmakedefine TCP_NODELAY 1
 
-// has system time
-#cmakedefine HAVE_SYSTIME_H 1
+// has system select
+#cmakedefine HAVE_SYS_SELECT_H 1
 
 // has system socket
-#cmakedefine HAVE_SYSSOCKET_H 1
+#cmakedefine HAVE_SYS_SOCKET_H 1
+
+// has system time
+#cmakedefine HAVE_SYS_TIME_H 1
+
+// has system uio
+#cmakedefine HAVE_SYS_UIO_H 1
 
 // has setsockopt
 #cmakedefine HAVE_SETSOCKOPT 1
@@ -95,14 +101,10 @@
 #cmakedefine HAVE_STRLCPY_H 1
 
 // poll
-#cmakedefine HAVE_POLL_H 1
-#ifdef HAVE_POLL_H
+#cmakedefine HAVE_SYS_POLL_H 1
+#ifdef HAVE_SYS_POLL_H
 #define NE_USE_POLL
 #endif
-
-
-//select
-#cmakedefine HAVE_SYS_SELECT_H 1
 
 //net
 #cmakedefine HAVE_NETINET_IN_H 1

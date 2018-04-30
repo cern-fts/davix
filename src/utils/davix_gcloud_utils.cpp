@@ -40,7 +40,7 @@ Credentials::Credentials() {
 // Destructor
 Credentials::~Credentials() {
   delete internal;
-  internal = nullptr;
+  internal = NULL;
 }
 
 // Copy constructor

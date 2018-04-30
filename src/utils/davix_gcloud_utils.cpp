@@ -20,10 +20,8 @@
 */
 
 #include <utils/davix_gcloud_utils.hpp>
-#include <libs/json.hpp>
 #include <fstream>
-
-using json = nlohmann::json;
+#include <libs/rapidjson/document.h>
 
 namespace Davix{
 
@@ -83,20 +81,16 @@ CredentialProvider::CredentialProvider() {}
 Credentials CredentialProvider::fromJSONString(const std::string &str) {
   Credentials creds;
 
-  try {
-    auto parsed = json::parse(str);
-
-    auto it = parsed.find("private_key");
-    if(it == parsed.end()) {
-      throw DavixException(std::string("davix::gcloud"), StatusCode::ParsingError, "Error during JSON parsing: Could not find private_key");
-    }
-
-    creds.setPrivateKey(*it);
-
-  }
-  catch(...) {
+  rapidjson::Document document;
+  if(document.Parse(str.c_str()).HasParseError()) {
     throw DavixException(std::string("davix::gcloud"), StatusCode::ParsingError, "Error during JSON parsing");
   }
+
+  if(!document.HasMember("private_key")) {
+    throw DavixException(std::string("davix::gcloud"), StatusCode::ParsingError, "Error during JSON parsing: Could not find private_key");
+  }
+
+  creds.setPrivateKey(document["private_key"].GetString());
 
   return creds;
 }

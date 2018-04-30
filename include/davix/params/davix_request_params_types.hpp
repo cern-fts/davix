@@ -113,6 +113,11 @@ typedef std::string AwsToken;
 ///
 typedef std::string AzureSecretKey;
 
+///
+/// \brief string for gcloud credential json local path
+///
+typedef std::string GcloudCredentialPath;
+
 #ifdef __DAVIX_HAS_STD_FUNCTION
 
     ///

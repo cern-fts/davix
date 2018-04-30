@@ -3,7 +3,6 @@
 if(UNIT_TESTS)
 
 include_directories(${PROJECT_SOURCE_DIR}/src "." ${GTEST_INCLUDE_DIRS})
-include_directories(${HEADER_RAPIDJSON})
 
 ## gtest
 set(GTEST ${CMAKE_SOURCE_DIR}/deps/googletest/googletest )

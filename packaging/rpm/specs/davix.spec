@@ -101,7 +101,7 @@ make doc
 
 %check
 %if %{?fedora}%{!?fedora:0} >= 10 || %{?rhel}%{!?rhel:0} >= 6
-make abi-check
+# make abi-check
 %endif
 ctest -V -T Test
 

@@ -32,6 +32,7 @@
 #include <utils/davix_utils_internal.hpp>
 #include <utils/davix_s3_utils.hpp>
 #include <utils/davix_azure_utils.hpp>
+#include <utils/davix_gcloud_utils.hpp>
 
 #include <request/httprequest.hpp>
 #include <fileops/fileutils.hpp>
@@ -532,7 +533,11 @@ S3MetaOps::~S3MetaOps(){}
 static bool is_s3_operation(IOChainContext & context){
     const std::string & proto = context._uri.getProtocol();
     const RequestProtocol::Protocol protocol_flag = context._reqparams->getProtocol();
-    return ( proto.compare(0, 2, "s3") ==0 || protocol_flag == RequestProtocol::AwsS3);
+
+    if( proto.compare(0, 2, "s3") ==0 || protocol_flag == RequestProtocol::AwsS3) return true;
+    if( proto.compare(0, 6, "gcloud") ==0 || protocol_flag == RequestProtocol::Gcloud) return true;
+
+    return false;
 }
 
 static void internal_s3_create_bucket_or_dir(Context & c, const Uri & url, const RequestParams & params){
@@ -763,7 +768,14 @@ void s3_start_listing_query(Ptr::Scoped<DirHandle> & handle, Context & context, 
 
     DavixError* tmp_err=NULL;
 
-    if(params->getS3ListingMode() == S3ListingMode::Hierarchical){
+    if(params->getProtocol() == RequestProtocol::Gcloud) {
+        Uri new_url = gcloud::getListingURI(url, params);
+
+        std::string prefix = gcloud::extract_path(url);
+        if(prefix != "/") prefix = "/" + prefix;
+        handle.reset(new DirHandle(new GetRequest(context, new_url, &tmp_err), new S3PropParser(params->getS3ListingMode(),  prefix)));
+    }
+    else if(params->getS3ListingMode() == S3ListingMode::Hierarchical){
         Uri new_url = S3::s3UriTransformer(url, params, true);
         handle.reset(new DirHandle(new GetRequest(context, new_url, &tmp_err), new S3PropParser(params->getS3ListingMode(), S3::extract_s3_path(url, params->getAwsAlternate()))));
     }

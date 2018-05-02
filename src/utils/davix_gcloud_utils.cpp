@@ -28,10 +28,26 @@
 
 #define SSTR(message) static_cast<std::ostringstream&>(std::ostringstream().flush() << message).str()
 
-
 namespace Davix{
 
 namespace gcloud {
+
+std::string extract_bucket(const Uri & url) {
+    std::string path = url.getPath();
+    std::string name = path.substr(1, path.find("/", 1));
+    if(name.compare(name.size()-1,1,"/") == 0) {
+        name.erase(name.size()-1, name.size());
+    }
+    return name;
+}
+
+std::string extract_path(const Uri & url) {
+    std::string path = url.getPath();
+    std::size_t sep = path.find("/", 1);
+    if(sep == std::string::npos) return "";
+    return path.substr(path.find("/", 1)+1, path.size());
+}
+
 
 class CredentialsInternal {
 public:
@@ -176,6 +192,26 @@ Uri signURIFixedTimeout(const Credentials& creds, const std::string &verb, const
   signedUrl.addQueryParam("Signature", signature);
 
   return signedUrl;
+}
+
+Uri getListingURI(const Uri & original_url, const RequestParams & params) {
+    Uri newUri = original_url;
+    newUri.setPath("/" + extract_bucket(original_url) );
+
+    std::string filename = extract_path(original_url);
+    if(filename[filename.size()-1] != '/') {
+        filename.append("/");
+    }
+
+    // special case: listing top-dir
+    if(filename == "/")
+        filename = "";
+
+    newUri.addQueryParam("prefix", filename);
+    newUri.addQueryParam("delimiter", "/");
+    newUri.addQueryParam("max-keys", "1000000000");
+
+    return newUri;
 }
 
 } // namespace gcloud

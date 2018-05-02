@@ -74,6 +74,11 @@ std::string getStringToSign(const std::string &verb, const Uri &url, const Heade
 Uri signURI(const Credentials& creds, const std::string &verb, const Uri &url, const HeaderVec &headers, const time_t signDuration);
 Uri signURIFixedTimeout(const Credentials& creds, const std::string &verb, const Uri &url, const HeaderVec &headers, const time_t signDuration);
 
+Uri getListingURI(const Uri & original_url, const RequestParams & params);
+
+std::string extract_bucket(const Uri & uri);
+std::string extract_path(const Uri & uri);
+
 } // gcloud
 } // Davix
 

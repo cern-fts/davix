@@ -235,10 +235,10 @@ void Uri::setProtocol(const std::string & protocol) {
 }
 
 void Uri::httpizeProtocol() {
-    if(d_ptr->proto == "s3" || d_ptr->proto == "dav") {
+    if(d_ptr->proto == "s3" || d_ptr->proto == "dav" || d_ptr->proto == "gcloud") {
         setProtocol("http");
     }
-    if(d_ptr->proto == "s3s" || d_ptr->proto == "davs") {
+    if(d_ptr->proto == "s3s" || d_ptr->proto == "davs" || d_ptr->proto == "gclouds") {
         setProtocol("https");
     }
 }

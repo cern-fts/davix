@@ -67,6 +67,8 @@ void configureRequestParamsProto(const Uri &uri, RequestParams &params){
             params.setProtocol(RequestProtocol::AwsS3);
         }else if ( proto.compare(0, 3,"dav") ==0){
             params.setProtocol(RequestProtocol::Webdav);
+        }else if ( proto.compare(0, 6, "gcloud") ==0) {
+            params.setProtocol(RequestProtocol::Gcloud);
         }
     }
 

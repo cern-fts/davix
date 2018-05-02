@@ -92,6 +92,6 @@ TEST(GcloudTest, UrlSigning) {
 
   HeaderVec hv;
 
-  Uri signedUrl = gcloud::signURI(creds, "GET", Uri("https://storage.googleapis.com/random-bucket/aaaaa"), hv, 1525107409);
+  Uri signedUrl = gcloud::signURIFixedTimeout(creds, "GET", Uri("https://storage.googleapis.com/random-bucket/aaaaa"), hv, 1525107409);
   ASSERT_EQ(signedUrl.getString(), "https://storage.googleapis.com/random-bucket/aaaaa?GoogleAccessId=aaa%40bb.gserviceaccount.com&Expires=1525107409&Signature=MaYqh3Ysjw8trX1H%2BO%2BNBxn4I3cSfKsQNJRrltH6apJpNq7AitI0YvEZ4fFoGcPhb3oz13kyxlsDB1v61%2FlFXJLUFHD6erpMubYMTEeAjw50NavcJtoXNUmHXUAnwj164ffD%2B8VQBK9UIOgcrdh3dGumsjwQe%2F7znk6TcXr6D9vkA3uRldFNNcZBnq%2Bv1rULNzi1XHm2wCvXy%2B5vXJ0%2FDsxtlfDfleC1NEcHS8vmWbsyUwFWrZUM%2BeiIjolmWL6NZpyEEMOBnNOgmi9BcSxDr0WGDEmdh6wvSUvbJzknZrKjgIj%2BH4AaYFOKsCV946mg0whkXc4F7lxpmzax5HHfqQ%3D%3D");
 }

@@ -77,6 +77,8 @@ struct OptParams{
     bool aws_alternate;
     // azure key
     std::string azure_key;
+    // gcloud credentials path
+    std::string gcloud_creds_path;
     // presentation flag
     int pres_flag;
     // shell flags

@@ -25,6 +25,7 @@
 #include <string_utils/stringutils.hpp>
 #include "davix_tool_util.hpp"
 #include <utils/davix_logger_internal.hpp>
+#include <utils/davix_gcloud_utils.hpp>
 
 #include <ctype.h>
 #include <simple_getpass/simple_get_pass.h>
@@ -113,6 +114,13 @@ int configureAuth(OptParams & opts){
     if(opts.azure_key.empty() == false) {
         opts.params.setAzureKey(opts.azure_key);
         opts.params.setProtocol(RequestProtocol::Azure);
+    }
+
+    // setup gcloud creds
+    if(opts.gcloud_creds_path.empty() == false) {
+        gcloud::CredentialProvider provider;
+        opts.params.setGcloudCredentials(provider.fromFile(opts.gcloud_creds_path));
+        opts.params.setProtocol(RequestProtocol::Gcloud);
     }
 
     return 0;

@@ -155,7 +155,11 @@ std::string getStringToSign(const std::string &verb, const Uri &url, const Heade
   return ss.str();
 }
 
-Uri signURI(const Credentials& creds, const std::string &verb, const Uri &url, const HeaderVec &headers, const time_t expirationTime) {
+Uri signURI(const Credentials& creds, const std::string &verb, const Uri &url, const HeaderVec &headers, const time_t signDuration) {
+  return signURIFixedTimeout(creds, verb, url, headers, time(NULL) + signDuration);
+}
+
+Uri signURIFixedTimeout(const Credentials& creds, const std::string &verb, const Uri &url, const HeaderVec &headers, const time_t expirationTime) {
   // Reference: https://cloud.google.com/storage/docs/access-control/create-signed-urls-program
   // Construct string to sign..
   std::string stringToSign = getStringToSign(verb, url, headers, expirationTime);

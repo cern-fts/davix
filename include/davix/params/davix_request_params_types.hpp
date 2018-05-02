@@ -54,7 +54,9 @@ namespace RequestProtocol{
         // Use Amazon S3 API
         AwsS3,
         // Use Microsoft Azure API
-        Azure
+        Azure,
+        // Use gcloud API
+        Gcloud
     };
 }
 

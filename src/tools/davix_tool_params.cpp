@@ -62,6 +62,7 @@ const std::string scope_params = "Davix::Tools::Params";
 #define NO_100_CONTINUE        1024
 #define ACCEPTED_RETRY         1025
 #define ACCEPTED_RETRY_DELAY   1026
+#define GCLOUD_CRED_PATH       1027
 
 // LONG OPTS
 
@@ -93,6 +94,7 @@ const std::string scope_params = "Davix::Tools::Params";
 {"s3token", required_argument, 0, S3_TOKEN}, \
 {"azurekey", required_argument, 0, AZURE_KEY}, \
 {"s3alternate", no_argument, 0, S3_ALTERNATE}, \
+{"gcloud-creds", required_argument, 0, GCLOUD_CRED_PATH}, \
 {"insecure", no_argument, 0,  'k' }
 
 #define REQUEST_LONG_OPTIONS \
@@ -309,6 +311,9 @@ int parse_davix_options_generic(const std::string &opt_filter,
             case AZURE_KEY:
                 p.azure_key = optarg;
                 strncpy(optarg, "", strlen(optarg));
+                break;
+            case GCLOUD_CRED_PATH:
+                p.gcloud_creds_path = SanitiseTildedPath(optarg).c_str();
                 break;
             case 'l':
                 p.pres_flag |= LONG_LISTING_FLAG;
@@ -570,6 +575,7 @@ std::string get_common_options(){
             "\t--s3alternate:            Pass this flag if you're using a path-based S3 URL\n"
             "\t                          A path-based URL contains the bucket name in the path, ie https://s3-someregion.amazonaws.com/mybucket/file\n"
             "\t--azurekey AZURE_KEY:     Azure authentication secret key\n"
+            "\t--gcloud-creds PATH:      Path to gcloud json credentials\n"
             ;
 }
 

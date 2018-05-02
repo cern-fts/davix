@@ -23,6 +23,7 @@
 #include "neonrequest.hpp"
 
 #include <utils/davix_logger_internal.hpp>
+#include <utils/davix_gcloud_utils.hpp>
 #include <libs/time_utils.h>
 #include <ne_redirect.h>
 #include <ne_request.h>
@@ -231,6 +232,10 @@ int NEONRequest::createRequest(DavixError** err){
     if(params.getProtocol() == RequestProtocol::Azure)
         configureAzureParams();
 
+    // configure gcloud params if needed
+    if(params.getProtocol() == RequestProtocol::Gcloud)
+        configureGcloudParams();
+
     _req= ne_request_create(_neon_sess->get_ne_sess(), _request_type.c_str(), _current->getPathAndQuery().c_str());
     configureRequest();
 
@@ -355,6 +360,11 @@ void NEONRequest::configureS3params(){
 // TODO: make static?
 void NEONRequest::configureAzureParams(){
     Uri signed_url = Azure::signURI(params.getAzureKey(), _request_type, *_current, NEON_S3_SIGN_DURATION);
+    _current= std::shared_ptr<Uri>(new Uri(signed_url));
+}
+
+void NEONRequest::configureGcloudParams() {
+    Uri signed_url = gcloud::signURI(params.getGcloudCredentials(), _request_type, *_current, _headers_field, NEON_S3_SIGN_DURATION);
     _current= std::shared_ptr<Uri>(new Uri(signed_url));
 }
 

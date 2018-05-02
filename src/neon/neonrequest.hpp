@@ -225,6 +225,8 @@ private:
 
     void configureAzureParams();
 
+    void configureGcloudParams();
+
     void cancelSessionReuse();
 
     // create initial neon request object

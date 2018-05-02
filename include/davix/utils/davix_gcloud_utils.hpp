@@ -70,8 +70,9 @@ public:
   Credentials fromFile(const std::string &path);
 };
 
-std::string getStringToSign(const std::string &verb, const Uri &url, const HeaderVec &headers, const time_t expirationTime);
-Uri signURI(const Credentials& creds, const std::string &verb, const Uri &url, const HeaderVec &headers, const time_t  expirationTime);
+std::string getStringToSign(const std::string &verb, const Uri &url, const HeaderVec &headers, const time_t signDuration);
+Uri signURI(const Credentials& creds, const std::string &verb, const Uri &url, const HeaderVec &headers, const time_t signDuration);
+Uri signURIFixedTimeout(const Credentials& creds, const std::string &verb, const Uri &url, const HeaderVec &headers, const time_t signDuration);
 
 } // gcloud
 } // Davix

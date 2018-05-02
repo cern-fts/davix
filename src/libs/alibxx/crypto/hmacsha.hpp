@@ -26,4 +26,4 @@
 std::string hmac_sha1(const std::string & key, const std::string & data);
 std::string hmac_sha256(const std::string & key, const std::string & data);
 std::string sha256(const std::string input);
-
+std::string rsasha256(const std::string &key, const std::string &data);

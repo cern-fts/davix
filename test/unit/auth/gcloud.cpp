@@ -4,6 +4,8 @@
 #include <auth/davixauth.hpp>
 #include <gtest/gtest.h>
 #include <utils/davix_gcloud_utils.hpp>
+#include <libs/alibxx/crypto/hmacsha.hpp>
+#include <libs/alibxx/crypto/base64.hpp>
 
 using namespace std;
 using namespace Davix;
@@ -71,8 +73,25 @@ TEST(GcloudTest, CredParsing) {
   ASSERT_THROW(credProvider.fromJSONString("aaaaa"), DavixException);
   ASSERT_THROW(credProvider.fromJSONString(SSTR("{ \"priva_key\":\"" << privKey << "\" }")), DavixException);
 
-  std::string jsonString = SSTR("{ \"private_key\":\"" << privKey << "\" }");
+  std::string jsonString = SSTR("{ \"client_email\": \"aaa@bb.gserviceaccount.com\", \"private_key\":\"" << privKey << "\" }");
   gcloud::Credentials creds = credProvider.fromJSONString(jsonString);
 
   ASSERT_EQ(creds.getPrivateKey(), replace(privKey, "\\n", "\n"));
+  ASSERT_EQ(creds.getClientEmail(), "aaa@bb.gserviceaccount.com");
+}
+
+TEST(GcloudTest, RsaSha256Signature) {
+  std::string unencoded = rsasha256(replace(privKey, "\\n", "\n"), "super secure message");
+  std::string encoded = Base64::base64_encode( (const unsigned char*) unencoded.c_str(), unencoded.size());
+  ASSERT_EQ(encoded, "Dqyv8/2sQyTWtVGTkxgXe0zKQGEPuK/xbhLV7tExpBPE6X4gIU5vNxIYOeK2QwgpiAN/XjEzAp9u9nZxalhyeZvf7QnXs0iiTqmmXUANHPwhWKgRHi9QG1QFONnJ8ZgSjpakQqaCXPgcXskO2zhKwY7Z91cRY42kYyCF7+aCduYOcYYbVwSUxuF6zkj/HvvGGF+eVX1+eOe59Py1mETGHv1Uf0URiCsq5W3XoU9HKl5zPX8rX/GL85w0WUUpUsyT1BcVaC3CJtpLOcHxeovO6RziyYNg5vOzsidjl0nETEtjoFIpLQva+ozok2xh2+dGHTkc9ZDkjMjZK7h/KB1s8Q==");
+}
+
+TEST(GcloudTest, UrlSigning) {
+  gcloud::CredentialProvider credProvider;
+  gcloud::Credentials creds = credProvider.fromJSONString(SSTR("{ \"client_email\": \"aaa@bb.gserviceaccount.com\", \"private_key\":\"" << privKey << "\" }"));
+
+  HeaderVec hv;
+
+  Uri signedUrl = gcloud::signURI(creds, "GET", Uri("https://storage.googleapis.com/random-bucket/aaaaa"), hv, 1525107409);
+  ASSERT_EQ(signedUrl.getString(), "https://storage.googleapis.com/random-bucket/aaaaa?GoogleAccessId=aaa%40bb.gserviceaccount.com&Expires=1525107409&Signature=MaYqh3Ysjw8trX1H%2BO%2BNBxn4I3cSfKsQNJRrltH6apJpNq7AitI0YvEZ4fFoGcPhb3oz13kyxlsDB1v61%2FlFXJLUFHD6erpMubYMTEeAjw50NavcJtoXNUmHXUAnwj164ffD%2B8VQBK9UIOgcrdh3dGumsjwQe%2F7znk6TcXr6D9vkA3uRldFNNcZBnq%2Bv1rULNzi1XHm2wCvXy%2B5vXJ0%2FDsxtlfDfleC1NEcHS8vmWbsyUwFWrZUM%2BeiIjolmWL6NZpyEEMOBnNOgmi9BcSxDr0WGDEmdh6wvSUvbJzknZrKjgIj%2BH4AaYFOKsCV946mg0whkXc4F7lxpmzax5HHfqQ%3D%3D");
 }

@@ -20,8 +20,14 @@
 */
 
 #include <utils/davix_gcloud_utils.hpp>
+#include <libs/alibxx/crypto/hmacsha.hpp>
+#include <libs/alibxx/crypto/base64.hpp>
 #include <fstream>
 #include <libs/rapidjson/document.h>
+#include <sstream>
+
+#define SSTR(message) static_cast<std::ostringstream&>(std::ostringstream().flush() << message).str()
+
 
 namespace Davix{
 
@@ -31,7 +37,9 @@ class CredentialsInternal {
 public:
   CredentialsInternal() {}
   std::string private_key;
+  std::string client_email;
 };
+
 
 Credentials::Credentials() {
   internal = new CredentialsInternal();
@@ -76,6 +84,14 @@ std::string Credentials::getPrivateKey() const {
   return internal->private_key;
 }
 
+void Credentials::setClientEmail(const std::string &str) {
+  internal->client_email = str;
+}
+
+std::string Credentials::getClientEmail() const {
+  return internal->client_email;
+}
+
 CredentialProvider::CredentialProvider() {}
 
 Credentials CredentialProvider::fromJSONString(const std::string &str) {
@@ -90,13 +106,69 @@ Credentials CredentialProvider::fromJSONString(const std::string &str) {
     throw DavixException(std::string("davix::gcloud"), StatusCode::ParsingError, "Error during JSON parsing: Could not find private_key");
   }
 
+  if(!document.HasMember("client_email")) {
+    throw DavixException(std::string("davix::gcloud"), StatusCode::ParsingError, "Error during JSON parsing: Could not find client_email");
+  }
+
   creds.setPrivateKey(document["private_key"].GetString());
+  creds.setClientEmail(document["client_email"].GetString());
 
   return creds;
 }
 
-Uri signURI(const GcloudCredentialPath &credpath, const Uri &url, const time_t signDuration) {
+Credentials CredentialProvider::fromFile(const std::string &path) {
+  std::stringstream buffer;
 
+  try {
+    std::ifstream t(path);
+    buffer << t.rdbuf();
+  }
+  catch(...) {
+    throw DavixException(std::string("davix::gcloud"), StatusCode::FileNotFound, SSTR("Could not read gcloud credentials at '" << path << "'"));
+  }
+
+  return fromJSONString(buffer.str());
+}
+
+std::string getStringToSign(const std::string &verb, const Uri &url, const HeaderVec &headers, const time_t expirationTime) {
+  std::ostringstream ss;
+
+  // Reference: https://cloud.google.com/storage/docs/access-control/create-signed-urls-program
+  // a. Add HTTP verb
+  ss << verb << "\n";
+
+  // b. MD5 digest value - empty
+  ss << "\n";
+
+  // c. Content-Type - empty
+  ss << "\n";
+
+  // d. Expiration
+  ss << expirationTime << "\n";
+
+  // Resource
+  ss << url.getPath();
+
+  return ss.str();
+}
+
+Uri signURI(const Credentials& creds, const std::string &verb, const Uri &url, const HeaderVec &headers, const time_t expirationTime) {
+  // Reference: https://cloud.google.com/storage/docs/access-control/create-signed-urls-program
+  // Construct string to sign..
+  std::string stringToSign = getStringToSign(verb, url, headers, expirationTime);
+
+  // Calculate signature..
+  std::string binarySignature = rsasha256(creds.getPrivateKey(), stringToSign);
+
+  // Base64 encode signature..
+  std::string signature = Base64::base64_encode( (unsigned char*) binarySignature.c_str(), binarySignature.size());
+
+  Uri signedUrl(url);
+  signedUrl.addQueryParam("GoogleAccessId", creds.getClientEmail());
+  signedUrl.addQueryParam("Expires", SSTR(expirationTime));
+  signedUrl.addQueryParam("Signature", signature);
+
+  return signedUrl;
 }
 
 } // namespace gcloud

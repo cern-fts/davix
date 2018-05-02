@@ -42,6 +42,9 @@ public:
   void setPrivateKey(const std::string &key);
   std::string getPrivateKey() const;
 
+  void setClientEmail(const std::string &key);
+  std::string getClientEmail() const;
+
   // Rule of five:
   Credentials(const Credentials&);                   // Copy constructor
   Credentials(Credentials&&);                        // Move constructor
@@ -62,9 +65,11 @@ class DAVIX_EXPORT CredentialProvider {
 public:
   CredentialProvider();
   Credentials fromJSONString(const std::string &str);
+  Credentials fromFile(const std::string &path);
 };
 
-Uri signURI(const GcloudCredentialPath &credpath, const Uri &url, const time_t signDuration);
+std::string getStringToSign(const std::string &verb, const Uri &url, const HeaderVec &headers, const time_t expirationTime);
+Uri signURI(const Credentials& creds, const std::string &verb, const Uri &url, const HeaderVec &headers, const time_t  expirationTime);
 
 } // gcloud
 } // Davix

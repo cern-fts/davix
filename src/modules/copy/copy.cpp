@@ -27,6 +27,7 @@
 #include "copy_internal.hpp"
 #include "delegation/delegation.hpp"
 #include <utils/davix_logger_internal.hpp>
+#include <utils/davix_gcloud_utils.hpp>
 
 using namespace Davix;
 
@@ -123,7 +124,7 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
     std::string nextSrc, prevSrc, destination;
     std::string delegationEndpoint;
     DavixError *internalError = NULL;
-    bool isS3endpoint = false;
+    bool suppressFinalHead = false;
 
     // set source and destination according to copy method
     if(parameters->getCopyMode() == CopyMode::Push){
@@ -158,7 +159,21 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
         else
             tmp = Davix::S3::tokenizeRequest(requestParams, "PUT", destination, vec, expiration_time);
         destination = tmp.getString();
-        isS3endpoint = true;
+        suppressFinalHead = true;
+    }
+
+    // handle gcloud endpoint as a destination
+    if(destination.compare(0,6,"gcloud") == 0){
+        destination.replace(0, 6, "http");
+
+        Davix::HeaderVec vec;
+        Uri tmp;
+        if (parameters->getCopyMode() == CopyMode::Pull)
+            tmp = Davix::gcloud::signURI(requestParams.getGcloudCredentials(), "GET", destination, vec, 3600);
+        else
+            tmp = Davix::gcloud::signURI(requestParams.getGcloudCredentials(), "PUT", destination, vec, 3600);
+        destination = tmp.getString();
+        suppressFinalHead = true;
     }
 
     // Perform COPY hopping through redirections
@@ -198,7 +213,7 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
         request->addHeaderField("Secure-Redirection", "1");
 
         // for lcgdm-dav -> S3, add NoHead flag to suppress final head-to-close request
-        if(isS3endpoint)
+        if(suppressFinalHead)
             request->addHeaderField("Copy-Flags", "NoHead");
         request->setParameters(requestParams);
         request->beginRequest(&internalError);
@@ -359,7 +374,3 @@ void DavixCopyInternal::monitorPerformanceMarkers(Davix::HttpRequest *request,
         }
     }
 }
-
-
-
-

@@ -78,7 +78,7 @@ std::string sha256(const std::string input) {
 std::string rsasha256(const std::string &key, const std::string &data) {
 #ifdef HAVE_OPENSSL
 
-    BIO* bio = BIO_new_mem_buf(key.data(), key.size());
+    BIO* bio = BIO_new_mem_buf( (void*) key.data(), key.size());
     if(!bio) return "";
 
     EVP_PKEY* private_key = PEM_read_bio_PrivateKey(bio, NULL, NULL, NULL);

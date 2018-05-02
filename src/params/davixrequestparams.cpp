@@ -24,6 +24,7 @@
 #include <utils/davix_logger_internal.hpp>
 #include <params/davixrequestparams.hpp>
 #include <libs/time_utils.h>
+#include <utils/davix_gcloud_utils.hpp>
 
 
 
@@ -99,6 +100,7 @@ struct RequestParamsInternal{
         _aws_token(),
         _aws_alternate(false),
         _azure_key(),
+        _gcloud_creds(),
         ops_timeout(),
         connexion_timeout(),
         agent_string(default_agent),
@@ -146,6 +148,7 @@ struct RequestParamsInternal{
         _aws_token(param_private._aws_token),
         _aws_alternate(param_private._aws_alternate),
         _azure_key(param_private._azure_key),
+        _gcloud_creds(param_private._gcloud_creds),
         ops_timeout(),
         connexion_timeout(),
         agent_string(param_private.agent_string),
@@ -190,6 +193,7 @@ struct RequestParamsInternal{
     AwsToken _aws_token;
     bool _aws_alternate;
     AzureSecretKey _azure_key;
+    gcloud::Credentials _gcloud_creds;
 
     // timeout management
     struct timespec ops_timeout;
@@ -389,6 +393,14 @@ void RequestParams::setAzureKey(const AzureSecretKey &key) {
 
 const AzureSecretKey & RequestParams::getAzureKey() const {
     return d_ptr->_azure_key;
+}
+
+void RequestParams::setGcloudCredentials(const gcloud::Credentials &creds) {
+    d_ptr->_gcloud_creds = creds;
+}
+
+const gcloud::Credentials & RequestParams::getGcloudCredentials() const {
+    return d_ptr->_gcloud_creds;
 }
 
 void RequestParams::setS3ListingMode(const S3ListingMode::S3ListingMode s3_listing_mode){

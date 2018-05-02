@@ -40,6 +40,9 @@ public:
   std::string client_email;
 };
 
+bool Credentials::isEmpty() const {
+  return internal->private_key.empty() && internal->client_email.empty();
+}
 
 Credentials::Credentials() {
   internal = new CredentialsInternal();

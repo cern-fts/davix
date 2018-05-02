@@ -43,8 +43,12 @@
 
 namespace Davix {
 
+namespace gcloud {
+    class Credentials;
+}
 
 struct RequestParamsInternal;
+
 
 
 ///
@@ -179,6 +183,19 @@ public:
     /// \return the secret key
     ///
     const AzureSecretKey & getAzureKey() const;
+
+    ///
+    /// \brief set the secret key for Azure authentication
+    /// \param key the secret key
+    ///
+    void setGcloudCredentials(const Davix::gcloud::Credentials & creds);
+
+    ///
+    /// \brief get the secret key used for Azure authentication
+    /// \return the secret key
+    ///
+    const Davix::gcloud::Credentials & getGcloudCredentials() const;
+
 
     /// set listing mode flag for S3 bucket
     void setS3ListingMode(const S3ListingMode::S3ListingMode s3_listing_mode);

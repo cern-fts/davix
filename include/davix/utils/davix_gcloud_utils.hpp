@@ -45,11 +45,13 @@ public:
   void setClientEmail(const std::string &key);
   std::string getClientEmail() const;
 
+  bool isEmpty() const;
+
   // Rule of five:
   Credentials(const Credentials&);                   // Copy constructor
   Credentials(Credentials&&);                        // Move constructor
-  Credentials& operator=(const Credentials&);      // Copy assignment operator
-  Credentials& operator=(Credentials&&);           // Move assignment operator
+  Credentials& operator=(const Credentials&);        // Copy assignment operator
+  Credentials& operator=(Credentials&&);             // Move assignment operator
   virtual ~Credentials();                            // Destructor
 
 private:

@@ -24,6 +24,7 @@
 #include <iomanip>
 #include <ctime>
 #include <cstring>
+#include <regex>
 #include <davix_internal.hpp>
 #include <string_utils/stringutils.hpp>
 #include <datetime/datetime_utils.hpp>
@@ -32,7 +33,6 @@
 #include <alibxx/crypto/hmacsha.hpp>
 #include <openssl/md5.h>
 #include <sys/mman.h>
-
 
 template <typename T>
 static inline std::string SSTR(const T& v)
@@ -241,6 +241,8 @@ void signRequestv2(const RequestParams & params, const std::string & method, con
         ss << '?' << url.getQuery();
     }
 
+    DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_S3, "String to sign: {}",
+               std::regex_replace(ss.str(), std::regex("\n"), "\\n"));
     headers.push_back(std::pair<std::string, std::string>("Authorization",  getAwsAuthorizationField(ss.str(), params.getAwsAutorizationKeys().first, params.getAwsAutorizationKeys().second)));
 }
 
@@ -363,7 +365,8 @@ Uri signURIv4(const RequestParams & params, const std::string & method, const Ur
                  << current_time("%Y%m%d") << "/" << params.getAwsRegion() << "/s3/aws4_request" << "\n"
                  << encoded_hash;
 
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_S3, "String to sign: {}", stringToSign.str());
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_S3, "String to sign: {}",
+               std::regex_replace(stringToSign.str(), std::regex("\n"), "\\n"));
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_S3, "String to sign bytes: {}", hexEncode(stringToSign.str(), " "));
 
     // whew.. now calculate the final signature

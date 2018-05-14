@@ -17,6 +17,18 @@ std::vector<std::string> tokenSplit(const std::string & str, const std::string &
     return res;
 }
 
+std::string stringReplace(std::string str, const std::string & search, const std::string & replace) {
+    size_t pos = 0;
+
+    if (search.size() == 0) { return str; }
+
+    while ((pos = str.find(search, pos)) != std::string::npos) {
+        str.replace(pos, search.length(), replace);
+        pos += replace.length();
+    }
+
+    return str;
+}
 
 int compare_ncase(const std::string & str1, const std::string & str2){
     return strcasecmp(str1.c_str(), str2.c_str());

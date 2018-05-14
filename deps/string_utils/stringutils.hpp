@@ -84,7 +84,7 @@ inline std::string & remove(std::string & str, char c){
     return str;
 }
 
-
+std::string stringReplace(std::string str, const std::string & search, const std::string & replace);
 
 ///////////////////////////
 /// compare utils

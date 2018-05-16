@@ -1,32 +1,56 @@
-# Try to find uuid
-# Once done, this will define
+#.rst:
+# Finduuid
+# -----------
 #
-# UUID_FOUND        - system has uuid
-# UUID_INCLUDE_DIRS - uuid include directories
-# UUID_LIBRARIES    - libraries needed to use uuid
+# Find libuuid, DCE compatible Universally Unique Identifier library.
+#
+# Result Variables
+# ^^^^^^^^^^^^^^^^
+#
+# This module will set the following variables in your project:
+#
+# ``UUID_FOUND``
+#   True if libuuid has been found.
+# ``UUID_INCLUDE_DIRS``
+#   Where to find uuid/uuid.h.
+# ``UUID_LIBRARIES``
+#   The libraries to link against to use libuuid.
+#
+# Obsolete variables
+# ^^^^^^^^^^^^^^^^^^
+#
+# The following variables may also be set, for backwards compatibility:
+#
+# ``UUID_LIBRARY``
+#   where to find the libuuid library (same as UUID_LIBRARIES).
+# ``UUID_INCLUDE_DIR``
+#   where to find the uuid/uuid.h header (same as UUID_INCLUDE_DIRS).
 
+include(CheckCXXSymbolExists)
+include(CheckLibraryExists)
 include(FindPackageHandleStandardArgs)
 
-if(UUID_INCLUDE_DIRS AND UUID_LIBRARIES)
-  set(UUID_FIND_QUIETLY TRUE)
-else()
-  find_path(
-    UUID_INCLUDE_DIR
-    NAMES uuid.h
-    HINTS ${UUID_ROOT_DIR}
-    PATH_SUFFIXES include uuid)
-
-  find_library(
-    UUID_LIBRARY
-    NAMES uuid
-    HINTS ${UUID_ROOT_DIR}
-    PATH_SUFFIXES ${LIBRARY_PATH_PREFIX})
-
-  set(UUID_INCLUDE_DIRS ${UUID_INCLUDE_DIR})
-  set(UUID_LIBRARIES ${UUID_LIBRARY})
-
-  find_package_handle_standard_args(
-    uuid DEFAULT_MSG UUID_LIBRARY UUID_INCLUDE_DIR)
-
-  mark_as_advanced(UUID_INCLUDE_DIR UUID_LIBRARY)
+if(NOT UUID_INCLUDE_DIR)
+  find_path(UUID_INCLUDE_DIR uuid/uuid.h)
 endif()
+
+if(EXISTS UUID_INCLUDE_DIR)
+  set(UUID_INCLUDE_DIRS ${UUID_INCLUDE_DIR})
+  set(CMAKE_REQUIRED_INCLUDES ${UUID_INCLUDE_DIRS})
+  check_cxx_symbol_exists("uuid_generate_random" "uuid/uuid.h" _uuid_header_only)
+endif()
+
+if(NOT _uuid_header_only AND NOT UUID_LIBRARY)
+  check_library_exists("uuid" "uuid_generate_random" "" _have_libuuid)
+  if(_have_libuuid)
+    set(UUID_LIBRARY "uuid")
+    set(UUID_LIBRARIES ${UUID_LIBRARY})
+  endif()
+endif()
+
+unset(CMAKE_REQUIRED_INCLUDES)
+unset(_uuid_header_only)
+unset(_have_libuuid)
+
+find_package_handle_standard_args(uuid DEFAULT_MSG UUID_INCLUDE_DIR)
+mark_as_advanced(UUID_INCLUDE_DIR UUID_LIBRARY)

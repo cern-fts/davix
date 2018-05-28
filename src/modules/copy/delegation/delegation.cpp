@@ -204,12 +204,12 @@ static int get_delegation_version(const std::string& ucred, const std::string& p
 
     if (soap_ssl_client_context(soap_v, SOAP_SSL_DEFAULT, ucred.c_str(), passwd.c_str(),
                                   ucred.c_str(), capath.c_str(), NULL) == 0) {
-        delegation2::tns2__getVersionResponse response;
-        delegation2::soap_call_tns2__getVersion(soap_v, dlg_endpoint.c_str(),
+        delegation2::tns2__getInterfaceVersionResponse response;
+        delegation2::soap_call_tns2__getInterfaceVersion(soap_v, dlg_endpoint.c_str(),
                 "http://www.gridsite.org/namespaces/delegation-2", response);
 
         if (soap_v->error == 0) {
-            version = atoi(response.getVersionReturn);
+            version = atoi(response.getInterfaceVersionReturn);
         }
         else {
             // Assume version 1 (does not implement the version method)

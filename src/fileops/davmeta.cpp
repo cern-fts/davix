@@ -765,8 +765,8 @@ bool s3_get_next_property(Ptr::Scoped<DirHandle> & handle, std::string & name_en
 void s3_start_listing_query(Ptr::Scoped<DirHandle> & handle, Context & context, const RequestParams* params, const Uri & url, const std::string & body){
     (void) body;
     dav_ssize_t s_resu;
-
     DavixError* tmp_err=NULL;
+    bool listing_buckets;
 
     if(params->getProtocol() == RequestProtocol::Gcloud) {
         Uri new_url = gcloud::getListingURI(url, params);
@@ -791,6 +791,8 @@ void s3_start_listing_query(Ptr::Scoped<DirHandle> & handle, Context & context, 
     }
     checkDavixError(&tmp_err);
 
+    // Check if we are listing available buckets
+    listing_buckets = (params->getAwsAlternate() && url.getPath() == "/");
 
 
     const int operation_timeout = params->getOperationTimeout()->tv_sec;
@@ -825,8 +827,8 @@ void s3_start_listing_query(Ptr::Scoped<DirHandle> & handle, Context & context, 
         std::ostringstream ss;
         ss << url << " is not a S3 bucket";
         throw DavixException(davix_scope_directory_listing_str(), StatusCode::IsNotADirectory, ss.str());
-    }else{
-        parser.getProperties().pop_front(); // suppress the bucket entry
+    } else if (!listing_buckets) {
+            parser.getProperties().pop_front(); // suppress the bucket name entry
     }
 
 }

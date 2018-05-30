@@ -28,18 +28,6 @@ slc6:
     paths:
     - "$CI_JOB_NAME"
 
-fedora-25:
-  stage: build
-  image: fedora:25
-  script:
-    - ci/fedora/packages.sh
-    - ci/common-rpm-build.sh
-    - mkdir ${CI_JOB_NAME}
-    - cp -r /root/rpmbuild/RPMS build/SRPMS ${CI_JOB_NAME}
-  artifacts:
-    paths:
-    - "$CI_JOB_NAME"
-
 fedora-26:
   stage: build
   image: fedora:26

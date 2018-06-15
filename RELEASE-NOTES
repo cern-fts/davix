@@ -1,3 +1,15 @@
+Version - 0.6.8
+** Bug
+    * [DMC-1005] - davix buffers TPC performance markers in a weird way
+    * [DMC-1047] - Gridsite Delegation to dCache is broken ( starting from v 3.0)
+
+** New Feature
+    * [DMC-1042] - Add gcloud support to davix
+
+** Task
+    * [DMC-1013] - Add support for 3rd party copy transfers to S3 gCloud
+
+
 Version - 0.6.7
 ** Bug
     * [DMC-950] - davix calculates invalid v4 s3 signature when using a non-default port

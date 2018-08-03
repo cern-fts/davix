@@ -248,8 +248,7 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
             dlg_id.clear();
         }
 
-
-    } while (request->getAnswerHeader("Location", nextSrc));
+    } while (request->getAnswerHeader("Location", nextSrc) && request->getRequestCode() >= 300 && request->getRequestCode() < 400);
 
     if (!*error) {
         int responseStatus = request->getRequestCode();

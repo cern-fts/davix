@@ -33,6 +33,7 @@
 #include <utils/davix_s3_utils.hpp>
 #include <utils/davix_azure_utils.hpp>
 #include <utils/davix_gcloud_utils.hpp>
+#include <utils/checksum_extractor.hpp>
 
 #include <request/httprequest.hpp>
 #include <fileops/fileutils.hpp>
@@ -357,16 +358,11 @@ int internal_checksum(Context & c, const Uri & url, const RequestParams *p, std:
 
             // fallback on extension for checksum
             std::string digest;
-            req.getAnswerHeader("Digest", digest);
-            if (digest.empty() == false){
-                size_t valueOffset = digest.find('=');
-                if (valueOffset == std::string::npos
-                        || compare_ncase(digest,0, valueOffset, chk_algo.c_str()) !=0)
-                    throw DavixException(davix_scope_meta(), StatusCode::InvalidServerResponse, "Invalid server checksum answer");
+            HeaderVec headers;
+            req.getAnswerHeaders(headers);
 
-                digest.erase(digest.begin(), digest.begin()+valueOffset+1);
-                std::swap(checksm, digest);
-                return 0;
+            if(ChecksumExtractor::extractChecksum(headers, chk_algo, digest)) {
+              return 0;
             }
 
             // last chance try to extract MD5 checksum from ETAG ( S3 work around )

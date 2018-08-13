@@ -58,7 +58,7 @@ override_release: $(SPEC)
 
 mock:
 	cd ..; ./packaging/make-srpm.sh
-	/usr/bin/mock $(MOCK_FLAGS) -r $(MOCK_CHROOT) ../build/*.src.rpm
+	/usr/bin/mock $(MOCK_FLAGS) -r $(MOCK_CHROOT) ../build/SRPMS/*.src.rpm
 
 deb-src: dist
 	rm -rf "$(PBUILDER_TMP)/$(NAME)-$(VERSION)"

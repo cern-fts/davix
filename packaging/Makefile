@@ -64,8 +64,9 @@ srpm: dist $(SPEC) $(RPMBUILD) override_release
 rpm: srpm
 	/usr/bin/rpmbuild --rebuild $(RPMDEFINES_BIN) $(NAME)-$(VERSION)-*.src.rpm
 
-mock: srpm
-	/usr/bin/mock $(MOCK_FLAGS) -r $(MOCK_CHROOT) $(NAME)-$(VERSION)-*.src.rpm
+mock:
+▸   cd ..; ./packaging/make-srpm.sh
+▸   /usr/bin/mock $(MOCK_FLAGS) -r $(MOCK_CHROOT) ../build/*.src.rpm
 
 deb-src: dist
 	rm -rf "$(PBUILDER_TMP)/$(NAME)-$(VERSION)"

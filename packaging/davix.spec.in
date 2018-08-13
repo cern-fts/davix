@@ -2,7 +2,7 @@
 %{!?_pkgdocdir: %global _pkgdocdir %{_docdir}/%{name}-%{version}}
 
 Name:				davix
-Version:			
+Version:			@VERSION_FULL@
 Release:			1%{?dist}
 Summary:			Toolkit for Http-based file management
 Group:				Applications/Internet
@@ -10,7 +10,6 @@ License:			LGPLv2+
 URL:				http://dmc.web.cern.ch/projects/davix/home
 # git clone http://git.cern.ch/pub/davix
 Source0:			http://grid-deployment.web.cern.ch/grid-deployment/dms/lcgutil/tar/%{name}/%{name}-%{version}.tar.gz
-BuildRoot:			%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 
 #main lib dependencies
 BuildRequires:                  python-virtualenv
@@ -19,6 +18,7 @@ BuildRequires:                  cmake
 BuildRequires:                  doxygen
 BuildRequires:                  libxml2-devel
 BuildRequires:                  openssl-devel
+%{?el6:BuildRequires: python-argparse}
 
 Requires: libuuid
 
@@ -29,7 +29,6 @@ BuildRequires:                  gsoap-devel
 %if %{?fedora}%{!?fedora:0} >= 10 || %{?rhel}%{!?rhel:0} >= 6
 BuildRequires:                  abi-compliance-checker
 %endif
-BuildRequires:                  gtest-devel
 
 Requires:                       %{name}-libs%{?_isa} = %{version}-%{release}
 
@@ -100,9 +99,6 @@ make %{?_smp_mflags}
 make doc
 
 %check
-%if %{?fedora}%{!?fedora:0} >= 10 || %{?rhel}%{!?rhel:0} >= 6
-# make abi-check
-%endif
 ctest -V -T Test
 
 
@@ -137,15 +133,12 @@ make DESTDIR=%{buildroot} install
 %files doc
 %defattr (-,root,root)
 %{_pkgdocdir}/LICENSE
-%{_pkgdocdir}/RELEASE-NOTES
+%{_pkgdocdir}/RELEASE-NOTES.md
 %{_pkgdocdir}/html/
 
 
 %changelog
-* Fri Jun 15 2018 Georgios Bitzes <georgios.bitzes at cern.ch> - 0.6.8-1
- - davix 0.6.8 release, see RELEASE-NOTES for changes
-
-* Tue Dec 01 2017 Georgios Bitzes <georgios.bitzes at cern.ch> - 0.6.8-1
+* Fri Dec 01 2017 Georgios Bitzes <georgios.bitzes at cern.ch> - 0.6.8-1
  - davix 0.6.8 release, see RELEASE-NOTES for changes
 
 * Tue Nov 07 2017 Georgios Bitzes <georgios.bitzes at cern.ch> - 0.6.7-1

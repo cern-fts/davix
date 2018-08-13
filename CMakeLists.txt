@@ -116,7 +116,6 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/dist/CMakeLists.txt")
 endif()
 
 add_subdirectory (test)
-add_subdirectory (packaging)
 
 
 #############################################################################
@@ -131,7 +130,7 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/davix/
 
 ##############################################################################
 ## Doc file
-install(FILES RELEASE-NOTES LICENSE
+install(FILES RELEASE-NOTES.md LICENSE
                 DESTINATION ${DOC_INSTALL_DIR}/) # install release notes
 
 

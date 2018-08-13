@@ -57,8 +57,8 @@ override_release: $(SPEC)
 	$(if $(RELEASE), sed -i "s/Release:.*/Release: $(RELEASE)/g" "$(SPEC)")
 
 mock:
-▸   cd ..; ./packaging/make-srpm.sh
-▸   /usr/bin/mock $(MOCK_FLAGS) -r $(MOCK_CHROOT) ../build/*.src.rpm
+	cd ..; ./packaging/make-srpm.sh
+	/usr/bin/mock $(MOCK_FLAGS) -r $(MOCK_CHROOT) ../build/*.src.rpm
 
 deb-src: dist
 	rm -rf "$(PBUILDER_TMP)/$(NAME)-$(VERSION)"

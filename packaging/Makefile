@@ -35,8 +35,6 @@ PBUILDER_FLAGS=
 PBUILDER_TMP="/tmp/"
 
 
-all: srpm
-
 clean:
 	rm -fv *.tar
 	rm -fv *.tar.gz
@@ -57,12 +55,6 @@ $(RPMBUILD):
 
 override_release: $(SPEC)
 	$(if $(RELEASE), sed -i "s/Release:.*/Release: $(RELEASE)/g" "$(SPEC)")
-
-srpm: dist $(SPEC) $(RPMBUILD) override_release
-	/usr/bin/rpmbuild --nodeps -bs $(RPMDEFINES_SRC) $(SPEC)
-
-rpm: srpm
-	/usr/bin/rpmbuild --rebuild $(RPMDEFINES_BIN) $(NAME)-$(VERSION)-*.src.rpm
 
 mock:
 ▸   cd ..; ./packaging/make-srpm.sh

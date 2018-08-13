@@ -21,8 +21,8 @@ FILENAME="davix-${VERSION_FULL}"
 #-------------------------------------------------------------------------------
 # Make the archive
 #-------------------------------------------------------------------------------
-TARGET_PATH=$(basename $PWD)
+TARGET_PATH=$(basename "$PWD")
 
-pushd $PWD/..
+pushd "$PWD"/..
 tar --exclude '*/.git' --exclude "${TARGET_PATH}/build" --exclude "${TARGET_PATH}/credentials" --exclude "${TARGET_PATH}/_book" -pcvzf ${TARGET_PATH}/build/${FILENAME}.tar.gz ${TARGET_PATH} --transform "s!^${TARGET_PATH}!${FILENAME}!" --show-transformed-names
 popd

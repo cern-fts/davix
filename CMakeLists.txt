@@ -3,6 +3,37 @@
 project (davix)
 cmake_minimum_required (VERSION 2.6)
 
+#-------------------------------------------------------------------------------
+# Regenerate include/davix/features.hpp and version.cmake at _build_ time
+#-------------------------------------------------------------------------------
+add_custom_target(GenerateVersionInfo ALL DEPENDS Version)
+add_custom_command(
+  OUTPUT Version
+  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/genversion.py --template include/davix/features.hpp.in --out include/davix/features.hpp
+  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/genversion.py --template version.cmake.in --out version.cmake
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+#-------------------------------------------------------------------------------
+# Regenerate version.cmake at _configure_ time. Important since the above
+# only regenerates it at compile time.
+#-------------------------------------------------------------------------------
+execute_process(
+  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/genversion.py --template version.cmake.in --out version.cmake
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+#-------------------------------------------------------------------------------
+# Include version.cmake. Whenever the version changes, ie you commit or tag,
+# the following happens:
+# - Next time you run 'make', version.cmake is updated.
+# - The next 'make' will detect version.cmake was changed, and cmake will
+#   reconfigure itself.
+#
+# A bit hacky.
+#-------------------------------------------------------------------------------
+include(version.cmake REQUIRED)
+
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules/")
 option(SHARED_LIBRARY "generate shared library" TRUE)
 option(STATIC_LIBRARY  "generate static library" FALSE)
@@ -27,12 +58,6 @@ INCLUDE(CTest)
 
 
 set(OUTPUT_NAME_DAVIX "davix")
-set(VERSION_MAJOR 0)
-set(VERSION_MINOR 6)
-set(VERSION_PATCH 9)
-set(VERSION_STRING ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
-set(VERSION_TAG "")
-
 
 # components
 option(ENABLE_TOOLS "enable or disable tools " TRUE)

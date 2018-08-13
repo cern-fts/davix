@@ -108,8 +108,6 @@ typedef short uid_t;
 #endif /* end of win32*/
 
 // Davix versionnin
-#define DAVIX_VERSION "@VERSION_STRING@"
-
 #define DAVIX_VERSION_TAG "@VERSION_TAG@"
 
 #endif // CONFIG_H

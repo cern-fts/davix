@@ -24,5 +24,5 @@ FILENAME="davix-${VERSION_FULL}"
 TARGET_PATH=$(basename "$PWD")
 
 pushd "$PWD"/..
-tar --exclude '*/.git' --exclude "${TARGET_PATH}/build" --exclude "${TARGET_PATH}/credentials" --exclude "${TARGET_PATH}/_book" -pcvzf ${TARGET_PATH}/build/${FILENAME}.tar.gz ${TARGET_PATH} --transform "s!^${TARGET_PATH}!${FILENAME}!" --show-transformed-names
+tar --exclude '*/.git' --exclude "${TARGET_PATH}/build" --exclude "${TARGET_PATH}/credentials" --exclude "${TARGET_PATH}/_book" -pcvzf "${TARGET_PATH}/build/${FILENAME}.tar.gz" "${TARGET_PATH}" --transform "s!^${TARGET_PATH}!${FILENAME}!" --show-transformed-names
 popd

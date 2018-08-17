@@ -40,6 +40,16 @@ static bool startsWithNoCase(const std::string &str, const std::string &prefix) 
   return true;
 }
 
+static bool equalsNoCase(const std::string &s1, const std::string &s2) {
+  if(s1.size() != s2.size()) return false;
+
+  for(size_t i = 0; i < s1.size(); i++) {
+    if(tolower(s1[i]) != tolower(s2[i])) return false;
+  }
+
+  return true;
+}
+
 static std::string hexEncode(const std::string &input, const std::string &separator="") {
     std::ostringstream ss;
     for(std::string::const_iterator it = input.begin(); it != input.end(); it++) {
@@ -54,7 +64,9 @@ bool ChecksumExtractor::extractChecksum(const HeaderVec &headers,
   std::string expectedPrefix = SSTR(desiredChecksum << "=");
 
   for(HeaderVec::const_iterator it = headers.begin(); it != headers.end(); it++) {
-    if(it->first == "Digest") {
+    std::cout << "looking at: " << it->first << std::endl;
+    if(equalsNoCase(it->first, "Digest")) {
+      std::cout << "Digets: Hit" << std::endl;
       if(startsWithNoCase(it->second, expectedPrefix)) {
         // We have a match. Are we supposed to base64 decode this?
         checksum = it->second.substr(expectedPrefix.size());

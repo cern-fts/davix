@@ -31,7 +31,7 @@ TEST(ChecksumExtractor, BasicSanity) {
 
   ASSERT_FALSE(ChecksumExtractor::extractChecksum(v1, "crc32", output));
 
-  v1.emplace_back("Digest", "frob=y9oivLQasBUbQ4WJqkY34g==");
+  v1.emplace_back("digest", "frob=y9oivLQasBUbQ4WJqkY34g==");
   ASSERT_TRUE(ChecksumExtractor::extractChecksum(v1, "frob", output));
   ASSERT_EQ(output, "cbda22bcb41ab0151b438589aa4637e2");
 }

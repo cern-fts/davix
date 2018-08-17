@@ -357,11 +357,10 @@ int internal_checksum(Context & c, const Uri & url, const RequestParams *p, std:
             }
 
             // fallback on extension for checksum
-            std::string digest;
             HeaderVec headers;
             req.getAnswerHeaders(headers);
 
-            if(ChecksumExtractor::extractChecksum(headers, chk_algo, digest)) {
+            if(ChecksumExtractor::extractChecksum(headers, chk_algo, checksm)) {
               return 0;
             }
 

@@ -64,9 +64,7 @@ bool ChecksumExtractor::extractChecksum(const HeaderVec &headers,
   std::string expectedPrefix = SSTR(desiredChecksum << "=");
 
   for(HeaderVec::const_iterator it = headers.begin(); it != headers.end(); it++) {
-    std::cout << "looking at: " << it->first << std::endl;
     if(equalsNoCase(it->first, "Digest")) {
-      std::cout << "Digets: Hit" << std::endl;
       if(startsWithNoCase(it->second, expectedPrefix)) {
         // We have a match. Are we supposed to base64 decode this?
         checksum = it->second.substr(expectedPrefix.size());

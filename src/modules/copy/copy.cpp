@@ -176,6 +176,10 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
         suppressFinalHead = true;
     }
 
+    if(destination.compare(0, 3, "dav")) {
+        destination.replace(0, 3, "http");
+    }
+
     // Perform COPY hopping through redirections
     HttpRequest* request = NULL;
     do {

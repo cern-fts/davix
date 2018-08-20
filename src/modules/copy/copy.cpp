@@ -176,7 +176,7 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
         suppressFinalHead = true;
     }
 
-    if(destination.compare(0, 3, "dav")) {
+    if(destination.compare(0, 3, "dav") == 0) {
         destination.replace(0, 3, "http");
     }
 

@@ -44,8 +44,11 @@ if(NOT _uuid_header_only AND NOT UUID_LIBRARY)
   check_library_exists("uuid" "uuid_generate_random" "" _have_libuuid)
   if(_have_libuuid)
     set(UUID_LIBRARY "uuid")
-    set(UUID_LIBRARIES ${UUID_LIBRARY})
   endif()
+endif()
+
+if(UUID_LIBRARY)
+  set(UUID_LIBRARIES ${UUID_LIBRARY})
 endif()
 
 unset(CMAKE_REQUIRED_INCLUDES)

@@ -34,7 +34,7 @@ if(NOT UUID_INCLUDE_DIR)
   find_path(UUID_INCLUDE_DIR uuid/uuid.h)
 endif()
 
-if(EXISTS UUID_INCLUDE_DIR)
+if(EXISTS "${UUID_INCLUDE_DIR}")
   set(UUID_INCLUDE_DIRS ${UUID_INCLUDE_DIR})
   set(CMAKE_REQUIRED_INCLUDES ${UUID_INCLUDE_DIRS})
   check_cxx_symbol_exists("uuid_generate_random" "uuid/uuid.h" _uuid_header_only)

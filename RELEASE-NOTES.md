@@ -1,5 +1,15 @@
 # davix release history
 
+## 0.6.9 (2018-09-25)
+
+### Bug fixes
+* [DMC-1063] - Incorrect handling of "Digest" header in response
+* [DMC-1071] - Davix bug for push-mode third party COPY
+
+### Improvements
+* [DMC-1065] - Davix should read (and log) the response body even if it's an error
+* [DMC-1079] - force http/s as protocol scheme for COPY verb
+
 ## 0.6.8
 
 ### Bug fixes

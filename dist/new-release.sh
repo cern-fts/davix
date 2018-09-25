@@ -32,29 +32,11 @@ function get_author {
   confirm "Author's name and email: $author_name <$author_email> - is this OK?"
 }
 
-function get_release_notes {
-  release_notes=$(mktemp)
-  printf "Version - $major.$minor.$patch\n\nPlease enter your release notes here\n" > $release_notes
-  vim $release_notes
-  printf "\nThis is how the new entry in release notes will look like\n\n"
-  cat $release_notes
-
-  printf "\n\n"
-  confirm "Is this OK?"
-}
-
-function edit_cmakelists {
- echo "Patching cmakelists.."
- sed -i "s/set(VERSION_MAJOR \([0-9]\+\))/set(VERSION_MAJOR $major)/g" CMakeLists.txt
- sed -i "s/set(VERSION_MINOR \([0-9]\+\))/set(VERSION_MINOR $minor)/g" CMakeLists.txt
- sed -i "s/set(VERSION_PATCH \([0-9]\+\))/set(VERSION_PATCH $patch)/g" CMakeLists.txt
-}
-
 function edit_rpm_spec {
   echo "Patching specfile.."
   line1="* $(LC_ALL=POSIX date '+%a %b %d %Y') $author_name <$author_email> - $major.$minor.$patch-1"
-  line2=" - davix $major.$minor.$patch release, see RELEASE-NOTES for changes"
-  sed -i "s/%changelog/%changelog\n$line1\n$line2\n/g" packaging/rpm/specs/davix.spec.in
+  line2=" - davix $major.$minor.$patch release, see RELEASE-NOTES.md for changes"
+  sed -i "s/%changelog/%changelog\n$line1\n$line2\n/g" packaging/davix.spec.in
 
   # now run cmake, necessary to re-generate davix.spec from davix.spec.in
   tempbuild=$(mktemp -d)
@@ -63,13 +45,6 @@ function edit_rpm_spec {
   pushd $tempbuild
   cmake $src
   popd
-}
-
-function edit_release_notes {
-  echo "Patching release notes.."
-  merged=$(mktemp)
-  cat $release_notes RELEASE-NOTES > $merged
-  mv $merged RELEASE-NOTES
 }
 
 function edit_deb_changelog {
@@ -112,12 +87,9 @@ ensure_git_clean
 
 trap cleanup EXIT
 get_version_number
-get_release_notes
 get_author
 
-edit_cmakelists
 edit_rpm_spec
-edit_release_notes
 edit_deb_changelog
 
 git_commit

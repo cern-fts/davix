@@ -27,7 +27,7 @@ How to build
 
 Here is how to do a simple build of davix - have a look at the next section if you need to tweak some configuration option in cmake. ::
 
-  git clone https://github.com/cern-it-sdc-id/davix.git
+  git clone https://github.com/cern-fts/davix.git
   cd davix
   git submodule update --recursive --init
   mkdir build && cd build

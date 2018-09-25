@@ -1,5 +1,5 @@
 # Davix
-[Davix](http://dmc.web.cern.ch/projects/davix/home) aims to make the task of managing files over HTTP-based protocols simple. It is being developed by the IT-SDC-ID section at CERN, and while the project's purpose is its use on the [CERN grid](http://wlcg.web.cern.ch/), the functionality offered is generic.
+[Davix](http://dmc.web.cern.ch/projects/davix/home) aims to make the task of managing files over HTTP-based protocols simple. It is being developed by IT-ST at CERN, and while the project's purpose is its use on the [CERN grid](http://wlcg.web.cern.ch/), the functionality offered is generic.
 
 ## Documentation
 
@@ -41,7 +41,7 @@ davix-ls https://someserver/dir
 
 2. Run the following commands. If you also want to compile the unit tests, add `-DUNIT_TESTS=TRUE` to the cmake invocation.
 ```
-git clone https://github.com/cern-it-sdc-id/davix.git
+git clone https://github.com/cern-fts/davix.git
 cd davix
 git submodule update --recursive --init
 mkdir build && cd build

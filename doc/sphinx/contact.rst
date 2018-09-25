@@ -11,7 +11,7 @@ Github
 
 Feel free to create an issue or a pull request in our github repository_.
 
-.. _repository: https://github.com/cern-it-sdc-id/davix
+.. _repository: https://github.com/cern-fts/davix
 
 Jira
 ----

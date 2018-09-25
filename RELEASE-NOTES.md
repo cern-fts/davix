@@ -1,5 +1,9 @@
 # davix release history
 
+## Unreleased
+### Improvements
+* Improvements to release script and general procedure
+
 ## 0.6.9 (2018-09-25)
 
 ### Bug fixes

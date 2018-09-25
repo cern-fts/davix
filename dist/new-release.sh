@@ -82,13 +82,23 @@ function ensure_git_clean {
   fi
 }
 
+function patch_release_notes {
+  if ! grep "## Unreleased" RELEASE-NOTES.md > /dev/null; then
+    echo "RELEASE-NOTES.md does not contain an ## Unreleased entry! Add it, populate it with the changes contained in this release, and re-run this script."
+    exit 1
+  fi
+
+  TODAY_DATE=$(date +%Y-%m-%d)
+  sed -i "s/## Unreleased/## $major.$minor.$patch ($TODAY_DATE)/" RELEASE-NOTES.md
+}
+
 ensure_git_root
 ensure_git_clean
 
 trap cleanup EXIT
 get_version_number
+patch_release_notes
 get_author
-
 edit_rpm_spec
 edit_deb_changelog
 

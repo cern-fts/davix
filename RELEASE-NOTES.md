@@ -11,7 +11,6 @@
 * [DMC-1071] - Davix bug for push-mode third party COPY
 
 ### Improvements
-* [DMC-1065] - Davix should read (and log) the response body even if it's an error
 * [DMC-1079] - force http/s as protocol scheme for COPY verb
 
 ## 0.6.8

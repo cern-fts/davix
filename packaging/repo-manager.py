@@ -131,12 +131,16 @@ class Repository(object):
         if tag: base = "{0}/tag".format(self.base)
         base += "/" + list(platforms)[0]
 
+        reposToCreate = set()
         for package in packages:
             repo = "{0}/{1}".format(base, list(archs)[0])
             if package.type == PackageType.Source:
                 repo = "{0}/SRPMS".format(base)
 
             copy_to_repo(package.path, repo)
+            reposToCreate.add(repo)
+
+        for repo in reposToCreate:
             createrepo(repo)
 
 def declare_incompatible_options(parser, option, group):

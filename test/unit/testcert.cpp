@@ -1,5 +1,3 @@
-#include "testcert.hpp"
-
 #include <davix.hpp>
 #include <davixcontext.hpp>
 #include <params/davixrequestparams.hpp>

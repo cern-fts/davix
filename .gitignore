@@ -4,3 +4,4 @@ include/davix/features.hpp
 packaging/davix.spec
 version.cmake
 packaging/debian/changelog
+.vscode/

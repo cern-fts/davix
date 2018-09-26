@@ -1,5 +1,3 @@
-#include "utils_test.hpp"
-
 #include <davix.hpp>
 #include <string_utils/stringutils.hpp>
 #include <tools/davix_tool_util.hpp>

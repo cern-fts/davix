@@ -63,7 +63,7 @@ Summary:            Test suite for %{name}
 Group:              Applications/Internet
 Requires:			%{name}-libs%{?_isa} = %{version}-%{release}
 
-%description devel
+%description tests
 Test suite for %{name}. Davix is a toolkit designed for file operations
 with Http based protocols (WebDav, Amazon S3, ...).
 
@@ -152,6 +152,7 @@ make DESTDIR=%{buildroot} install
 %{_pkgdocdir}/html/
 
 %files tests
+%defattr (-,root,root)
 %{_bindir}/davix-unit-tests
 
 %changelog

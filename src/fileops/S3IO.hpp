@@ -1,7 +1,7 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013
- * Author: Adrien Devresse <adrien.devresse@cern.ch>
+ * Copyright (C) CERN 2018
+ * Author: Georgios Bitzes <georgios.bitzes@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,32 +19,25 @@
  *
 */
 
-#include "chain_factory.hpp"
+#ifndef S3_IO_HPP
+#define S3_IO_HPP
 
-#include "davmeta.hpp"
-#include "httpiovec.hpp"
-#include "davix_reliability_ops.hpp"
-#include "iobuffmap.hpp"
-#include "AzureIO.hpp"
-#include "S3IO.hpp"
+#include <fileops/httpiochain.hpp>
 
 namespace Davix{
 
+class S3IO : public HttpIOChain {
+public:
+  S3IO();
+  ~S3IO();
 
-ChainFactory::ChainFactory(){}
+  // write the entire content from a file descriptor
+  virtual dav_ssize_t writeFromFd(IOChainContext & iocontext, int fd, dav_size_t size);
 
-
-HttpIOChain& ChainFactory::instanceChain(const CreationFlags & flags, HttpIOChain & c){
-    HttpIOChain* elem;
-    elem= c.add(new MetalinkOps())->add(new AutoRetryOps())->add(new S3MetaOps())->add(new AzureMetaOps())->add(new HttpMetaOps());
-
-    // add posix to the chain if needed
-    if(flags[CHAIN_POSIX] == true){
-        elem = elem->add(new HttpIOBuffer());
-    }
-
-    elem->add(new S3IO())->add(new AzureIO())->add(new HttpIO())->add(new HttpIOVecOps());
-    return c;
-}
+  // wirte the entire content from a defined callback
+  virtual dav_ssize_t writeFromCb(IOChainContext & iocontext, const DataProviderFun & func, dav_size_t size);
+};
 
 }
+
+#endif

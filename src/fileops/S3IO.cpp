@@ -1,7 +1,7 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013
- * Author: Adrien Devresse <adrien.devresse@cern.ch>
+ * Copyright (C) CERN 2017
+ * Author: Georgios Bitzes <georgios.bitzes@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,32 +19,25 @@
  *
 */
 
-#include "chain_factory.hpp"
-
-#include "davmeta.hpp"
-#include "httpiovec.hpp"
-#include "davix_reliability_ops.hpp"
-#include "iobuffmap.hpp"
-#include "AzureIO.hpp"
 #include "S3IO.hpp"
 
 namespace Davix{
 
+S3IO::S3IO() {
 
-ChainFactory::ChainFactory(){}
-
-
-HttpIOChain& ChainFactory::instanceChain(const CreationFlags & flags, HttpIOChain & c){
-    HttpIOChain* elem;
-    elem= c.add(new MetalinkOps())->add(new AutoRetryOps())->add(new S3MetaOps())->add(new AzureMetaOps())->add(new HttpMetaOps());
-
-    // add posix to the chain if needed
-    if(flags[CHAIN_POSIX] == true){
-        elem = elem->add(new HttpIOBuffer());
-    }
-
-    elem->add(new S3IO())->add(new AzureIO())->add(new HttpIO())->add(new HttpIOVecOps());
-    return c;
 }
+
+S3IO::~S3IO() {
+
+}
+
+dav_ssize_t S3IO::writeFromFd(IOChainContext & iocontext, int fd, dav_size_t size) {
+    CHAIN_FORWARD(writeFromFd(iocontext, fd, size));
+}
+
+dav_ssize_t S3IO::writeFromCb(IOChainContext & iocontext, const DataProviderFun & func, dav_size_t size) {
+    CHAIN_FORWARD(writeFromCb(iocontext, func, size));
+}
+
 
 }

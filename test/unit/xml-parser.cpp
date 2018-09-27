@@ -9,6 +9,7 @@
 #include <xml/davpropxmlparser.hpp>
 #include <xml/metalinkparser.hpp>
 #include <xml/s3propparser.hpp>
+#include <xml/S3MultiPartInitiationParser.hpp>
 #include <status/davixstatusrequest.hpp>
 #include <string.h>
 #include <xml/davix_ptree.hpp>
@@ -329,7 +330,13 @@ const char metalink_item_generic[]= " "
 
 const std::string s3_xml_response = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ListBucketResult xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\"><Name>a-random-random-bucket</Name><Prefix></Prefix><Marker></Marker><MaxKeys>1000</MaxKeys><IsTruncated>false</IsTruncated><Contents><Key>h1big.root</Key><LastModified>2014-09-19T14:27:33.000Z</LastModified><ETag>&quot;bf5b1efa7fe677965bf3ecd41e20be2a&quot;</ETag><Size>280408881</Size><StorageClass>STANDARD</StorageClass><Owner><ID>mhellmic</ID><DisplayName>Martin Hellmich</DisplayName></Owner></Contents><Contents><Key>services</Key><LastModified>2014-10-03T14:58:12.000Z</LastModified><ETag>&quot;3e73cc5c77799fd3e7a02c62474107bb&quot;</ETag><Size>\t   19558   \t</Size><StorageClass>STANDARD</StorageClass><Owner><ID>mhellmic</ID><DisplayName>Martin Hellmich</DisplayName></Owner></Contents></ListBucketResult>";
 
-
+const std::string s3_multipart_initiation_response = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+"<InitiateMultipartUploadResult"
+" xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\">"
+"   <Bucket>example-bucket</Bucket>"
+"   <Key>example-object</Key>"
+"   <UploadId>EXAMPLEJZ6e0YupT2h66iePQCc9IEbYbDUy4RTpMeoSMLPRp8Z5o1u8feSRonpvnWsKKG35tI2LB9VDPiCgTy.Gq2VxQLYjrue4Nq.NBdqI-</UploadId>"
+"</InitiateMultipartUploadResult>  ";
 
 TEST(XmlParserInstance, createParser){
 
@@ -582,4 +589,15 @@ TEST(XmlS3parsing, TestListingBucket){
     // verify size
     ASSERT_EQ(280408881, parser.getProperties().at(1).info.size);
     ASSERT_EQ(19558, parser.getProperties().at(2).info.size);
+}
+
+TEST(XmlMultiPartUploadInitiationResponse, BasicSanity) {
+    using namespace Davix;
+
+    davix_set_log_level(DAVIX_LOG_ALL);
+    S3MultiPartInitiationParser parser;
+
+    int ret = parser.parseChunk(s3_multipart_initiation_response);
+    ASSERT_EQ(ret, 0);
+    ASSERT_EQ(parser.getUploadId(), "EXAMPLEJZ6e0YupT2h66iePQCc9IEbYbDUy4RTpMeoSMLPRp8Z5o1u8feSRonpvnWsKKG35tI2LB9VDPiCgTy.Gq2VxQLYjrue4Nq.NBdqI-");
 }

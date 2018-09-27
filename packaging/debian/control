@@ -36,3 +36,11 @@ Depends: ${misc:Depends}
 Description: Documentation for davix
  Documentation and examples for davix. Davix is a toolkit designed for file
  operations with Http based protocols (WebDav, Amazon S3, ...).
+
+Package: davix-tests
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libdavix0 (= ${binary:Version})
+Description: Test suite for davix
+ Test suite for davix. Davix is a toolkit designed for file operations
+ with http based protocols (WebDav, Amazon S3, ...).

@@ -1,7 +1,5 @@
 # main file for src
 
-if(UNIT_TESTS)
-
 include_directories(
   ${PROJECT_SOURCE_DIR}/src
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -48,5 +46,3 @@ target_link_libraries(davix-unit-tests
 )
 
 add_test(unit-tests davix-unit-tests)
-
-endif(UNIT_TESTS)

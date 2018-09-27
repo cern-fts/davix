@@ -149,7 +149,7 @@ The Davix targets to:
     - make doc
 
 - Compile and run unit tests :
-    - cmake -DUNIT_TESTS=TRUE ../
+    - cmake ../
     - make
     - make test
 

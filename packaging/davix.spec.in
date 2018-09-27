@@ -93,7 +93,6 @@ pip install sphinx
 -DGTEST_EXTERNAL=TRUE \
 -DENABLE_THIRD_PARTY_COPY=TRUE \
 -DENABLE_HTML_DOCS=TRUE \
--DUNIT_TESTS=TRUE \
 .
 make %{?_smp_mflags}
 make doc

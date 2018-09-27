@@ -69,7 +69,6 @@ option(ENABLE_TCP_NODELAY "enable or disable tcp_nodelay" TRUE)
 option(ENABLE_THIRD_PARTY_COPY "enable or disable third party copy support" FALSE)
 
 # tests
-option(UNIT_TESTS "enable or disable the unit tests" FALSE)
 option(FUNCTIONAL_TESTS "enable or disable the functional tests" FALSE)
 option(BENCH_TESTS "enable or disable the bench tests" FALSE)
 

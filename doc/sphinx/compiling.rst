@@ -40,7 +40,7 @@ Build options
 Unit tests
 ~~~~~~~~~~
 
-Add ``-DUNIT_TESTS=TRUE`` to the cmake invocation, then run the tests with ``make test``.
+You can run the tests with ``make test``.
 
 Functional tests
 ~~~~~~~~~~~~~~~~

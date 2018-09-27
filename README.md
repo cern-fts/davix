@@ -39,7 +39,7 @@ davix-ls https://someserver/dir
    * libxml2-devel
    * openssl-devel
 
-2. Run the following commands. If you also want to compile the unit tests, add `-DUNIT_TESTS=TRUE` to the cmake invocation.
+2. Compile:
 ```
 git clone https://github.com/cern-fts/davix.git
 cd davix

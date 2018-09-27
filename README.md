@@ -57,5 +57,12 @@ You can now try running an example command:
 ./src/tools/davix-get https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.0.1
 ```
 
+## Development
+
+The official repository is the one on [GitHub](https://github.com/cern-fts/davix). It's automatically mirrored on [CERN Gitlab](https://gitlab.cern.ch/dmc/davix) for CI purposes. This means:
+* Use GitHub for new commits, issues, or pull requests. 
+* Please don't commit directly on GitLab.
+* After a commit, GitLab will mirror the changes automatically, and run CI. Treat Gitlab as if it were ie a Jenkins CI instance.
+
 ## Contact
 Suggestions and patches are more than welcome. You can send an email to the [davix-devel](mailto:davix-devel@cern.ch) CERN mailing list, or contact directly the [current maintainer](mailto:georgios.bitzes@cern.ch).

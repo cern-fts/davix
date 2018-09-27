@@ -58,6 +58,15 @@ Requires:			pkgconfig
 Development files for %{name}. Davix is a toolkit designed for file operations
 with Http based protocols (WebDav, Amazon S3, ...).
 
+%package tests
+Summary:            Test suite for %{name}
+Group:              Applications/Internet
+Requires:			%{name}-libs%{?_isa} = %{version}-%{release}
+
+%description devel
+Test suite for %{name}. Davix is a toolkit designed for file operations
+with Http based protocols (WebDav, Amazon S3, ...).
+
 %package doc
 Summary:			Documentation for %{name}
 Group:				Documentation
@@ -111,7 +120,14 @@ make DESTDIR=%{buildroot} install
 
 %files
 %defattr (-,root,root)
-%{_bindir}/*
+%{_bindir}/davix-cp
+%{_bindir}/davix-get
+%{_bindir}/davix-http
+%{_bindir}/davix-ls
+%{_bindir}/davix-mkdir
+%{_bindir}/davix-mv
+%{_bindir}/davix-put
+%{_bindir}/davix-rm
 %{_mandir}/man1/*
 
 %files libs
@@ -135,6 +151,8 @@ make DESTDIR=%{buildroot} install
 %{_pkgdocdir}/RELEASE-NOTES.md
 %{_pkgdocdir}/html/
 
+%files tests
+%{_bindir}/davix-unit-tests
 
 %changelog
 * Tue Sep 25 2018 Georgios Bitzes <georgios.bitzes at cern.ch> - 0.6.9-1

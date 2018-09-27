@@ -45,4 +45,7 @@ target_link_libraries(davix-unit-tests
   ${LIBSSL_PKG_LIBRARIES}
 )
 
+install(TARGETS davix-unit-tests
+  DESTINATION ${BIN_INSTALL_DIR}/)
+
 add_test(unit-tests davix-unit-tests)

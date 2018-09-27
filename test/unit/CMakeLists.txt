@@ -10,6 +10,7 @@ add_subdirectory("${GTEST}" "${GTEST_BINARY_DIR}")
 include_directories(
   ${PROJECT_SOURCE_DIR}/src
   ${CMAKE_CURRENT_SOURCE_DIR}
+  ${GTEST}/include
 )
 
 add_definitions( -DTEST_VALID_CERT="${TEST_CRED_PATH}" -DTEST_VALID_CERT_PASS="${TEST_CRED_PASS}")

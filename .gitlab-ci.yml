@@ -83,7 +83,6 @@ cc7-test:
   dependencies:
     - cc7
   script:
-    - yum update
     - yum install -y cc7/RPMS/*.rpm
     - davix-unit-tests
 
@@ -93,17 +92,15 @@ slc6-test:
   dependencies:
     - slc6
   script:
-    - yum update
     - yum install -y slc6/RPMS/*.rpm
     - davix-unit-tests
 
 fedora-27-test:
   stage: test
-  image: fedora:28
+  image: fedora:27
   dependencies:
     - fedora-27
   script:
-    - dnf update
     - dnf install -y fedora-27/RPMS/*.rpm
     - davix-unit-tests
 

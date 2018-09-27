@@ -1,5 +1,6 @@
 stages:
 - build
+- test
 - publish
 
 cc7:
@@ -75,6 +76,33 @@ debian-jessie:
   artifacts:
     paths:
     - "$CI_JOB_NAME"
+
+cc7-test:
+  stage: test
+  image: gitlab-registry.cern.ch/linuxsupport/cc7-base
+  dependencies:
+    - cc7
+  script:
+    - yum install cc7/RPMS/*.rpm
+    - davix-unit-tests
+
+slc6-test:
+  stage: test
+  image: gitlab-registry.cern.ch/linuxsupport/slc6-base
+  dependencies:
+    - slc6
+  script:
+    - yum install slc6/RPMS/*.rpm
+    - davix-unit-tests
+
+fedora-27-test:
+  stage: test
+  image: fedora:28
+  dependencies:
+    - fedora-27
+  script:
+    - yum install fedora-27/RPMS/*.rpm
+    - davix-unit-tests
 
 #docs:
 #  stage: publish

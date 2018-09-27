@@ -23,7 +23,7 @@
 
 namespace Davix {
 
-S3MultiPartInitiationParser::S3MultiPartInitiationParser() {
+S3MultiPartInitiationParser::S3MultiPartInitiationParser() : nextIsUploadId(false) {
 
 }
 

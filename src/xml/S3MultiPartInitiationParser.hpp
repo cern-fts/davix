@@ -43,7 +43,7 @@ protected:
     virtual int parserEndElemCb(int state, const char *nspace, const char *name);
 
 private:
-    bool nextIsUploadId = false;
+    bool nextIsUploadId;
     std::string uploadId;
     std::deque<FileProperties> unusedFileProps;
 };

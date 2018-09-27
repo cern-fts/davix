@@ -11,7 +11,7 @@ SL6/CentOS7
 
 ::
 
-   sudo yum install openssl-devel libxml2-devel gtest-devel gsoap-devel \
+   sudo yum install openssl-devel libxml2-devel gsoap-devel \
                     doxygen cmake abi-compliance-checker
 
 Ubuntu
@@ -20,7 +20,7 @@ Ubuntu
 ::
 
    sudo apt-get install abi-compliance-checker cmake debhelper doxygen \
-                        gsoap libgridsite-dev libgtest-dev libssl-dev libxml2-dev pkg-config
+                        gsoap libgridsite-dev libssl-dev libxml2-dev pkg-config
 
 How to build
 ------------

@@ -53,7 +53,7 @@ else
 fi
 
 # Install deps
-mock_cmd install cmake git yum-utils abi-compliance-checker doxygen gsoap-devel gtest-devel libxml2-devel openssl-devel voms-clients libuuid-devel
+mock_cmd install cmake git yum-utils abi-compliance-checker doxygen gsoap-devel libxml2-devel openssl-devel voms-clients libuuid-devel
 MOCK_HOME="/builddir"
 
 # copy grid-security and vomses

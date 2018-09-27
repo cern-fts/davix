@@ -1,17 +1,16 @@
-# main file for src
+#-------------------------------------------------------------------------------
+# Make gtest / gmock available for all targets that need it
+#-------------------------------------------------------------------------------
+set(BUILD_SHARED_LIBS OFF)
+
+set(GTEST "${CMAKE_SOURCE_DIR}/deps/googletest/googletest/")
+set(GTEST_BINARY_DIR "${CMAKE_BINARY_DIR}/deps/googletest/googletest/")
+add_subdirectory("${GTEST}" "${GTEST_BINARY_DIR}")
 
 include_directories(
   ${PROJECT_SOURCE_DIR}/src
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${GTEST_INCLUDE_DIRS}
 )
-
-## gtest
-set(GTEST ${CMAKE_SOURCE_DIR}/deps/googletest/googletest )
-set(GTEST_BINARY_DIR ${CMAKE_BINARY_DIR}/deps/googletest/googletest )
-
-include_directories(${GTEST}/include)
-add_subdirectory(${GTEST} ${GTEST_BINARY_DIR} )
 
 add_definitions( -DTEST_VALID_CERT="${TEST_CRED_PATH}" -DTEST_VALID_CERT_PASS="${TEST_CRED_PASS}")
 

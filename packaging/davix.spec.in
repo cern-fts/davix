@@ -118,7 +118,6 @@ make DESTDIR=%{buildroot} install
 %postun libs -p /sbin/ldconfig
 
 %files
-%defattr (-,root,root)
 %{_bindir}/davix-cp
 %{_bindir}/davix-get
 %{_bindir}/davix-http
@@ -130,14 +129,12 @@ make DESTDIR=%{buildroot} install
 %{_mandir}/man1/*
 
 %files libs
-%defattr (-,root,root)
 %{_libdir}/libdavix.so.*
 %{_libdir}/libdavix_copy.so.*
 %{_mandir}/man3/*
 
 
 %files devel
-%defattr (-,root,root)
 %{_libdir}/libdavix.so
 %{_libdir}/libdavix_copy.so
 %dir %{_includedir}/davix
@@ -145,13 +142,11 @@ make DESTDIR=%{buildroot} install
 %{_libdir}/pkgconfig/*
 
 %files doc
-%defattr (-,root,root)
 %{_pkgdocdir}/LICENSE
 %{_pkgdocdir}/RELEASE-NOTES.md
 %{_pkgdocdir}/html/
 
 %files tests
-%defattr (-,root,root)
 %{_bindir}/davix-unit-tests
 
 %changelog

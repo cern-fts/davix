@@ -36,6 +36,16 @@ public:
 
   // wirte the entire content from a defined callback
   virtual dav_ssize_t writeFromCb(IOChainContext & iocontext, const DataProviderFun & func, dav_size_t size);
+private:
+  // Returns uploadId
+  std::string initiateMultipart(IOChainContext & iocontext);
+
+  // Given the upload id, write the given chunk. Return object ETag,
+  // necessary to commit upload.
+  std::string writeChunk(IOChainContext & iocontext, const char* buff, dav_size_t size, const std::string &uploadId, int partNumber);
+
+  // Given upload id and last chunk, commit chunks
+  void commitChunks(IOChainContext & iocontext,  const std::string &uploadId, const std::vector<std::string> &etags);
 };
 
 }

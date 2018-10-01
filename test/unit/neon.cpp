@@ -14,7 +14,7 @@ static const char* list_urls[] = {
     "www.google.com"
 };
 
-static const size_t list_port[]={
+static const int list_port[]={
     80,
     0,
     0,

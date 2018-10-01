@@ -150,7 +150,7 @@ dav_ssize_t AzureIO::writeFromCb(IOChainContext & iocontext, const DataProviderF
   std::vector<char> buffer;
 
   const dav_size_t MAX_CHUNK_SIZE = 1024 * 1024 * 100; // 100 MB
-  buffer.resize(std::max(MAX_CHUNK_SIZE, size) + 10);
+  buffer.resize(std::min(MAX_CHUNK_SIZE, size) + 10);
 
   // generate UUID to use as blockid prefix
   std::string prefix = get_uuid();

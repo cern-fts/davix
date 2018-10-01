@@ -164,7 +164,7 @@ dav_ssize_t S3IO::writeFromCb(IOChainContext & iocontext, const DataProviderFun 
   const dav_size_t MAX_CHUNK_SIZE = 1024 * 1024 * 256; // 256 MB
 
   std::vector<char> buffer;
-  buffer.resize(std::max(MAX_CHUNK_SIZE, size) + 10);
+  buffer.resize(std::min(MAX_CHUNK_SIZE, size) + 10);
 
   std::vector<std::string> etags;
 

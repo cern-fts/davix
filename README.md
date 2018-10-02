@@ -57,6 +57,11 @@ You can now try running an example command:
 ./src/tools/davix-get https://www.kernel.org/pub/linux/kernel/v4.x/ChangeLog-4.0.1
 ```
 
+## Release tarballs
+
+To generate a blessed release tarball, run ``packaging/make-dist.sh`` from the root of this git repository.
+The tarball will appear under ``./build``.
+
 ## Development
 
 The official repository is the one on [GitHub](https://github.com/cern-fts/davix). It's automatically mirrored on [CERN Gitlab](https://gitlab.cern.ch/dmc/davix) for CI purposes. This means:

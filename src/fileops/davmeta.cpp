@@ -146,6 +146,45 @@ int dav_stat_mapper_http(Context& context, const RequestParams* params, const Ur
 }
 
 
+// Implement stat with a GET of Range 1 
+int dav_stat_mapper_http_get(Context& context, const RequestParams* params, const Uri & uri, struct StatInfo& st_info){
+    int ret = -1;
+    DavixError * tmp_err=NULL;
+    GetRequest req(context, uri, &tmp_err);
+
+    if( tmp_err == NULL){
+        req.setParameters(params);
+        req.addHeaderField("Range", "bytes=0-1");
+        req.executeRequest(&tmp_err);
+
+        if(!tmp_err){
+            if(httpcodeIsValid(req.getRequestCode()) ){
+                memset(&st_info, 0, sizeof(struct StatInfo));
+                std::string rnge;
+                req.getAnswerHeader("Content-Range", rnge);
+                int pos = rnge.find_first_of("/");
+                if (pos == std::string::npos) {
+                    throw DavixException(davix_scope_meta(), StatusCode::ParsingError, "Content-Range not parsable");
+                }
+                if (rnge.substr(pos+1,1) == "*") {
+                   throw DavixException(davix_scope_meta(), StatusCode::ParsingError, "Server does not provide content length");
+                } 
+                long lsize = toType<long, std::string>()(rnge.substr(pos+1));
+                st_info.size = std::max<long>(0,lsize);
+                st_info.mode = 0755 | S_IFREG;
+                req.discardBody(&tmp_err);
+                ret = 0;
+            }else{
+                httpcodeToDavixError(req.getRequestCode(), davix_scope_http_request(), uri.getString() , &tmp_err);
+                ret = -1;
+            }
+        }
+    }
+    checkDavixError(&tmp_err);
+    return ret;
+}
+
+
 dav_ssize_t incremental_listdir_parsing(HttpRequest* req, XMLPropParser * parser, dav_size_t s_buff, const std::string & scope){
     DavixError* tmp_err=NULL;
 
@@ -174,7 +213,12 @@ dav_ssize_t getStatInfo(Context & c, const Uri & url, const RequestParams * p,
             ret = dav_stat_mapper_webdav(c, &params, url, st_info);
             break;
         default:
-            ret = dav_stat_mapper_http(c, &params, url, st_info);
+            if (url.queryParamExists("AWSAccessKeyId") && url.queryParamExists("Signature")) {
+                // This endpoint won't accept a HEAD request, use GET instead
+                ret = dav_stat_mapper_http_get(c, &params, url, st_info);
+            } else {
+                ret = dav_stat_mapper_http(c, &params, url, st_info);
+            }
             break;
 
     }

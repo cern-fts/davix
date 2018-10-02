@@ -48,8 +48,6 @@ S3IO::~S3IO() {
 }
 
 std::string S3IO::initiateMultipart(IOChainContext & iocontext) {
-  DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Initiating multi-part upload for {}", iocontext._uri);
-
   DavixError * tmp_err=NULL;
   Uri url(iocontext._uri);
   url.addQueryParam("uploads", "");
@@ -79,7 +77,7 @@ std::string S3IO::initiateMultipart(IOChainContext & iocontext) {
 }
 
 std::string S3IO::writeChunk(IOChainContext & iocontext, const char* buff, dav_size_t size, const std::string &uploadId, int partNumber) {
-  DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "writing chunk #{}", partNumber);
+  DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "writing chunk #{} with size {}", partNumber, size);
 
   DavixError * tmp_err=NULL;
   Uri url(iocontext._uri);
@@ -158,6 +156,7 @@ dav_ssize_t S3IO::writeFromCb(IOChainContext & iocontext, const DataProviderFun 
     CHAIN_FORWARD(writeFromCb(iocontext, func, size));
   }
 
+  DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Initiating multi-part upload towards {} to upload file with size {}", iocontext._uri, size);
   std::string uploadId = initiateMultipart(iocontext);
 
   size_t remaining = size;

@@ -60,7 +60,7 @@ You can now try running an example command:
 ## Release tarballs
 
 To generate a blessed release tarball, run ``packaging/make-dist.sh`` from the root of this git repository.
-The tarball will appear under ``./build``.
+The tarball will appear under ``./build``, and will correspond to whichever git commit or tag you're currently on.
 
 ## Development
 

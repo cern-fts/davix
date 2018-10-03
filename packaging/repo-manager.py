@@ -13,7 +13,7 @@ def sh(cmd):
     retcode = process.poll()
 
     if retcode:
-        raise Exception("Command {0} exited with code {1}".format(cmd, retcode))
+        raise Exception("Command {0} exited with code {1}. Output: {2}".format(cmd, retcode, output))
 
     return output
 
@@ -100,6 +100,7 @@ def mkdir_p(path):
 def createrepo(repo):
     print("-- Running createrepo on {0}".format(repo))
     if NO_CREATE_REPO: return
+    sh("rm -rf {0}".format(repo + "/.olddata"))
     sh("createrepo -q {0}".format(repo))
 
 def copy_to_repo(source, repo):

@@ -32,7 +32,7 @@ time_t parse_http_date(const char* http_date){
     if ( p == NULL || *p != '\0'){
         return -1;
     }
-    return mktime(&tm) - timezone;;
+    return timegm(&tm);
 
 }
 
@@ -71,8 +71,7 @@ time_t parse_iso8601date(const char* iso_date){
     }
 
 
-    return mktime(&tm_time) - timezone;
-
+    return timegm(&tm_time);
 }
 
 time_t parse_standard_date(const char* http_date){

@@ -15,5 +15,10 @@ TEST(DateTimeTest, testConvert){
     ASSERT_EQ(-1, res);
 }
 
+TEST(DateTimeTest, Iso8601Test1) {
+    // was failing on FreeBSD
+    std::string testcase("2018-10-02T17:19:00Z");
+    ASSERT_EQ(parse_iso8601date(testcase.c_str()), 1538500740);
+}
 
 

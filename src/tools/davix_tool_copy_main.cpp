@@ -70,6 +70,7 @@ int main(int argc, char** argv){
             copy.setPerformanceCallback(performanceCallback, NULL);
             copy.copy(opts.vec_arg[0], opts.vec_arg[1],
                     1, &tmp_err);
+            if(tmp_err) retcode = -1;
         }
     }
 

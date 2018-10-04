@@ -63,6 +63,7 @@ int main(int argc, char** argv){
               configureContext(c, opts);
               DavFile f(c,opts.vec_arg[0]);
               f.makeCollection(&opts.params, &tmp_err);
+              if(tmp_err) retcode = -1;
             }
         }
     }

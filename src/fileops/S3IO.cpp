@@ -136,7 +136,12 @@ void S3IO::commitChunks(IOChainContext & iocontext,  const std::string &uploadId
 }
 
 static dav_ssize_t readFunction(int fd, void* buffer, dav_size_t size) {
-  return ::read(fd, buffer, size);
+  dav_ssize_t ret = ::read(fd, buffer, size);
+  if(ret < 0) {
+    int myerr = errno;
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Error in readFunction when attempting to read from fd {}: Return code {}, errno: {}", fd, ret, myerr);
+  }
+  return ret;
 }
 
 dav_ssize_t S3IO::writeFromFd(IOChainContext & iocontext, int fd, dav_size_t size) {
@@ -172,8 +177,11 @@ dav_ssize_t S3IO::writeFromCb(IOChainContext & iocontext, const DataProviderFun 
     size_t toRead = std::min(size, MAX_CHUNK_SIZE);
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "S3IO write: toRead from cb {}", toRead);
 
-    size_t bytesRead = func(buffer.data(), toRead);
+    dav_ssize_t bytesRead = func(buffer.data(), toRead);
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "S3IO write: bytesRead from cb {}", bytesRead);
+    if(bytesRead < 0) {
+      throw DavixException(davix_scope_io_buff(), StatusCode::InvalidFileHandle, fmt::format("Error when reading from callback: {}", bytesRead));
+    }
     if(bytesRead == 0) break; // EOF?
 
     partNumber++;

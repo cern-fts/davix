@@ -807,7 +807,7 @@ dav_ssize_t NEONRequest::readSegment(char* p_buff, dav_size_t size_read, bool st
     do{
         tmp_ret= readBlock(p_buff, s_read, &tmp_err);
 
-        if(tmp_ret > 0 && std::find(p_buff, p_buff+tmp_ret, '\n') != p_buff+tmp_ret) {
+        if(tmp_ret > 0 && stop_at_line_boundary && std::find(p_buff, p_buff+tmp_ret, '\n') != p_buff+tmp_ret) {
             early_stop = true;
         }
 

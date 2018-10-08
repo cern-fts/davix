@@ -26,4 +26,20 @@
 #include <utils/davix_uri.hpp>
 #include <params/davixrequestparams.hpp>
 
+namespace Davix {
+
+bool isS3SignedURL(const Davix::Uri &url) {
+    if(url.queryParamExists("AWSAccessKeyId") && url.queryParamExists("Signature")) {
+    	return true;
+    }
+
+    if(url.queryParamExists("X-Amz-Credential") && url.queryParamExists("X-Amz-Signature")) {
+    	return true;
+    }
+
+    return false;
+}
+
+}
+
 #endif // DAVIX_UTILS_INTERNAL_HPP

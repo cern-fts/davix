@@ -213,7 +213,7 @@ dav_ssize_t getStatInfo(Context & c, const Uri & url, const RequestParams * p,
             ret = dav_stat_mapper_webdav(c, &params, url, st_info);
             break;
         default:
-            if (url.queryParamExists("AWSAccessKeyId") && url.queryParamExists("Signature")) {
+            if (isS3SignedURL(url)) {
                 // This endpoint won't accept a HEAD request, use GET instead
                 ret = dav_stat_mapper_http_get(c, &params, url, st_info);
             } else {

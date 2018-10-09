@@ -36,7 +36,16 @@ static bool is_s3_operation(IOChainContext & context){
 }
 
 static bool should_use_s3_multipart(IOChainContext & context, dav_size_t size) {
-  return is_s3_operation(context) && size > (1024 * 1024 * 512); // 512 MB
+  bool is_s3 = is_s3_operation(context);
+
+  if(!is_s3) return false;
+
+  if(context._uri.fragmentParamExists("forceMultiPart")) {
+
+    return true;
+  }
+
+  return size > (1024 * 1024 * 512); // 512 MB
 }
 
 S3IO::S3IO() {

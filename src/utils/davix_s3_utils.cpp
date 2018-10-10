@@ -28,6 +28,7 @@
 #include <string_utils/stringutils.hpp>
 #include <datetime/datetime_utils.hpp>
 #include <utils/davix_logger_internal.hpp>
+#include <utils/davix_utils_internal.hpp>
 #include <alibxx/crypto/base64.hpp>
 #include <alibxx/crypto/hmacsha.hpp>
 #include <openssl/md5.h>
@@ -236,9 +237,7 @@ void signRequestv2(const RequestParams & params, const std::string & method, con
         ss << '/' << extract_s3_bucket(url) << url.getPath();
     }
 
-    if((method == "POST") && (url.getQuery() == "delete")){ // work around for S3 batch delete request
-        ss << '?' << url.getQuery();
-    }
+    ss << extractCanonicalizedResourceQueryParams(url);
 
     DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_S3, "String to sign: {}", StrUtil::stringReplace(ss.str(), "\n", "\\n"));
     headers.push_back(std::pair<std::string, std::string>("Authorization",  getAwsAuthorizationField(ss.str(), params.getAwsAutorizationKeys().first, params.getAwsAutorizationKeys().second)));
@@ -419,10 +418,7 @@ Uri tokenizeRequest(const RequestParams & params, const std::string & method, co
         ss << '/' << extract_s3_bucket(url) << url.getPath();
     }
 
-    if((method == "POST") && (url.getQuery() == "delete")){ // work around for S3 batch delete request
-        ss << '?' << url.getQuery();
-    }
-
+    ss << extractCanonicalizedResourceQueryParams(url);
     const std::string signature = getAwsReqToken(ss.str(), params.getAwsAutorizationKeys().first);
 
     Uri signedUri(url);

@@ -116,6 +116,19 @@ TEST(testAuthS3, ReqToSign){
     ASSERT_EQ(std::string("AWS AKIAIOSFODNN7EXAMPLE:bWq2s1WEIj+Ydj0vQ697zp+IXMU="),vec.at(1).second);
 }
 
+TEST(testAuthS3, ReqToSignPostDelete){
+    RequestParams params;
+    Uri url("http://johnsmith.s3.amazonaws.com/photos/puppy.jpg?delete");
+    params.setAwsAuthorizationKeys("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY", "AKIAIOSFODNN7EXAMPLE");
+
+
+    HeaderVec vec;
+    vec.push_back(std::pair<std::string,std::string>("Date", "Tue, 27 Mar 2007 19:36:42 +0000"));
+
+    S3::signRequest(params, "POST", url, vec);
+    ASSERT_EQ(std::string("Authorization"),vec.at(1).first);
+    ASSERT_EQ("AWS AKIAIOSFODNN7EXAMPLE:F/FLAv2x9llsMYvDJ79Sw2MuByU=", vec.at(1).second);
+}
 
 TEST(testAuthS3, ReqToSignAWS){
     RequestParams params;
@@ -152,8 +165,17 @@ TEST(testAuthS3, ReqToToken){
     ASSERT_TRUE(StrUtil::compare_ncase(resu.getString(), u.getString()) ==0);
 }
 
+TEST(testAuthS3, ReqToTokenDelete){
+    RequestParams params;
+    Uri url("http://johnsmith.s3.amazonaws.com/photos/puppy.jpg?delete");
+    params.setAwsAuthorizationKeys("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY", "AKIAIOSFODNN7EXAMPLE");
 
 
+    HeaderVec vec;
+
+    Uri u = S3::tokenizeRequest(params, "POST", url, vec, static_cast<time_t>(1175139620UL));
+    ASSERT_EQ(u.getString(), "http://johnsmith.s3.amazonaws.com/photos/puppy.jpg?delete&AWSAccessKeyId=AKIAIOSFODNN7EXAMPLE&Signature=fU7FkNg8QPiGj8YE62xbZuac6dQ%3D&Expires=1175139620");
+}
 
 TEST(testAuthS3, ReqToTokenWithHeaders){
     RequestParams params;
@@ -168,5 +190,10 @@ TEST(testAuthS3, ReqToTokenWithHeaders){
     Uri resu("http://firwen-bucket.s3.amazonaws.com/testfile1234?AWSAccessKeyId=AKIAIOSFODNN7EXAMPLE&Signature=8DnY%2F3Te1GOcC01S6BGNHZErJMo%3d&Expires=1415835686&x-amz-meta-fed-acl=adevress%20%3a%20rwx%2c%20furano%20%3a%20rwx");
     std::cout << u << "\n" << resu << std::endl;
     ASSERT_TRUE(StrUtil::compare_ncase(resu.getString(), u.getString()) ==0);
+}
+
+TEST(CanonicalizedResourceQueryParams, BasicSanity) {
+    //Uri url(
+
 }
 

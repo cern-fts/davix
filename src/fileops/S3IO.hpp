@@ -26,6 +26,11 @@
 
 namespace Davix{
 
+struct DynafedUris {
+  std::vector<std::string> chunks;
+  std::string post;
+};
+
 class S3IO : public HttpIOChain {
 public:
   S3IO();
@@ -36,16 +41,26 @@ public:
 
   // wirte the entire content from a defined callback
   virtual dav_ssize_t writeFromCb(IOChainContext & iocontext, const DataProviderFun & func, dav_size_t size);
+
+  void performUgrS3MultiPart(IOChainContext & iocontext, const std::string &posturl, const std::string &pluginId, const DataProviderFun &func, dav_size_t size, DavixError **err);
+
 private:
+
   // Returns uploadId
   std::string initiateMultipart(IOChainContext & iocontext);
+  std::string initiateMultipart(IOChainContext & iocontext, const Uri &url);
+
+  DynafedUris retrieveDynafedUris(IOChainContext & iocontext, const std::string &uploadId, const std::string &pluginId, size_t nchunks);
 
   // Given the upload id, write the given chunk. Return object ETag,
   // necessary to commit upload.
   std::string writeChunk(IOChainContext & iocontext, const char* buff, dav_size_t size, const std::string &uploadId, int partNumber);
+  std::string writeChunk(IOChainContext & iocontext, const char* buff, dav_size_t size, const Uri &uri, int partNumber);
+
 
   // Given upload id and last chunk, commit chunks
   void commitChunks(IOChainContext & iocontext,  const std::string &uploadId, const std::vector<std::string> &etags);
+  void commitChunks(IOChainContext & iocontext,  const Uri &uri, const std::vector<std::string> &etags);
 };
 
 }

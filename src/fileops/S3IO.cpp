@@ -57,9 +57,14 @@ S3IO::~S3IO() {
 }
 
 std::string S3IO::initiateMultipart(IOChainContext & iocontext) {
-  DavixError * tmp_err=NULL;
   Uri url(iocontext._uri);
   url.addQueryParam("uploads", "");
+
+  return initiateMultipart(iocontext, url);
+}
+
+std::string S3IO::initiateMultipart(IOChainContext & iocontext, const Uri &url) {
+  DavixError * tmp_err=NULL;
 
   PostRequest req(iocontext._context, url, &tmp_err);
   checkDavixError(&tmp_err);
@@ -86,13 +91,17 @@ std::string S3IO::initiateMultipart(IOChainContext & iocontext) {
 }
 
 std::string S3IO::writeChunk(IOChainContext & iocontext, const char* buff, dav_size_t size, const std::string &uploadId, int partNumber) {
-  DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "writing chunk #{} with size {}", partNumber, size);
-
-  DavixError * tmp_err=NULL;
   Uri url(iocontext._uri);
   url.addQueryParam("uploadId", uploadId);
   url.addQueryParam("partNumber", SSTR(partNumber));
 
+  return writeChunk(iocontext, buff, size, url, partNumber);
+}
+
+std::string S3IO::writeChunk(IOChainContext & iocontext, const char* buff, dav_size_t size, const Uri &url, int partNumber) {
+  DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "writing chunk #{} with size {}", partNumber, size);
+
+  DavixError * tmp_err=NULL;
   PutRequest req(iocontext._context, url, &tmp_err);
   checkDavixError(&tmp_err);
 
@@ -116,6 +125,13 @@ std::string S3IO::writeChunk(IOChainContext & iocontext, const char* buff, dav_s
 }
 
 void S3IO::commitChunks(IOChainContext & iocontext,  const std::string &uploadId, const std::vector<std::string> &etags) {
+  Uri url(iocontext._uri);
+  url.addQueryParam("uploadId", uploadId);
+
+  return commitChunks(iocontext, url, etags);
+}
+
+void S3IO::commitChunks(IOChainContext & iocontext,  const Uri &url, const std::vector<std::string> &etags) {
   DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "committing {} chunks", etags.size());
 
   std::ostringstream payload;
@@ -129,9 +145,6 @@ void S3IO::commitChunks(IOChainContext & iocontext,  const std::string &uploadId
   payload << "</CompleteMultipartUpload>";
 
   DavixError * tmp_err=NULL;
-  Uri url(iocontext._uri);
-  url.addQueryParam("uploadId", uploadId);
-
   PostRequest req(iocontext._context, url, &tmp_err);
   req.setParameters(iocontext._reqparams);
   req.setRequestBody(payload.str());
@@ -200,5 +213,88 @@ dav_ssize_t S3IO::writeFromCb(IOChainContext & iocontext, const DataProviderFun 
    commitChunks(iocontext, uploadId, etags);
 }
 
+DynafedUris S3IO::retrieveDynafedUris(IOChainContext & iocontext, const std::string &uploadId, const std::string &pluginId, size_t nchunks) {
+  DynafedUris retval;
+
+  DavixError *tmp_err = NULL;
+  PutRequest req(iocontext._context, iocontext._uri, &tmp_err);
+  checkDavixError(&tmp_err);
+
+  req.setParameters(iocontext._reqparams);
+  req.addHeaderField("x-s3-uploadid", uploadId);
+  req.addHeaderField("x-ugrpluginid", pluginId);
+  req.addHeaderField("x-s3-upload-nchunks", SSTR(nchunks));
+  req.executeRequest(&tmp_err);
+
+  if(!tmp_err && httpcodeIsValid(req.getRequestCode()) == false){
+      httpcodeToDavixError(req.getRequestCode(), davix_scope_io_buff(),
+                           "write error: ", &tmp_err);
+  }
+  checkDavixError(&tmp_err);
+
+  // We have a response, parse it into lines
+  retval.chunks = StrUtil::tokenSplit(req.getAnswerContent(), "\n");
+  if(!retval.chunks.empty()) {
+    retval.post = retval.chunks.back();
+    retval.chunks.pop_back();
+  }
+
+  DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "retrieveDynafedUris: Obtained list with {} chunk URIs in total", retval.chunks.size());
+  return retval;
+}
+
+static dav_size_t fillBufferWithProviderData(std::vector<char> &buffer, const dav_size_t maxChunkSize, const DataProviderFun &func) {
+    dav_size_t written = 0u;
+    dav_size_t remaining = maxChunkSize;
+
+    while(true) {
+      dav_ssize_t bytesRead = func(buffer.data(), remaining);
+      if(bytesRead < 0) {
+        throw DavixException(davix_scope_io_buff(), StatusCode::InvalidFileHandle, fmt::format("Error when reading from callback: {}", bytesRead));
+      }
+
+      remaining -= bytesRead;
+      written += bytesRead;
+
+      if(bytesRead == 0) break; // EOF
+    }
+
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Retrieved {} bytes from data provider", written);
+    return written;
+}
+
+void S3IO::performUgrS3MultiPart(IOChainContext & iocontext, const std::string &posturl, const std::string &pluginId, const DataProviderFun &func, dav_size_t size, DavixError **err) {
+    try {
+        Uri uri(posturl);
+        std::string uploadId = initiateMultipart(iocontext, posturl);
+
+        const dav_size_t MAX_CHUNK_SIZE = 1024 * 1024 * 256; // 256 MB
+        std::vector<char> buffer;
+        buffer.resize(std::min(MAX_CHUNK_SIZE, size) + 10);
+
+        size_t nchunks = (size / MAX_CHUNK_SIZE) + 2;
+        DynafedUris uris = retrieveDynafedUris(iocontext, uploadId, pluginId, nchunks);
+
+        if(uris.chunks.size() != nchunks) {
+          DAVIX_SLOG(DAVIX_LOG_WARNING, DAVIX_LOG_CHAIN, "Dynafed returned different number of URIs than expected: {} vs {]", "} retrieveDynafedUris: Obtained list with {} chunk URIs in total", uris.chunks.size(), nchunks);
+          throw DavixException("S3::MultiPart", StatusCode::InvalidServerResponse, "Dynafed returned different number of URIs than expected");
+        }
+
+        std::vector<std::string> etags;
+        size_t partNumber = 1;
+        while(true) {
+          dav_size_t bytesRetrieved = fillBufferWithProviderData(buffer, MAX_CHUNK_SIZE, func);
+          if(bytesRetrieved == 0) {
+            break; // EOF
+          }
+
+          etags.emplace_back(writeChunk(iocontext, buffer.data(), bytesRetrieved, Uri(uris.chunks[partNumber-1]), partNumber));
+          partNumber++;
+        }
+
+        commitChunks(iocontext, Uri(uris.post), etags);
+    }
+    CATCH_DAVIX(err);
+}
 
 }

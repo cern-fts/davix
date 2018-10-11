@@ -31,6 +31,7 @@
 #include <neon/neonsession.hpp>
 #include <fileops/fileutils.hpp>
 #include <fileops/AzureIO.hpp>
+#include <fileops/S3IO.hpp>
 
 
 
@@ -394,6 +395,15 @@ int NEONRequest::processRedirection(int neonCode, DavixError **err){
     return end_status;
 }
 
+static dav_ssize_t readFunction(int fd, void* buffer, dav_size_t size) {
+    dav_ssize_t ret = ::read(fd, buffer, size);
+    if(ret < 0) {
+        int myerr = errno;
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Error in readFunction when attempting to read from fd {}: Return code {}, errno: {}", fd, ret, myerr);
+    }
+
+    return ret;
+}
 
 int NEONRequest::startRequest(DavixError **err){
     if( createRequest(err) < 0)
@@ -402,7 +412,10 @@ int NEONRequest::startRequest(DavixError **err){
 }
 
 int NEONRequest::negotiateRequest(DavixError** err){
+    std::string ugrs3post;
+    std::string ugrpluginid;
 
+    const uint64_t s3SizeLimit = (1024ull * 1024ull * 1024ull * 5ull);
     const int auth_retry_limit = params.getOperationRetry();
     int code, status, end_status = NE_RETRY;
     _last_read = -1;
@@ -476,6 +489,41 @@ int NEONRequest::negotiateRequest(DavixError** err){
             case 302:
             case 303:
             case 307:
+
+                if(getAnswerHeader("x-ugrs3posturl", ugrs3post) &&
+                   getAnswerHeader("x-ugrpluginid", ugrpluginid) &&
+                   !ugrs3post.empty() && (_content_len >= s3SizeLimit || _current->fragmentParamExists("forceMultiPart")) ) {
+                    // Ugly workaround for s3 + multi-part upload + dynafed
+                    IOChainContext iocontext(_c, *_current, &params);
+
+                    using std::placeholders::_1;
+                    using std::placeholders::_2;
+
+                    S3IO s3io;
+
+                    std::cout << "found it: " << ugrs3post << std::endl;
+                    std::cout << "found it: " << ugrpluginid << std::endl;
+
+                    DataProviderFun provider;
+
+                    if(_fd_content > 0) {
+                        provider = std::bind(readFunction, _fd_content, _1, _2);
+                    }
+                    else if(_content_provider.callback) {
+                        provider = std::bind(iocontext_content_provider, _content_provider.callback, _content_provider.udata, _1, _2);
+                    }
+
+                    requestCleanup();
+                    DavixError::clearError(err);
+                    endRequest(NULL);
+
+                    _early_termination = true;
+                    s3io.performUgrS3MultiPart(iocontext, ugrs3post, ugrpluginid, provider, _content_len, &_early_termination_error);
+
+                    if(!err) return 0;
+                    return -1;
+                }
+
                 if( (end_status = processRedirection(status, err)) <0){
                    return -1;
                 }

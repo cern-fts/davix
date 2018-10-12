@@ -494,16 +494,13 @@ int NEONRequest::negotiateRequest(DavixError** err){
                    getAnswerHeader("x-ugrpluginid", ugrpluginid) &&
                    !ugrs3post.empty() && (_content_len >= s3SizeLimit || _current->fragmentParamExists("forceMultiPart")) ) {
                     // Ugly workaround for s3 + multi-part upload + dynafed
+                    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "Initiating dynafed-assisted multi-part upload to S3, posturl: {}, pluginid: {}", ugrs3post, ugrpluginid);
                     IOChainContext iocontext(_c, *_current, &params);
 
                     using std::placeholders::_1;
                     using std::placeholders::_2;
 
                     S3IO s3io;
-
-                    std::cout << "found it: " << ugrs3post << std::endl;
-                    std::cout << "found it: " << ugrpluginid << std::endl;
-
                     DataProviderFun provider;
 
                     if(_fd_content > 0) {

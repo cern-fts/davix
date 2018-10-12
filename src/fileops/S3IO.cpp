@@ -178,6 +178,26 @@ dav_ssize_t S3IO::writeFromFd(IOChainContext & iocontext, int fd, dav_size_t siz
   return this->writeFromCb(iocontext, providerFunc, size);
 }
 
+static dav_size_t fillBufferWithProviderData(std::vector<char> &buffer, const dav_size_t maxChunkSize, const DataProviderFun &func) {
+    dav_size_t written = 0u;
+    dav_size_t remaining = maxChunkSize;
+
+    while(true) {
+      dav_ssize_t bytesRead = func(buffer.data(), remaining);
+      if(bytesRead < 0) {
+        throw DavixException(davix_scope_io_buff(), StatusCode::InvalidFileHandle, fmt::format("Error when reading from callback: {}", bytesRead));
+      }
+
+      remaining -= bytesRead;
+      written += bytesRead;
+
+      if(bytesRead == 0) break; // EOF
+    }
+
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Retrieved {} bytes from data provider", written);
+    return written;
+}
+
 dav_ssize_t S3IO::writeFromCb(IOChainContext & iocontext, const DataProviderFun & func, dav_size_t size) {
   if(!should_use_s3_multipart(iocontext, size)) {
     CHAIN_FORWARD(writeFromCb(iocontext, func, size));
@@ -199,12 +219,8 @@ dav_ssize_t S3IO::writeFromCb(IOChainContext & iocontext, const DataProviderFun 
     size_t toRead = std::min(size, MAX_CHUNK_SIZE);
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "S3IO write: toRead from cb {}", toRead);
 
-    dav_ssize_t bytesRead = func(buffer.data(), toRead);
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "S3IO write: bytesRead from cb {}", bytesRead);
-    if(bytesRead < 0) {
-      throw DavixException(davix_scope_io_buff(), StatusCode::InvalidFileHandle, fmt::format("Error when reading from callback: {}", bytesRead));
-    }
-    if(bytesRead == 0) break; // EOF?
+    dav_size_t bytesRead = fillBufferWithProviderData(buffer, MAX_CHUNK_SIZE, func);
+    if(bytesRead == 0) break; // EOF
 
     partNumber++;
     etags.emplace_back(writeChunk(iocontext, buffer.data(), bytesRead, uploadId, partNumber));
@@ -243,26 +259,6 @@ DynafedUris S3IO::retrieveDynafedUris(IOChainContext & iocontext, const std::str
   return retval;
 }
 
-static dav_size_t fillBufferWithProviderData(std::vector<char> &buffer, const dav_size_t maxChunkSize, const DataProviderFun &func) {
-    dav_size_t written = 0u;
-    dav_size_t remaining = maxChunkSize;
-
-    while(true) {
-      dav_ssize_t bytesRead = func(buffer.data(), remaining);
-      if(bytesRead < 0) {
-        throw DavixException(davix_scope_io_buff(), StatusCode::InvalidFileHandle, fmt::format("Error when reading from callback: {}", bytesRead));
-      }
-
-      remaining -= bytesRead;
-      written += bytesRead;
-
-      if(bytesRead == 0) break; // EOF
-    }
-
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Retrieved {} bytes from data provider", written);
-    return written;
-}
-
 void S3IO::performUgrS3MultiPart(IOChainContext & iocontext, const std::string &posturl, const std::string &pluginId, const DataProviderFun &func, dav_size_t size, DavixError **err) {
     try {
         Uri uri(posturl);
@@ -282,7 +278,9 @@ void S3IO::performUgrS3MultiPart(IOChainContext & iocontext, const std::string &
 
         std::vector<std::string> etags;
         size_t partNumber = 1;
-        while(true) {
+        uint64_t remaining = size;
+
+        while(remaining > 0) {
           dav_size_t bytesRetrieved = fillBufferWithProviderData(buffer, MAX_CHUNK_SIZE, func);
           if(bytesRetrieved == 0) {
             break; // EOF
@@ -290,6 +288,7 @@ void S3IO::performUgrS3MultiPart(IOChainContext & iocontext, const std::string &
 
           etags.emplace_back(writeChunk(iocontext, buffer.data(), bytesRetrieved, Uri(uris.chunks[partNumber-1]), partNumber));
           partNumber++;
+          remaining -= bytesRetrieved;
         }
 
         commitChunks(iocontext, Uri(uris.post), etags);

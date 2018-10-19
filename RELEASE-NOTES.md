@@ -1,8 +1,19 @@
 # davix release history
 
 ## Unreleased
+
+### Bug fixes
+* [DMC-1089] - Implement S3 heuristic in davix to avoid STAT on pre-signed URLs
+* [DMC-1090] - Add support for multi-part S3 uploads in davix
+* [DMC-1094] - davix-put consumes too much memory during S3 and Azure multi-part uploads
+* [DMC-1096] - Error when parsing iso8601 dates on FreeBSD
+* [DMC-1097] - Davix AWS signature v2 and URL query
+* [DMC-1101] - NEONRequest::readSegment always stops at line boundaries
+
 ### Improvements
 * Improvements to release script and general procedure
+* [DMC-1065] - Davix should read (and log) the response body even if it's an error
+* [DMC-1098] - Implement the workflow for multipart S3 uploads through presigned URLs (dynafed)
 
 ## 0.6.9 (2018-09-25)
 

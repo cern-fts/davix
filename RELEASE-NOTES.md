@@ -1,6 +1,6 @@
 # davix release history
 
-## Unreleased
+## 0.7.0 (2018-10-22)
 
 ### Bug fixes
 * [DMC-1089] - Implement S3 heuristic in davix to avoid STAT on pre-signed URLs

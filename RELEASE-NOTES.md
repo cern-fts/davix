@@ -11,7 +11,7 @@
 * [DMC-1101] - NEONRequest::readSegment always stops at line boundaries
 
 ### Improvements
-* Improvements to release script and general procedure
+* Improvements to release script and release procedure
 * [DMC-1065] - Davix should read (and log) the response body even if it's an error
 * [DMC-1098] - Implement the workflow for multipart S3 uploads through presigned URLs (dynafed)
 

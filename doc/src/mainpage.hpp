@@ -160,8 +160,7 @@ The Davix targets to:
     - " 5.  make; make test"
 
 - make RPMS :
-    - ./packaging/bin/packager_rpm.sh ./packaging/rpm/specs/ ./
-    - mock -r [mycfg] RPMS/davix-[...].src.rpm
+    - ./packaging/make-srpm.sh
 
 
 <h2> Play with davix command line tool : </h2>

@@ -41,6 +41,7 @@ struct ne_ssl_context_s {
     SSL_SESSION *sess;
     const char *hostname; /* for SNI */
     int failures; /* bitmask of exposed failure bits. */
+    short added_chain;
 };
 
 typedef SSL *ne_ssl_socket;

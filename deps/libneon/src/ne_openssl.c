@@ -561,7 +561,8 @@ static int provide_client_cert(SSL *ssl, X509 **cert, EVP_PKEY **pkey)
 
         /* The only way of adding intermediate cert support (needed for proxies)
          * is to call this method. See man page for SSL_CTX_set_client_cert_cb */
-	if(cc->cert.chain != NULL){
+	if(cc->cert.chain != NULL && !sess->ssl_context->added_chain){
+                sess->ssl_context->added_chain = 1;
 		ctx = SSL_get_SSL_CTX(ssl);
 		count = sk_X509_num(cc->cert.chain);
 		for (n = 0; n < count; ++n) {

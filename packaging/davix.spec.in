@@ -142,6 +142,9 @@ make DESTDIR=%{buildroot} install
 %{_bindir}/davix-unit-tests
 
 %changelog
+* Wed Oct 24 2018 Georgios Bitzes <georgios.bitzes at cern.ch> - 0.7.1-1
+ - davix 0.7.1 release, see RELEASE-NOTES.md for changes
+
 * Mon Oct 22 2018 Georgios Bitzes <georgios.bitzes at cern.ch> - 0.7.0-1
  - davix 0.7.0 release, see RELEASE-NOTES.md for changes
 

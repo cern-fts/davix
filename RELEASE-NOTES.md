@@ -1,5 +1,10 @@
 # davix release history
 
+## Unreleased
+### Bug fixes
+* [DMC-1114] - DAVIX adds cert chain multiple times
+* Fixes to cmake related to linking of libuuid
+
 ## 0.7.0 (2018-10-22)
 
 ### Bug fixes

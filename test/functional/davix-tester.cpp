@@ -7,7 +7,7 @@
 
 #include <davix.hpp>
 #include "davix_test_lib.h"
-#include <davix/utils/davix_s3_utils.hpp>
+#include "utils/davix_s3_utils.hpp"
 
 using namespace Davix;
 

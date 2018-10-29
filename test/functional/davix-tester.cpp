@@ -7,6 +7,7 @@
 
 #include <davix.hpp>
 #include "davix_test_lib.h"
+#include <davix/utils/davix_s3_utils.hpp>
 
 using namespace Davix;
 
@@ -19,7 +20,12 @@ const std::string testfile("davix-testfile-");
 #define ASSERT(assertion, msg) \
     if((assertion) == false) throw std::runtime_error( SSTR(__FILE__ << ":" << __LINE__ << " (" << __func__ << "): Assertion " << #assertion << " failed.\n" << msg))
 
-void initialization() {
+void initialization(int argc, char** argv) {
+    std::cout << "Command: ";
+    for(int i = 0; i < argc; i++) {
+        std::cout << std::string(argv[i]) << " ";
+    }
+    std::cout << std::endl;
 }
 
 std::vector<std::string> split(const std::string str, const std::string delim) {
@@ -209,6 +215,30 @@ void makeCollection(const RequestParams &params, Uri uri) {
     std::cout << "Done!" << std::endl;
 }
 
+#define NEON_S3_SIGN_DURATION 3600
+
+void statfileFromSignedURI(const RequestParams &params, const Uri uri) {
+  DECLARE_TEST();
+
+  Uri signedURI(S3::signURI(params, "GET", uri, params.getHeaders(), NEON_S3_SIGN_DURATION));
+  RequestParams params2(params);
+
+  signedURI.httpizeProtocol();
+
+  params2.setProtocol(RequestProtocol::Http);
+  params2.setAwsAuthorizationKeys("", "");
+  params2.setAwsRegion("");
+  params2.setAwsToken("");
+
+  Context context;
+  DavFile file(context, params2, signedURI);
+  StatInfo info;
+  file.statInfo(&params2, info);
+  std::cout << string_from_mode(info.mode) << std::endl;
+
+  ASSERT(! S_ISDIR(info.mode), "not a file");
+}
+
 /* stat a file, make sure it's a file */
 void statfile(const RequestParams &params, const Uri uri) {
     DECLARE_TEST();
@@ -219,6 +249,11 @@ void statfile(const RequestParams &params, const Uri uri) {
     std::cout << string_from_mode(info.mode) << std::endl;
 
     ASSERT(! S_ISDIR(info.mode), "not a file");
+
+    if(!params.getAwsAutorizationKeys().first.empty()) {
+      // Now try statting through the signed URL
+      statfileFromSignedURI(params, uri);
+    }
 }
 
 void movefile(const RequestParams &params, const Uri uri) {
@@ -526,7 +561,7 @@ void run(int argc, char** argv) {
 
 int main(int argc, char** argv) {
     try {
-        initialization();
+        initialization(argc, argv);
         run(argc, argv);
     }
     catch(std::exception &e) {

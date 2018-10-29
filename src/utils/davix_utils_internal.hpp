@@ -60,7 +60,7 @@ inline std::string extractCanonicalizedResourceQueryParams(const Davix::Uri &url
     targetParams.insert("website");
 
     targetParams.insert("delete"); // ?
-    
+
     ParamVec canonicalizedParams;
 
     const ParamVec &params = url.getQueryVec();
@@ -84,7 +84,7 @@ inline std::string extractCanonicalizedResourceQueryParams(const Davix::Uri &url
         if(!it->second.empty()) {
           ss << "=" << it->second;
         }
-        
+
         if(it+1 != canonicalizedParams.end()) {
             ss << "&";
         }

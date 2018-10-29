@@ -23,7 +23,7 @@ set(src_davix_test_lib "davix_test_lib.cpp")
 #set( src_tool_get_replicas "tool_get_replica_simple.cpp")
 #set( src_test_mv "test_mv.cpp")
 
-set( src_tester "tester.cpp")
+set( src_tester "davix-tester.cpp")
 
 
 add_library(test_davix_functional_lib STATIC ${src_davix_test_lib})
@@ -82,8 +82,8 @@ add_library(test_davix_functional_lib STATIC ${src_davix_test_lib})
 #add_executable(test_mv ${src_test_mv})
 #target_link_libraries(test_mv libdavix test_davix_functional_lib)
 
-add_executable(tester ${src_tester})
-target_link_libraries(tester libdavix test_davix_functional_lib)
+add_executable(davix-tester ${src_tester})
+target_link_libraries(davix-tester libdavix test_davix_functional_lib)
 
 function(assert_not_empty var)
     if("${var}" STREQUAL "")
@@ -138,7 +138,7 @@ function(runtest params cmd)
 
     set(arguments ${params})
     separate_arguments(arguments)
-    add_test(${testname} tester ${arguments} "--command" "${cmd}")
+    add_test(${testname} davix-tester ${arguments} "--command" "${cmd}")
 endfunction(runtest)
 
 function(preadvectest_single params ranges)

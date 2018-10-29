@@ -85,6 +85,9 @@ add_library(test_davix_functional_lib STATIC ${src_davix_test_lib})
 add_executable(davix-tester ${src_tester})
 target_link_libraries(davix-tester libdavix test_davix_functional_lib)
 
+install(TARGETS davix-tester
+  DESTINATION ${BIN_INSTALL_DIR}/)
+
 function(assert_not_empty var)
     if("${var}" STREQUAL "")
         message(FATAL_ERROR "variable must not be empty")

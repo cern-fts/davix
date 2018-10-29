@@ -140,6 +140,7 @@ make DESTDIR=%{buildroot} install
 
 %files tests
 %{_bindir}/davix-unit-tests
+%{_bindir}/davix-tester
 
 %changelog
 * Wed Oct 24 2018 Georgios Bitzes <georgios.bitzes at cern.ch> - 0.7.1-1

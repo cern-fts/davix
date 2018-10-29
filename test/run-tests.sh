@@ -20,7 +20,7 @@ credentials/obtain-proxy.sh
 rm -rf build
 mkdir build
 cd build
-cmake -DFUNCTIONAL_TESTS=TRUE -DENABLE_THIRD_PARTY_COPY=TRUE ..
+cmake -DENABLE_THIRD_PARTY_COPY=TRUE ..
 make -j $CORES
 # make abi-check
 (ctest --no-compress-output -T Test || true)

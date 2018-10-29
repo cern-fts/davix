@@ -1,8 +1,6 @@
 # main file for src
 
 
-if(FUNCTIONAL_TESTS)
-
 set(src_davix_test_lib "davix_test_lib.cpp")
 
 #set( src_test_req "test_request.cpp")
@@ -209,60 +207,56 @@ function(test_azure azurekey uri)
 endfunction(test_azure)
 
 
-include(${CMAKE_SOURCE_DIR}/credentials/creds.cmake)
+include(${CMAKE_SOURCE_DIR}/credentials/creds.cmake OPTIONAL)
 
 
 ### DEPRECATED, to remove soon
 
-function(test_dav_endpoint_ronly name cred)
+# function(test_dav_endpoint_ronly name cred)
 
-    add_test(test_stat_session_${name} test_stat_session ${cred} ${name} ${name} ${name} ${name} ${name} ${name} ${name})
-    add_test(test_opendir_${name} test_opendir ${name} ${cred})
-  #  add_test(test_opendir_c_${name} test_opendir_c ${name} ${cred})
-    add_test(test_opendirpp_${name} test_opendirpp ${name} ${cred})
-  #  add_test(test_stat_c_${name} test_stat_c ${name} ${cred})
-endfunction(test_dav_endpoint_ronly name cred)
+#     add_test(test_stat_session_${name} test_stat_session ${cred} ${name} ${name} ${name} ${name} ${name} ${name} ${name})
+#     add_test(test_opendir_${name} test_opendir ${name} ${cred})
+#   #  add_test(test_opendir_c_${name} test_opendir_c ${name} ${cred})
+#     add_test(test_opendirpp_${name} test_opendirpp ${name} ${cred})
+#   #  add_test(test_stat_c_${name} test_stat_c ${name} ${cred})
+# endfunction(test_dav_endpoint_ronly name cred)
 
-function(test_dav_endpoint_rw name cred)
+# function(test_dav_endpoint_rw name cred)
 
-    add_test(test_stat_session_${name} test_stat_session ${cred} ${name} ${name} ${name} ${name} ${name} ${name} ${name})
-    add_test(test_opendir_${name} test_opendir ${name} ${cred})
-    add_test(test_opendirpp_${name} test_opendirpp ${name} ${cred})
-    add_test(test_stat_auto_check_${name} test_stat_auto_check ${name} ${cred})
-endfunction(test_dav_endpoint_rw name cred)
+#     add_test(test_stat_session_${name} test_stat_session ${cred} ${name} ${name} ${name} ${name} ${name} ${name} ${name})
+#     add_test(test_opendir_${name} test_opendir ${name} ${cred})
+#     add_test(test_opendirpp_${name} test_opendirpp ${name} ${cred})
+#     add_test(test_stat_auto_check_${name} test_stat_auto_check ${name} ${cred})
+# endfunction(test_dav_endpoint_rw name cred)
 
-function(listdir_partial name size cred)
-    add_test(test_opendir_partial_${name}  test_opendir_partial ${name} ${size} ${cred})
-endfunction(listdir_partial name size cred)
-
-
-function(test_collection name cred)
-    add_test(test_directory_${name} test_directory ${name} ${cred})
-endfunction(test_collection name cred)
-
-function(test_valid_read_generic url cred)
-    add_test(test_valid_read_generic_${url} test_valid_read_generic_simple ${url} ${cred})
-endfunction(test_valid_read_generic url cred)
-
-function(test_valid_delete_all url cred)
-    add_test(test_auto_rmdir_unlink_delete_${url} test_auto_rmdir_unlink_delete ${url} ${cred})
-endfunction(test_valid_delete_all url cred)
+# function(listdir_partial name size cred)
+#     add_test(test_opendir_partial_${name}  test_opendir_partial ${name} ${size} ${cred})
+# endfunction(listdir_partial name size cred)
 
 
-function(test_valid_write_read_generic url cred)
-    add_test(test_valid_write_read_generic_simple_${url} test_valid_write_read_generic_simple ${url} ${cred})
-    add_test(test_rw_fd_${url} test_rw_fd ${url} ${cred})
-    add_test(test_valid_write_read_vector_simple_${url} test_valid_write_read_vector_simple ${url} ${cred})
-endfunction(test_valid_write_read_generic url cred)
+# function(test_collection name cred)
+#     add_test(test_directory_${name} test_directory ${name} ${cred})
+# endfunction(test_collection name cred)
 
-function(test_replica_listing_existing url cred)
-   add_test(tool_get_replicas_${url} tool_get_replicas ${url} ${cred})
-endfunction(test_replica_listing_existing url cred)
+# function(test_valid_read_generic url cred)
+#     add_test(test_valid_read_generic_${url} test_valid_read_generic_simple ${url} ${cred})
+# endfunction(test_valid_read_generic url cred)
 
-function(test_rename url cred)
-    add_test(test_mv_${url} test_mv ${url} ${cred})
-endfunction(test_rename url cred)
+# function(test_valid_delete_all url cred)
+#     add_test(test_auto_rmdir_unlink_delete_${url} test_auto_rmdir_unlink_delete ${url} ${cred})
+# endfunction(test_valid_delete_all url cred)
 
-# include(ctest_functional.cmake)
 
-endif(FUNCTIONAL_TESTS)
+# function(test_valid_write_read_generic url cred)
+#     add_test(test_valid_write_read_generic_simple_${url} test_valid_write_read_generic_simple ${url} ${cred})
+#     add_test(test_rw_fd_${url} test_rw_fd ${url} ${cred})
+#     add_test(test_valid_write_read_vector_simple_${url} test_valid_write_read_vector_simple ${url} ${cred})
+# endfunction(test_valid_write_read_generic url cred)
+
+# function(test_replica_listing_existing url cred)
+#    add_test(tool_get_replicas_${url} tool_get_replicas ${url} ${cred})
+# endfunction(test_replica_listing_existing url cred)
+
+# function(test_rename url cred)
+#     add_test(test_mv_${url} test_mv ${url} ${cred})
+# endfunction(test_rename url cred)

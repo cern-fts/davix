@@ -76,18 +76,9 @@ def create_source_releases():
     os.chdir(foldername)
     sh("git checkout {}".format(args.tag))
     sh("git submodule update --init")
-    shutil.rmtree(".git")
-    shutil.rmtree("dist")
-    sh("""sed -i "s/set(VERSION_TAG \"\")/set(VERSION_TAG \"std\")/g" CMakeLists.txt""")
+    sh("./packaging/make-dist.sh")
     os.chdir("..")
-
-    sh("tar -cvzf {name}-embedded-{release}.tar.gz --transform 's/{foldername}/{name}-embedded-{release}/' {foldername}".format(
-                  name=args.name, release=args.release, foldername=foldername))
-    sh("tar -cvzf {name}-{release}.tar.gz --transform 's/{foldername}/{name}-{release}/' {foldername}".format(
-                  name=args.name, release=args.release, foldername=foldername))
-
-    shutil.copy("{0}-embedded-{1}.tar.gz".format(args.name, args.release), args.release)
-    shutil.copy("{0}-{1}.tar.gz".format(args.name, args.release), args.release)
+    shutil.copy("davix/build/{0}-{1}.tar.gz".format(args.name, args.release), args.release)
 
 def main():
     global args

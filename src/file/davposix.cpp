@@ -585,6 +585,7 @@ int DavPosix::close(DAVIX_FD* fd, Davix::DavixError** err){
         if(fd){
             fd->io_handler.resetIO(fd->io_context);
             delete fd;
+            fd = NULL;
         }
     }CATCH_DAVIX(err)
     return 0;

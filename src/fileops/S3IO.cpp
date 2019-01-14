@@ -191,7 +191,15 @@ static dav_size_t fillBufferWithProviderData(std::vector<char> &buffer, const da
       remaining -= bytesRead;
       written += bytesRead;
 
-      if(bytesRead == 0) break; // EOF
+      if(bytesRead == 0) {
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Reached data provider EOF, received 0 bytes, even though asked for {}", remaining);
+        break; // EOF
+      }
+
+      if(remaining == 0) {
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Data provider buffer has been filled");
+        break; // buffer is full
+      }
     }
 
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Retrieved {} bytes from data provider", written);

@@ -421,7 +421,7 @@ int internal_checksum(Context & c, const Uri & url, const RequestParams *p, std:
             }
 
            std::ostringstream ss;
-           ss << "checksum calculation for " << chk_algo << "not supported for " << url;
+           ss << "checksum calculation for " << chk_algo << " not supported for " << url;
            throw DavixException(davix_scope_meta(), StatusCode::OperationNonSupported, ss.str());
 
            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, " checksum <-");

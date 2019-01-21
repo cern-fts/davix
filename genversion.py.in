@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!${PYTHON_EXECUTABLE}
 
 ################################################################################
 ## Script to generate version numbers from git tags.                          ##
@@ -229,15 +229,15 @@ def main():
     latest_tag = sh("git describe --abbrev=0 --tags").strip()
 
     replacements = [
-      ["@GIT_SHA1@", commit_hash],
-      ["@GIT_DESCRIBE@", gitDescribe.toString()],
-      ["@GIT_COMMIT_DATE@", git_commit_date],
-      ["@GIT_BRANCH@", branch],
-      ["@VERSION_MAJOR@", softwareVersion.major],
-      ["@VERSION_MINOR@", softwareVersion.minor],
-      ["@VERSION_PATCH@", softwareVersion.patch],
-      ["@VERSION_MINIPATCH@", softwareVersion.miniPatch],
-      ["@VERSION_FULL@", softwareVersion.toString()]
+      ["@GIT_SHA1""@", commit_hash],
+      ["@GIT_DESCRIBE""@", gitDescribe.toString()],
+      ["@GIT_COMMIT_DATE""@", git_commit_date],
+      ["@GIT_BRANCH""@", branch],
+      ["@VERSION_MAJOR""@", softwareVersion.major],
+      ["@VERSION_MINOR""@", softwareVersion.minor],
+      ["@VERSION_PATCH""@", softwareVersion.patch],
+      ["@VERSION_MINIPATCH""@", softwareVersion.miniPatch],
+      ["@VERSION_FULL""@", softwareVersion.toString()]
     ]
 
     inputContents = args.template_string

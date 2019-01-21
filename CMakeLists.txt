@@ -3,14 +3,17 @@
 project (davix)
 cmake_minimum_required (VERSION 2.6)
 
+# Find the python executable to use during the build.
+find_package(PythonInterp REQUIRED)
+
 #-------------------------------------------------------------------------------
 # Regenerate include/davix/features.hpp and version.cmake at _build_ time
 #-------------------------------------------------------------------------------
 add_custom_target(GenerateVersionInfo ALL DEPENDS Version)
 add_custom_command(
   OUTPUT Version
-  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/genversion.py --template include/davix/features.hpp.in --out include/davix/features.hpp
-  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/genversion.py --template version.cmake.in --out version.cmake
+  COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/genversion.py --template include/davix/features.hpp.in --out include/davix/features.hpp
+  COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/genversion.py --template version.cmake.in --out version.cmake
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
@@ -19,7 +22,7 @@ add_custom_command(
 # only regenerates it at compile time.
 #-------------------------------------------------------------------------------
 execute_process(
-  COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/genversion.py --template version.cmake.in --out version.cmake
+  COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/genversion.py --template version.cmake.in --out version.cmake
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 

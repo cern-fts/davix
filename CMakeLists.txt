@@ -4,12 +4,16 @@ project (davix)
 cmake_minimum_required (VERSION 2.6)
 
 #-------------------------------------------------------------------------------
-# Create the genversion.py script
+# Create/configure the python scripts
 #-------------------------------------------------------------------------------
 find_package(PythonInterp REQUIRED)
 set(genversion_script
   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/genversion.py)
 configure_file(${CMAKE_SOURCE_DIR}/genversion.py.in ${genversion_script})
+configure_file(${CMAKE_SOURCE_DIR}/packaging/repo-manager.py.in
+  ${CMAKE_SOURCE_DIR}/packaging/repo-manager.py)
+configure_file(${CMAKE_SOURCE_DIR}/test/pywebdav/server/server.py.in
+  ${CMAKE_SOURCE_DIR}/test/pywebdav/server/server.py)
 
 #-------------------------------------------------------------------------------
 # Regenerate include/davix/features.hpp and version.cmake at _build_ time

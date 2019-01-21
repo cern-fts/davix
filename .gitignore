@@ -4,4 +4,6 @@ include/davix/features.hpp
 packaging/davix.spec
 version.cmake
 packaging/debian/changelog
+packaging/repo-manager.py
+test/pywebdav/server/server.py
 .vscode/

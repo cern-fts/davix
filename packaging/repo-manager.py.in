@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!${PYTHON_EXECUTABLE}
 # Author: Georgios Bitzes <georgios.bitzes@cern.ch>
 
 import os, subprocess, sys, inspect, argparse, re, shutil, errno

@@ -24,7 +24,7 @@
 
 #include <map>
 #include <mutex>
-#include <davix/utils/davix_uri.hpp>
+#include <utils/davix_uri.hpp>
 #include <memory>
 #include <alibxx/containers/cache.hpp>
 

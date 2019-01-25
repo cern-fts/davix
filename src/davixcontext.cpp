@@ -161,7 +161,7 @@ LibPath::LibPath(){
 }
 
 const std::string & version(){
-    static const std::string _version = DAVIX_VERSION_STRING "-" DAVIX_VERSION_TAG;
+    static const std::string _version = DAVIX_VERSION_STRING;
     return _version;
 }
 

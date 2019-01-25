@@ -116,25 +116,25 @@ fedora-27-test:
     - dnf install -y fedora-27/RPMS/*.rpm
     - davix-unit-tests
 
-#docs:
-#  stage: publish
-#  image: gitlab-registry.cern.ch/linuxsupport/cc7-base
-#  script:
-#    - yum install -y git rpm-build python-argparse tar cmake python2-sphinx make sssd-client sudo python-pip
+docs:
+ stage: publish
+ image: gitlab-registry.cern.ch/linuxsupport/cc7-base
+ script:
+   - yum install -y git rpm-build python-argparse tar cmake python2-sphinx make sssd-client sudo python-pip
 #    - rm -rf /usr/lib/python2.7/site-packages/chardet
 #    - pip uninstall -y chardet
-#    - pip install --upgrade sphinx
-#    - packaging/make-docs.sh
-#    - mv build/doc/build/html docs
-#    - chown -R stci docs
-#    - SNAPSHOT=$(date +%s)
-#    - TARGET="/eos/project/d/davix/www/docs/${CI_COMMIT_REF_NAME}"
-#    - STAGING_AREA="$TARGET-${SNAPSHOT}"
-#    - sudo -u stci -H cp -r docs "$STAGING_AREA"
-#    - sudo -u stci -H packaging/replace-directory.sh "$STAGING_AREA" "$TARGET"
-#  tags:
-#    - docker-cc7
-#  retry: 2
+   - pip install --upgrade sphinx
+   - packaging/make-docs.sh
+   - mv build/doc/build/html docs
+   - chown -R stci docs
+   - SNAPSHOT=$(date +%s)
+   - TARGET="/eos/project/d/davix/www/docs/${CI_COMMIT_REF_NAME}"
+   - STAGING_AREA="$TARGET-${SNAPSHOT}"
+   - sudo -u stci -H cp -r docs "$STAGING_AREA"
+   - sudo -u stci -H packaging/replace-directory.sh "$STAGING_AREA" "$TARGET"
+ tags:
+   - docker-cc7
+ retry: 2
 
 rpms:
   stage: publish

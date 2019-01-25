@@ -27,7 +27,7 @@
 #include <utils/davix_uri.hpp>
 
 #include <neon/neonrequest.hpp>
-#include <alibxx/containers/cache.hpp>
+#include <core/RedirectionResolver.hpp>
 
 namespace Davix {
 
@@ -55,12 +55,7 @@ public:
     //
 
     void addRedirection( const std::string & method, const Uri & origin, std::shared_ptr<Uri> dest);
-
-    // try to find cached redirection, resolve a full chain
     std::shared_ptr<Uri> redirectionResolve(const std::string & method, const Uri & origin);
-    // try to find a cached redirection, resolve only one element
-    std::shared_ptr<Uri> redirectionResolveSingle(const std::string & method, const Uri & origin);
-
     void redirectionClean(const std::string & method, const Uri & origin);
     void redirectionClean(const Uri & origin);
 
@@ -75,20 +70,16 @@ public:
     }
 
 private:
+    RedirectionResolver redirectionResolver;
+
     // session pool
     std::multimap<std::string, ne_session*> _sess_map;
     std::mutex _sess_mut;
-    bool _session_caching, _redir_caching;
-
-    // redirection pool
-    Cache<std::pair<std::string, std::string>, Uri> _redirCache;
+    bool _session_caching;
 
     void internal_release_session_handle(ne_session* sess);
     ne_session* create_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);
     ne_session* create_recycled_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);
-
-    std::shared_ptr<Uri> redirectionResolveSingleIntern(const std::string & method, const Uri & origin);
-
 };
 
 void parse_http_neon_url(const std::string & url, std::string & protocol,

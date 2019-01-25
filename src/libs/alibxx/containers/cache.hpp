@@ -8,7 +8,7 @@
 #include <mutex>
 
 
-namespace A_LIB_NAMESPACE{
+namespace Davix {
 
 ///
 /// Thread Safe Cache container

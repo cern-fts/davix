@@ -45,15 +45,13 @@ static bool redirCachingDisabled(){
 
 
 NEONSessionFactory::NEONSessionFactory() :
+    redirectionResolver(!redirCachingDisabled()),
     _sess_map(),
     _sess_mut(),
-    _session_caching(!sessionCachingDisabled()),
-    _redir_caching(!redirCachingDisabled()),
-    _redirCache(256)
+    _session_caching(!sessionCachingDisabled())
 {
     std::call_once(neon_once, &init_neon);
     DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CORE, "HTTP/SSL Session caching {}", (_session_caching?"ENABLED":"DISABLED"));
-    DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CORE, "Redirection Session caching {}", (_redir_caching?"ENABLED":"DISABLED"));
 }
 
 NEONSessionFactory::~NEONSessionFactory(){
@@ -162,63 +160,20 @@ void NEONSessionFactory::internal_release_session_handle(ne_session* sess){
     _sess_map.insert(std::pair<std::string, ne_session*>(sess_key, sess));
 }
 
-static const std::pair<std::string, std::string> redirectionCreateKey(const std::string & method, const Uri & origin){
-    std::string mymethod = method;
-    // cache HEAD and GET on same key
-    if(mymethod == "HEAD")
-        mymethod = "GET";
-
-    return std::make_pair(origin.getString(), mymethod);
-}
-
 void NEONSessionFactory::addRedirection( const std::string & method, const Uri & origin, std::shared_ptr<Uri> dest){
-    if(_redir_caching){
-        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "Add cached redirection <{} {} {}>", method.c_str(), origin.getString().c_str(), dest->getString().c_str());
-        _redirCache.insert(redirectionCreateKey(method, origin), dest);
-    }
+    redirectionResolver.addRedirection(method, origin, dest);
 }
 
 std::shared_ptr<Uri> NEONSessionFactory::redirectionResolve(const std::string & method, const Uri & origin){
-    std::shared_ptr<Uri> res = redirectionResolveSingle(method, origin);
-    if(res.get() != NULL){
-        std::shared_ptr<Uri> res_rec = redirectionResolve(method, *res);
-        if(res_rec.get() != NULL)
-            return res_rec;
-    }
-    return res;
-}
-
-std::shared_ptr<Uri> NEONSessionFactory::redirectionResolveSingleIntern(const std::string & method, const Uri & origin){
-    return  _redirCache.find(redirectionCreateKey(method, origin));
-}
-
-
-std::shared_ptr<Uri> NEONSessionFactory::redirectionResolveSingle(const std::string & method, const Uri & origin){
-    std::shared_ptr<Uri> res = redirectionResolveSingleIntern(method, origin);
-    if(res.get() != NULL){
-        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "Found redirection  <{} {} {}>", method.c_str(), origin.getString().c_str(), res->getString().c_str());
-    }
-    return res;
+    return redirectionResolver.redirectionResolve(method, origin);
 }
 
 void NEONSessionFactory::redirectionClean(const std::string & method, const Uri & origin){
-    std::shared_ptr<Uri> res = redirectionResolveSingleIntern(method, origin);
-    if(res.get() != NULL){
-        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "Delete Cached redirection for <{} {} {}>", method.c_str(), origin.getString().c_str(), res->getString().c_str());
-        _redirCache.erase(redirectionCreateKey(method, origin));
-        redirectionClean(method, *res);
-    }
+    redirectionResolver.redirectionClean(method, origin);
 }
 
 void NEONSessionFactory::redirectionClean(const Uri & origin){
-    std::pair<std::string, std::string> query = std::make_pair(origin.getString(), "");
-    while(1) {
-        const std::pair<std::string, std::string> nextkey = _redirCache.upper_bound(query);
-        if(nextkey.first != origin.getString())
-            break;
-
-        redirectionClean(nextkey.second, nextkey.first);
-    }
+    redirectionResolver.redirectionClean(origin);
 }
 
 std::string create_map_keys_from_URL(const std::string & protocol, const std::string &host, unsigned int port){

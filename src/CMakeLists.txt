@@ -1,7 +1,7 @@
 # main file for src
 
 FILE(GLOB src_davix
-    "*.cpp" "neon/*.cpp" "status/*.cpp" "fileops/*.cpp"
+    "*.cpp" "neon/*.cpp" "core/*.cpp" "status/*.cpp" "fileops/*.cpp"
     "params/*.cpp" "auth/*.cpp" "file/*.cpp" "deprecated/*.cpp"
     "request/*.cpp" "hooks/*.cpp" "modules/*.cpp" "utils/*.cpp" "xml/*.cpp"
 )

@@ -46,15 +46,6 @@ public:
         return _sess;
     }
 
-    inline bool getLastError(DavixError** err){
-        if(_last_error){
-            DavixError::propagateError(err, _last_error);
-            _last_error = NULL;
-            return true;
-        }
-        return false;
-    }
-
     inline bool isRecycledSession(){
         return reused;
     }

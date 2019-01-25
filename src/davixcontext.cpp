@@ -43,19 +43,13 @@ struct ContextInternal
 {
     ContextInternal(NEONSessionFactory * fsess):
         _fsess(fsess),
-        _s_buff(65536),
-        _timeout(300),
-        _context_flags(0),
         _hook_list()
     {
             DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "libdavix path {}", getLibPath());
     }
 
-    ContextInternal(const ContextInternal & orig):
+    ContextInternal(const ContextInternal & orig) :
         _fsess(new NEONSessionFactory()),
-        _s_buff(orig._s_buff),
-        _timeout(orig._timeout),
-        _context_flags(orig._context_flags),
         _hook_list(orig._hook_list)
     {
     }
@@ -67,14 +61,7 @@ struct ContextInternal
          return _fsess.get();
     }
 
-    void setBufferSize(const dav_size_t value){
-      _s_buff = value;
-    }
-
     Ptr::Scoped<NEONSessionFactory>  _fsess;
-    dav_size_t _s_buff;
-    unsigned long _timeout;
-    bool _context_flags;
     HookList _hook_list;
 };
 

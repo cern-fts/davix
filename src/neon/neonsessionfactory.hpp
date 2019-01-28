@@ -25,9 +25,7 @@
 #include <map>
 #include <mutex>
 #include <utils/davix_uri.hpp>
-
 #include <neon/neonrequest.hpp>
-#include <core/RedirectionResolver.hpp>
 
 namespace Davix {
 
@@ -51,15 +49,6 @@ public:
     int storeNeonSession(ne_session *sess);
 
     //
-    // Redirecton caching
-    //
-
-    void addRedirection( const std::string & method, const Uri & origin, std::shared_ptr<Uri> dest);
-    std::shared_ptr<Uri> redirectionResolve(const std::string & method, const Uri & origin);
-    void redirectionClean(const std::string & method, const Uri & origin);
-    void redirectionClean(const Uri & origin);
-
-    //
     // opts
     //
 
@@ -70,8 +59,6 @@ public:
     }
 
 private:
-    RedirectionResolver redirectionResolver;
-
     // session pool
     std::multimap<std::string, ne_session*> _sess_map;
     std::mutex _sess_mut;

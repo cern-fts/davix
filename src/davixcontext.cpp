@@ -27,6 +27,7 @@
 #include <modules/modules_profiles.hpp>
 #include <neon/neonsessionfactory.hpp>
 #include <davix_context_internal.hpp>
+#include <core/RedirectionResolver.hpp>
 #include <set>
 #include <mutex>
 
@@ -38,11 +39,16 @@ struct LibPath;
 static LibPath lib_path;
 
 
+static bool redirCachingDisabled(){
+    return ( getenv("DAVIX_DISABLE_REDIRECT_CACHING") != NULL);
+}
+
 ///  Implementation f the core logic in davix
 struct ContextInternal
 {
-    ContextInternal(NEONSessionFactory * fsess):
-        _fsess(fsess),
+    ContextInternal():
+        _fsess(new NEONSessionFactory()),
+        _redirectionResolver(new RedirectionResolver(!redirCachingDisabled())),
         _hook_list()
     {
             DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "libdavix path {}", getLibPath());
@@ -50,6 +56,7 @@ struct ContextInternal
 
     ContextInternal(const ContextInternal & orig) :
         _fsess(new NEONSessionFactory()),
+        _redirectionResolver(new RedirectionResolver(!redirCachingDisabled())),
         _hook_list(orig._hook_list)
     {
     }
@@ -61,7 +68,12 @@ struct ContextInternal
          return _fsess.get();
     }
 
+    inline RedirectionResolver* getRedirectionResolver() {
+        return _redirectionResolver.get();
+    }
+
     std::unique_ptr<NEONSessionFactory>  _fsess;
+    std::unique_ptr<RedirectionResolver> _redirectionResolver;
     HookList _hook_list;
 };
 
@@ -71,7 +83,7 @@ struct ContextInternal
 
 
 Context::Context() :
-    _intern(new ContextInternal(new NEONSessionFactory()))
+    _intern(new ContextInternal())
 {
 }
 
@@ -135,6 +147,9 @@ NEONSessionFactory & ContextExplorer::SessionFactoryFromContext(Context & c){
     return *static_cast<NEONSessionFactory*>(c._intern->getSessionFactory());
 }
 
+RedirectionResolver & ContextExplorer::RedirectionResolverFromContext(Context &c) {
+    return *c._intern->getRedirectionResolver();
+}
 
 LibPath::LibPath(){
     Dl_info shared_lib_infos;

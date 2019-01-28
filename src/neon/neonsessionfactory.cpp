@@ -39,13 +39,7 @@ static bool sessionCachingDisabled(){
     return ( getenv("DAVIX_DISABLE_SESSION_CACHING") != NULL);
 }
 
-static bool redirCachingDisabled(){
-    return ( getenv("DAVIX_DISABLE_REDIRECT_CACHING") != NULL);
-}
-
-
 NEONSessionFactory::NEONSessionFactory() :
-    redirectionResolver(!redirCachingDisabled()),
     _sess_map(),
     _sess_mut(),
     _session_caching(!sessionCachingDisabled())
@@ -158,22 +152,6 @@ void NEONSessionFactory::internal_release_session_handle(ne_session* sess){
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "add old session to cache {}", sess_key.c_str());
 
     _sess_map.insert(std::pair<std::string, ne_session*>(sess_key, sess));
-}
-
-void NEONSessionFactory::addRedirection( const std::string & method, const Uri & origin, std::shared_ptr<Uri> dest){
-    redirectionResolver.addRedirection(method, origin, dest);
-}
-
-std::shared_ptr<Uri> NEONSessionFactory::redirectionResolve(const std::string & method, const Uri & origin){
-    return redirectionResolver.redirectionResolve(method, origin);
-}
-
-void NEONSessionFactory::redirectionClean(const std::string & method, const Uri & origin){
-    redirectionResolver.redirectionClean(method, origin);
-}
-
-void NEONSessionFactory::redirectionClean(const Uri & origin){
-    redirectionResolver.redirectionClean(origin);
 }
 
 std::string create_map_keys_from_URL(const std::string & protocol, const std::string &host, unsigned int port){

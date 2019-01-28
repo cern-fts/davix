@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <davix.hpp>
 #include <neon/neonsessionfactory.hpp>
+#include <core/RedirectionResolver.hpp>
 
 using namespace Davix;
 
@@ -15,7 +16,7 @@ TEST(testRedirectCache, testCacheSimple){
     Uri u_sec("https://higgs.boson/is/watchingus");
     Uri u_port("http://higgs.boson:8668/is/watchingus");
 
-    NEONSessionFactory f;
+    RedirectionResolver f(true);
     f.addRedirection("GET", u, dest);
     ASSERT_TRUE(f.redirectionResolve("GET", u) == dest);
     ASSERT_TRUE(f.redirectionResolve("GET", u_sec).get() == NULL);
@@ -44,7 +45,7 @@ TEST(testRedirectCache, testCacheChainRedirection){
     std::shared_ptr<Uri> url3(new Uri("http://server2.com:8080/dsffds/sfdfdsfsdfdsfdsfds"));
     std::shared_ptr<Uri> url4(new Uri("http://server3.com/dsffds/fsdaaaaa"));
 
-    NEONSessionFactory f;
+    RedirectionResolver f(true);
     f.addRedirection("GET", u, url1);
     f.addRedirection("GET",*url1, url2);
     f.addRedirection("GET", *url2, url3);
@@ -68,7 +69,7 @@ TEST(testRedirectCache, test_GET_HEAD){
     std::shared_ptr<Uri> url1(new Uri("http://sffsdfsd.com/dsffds/fsdfsdsdf"));
     std::shared_ptr<Uri> url2(new Uri("http://server2.com/dsffds/sfdfdsfsdfdsfdsfds"));
 
-    NEONSessionFactory f;
+    RedirectionResolver f(true);
     f.addRedirection("GET", u, url1);
 
     ASSERT_TRUE(f.redirectionResolve("GET", u) == url1);

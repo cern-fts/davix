@@ -32,6 +32,7 @@
 #include <fileops/fileutils.hpp>
 #include <fileops/AzureIO.hpp>
 #include <fileops/S3IO.hpp>
+#include <core/RedirectionResolver.hpp>
 
 
 
@@ -208,12 +209,12 @@ int NEONRequest::createRequest(DavixError** err){
 
     std::shared_ptr<Uri> redir_url;
     if(this->params.getTransparentRedirectionSupport()) {
-        redir_url = ContextExplorer::SessionFactoryFromContext(_c).redirectionResolve(_request_type, *_current);
+        redir_url = ContextExplorer::RedirectionResolverFromContext(_c).redirectionResolve(_request_type, *_current);
     }
 
     // performing an operation which could change the PFN? Clear all cache entries for selected URL
     if(_request_type == "DELETE" || _request_type == "MOVE") {
-        ContextExplorer::SessionFactoryFromContext(_c).redirectionClean(*_current.get());
+        ContextExplorer::RedirectionResolverFromContext(_c).redirectionClean(*_current.get());
     }
 
     if(redir_url.get() != NULL){
@@ -463,7 +464,7 @@ int NEONRequest::negotiateRequest(DavixError** err){
             createError(status, err);
 
             cancelSessionReuse();
-            ContextExplorer::SessionFactoryFromContext(_c).redirectionClean(_request_type, *_orig);
+            ContextExplorer::RedirectionResolverFromContext(_c).redirectionClean(_request_type, *_orig);
             return -1;
         }
 
@@ -604,7 +605,7 @@ int NEONRequest::negotiateRequest(DavixError** err){
 //
 bool NEONRequest::requestCleanup(){
     // cleanup redirection
-    ContextExplorer::SessionFactoryFromContext(_c).redirectionClean(_request_type, *_orig);
+    ContextExplorer::RedirectionResolverFromContext(_c).redirectionClean(_request_type, *_orig);
 
     // disable recycling
     // server supporting broken pipelining will trigger if reused
@@ -637,7 +638,7 @@ int NEONRequest::redirectRequest(DavixError **err){
     old_uri = _current;
     _current= std::shared_ptr<Uri>(new Uri(dst_uri));
     ne_free(dst_uri);
-    ContextExplorer::SessionFactoryFromContext(_c).addRedirection(_request_type, *old_uri, _current);
+    ContextExplorer::RedirectionResolverFromContext(_c).addRedirection(_request_type, *old_uri, _current);
 
 
     // recycle old request and session

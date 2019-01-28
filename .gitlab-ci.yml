@@ -81,7 +81,7 @@ docs-generate:
   stage: build
   image: fedora:29
   script:
-    - dnf install -y git python3-sphinx python3-pip gcc-c++ rpm-build dnf-plugins-core
+    - dnf install -y git python3-sphinx python3-pip gcc-c++ rpm-build dnf-plugins-core python2 python3-breathe
     - packaging/make-docs.sh
     - mv build/doc/build/html docs
   artifacts:

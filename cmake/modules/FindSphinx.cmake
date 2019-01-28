@@ -43,7 +43,7 @@ if (NOT PYTHON_EXECUTABLE)
 endif()
 
 # Try to find sphinx-build
-find_program(SPHINX_EXECUTABLE sphinx-build
+find_program(SPHINX_EXECUTABLE sphinx-build sphinx-build-3
   HINTS ${SPHINX_DIR} $ENV{SPHINX_DIR}
   PATH_SUFFIXES bin
   DOC "Sphinx documentation generator tool"

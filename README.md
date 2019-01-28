@@ -6,7 +6,7 @@
 
 ## Documentation
 
-Click [here](https://dmc-docs.web.cern.ch/dmc-docs/versions/docs/davix-epel/html/) to view the documentation of the latest released version, or [here](https://dmc-docs.web.cern.ch/dmc-docs/versions/docs/davix-development/html/) for the version under development. (devel branch)
+Visit [https://davix.web.cern.ch](https://davix.web.cern.ch) to view the latest documentation.
 
 
 ## HTTP File Management
@@ -65,7 +65,7 @@ The tarball will appear under ``./build``, and will correspond to whichever git 
 ## Development
 
 The official repository is the one on [GitHub](https://github.com/cern-fts/davix). It's automatically mirrored on [CERN Gitlab](https://gitlab.cern.ch/dmc/davix) for CI purposes. This means:
-* Use GitHub for new commits, issues, or pull requests. 
+* Use GitHub for new commits, issues, or pull requests.
 * Please don't commit directly on GitLab.
 * After a commit, GitLab will mirror the changes automatically, and run CI. Treat Gitlab as if it were ie a Jenkins CI instance.
 

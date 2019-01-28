@@ -121,6 +121,7 @@ docs:
   dependencies:
     - docs-generate
   script:
+    - yum install -y sssd-client sudo
     - chown -R stci docs
     - SNAPSHOT=$(date +%s)
     - TARGET="/eos/project/d/davix/www/docs/${CI_COMMIT_REF_NAME}"

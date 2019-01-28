@@ -161,7 +161,7 @@ private:
     // request parameters
     RequestParams params;
     // neon internal field
-    Ptr::Scoped<NEONSession> _neon_sess;
+    std::unique_ptr<NEONSession> _neon_sess;
     // request options flag
 
 

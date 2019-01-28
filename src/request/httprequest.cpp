@@ -33,8 +33,8 @@ namespace Davix {
 /////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////
 
-HttpRequest::HttpRequest(NEONRequest* req) : d_ptr(req)
-{
+HttpRequest::HttpRequest(NEONRequest* req) {
+  std::cerr << "Usage of HttpRequest::HttpRequest(NEONRequest* req) is deprecated!" << std::endl;
 }
 
 HttpRequest::HttpRequest(Context & context, const Uri & uri, DavixError** err) :

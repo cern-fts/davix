@@ -62,8 +62,8 @@ struct DirHandle{
 
     DirHandle(HttpRequest* req, XMLPropParser * p): request(req), parser(p){}
 
-    Ptr::Scoped<HttpRequest> request;
-    Ptr::Scoped<Davix::XMLPropParser> parser;
+    std::unique_ptr<HttpRequest> request;
+    std::unique_ptr<Davix::XMLPropParser> parser;
 
 
 };
@@ -146,7 +146,7 @@ int dav_stat_mapper_http(Context& context, const RequestParams* params, const Ur
 }
 
 
-// Implement stat with a GET of Range 1 
+// Implement stat with a GET of Range 1
 int dav_stat_mapper_http_get(Context& context, const RequestParams* params, const Uri & uri, struct StatInfo& st_info){
     int ret = -1;
     DavixError * tmp_err=NULL;
@@ -168,7 +168,7 @@ int dav_stat_mapper_http_get(Context& context, const RequestParams* params, cons
                 }
                 if (rnge.substr(pos+1,1) == "*") {
                    throw DavixException(davix_scope_meta(), StatusCode::ParsingError, "Server does not provide content length");
-                } 
+                }
                 long lsize = toType<long, std::string>()(rnge.substr(pos+1));
                 st_info.size = std::max<long>(0,lsize);
                 st_info.mode = 0755 | S_IFREG;
@@ -434,7 +434,7 @@ int internal_checksum(Context & c, const Uri & url, const RequestParams *p, std:
 
 
 
-bool wedav_get_next_property(Ptr::Scoped<DirHandle> & handle, std::string & name_entry, StatInfo & info){
+bool wedav_get_next_property(std::unique_ptr<DirHandle> & handle, std::string & name_entry, StatInfo & info){
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, " -> wedav_get_next_property");
     const size_t read_size = 2048;
 
@@ -466,7 +466,7 @@ bool wedav_get_next_property(Ptr::Scoped<DirHandle> & handle, std::string & name
 }
 
 
-void webdav_start_listing_query(Ptr::Scoped<DirHandle> & handle, Context & context, const RequestParams* params, const Uri & url, const std::string & body){
+void webdav_start_listing_query(std::unique_ptr<DirHandle> & handle, Context & context, const RequestParams* params, const Uri & url, const std::string & body){
     dav_ssize_t s_resu;
 
     DavixError* tmp_err=NULL;
@@ -508,7 +508,7 @@ void webdav_start_listing_query(Ptr::Scoped<DirHandle> & handle, Context & conte
 
 }
 
-bool webdav_directory_listing(Ptr::Scoped<DirHandle> & handle, Context & context, const RequestParams* params, const Uri & uri, const std::string & body, std::string & name_entry, StatInfo & info){
+bool webdav_directory_listing(std::unique_ptr<DirHandle> & handle, Context & context, const RequestParams* params, const Uri & uri, const std::string & body, std::string & name_entry, StatInfo & info){
     if(handle.get() == NULL){
         webdav_start_listing_query(handle, context, params, uri, body);
     }
@@ -769,7 +769,7 @@ StatInfo & S3MetaOps::statInfo(IOChainContext & iocontext, StatInfo & st_info){
 }
 
 
-bool s3_get_next_property(Ptr::Scoped<DirHandle> & handle, std::string & name_entry, StatInfo & info){
+bool s3_get_next_property(std::unique_ptr<DirHandle> & handle, std::string & name_entry, StatInfo & info){
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, " -> s3_get_next_property");
     const size_t read_size = 2048;
 
@@ -801,7 +801,7 @@ bool s3_get_next_property(Ptr::Scoped<DirHandle> & handle, std::string & name_en
 }
 
 
-void s3_start_listing_query(Ptr::Scoped<DirHandle> & handle, Context & context, const RequestParams* params, const Uri & url, const std::string & body){
+void s3_start_listing_query(std::unique_ptr<DirHandle> & handle, Context & context, const RequestParams* params, const Uri & url, const std::string & body){
     (void) body;
     dav_ssize_t s_resu;
     DavixError* tmp_err=NULL;
@@ -874,7 +874,7 @@ void s3_start_listing_query(Ptr::Scoped<DirHandle> & handle, Context & context, 
 
 
 
-bool s3_directory_listing(Ptr::Scoped<DirHandle> & handle, Context & context, const RequestParams* params, const Uri & uri, const std::string & body, std::string & name_entry, StatInfo & info){
+bool s3_directory_listing(std::unique_ptr<DirHandle> & handle, Context & context, const RequestParams* params, const Uri & uri, const std::string & body, std::string & name_entry, StatInfo & info){
     if(handle.get() == NULL){
         s3_start_listing_query(handle, context, params, uri, body);
     }
@@ -980,7 +980,7 @@ StatInfo & AzureMetaOps::statInfo(IOChainContext & iocontext, StatInfo & st_info
     }
 }
 
-static void azure_start_listing_query(Ptr::Scoped<DirHandle> & handle, Context & context, const RequestParams* params, const Uri & url, const std::string & body) {
+static void azure_start_listing_query(std::unique_ptr<DirHandle> & handle, Context & context, const RequestParams* params, const Uri & url, const std::string & body) {
     DavixError* tmp_err=NULL;
     dav_ssize_t s_resu;
 
@@ -1014,7 +1014,7 @@ static void azure_start_listing_query(Ptr::Scoped<DirHandle> & handle, Context &
 
 }
 
-bool azure_get_next_property(Ptr::Scoped<DirHandle> & handle, std::string & name_entry, StatInfo & info) {
+bool azure_get_next_property(std::unique_ptr<DirHandle> & handle, std::string & name_entry, StatInfo & info) {
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, " -> azure_get_next_property");
     const size_t read_size = 2048;
 
@@ -1043,7 +1043,7 @@ bool azure_get_next_property(Ptr::Scoped<DirHandle> & handle, std::string & name
     return true;
 }
 
-static bool azure_directory_listing(Ptr::Scoped<DirHandle> & handle, Context & context, const RequestParams* params, const Uri & uri, const std::string & body, std::string & name_entry, StatInfo & info){
+static bool azure_directory_listing(std::unique_ptr<DirHandle> & handle, Context & context, const RequestParams* params, const Uri & uri, const std::string & body, std::string & name_entry, StatInfo & info){
     if(handle.get() == NULL){
         azure_start_listing_query(handle, context, params, uri, body);
     }

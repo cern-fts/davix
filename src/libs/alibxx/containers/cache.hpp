@@ -6,6 +6,7 @@
 #include <limits>
 #include <utility>
 #include <mutex>
+#include <memory>
 
 
 namespace Davix {

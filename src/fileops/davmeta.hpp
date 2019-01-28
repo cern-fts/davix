@@ -62,7 +62,7 @@ public:
 
 private:
 
-    Ptr::Scoped<DirHandle> directoryItem;
+    std::unique_ptr<DirHandle> directoryItem;
 };
 
 
@@ -88,7 +88,7 @@ public:
     virtual bool nextSubItem(IOChainContext &iocontext, std::string &entry_name, StatInfo &info);
 
 private:
-    Ptr::Scoped<DirHandle> directoryItem;
+    std::unique_ptr<DirHandle> directoryItem;
 
 };
 
@@ -111,7 +111,7 @@ public:
     virtual bool nextSubItem(IOChainContext &iocontext, std::string &entry_name, StatInfo &info);
 
 private:
-    Ptr::Scoped<DirHandle> directoryItem;
+    std::unique_ptr<DirHandle> directoryItem;
 
 };
 

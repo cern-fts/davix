@@ -61,7 +61,7 @@ struct ContextInternal
          return _fsess.get();
     }
 
-    Ptr::Scoped<NEONSessionFactory>  _fsess;
+    std::unique_ptr<NEONSessionFactory>  _fsess;
     HookList _hook_list;
 };
 

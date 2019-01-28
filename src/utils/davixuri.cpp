@@ -46,8 +46,7 @@ struct UriPrivate{
         query(),
         fragment(),
         port(0),
-        _uri_string(),
-        query_and_path(NULL){}
+        _uri_string() {}
 
     UriPrivate(const UriPrivate & orig):
         code(orig.code),
@@ -58,8 +57,7 @@ struct UriPrivate{
         query(orig.query),
         fragment(orig.fragment),
         port(orig.port),
-        _uri_string(orig._uri_string),
-        query_and_path(NULL){ }
+        _uri_string(orig._uri_string) {}
 
     ~UriPrivate(){
 
@@ -146,7 +144,7 @@ struct UriPrivate{
     std::string proto, userinfo, path, host, query, fragment;
     unsigned int port;
     std::string _uri_string;
-    Ptr::Scoped<std::string> query_and_path;
+    std::unique_ptr<std::string> query_and_path;
 
 };
 

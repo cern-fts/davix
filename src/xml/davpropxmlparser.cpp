@@ -33,7 +33,7 @@ namespace Davix {
 
 const Xml::XmlPTree prop_node(Xml::ElementStart, "propstat");
 const Xml::XmlPTree prop_collection(Xml::ElementStart, "collection");
-static Ptr::Scoped<Xml::XmlPTree> webDavTree;
+static std::unique_ptr<Xml::XmlPTree> webDavTree;
 
 static std::once_flag _l_init;
 

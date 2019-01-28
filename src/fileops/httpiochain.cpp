@@ -25,7 +25,7 @@
 
 namespace Davix{
 
-HttpIOChain::HttpIOChain() : _next(NULL), _start(this)
+HttpIOChain::HttpIOChain() : _start(this)
 {
 }
 

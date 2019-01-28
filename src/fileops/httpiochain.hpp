@@ -42,7 +42,7 @@ class HttpIOChain;
 // data again to an fd after a retry / metalink recovery.
 struct FdHandler {
     FdHandler() : fd(-1), bytes_written_to_fd(0) { }
-  
+
     int fd;
     dav_ssize_t bytes_written_to_fd;
 };
@@ -167,7 +167,7 @@ public:
 
 
 protected:
-    Ptr::Scoped<HttpIOChain> _next;
+    std::unique_ptr<HttpIOChain> _next;
     HttpIOChain* _start;
 
 

@@ -48,7 +48,7 @@ protected:
 
 
 private:
-    Ptr::Scoped<Internal> d_ptr;
+    std::unique_ptr<Internal> d_ptr;
 };
 
 }

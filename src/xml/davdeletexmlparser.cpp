@@ -34,7 +34,7 @@ namespace Davix {
 
 const Xml::XmlPTree prop_response(Xml::ElementStart, "response");
 
-static Ptr::Scoped<Xml::XmlPTree> webDavTree;
+static std::unique_ptr<Xml::XmlPTree> webDavTree;
 
 static std::once_flag _l_init;
 

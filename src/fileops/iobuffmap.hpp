@@ -115,7 +115,7 @@ protected:
     // locker
     std::recursive_mutex _rwlock;
     // write cache
-    Ptr::Scoped<IOBufferLocalFile> _local;
+    std::unique_ptr<IOBufferLocalFile> _local;
 
     dav_off_t _read_pos; //curent read file offset
     bool _read_endfile;

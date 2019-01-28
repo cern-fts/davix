@@ -13,9 +13,6 @@
 #endif
 
 
-// pointer helpers
-#include "ptr/unique.hpp"
-
 // algorithm helpers
 #include "algorithm/algorithm.hpp"
 

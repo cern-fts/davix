@@ -128,6 +128,9 @@ docs:
     - STAGING_AREA="$TARGET-${SNAPSHOT}"
     - sudo -u stci -H cp -r docs "$STAGING_AREA"
     - sudo -u stci -H packaging/replace-directory.sh "$STAGING_AREA" "$TARGET"
+  tags:
+    - docker-cc7
+  retry: 2
 
 rpms:
   stage: publish

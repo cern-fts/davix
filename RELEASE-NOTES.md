@@ -1,5 +1,16 @@
 # davix release history
 
+
+## Unreleased
+### Bug fixes
+* produce-artifacts script was producing wonky release artifacts
+* [DMC-1127] - davix should not segfault when calling DavPosix::close twice
+* [DMC-1135] - davix misuses data provider function in S3 multi-part upload
+
+### Improvements
+* Some refactoring, and splitting of redirection caching logic into its own separate class.
+
+
 ## 0.7.1 (2018-10-24)
 ### Bug fixes
 * [DMC-1114] - DAVIX adds cert chain multiple times

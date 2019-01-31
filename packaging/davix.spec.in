@@ -5,7 +5,6 @@ Name:				davix
 Version:			@VERSION_FULL@
 Release:			1%{?dist}
 Summary:			Toolkit for Http-based file management
-Group:				Applications/Internet
 License:			LGPLv2+
 URL:				http://dmc.web.cern.ch/projects/davix/home
 # git clone http://git.cern.ch/pub/davix
@@ -41,7 +40,6 @@ Davix provides an API and a set of command line tools.
 
 %package libs
 Summary:			Development files for %{name}
-Group:				Applications/Internet
 
 %description libs
 Libraries for %{name}. Davix is a toolkit designed for file operations
@@ -50,7 +48,6 @@ with Http based protocols (WebDav, Amazon S3, ...).
 
 %package devel
 Summary:			Development files for %{name}
-Group:				Applications/Internet
 Requires:			%{name}-libs%{?_isa} = %{version}-%{release}
 Requires:			pkgconfig
 
@@ -60,7 +57,6 @@ with Http based protocols (WebDav, Amazon S3, ...).
 
 %package tests
 Summary:            Test suite for %{name}
-Group:              Applications/Internet
 Requires:			%{name}-libs%{?_isa} = %{version}-%{release}
 
 %description tests
@@ -69,7 +65,6 @@ with Http based protocols (WebDav, Amazon S3, ...).
 
 %package doc
 Summary:			Documentation for %{name}
-Group:				Documentation
 %if %{?fedora}%{!?fedora:0} >= 10 || %{?rhel}%{!?rhel:0} >= 6
 BuildArch:	noarch
 %endif

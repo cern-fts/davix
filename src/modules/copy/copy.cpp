@@ -294,7 +294,17 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
 
     // Just wait for it to finish
     monitorPerformanceMarkers(request, error);
-    request->endRequest(error);
+
+    // Don't override previous error when shutting down connection - sigh
+    if(error && *error) {
+      DavixError* tmp_err=NULL;
+      request->endRequest(&tmp_err);
+      DavixError::clearError(tmp_err);
+    }
+    else {
+      request->endRequest(error);
+    }
+
     delete request;
 }
 

@@ -51,7 +51,7 @@ struct ContextInternal
         _redirectionResolver(new RedirectionResolver(!redirCachingDisabled())),
         _hook_list()
     {
-            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "libdavix path {}", getLibPath());
+            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "libdavix path {}, version: {}", getLibPath(), version());
     }
 
     ContextInternal(const ContextInternal & orig) :

@@ -1,7 +1,7 @@
 # davix release history
 
 
-## Unreleased
+## 0.7.2 (2019-02-15)
 ### Bug fixes
 * produce-artifacts script was producing wonky release artifacts
 * [DMC-1127] - davix should not segfault when calling DavPosix::close twice

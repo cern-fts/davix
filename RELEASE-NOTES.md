@@ -6,6 +6,8 @@
 * produce-artifacts script was producing wonky release artifacts
 * [DMC-1127] - davix should not segfault when calling DavPosix::close twice
 * [DMC-1135] - davix misuses data provider function in S3 multi-part upload
+* [DMC-1138] - Error from performance markers sometimes is not correctly reported by Davix
+* [DMC-1140] - Fix parsing of the Digest to be complaint to RFC 3230
 
 ### Improvements
 * Some refactoring, and splitting of redirection caching logic into its own separate class.

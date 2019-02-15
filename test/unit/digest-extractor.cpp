@@ -35,3 +35,15 @@ TEST(ChecksumExtractor, BasicSanity) {
   ASSERT_TRUE(ChecksumExtractor::extractChecksum(v1, "frob", output));
   ASSERT_EQ(output, "cbda22bcb41ab0151b438589aa4637e2");
 }
+
+TEST(ChecksumExtractor, MultipleReturnedChecksums) {
+  std::string output;
+
+  HeaderVec v1;
+  v1.emplace_back("Digest", "adler32=10cf712f,md5=+Tvja0I4Jp7AhrZfWO7C3A==");
+  ASSERT_TRUE(ChecksumExtractor::extractChecksum(v1, "adler32", output));
+  ASSERT_EQ(output, "10cf712f");
+
+  ASSERT_TRUE(ChecksumExtractor::extractChecksum(v1, "md5", output));
+  ASSERT_EQ(output, "f93be36b4238269ec086b65f58eec2dc");
+}

@@ -26,6 +26,9 @@ namespace Davix {
 class ChecksumExtractor {
 public:
 
+  static bool extractChecksum(const std::string &headerLine,
+    const std::string &desiredChecksum, std::string &checksum);
+
   static bool extractChecksum(const HeaderVec &headers,
     const std::string &desiredChecksum, std::string &checksum);
 

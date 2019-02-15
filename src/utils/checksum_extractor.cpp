@@ -58,37 +58,60 @@ static std::string hexEncode(const std::string &input, const std::string &separa
     return ss.str();
 }
 
-bool ChecksumExtractor::extractChecksum(const HeaderVec &headers,
+static std::vector<std::string> split(std::string data, std::string token) {
+  std::vector<std::string> output;
+  size_t pos = std::string::npos;
+  do {
+    pos = data.find(token);
+    output.push_back(data.substr(0, pos));
+    if(std::string::npos != pos) data = data.substr(pos + token.size());
+  } while (std::string::npos != pos);
+  return output;
+}
+
+bool ChecksumExtractor::extractChecksum(const std::string &headerLine,
     const std::string &desiredChecksum, std::string &checksum) {
 
   std::string expectedPrefix = SSTR(desiredChecksum << "=");
+  std::vector<std::string> chunks = split(headerLine, ",");
+
+  for(size_t i = 0; i < chunks.size(); i++) {
+    if(startsWithNoCase(chunks[i], expectedPrefix)) {
+      // We have a match. Are we supposed to base64 decode this?
+      checksum = chunks[i].substr(expectedPrefix.size());
+
+      if(StrUtil::compare_ncase(desiredChecksum, "UNIXcksum") == 0 ||
+         StrUtil::compare_ncase(desiredChecksum, "CRC32c") == 0    ||
+         StrUtil::compare_ncase(desiredChecksum, "ADLER32") == 0   ||
+         StrUtil::compare_ncase(desiredChecksum, "UNIXsum") == 0
+        ) {
+          // Nope, just extract the value.
+          return true;
+      }
+
+      if(StrUtil::compare_ncase(desiredChecksum, "md5") == 0) {
+        // Maybe.. older versions of DPM don't base64 encode their output.
+        if(checksum.size() != 32) {
+          checksum = hexEncode(Base64::base64_decode(checksum));
+        }
+        return true;
+      }
+
+      // All other checksums should be base64 decoded.
+      checksum = hexEncode(Base64::base64_decode(checksum));
+      return true;
+    }
+  }
+
+  return false;
+}
+
+bool ChecksumExtractor::extractChecksum(const HeaderVec &headers,
+    const std::string &desiredChecksum, std::string &checksum) {
 
   for(HeaderVec::const_iterator it = headers.begin(); it != headers.end(); it++) {
     if(equalsNoCase(it->first, "Digest")) {
-      if(startsWithNoCase(it->second, expectedPrefix)) {
-        // We have a match. Are we supposed to base64 decode this?
-        checksum = it->second.substr(expectedPrefix.size());
-
-        if(StrUtil::compare_ncase(desiredChecksum, "UNIXcksum") == 0 ||
-           StrUtil::compare_ncase(desiredChecksum, "CRC32c") == 0    ||
-           StrUtil::compare_ncase(desiredChecksum, "ADLER32") == 0   ||
-           StrUtil::compare_ncase(desiredChecksum, "UNIXsum") == 0
-         ) {
-
-          // Nope, just extract the value.
-          return true;
-        }
-
-        if(StrUtil::compare_ncase(desiredChecksum, "md5") == 0) {
-          // Maybe.. older versions of DPM don't base64 encode their output.
-          if(checksum.size() != 32) {
-            checksum = hexEncode(Base64::base64_decode(checksum));
-          }
-          return true;
-        }
-
-        // All other checksums should be base64 decoded.
-        checksum = hexEncode(Base64::base64_decode(checksum));
+      if(extractChecksum(it->second, desiredChecksum, checksum)) {
         return true;
       }
     }

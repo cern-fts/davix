@@ -131,6 +131,9 @@ docs:
   tags:
     - docker-cc7
   retry: 2
+  only:
+    - branches@dmc/davix
+    - tags@dmc/davix
 
 rpms:
   stage: publish
@@ -148,3 +151,6 @@ rpms:
   tags:
     - docker-cc7
   retry: 2
+  only:
+    - branches@dmc/davix
+    - tags@dmc/davix

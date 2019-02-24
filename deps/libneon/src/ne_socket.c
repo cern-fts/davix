@@ -1846,17 +1846,42 @@ int ne_sock_connect_ssl(ne_socket *sock, ne_ssl_context *ctx, void *userdata)
 */
 
     // non-blocking SSL handshake
+#ifdef NE_USE_POLL
+    int polltimeout = 1000;
+#else
     struct timeval tv;
+#endif
 
     while((ret = SSL_connect(ssl)) != 1){
+#ifdef NE_USE_POLL
+        struct pollfd pfd;
+        pfd.fd = sock->fd;
+#else
         fd_set fds;
         FD_ZERO(&fds);
         FD_SET(sock->fd, &fds);
 
         tv.tv_sec = 1;
         tv.tv_usec = 0;
+#endif
 
         switch(SSL_get_error(ssl, ret)){
+#ifdef NE_USE_POLL
+            case SSL_ERROR_WANT_WRITE:
+                pfd.events = POLLOUT;
+                poll(&pfd, 1, polltimeout);
+                break;
+
+            case SSL_ERROR_WANT_READ:
+                pfd.events = POLLIN;
+                poll(&pfd, 1, polltimeout);
+                break;
+
+            case SSL_ERROR_WANT_X509_LOOKUP:
+                pfd.events = POLLIN | POLLOUT;
+                poll(&pfd, 1, polltimeout);
+                break;
+#else
             case SSL_ERROR_WANT_WRITE:
                 select(sock->fd +1, NULL, &fds, NULL, &tv);
                 break;
@@ -1868,6 +1893,7 @@ int ne_sock_connect_ssl(ne_socket *sock, ne_ssl_context *ctx, void *userdata)
             case SSL_ERROR_WANT_X509_LOOKUP:
                 select(sock->fd +1, &fds, &fds, NULL, &tv);
                 break;
+#endif
 
             case SSL_ERROR_NONE:
             case SSL_ERROR_ZERO_RETURN:

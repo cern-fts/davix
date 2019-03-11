@@ -102,7 +102,7 @@ ReturnType metalinkExecutor(HttpIOChain & chain, IOChainContext & io_context, Ex
 
         propagateNonRecoverableExceptions(e);
 
-        DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_CHAIN, "Failure: Impossible to execute operation on {}, error {}", io_context._uri.getString(), e.what());
+        DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_CHAIN, "Could not execute operation on {}, error {}", io_context._uri.getString(), e.what());
         DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_CHAIN, "Try to Recover with Metalink...");
 
         try{
@@ -313,7 +313,7 @@ ReturnType autoRetryExecutor(HttpIOChain & chain, IOChainContext & io_context, E
                 throw error;
             }
 
-            DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_CHAIN, "Operation failure: {}. After {} retry", error.what(), retry);
+            DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_CHAIN, "Could not execute operation: {}. After {} retry", error.what(), retry);
             if( retry >= max_retry){
                 throw DavixException(error.scope(), error.code(), fmt::format("Failure {} after {} attempts", error.what(), retry));
             }

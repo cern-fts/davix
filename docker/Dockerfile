@@ -18,6 +18,8 @@ RUN \
     make install && \
     ldconfig && \
     apt-get purge -y --auto-remove git cmake g++ build-essential \
-        uuid-dev python
+        uuid-dev python && \
+    cd ../.. && \
+    rm -rf davix
 COPY *.sh /usr/local/bin/
 ENTRYPOINT [ "/usr/local/bin/davix.sh" ]

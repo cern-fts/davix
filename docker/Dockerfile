@@ -5,10 +5,9 @@ ARG DAVIX_RELEASE=devel
 
 RUN \
     apt-get update && \
-    apt-get install -y --no-install-recommends \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         git ca-certificates cmake g++ build-essential \
         libxml2-dev libssl-dev uuid-dev python && \
-    rm -rf /var/lib/apt/lists/* && \
     git clone --branch "$DAVIX_RELEASE" https://github.com/cern-fts/davix.git && \
     cd davix && \
     git submodule update --recursive --init && \
@@ -17,8 +16,13 @@ RUN \
     make && \
     make install && \
     ldconfig && \
-    apt-get purge -y --auto-remove git cmake g++ build-essential \
-        uuid-dev python && \
+    DEBIAN_FRONTEND=noninteractive apt-get remove --purge -y \
+        git cmake g++ libxml2-dev libssl-dev build-essential uuid-dev python && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        libxml2 && \
+    DEBIAN_FRONTEND=noninteractive apt-get autoremove -y && \
+    apt-get clean -y && \
+    rm -rf /var/lib/apt/lists/* && \
     cd ../.. && \
     rm -rf davix
 COPY *.sh /usr/local/bin/

@@ -53,9 +53,9 @@ fedora-29:
     paths:
     - "$CI_JOB_NAME"
 
-ubuntu-artful:
+ubuntu-disco:
   stage: build
-  image: ubuntu:artful
+  image: ubuntu:disco
   script:
     - ci/debian/packages.sh
     - packaging/make-deb.sh

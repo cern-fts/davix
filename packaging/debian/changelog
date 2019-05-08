@@ -1,3 +1,9 @@
+davix (0.7.3-1) unstable; urgency=low
+
+  * Update to version 0.7.3
+
+ -- Georgios Bitzes <georgios.bitzes at cern.ch>  Wed, 08 May 2019 13:28:54 +0200
+
 davix (0.7.2-1) unstable; urgency=low
 
   * Update to version 0.7.2

@@ -1,6 +1,6 @@
 # davix release history
 
-## Unreleased
+## 0.7.3 (2019-05-08)
 ### Bug fixes
 * Use poll instead of select during async SSL connect - fixes a crash in certain cases of overload. (Thanks to Petr Vokac)
 

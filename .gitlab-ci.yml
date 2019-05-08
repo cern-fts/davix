@@ -58,6 +58,7 @@ ubuntu-disco:
   image: ubuntu:disco
   script:
     - ci/debian/packages.sh
+    - apt install python2
     - packaging/make-deb.sh
     - mkdir ${CI_JOB_NAME}
     - cp -r build/debian-build-arena/*.{deb,ddeb,dsc} ${CI_JOB_NAME}

@@ -163,7 +163,7 @@ def sh(cmd):
     if retcode:
         raise Exception("Command {0} exited with code {1}".format(cmd, retcode))
 
-    return output
+    return output.decode("utf-8")
 
 def getFile(filename):
     try:

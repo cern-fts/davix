@@ -22,6 +22,8 @@
 
 import os, subprocess, sys, argparse
 
+path_to_genversion = os.path.abspath(os.path.dirname(__file__))
+
 def removePrefix(s, prefix):
     if s.startswith(prefix):
         return s[len(prefix):]
@@ -216,6 +218,11 @@ def main():
         os.chdir(root_dir)
     except:
         # not a failure - simply means we're building from a release tarball
+        print("Cannot regenerate {0} from git".format(args.out))
+        sys.exit(0)
+
+    # Ensure the release tarball isn't being built from inside a different git repository
+    if path_to_genversion != root_dir:
         print("Cannot regenerate {0} from git".format(args.out))
         sys.exit(0)
 

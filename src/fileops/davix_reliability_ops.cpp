@@ -313,9 +313,9 @@ ReturnType autoRetryExecutor(HttpIOChain & chain, IOChainContext & io_context, E
                 throw error;
             }
 
-            DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_CHAIN, "Could not execute operation: {}. After {} retry", error.what(), retry);
+            DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_CHAIN, "Negative result for operation: {}. After {} retry", error.what(), retry);
             if( retry >= max_retry){
-                throw DavixException(error.scope(), error.code(), fmt::format("Failure {} after {} attempts", error.what(), retry));
+                throw DavixException(error.scope(), error.code(), fmt::format("Result {} after {} attempts", error.what(), retry));
             }
         }catch(...){
             DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_CHAIN, "Operation failure: Unknown Error");

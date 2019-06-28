@@ -173,6 +173,7 @@ static void check_href(DavPropXMLParser::DavxPropXmlIntern & par,  const std::st
         par._last_filename.assign(_href);
     }else{
         par._last_filename.assign(it.base(), _href.end());
+        par._last_filename = Uri::unescapeString(par._last_filename);
     }
    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_XML, " href/filename parsed -> {} ", par._last_filename.c_str() );
 }

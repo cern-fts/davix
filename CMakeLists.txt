@@ -35,7 +35,9 @@ execute_process(
 #
 # A bit hacky.
 #-------------------------------------------------------------------------------
-include(version.cmake REQUIRED)
+include(release.cmake REQUIRED)
+include(version.cmake)
+message("Configuring cmake for davix version: ${VERSION_FULL}")
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules/")
 option(SHARED_LIBRARY "generate shared library" TRUE)

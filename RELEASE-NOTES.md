@@ -6,7 +6,7 @@
 * Prevent genversion.py from getting confused with non-davix git repositories (Thanks to Chris Burr)
 
 ### Improvements
-* Include version.cmake in the Git repository, and update during each release to prevent confusing people with cryptic cmake errors. version.cmake will be updated by genversion.py as before, when possible.
+* Fix cryptic cmake errors encountered sometimes when building from a tarball.
 
 ## 0.7.3 (2019-05-08)
 ### Bug fixes

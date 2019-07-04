@@ -1,5 +1,10 @@
 # davix release history
 
+## Unreleased
+### Bug fixes
+* Correctly handle URL-encoded paths in PROPFIND responses (Thanks to Matthew Skinner for reporting)
+* Prevent genversion.py from getting confused with non-davix git repositories (Thanks to Chris Burr)
+
 ## 0.7.3 (2019-05-08)
 ### Bug fixes
 * Use poll instead of select during async SSL connect - fixes a crash in certain cases of overload. (Thanks to Petr Vokac)

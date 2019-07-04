@@ -126,7 +126,7 @@ int configureAuth(OptParams & opts){
     return 0;
 }
 
-bool startswith(const std::string &str, const std::string &prefix) {
+static bool startswith(const std::string &str, const std::string &prefix) {
   if(prefix.size() > str.size()) return false;
 
   for(size_t i = 0; i < prefix.size(); i++) {

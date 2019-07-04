@@ -107,13 +107,13 @@ slc6-test:
     - yum install -y slc6/RPMS/*.rpm
     - davix-unit-tests
 
-fedora-28-test:
+fedora-30-test:
   stage: test
   image: fedora:28
   dependencies:
-    - fedora-28
+    - fedora-30
   script:
-    - dnf install -y fedora-28/RPMS/*.rpm
+    - dnf install -y fedora-30/RPMS/*.rpm
     - davix-unit-tests
 
 docs:

@@ -1,6 +1,6 @@
 # davix release history
 
-## Unreleased
+## 0.7.4 (2019-07-04)
 ### Bug fixes
 * Correctly handle URL-encoded paths in PROPFIND responses (Thanks to Matthew Skinner for reporting)
 * Prevent genversion.py from getting confused with non-davix git repositories (Thanks to Chris Burr)

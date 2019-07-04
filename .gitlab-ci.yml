@@ -29,9 +29,9 @@ slc6:
     paths:
     - "$CI_JOB_NAME"
 
-fedora-28:
+fedora-29:
   stage: build
-  image: fedora:28
+  image: fedora:29
   script:
     - ci/fedora/packages.sh
     - ci/common-rpm-build.sh
@@ -41,9 +41,9 @@ fedora-28:
     paths:
     - "$CI_JOB_NAME"
 
-fedora-29:
+fedora-30:
   stage: build
-  image: fedora:29
+  image: fedora:30
   script:
     - ci/fedora/packages.sh
     - ci/common-rpm-build.sh

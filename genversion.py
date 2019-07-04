@@ -198,7 +198,7 @@ def declare_incompatible_options(parser, option, group):
         if item in sys.argv:
             parser.error("argument {0} is incompatible with argument {1}".format(option, item))
 
-def ensureRunningInGitRepo():
+def ensureRunningInGitRepo(args):
     try:
         root_dir = sh("git rev-parse --show-toplevel").strip()
         os.chdir(root_dir)
@@ -228,7 +228,7 @@ def main():
     declare_incompatible_options(parser, "--template-string", ["--template"])
 
     if not args.custom_version:
-      ensureRunningInGitRepo()
+      ensureRunningInGitRepo(args)
       gitDescribe = GitDescribe(sh("git describe --dirty").strip())
     else:
       gitDescribe = GitDescribe(args.custom_version)

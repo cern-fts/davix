@@ -231,7 +231,7 @@ def main():
       ensureRunningInGitRepo()
       gitDescribe = GitDescribe(sh("git describe --dirty").strip())
     else:
-      gitDescribe = args.custom_version
+      gitDescribe = GitDescribe(args.custom_version)
 
     softwareVersion = gitDescribe.getVersion()
 

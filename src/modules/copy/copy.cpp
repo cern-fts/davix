@@ -115,28 +115,41 @@ void DavixCopyInternal::setPerformanceCallback(DavixCopy::PerformanceCallback ca
 }
 
 
+Uri dropDav(const Uri &uri) {
+    Uri retval(uri);
+
+    if(retval.getProtocol() == "dav") {
+        retval.setProtocol("http");
+    }
+    else if(retval.getProtocol() == "davs") {
+        retval.setProtocol("https");
+    }
+
+    return retval;
+}
+
 
 void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
         unsigned nstreams, DavixError **error)
 {
-    //std::string nextSrc(src.getString()), prevSrc(src.getString());
-    //std::string destination(dst.getString());
     std::string nextSrc, prevSrc, destination;
     std::string delegationEndpoint;
     DavixError *internalError = NULL;
     bool suppressFinalHead = false;
 
+    Uri srcHttp = dropDav(src);
+    Uri dstHttp = dropDav(dst);
+
     // set source and destination according to copy method
     if(parameters->getCopyMode() == CopyMode::Push){
-        nextSrc = src.getString();
-        prevSrc = src.getString();
-        destination = dst.getString();
+        nextSrc = srcHttp.getString();
+        prevSrc = srcHttp.getString();
+        destination = dstHttp.getString();
     }else if(parameters->getCopyMode() == CopyMode::Pull){
-        nextSrc = dst.getString();
-        prevSrc = dst.getString();
-        destination = src.getString();
+        nextSrc = dstHttp.getString();
+        prevSrc = dstHttp.getString();
+        destination = srcHttp.getString();
     }
-
 
     // nstreams as string
     char nstreamsStr[16];

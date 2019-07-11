@@ -994,8 +994,18 @@ size_t NEONRequest::getAnswerHeaders( HeaderVec & vec_headers) const{
     return vec_headers.size();
 }
 
+void NEONRequest::setFlag(const RequestFlag::RequestFlag flag, bool value) {
+    if(value) {
+        _req_flag |=  flag;
+    }
+    else {
+        _req_flag &= ~(flag);
+    }
+}
 
-
+bool NEONRequest::getFlag(const RequestFlag::RequestFlag flag) {
+    return _req_flag & ((int) flag);
+}
 
 void NEONRequest::setRequestBody(const std::string & body){
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "NEONRequest : add request content of size {} ", body.size());

@@ -57,8 +57,6 @@ struct ContentProviderContext {
 class NEONRequest : protected NonCopyable
 {
 public:
-    int _req_flag;
-public:
     NEONRequest(HttpRequest &h, Context& f, const Uri & uri_req);
     virtual ~NEONRequest();
 
@@ -151,6 +149,8 @@ public:
 
     size_t getAnswerHeaders( std::vector<std::pair<std::string, std::string > > & vec_headers) const;
 
+    void setFlag(const RequestFlag::RequestFlag flag, bool value);
+    bool getFlag(const RequestFlag::RequestFlag flag);
 
     // auth method support
     int do_pkcs12_cert_authentification(const char * filename_pkcs12, const char* passwd, DavixError** err);
@@ -163,7 +163,7 @@ private:
     // neon internal field
     std::unique_ptr<NEONSession> _neon_sess;
     // request options flag
-
+    int _req_flag;
 
 
     ne_request * _req;

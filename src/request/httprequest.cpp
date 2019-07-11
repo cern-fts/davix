@@ -219,18 +219,13 @@ void HttpRequest::useCacheToken(const HttpCacheToken *token){
 
 /// set a HttpRequest flag
 void HttpRequest::setFlag(const RequestFlag::RequestFlag flag, bool value){
-    if(value)
-        d_ptr->_req_flag |=  flag;
-    else
-        d_ptr->_req_flag &= ~(flag);
+    d_ptr->setFlag(flag, value);
 }
 
 /// get a HttpRequest flag value
 bool HttpRequest::getFlag(const RequestFlag::RequestFlag flag){
-    return d_ptr->_req_flag & ((int) flag);
+    return d_ptr->getFlag(flag);
 }
-
-
 
 void HttpRequest::runPreRunHook(){
     // triggers Hooks

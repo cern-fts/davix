@@ -44,8 +44,8 @@ public:
   //----------------------------------------------------------------------------
   BackendRequest(const BackendRequest& other) = delete;
   BackendRequest(BackendRequest&& other) = delete;
-  BackendRequest& operator=(BackendRequest&& other) noexcept = delete;
-  BackendRequest& operator=(const BackendRequest& other) noexcept = delete;
+  BackendRequest& operator=(BackendRequest&& other) = delete;
+  BackendRequest& operator=(const BackendRequest& other) = delete;
 
 
 private:

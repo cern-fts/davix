@@ -36,6 +36,8 @@
 #include <request/httprequest.hpp>
 #include <neon/neonsession.hpp>
 
+#include "../backend/BackendRequest.hpp"
+
 namespace Davix {
 
 #define NEON_BUFFER_SIZE        65000
@@ -54,7 +56,7 @@ struct ContentProviderContext {
 };
 
 
-class NEONRequest : protected NonCopyable
+class NEONRequest : public BackendRequest
 {
 public:
     NEONRequest(HttpRequest &h, Context& f, const Uri & uri_req);

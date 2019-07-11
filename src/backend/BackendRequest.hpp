@@ -32,7 +32,9 @@ public:
   //----------------------------------------------------------------------------
   // Default constructor
   //----------------------------------------------------------------------------
-  BackendRequest() {}
+  BackendRequest()
+  : _request_type("GET"),
+    _req_flag(RequestFlag::IdempotentRequest) {}
 
   //----------------------------------------------------------------------------
   // Virtual destructor
@@ -47,10 +49,56 @@ public:
   BackendRequest& operator=(BackendRequest&& other) = delete;
   BackendRequest& operator=(const BackendRequest& other) = delete;
 
+  //----------------------------------------------------------------------------
+  // Add custom header to the request, replace an existing one if already
+  // exists. If value is empty, the entire header line is removed.
+  //----------------------------------------------------------------------------
+  void addHeaderField(const std::string & field, const std::string & value){
+    _headers_field.emplace_back(field, value);
+  }
 
-private:
+  //----------------------------------------------------------------------------
+  // Set the request verb. (such as GET, POST, PUT, PROPFIND, etc)
+  //----------------------------------------------------------------------------
+  void setRequestMethod(const std::string &val){
+    _request_type = val;
+  }
+
+  //----------------------------------------------------------------------------
+  // Get the request verb. (such as GET, POST, PUT, PROPFIND, etc)
+  //----------------------------------------------------------------------------
+  std::string getRequestMethod() {
+    return _request_type;
+  }
+
+  //----------------------------------------------------------------------------
+  // Set the value of a request flag
+  //----------------------------------------------------------------------------
+  void setFlag(const RequestFlag::RequestFlag flag, bool value) {
+    if(value) {
+      _req_flag |=  flag;
+    }
+    else {
+      _req_flag &= ~(flag);
+    }
+  }
+
+  //----------------------------------------------------------------------------
+  // Get the value of a request flag
+  //----------------------------------------------------------------------------
+  bool getFlag(const RequestFlag::RequestFlag flag) const {
+    return _req_flag & ((int) flag);
+  }
 
 
+
+protected:
+  //----------------------------------------------------------------------------
+  // Member variables common to all implementations.
+  //----------------------------------------------------------------------------
+  std::vector<std::pair<std::string, std::string>> _headers_field;
+  std::string _request_type;
+  int _req_flag;
 
 };
 

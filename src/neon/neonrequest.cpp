@@ -145,7 +145,6 @@ void neon_simple_req_code_to_davix_code(int ne_status, ne_session* sess, const s
 
 
 NEONRequest::NEONRequest(HttpRequest & h, Context& context, const Uri & uri_req) :
-    _req_flag(RequestFlag::IdempotentRequest),
     params(),
     _neon_sess(),
     _req(NULL),
@@ -165,13 +164,11 @@ NEONRequest::NEONRequest(HttpRequest & h, Context& context, const Uri & uri_req)
     _content_provider(),
     _ans_size(-1),
     _expiration_time(),
-    _request_type("GET"),
     _h(h),
     _c(context),
     req_started(false),
     req_running(false),
     _last_request_flag(0),
-    _headers_field(),
     _accepted_202_retries(0),
     _early_termination(0),
     _early_termination_error(NULL) {
@@ -992,19 +989,6 @@ size_t NEONRequest::getAnswerHeaders( HeaderVec & vec_headers) const{
         }
     }
     return vec_headers.size();
-}
-
-void NEONRequest::setFlag(const RequestFlag::RequestFlag flag, bool value) {
-    if(value) {
-        _req_flag |=  flag;
-    }
-    else {
-        _req_flag &= ~(flag);
-    }
-}
-
-bool NEONRequest::getFlag(const RequestFlag::RequestFlag flag) {
-    return _req_flag & ((int) flag);
 }
 
 void NEONRequest::setRequestBody(const std::string & body){

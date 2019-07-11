@@ -62,32 +62,6 @@ public:
     NEONRequest(HttpRequest &h, Context& f, const Uri & uri_req);
     virtual ~NEONRequest();
 
-    /**
-      add a personalized header to the header request
-      replace an existing one if already exist
-      remove one if empty
-      @param field : add a header field to the current http request or replace a existing one
-      @param value : value of the field to set
-
-    */
-    void addHeaderField(const std::string & field, const std::string & value){
-        _headers_field.push_back(std::pair<std::string, std::string> (field, value));
-    }
-
-    /**
-     * set the request command to execute ( GET, POST, PUT, PROPFIND )
-     */
-    void setRequestMethod(const std::string & request_str){
-        _request_type = request_str;
-    }
-
-    /**
-     * get the request command to execute ( GET, POST, PUT, PROPFIND )
-     */
-    std::string getRequestMethod() {
-        return _request_type;
-    }
-
     void setParameters(const RequestParams &p ){
         params = p;
     }
@@ -151,21 +125,12 @@ public:
 
     size_t getAnswerHeaders( std::vector<std::pair<std::string, std::string > > & vec_headers) const;
 
-    void setFlag(const RequestFlag::RequestFlag flag, bool value);
-    bool getFlag(const RequestFlag::RequestFlag flag);
-
-    // auth method support
-    int do_pkcs12_cert_authentification(const char * filename_pkcs12, const char* passwd, DavixError** err);
-    int do_login_passwd_authentification(const char *login, const char *passwd, DavixError** err);
-
 private:
 
     // request parameters
     RequestParams params;
     // neon internal field
     std::unique_ptr<NEONSession> _neon_sess;
-    // request options flag
-    int _req_flag;
 
 
     ne_request * _req;
@@ -194,14 +159,11 @@ private:
     // timeout management
     Chrono::TimePoint _expiration_time;
 
-    // Request string
-    std::string _request_type;
     HttpRequest & _h;
     Context& _c;
     bool req_started, req_running;
     int _last_request_flag;
 
-    std::vector< std::pair<std::string, std::string > > _headers_field;
     int _accepted_202_retries;
 
     bool _early_termination;

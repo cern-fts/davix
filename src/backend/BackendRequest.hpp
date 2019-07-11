@@ -76,7 +76,7 @@ public:
   //----------------------------------------------------------------------------
   void setFlag(const RequestFlag::RequestFlag flag, bool value) {
     if(value) {
-      _req_flag |=  flag;
+      _req_flag |= flag;
     }
     else {
       _req_flag &= ~(flag);
@@ -89,8 +89,6 @@ public:
   bool getFlag(const RequestFlag::RequestFlag flag) const {
     return _req_flag & ((int) flag);
   }
-
-
 
 protected:
   //----------------------------------------------------------------------------

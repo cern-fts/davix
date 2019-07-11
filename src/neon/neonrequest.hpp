@@ -26,7 +26,6 @@
 #include <utility>
 #include <memory>
 #include <string>
-#include <chrono>
 
 #include <davix_internal.hpp>
 
@@ -158,8 +157,7 @@ private:
     mutable dav_ssize_t _ans_size;
 
     // timeout management
-    bool _deadline_set;
-    std::chrono::steady_clock::time_point _deadline;
+    Chrono::TimePoint _expiration_time;
 
     HttpRequest & _h;
     Context& _c;

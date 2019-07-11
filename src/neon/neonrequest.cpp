@@ -163,8 +163,7 @@ NEONRequest::NEONRequest(HttpRequest & h, Context& context, const Uri & uri_req)
     _fd_content(-1),
     _content_provider(),
     _ans_size(-1),
-    _deadline_set(false),
-    _deadline(),
+    _expiration_time(),
     _h(h),
     _c(context),
     req_started(false),
@@ -261,7 +260,7 @@ ssize_t NEONRequest::neon_body_content_provider(void* userdata, char* buffer, si
 }
 
 bool NEONRequest::checkTimeout(DavixError **err){
-    if(_deadline_set && _deadline < std::chrono::steady_clock::now()) {
+    if(_expiration_time.isValid() && _expiration_time < Chrono::Clock(Chrono::Clock::Monolitic).now()){
         std::ostringstream ss;
         ss << "timeout of " << params.getOperationTimeout()->tv_sec << "s";
         DavixError::setupError(err, davix_scope_http_request(), StatusCode::OperationTimeout, ss.str());
@@ -316,8 +315,10 @@ void NEONRequest::configureRequest(){
     }
 
     // setup timeout
-    if(!_deadline_set && params.getOperationTimeout()->tv_sec != 0){
-        _deadline = std::chrono::steady_clock::now() + std::chrono::seconds(params.getOperationTimeout()->tv_sec);
+    if(_expiration_time.isValid() == false
+        && params.getOperationTimeout()->tv_sec != 0){
+        using namespace Chrono;
+        _expiration_time = Clock(Clock::Monolitic).now() + Duration(params.getOperationTimeout()->tv_sec);
     }
 
     // setup headers

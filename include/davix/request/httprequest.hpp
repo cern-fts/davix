@@ -194,7 +194,7 @@ public:
     /// @param buffer : buffer to fill
     /// @param max_size : maximum number of byte to read
     /// @param err : DavixError error report system
-    /// @return number of bytes read
+    /// @return number of bytes readed
     ///
     ///  @snippet example_code_snippets.cpp HttpRequest::readBlock
     dav_ssize_t readBlock(char* buffer, dav_size_t max_size, DavixError** err);
@@ -207,7 +207,7 @@ public:
     /// @param buffer : vector to fill
     /// @param max_size : maximum number of byte to read
     /// @param err : DavixError error report system
-    /// @return number of bytes read
+    /// @return number of bytes readed
     ///
     ///  @snippet example_code_snippets.cpp HttpRequest::readBlock
     dav_ssize_t readBlock(std::vector<char> & buffer, dav_size_t max_size, DavixError** err);
@@ -218,7 +218,7 @@ public:
     /// @param buffer : vector to fill
     /// @param max_size : maximum number of byte to read
     /// @param err : DavixError error report system
-    /// @return number of bytes read
+    /// @return number of bytes readed
     ///
     ///  @snippet example_code_snippets.cpp HttpRequest::readSegment
     dav_ssize_t readSegment(char* buffer, dav_size_t max_size, DavixError** err);

@@ -124,9 +124,6 @@ private:
     // answer length
     mutable dav_ssize_t _ans_size;
 
-    // timeout management
-    Chrono::TimePoint _expiration_time;
-
     HttpRequest & _h;
     Context& _c;
     bool req_started, req_running;
@@ -149,8 +146,6 @@ private:
 
     int instanceSession(DavixError** err);
 
-    bool checkTimeout(DavixError** err);
-
     void configureRequest();
 
     void cancelSessionReuse();
@@ -171,11 +166,6 @@ private:
 
 
     void createError(int ne_status, DavixError** err);
-
-    /**
-      internal, try to authentification with pkcs12 credential
-    */
-    int try_pkcs12_authentification(ne_session *sess, const ne_ssl_dname *const *dnames, DavixError** err);
 
 	static ssize_t neon_body_content_provider(void* userdata, char* buffer, size_t buflen);
 

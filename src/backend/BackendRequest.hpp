@@ -22,6 +22,7 @@
 #ifndef BACKEND_REQUEST_HPP
 #define BACKEND_REQUEST_HPP
 
+#include <davix_internal.hpp>
 #include <request/httprequest.hpp>
 #include <utils/davix_uri.hpp>
 #include <memory>
@@ -146,6 +147,17 @@ protected:
   std::vector<std::pair<std::string, std::string>> _headers_field;
   std::string _request_type;
   int _req_flag;
+  Chrono::TimePoint _deadline;
+
+  //----------------------------------------------------------------------------
+  // Set-up deadline, but only if uninitialized
+  //----------------------------------------------------------------------------
+  void setupDeadlineIfUnset();
+
+  //----------------------------------------------------------------------------
+  // Check if deadline has already passed
+  //----------------------------------------------------------------------------
+  bool checkTimeout(DavixError **err);
 
   //----------------------------------------------------------------------------
   // Request content.

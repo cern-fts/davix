@@ -24,7 +24,6 @@
 
 #include <utils/davix_logger_internal.hpp>
 #include <utils/davix_gcloud_utils.hpp>
-#include <libs/time_utils.h>
 #include <ne_redirect.h>
 #include <ne_request.h>
 #include <davix_context_internal.hpp>
@@ -155,7 +154,6 @@ NEONRequest::NEONRequest(HttpRequest & h, Context& context, const Uri & uri_req)
     _vec(),
     _vec_line(),
     _ans_size(-1),
-    _expiration_time(),
     _h(h),
     _c(context),
     req_started(false),
@@ -251,16 +249,6 @@ ssize_t NEONRequest::neon_body_content_provider(void* userdata, char* buffer, si
      return (ssize_t) req->_content_provider.callback(req->_content_provider.udata, buffer, buflen);
 }
 
-bool NEONRequest::checkTimeout(DavixError **err){
-    if(_expiration_time.isValid() && _expiration_time < Chrono::Clock(Chrono::Clock::Monolitic).now()){
-        std::ostringstream ss;
-        ss << "timeout of " << _params.getOperationTimeout()->tv_sec << "s";
-        DavixError::setupError(err, davix_scope_http_request(), StatusCode::OperationTimeout, ss.str());
-        return true;
-    }
-    return false;
-}
-
 static dav_ssize_t iocontext_content_provider(HttpBodyProvider provider, void* udata, void* buffer, dav_size_t size) {
     return provider(udata, (char*) buffer, size);
 }
@@ -307,11 +295,7 @@ void NEONRequest::configureRequest(){
     }
 
     // setup timeout
-    if(_expiration_time.isValid() == false
-        && _params.getOperationTimeout()->tv_sec != 0){
-        using namespace Chrono;
-        _expiration_time = Clock(Clock::Monolitic).now() + Duration(_params.getOperationTimeout()->tv_sec);
-    }
+    setupDeadlineIfUnset();
 
     // setup headers
     for(size_t i=0; i< _headers_field.size(); ++i){

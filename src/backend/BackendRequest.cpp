@@ -36,6 +36,7 @@ BackendRequest::BackendRequest(const Uri &uri)
     _params(),
     _request_type("GET"),
     _req_flag(RequestFlag::IdempotentRequest),
+    _deadline(),
     _content_ptr(),
     _content_len(0),
     _content_offset(0),
@@ -117,6 +118,30 @@ void BackendRequest::configureAzureParams() {
 void BackendRequest::configureGcloudParams() {
   Uri signed_url = gcloud::signURI(_params.getGcloudCredentials(), _request_type, *_current, _headers_field, DEFAULT_REQUEST_SIGNING_DURATION);
   _current.reset(new Uri(signed_url));
+}
+
+//------------------------------------------------------------------------------
+// Set-up deadline, but only if uninitialized
+//------------------------------------------------------------------------------
+void BackendRequest::setupDeadlineIfUnset() {
+  if(_deadline.isValid() == false && _params.getOperationTimeout()->tv_sec != 0){
+    using namespace Chrono;
+    _deadline = Clock(Clock::Monolitic).now() + Duration(_params.getOperationTimeout()->tv_sec);
+  }
+}
+
+//------------------------------------------------------------------------------
+// Check if deadline has already passed
+//------------------------------------------------------------------------------
+bool BackendRequest::checkTimeout(DavixError **err){
+  if(_deadline.isValid() && _deadline < Chrono::Clock(Chrono::Clock::Monolitic).now()) {
+    std::ostringstream ss;
+    ss << "timeout of " << _params.getOperationTimeout()->tv_sec << "s";
+    DavixError::setupError(err, davix_scope_http_request(), StatusCode::OperationTimeout, ss.str());
+    return true;
+  }
+
+  return false;
 }
 
 }

@@ -64,13 +64,7 @@ public:
       @param buffer : buffer to fill
       @param max_size : maximum number of bytes to set
     */
-    dav_ssize_t readBlock(char* buffer, dav_size_t max_size,DavixError** err);
-
-    dav_ssize_t readSegment(char* buffer, dav_size_t size_read, bool stop_at_line_boundary, DavixError** err);
-
-    dav_ssize_t readLine(char* buffer, dav_size_t max_size, DavixError** err);
-
-    dav_ssize_t readToFd(int fd, dav_size_t read_size, DavixError** err);
+    virtual dav_ssize_t readBlock(char* buffer, dav_size_t max_size,DavixError** err) override;
 
     /**
       finish an already started request
@@ -117,9 +111,6 @@ private:
     int _redirects;
     // read info
     dav_ssize_t _total_read_size, _last_read;
-
-    std::vector<char> _vec;
-    std::vector<char> _vec_line;
 
     // answer length
     mutable dav_ssize_t _ans_size;

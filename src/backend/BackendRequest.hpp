@@ -64,6 +64,20 @@ public:
   BackendRequest& operator=(const BackendRequest& other) = delete;
 
   //----------------------------------------------------------------------------
+  // Major read member - implementations need to override.
+  // Read a block of max_size bytes (at max) into buffer.
+  //----------------------------------------------------------------------------
+  virtual dav_ssize_t readBlock(char* buffer, dav_size_t max_size, DavixError** err) = 0;
+
+  //----------------------------------------------------------------------------
+  // Helper read members - implemented in terms of readBlock, and an internal
+  // buffer.
+  //----------------------------------------------------------------------------
+  dav_ssize_t readSegment(char* buffer, dav_size_t size_read, bool stop_at_line_boundary, DavixError** err);
+  dav_ssize_t readLine(char* buffer, dav_size_t max_size, DavixError** err);
+  dav_ssize_t readToFd(int fd, dav_size_t read_size, DavixError** err);
+
+  //----------------------------------------------------------------------------
   // Add custom header to the request, replace an existing one if already
   // exists. If value is empty, the entire header line is removed.
   //----------------------------------------------------------------------------
@@ -140,16 +154,6 @@ protected:
   void configureGcloudParams();
 
   //----------------------------------------------------------------------------
-  // Member variables common to all implementations.
-  //----------------------------------------------------------------------------
-  std::shared_ptr<Uri>  _current, _orig;
-  RequestParams _params;
-  std::vector<std::pair<std::string, std::string>> _headers_field;
-  std::string _request_type;
-  int _req_flag;
-  Chrono::TimePoint _deadline;
-
-  //----------------------------------------------------------------------------
   // Set-up deadline, but only if uninitialized
   //----------------------------------------------------------------------------
   void setupDeadlineIfUnset();
@@ -158,6 +162,16 @@ protected:
   // Check if deadline has already passed
   //----------------------------------------------------------------------------
   bool checkTimeout(DavixError **err);
+
+  //----------------------------------------------------------------------------
+  // Member variables common to all implementations.
+  //----------------------------------------------------------------------------
+  std::shared_ptr<Uri>  _current, _orig;
+  RequestParams _params;
+  std::vector<std::pair<std::string, std::string>> _headers_field;
+  std::string _request_type;
+  int _req_flag;
+  Chrono::TimePoint _deadline;
 
   //----------------------------------------------------------------------------
   // Request content.
@@ -169,6 +183,11 @@ protected:
   int _fd_content;
   ContentProviderContext _content_provider;
 
+  //----------------------------------------------------------------------------
+  // Answer buffers.
+  //----------------------------------------------------------------------------
+  std::vector<char> _vec;
+  std::vector<char> _vec_line;
 
 };
 

@@ -151,8 +151,6 @@ NEONRequest::NEONRequest(HttpRequest & h, Context& context, const Uri & uri_req)
     _redirects(0),
     _total_read_size(0),
     _last_read(-1),
-    _vec(),
-    _vec_line(),
     _ans_size(-1),
     _h(h),
     _c(context),
@@ -714,115 +712,6 @@ dav_ssize_t NEONRequest::readBlock(char* buffer, dav_size_t max_size, DavixError
         _params.getTransferMonitorCb()(*_current, Transfer::Read, _total_read_size, ((final_size> 0)?(final_size):(0)));
     }
     return read_status;
-}
-
-dav_ssize_t NEONRequest::readToFd(int fd, dav_size_t read_size, DavixError** err){
-    dav_ssize_t ret=1, total=0;
-    dav_size_t chunk_size = DAVIX_BLOCK_SIZE;
-    read_size = (read_size==0)?(std::numeric_limits<dav_size_t>::max()):read_size;
-    std::vector<char> buffer(chunk_size);
-
-    while( (ret = readBlock(&buffer[0],
-                            std::min<dav_size_t>(chunk_size,read_size),
-                           err)) >0
-           && ( read_size >0 )){
-           if(((dav_size_t)ret) == chunk_size
-                && chunk_size < DAVIX_MAX_BLOCK_SIZE){ // increase buffer size
-                   chunk_size = std::min<dav_size_t>(chunk_size << 1, DAVIX_MAX_BLOCK_SIZE);
-                   buffer.resize(chunk_size);
-           }
-
-           dav_ssize_t write_len = ret;
-           read_size -= ret;
-           total += ret;
-           do{
-               ret = write(fd, &buffer[0], write_len);
-
-               if (ret == -1 && errno == EINTR) {
-                   continue;
-               } else if (ret < 0) {
-                   DavixError::setupError(err, davix_scope_http_request(),
-                                          StatusCode::SystemError, std::string("Impossible to write to fd").append(strerror(errno)));
-                   return -1;
-               } else {
-                   write_len -= ret;
-               }
-           }while(write_len >0);
-    }
-
-    if(total > 0) return total;
-    return ret;
-}
-
-
-dav_ssize_t NEONRequest::readLine(char* buffer, dav_size_t max_size, DavixError** err){
-    dav_ssize_t ret=-1;
-
-    if( _vec_line.size() > 0){
-       std::vector<char>::iterator it;
-       it = std::find(_vec_line.begin(), _vec_line.end(), '\n');
-
-       if( it  != _vec_line.end()){
-           it ++;
-           const dav_ssize_t read_size = it - _vec_line.begin();
-           std::copy(_vec_line.begin(), it, buffer);
-           _vec_line.erase(_vec_line.begin(), it);
-           return read_size;
-       }
-
-       std::copy(_vec_line.begin(), _vec_line.end(), buffer);
-       const dav_ssize_t n_bytes =  _vec_line.size();
-       _vec_line.clear();
-       ret = readLine(buffer + n_bytes, max_size - n_bytes, err);
-       return (ret >= 0)?(ret + n_bytes):-1;
-    }
-
-    if( ( ret = readSegment(buffer, max_size, true, err)) >= 0){
-        // search for crlf
-        char* p_endline;
-        p_endline = std::find(buffer, buffer+ret, '\n');
-        if( p_endline < buffer+ret) p_endline++;
-        _vec_line.reserve(ret - ( p_endline - buffer ));
-        std::copy(p_endline, buffer + ret, std::back_inserter(_vec_line));
-        *p_endline = '\0';
-        return  p_endline - buffer;
-    }
-    return -1;
-}
-
-
-dav_ssize_t NEONRequest::readSegment(char* p_buff, dav_size_t size_read, bool stop_at_line_boundary, DavixError**err){
-    DavixError* tmp_err=NULL;
-    dav_ssize_t ret, tmp_ret;
-    dav_size_t s_read= size_read;
-    ret = tmp_ret = 0;
-    DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_HTTP, "Davix::Request::readSegment: want to read {} bytes ", size_read);
-    bool early_stop = false;
-
-    do{
-        tmp_ret= readBlock(p_buff, s_read, &tmp_err);
-
-        if(tmp_ret > 0 && stop_at_line_boundary && std::find(p_buff, p_buff+tmp_ret, '\n') != p_buff+tmp_ret) {
-            early_stop = true;
-        }
-
-        if(tmp_ret > 0){ // tmp_ret bytes read
-            ret += tmp_ret;
-        }
-
-        if(ret > 0 && ret < (dav_ssize_t) size_read){
-            p_buff+= tmp_ret;
-            s_read -= tmp_ret;
-        }
-
-    }while( !early_stop && tmp_ret > 0
-            &&  ret < (dav_ssize_t) size_read);
-
-    if(tmp_err){
-        DavixError::propagateError(err, tmp_err);
-        return -1;
-    }
-    return ret;
 }
 
 int NEONRequest::endRequest(DavixError** err){

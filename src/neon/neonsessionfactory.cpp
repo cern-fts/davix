@@ -78,7 +78,7 @@ ne_session* NEONSessionFactory::createNeonSession(const RequestParams & params, 
     }
 
     DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, fmt::format("impossible to parse {}, not a valid HTTP, S3 or Webdav URL", uri.getString()));
-    return nullptr;
+    return NULL;
 }
 
 void NEONSessionFactory::storeNeonSession(ne_session* sess){

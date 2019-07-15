@@ -64,7 +64,7 @@ public:
       @param buffer : buffer to fill
       @param max_size : maximum number of bytes to set
     */
-    virtual dav_ssize_t readBlock(char* buffer, dav_size_t max_size,DavixError** err) override;
+    virtual dav_ssize_t readBlock(char* buffer, dav_size_t max_size,DavixError** err);
 
     /**
       finish an already started request

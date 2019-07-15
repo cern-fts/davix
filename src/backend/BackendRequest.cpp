@@ -30,6 +30,7 @@ namespace Davix {
 BackendRequest::BackendRequest(const Uri &uri)
   : _current( new Uri(uri)),
     _orig(_current),
+    _params(),
     _request_type("GET"),
     _req_flag(RequestFlag::IdempotentRequest),
     _content_ptr(),
@@ -67,6 +68,20 @@ void BackendRequest::setRequestBody(HttpBodyProvider provider, dav_size_t len, v
   _content_len  = len;
   _content_provider.callback = provider;
   _content_provider.udata = udata;
+}
+
+//------------------------------------------------------------------------------
+// Set request parameters.
+//------------------------------------------------------------------------------
+void BackendRequest::setParameters(const RequestParams &p) {
+  _params = p;
+}
+
+//------------------------------------------------------------------------------
+// Get request parameters.
+//------------------------------------------------------------------------------
+RequestParams& BackendRequest::getParameters() {
+  return _params;
 }
 
 }

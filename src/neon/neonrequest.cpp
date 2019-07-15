@@ -146,7 +146,6 @@ void neon_simple_req_code_to_davix_code(int ne_status, ne_session* sess, const s
 
 NEONRequest::NEONRequest(HttpRequest & h, Context& context, const Uri & uri_req) :
     BackendRequest(uri_req),
-    params(),
     _neon_sess(),
     _req(NULL),
     _number_try(0),
@@ -198,7 +197,7 @@ int NEONRequest::createRequest(DavixError** err){
     }
 
     std::shared_ptr<Uri> redir_url;
-    if(this->params.getTransparentRedirectionSupport()) {
+    if(this->_params.getTransparentRedirectionSupport()) {
         redir_url = ContextExplorer::RedirectionResolverFromContext(_c).redirectionResolve(_request_type, *_current);
     }
 
@@ -216,18 +215,18 @@ int NEONRequest::createRequest(DavixError** err){
 
 
     // reconfigure protos
-    configureRequestParamsProto(*_current, params);
+    configureRequestParamsProto(*_current, _params);
 
     // configure S3 params if needed
-    if(params.getProtocol() == RequestProtocol::AwsS3)
+    if(_params.getProtocol() == RequestProtocol::AwsS3)
         configureS3params();
 
     // configure azure params if needed
-    if(params.getProtocol() == RequestProtocol::Azure)
+    if(_params.getProtocol() == RequestProtocol::Azure)
         configureAzureParams();
 
     // configure gcloud params if needed
-    if(params.getProtocol() == RequestProtocol::Gcloud)
+    if(_params.getProtocol() == RequestProtocol::Gcloud)
         configureGcloudParams();
 
     _req= ne_request_create(_neon_sess->get_ne_sess(), _request_type.c_str(), _current->getPathAndQuery().c_str());
@@ -238,7 +237,7 @@ int NEONRequest::createRequest(DavixError** err){
 
 int NEONRequest::instanceSession(DavixError** err){
     DavixError * tmp_err=NULL;
-    _neon_sess.reset(static_cast<NEONSession*>(new NEONSessionExtended(this, *_current, params, &tmp_err)));
+    _neon_sess.reset(static_cast<NEONSession*>(new NEONSessionExtended(this, *_current, _params, &tmp_err)));
     if(tmp_err){
         _neon_sess.reset(NULL);
         DavixError::propagateError(err, tmp_err);
@@ -255,7 +254,7 @@ ssize_t NEONRequest::neon_body_content_provider(void* userdata, char* buffer, si
 bool NEONRequest::checkTimeout(DavixError **err){
     if(_expiration_time.isValid() && _expiration_time < Chrono::Clock(Chrono::Clock::Monolitic).now()){
         std::ostringstream ss;
-        ss << "timeout of " << params.getOperationTimeout()->tv_sec << "s";
+        ss << "timeout of " << _params.getOperationTimeout()->tv_sec << "s";
         DavixError::setupError(err, davix_scope_http_request(), StatusCode::OperationTimeout, ss.str());
         return true;
     }
@@ -271,7 +270,7 @@ void NEONRequest::configureRequest(){
     // add custom user headers, but make sure they're only added once
     // in case of a redirect
     if(!req_running) {
-        std::copy(params.getHeaders().begin(), params.getHeaders().end(), std::back_inserter(_headers_field));
+        std::copy(_params.getHeaders().begin(), _params.getHeaders().end(), std::back_inserter(_headers_field));
     }
 
     /* Doing a PUT to Azure? Horrific workaround to enforce the odd two-step
@@ -281,7 +280,7 @@ void NEONRequest::configureRequest(){
          _current.get()->queryParamExists("sr") &&
          _current.get()->queryParamExists("sp") && !_current.get()->fragmentParamExists("azuremechanism")) {
 
-        IOChainContext iocontext(_c, *_current, &params);
+        IOChainContext iocontext(_c, *_current, &_params);
 
         using std::placeholders::_1;
         using std::placeholders::_2;
@@ -309,9 +308,9 @@ void NEONRequest::configureRequest(){
 
     // setup timeout
     if(_expiration_time.isValid() == false
-        && params.getOperationTimeout()->tv_sec != 0){
+        && _params.getOperationTimeout()->tv_sec != 0){
         using namespace Chrono;
-        _expiration_time = Clock(Clock::Monolitic).now() + Duration(params.getOperationTimeout()->tv_sec);
+        _expiration_time = Clock(Clock::Monolitic).now() + Duration(_params.getOperationTimeout()->tv_sec);
     }
 
     // setup headers
@@ -319,7 +318,7 @@ void NEONRequest::configureRequest(){
         ne_add_request_header(_req, _headers_field[i].first.c_str(),  _headers_field[i].second.c_str());
     }
     // setup flags
-    ne_set_request_flag(_req, NE_REQFLAG_EXPECT100, params.get100ContinueSupport() &&
+    ne_set_request_flag(_req, NE_REQFLAG_EXPECT100, _params.get100ContinueSupport() &&
                         (_req_flag & RequestFlag::SupportContinue100));
     ne_set_request_flag(_req, NE_REQFLAG_IDEMPOTENT, _req_flag & RequestFlag::IdempotentRequest);
 
@@ -340,31 +339,31 @@ void NEONRequest::configureRequest(){
 
 void NEONRequest::configureS3params(){
     // strange workaround to get S3 compatibility on gcloud to work
-    if(params.getAwsRegion().empty()) {
+    if(_params.getAwsRegion().empty()) {
         HeaderVec vec = _headers_field;
-        S3::signRequest(params, _request_type, *_current, vec);
+        S3::signRequest(_params, _request_type, *_current, vec);
         vec.swap(_headers_field);
     }
     else {
-        Uri signed_url = S3::signURI(params, _request_type, *_current, _headers_field, DEFAULT_REQUEST_SIGNING_DURATION);
+        Uri signed_url = S3::signURI(_params, _request_type, *_current, _headers_field, DEFAULT_REQUEST_SIGNING_DURATION);
         _current= std::shared_ptr<Uri>(new Uri(signed_url));
     }
 }
 
 // TODO: make static?
 void NEONRequest::configureAzureParams(){
-    Uri signed_url = Azure::signURI(params.getAzureKey(), _request_type, *_current, DEFAULT_REQUEST_SIGNING_DURATION);
+    Uri signed_url = Azure::signURI(_params.getAzureKey(), _request_type, *_current, DEFAULT_REQUEST_SIGNING_DURATION);
     _current= std::shared_ptr<Uri>(new Uri(signed_url));
 }
 
 void NEONRequest::configureGcloudParams() {
-    Uri signed_url = gcloud::signURI(params.getGcloudCredentials(), _request_type, *_current, _headers_field, DEFAULT_REQUEST_SIGNING_DURATION);
+    Uri signed_url = gcloud::signURI(_params.getGcloudCredentials(), _request_type, *_current, _headers_field, DEFAULT_REQUEST_SIGNING_DURATION);
     _current= std::shared_ptr<Uri>(new Uri(signed_url));
 }
 
 int NEONRequest::processRedirection(int neonCode, DavixError **err){
     int end_status = -1;
-    if (this->params.getTransparentRedirectionSupport()) {
+    if (this->_params.getTransparentRedirectionSupport()) {
         if( neonCode != NE_OK
                 && neonCode != NE_RETRY
                 && neonCode != NE_REDIRECT){
@@ -407,7 +406,7 @@ int NEONRequest::negotiateRequest(DavixError** err){
     std::string ugrpluginid;
 
     const uint64_t s3SizeLimit = (1024ull * 1024ull * 1024ull * 5ull);
-    const int auth_retry_limit = params.getOperationRetry();
+    const int auth_retry_limit = _params.getOperationRetry();
     int code, status, end_status = NE_RETRY;
     _last_read = -1;
     _total_read_size = 0;
@@ -467,11 +466,11 @@ int NEONRequest::negotiateRequest(DavixError** err){
                 if(_request_type != "GET") goto default_label;
 
                 _accepted_202_retries++;
-                if(_accepted_202_retries <= params.getAcceptedRetry()) {
+                if(_accepted_202_retries <= _params.getAcceptedRetry()) {
                   std::cerr << "DAVIX: Received 202-Accepted, sleeping for " <<
-                    params.getAcceptedRetryDelay() << " seconds before retrying. (attempt " <<
-                    _accepted_202_retries << " out of " << params.getAcceptedRetry() << ")" << std::endl;
-                  sleep(params.getAcceptedRetryDelay());
+                    _params.getAcceptedRetryDelay() << " seconds before retrying. (attempt " <<
+                    _accepted_202_retries << " out of " << _params.getAcceptedRetry() << ")" << std::endl;
+                  sleep(_params.getAcceptedRetryDelay());
                   endRequest(NULL);
                   return startRequest(err);
                 }
@@ -486,7 +485,7 @@ int NEONRequest::negotiateRequest(DavixError** err){
                    !ugrs3post.empty() && (_content_len >= s3SizeLimit || _current->fragmentParamExists("forceMultiPart")) ) {
                     // Ugly workaround for s3 + multi-part upload + dynafed
                     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "Initiating dynafed-assisted multi-part upload to S3, posturl: {}, pluginid: {}", ugrs3post, ugrpluginid);
-                    IOChainContext iocontext(_c, *_current, &params);
+                    IOChainContext iocontext(_c, *_current, &_params);
 
                     using std::placeholders::_1;
                     using std::placeholders::_2;
@@ -606,7 +605,7 @@ bool NEONRequest::requestCleanup(){
     if(_current != _orig || _neon_sess->isRecycledSession()){
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, " ->  Error when using reycling of session/redirect : cancel and try again");
         // disable session reuse for this request, avoid picking up a session already expired
-        params.setKeepAlive(false);
+        _params.setKeepAlive(false);
         _current = _orig;
         return true;
     }
@@ -750,9 +749,9 @@ dav_ssize_t NEONRequest::readBlock(char* buffer, dav_size_t max_size, DavixError
     DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_HTTP, "NEONRequest::readBlock read {} bytes", read_status);
 
     _total_read_size += read_status;
-    if(params.getTransferMonitorCb()){
+    if(_params.getTransferMonitorCb()){
         dav_ssize_t final_size = getAnswerSize();
-        params.getTransferMonitorCb()(*_current, Transfer::Read, _total_read_size, ((final_size> 0)?(final_size):(0)));
+        _params.getTransferMonitorCb()(*_current, Transfer::Read, _total_read_size, ((final_size> 0)?(final_size):(0)));
     }
     return read_status;
 }

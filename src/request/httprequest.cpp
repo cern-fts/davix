@@ -232,7 +232,7 @@ void HttpRequest::runPreRunHook(){
     RequestPreRunHook hook = d_ptr->_c.getHook<RequestPreRunHook>();
 
     if(hook){
-        hook(d_ptr->params, *this, *(d_ptr->_orig));
+        hook(d_ptr->getParameters(), *this, *(d_ptr->_orig));
     }
 }
 

@@ -54,11 +54,6 @@ public:
     NEONRequest(HttpRequest &h, Context& f, const Uri & uri_req);
     virtual ~NEONRequest();
 
-    void setParameters(const RequestParams &p ){
-        params = p;
-    }
-
-
     //  Execute the given request and return result to the buffer result
     //  @return 0 on success
     int executeRequest(DavixError** err) ;
@@ -111,8 +106,6 @@ public:
 
 private:
 
-    // request parameters
-    RequestParams params;
     // neon internal field
     std::unique_ptr<NEONSession> _neon_sess;
 

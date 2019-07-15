@@ -111,6 +111,15 @@ public:
   void setRequestBody(int fd, dav_off_t offset, dav_size_t len);
   void setRequestBody(HttpBodyProvider provider, dav_size_t len, void* udata);
 
+  //----------------------------------------------------------------------------
+  // Set request parameters.
+  //----------------------------------------------------------------------------
+  void setParameters(const RequestParams &p);
+
+  //----------------------------------------------------------------------------
+  // Get request parameters.
+  //----------------------------------------------------------------------------
+  RequestParams& getParameters();
 
 
 protected:
@@ -118,6 +127,7 @@ protected:
   // Member variables common to all implementations.
   //----------------------------------------------------------------------------
   std::shared_ptr<Uri>  _current, _orig;
+  RequestParams _params;
   std::vector<std::pair<std::string, std::string>> _headers_field;
   std::string _request_type;
   int _req_flag;

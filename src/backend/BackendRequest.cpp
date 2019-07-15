@@ -27,8 +27,10 @@ namespace Davix {
 //------------------------------------------------------------------------------
 // Default constructor
 //------------------------------------------------------------------------------
-BackendRequest::BackendRequest()
-  : _request_type("GET"),
+BackendRequest::BackendRequest(const Uri &uri)
+  : _current( new Uri(uri)),
+    _orig(_current),
+    _request_type("GET"),
     _req_flag(RequestFlag::IdempotentRequest),
     _content_ptr(),
     _content_len(0),

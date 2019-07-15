@@ -23,6 +23,10 @@
 #define BACKEND_REQUEST_HPP
 
 #include <request/httprequest.hpp>
+#include <utils/davix_uri.hpp>
+#include <memory>
+
+#define DEFAULT_REQUEST_SIGNING_DURATION 3600
 
 namespace Davix{
 
@@ -43,7 +47,7 @@ public:
   //----------------------------------------------------------------------------
   // Default constructor
   //----------------------------------------------------------------------------
-  BackendRequest();
+  BackendRequest(const Uri &uri);
 
   //----------------------------------------------------------------------------
   // Virtual destructor
@@ -113,6 +117,7 @@ protected:
   //----------------------------------------------------------------------------
   // Member variables common to all implementations.
   //----------------------------------------------------------------------------
+  std::shared_ptr<Uri>  _current, _orig;
   std::vector<std::pair<std::string, std::string>> _headers_field;
   std::string _request_type;
   int _req_flag;

@@ -145,11 +145,10 @@ void neon_simple_req_code_to_davix_code(int ne_status, ne_session* sess, const s
 
 
 NEONRequest::NEONRequest(HttpRequest & h, Context& context, const Uri & uri_req) :
+    BackendRequest(uri_req),
     params(),
     _neon_sess(),
     _req(NULL),
-    _current( new Uri(uri_req)),
-    _orig(_current),
     _number_try(0),
     _redirects(0),
     _total_read_size(0),
@@ -347,19 +346,19 @@ void NEONRequest::configureS3params(){
         vec.swap(_headers_field);
     }
     else {
-        Uri signed_url = S3::signURI(params, _request_type, *_current, _headers_field, NEON_S3_SIGN_DURATION);
+        Uri signed_url = S3::signURI(params, _request_type, *_current, _headers_field, DEFAULT_REQUEST_SIGNING_DURATION);
         _current= std::shared_ptr<Uri>(new Uri(signed_url));
     }
 }
 
 // TODO: make static?
 void NEONRequest::configureAzureParams(){
-    Uri signed_url = Azure::signURI(params.getAzureKey(), _request_type, *_current, NEON_S3_SIGN_DURATION);
+    Uri signed_url = Azure::signURI(params.getAzureKey(), _request_type, *_current, DEFAULT_REQUEST_SIGNING_DURATION);
     _current= std::shared_ptr<Uri>(new Uri(signed_url));
 }
 
 void NEONRequest::configureGcloudParams() {
-    Uri signed_url = gcloud::signURI(params.getGcloudCredentials(), _request_type, *_current, _headers_field, NEON_S3_SIGN_DURATION);
+    Uri signed_url = gcloud::signURI(params.getGcloudCredentials(), _request_type, *_current, _headers_field, DEFAULT_REQUEST_SIGNING_DURATION);
     _current= std::shared_ptr<Uri>(new Uri(signed_url));
 }
 

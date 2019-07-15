@@ -41,7 +41,6 @@
 namespace Davix {
 
 #define NEON_BUFFER_SIZE        65000
-#define NEON_S3_SIGN_DURATION 3600
 #define NEON_REDIRECT_LIMIT 5
 
 class NEONSessionFactory;
@@ -119,7 +118,6 @@ private:
 
 
     ne_request * _req;
-    std::shared_ptr<Uri>  _current, _orig;
     // req info
     int _number_try;
     // number of redirects so far

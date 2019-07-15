@@ -49,13 +49,6 @@ class NEONSession;
 class HttpRequest;
 class NEONSessionExtended;
 
-struct ContentProviderContext {
-    ContentProviderContext(): callback(NULL), udata(NULL) {}
-    HttpBodyProvider callback;
-    void *udata;
-};
-
-
 class NEONRequest : public BackendRequest
 {
 public:
@@ -70,14 +63,6 @@ public:
     //  Execute the given request and return result to the buffer result
     //  @return 0 on success
     int executeRequest(DavixError** err) ;
-
-    void setRequestBody(const std::string & body);
-
-    void setRequestBody(const void * buffer, dav_size_t len);
-
-    void setRequestBody(int fd, dav_off_t offset, dav_size_t len);
-
-    void setRequestBody(HttpBodyProvider provider, dav_size_t len, void* udata);
 
     int beginRequest(DavixError** err);
     /**
@@ -144,14 +129,6 @@ private:
 
     std::vector<char> _vec;
     std::vector<char> _vec_line;
-
-    // request content;
-    char* _content_ptr;
-    dav_size_t _content_len;
-    dav_off_t _content_offset;
-    std::string _content_body;
-    int _fd_content;
-    ContentProviderContext _content_provider;
 
     // answer length
     mutable dav_ssize_t _ans_size;

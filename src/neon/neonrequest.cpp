@@ -156,12 +156,6 @@ NEONRequest::NEONRequest(HttpRequest & h, Context& context, const Uri & uri_req)
     _last_read(-1),
     _vec(),
     _vec_line(),
-    _content_ptr(),
-    _content_len(0),
-    _content_offset(0),
-    _content_body(),
-    _fd_content(-1),
-    _content_provider(),
     _ans_size(-1),
     _expiration_time(),
     _h(h),
@@ -990,35 +984,6 @@ size_t NEONRequest::getAnswerHeaders( HeaderVec & vec_headers) const{
     }
     return vec_headers.size();
 }
-
-void NEONRequest::setRequestBody(const std::string & body){
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "NEONRequest : add request content of size {} ", body.size());
-    _content_body = std::string(body);
-    _content_ptr = (char*) _content_body.c_str();
-    _content_len = strlen(_content_ptr);
-    _fd_content = -1;
-}
-
-void NEONRequest::setRequestBody(const void *buffer, dav_size_t len){
-    _content_ptr = (char*) buffer;
-    _content_len = len;
-    _fd_content = -1;
-}
-
-
-void NEONRequest::setRequestBody(int fd, dav_off_t offset, dav_size_t len){
-    _fd_content = fd;
-    _content_ptr = NULL;
-    _content_len = len;
-    _content_offset = offset;
-}
-
-void NEONRequest::setRequestBody(HttpBodyProvider provider, dav_size_t len, void* udata){
-    _content_len      = len;
-    _content_provider.callback = provider;
-    _content_provider.udata    = udata;
-}
-
 
 void NEONRequest::freeRequest(){
     DavixError::clearError(&_early_termination_error);

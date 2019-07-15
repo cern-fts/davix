@@ -4,7 +4,7 @@ set(DAVIX_SOURCES
   auth/davix_openssl.cpp
   auth/davixauth.cpp
   auth/davixx509cred_internal.hpp                        auth/davixx509cred.cpp
-  # backend/BackendRequest.hpp                             backend/BackendRequest.cpp
+  backend/BackendRequest.hpp                             backend/BackendRequest.cpp
   core/RedirectionResolver.hpp                           core/RedirectionResolver.cpp
   core/SessionPool.hpp
                                                          deprecated/httpcachetoken.cpp

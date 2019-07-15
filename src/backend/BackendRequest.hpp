@@ -22,7 +22,18 @@
 #ifndef BACKEND_REQUEST_HPP
 #define BACKEND_REQUEST_HPP
 
+#include <request/httprequest.hpp>
+
 namespace Davix{
+
+//------------------------------------------------------------------------------
+// Callback + user data pointer for HttpBodyProvider.
+//------------------------------------------------------------------------------
+struct ContentProviderContext {
+    ContentProviderContext(): callback(NULL), udata(NULL) {}
+    HttpBodyProvider callback;
+    void *udata;
+};
 
 //------------------------------------------------------------------------------
 // Abstract HTTP request type towards a backend.
@@ -32,9 +43,7 @@ public:
   //----------------------------------------------------------------------------
   // Default constructor
   //----------------------------------------------------------------------------
-  BackendRequest()
-  : _request_type("GET"),
-    _req_flag(RequestFlag::IdempotentRequest) {}
+  BackendRequest();
 
   //----------------------------------------------------------------------------
   // Virtual destructor
@@ -90,6 +99,14 @@ public:
     return _req_flag & ((int) flag);
   }
 
+  //----------------------------------------------------------------------------
+  // Several different ways to provide the request body.
+  //----------------------------------------------------------------------------
+  void setRequestBody(const std::string & body);
+  void setRequestBody(const void * buffer, dav_size_t len);
+  void setRequestBody(int fd, dav_off_t offset, dav_size_t len);
+  void setRequestBody(HttpBodyProvider provider, dav_size_t len, void* udata);
+
 
 
 protected:
@@ -99,6 +116,17 @@ protected:
   std::vector<std::pair<std::string, std::string>> _headers_field;
   std::string _request_type;
   int _req_flag;
+
+  //----------------------------------------------------------------------------
+  // Request content.
+  //----------------------------------------------------------------------------
+  char* _content_ptr;
+  dav_size_t _content_len;
+  dav_off_t _content_offset;
+  std::string _content_body;
+  int _fd_content;
+  ContentProviderContext _content_provider;
+
 
 };
 

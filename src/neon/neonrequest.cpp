@@ -40,7 +40,7 @@ namespace Davix {
 class NEONSessionExtended : public NEONSession{
 public:
     NEONSessionExtended(NEONRequest* r, const Uri &uri, const RequestParams &p, DavixError **err)
-        : NEONSession(r->getContext(), uri, p, err), _r(r)
+        : NEONSession(ContextExplorer::SessionFactoryFromContext(r->getContext()), uri, p, err), _r(r)
     {
         if(get_ne_sess() != NULL){
             ne_hook_pre_send(get_ne_sess(), NEONRequest::neon_hook_pre_send, (void*)r);

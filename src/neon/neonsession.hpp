@@ -25,7 +25,6 @@
 
 #include <davix_context_internal.hpp>
 #include <params/davixrequestparams.hpp>
-#include <neon/neonsessionfactory.hpp>
 
 
 #include <pthread.h>
@@ -38,7 +37,7 @@ class NEONSessionFactory;
 class NEONSession
 {
 public:
-    NEONSession(Context & c, const Uri & uri, const RequestParams & p, DavixError** err);
+    NEONSession(NEONSessionFactory &f, const Uri & uri, const RequestParams & p, DavixError** err);
     virtual ~NEONSession();
 
 

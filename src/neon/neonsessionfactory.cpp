@@ -69,19 +69,16 @@ inline std::string davix_session_uri_rewrite(const Uri & u){
     return std::string();
 }
 
-int NEONSessionFactory::createNeonSession(const RequestParams & params, const Uri & uri, ne_session** sess, DavixError **err){
+ne_session* NEONSessionFactory::createNeonSession(const RequestParams & params, const Uri & uri, DavixError **err){
     if(uri.getStatus() == StatusCode::OK){
-        if(sess != NULL){
-            std::string scheme = davix_session_uri_rewrite(uri);
-            if(scheme.size() > 0){
-                *sess = create_recycled_session(params, scheme, uri.getHost(), httpUriGetPort(uri));
-                return 0;
-            }
+        std::string scheme = davix_session_uri_rewrite(uri);
+        if(scheme.size() > 0){
+            return create_recycled_session(params, scheme, uri.getHost(), httpUriGetPort(uri));
         }
     }
 
     DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, fmt::format("impossible to parse {}, not a valid HTTP, S3 or Webdav URL", uri.getString()));
-    return -1;
+    return nullptr;
 }
 
 int NEONSessionFactory::storeNeonSession(ne_session* sess){

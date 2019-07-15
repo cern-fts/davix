@@ -41,7 +41,7 @@ public:
     /**
       Create a session object or create a recycled  one ( session reuse )
     */
-    int createNeonSession(const RequestParams & params, const Uri & uri, ne_session** sess, DavixError** err);
+    ne_session* createNeonSession(const RequestParams & params, const Uri & uri, DavixError** err);
 
     /**
       store a Neon session object for session reuse purpose

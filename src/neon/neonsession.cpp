@@ -24,6 +24,7 @@
 #include <ne_redirect.h>
 #include <libs/time_utils.h>
 #include <auth/davixx509cred_internal.hpp>
+#include <neon/neonsessionfactory.hpp>
 #include <string_utils/stringutils.hpp>
 
 const char* davix_neon_key="davix_key";
@@ -130,10 +131,8 @@ int NEONSession::provide_login_passwd_fn(void *userdata, const char *realm, int 
 
 }
 
-
-
-NEONSession::NEONSession(Context & c, const Uri & uri, const RequestParams & p, DavixError** err) :
-    _f(ContextExplorer::SessionFactoryFromContext(c)),
+NEONSession::NEONSession(NEONSessionFactory &f, const Uri & uri, const RequestParams & p, DavixError** err) :
+    _f(f),
     _sess(NULL),
     _params(p),
     _last_error(NULL),
@@ -141,21 +140,19 @@ NEONSession::NEONSession(Context & c, const Uri & uri, const RequestParams & p, 
     reused(false),
     _u(uri)
 {
-        _f.createNeonSession(p, uri, &_sess, err);
+        _sess = _f.createNeonSession(p, uri, err);
         if(_sess)
             configureSession(_sess, _u, p, &NEONSession::provide_login_passwd_fn, this, &NEONSession::authNeonCliCertMapper, this, reused);
 }
 
 
 NEONSession::~NEONSession(){
-#   ifndef _DISABLE_SESSION_REUSE
         if(_sess){
             if(_session_recycling)
                 _f.storeNeonSession(_sess);
             else
                 ne_session_destroy(_sess);
         }
-#   endif
         DavixError::clearError(&_last_error);
 }
 

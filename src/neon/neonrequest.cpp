@@ -37,29 +37,42 @@
 
 namespace Davix {
 
-class NEONSessionExtended : public NEONSession{
+class NEONSessionWrapper {
 public:
-    NEONSessionExtended(NEONRequest* r, const Uri &uri, const RequestParams &p, DavixError **err)
-        : NEONSession(ContextExplorer::SessionFactoryFromContext(r->getContext()), uri, p, err), _r(r)
+    NEONSessionWrapper(NEONRequest* r, const Uri &uri, const RequestParams &p, DavixError **err)
+        : _r(r)
     {
-        if(get_ne_sess() != NULL){
-            ne_hook_pre_send(get_ne_sess(), NEONRequest::neon_hook_pre_send, (void*)r);
-            ne_hook_post_headers(get_ne_sess(), NEONRequest::neon_hook_pre_rec, (void*) r);
+        _sess.reset(new NEONSession(ContextExplorer::SessionFactoryFromContext(r->getContext()), uri, p, err));
+
+        if(_sess->get_ne_sess() != NULL){
+            ne_hook_pre_send(_sess->get_ne_sess(), NEONRequest::neon_hook_pre_send, (void*)r);
+            ne_hook_post_headers(_sess->get_ne_sess(), NEONRequest::neon_hook_pre_rec, (void*) r);
         }
     }
 
-    virtual ~NEONSessionExtended(){
-        if(get_ne_sess() != NULL){
-            ne_unhook_pre_send(get_ne_sess(), NEONRequest::neon_hook_pre_send, (void*)_r);
-            ne_unhook_post_headers(get_ne_sess(), NEONRequest::neon_hook_pre_rec, (void*) _r);
+    virtual ~NEONSessionWrapper() {
+        if(_sess->get_ne_sess() != NULL){
+            ne_unhook_pre_send(_sess->get_ne_sess(), NEONRequest::neon_hook_pre_send, (void*)_r);
+            ne_unhook_post_headers(_sess->get_ne_sess(), NEONRequest::neon_hook_pre_rec, (void*) _r);
         }
+    }
+
+    ne_session* get_ne_sess() {
+        return _sess->get_ne_sess();
+    }
+
+    bool isRecycledSession() const {
+        return _sess->isRecycledSession();
+    }
+
+    void disable_session_reuse() {
+        _sess->disable_session_reuse();
     }
 
 private:
+    std::unique_ptr<NEONSession> _sess;
     NEONRequest* _r;
 };
-
-
 
 void configureRequestParamsProto(const Uri &uri, RequestParams &params){
     if(params.getProtocol() == RequestProtocol::Auto){
@@ -232,7 +245,7 @@ int NEONRequest::createRequest(DavixError** err){
 
 int NEONRequest::instanceSession(DavixError** err){
     DavixError * tmp_err=NULL;
-    _neon_sess.reset(static_cast<NEONSession*>(new NEONSessionExtended(this, *_current, _params, &tmp_err)));
+    _neon_sess.reset(new NEONSessionWrapper(this, *_current, _params, &tmp_err));
     if(tmp_err){
         _neon_sess.reset(NULL);
         DavixError::propagateError(err, tmp_err);

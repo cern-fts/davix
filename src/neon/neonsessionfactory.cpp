@@ -81,13 +81,9 @@ ne_session* NEONSessionFactory::createNeonSession(const RequestParams & params, 
     return nullptr;
 }
 
-int NEONSessionFactory::storeNeonSession(ne_session* sess){
+void NEONSessionFactory::storeNeonSession(ne_session* sess){
     internal_release_session_handle(sess);
-    return 0;
 }
-
-
-
 
 ne_session* NEONSessionFactory::create_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port){
     ne_session *se;

@@ -46,7 +46,7 @@ namespace Davix {
 class NEONSessionFactory;
 class NEONSession;
 class HttpRequest;
-class NEONSessionExtended;
+class NEONSessionWrapper;
 
 class NEONRequest : public BackendRequest
 {
@@ -101,7 +101,7 @@ public:
 private:
 
     // neon internal field
-    std::unique_ptr<NEONSession> _neon_sess;
+    std::unique_ptr<NEONSessionWrapper> _neon_sess;
 
 
     ne_request * _req;
@@ -166,7 +166,7 @@ private:
                                         const ne_status *status);
 
 
-    friend class NEONSessionExtended;
+    friend class NEONSessionWrapper;
 };
 
 

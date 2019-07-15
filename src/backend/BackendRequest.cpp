@@ -31,8 +31,9 @@ namespace Davix {
 //------------------------------------------------------------------------------
 // Default constructor
 //------------------------------------------------------------------------------
-BackendRequest::BackendRequest(const Uri &uri)
-  : _current( new Uri(uri)),
+BackendRequest::BackendRequest(Context &c, const Uri &uri)
+  : _context(c),
+    _current( new Uri(uri)),
     _orig(_current),
     _params(),
     _request_type("GET"),
@@ -143,6 +144,20 @@ bool BackendRequest::checkTimeout(DavixError **err){
   }
 
   return false;
+}
+
+//------------------------------------------------------------------------------
+// Get this requests' context.
+//------------------------------------------------------------------------------
+Context& BackendRequest::getContext() const {
+  return _context;
+}
+
+//------------------------------------------------------------------------------
+// Get original URL, before any redirections
+//------------------------------------------------------------------------------
+std::shared_ptr<Uri> BackendRequest::getOriginalUri() const {
+  return _orig;
 }
 
 //------------------------------------------------------------------------------

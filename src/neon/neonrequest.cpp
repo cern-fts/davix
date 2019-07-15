@@ -40,7 +40,7 @@ namespace Davix {
 class NEONSessionExtended : public NEONSession{
 public:
     NEONSessionExtended(NEONRequest* r, const Uri &uri, const RequestParams &p, DavixError **err)
-        : NEONSession(r->_c, uri, p, err), _r(r)
+        : NEONSession(r->getContext(), uri, p, err), _r(r)
     {
         if(get_ne_sess() != NULL){
             ne_hook_pre_send(get_ne_sess(), NEONRequest::neon_hook_pre_send, (void*)r);
@@ -144,7 +144,7 @@ void neon_simple_req_code_to_davix_code(int ne_status, ne_session* sess, const s
 
 
 NEONRequest::NEONRequest(HttpRequest & h, Context& context, const Uri & uri_req) :
-    BackendRequest(uri_req),
+    BackendRequest(context, uri_req),
     _neon_sess(),
     _req(NULL),
     _number_try(0),
@@ -153,7 +153,6 @@ NEONRequest::NEONRequest(HttpRequest & h, Context& context, const Uri & uri_req)
     _last_read(-1),
     _ans_size(-1),
     _h(h),
-    _c(context),
     req_started(false),
     req_running(false),
     _last_request_flag(0),
@@ -194,12 +193,12 @@ int NEONRequest::createRequest(DavixError** err){
 
     std::shared_ptr<Uri> redir_url;
     if(this->_params.getTransparentRedirectionSupport()) {
-        redir_url = ContextExplorer::RedirectionResolverFromContext(_c).redirectionResolve(_request_type, *_current);
+        redir_url = ContextExplorer::RedirectionResolverFromContext(_context).redirectionResolve(_request_type, *_current);
     }
 
     // performing an operation which could change the PFN? Clear all cache entries for selected URL
     if(_request_type == "DELETE" || _request_type == "MOVE") {
-        ContextExplorer::RedirectionResolverFromContext(_c).redirectionClean(*_current.get());
+        ContextExplorer::RedirectionResolverFromContext(_context).redirectionClean(*_current.get());
     }
 
     if(redir_url.get() != NULL){
@@ -266,7 +265,7 @@ void NEONRequest::configureRequest(){
          _current.get()->queryParamExists("sr") &&
          _current.get()->queryParamExists("sp") && !_current.get()->fragmentParamExists("azuremechanism")) {
 
-        IOChainContext iocontext(_c, *_current, &_params);
+        IOChainContext iocontext(_context, *_current, &_params);
 
         using std::placeholders::_1;
         using std::placeholders::_2;
@@ -411,7 +410,7 @@ int NEONRequest::negotiateRequest(DavixError** err){
             createError(status, err);
 
             cancelSessionReuse();
-            ContextExplorer::RedirectionResolverFromContext(_c).redirectionClean(_request_type, *_orig);
+            ContextExplorer::RedirectionResolverFromContext(_context).redirectionClean(_request_type, *_orig);
             return -1;
         }
 
@@ -443,7 +442,7 @@ int NEONRequest::negotiateRequest(DavixError** err){
                    !ugrs3post.empty() && (_content_len >= s3SizeLimit || _current->fragmentParamExists("forceMultiPart")) ) {
                     // Ugly workaround for s3 + multi-part upload + dynafed
                     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "Initiating dynafed-assisted multi-part upload to S3, posturl: {}, pluginid: {}", ugrs3post, ugrpluginid);
-                    IOChainContext iocontext(_c, *_current, &_params);
+                    IOChainContext iocontext(_context, *_current, &_params);
 
                     using std::placeholders::_1;
                     using std::placeholders::_2;
@@ -552,7 +551,7 @@ int NEONRequest::negotiateRequest(DavixError** err){
 //
 bool NEONRequest::requestCleanup(){
     // cleanup redirection
-    ContextExplorer::RedirectionResolverFromContext(_c).redirectionClean(_request_type, *_orig);
+    ContextExplorer::RedirectionResolverFromContext(_context).redirectionClean(_request_type, *_orig);
 
     // disable recycling
     // server supporting broken pipelining will trigger if reused
@@ -585,7 +584,7 @@ int NEONRequest::redirectRequest(DavixError **err){
     old_uri = _current;
     _current= std::shared_ptr<Uri>(new Uri(dst_uri));
     ne_free(dst_uri);
-    ContextExplorer::RedirectionResolverFromContext(_c).addRedirection(_request_type, *old_uri, _current);
+    ContextExplorer::RedirectionResolverFromContext(_context).addRedirection(_request_type, *old_uri, _current);
 
 
     // recycle old request and session
@@ -880,7 +879,7 @@ void NEONRequest::neon_hook_pre_send(ne_request *r, void *userdata,
                    ne_buffer *header){
     (void) r;
     NEONRequest* req = (NEONRequest*) userdata;
-    RequestPreSendHook hook = req->_c.getHook<RequestPreSendHook>();
+    RequestPreSendHook hook = req->_context.getHook<RequestPreSendHook>();
     if(hook){
         std::string header_line(header->data, (header->used)-1);
         hook(req->_h, header_line);
@@ -891,7 +890,7 @@ void NEONRequest::neon_hook_pre_rec(ne_request *r, void *userdata,
                                     const ne_status *status){
     (void) r;
     NEONRequest* req = (NEONRequest*) userdata;
-    RequestPreReceHook hook = req->_c.getHook<RequestPreReceHook>();
+    RequestPreReceHook hook = req->_context.getHook<RequestPreReceHook>();
     if(hook){
         std::ostringstream header_line;
         HeaderVec headers;

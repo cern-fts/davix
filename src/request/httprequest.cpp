@@ -229,10 +229,10 @@ bool HttpRequest::getFlag(const RequestFlag::RequestFlag flag){
 
 void HttpRequest::runPreRunHook(){
     // triggers Hooks
-    RequestPreRunHook hook = d_ptr->_c.getHook<RequestPreRunHook>();
+    RequestPreRunHook hook = d_ptr->getContext().getHook<RequestPreRunHook>();
 
     if(hook){
-        hook(d_ptr->getParameters(), *this, *(d_ptr->_orig));
+        hook(d_ptr->getParameters(), *this, *(d_ptr->getOriginalUri()));
     }
 }
 

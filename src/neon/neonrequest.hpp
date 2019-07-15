@@ -116,7 +116,6 @@ private:
     mutable dav_ssize_t _ans_size;
 
     HttpRequest & _h;
-    Context& _c;
     bool req_started, req_running;
     int _last_request_flag;
 
@@ -167,7 +166,6 @@ private:
                                         const ne_status *status);
 
 
-    friend class HttpRequest;
     friend class NEONSessionExtended;
 };
 

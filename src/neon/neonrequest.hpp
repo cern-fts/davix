@@ -153,12 +153,6 @@ private:
 
     void configureRequest();
 
-    void configureS3params();
-
-    void configureAzureParams();
-
-    void configureGcloudParams();
-
     void cancelSessionReuse();
 
     // create initial neon request object
@@ -182,9 +176,6 @@ private:
       internal, try to authentification with pkcs12 credential
     */
     int try_pkcs12_authentification(ne_session *sess, const ne_ssl_dname *const *dnames, DavixError** err);
-
-    NEONRequest(const NEONRequest & req);
-    NEONRequest & operator=(const NEONRequest & req);
 
 	static ssize_t neon_body_content_provider(void* userdata, char* buffer, size_t buflen);
 

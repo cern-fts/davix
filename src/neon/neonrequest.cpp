@@ -337,30 +337,6 @@ void NEONRequest::configureRequest(){
 }
 
 
-void NEONRequest::configureS3params(){
-    // strange workaround to get S3 compatibility on gcloud to work
-    if(_params.getAwsRegion().empty()) {
-        HeaderVec vec = _headers_field;
-        S3::signRequest(_params, _request_type, *_current, vec);
-        vec.swap(_headers_field);
-    }
-    else {
-        Uri signed_url = S3::signURI(_params, _request_type, *_current, _headers_field, DEFAULT_REQUEST_SIGNING_DURATION);
-        _current= std::shared_ptr<Uri>(new Uri(signed_url));
-    }
-}
-
-// TODO: make static?
-void NEONRequest::configureAzureParams(){
-    Uri signed_url = Azure::signURI(_params.getAzureKey(), _request_type, *_current, DEFAULT_REQUEST_SIGNING_DURATION);
-    _current= std::shared_ptr<Uri>(new Uri(signed_url));
-}
-
-void NEONRequest::configureGcloudParams() {
-    Uri signed_url = gcloud::signURI(_params.getGcloudCredentials(), _request_type, *_current, _headers_field, DEFAULT_REQUEST_SIGNING_DURATION);
-    _current= std::shared_ptr<Uri>(new Uri(signed_url));
-}
-
 int NEONRequest::processRedirection(int neonCode, DavixError **err){
     int end_status = -1;
     if (this->_params.getTransparentRedirectionSupport()) {

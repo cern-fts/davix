@@ -24,6 +24,8 @@
 #include <utils/davix_azure_utils.hpp>
 #include <utils/davix_gcloud_utils.hpp>
 #include <utils/davix_logger_internal.hpp>
+#include <string_utils/stringutils.hpp>
+#include <fileops/fileutils.hpp>
 #include <string>
 
 namespace Davix {
@@ -45,7 +47,10 @@ BackendRequest::BackendRequest(Context &c, const Uri &uri)
     _content_body(),
     _fd_content(-1),
     _content_provider(),
-    _internal_status(RequestStatus::kNotStarted) {}
+    _internal_status(RequestStatus::kNotStarted),
+    _ans_size(-1),
+    _early_termination(false),
+    _early_termination_error(NULL) {}
 
 
 //------------------------------------------------------------------------------
@@ -145,6 +150,29 @@ bool BackendRequest::checkTimeout(DavixError **err){
   }
 
   return false;
+}
+
+//------------------------------------------------------------------------------
+// Get answer size from headers.
+//------------------------------------------------------------------------------
+dav_ssize_t BackendRequest::getAnswerSizeFromHeaders() const {
+  std::string str_file_size="";
+
+  long size=-1;
+  if(getAnswerHeader(ans_header_content_length, str_file_size)) {
+    StrUtil::trim(str_file_size);
+    try{
+      size = toType<long, std::string>()(str_file_size);
+    } catch(...){
+      size = -1;
+    }
+  }
+
+  if(size == -1){
+    DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_HTTP, "Bad server answer: {} Invalid, impossible to determine answer size", ans_header_content_length);
+  }
+
+  return static_cast<dav_ssize_t>(size);
 }
 
 //------------------------------------------------------------------------------
@@ -292,6 +320,40 @@ std::vector<char>& BackendRequest::getAnswerContentVec() {
 //------------------------------------------------------------------------------
 void BackendRequest::clearAnswerContent() {
   _vec.clear();
+}
+
+//------------------------------------------------------------------------------
+// Parse "Last-Modified" response header, return as time_t.
+//------------------------------------------------------------------------------
+time_t BackendRequest::getLastModified() const {
+  time_t t=0;
+
+  std::string str_lastmodified;
+  if(getAnswerHeader("Last-Modified", str_lastmodified)) {
+    StrUtil::trim(str_lastmodified);
+    try{
+      t = S3::s3TimeConverter(str_lastmodified);
+    } catch(...){
+      str_lastmodified.clear();
+    }
+  }
+
+  if(str_lastmodified.empty()){
+    DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_HTTP, "Bad server answer: {} Invalid, impossible to determine last modified time");
+  }
+
+  return t;
+}
+
+//------------------------------------------------------------------------------
+// Get answer size
+//------------------------------------------------------------------------------
+dav_ssize_t BackendRequest::getAnswerSize() const {
+  if(_ans_size < 0) {
+    return getAnswerSizeFromHeaders();
+  }
+
+  return _ans_size;
 }
 
 

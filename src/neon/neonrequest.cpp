@@ -85,10 +85,7 @@ void configureRequestParamsProto(const Uri &uri, RequestParams &params){
             params.setProtocol(RequestProtocol::Gcloud);
         }
     }
-
 }
-
-
 
 void neon_generic_error_mapper(int ne_status, StatusCode::Code & code, std::string & str){
     switch(ne_status){
@@ -164,13 +161,10 @@ NEONRequest::NEONRequest(HttpRequest & h, Context& context, const Uri & uri_req)
     _redirects(0),
     _total_read_size(0),
     _last_read(-1),
-    _ans_size(-1),
     _h(h),
     req_started(false),
     req_running(false),
-    _accepted_202_retries(0),
-    _early_termination(0),
-    _early_termination_error(NULL) {
+    _accepted_202_retries(0) {
 }
 
 
@@ -755,6 +749,9 @@ int NEONRequest::endRequest(DavixError** err){
     return 0;
 }
 
+//------------------------------------------------------------------------------
+// Get response status.
+//------------------------------------------------------------------------------
 int NEONRequest::getRequestCode(){
     if(_early_termination) {
         if(!_early_termination_error) return 200;
@@ -763,49 +760,7 @@ int NEONRequest::getRequestCode(){
     return ne_get_status(_req)->code;
 }
 
-dav_ssize_t NEONRequest::getAnswerSizeFromHeaders() const{
-    std::string str_file_size="";
-    long size=-1;
-    if( getAnswerHeader(ans_header_content_length, str_file_size)){
-        StrUtil::trim(str_file_size);
-        try{
-            size = toType<long, std::string>()(str_file_size);
-        }catch(...){
-            size = -1;
-        }
-    }
-    if( size == -1){
-       DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_HTTP, "Bad server answer: {} Invalid, impossible to determine answer size", ans_header_content_length);
-    }
-    return static_cast<dav_ssize_t>(size);
-}
-
-dav_ssize_t NEONRequest::getAnswerSize() const{
-    if(_ans_size < 0)
-        _ans_size = getAnswerSizeFromHeaders();
-    return _ans_size;
-}
-
-
-time_t NEONRequest::getLastModified() const{
-    time_t t=0;
-    std::string str_lastmodified;
-    if( getAnswerHeader("Last-Modified", str_lastmodified)){
-        StrUtil::trim(str_lastmodified);
-        try{
-            t = S3::s3TimeConverter(str_lastmodified);
-        }catch(...){
-            str_lastmodified.clear();
-        }
-    }
-    if( str_lastmodified.empty()){
-       DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_HTTP, "Bad server answer: {} Invalid, impossible to determine last modified time");
-    }
-    return t;
-}
-
-
-bool NEONRequest::getAnswerHeader(const std::string &header_name, std::string &value) const{
+bool NEONRequest::getAnswerHeader(const std::string &header_name, std::string &value) const {
     if(_req){
         const char* answer_content = ne_get_response_header(_req, header_name.c_str());
         if(answer_content){
@@ -816,8 +771,7 @@ bool NEONRequest::getAnswerHeader(const std::string &header_name, std::string &v
     return false;
 }
 
-
-size_t NEONRequest::getAnswerHeaders( HeaderVec & vec_headers) const{
+size_t NEONRequest::getAnswerHeaders( HeaderVec & vec_headers) const {
     if(_req){
         void * handle = NULL;
         const char* name=NULL, *value=NULL;

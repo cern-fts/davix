@@ -68,28 +68,27 @@ public:
     //--------------------------------------------------------------------------
     // Start request.
     //--------------------------------------------------------------------------
-    int beginRequest(DavixError** err);
+    virtual int beginRequest(DavixError** err);
 
     //--------------------------------------------------------------------------
     // Finish an already started request.
     //--------------------------------------------------------------------------
-    int endRequest(DavixError** err);
+    virtual int endRequest(DavixError** err);
 
-    /**
-     * get content length
-     **/
-    dav_ssize_t getAnswerSize() const;
+    //--------------------------------------------------------------------------
+    // Get response status.
+    //--------------------------------------------------------------------------
+    virtual int getRequestCode();
 
-    /**
-     * get last modified
-     **/
-    time_t getLastModified() const;
+    //--------------------------------------------------------------------------
+    // Get a specific response header
+    //--------------------------------------------------------------------------
+    virtual bool getAnswerHeader(const std::string &header_name, std::string &value) const;
 
-    int getRequestCode();
-
-    bool getAnswerHeader(const std::string &header_name, std::string &value) const;
-
-    size_t getAnswerHeaders( std::vector<std::pair<std::string, std::string > > & vec_headers) const;
+    //--------------------------------------------------------------------------
+    // Get all response headers
+    //--------------------------------------------------------------------------
+    virtual size_t getAnswerHeaders(std::vector<std::pair<std::string, std::string > > & vec_headers) const;
 
 private:
 
@@ -105,21 +104,14 @@ private:
     // read info
     dav_ssize_t _total_read_size, _last_read;
 
-    // answer length
-    mutable dav_ssize_t _ans_size;
 
     HttpRequest & _h;
     bool req_started, req_running;
 
     int _accepted_202_retries;
 
-    bool _early_termination;
-    DavixError* _early_termination_error;
-
     ////////////////////////////////////////////
     // Private Members
-    dav_ssize_t getAnswerSizeFromHeaders() const;
-
     int startRequest(DavixError** err);
 
     int processRedirection(int neonCode, DavixError** err); // analyze and process redirection if needed

@@ -58,7 +58,6 @@ public:
     //  @return 0 on success
     int executeRequest(DavixError** err) ;
 
-    int beginRequest(DavixError** err);
     /**
       read a block of a maximum size bytes in the request
       @param buffer : buffer to fill
@@ -67,16 +66,14 @@ public:
     virtual dav_ssize_t readBlock(char* buffer, dav_size_t max_size,DavixError** err);
 
     //--------------------------------------------------------------------------
+    // Start request.
+    //--------------------------------------------------------------------------
+    int beginRequest(DavixError** err);
+
+    //--------------------------------------------------------------------------
     // Finish an already started request.
     //--------------------------------------------------------------------------
     int endRequest(DavixError** err);
-
-    /**
-      get a reference to the current result for synchronous full request
-     */
-    const char* getAnswerContent();
-
-    std::vector<char> & getAnswerContentVec();
 
     /**
      * get content length
@@ -87,11 +84,6 @@ public:
      * get last modified
      **/
     time_t getLastModified() const;
-
-    /**
-      clear the current result
-    */
-    void clearAnswerContent();
 
     int getRequestCode();
 

@@ -272,5 +272,27 @@ dav_ssize_t BackendRequest::readLine(char* buffer, dav_size_t max_size, DavixErr
   return -1;
 }
 
+//------------------------------------------------------------------------------
+// Access response buffer.
+//------------------------------------------------------------------------------
+const char* BackendRequest::getAnswerContent() {
+  if(_internal_status == RequestStatus::kCompletedOneShot) {
+    return (const char*) &(_vec.at(0));
+  }
+
+  return NULL;
+}
+
+std::vector<char>& BackendRequest::getAnswerContentVec() {
+  return _vec;
+}
+
+//------------------------------------------------------------------------------
+// Clear response buffer.
+//------------------------------------------------------------------------------
+void BackendRequest::clearAnswerContent() {
+  _vec.clear();
+}
+
 
 }

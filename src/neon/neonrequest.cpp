@@ -755,30 +755,12 @@ int NEONRequest::endRequest(DavixError** err){
     return 0;
 }
 
-void NEONRequest::clearAnswerContent(){
-    _vec.clear();
-}
-
-
-
 int NEONRequest::getRequestCode(){
     if(_early_termination) {
         if(!_early_termination_error) return 200;
         return _early_termination_error->getStatus();
     }
     return ne_get_status(_req)->code;
-}
-
-const char* NEONRequest::getAnswerContent(){
-    if(_internal_status == RequestStatus::kCompletedOneShot) {
-        return (const char*) &(_vec.at(0));
-    }
-    return NULL;
-}
-
-
-std::vector<char> & NEONRequest::getAnswerContentVec(){
-    return _vec;
 }
 
 dav_ssize_t NEONRequest::getAnswerSizeFromHeaders() const{

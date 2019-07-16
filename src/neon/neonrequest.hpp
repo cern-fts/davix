@@ -54,15 +54,15 @@ public:
     NEONRequest(HttpRequest &h, Context& f, const Uri & uri_req);
     virtual ~NEONRequest();
 
-    //  Execute the given request and return result to the buffer result
-    //  @return 0 on success
-    int executeRequest(DavixError** err) ;
+    //--------------------------------------------------------------------------
+    // Execute request synchronously, and store result in internal buffer.
+    //--------------------------------------------------------------------------
+    virtual int executeRequest(DavixError** err);
 
-    /**
-      read a block of a maximum size bytes in the request
-      @param buffer : buffer to fill
-      @param max_size : maximum number of bytes to set
-    */
+    //--------------------------------------------------------------------------
+    // Major read member - implementations need to override.
+    // Read a block of max_size bytes (at max) into buffer.
+    //--------------------------------------------------------------------------
     virtual dav_ssize_t readBlock(char* buffer, dav_size_t max_size,DavixError** err);
 
     //--------------------------------------------------------------------------
@@ -103,7 +103,6 @@ private:
     int _redirects;
     // read info
     dav_ssize_t _total_read_size, _last_read;
-
 
     HttpRequest & _h;
     bool req_started, req_running;

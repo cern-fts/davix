@@ -632,7 +632,6 @@ int NEONRequest::executeRequest(DavixError** err){
             }
            total_read += read_status;
         }
-
     }
 
     if(read_status < 0){

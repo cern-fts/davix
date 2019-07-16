@@ -99,6 +99,11 @@ public:
   virtual int endRequest(DavixError** err) = 0;
 
   //----------------------------------------------------------------------------
+  // Execute request synchronously, and store result in internal buffer.
+  //----------------------------------------------------------------------------
+  virtual int executeRequest(DavixError** err) = 0;
+
+  //----------------------------------------------------------------------------
   // Get response status.
   //----------------------------------------------------------------------------
   virtual int getRequestCode() = 0;

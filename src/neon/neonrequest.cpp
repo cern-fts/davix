@@ -168,7 +168,6 @@ NEONRequest::NEONRequest(HttpRequest & h, Context& context, const Uri & uri_req)
     _h(h),
     req_started(false),
     req_running(false),
-    _last_request_flag(0),
     _accepted_202_retries(0),
     _early_termination(0),
     _early_termination_error(NULL) {
@@ -616,7 +615,7 @@ int NEONRequest::redirectRequest(DavixError **err){
 
 int NEONRequest::executeRequest(DavixError** err){
     dav_ssize_t read_status=1, total_read=0;
-    _last_request_flag =0;
+    _internal_status = RequestStatus::kNotStarted;
     _vec.clear();
 
     DAVIX_SCOPE_TRACE(DAVIX_LOG_HTTP, execReq);
@@ -657,17 +656,19 @@ int NEONRequest::executeRequest(DavixError** err){
    if( endRequest(err) < 0){
        return -1;
    }
-    _last_request_flag =1; // 1 -> syn request
-    return 0;
+
+   _internal_status = RequestStatus::kCompletedOneShot;
+   return 0;
 }
 
 int NEONRequest::beginRequest(DavixError** err){
     int ret = -1;
-    _last_request_flag = 0;
+    _internal_status = RequestStatus::kNotStarted;
     _vec.clear();
     if( (ret= startRequest(err)) < 0)
         return -1;
-    _last_request_flag = 2; // 2 -> sequential req
+
+    _internal_status = RequestStatus::kStarted;
     return ret;
 }
 
@@ -769,8 +770,9 @@ int NEONRequest::getRequestCode(){
 }
 
 const char* NEONRequest::getAnswerContent(){
-    if(_last_request_flag == 1)
+    if(_internal_status == RequestStatus::kCompletedOneShot) {
         return (const char*) &(_vec.at(0));
+    }
     return NULL;
 }
 

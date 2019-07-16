@@ -66,10 +66,11 @@ public:
     */
     virtual dav_ssize_t readBlock(char* buffer, dav_size_t max_size,DavixError** err);
 
-    /**
-      finish an already started request
-     */
+    //--------------------------------------------------------------------------
+    // Finish an already started request.
+    //--------------------------------------------------------------------------
     int endRequest(DavixError** err);
+
     /**
       get a reference to the current result for synchronous full request
      */
@@ -117,7 +118,6 @@ private:
 
     HttpRequest & _h;
     bool req_started, req_running;
-    int _last_request_flag;
 
     int _accepted_202_retries;
 

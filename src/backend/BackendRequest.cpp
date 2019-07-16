@@ -44,7 +44,8 @@ BackendRequest::BackendRequest(Context &c, const Uri &uri)
     _content_offset(0),
     _content_body(),
     _fd_content(-1),
-    _content_provider() {}
+    _content_provider(),
+    _internal_status(RequestStatus::kNotStarted) {}
 
 
 //------------------------------------------------------------------------------

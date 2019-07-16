@@ -41,6 +41,15 @@ struct ContentProviderContext {
 };
 
 //------------------------------------------------------------------------------
+// Describe current request status.
+//------------------------------------------------------------------------------
+enum class RequestStatus {
+  kNotStarted = 0,      // request is not active
+  kStarted,             // request has been started
+  kCompletedOneShot,    // request completed through 'executeRequest', not begin/end
+};
+
+//------------------------------------------------------------------------------
 // Abstract HTTP request type towards a backend.
 //------------------------------------------------------------------------------
 class BackendRequest {
@@ -192,6 +201,11 @@ protected:
   std::string _content_body;
   int _fd_content;
   ContentProviderContext _content_provider;
+
+  //----------------------------------------------------------------------------
+  // Request status.
+  //----------------------------------------------------------------------------
+  RequestStatus _internal_status;
 
   //----------------------------------------------------------------------------
   // Answer buffers.

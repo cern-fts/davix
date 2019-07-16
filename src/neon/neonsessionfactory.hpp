@@ -38,6 +38,11 @@ public:
     NEONSessionFactory();
     virtual ~NEONSessionFactory();
 
+    //--------------------------------------------------------------------------
+    // Create a NEONSession.
+    //--------------------------------------------------------------------------
+    std::unique_ptr<NEONSession> provideNEONSession(const Uri &uri, const RequestParams &params, DavixError **err);
+
     /**
       Create a session object or create a recycled  one ( session reuse )
     */

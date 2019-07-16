@@ -42,9 +42,9 @@ public:
     NEONSessionWrapper(NEONRequest* r, const Uri &uri, const RequestParams &p, DavixError **err)
         : _r(r)
     {
-        _sess.reset(new NEONSession(ContextExplorer::SessionFactoryFromContext(r->getContext()), uri, p, err));
+        _sess = ContextExplorer::SessionFactoryFromContext(r->getContext()).provideNEONSession(uri, p, err);
 
-        if(_sess->get_ne_sess() != NULL){
+        if(_sess && _sess->get_ne_sess() != NULL){
             ne_hook_pre_send(_sess->get_ne_sess(), NEONRequest::neon_hook_pre_send, (void*)r);
             ne_hook_post_headers(_sess->get_ne_sess(), NEONRequest::neon_hook_pre_rec, (void*) r);
         }

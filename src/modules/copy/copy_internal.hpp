@@ -23,6 +23,7 @@
 #define DAVIX_COPY_INTERNAL_HPP
 
 #include <davix.hpp>
+#include <atomic>
 
 extern const std::string COPY_SCOPE;
 
@@ -33,7 +34,8 @@ class Davix::DavixCopyInternal
 public:
     DavixCopyInternal(Davix::Context& ctx, const Davix::RequestParams *params):
         context(ctx), parameters(params),
-        perfCallback(NULL), perfCallbackUdata(NULL)
+        perfCallback(NULL), perfCallbackUdata(NULL),
+        cancCallback(NULL), cancCallbackUdata(NULL)
     {
     }
 
@@ -41,6 +43,7 @@ public:
               unsigned nstreams, Davix::DavixError **error);
 
     void setPerformanceCallback(DavixCopy::PerformanceCallback callback, void *udata);
+    void setCancellationCallback(DavixCopy::CancellationCallback callback, void *udata);
 
 protected:
     Davix::Context &context;
@@ -48,11 +51,18 @@ protected:
     DavixCopy::PerformanceCallback perfCallback;
     void *perfCallbackUdata;
 
+    DavixCopy::CancellationCallback cancCallback;
+    void *cancCallbackUdata;
+
     void monitorPerformanceMarkers(Davix::HttpRequest *request, Davix::DavixError **error);
 
 private:
     DavixCopyInternal(const DavixCopyInternal&);
     DavixCopyInternal& operator = (const DavixCopyInternal&);
+
+    bool shouldCancel();
+    bool shouldCancel(Davix::DavixError **error);
+
 
 };
 

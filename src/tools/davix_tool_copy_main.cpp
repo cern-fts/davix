@@ -45,7 +45,6 @@ static void performanceCallback(const PerformanceData& perfData, void *udata)
         << std::endl;
 }
 
-
 static std::string help_msg(const std::string & cmd_path){
     std::string help_str = fmt::format("Usage : {} ", cmd_path);
     help_str += Tool::get_copy_description_options();

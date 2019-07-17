@@ -90,8 +90,6 @@ DavixCopy::~DavixCopy()
     delete d_ptr;
 }
 
-
-
 void DavixCopy::copy(const Uri &source, const Uri &destination,
         unsigned nstreams, DavixError **error)
 {
@@ -105,6 +103,10 @@ void DavixCopy::setPerformanceCallback(PerformanceCallback callback, void *udata
     d_ptr->setPerformanceCallback(callback, udata);
 }
 
+void DavixCopy::setCancellationCallback(CancellationCallback callback, void *udata)
+{
+    d_ptr->setCancellationCallback(callback, udata);
+}
 
 
 void DavixCopyInternal::setPerformanceCallback(DavixCopy::PerformanceCallback callback,
@@ -114,6 +116,11 @@ void DavixCopyInternal::setPerformanceCallback(DavixCopy::PerformanceCallback ca
     perfCallbackUdata = udata;
 }
 
+void DavixCopyInternal::setCancellationCallback(DavixCopy::CancellationCallback callback, void *udata)
+{
+    cancCallback = callback;
+    cancCallbackUdata = udata;
+}
 
 Uri dropDav(const Uri &uri) {
     Uri retval(uri);
@@ -128,6 +135,23 @@ Uri dropDav(const Uri &uri) {
     return retval;
 }
 
+bool DavixCopyInternal::shouldCancel() {
+    if(!cancCallback) {
+        return false;
+    }
+
+    return cancCallback(cancCallbackUdata);
+}
+
+bool DavixCopyInternal::shouldCancel(Davix::DavixError **error) {
+    if(shouldCancel()) {
+        DavixError::clearError(error);
+        DavixError::setupError(error, COPY_SCOPE, StatusCode::Canceled, fmt::format("Request cancellation was requested."));
+        return true;
+    }
+
+    return false;
+}
 
 void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
         unsigned nstreams, DavixError **error)
@@ -265,7 +289,7 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
             dlg_id.clear();
         }
 
-    } while (request->getAnswerHeader("Location", nextSrc) && request->getRequestCode() >= 300 && request->getRequestCode() < 400);
+    } while (!shouldCancel() && request->getAnswerHeader("Location", nextSrc) && request->getRequestCode() >= 300 && request->getRequestCode() < 400);
 
     if (!*error) {
         int responseStatus = request->getRequestCode();
@@ -298,6 +322,10 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
         }
     }
 
+    if(shouldCancel(error)) {
+        return;
+    }
+
     // Did we fail?
     if (*error)
         return;
@@ -308,8 +336,13 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
     // Just wait for it to finish
     monitorPerformanceMarkers(request, error);
     request->endRequest(&internalError);
+
     if(internalError && !(*error) ) {
         DavixError::propagatePrefixedError(error, internalError, __func__);
+    }
+
+    if(shouldCancel(error)) {
+        return;
     }
 
     delete request;
@@ -328,7 +361,7 @@ void DavixCopyInternal::monitorPerformanceMarkers(Davix::HttpRequest *request,
     PerformanceData performance;
     time_t lastPerfCallback = time(NULL);
 
-    while ((line_len = request->readLine(buffer, sizeof(buffer), &daverr)) >= 0 && !daverr)
+    while ((line_len = request->readLine(buffer, sizeof(buffer), &daverr)) >= 0 && !daverr && !shouldCancel())
     {
         buffer[line_len] = '\0';
 

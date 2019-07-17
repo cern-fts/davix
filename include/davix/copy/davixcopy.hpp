@@ -78,8 +78,10 @@ public:
 
     // Callbacks
     typedef void (*PerformanceCallback)(const PerformanceData& perfData, void* data);
+    typedef bool (*CancellationCallback)(void* data);
 
     void setPerformanceCallback(PerformanceCallback callback, void *udata);
+    void setCancellationCallback(CancellationCallback callback, void *udata);
 
 private:
     class DavixCopyInternal *d_ptr;

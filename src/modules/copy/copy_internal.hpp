@@ -23,7 +23,6 @@
 #define DAVIX_COPY_INTERNAL_HPP
 
 #include <davix.hpp>
-#include <atomic>
 
 extern const std::string COPY_SCOPE;
 

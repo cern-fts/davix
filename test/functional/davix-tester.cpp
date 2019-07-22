@@ -235,6 +235,7 @@ void statfileFromSignedURI(const RequestParams &params, const Uri uri) {
   StatInfo info;
   file.statInfo(&params2, info);
   std::cout << string_from_mode(info.mode) << std::endl;
+  std::cout << info.size << std::endl;
 
   ASSERT(! S_ISDIR(info.mode), "not a file");
 }
@@ -247,6 +248,7 @@ void statfile(const RequestParams &params, const Uri uri) {
     StatInfo info;
     file.statInfo(&params, info);
     std::cout << string_from_mode(info.mode) << std::endl;
+    std::cout << info.size << std::endl;
 
     ASSERT(! S_ISDIR(info.mode), "not a file");
 

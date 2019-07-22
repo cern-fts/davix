@@ -350,7 +350,7 @@ time_t BackendRequest::getLastModified() const {
 //------------------------------------------------------------------------------
 dav_ssize_t BackendRequest::getAnswerSize() const {
   if(_ans_size < 0) {
-    return getAnswerSizeFromHeaders();
+    _ans_size = getAnswerSizeFromHeaders();
   }
 
   return _ans_size;

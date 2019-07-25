@@ -75,6 +75,7 @@ option(ENABLE_THIRD_PARTY_COPY "enable or disable third party copy support" FALS
 
 # tests
 option(BENCH_TESTS "enable or disable the bench tests" FALSE)
+option(DAVIX_TESTS "Flag to disable the building of all tests" TRUE)
 
 # libs checks
 find_package(Threads)
@@ -118,8 +119,9 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/dist/CMakeLists.txt")
   add_subdirectory (dist)
 endif()
 
-add_subdirectory (test)
-
+if(DAVIX_TESTS)
+  add_subdirectory (test)
+endif()
 
 #############################################################################
 ## headers

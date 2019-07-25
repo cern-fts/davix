@@ -360,8 +360,9 @@ void DavixCopyInternal::monitorPerformanceMarkers(Davix::HttpRequest *request,
     PerformanceMarker holder;
     PerformanceData performance;
     time_t lastPerfCallback = time(NULL);
+    bool clearOutcome = false;
 
-    while ((line_len = request->readLine(buffer, sizeof(buffer), &daverr)) >= 0 && !daverr && !shouldCancel())
+    while ((line_len = request->readLine(buffer, sizeof(buffer), &daverr)) > 0 && !daverr && !shouldCancel())
     {
         buffer[line_len] = '\0';
 
@@ -406,17 +407,20 @@ void DavixCopyInternal::monitorPerformanceMarkers(Davix::HttpRequest *request,
         }
         else if (strncasecmp("success", p, 7) == 0)
         {
+            clearOutcome = true;
             request->discardBody(&daverr);
             break;
         }
         else if (strncasecmp("aborted", p, 7) == 0)
         {
+            clearOutcome = true;
             Davix::DavixError::setupError(error, COPY_SCOPE, StatusCode::Canceled,
                     "Transfer aborted in the remote end");
             break;
         }
         else if (strncasecmp("failed", p, 6) == 0 || strncasecmp("failure", p, 7) == 0)
         {
+            clearOutcome = true;
             Davix::DavixError::setupError(error, COPY_SCOPE, StatusCode::RemoteError,
                     std::string("Transfer failed: ") + p);
             break;
@@ -425,5 +429,10 @@ void DavixCopyInternal::monitorPerformanceMarkers(Davix::HttpRequest *request,
         {
             DAVIX_SLOG(DAVIX_LOG_WARNING, DAVIX_LOG_GRID, "Unknown performance marker, ignoring: {}", buffer);
         }
+    }
+
+    if(!clearOutcome && !(*error)) {
+        Davix::DavixError::setupError(error, COPY_SCOPE, StatusCode::UnknowError,
+            std::string("Connection terminated abruptly; Status of TPC request unknown"));
     }
 }

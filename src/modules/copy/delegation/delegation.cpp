@@ -239,6 +239,42 @@ static void triggerHooks(Context & context, RequestParams & params){
     }
 }
 
+// Try out all the given delegation endpoints, until one works. Error is reported
+// iff all of them fail.
+std::string DavixDelegation::delegate(Context & context, const std::vector<std::string> &endpoints,
+    const Davix::RequestParams& params, Davix::DavixError** err) {
+
+    DavixError::clearError(err);
+
+    std::vector<std::string> errors;
+
+    for(size_t i = 0; i < endpoints.size(); i++) {
+        DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_GRID, "Trying out delegation endpoint: {}", endpoints[i]);
+
+        std::string delegationId = DavixDelegation::delegate(context, endpoints[i], params, err);
+        if(!delegationId.empty() && !err) {
+            // Success
+            return delegationId;
+        }
+
+        if(err && *err) {
+          errors.emplace_back( (*err)->getErrMsg());
+        }
+
+        DavixError::clearError(err);
+    }
+
+    // Error, all delegation endpoints are broken
+    std::ostringstream ss;
+    for(size_t i = 0; i < errors.size(); i++) {
+        ss << i << ") " << errors[i] << ". ";
+    }
+
+    DavixError::setupError(err, DELEGATION_SCOPE, StatusCode::DelegationError, ss.str());
+    return std::string();
+}
+
+
 // Perform delegation, abstracting the version that is running on the server
 std::string DavixDelegation::delegate(Context & context, const std::string &dlg_endpoint,
 		const RequestParams& _p, Davix::DavixError** err)

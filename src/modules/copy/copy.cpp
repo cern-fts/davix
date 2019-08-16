@@ -28,6 +28,7 @@
 #include "delegation/delegation.hpp"
 #include <utils/davix_logger_internal.hpp>
 #include <utils/davix_gcloud_utils.hpp>
+#include <string_utils/stringutils.hpp>
 
 using namespace Davix;
 
@@ -76,7 +77,15 @@ static std::string _full_delegation_endpoint(const std::string& ref,
     return final;
 }
 
+static std::vector<std::string> parseXDelegateTo(const std::string& ref,
+  const std::string& uris, DavixError** err) {
 
+    std::vector<std::string> endpoints = StrUtil::tokenSplit(uris, " ");
+    for(size_t i = 0; i < endpoints.size(); i++) {
+        endpoints[i] = _full_delegation_endpoint(ref, endpoints[i], err);
+    }
+    return endpoints;
+}
 
 DavixCopy::DavixCopy(Context &c, const RequestParams *params): d_ptr(NULL)
 {
@@ -183,8 +192,6 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
     Davix::RequestParams requestParams(parameters);
     requestParams.setTransparentRedirectionSupport(false);
 
-    size_t start_pos;
-
     // if destination is s3 endpoint, change prefix to http(s) and pre-sign the request as a PUT
     if(destination.compare(0,2,"s3") == 0){
         destination.replace(0, 2, "http");
@@ -265,9 +272,7 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
 
         // If we get a X-Delegate-To, before continuing, delegate
         if (request->getAnswerHeader("X-Delegate-To", delegationEndpoint)) {
-            delegationEndpoint = _full_delegation_endpoint(nextSrc,
-                                                           delegationEndpoint,
-                                                           &internalError);
+            std::vector<std::string> delegationEndpoints = parseXDelegateTo(nextSrc, delegationEndpoint, &internalError);
             if (internalError) {
                 DavixError::propagatePrefixedError(error, internalError, __func__);
                 break;
@@ -276,7 +281,7 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
             DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_GRID, "Got delegation endpoint: {}",
                          delegationEndpoint.c_str());
 
-            std::string dlg_id = DavixDelegation::delegate(context, delegationEndpoint,
+            std::string dlg_id = DavixDelegation::delegate(context, delegationEndpoints,
                     parameters, &internalError);
             if (internalError) {
                 DavixError::propagatePrefixedError(error, internalError, __func__);

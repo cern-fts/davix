@@ -32,6 +32,12 @@ extern const std::string DELEGATION_SCOPE;
 // Need a class so it can be frieds with Session
 class DavixDelegation {
 public:
+
+    // Try out all the given delegation endpoints, until one works. Error is reported
+    // iff all of them fail.
+    static std::string delegate(Context & context, const std::vector<std::string> &dlg_endpoint,
+        const Davix::RequestParams& params, Davix::DavixError** err);
+
     static std::string delegate(Context & context, const std::string &dlg_endpoint,
             const Davix::RequestParams& params, Davix::DavixError** err);
 

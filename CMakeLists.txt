@@ -40,7 +40,7 @@ execute_process(
 # A bit hacky.
 #-------------------------------------------------------------------------------
 include(${CMAKE_CURRENT_SOURCE_DIR}/release.cmake REQUIRED)
-include(${CMAKE_CURRENT_SOURCE_DIR}/version.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/version.cmake OPTIONAL)
 message("Configuring cmake for davix version: ${VERSION_FULL}")
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules/")

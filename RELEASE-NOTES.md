@@ -1,5 +1,15 @@
 # davix release history
 
+## Unreleased
+### Bug fixes
+* Enable use of dav:// and davs:// in third party copies.
+* Fix third party copies when the server presents multiple certificate delegation endpoints. (Thanks to Thomas Hartmann for reporting)
+* Prevent davix from infinite-looping when the server abruptly terminates the connection during TPC. (Thanks to Frank Berghaus for reporting)
+
+### Improvements
+* Add ability to cancel ongoing TPC transfers through user-supplied callback.
+* Continued refactoring to eventually allow the use of libcurl in davix.
+
 ## 0.7.4 (2019-07-04)
 ### Bug fixes
 * Correctly handle URL-encoded paths in PROPFIND responses (Thanks to Matthew Skinner for reporting)

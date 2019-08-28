@@ -1,6 +1,6 @@
 # davix release history
 
-## Unreleased
+## 0.7.5 (2019-08-28)
 ### Bug fixes
 * Enable use of dav:// and davs:// in third party copies.
 * Fix third party copies when the server presents multiple certificate delegation endpoints. (Thanks to Thomas Hartmann for reporting)

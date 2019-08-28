@@ -10,6 +10,9 @@
 * Add ability to cancel ongoing TPC transfers through user-supplied callback.
 * Continued refactoring to eventually allow the use of libcurl in davix.
 
+### Changes
+- In-source builds of davix are no longer supported, and explicitly prevented by CMake.
+
 ## 0.7.4 (2019-07-04)
 ### Bug fixes
 * Correctly handle URL-encoded paths in PROPFIND responses (Thanks to Matthew Skinner for reporting)

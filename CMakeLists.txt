@@ -1,9 +1,13 @@
-
-## cmake build script for davix
+#-------------------------------------------------------------------------------
+# Initialize
+#-------------------------------------------------------------------------------
 project (davix)
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 2.8.11)
+set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 
-# Find the python executable to use during the build.
+#-------------------------------------------------------------------------------
+# Find the python executable to use during the build
+#-------------------------------------------------------------------------------
 find_package(PythonInterp REQUIRED)
 
 #-------------------------------------------------------------------------------

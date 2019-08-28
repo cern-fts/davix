@@ -3,6 +3,32 @@ stages:
 - test
 - publish
 
+cmake-without-git:
+  stage: build
+  image: gitlab-registry.cern.ch/linuxsupport/cc7-base
+  script:
+    - ci/fedora/packages.sh
+    - yum install -y git rpm-build
+    - git submodule update --init --recursive
+    - rm -rf .git
+    - mkdir build
+    - cd build
+    - cmake ..
+
+cmake-on-tarball:
+  stage: build
+  image: gitlab-registry.cern.ch/linuxsupport/cc7-base
+  script:
+    - ci/fedora/packages.sh
+    - yum install -y git rpm-build
+    - git submodule update --init --recursive
+    - packaging/make-dist.sh
+    - cd build
+    - tar xf davix-*.tar.gz
+    - cd davix-*.tar.gz
+    - mkdir build && cd build
+    - cmake ..
+
 cc7:
   stage: build
   image: gitlab-registry.cern.ch/linuxsupport/cc7-base

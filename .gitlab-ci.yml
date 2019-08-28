@@ -8,7 +8,7 @@ cmake-without-git:
   image: gitlab-registry.cern.ch/linuxsupport/cc7-base
   script:
     - ci/fedora/packages.sh
-    - yum install -y git rpm-build
+    - yum install -y git rpm-build gcc-c++
     - git submodule update --init --recursive
     - rm -rf .git
     - mkdir build
@@ -20,12 +20,12 @@ cmake-on-tarball:
   image: gitlab-registry.cern.ch/linuxsupport/cc7-base
   script:
     - ci/fedora/packages.sh
-    - yum install -y git rpm-build
+    - yum install -y git rpm-build gcc-c++
     - git submodule update --init --recursive
     - packaging/make-dist.sh
     - cd build
     - tar xf davix-*.tar.gz
-    - cd davix-*.tar.gz
+    - cd davix-*/
     - mkdir build && cd build
     - cmake ..
 

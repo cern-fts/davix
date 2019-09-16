@@ -73,7 +73,12 @@ inline std::string davix_session_uri_rewrite(const Uri & u){
 // Create a NEONSession.
 //------------------------------------------------------------------------------
 std::unique_ptr<NEONSession> NEONSessionFactory::provideNEONSession(const Uri &uri, const RequestParams &params, DavixError **err) {
-    return std::unique_ptr<NEONSession>(new NEONSession(*this, uri, params, err));
+    ne_session *internal_session = createNeonSession(params, uri, err);
+    if(!internal_session) {
+      return {};
+    }
+
+    return std::unique_ptr<NEONSession>(new NEONSession(*this, internal_session, uri, params, err));
 }
 
 ne_session* NEONSessionFactory::createNeonSession(const RequestParams & params, const Uri & uri, DavixError **err){

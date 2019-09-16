@@ -44,11 +44,6 @@ public:
     std::unique_ptr<NEONSession> provideNEONSession(const Uri &uri, const RequestParams &params, DavixError **err);
 
     /**
-      Create a session object or create a recycled  one ( session reuse )
-    */
-    ne_session* createNeonSession(const RequestParams & params, const Uri & uri, DavixError** err);
-
-    /**
       store a Neon session object for session reuse purpose
     */
     void storeNeonSession(ne_session *sess);
@@ -72,10 +67,13 @@ private:
     void internal_release_session_handle(ne_session* sess);
     ne_session* create_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);
     ne_session* create_recycled_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);
-};
 
-void parse_http_neon_url(const std::string & url, std::string & protocol,
-                         std::string & host, std::string & path, unsigned long *port);
+    //--------------------------------------------------------------------------
+    // Create a brand new neon session object, internal use only.
+    //--------------------------------------------------------------------------
+    ne_session* createNeonSession(const RequestParams & params, const Uri & uri, DavixError** err);
+
+};
 
 std::string create_map_keys_from_URL(const std::string & protocol, const std::string &host, unsigned int port);
 

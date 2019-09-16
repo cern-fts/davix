@@ -34,6 +34,7 @@ namespace Davix {
 /// @cond HIDDEN_SYMBOLS
 
 class RedirectionResolver;
+class NEONSessionFactory;
 
 
 struct ContextExplorer{

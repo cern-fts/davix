@@ -61,7 +61,6 @@ typedef dav_ssize_t (*HttpBodyProvider)(void *userdata,
 ///////////////////////////////////////////////////////////////////////////
 
 class NEONRequest;
-class NEONSessionFactory;
 class HttpCacheToken;
 
 namespace RequestFlag{
@@ -337,10 +336,6 @@ private:
 
     void runPreRunHook();
     void runRegisterHooks();
-
-    friend class NEONRequest;
-    friend class NEONSessionFactory;
-
 };
 
 

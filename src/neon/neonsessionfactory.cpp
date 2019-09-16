@@ -35,15 +35,7 @@ static void init_neon(){
     ne_sock_init();
 }
 
-static bool sessionCachingDisabled(){
-    return ( getenv("DAVIX_DISABLE_SESSION_CACHING") != NULL);
-}
-
-NEONSessionFactory::NEONSessionFactory() :
-    _sess_map(),
-    _sess_mut(),
-    _session_caching(!sessionCachingDisabled())
-{
+NEONSessionFactory::NEONSessionFactory() {
     std::call_once(neon_once, &init_neon);
     DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CORE, "HTTP/SSL Session caching {}", (_session_caching?"ENABLED":"DISABLED"));
 }
@@ -139,10 +131,6 @@ ne_session* NEONSessionFactory::create_recycled_session(const RequestParams & pa
     }
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "no cached ne_session, create a new one ");
     return create_session(params, protocol, host, port);
-}
-
-void NEONSessionFactory::setSessionCaching(bool caching){
-    _session_caching = caching && !sessionCachingDisabled();
 }
 
 void NEONSessionFactory::internal_release_session_handle(ne_session* sess){

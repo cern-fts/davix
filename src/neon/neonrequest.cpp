@@ -39,21 +39,21 @@ namespace Davix {
 
 class NEONSessionWrapper {
 public:
-    NEONSessionWrapper(NEONRequest* r, const Uri &uri, const RequestParams &p, DavixError **err)
+    NEONSessionWrapper(NeonRequest* r, const Uri &uri, const RequestParams &p, DavixError **err)
         : _r(r)
     {
         _sess = ContextExplorer::SessionFactoryFromContext(r->getContext()).provideNEONSession(uri, p, err);
 
         if(_sess && _sess->get_ne_sess() != NULL){
-            ne_hook_pre_send(_sess->get_ne_sess(), NEONRequest::neon_hook_pre_send, (void*)r);
-            ne_hook_post_headers(_sess->get_ne_sess(), NEONRequest::neon_hook_pre_rec, (void*) r);
+            ne_hook_pre_send(_sess->get_ne_sess(), NeonRequest::neon_hook_pre_send, (void*)r);
+            ne_hook_post_headers(_sess->get_ne_sess(), NeonRequest::neon_hook_pre_rec, (void*) r);
         }
     }
 
     virtual ~NEONSessionWrapper() {
         if(_sess->get_ne_sess() != NULL){
-            ne_unhook_pre_send(_sess->get_ne_sess(), NEONRequest::neon_hook_pre_send, (void*)_r);
-            ne_unhook_post_headers(_sess->get_ne_sess(), NEONRequest::neon_hook_pre_rec, (void*) _r);
+            ne_unhook_pre_send(_sess->get_ne_sess(), NeonRequest::neon_hook_pre_send, (void*)_r);
+            ne_unhook_post_headers(_sess->get_ne_sess(), NeonRequest::neon_hook_pre_rec, (void*) _r);
         }
     }
 
@@ -71,7 +71,7 @@ public:
 
 private:
     std::unique_ptr<NEONSession> _sess;
-    NEONRequest* _r;
+    NeonRequest* _r;
 };
 
 void configureRequestParamsProto(const Uri &uri, RequestParams &params){
@@ -153,7 +153,7 @@ void neon_simple_req_code_to_davix_code(int ne_status, ne_session* sess, const s
 
 
 
-NEONRequest::NEONRequest(HttpRequest & h, Context& context, const Uri & uri_req) :
+NeonRequest::NeonRequest(HttpRequest & h, Context& context, const Uri & uri_req) :
     BackendRequest(context, uri_req),
     _neon_sess(),
     _req(NULL),
@@ -168,12 +168,12 @@ NEONRequest::NEONRequest(HttpRequest & h, Context& context, const Uri & uri_req)
 }
 
 
-NEONRequest::~NEONRequest(){
+NeonRequest::~NeonRequest(){
     // safe destruction of the request
     resetRequest();
 }
 
-void NEONRequest::cancelSessionReuse(){
+void NeonRequest::cancelSessionReuse(){
    // if session registered
    // cancel any re-use of the session
    //
@@ -185,14 +185,14 @@ void NEONRequest::cancelSessionReuse(){
 
 
 
-void NEONRequest::resetRequest(){
+void NeonRequest::resetRequest(){
     if(req_running) {
         endRequest(NULL);
     }
     freeRequest();
 }
 
-int NEONRequest::createRequest(DavixError** err){
+int NeonRequest::createRequest(DavixError** err){
     if(_req){
        resetRequest();
     }
@@ -236,7 +236,7 @@ int NEONRequest::createRequest(DavixError** err){
     return 0;
 }
 
-int NEONRequest::instanceSession(DavixError** err){
+int NeonRequest::instanceSession(DavixError** err){
     DavixError * tmp_err=NULL;
     _neon_sess.reset(new NEONSessionWrapper(this, *_current, _params, &tmp_err));
     if(tmp_err){
@@ -247,8 +247,8 @@ int NEONRequest::instanceSession(DavixError** err){
     return 0;
 }
 
-ssize_t NEONRequest::neon_body_content_provider(void* userdata, char* buffer, size_t buflen){
-	NEONRequest* req = static_cast<NEONRequest*>(userdata);
+ssize_t NeonRequest::neon_body_content_provider(void* userdata, char* buffer, size_t buflen){
+	NeonRequest* req = static_cast<NeonRequest*>(userdata);
      return (ssize_t) req->_content_provider.callback(req->_content_provider.udata, buffer, buflen);
 }
 
@@ -256,7 +256,7 @@ static dav_ssize_t iocontext_content_provider(HttpBodyProvider provider, void* u
     return provider(udata, (char*) buffer, size);
 }
 
-void NEONRequest::configureRequest(){
+void NeonRequest::configureRequest(){
 
     // add custom user headers, but make sure they're only added once
     // in case of a redirect
@@ -324,7 +324,7 @@ void NEONRequest::configureRequest(){
 }
 
 
-int NEONRequest::processRedirection(int neonCode, DavixError **err){
+int NeonRequest::processRedirection(int neonCode, DavixError **err){
     int end_status = -1;
     if (this->_params.getTransparentRedirectionSupport()) {
         if( neonCode != NE_OK
@@ -358,13 +358,13 @@ static dav_ssize_t readFunction(int fd, void* buffer, dav_size_t size) {
     return ret;
 }
 
-int NEONRequest::startRequest(DavixError **err){
+int NeonRequest::startRequest(DavixError **err){
     if( createRequest(err) < 0)
             return -1;
     return negotiateRequest(err);
 }
 
-int NEONRequest::negotiateRequest(DavixError** err){
+int NeonRequest::negotiateRequest(DavixError** err){
     std::string ugrs3post;
     std::string ugrpluginid;
 
@@ -555,7 +555,7 @@ int NEONRequest::negotiateRequest(DavixError** err){
 // detect if the request comes from a cached session or have been redirected
 // if it is the case, return true
 //
-bool NEONRequest::requestCleanup(){
+bool NeonRequest::requestCleanup(){
     // cleanup redirection
     ContextExplorer::RedirectionResolverFromContext(_context).redirectionClean(_request_type, *_orig);
 
@@ -575,7 +575,7 @@ bool NEONRequest::requestCleanup(){
     return false;
 }
 
-int NEONRequest::redirectRequest(DavixError **err){
+int NeonRequest::redirectRequest(DavixError **err){
     std::shared_ptr<Uri> old_uri;
     const ne_uri * new_uri = ne_redirect_location(_neon_sess->get_ne_sess());
     if(!new_uri){
@@ -607,7 +607,7 @@ int NEONRequest::redirectRequest(DavixError **err){
     return 0;
 }
 
-int NEONRequest::executeRequest(DavixError** err){
+int NeonRequest::executeRequest(DavixError** err){
     dav_ssize_t read_status=1, total_read=0;
     _internal_status = RequestStatus::kNotStarted;
     _vec.clear();
@@ -654,7 +654,7 @@ int NEONRequest::executeRequest(DavixError** err){
    return 0;
 }
 
-int NEONRequest::beginRequest(DavixError** err){
+int NeonRequest::beginRequest(DavixError** err){
     int ret = -1;
     _internal_status = RequestStatus::kNotStarted;
     _vec.clear();
@@ -665,7 +665,7 @@ int NEONRequest::beginRequest(DavixError** err){
     return ret;
 }
 
-dav_ssize_t NEONRequest::readBlock(char* buffer, dav_size_t max_size, DavixError** err){
+dav_ssize_t NeonRequest::readBlock(char* buffer, dav_size_t max_size, DavixError** err){
     dav_ssize_t read_status=-1;
 
     if(_req == NULL){
@@ -685,7 +685,7 @@ dav_ssize_t NEONRequest::readBlock(char* buffer, dav_size_t max_size, DavixError
        if( _vec_line.size() >= max_size){
         std::copy(_vec_line.begin(), _vec_line.begin() + max_size, buffer);
         _vec_line.erase(_vec_line.begin(), _vec_line.begin() + max_size);
-        DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_HTTP, "NEONRequest::readBlock read {} bytes (from buffer)", max_size);
+        DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_HTTP, "NeonRequest::readBlock read {} bytes (from buffer)", max_size);
         return max_size;
        }else{
            const dav_ssize_t n_bytes = _vec_line.size();
@@ -693,7 +693,7 @@ dav_ssize_t NEONRequest::readBlock(char* buffer, dav_size_t max_size, DavixError
            _vec_line.clear();
            read_status = readBlock(buffer + n_bytes, max_size -n_bytes, err);
            const dav_ssize_t ret_value = (read_status >= 0)?(read_status+n_bytes):(-1);
-           DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_HTTP, "NEONRequest::readBlock read {} bytes(from partially)", ret_value);
+           DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_HTTP, "NeonRequest::readBlock read {} bytes(from partially)", ret_value);
            return ret_value;
        }
     }
@@ -710,7 +710,7 @@ dav_ssize_t NEONRequest::readBlock(char* buffer, dav_size_t max_size, DavixError
        return -1;
     }
 
-    DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_HTTP, "NEONRequest::readBlock read {} bytes", read_status);
+    DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_HTTP, "NeonRequest::readBlock read {} bytes", read_status);
 
     _total_read_size += read_status;
     if(_params.getTransferMonitorCb()){
@@ -720,7 +720,7 @@ dav_ssize_t NEONRequest::readBlock(char* buffer, dav_size_t max_size, DavixError
     return read_status;
 }
 
-int NEONRequest::endRequest(DavixError** err){
+int NeonRequest::endRequest(DavixError** err){
     int status;
     (void) err;
 
@@ -751,7 +751,7 @@ int NEONRequest::endRequest(DavixError** err){
 //------------------------------------------------------------------------------
 // Get response status.
 //------------------------------------------------------------------------------
-int NEONRequest::getRequestCode(){
+int NeonRequest::getRequestCode(){
     if(_early_termination) {
         if(!_early_termination_error) return 200;
         return _early_termination_error->getStatus();
@@ -759,7 +759,7 @@ int NEONRequest::getRequestCode(){
     return ne_get_status(_req)->code;
 }
 
-bool NEONRequest::getAnswerHeader(const std::string &header_name, std::string &value) const {
+bool NeonRequest::getAnswerHeader(const std::string &header_name, std::string &value) const {
     if(_req){
         const char* answer_content = ne_get_response_header(_req, header_name.c_str());
         if(answer_content){
@@ -770,7 +770,7 @@ bool NEONRequest::getAnswerHeader(const std::string &header_name, std::string &v
     return false;
 }
 
-size_t NEONRequest::getAnswerHeaders( HeaderVec & vec_headers) const {
+size_t NeonRequest::getAnswerHeaders( HeaderVec & vec_headers) const {
     if(_req){
         void * handle = NULL;
         const char* name=NULL, *value=NULL;
@@ -781,7 +781,7 @@ size_t NEONRequest::getAnswerHeaders( HeaderVec & vec_headers) const {
     return vec_headers.size();
 }
 
-void NEONRequest::freeRequest(){
+void NeonRequest::freeRequest(){
     DavixError::clearError(&_early_termination_error);
     if(_req != NULL){
         ne_request_destroy(_req);
@@ -790,7 +790,7 @@ void NEONRequest::freeRequest(){
 }
 
 
-void NEONRequest::createError(int ne_status, DavixError **err){
+void NeonRequest::createError(int ne_status, DavixError **err){
     StatusCode::Code code;
     std::string str;
     switch(ne_status){
@@ -825,10 +825,10 @@ void NEONRequest::createError(int ne_status, DavixError **err){
     DavixError::setupError(err, davix_scope_http_request(), code, str);
 }
 
-void NEONRequest::neon_hook_pre_send(ne_request *r, void *userdata,
+void NeonRequest::neon_hook_pre_send(ne_request *r, void *userdata,
                    ne_buffer *header){
     (void) r;
-    NEONRequest* req = (NEONRequest*) userdata;
+    NeonRequest* req = (NeonRequest*) userdata;
     RequestPreSendHook hook = req->_context.getHook<RequestPreSendHook>();
     if(hook){
         std::string header_line(header->data, (header->used)-1);
@@ -836,10 +836,10 @@ void NEONRequest::neon_hook_pre_send(ne_request *r, void *userdata,
     }
 }
 
-void NEONRequest::neon_hook_pre_rec(ne_request *r, void *userdata,
+void NeonRequest::neon_hook_pre_rec(ne_request *r, void *userdata,
                                     const ne_status *status){
     (void) r;
-    NEONRequest* req = (NEONRequest*) userdata;
+    NeonRequest* req = (NeonRequest*) userdata;
     RequestPreReceHook hook = req->_context.getHook<RequestPreReceHook>();
     if(hook){
         std::ostringstream header_line;

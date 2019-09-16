@@ -22,7 +22,7 @@
 #ifndef DAVIX_SESSION_FACTORY_HPP
 #define DAVIX_SESSION_FACTORY_HPP
 
-#include <atomic>
+#include <mutex>
 
 namespace Davix {
 
@@ -52,7 +52,8 @@ public:
   bool getSessionCaching() const;
 
 protected:
-  std::atomic<bool> _session_caching;
+  mutable std::mutex _session_caching_mtx;
+  bool _session_caching;
 
 };
 

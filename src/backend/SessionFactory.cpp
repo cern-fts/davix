@@ -47,6 +47,7 @@ SessionFactory::~SessionFactory() {}
 // Set caching on or off
 //------------------------------------------------------------------------------
 void SessionFactory::setSessionCaching(bool caching) {
+  std::lock_guard<std::mutex> lock(_session_caching_mtx);
   _session_caching = caching && !isSessionCachingDisabled();
 }
 
@@ -54,6 +55,7 @@ void SessionFactory::setSessionCaching(bool caching) {
 // Get caching status
 //------------------------------------------------------------------------------
 bool SessionFactory::getSessionCaching() const {
+  std::lock_guard<std::mutex> lock(_session_caching_mtx);
   return _session_caching;
 }
 

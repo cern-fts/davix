@@ -131,16 +131,15 @@ int NEONSession::provide_login_passwd_fn(void *userdata, const char *realm, int 
 
 }
 
-NEONSession::NEONSession(NEONSessionFactory &f, const Uri & uri, const RequestParams & p, DavixError** err) :
+NEONSession::NEONSession(NEONSessionFactory &f, ne_session *sess, const Uri & uri, const RequestParams & p, DavixError** err) :
     _f(f),
-    _sess(NULL),
+    _sess(sess),
     _params(p),
     _last_error(NULL),
     _session_recycling(_f.getSessionCaching() && p.getKeepAlive()),
     reused(false),
     _u(uri)
 {
-        _sess = _f.createNeonSession(p, uri, err);
         if(_sess)
             configureSession(_sess, _u, p, &NEONSession::provide_login_passwd_fn, this, &NEONSession::authNeonCliCertMapper, this, reused);
 }

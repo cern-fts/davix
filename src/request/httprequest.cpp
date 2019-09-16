@@ -47,15 +47,16 @@ private:
   BackendRequest* _req;
 };
 
+using WrappedBackendRequest = NEONRequest;
 
-static NEONRequest* createBackendRequest(HttpRequest* req, Context & context, const Uri & uri) {
-    return new NEONRequest(new NeonRequest(*req, context, uri));
+static WrappedBackendRequest* createBackendRequest(HttpRequest* req, Context & context, const Uri & uri) {
+    return new WrappedBackendRequest(new NeonRequest(*req, context, uri));
 }
 
 /////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////
 
-HttpRequest::HttpRequest(NEONRequest* req) {
+HttpRequest::HttpRequest(WrappedBackendRequest* req) {
   std::cerr << "Usage of HttpRequest::HttpRequest(NEONRequest* req) is deprecated!" << std::endl;
 }
 

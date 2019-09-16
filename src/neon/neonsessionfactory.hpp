@@ -26,12 +26,13 @@
 #include <mutex>
 #include <utils/davix_uri.hpp>
 #include <neon/neonrequest.hpp>
+#include "../backend/SessionFactory.hpp"
 
 namespace Davix {
 
 class HttpRequest;
 
-class NEONSessionFactory
+class NEONSessionFactory : public SessionFactory
 {
     friend class NEONRequest;
 public:
@@ -39,7 +40,7 @@ public:
     virtual ~NEONSessionFactory();
 
     //--------------------------------------------------------------------------
-    // Create a NEONSession.
+    // Create a NEONSession tied to this class.
     //--------------------------------------------------------------------------
     std::unique_ptr<NEONSession> provideNEONSession(const Uri &uri, const RequestParams &params, DavixError **err);
 
@@ -48,21 +49,10 @@ public:
     */
     void storeNeonSession(ne_session *sess);
 
-    //
-    // opts
-    //
-
-    void setSessionCaching(bool caching);
-
-    inline bool getSessionCaching() const {
-        return _session_caching;
-    }
-
 private:
     // session pool
     std::multimap<std::string, ne_session*> _sess_map;
     std::mutex _sess_mut;
-    bool _session_caching;
 
     void internal_release_session_handle(ne_session* sess);
     ne_session* create_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);

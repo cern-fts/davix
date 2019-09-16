@@ -47,7 +47,7 @@ private:
   BackendRequest* _req;
 };
 
-using WrappedBackendRequest = NEONRequest;
+typedef NEONRequest WrappedBackendRequest;
 
 static WrappedBackendRequest* createBackendRequest(HttpRequest* req, Context & context, const Uri & uri) {
     return new WrappedBackendRequest(new NeonRequest(*req, context, uri));

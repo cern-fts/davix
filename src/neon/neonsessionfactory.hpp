@@ -34,7 +34,6 @@ class HttpRequest;
 
 class NEONSessionFactory : public SessionFactory
 {
-    friend class NEONRequest;
 public:
     NEONSessionFactory();
     virtual ~NEONSessionFactory();

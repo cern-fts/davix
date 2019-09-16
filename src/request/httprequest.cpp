@@ -27,8 +27,30 @@
 
 namespace Davix {
 
+//------------------------------------------------------------------------------
+// TODO: Explain why the distinction between
+// NEONRequest / NeonRequest / BackendRequest is necessary (ABI compatibility)
+//------------------------------------------------------------------------------
+class NEONRequest {
+public:
+  NEONRequest(BackendRequest *req) : _req(req) {}
+
+  virtual ~NEONRequest() {
+    delete _req;
+  }
+
+  BackendRequest* get() {
+    return _req;
+  }
+
+private:
+  BackendRequest* _req;
+};
 
 
+static NEONRequest* createBackendRequest(HttpRequest* req, Context & context, const Uri & uri) {
+    return new NEONRequest(new NeonRequest(*req, context, uri));
+}
 
 /////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////
@@ -38,7 +60,7 @@ HttpRequest::HttpRequest(NEONRequest* req) {
 }
 
 HttpRequest::HttpRequest(Context & context, const Uri & uri, DavixError** err) :
-    d_ptr(new NEONRequest(*this, context,uri)){
+    d_ptr(createBackendRequest(this, context, uri)) {
 
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "Create HttpRequest for {}", uri.getString());
     if(uri.getStatus() != StatusCode::OK){
@@ -46,10 +68,9 @@ HttpRequest::HttpRequest(Context & context, const Uri & uri, DavixError** err) :
     }
 }
 
-HttpRequest::HttpRequest(Context & context, const std::string & url, DavixError** err) :
-    d_ptr(NULL){
+HttpRequest::HttpRequest(Context & context, const std::string & url, DavixError** err) {
     Uri uri(url);
-    d_ptr= new NEONRequest(*this, context, uri);
+    d_ptr = createBackendRequest(this, context, uri);
     if(uri.getStatus() != StatusCode::OK){
         DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, fmt::format(" {} is not a valid HTTP or Webdav URL", uri));
     }
@@ -62,42 +83,42 @@ HttpRequest::~HttpRequest()
 }
 
 void HttpRequest::setRequestMethod(const std::string &request_str){
-    d_ptr->setRequestMethod(request_str);
+    d_ptr->get()->setRequestMethod(request_str);
 }
 
 
 void HttpRequest::addHeaderField(const std::string &field, const std::string &value){
-    d_ptr->addHeaderField(field, value);
+    d_ptr->get()->addHeaderField(field, value);
 }
 
 void HttpRequest::setParameters(const RequestParams &p){
-    d_ptr->setParameters(p);
+    d_ptr->get()->setParameters(p);
 }
 
 void HttpRequest::setRequestBody(const std::string &body){
-    d_ptr->setRequestBody(body);
+    d_ptr->get()->setRequestBody(body);
 }
 
 void HttpRequest::setRequestBody(const void *buffer, dav_size_t len_buff){
-    d_ptr->setRequestBody(buffer, len_buff);
+    d_ptr->get()->setRequestBody(buffer, len_buff);
 }
 
 void HttpRequest::setRequestBody(int fd, dav_off_t offset, dav_size_t len){
-    d_ptr->setRequestBody(fd, offset, len);
+    d_ptr->get()->setRequestBody(fd, offset, len);
 }
 
 void HttpRequest::setRequestBody(HttpBodyProvider provider, dav_size_t len, void* udata){
-    d_ptr->setRequestBody(provider, len, udata);
+    d_ptr->get()->setRequestBody(provider, len, udata);
 }
 
 int HttpRequest::getRequestCode(){
-    return d_ptr->getRequestCode();
+    return d_ptr->get()->getRequestCode();
 }
 
 int HttpRequest::executeRequest(DavixError **err){
     TRY_DAVIX{
         runPreRunHook();
-        return d_ptr->executeRequest(err);
+        return d_ptr->get()->executeRequest(err);
     }CATCH_DAVIX(err)
     return -1;
 }
@@ -106,14 +127,14 @@ int HttpRequest::beginRequest(DavixError **err){
     TRY_DAVIX{
         // triggers Hooks
         runPreRunHook();
-        return d_ptr->beginRequest(err);
+        return d_ptr->get()->beginRequest(err);
     }CATCH_DAVIX(err)
     return -1;
 }
 
 dav_ssize_t HttpRequest::readBlock(char *buffer, dav_size_t max_size, DavixError **err){
     TRY_DAVIX{
-        return d_ptr->readBlock(buffer, max_size, err);
+        return d_ptr->get()->readBlock(buffer, max_size, err);
     }CATCH_DAVIX(err)
     return -1;
 }
@@ -130,14 +151,14 @@ dav_ssize_t HttpRequest::readBlock(std::vector<char> & buffer, dav_size_t max_si
 }
 
 dav_ssize_t HttpRequest::readSegment(char* buffer, dav_size_t max_size, DavixError** err){
-    return d_ptr->readSegment(buffer, max_size, false, err);
+    return d_ptr->get()->readSegment(buffer, max_size, false, err);
 }
 
 dav_ssize_t HttpRequest::readLine(char *buffer, dav_size_t max_size, DavixError **err){
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Davix::Request::readLine want to read a line of max {} chars", max_size);
     dav_ssize_t ret= -1;
     TRY_DAVIX{
-        if( (ret =  d_ptr->readLine(buffer, max_size, err)) >= 0){
+        if( (ret =  d_ptr->get()->readLine(buffer, max_size, err)) >= 0){
             DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Davix::Request::readLine got {} chars", ret);
             DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CORE, "Davix::Request::readLine content\n[[{}]]\n", std::string(buffer, ret));
         }
@@ -150,14 +171,14 @@ void HttpRequest::discardBody(DavixError** err){
     dav_ssize_t read;
     TRY_DAVIX{
         do {
-            read = d_ptr->readSegment(buffer, sizeof(buffer), false, err);
+            read = d_ptr->get()->readSegment(buffer, sizeof(buffer), false, err);
         } while (read > 0 && *err == NULL);
     }CATCH_DAVIX(err)
 }
 
 dav_ssize_t HttpRequest::readToFd(int fd, DavixError** err){
     TRY_DAVIX{
-        return d_ptr->readToFd(fd, 0, err);
+        return d_ptr->get()->readToFd(fd, 0, err);
     }CATCH_DAVIX(err)
     return -1;
 }
@@ -165,47 +186,47 @@ dav_ssize_t HttpRequest::readToFd(int fd, DavixError** err){
 
 dav_ssize_t HttpRequest::readToFd(int fd, dav_size_t read_size, DavixError** err){
     TRY_DAVIX{
-        return d_ptr->readToFd(fd, read_size, err);
+        return d_ptr->get()->readToFd(fd, read_size, err);
     }CATCH_DAVIX(err)
     return -1;
 }
 
 int HttpRequest::endRequest(DavixError **err){
     TRY_DAVIX{
-        return d_ptr->endRequest(err);
+        return d_ptr->get()->endRequest(err);
     }CATCH_DAVIX(err)
     return -1;
 }
 
 
 void HttpRequest::clearAnswerContent(){
-    d_ptr->clearAnswerContent();
+    d_ptr->get()->clearAnswerContent();
 }
 
 bool HttpRequest::getAnswerHeader(const std::string &header_name, std::string &value) const{
-    return d_ptr->getAnswerHeader(header_name, value);
+    return d_ptr->get()->getAnswerHeader(header_name, value);
 }
 
 size_t HttpRequest::getAnswerHeaders( HeaderVec & vec_headers) const{
-    return d_ptr->getAnswerHeaders(vec_headers);
+    return d_ptr->get()->getAnswerHeaders(vec_headers);
 }
 
 const char* HttpRequest::getAnswerContent(){
-    return d_ptr->getAnswerContent();
+    return d_ptr->get()->getAnswerContent();
 }
 
 std::vector<char> & HttpRequest::getAnswerContentVec(){
-    return d_ptr->getAnswerContentVec();
+    return d_ptr->get()->getAnswerContentVec();
 }
 
 
 /// get content length
 dav_ssize_t HttpRequest::getAnswerSize() const{
-    return d_ptr->getAnswerSize();
+    return d_ptr->get()->getAnswerSize();
 }
 
 time_t HttpRequest::getLastModified() const{
-    return d_ptr->getLastModified();
+    return d_ptr->get()->getLastModified();
 }
 
 
@@ -219,20 +240,20 @@ void HttpRequest::useCacheToken(const HttpCacheToken *token){
 
 /// set a HttpRequest flag
 void HttpRequest::setFlag(const RequestFlag::RequestFlag flag, bool value){
-    d_ptr->setFlag(flag, value);
+    d_ptr->get()->setFlag(flag, value);
 }
 
 /// get a HttpRequest flag value
 bool HttpRequest::getFlag(const RequestFlag::RequestFlag flag){
-    return d_ptr->getFlag(flag);
+    return d_ptr->get()->getFlag(flag);
 }
 
 void HttpRequest::runPreRunHook(){
     // triggers Hooks
-    RequestPreRunHook hook = d_ptr->getContext().getHook<RequestPreRunHook>();
+    RequestPreRunHook hook = d_ptr->get()->getContext().getHook<RequestPreRunHook>();
 
     if(hook){
-        hook(d_ptr->getParameters(), *this, *(d_ptr->getOriginalUri()));
+        hook(d_ptr->get()->getParameters(), *this, *(d_ptr->get()->getOriginalUri()));
     }
 }
 

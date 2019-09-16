@@ -48,11 +48,11 @@ class NEONSession;
 class HttpRequest;
 class NEONSessionWrapper;
 
-class NEONRequest : public BackendRequest
+class NeonRequest : public BackendRequest
 {
 public:
-    NEONRequest(HttpRequest &h, Context& f, const Uri & uri_req);
-    virtual ~NEONRequest();
+    NeonRequest(HttpRequest &h, Context& f, const Uri & uri_req);
+    virtual ~NeonRequest();
 
     //--------------------------------------------------------------------------
     // Execute request synchronously, and store result in internal buffer.

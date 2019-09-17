@@ -32,6 +32,7 @@ set(DAVIX_SOURCES
                                                          request/httprequest.cpp
                                                          status/davixstatusrequest.cpp
   utils/checksum_extractor.hpp                           utils/checksum_extractor.cpp
+  utils/CompatibilityHacks.hpp                           utils/CompatibilityHacks.cpp
                                                          utils/davix_azure_utils.cpp
   utils/davix_fileproperties.hpp
                                                          utils/davix_gcloud_utils.cpp

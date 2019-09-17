@@ -32,8 +32,7 @@
 #include <fileops/AzureIO.hpp>
 #include <fileops/S3IO.hpp>
 #include <core/RedirectionResolver.hpp>
-
-
+#include <utils/CompatibilityHacks.hpp>
 
 namespace Davix {
 
@@ -266,34 +265,13 @@ void NeonRequest::configureRequest(){
 
     /* Doing a PUT to Azure? Horrific workaround to enforce the odd two-step
        custom Azure procedure, even when receiving a redirect. */
-    if(_request_type == "PUT" &&
-         _current.get()->queryParamExists("sig") &&
-         _current.get()->queryParamExists("sr") &&
-         _current.get()->queryParamExists("sp") && !_current.get()->fragmentParamExists("azuremechanism")) {
 
-        IOChainContext iocontext(_context, *_current, &_params);
-
-        using std::placeholders::_1;
-        using std::placeholders::_2;
-
-        try {
-          AzureIO azureio;
-
-          if(_fd_content > 0) {
-              azureio.writeFromFd(iocontext, _fd_content, _content_len);
-          }
-          else if(_content_provider.callback) {
-              DataProviderFun provider = std::bind(iocontext_content_provider, _content_provider.callback, _content_provider.udata, _1, _2);
-              azureio.writeFromCb(iocontext, provider, _content_len);
-          }
-          else if(_content_ptr && _content_len > 0) {
-              throw DavixException("neon request", StatusCode::InvalidArgument, "unable to use Azure PUT by providing a direct string");
-          }
-        }
-        catch(DavixException &e) {
-            e.toDavixError(&_early_termination_error);
-        }
-
+    //--------------------------------------------------------------------------
+    // Doing a PUT to Azure? Detect if this is happening, and engage
+    // Azure-specific upload machinery.
+    //--------------------------------------------------------------------------
+    if(CompatibilityHacks::azureChunkedUpload(_request_type, *_current.get(), _context, _params, _fd_content,
+      _content_len, &_early_termination_error, _content_provider)) {
         _early_termination = true;
     }
 

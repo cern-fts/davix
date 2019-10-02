@@ -30,6 +30,7 @@
 
 namespace Davix {
 
+class BackendRequest;
 
 //------------------------------------------------------------------------------
 // A selection of compatibility hacks and procedures. Proceed with care.
@@ -59,6 +60,15 @@ public:
   // chunk-upload mechanism.
   //----------------------------------------------------------------------------
   static bool shouldEngageAzureChunkedUpload(const std::string &requestType, const Uri& uri);
+
+  //----------------------------------------------------------------------------
+  // Dynafed-assisted multi-chunk S3 upload.
+  // Returns if dynafed mechanism was engaged.
+  //----------------------------------------------------------------------------
+  static bool dynafedAssistedS3Upload(const BackendRequest &originatingRequest, const Uri& uri, Context &context, const RequestParams &params, int fdContent, dav_size_t contentLen, DavixError** err, ContentProviderContext &contentProvider);
+
+
+
 
 };
 

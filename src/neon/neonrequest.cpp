@@ -263,9 +263,6 @@ void NeonRequest::configureRequest(){
         std::copy(_params.getHeaders().begin(), _params.getHeaders().end(), std::back_inserter(_headers_field));
     }
 
-    /* Doing a PUT to Azure? Horrific workaround to enforce the odd two-step
-       custom Azure procedure, even when receiving a redirect. */
-
     //--------------------------------------------------------------------------
     // Doing a PUT to Azure? Detect if this is happening, and engage
     // Azure-specific upload machinery.
@@ -421,34 +418,16 @@ int NeonRequest::negotiateRequest(DavixError** err){
             case 303:
             case 307:
 
-                if(getAnswerHeader("x-ugrs3posturl", ugrs3post) &&
-                   getAnswerHeader("x-ugrpluginid", ugrpluginid) &&
-                   !ugrs3post.empty() && (_content_len >= s3SizeLimit || _current->fragmentParamExists("forceMultiPart")) ) {
-                    // Ugly workaround for s3 + multi-part upload + dynafed
-                    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "Initiating dynafed-assisted multi-part upload to S3, posturl: {}, pluginid: {}", ugrs3post, ugrpluginid);
-                    IOChainContext iocontext(_context, *_current, &_params);
+                if(CompatibilityHacks::dynafedAssistedS3Upload(*this, *_current.get(), _context, _params, _fd_content,
+                  _content_len, &_early_termination_error, _content_provider)) {
 
-                    using std::placeholders::_1;
-                    using std::placeholders::_2;
-
-                    S3IO s3io;
-                    DataProviderFun provider;
-
-                    if(_fd_content > 0) {
-                        provider = std::bind(readFunction, _fd_content, _1, _2);
-                    }
-                    else if(_content_provider.callback) {
-                        provider = std::bind(iocontext_content_provider, _content_provider.callback, _content_provider.udata, _1, _2);
-                    }
-
+                    // Dynafed mechanism was engaged, end request
                     requestCleanup();
                     DavixError::clearError(err);
                     endRequest(NULL);
 
                     _early_termination = true;
-                    s3io.performUgrS3MultiPart(iocontext, ugrs3post, ugrpluginid, provider, _content_len, &_early_termination_error);
-
-                    if(!err) return 0;
+                    if(!_early_termination_error) return 0;
                     return -1;
                 }
 

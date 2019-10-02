@@ -36,6 +36,10 @@ public:
 
   // wirte the entire content from a defined callback
   virtual dav_ssize_t writeFromCb(IOChainContext & iocontext, const DataProviderFun & func, dav_size_t size);
+
+  // write from content provider
+  virtual dav_ssize_t writeFromProvider(IOChainContext & iocontext, ContentProvider &provider);
+
 private:
   void writeChunk(IOChainContext & iocontext, const char* buff, dav_size_t size, const std::string &blockid);
   void commitChunks(IOChainContext & iocontext, const std::vector<std::string> &blocklist);

@@ -19,12 +19,13 @@
  *
 */
 
+#include "AzureIO.hpp"
+#include <utils/davix_logger_internal.hpp>
+#include <core/ContentProvider.hpp>
+
 #include <iomanip>
 #include <uuid/uuid.h>
 #include <algorithm>
-#include "AzureIO.hpp"
-#include <utils/davix_logger_internal.hpp>
-
 #define SSTR(message) static_cast<std::ostringstream&>(std::ostringstream().flush() << message).str()
 
 namespace Davix{
@@ -176,6 +177,47 @@ dav_ssize_t AzureIO::writeFromCb(IOChainContext & iocontext, const DataProviderF
   // Now let's commit the blobs
   commitChunks(iocontext, blockIDs);
   return size;
+}
+
+// write from content provider
+dav_ssize_t AzureIO::writeFromProvider(IOChainContext & iocontext, ContentProvider &provider) {
+  if(!is_azure_operation(iocontext)) {
+    CHAIN_FORWARD(writeFromProvider(iocontext, provider));
+  }
+
+  std::vector<std::string> blockIDs;
+
+  DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Azure write: size {}, splitting into blocks", provider.getSize());
+  std::vector<char> buffer;
+
+  const dav_size_t MAX_CHUNK_SIZE = 1024 * 1024 * 100; // 100 MB
+  buffer.resize(std::min(MAX_CHUNK_SIZE, (dav_size_t) provider.getSize()) + 10);
+
+  // generate UUID to use as blockid prefix
+  std::string prefix = get_uuid();
+
+  size_t blockid = 0;
+  size_t remaining = provider.getSize();
+  while(remaining > 0) {
+    size_t toRead = std::min( (dav_size_t) provider.getSize(), MAX_CHUNK_SIZE);
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Azure write: toRead from cb {}", toRead);
+
+    size_t bytesRead = provider.pullBytes(buffer.data(), toRead);
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Azure write: bytesRead from cb {}", bytesRead);
+    if(bytesRead == 0) break; // EOF?
+
+    blockIDs.push_back(stringifyBlockID(prefix, blockid));
+    writeChunk(iocontext, buffer.data(), bytesRead, blockIDs.back());
+    blockid++;
+
+    remaining -= bytesRead;
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Azure write: remaining bytes {}", remaining);
+  }
+
+  // Now let's commit the blobs
+  commitChunks(iocontext, blockIDs);
+  return provider.getSize();
+
 }
 
 

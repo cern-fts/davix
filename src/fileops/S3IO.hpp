@@ -42,6 +42,9 @@ public:
   // wirte the entire content from a defined callback
   virtual dav_ssize_t writeFromCb(IOChainContext & iocontext, const DataProviderFun & func, dav_size_t size);
 
+  // write from content provider
+  virtual dav_ssize_t writeFromProvider(IOChainContext & iocontext, ContentProvider &provider);
+
   void performUgrS3MultiPart(IOChainContext & iocontext, const std::string &posturl, const std::string &pluginId, const DataProviderFun &func, dav_size_t size, DavixError **err);
 
 private:

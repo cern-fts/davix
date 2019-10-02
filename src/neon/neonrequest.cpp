@@ -22,6 +22,7 @@
 #include <davix_internal.hpp>
 #include "neonrequest.hpp"
 
+#include <core/ContentProvider.hpp>
 #include <utils/davix_logger_internal.hpp>
 #include <utils/davix_gcloud_utils.hpp>
 #include <ne_redirect.h>
@@ -246,9 +247,14 @@ int NeonRequest::instanceSession(DavixError** err){
     return 0;
 }
 
+static ssize_t content_provider_callback(void* userdata, char* buffer, size_t buflen) {
+    ContentProvider *provider = static_cast<ContentProvider*>(userdata);
+    return provider->pullBytes(buffer, buflen);
+}
+
 ssize_t NeonRequest::neon_body_content_provider(void* userdata, char* buffer, size_t buflen){
 	NeonRequest* req = static_cast<NeonRequest*>(userdata);
-     return (ssize_t) req->_content_provider.callback(req->_content_provider.udata, buffer, buflen);
+     return (ssize_t) req->_content_provider_context.callback(req->_content_provider_context.udata, buffer, buflen);
 }
 
 void NeonRequest::configureRequest(){
@@ -264,7 +270,7 @@ void NeonRequest::configureRequest(){
     // Azure-specific upload machinery.
     //--------------------------------------------------------------------------
     if(CompatibilityHacks::azureChunkedUpload(_request_type, *_current.get(), _context, _params, _fd_content,
-      _content_len, &_early_termination_error, _content_provider)) {
+      _content_len, &_early_termination_error, _content_provider_context)) {
         _early_termination = true;
     }
 
@@ -284,9 +290,14 @@ void NeonRequest::configureRequest(){
     if( (_req_flag & RequestFlag::SupportContinue100) == true)
         _neon_sess->disable_session_reuse();
 
-    if(_fd_content > 0){
+    if(_content_provider) {
+        _content_provider->rewind();
+        ne_set_request_body_provider(_req, _content_provider->getSize(),
+                                     content_provider_callback, _content_provider);
+    }
+    else if(_fd_content > 0){
         ne_set_request_body_fd(_req, _fd_content, _content_offset, _content_len);
-    }else if(_content_provider.callback) {
+    }else if(_content_provider_context.callback) {
         ne_set_request_body_provider(_req, _content_len,
                                      &neon_body_content_provider, this);
     }else if(_content_ptr && _content_len >0){
@@ -329,7 +340,6 @@ int NeonRequest::negotiateRequest(DavixError** err){
     std::string ugrs3post;
     std::string ugrpluginid;
 
-    const uint64_t s3SizeLimit = (1024ull * 1024ull * 1024ull * 5ull);
     const int auth_retry_limit = _params.getOperationRetry();
     int code, status, end_status = NE_RETRY;
     _last_read = -1;
@@ -405,7 +415,7 @@ int NeonRequest::negotiateRequest(DavixError** err){
             case 307:
 
                 if(CompatibilityHacks::dynafedAssistedS3Upload(*this, *_current.get(), _context, _params, _fd_content,
-                  _content_len, &_early_termination_error, _content_provider)) {
+                  _content_len, &_early_termination_error, _content_provider_context)) {
 
                     // Dynafed mechanism was engaged, end request
                     requestCleanup();

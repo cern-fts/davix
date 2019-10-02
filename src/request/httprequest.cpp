@@ -112,6 +112,10 @@ void HttpRequest::setRequestBody(HttpBodyProvider provider, dav_size_t len, void
     d_ptr->get()->setRequestBody(provider, len, udata);
 }
 
+void HttpRequest::setRequestBody(ContentProvider &provider) {
+    d_ptr->get()->setRequestBody(provider);
+}
+
 int HttpRequest::getRequestCode(){
     return d_ptr->get()->getRequestCode();
 }

@@ -34,8 +34,7 @@ namespace Davix {
 // Default constructor
 //------------------------------------------------------------------------------
 BackendRequest::BackendRequest(Context &c, const Uri &uri)
-  : _context(c),
-    _current( new Uri(uri)),
+  : _context(c), _current( new Uri(uri)),
     _orig(_current),
     _params(),
     _request_type("GET"),
@@ -46,7 +45,8 @@ BackendRequest::BackendRequest(Context &c, const Uri &uri)
     _content_offset(0),
     _content_body(),
     _fd_content(-1),
-    _content_provider(),
+    _content_provider_context(),
+    _content_provider(NULL),
     _internal_status(RequestStatus::kNotStarted),
     _ans_size(-1),
     _early_termination(false),
@@ -78,8 +78,12 @@ void BackendRequest::setRequestBody(int fd, dav_off_t offset, dav_size_t len) {
 
 void BackendRequest::setRequestBody(HttpBodyProvider provider, dav_size_t len, void* udata) {
   _content_len  = len;
-  _content_provider.callback = provider;
-  _content_provider.udata = udata;
+  _content_provider_context.callback = provider;
+  _content_provider_context.udata = udata;
+}
+
+void BackendRequest::setRequestBody(ContentProvider &provider) {
+  _content_provider = &provider;
 }
 
 //------------------------------------------------------------------------------

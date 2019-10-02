@@ -110,7 +110,11 @@ OwnedBufferContentProvider::OwnedBufferContentProvider(const char* buf, size_t c
 // Constructor
 //----------------------------------------------------------------------------
 OwnedBufferContentProvider::OwnedBufferContentProvider(const std::string &str)
-: OwnedBufferContentProvider(str.c_str(), str.size()) {}
+: _provider(NULL, 0) {
+
+  _contents = str;
+  _provider = BufferContentProvider(_contents.c_str(), _contents.size());
+}
 
 //------------------------------------------------------------------------------
 // pullBytes implementation.

@@ -22,6 +22,7 @@
 #include <davix_internal_config.hpp>
 #include "iobuffmap.hpp"
 
+#include <core/ContentProvider.hpp>
 #include <utils/davix_types.hpp>
 #include <request/httprequest.hpp>
 #include <utils/davix_logger_internal.hpp>
@@ -304,6 +305,26 @@ dav_ssize_t HttpIO::writeFromFd(IOChainContext & iocontext, int fd, dav_size_t s
     return size;
 }
 
+dav_ssize_t HttpIO::writeFromProvider(IOChainContext & iocontext, ContentProvider &provider) {
+    DavixError * tmp_err=NULL;
+
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "write size {}", provider.getSize());
+    PutRequest req (iocontext._context,iocontext._uri, &tmp_err);
+    if(!tmp_err){
+        RequestParams params(iocontext._reqparams);
+        req.setParameters(params);
+        req.setRequestBody(provider);
+        req.executeRequest(&tmp_err);
+        if(!tmp_err && httpcodeIsValid(req.getRequestCode()) == false){
+            httpcodeToDavixError(req.getRequestCode(), davix_scope_io_buff(),
+                                "write error: ", &tmp_err);
+        }
+    }
+
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "write result size {}", provider.getSize());
+    checkDavixError(&tmp_err);
+    return provider.getSize();
+}
 
 
 /////////////////////////////////////////////////////

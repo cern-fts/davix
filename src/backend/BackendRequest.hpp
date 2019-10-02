@@ -164,6 +164,7 @@ public:
   void setRequestBody(const void * buffer, dav_size_t len);
   void setRequestBody(int fd, dav_off_t offset, dav_size_t len);
   void setRequestBody(HttpBodyProvider provider, dav_size_t len, void* udata);
+  void setRequestBody(ContentProvider &provider);
 
   //----------------------------------------------------------------------------
   // Set request parameters.
@@ -256,7 +257,9 @@ protected:
   dav_off_t _content_offset;
   std::string _content_body;
   int _fd_content;
-  ContentProviderContext _content_provider;
+  ContentProviderContext _content_provider_context;
+
+  ContentProvider *_content_provider;
 
   //----------------------------------------------------------------------------
   // Request status.

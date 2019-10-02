@@ -139,6 +139,9 @@ dav_ssize_t HttpIOChain::write(IOChainContext & iocontext, const void *buf, dav_
     CHAIN_FORWARD(write(iocontext, buf, count));
 }
 
+dav_ssize_t HttpIOChain::writeFromProvider(IOChainContext & iocontext, ContentProvider &provider) {
+    CHAIN_FORWARD(writeFromProvider(iocontext, provider));
+}
 
 
 } // Davix

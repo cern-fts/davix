@@ -27,7 +27,7 @@
 namespace Davix{
 
 class HttpIOChain;
-
+class ContentProvider;
 
 #define CHAIN_FORWARD(X) \
         do{ \
@@ -165,6 +165,8 @@ public:
     // sequential write
     virtual dav_ssize_t write(IOChainContext & iocontext, const void* buf, dav_size_t count);
 
+    // write provided contents
+    virtual dav_ssize_t writeFromProvider(IOChainContext & iocontext, ContentProvider &provider);
 
 protected:
     std::unique_ptr<HttpIOChain> _next;

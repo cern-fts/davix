@@ -21,11 +21,23 @@
 
 #include "CompatibilityHacks.hpp"
 #include <fileops/AzureIO.hpp>
+#include <fileops/S3IO.hpp>
+#include <utils/davix_logger_internal.hpp>
 
 namespace Davix {
 
 static dav_ssize_t iocontext_content_provider(HttpBodyProvider provider, void* udata, void* buffer, dav_size_t size) {
     return provider(udata, (char*) buffer, size);
+}
+
+static dav_ssize_t readFunction(int fd, void* buffer, dav_size_t size) {
+    dav_ssize_t ret = ::read(fd, buffer, size);
+    if(ret < 0) {
+        int myerr = errno;
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Error in readFunction when attempting to read from fd {}: Return code {}, errno: {}", fd, ret, myerr);
+    }
+
+    return ret;
 }
 
 //------------------------------------------------------------------------------
@@ -95,6 +107,53 @@ bool CompatibilityHacks::shouldEngageAzureChunkedUpload(const std::string &reque
   return true;
 }
 
+//------------------------------------------------------------------------------
+// Dynafed-assisted multi-chunk S3 upload.
+// Returns if dynafed mechanism was engaged.
+//------------------------------------------------------------------------------
+bool CompatibilityHacks::dynafedAssistedS3Upload(const BackendRequest& originatingRequest, const Uri& uri, Context& context, const RequestParams &params, int fdContent, dav_size_t contentLen, DavixError** err, ContentProviderContext &contentProvider) {
+  std::string ugrs3post;
+  std::string ugrpluginid;
 
+  const uint64_t s3SizeThreshold = (1024ull * 1024ull * 1024ull * 5ull);
+
+  if(!originatingRequest.getAnswerHeader("x-ugrs3posturl", ugrs3post)) {
+    return false;
+  }
+
+  if(!originatingRequest.getAnswerHeader("x-ugrpluginid", ugrpluginid)) {
+    return false;
+  }
+
+  if(ugrs3post.empty()) {
+    return false;
+  }
+
+  // Don't engage if size to upload is less than the specified threshold.
+  // Override with 'forceMultiPart' fragment param.
+  if(contentLen < s3SizeThreshold && !uri.fragmentParamExists("forceMultiPart")) {
+    return false;
+  }
+
+  DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "Engaging dynafed-assisted multi-part upload to S3, posturl: {}, pluginid: {}", ugrs3post, ugrpluginid);
+  IOChainContext iocontext(context, uri, &params);
+
+  using std::placeholders::_1;
+  using std::placeholders::_2;
+
+  S3IO s3io;
+  DataProviderFun provider;
+
+
+  if(fdContent > 0) {
+    provider = std::bind(readFunction, fdContent, _1, _2);
+  }
+  else if(contentProvider.callback) {
+   provider = std::bind(iocontext_content_provider, contentProvider.callback, contentProvider.udata, _1, _2);
+  }
+
+  s3io.performUgrS3MultiPart(iocontext, ugrs3post, ugrpluginid, provider, contentLen, err);
+  return true;
+}
 
 }

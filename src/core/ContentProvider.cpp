@@ -20,9 +20,107 @@
 */
 
 #include "ContentProvider.hpp"
+#include <fcntl.h>
+#include <string.h>
+#include <unistd.h>
 
 namespace Davix {
 
+//------------------------------------------------------------------------------
+// Empty constructor
+//------------------------------------------------------------------------------
+ContentProvider::ContentProvider() {
+  _errc = 0;
+}
+
+//------------------------------------------------------------------------------
+// Is the object ok?
+//------------------------------------------------------------------------------
+bool ContentProvider::ok() const {
+  return (_errc == 0);
+}
+
+//------------------------------------------------------------------------------
+// Has there been an error?
+//------------------------------------------------------------------------------
+int ContentProvider::getErrc() const {
+  return _errc;
+}
+
+//------------------------------------------------------------------------------
+// Get error message
+//------------------------------------------------------------------------------
+std::string ContentProvider::getError() const {
+  return _errMsg;
+}
+
+//------------------------------------------------------------------------------
+// FdContentProvider constructor
+//------------------------------------------------------------------------------
+FdContentProvider::FdContentProvider(int fd) : _fd(fd) {
+  _fd_size = ::lseek(_fd, 0, SEEK_END);
+
+  if(_fd_size == -1) {
+    _errc = errno;
+    _errMsg = strerror(_errc);
+  }
+  else {
+    rewind();
+  }
+}
+
+//------------------------------------------------------------------------------
+// pullBytes implementation.
+//------------------------------------------------------------------------------
+ssize_t FdContentProvider::pullBytes(char* target, size_t requestedBytes) {
+  if(!ok()) {
+    return - _errc;
+  }
+
+  while(true) {
+    ssize_t retval = ::read(_fd, target, requestedBytes);
+
+    if(retval >= 0) {
+      // No errors
+      return retval;
+    }
+    else if(retval == -1 && errno == EINTR) {
+      // Interrupted by a signal... retry...
+      continue;
+    }
+    else {
+      // Error
+      _errc = errno;
+      _errMsg = strerror(_errc);
+      return - _errc;
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+// Rewind implementation.
+//------------------------------------------------------------------------------
+bool FdContentProvider::rewind() {
+  if(!ok()) {
+    return false;
+  }
+
+  off_t retval = ::lseek(_fd, 0, SEEK_SET);
+  if(retval == -1) {
+    _errc = errno;
+    _errMsg = strerror(_errc);
+    return false;
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+// getSize implementation.
+//------------------------------------------------------------------------------
+ssize_t FdContentProvider::getSize() {
+  return _fd_size;
+}
 
 
 }

@@ -20,6 +20,7 @@
 */
 
 #include "S3IO.hpp"
+#include <core/ContentProvider.hpp>
 #include <utils/davix_logger_internal.hpp>
 #include <xml/S3MultiPartInitiationParser.hpp>
 
@@ -176,6 +177,66 @@ dav_ssize_t S3IO::writeFromFd(IOChainContext & iocontext, int fd, dav_size_t siz
 
   DataProviderFun providerFunc = std::bind(readFunction, fd, _1, _2);
   return this->writeFromCb(iocontext, providerFunc, size);
+}
+
+static dav_size_t fillBufferWithProviderData(std::vector<char> &buffer, const dav_size_t maxChunkSize, ContentProvider &provider) {
+    dav_size_t written = 0u;
+    dav_size_t remaining = maxChunkSize;
+
+    while(true) {
+      dav_ssize_t bytesRead = provider.pullBytes(buffer.data(), remaining);
+      if(bytesRead < 0) {
+        throw DavixException(davix_scope_io_buff(), StatusCode::InvalidFileHandle, fmt::format("Error when reading from callback: {}", bytesRead));
+      }
+
+      remaining -= bytesRead;
+      written += bytesRead;
+
+      if(bytesRead == 0) {
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Reached data provider EOF, received 0 bytes, even though asked for {}", remaining);
+        break; // EOF
+      }
+
+      if(remaining == 0) {
+        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Data provider buffer has been filled");
+        break; // buffer is full
+      }
+    }
+
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Retrieved {} bytes from data provider", written);
+    return written;
+}
+
+// write from content provider
+dav_ssize_t S3IO::writeFromProvider(IOChainContext & iocontext, ContentProvider &provider) {
+  if(!should_use_s3_multipart(iocontext, provider.getSize())) {
+    CHAIN_FORWARD(writeFromProvider(iocontext, provider));
+  }
+
+  DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Initiating multi-part upload towards {} to upload file with size {}", iocontext._uri, provider.getSize());
+  std::string uploadId = initiateMultipart(iocontext);
+
+  size_t remaining = provider.getSize();
+  const dav_size_t MAX_CHUNK_SIZE = 1024 * 1024 * 256; // 256 MB
+
+  std::vector<char> buffer;
+  buffer.resize(std::min(MAX_CHUNK_SIZE, (dav_size_t) provider.getSize()) + 10);
+
+  std::vector<std::string> etags;
+
+  size_t partNumber = 0;
+  while(remaining > 0) {
+    size_t toRead = std::min( (dav_size_t) provider.getSize(), MAX_CHUNK_SIZE);
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "S3IO write: toRead from cb {}", toRead);
+
+    dav_size_t bytesRead = fillBufferWithProviderData(buffer, MAX_CHUNK_SIZE, provider);
+    if(bytesRead == 0) break; // EOF
+
+    partNumber++;
+    etags.emplace_back(writeChunk(iocontext, buffer.data(), bytesRead, uploadId, partNumber));
+   }
+
+   commitChunks(iocontext, uploadId, etags);
 }
 
 static dav_size_t fillBufferWithProviderData(std::vector<char> &buffer, const dav_size_t maxChunkSize, const DataProviderFun &func) {

@@ -163,5 +163,51 @@ ssize_t FdContentProvider::getSize() {
   return _fd_size;
 }
 
+//------------------------------------------------------------------------------
+// Constructor
+//------------------------------------------------------------------------------
+CallbackContentProvider::CallbackContentProvider(HttpBodyProvider provider, dav_size_t len,
+  void *udata) : _provider(provider), _len(len), _udata(udata) {}
+
+//------------------------------------------------------------------------------
+// pullBytes implementation.
+//------------------------------------------------------------------------------
+ssize_t CallbackContentProvider::pullBytes(char* target, size_t requestedBytes) {
+  if(!ok()) {
+    return - _errc;
+  }
+
+  if(requestedBytes == 0) {
+    return 0;
+  }
+
+  ssize_t retval = _provider(_udata, target, requestedBytes);
+  if(retval < 0) {
+    _errc = -retval;
+    _errMsg = strerror(_errc);
+    return -_errc;
+  }
+
+  return retval;
+}
+
+//------------------------------------------------------------------------------
+// Rewind implementation.
+//------------------------------------------------------------------------------
+bool CallbackContentProvider::rewind() {
+  if(!ok()) {
+    return false;
+  }
+
+  _provider(_udata, 0, 0);
+  return true;
+}
+
+//------------------------------------------------------------------------------
+// getSize implementation.
+//------------------------------------------------------------------------------
+ssize_t CallbackContentProvider::getSize() {
+  return _len;
+}
 
 }

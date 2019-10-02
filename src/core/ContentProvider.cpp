@@ -96,6 +96,45 @@ ssize_t BufferContentProvider::getSize() {
 }
 
 //------------------------------------------------------------------------------
+// Constructor
+//------------------------------------------------------------------------------
+OwnedBufferContentProvider::OwnedBufferContentProvider(const char* buf, size_t count)
+: _provider(NULL, 0) {
+
+  _contents.resize(count);
+  ::memcpy( (void*) _contents.data(), buf, count);
+  _provider = BufferContentProvider(_contents.c_str(), _contents.size());
+}
+
+//----------------------------------------------------------------------------
+// Constructor
+//----------------------------------------------------------------------------
+OwnedBufferContentProvider::OwnedBufferContentProvider(const std::string &str)
+: OwnedBufferContentProvider(str.c_str(), str.size()) {}
+
+//------------------------------------------------------------------------------
+// pullBytes implementation.
+//------------------------------------------------------------------------------
+ssize_t OwnedBufferContentProvider::pullBytes(char* target, size_t requestedBytes) {
+  return _provider.pullBytes(target, requestedBytes);
+}
+
+//------------------------------------------------------------------------------
+// Rewind implementation.
+//------------------------------------------------------------------------------
+bool OwnedBufferContentProvider::rewind() {
+  return _provider.rewind();
+}
+
+//------------------------------------------------------------------------------
+// getSize implementation.
+//------------------------------------------------------------------------------
+ssize_t OwnedBufferContentProvider::getSize() {
+  return _provider.getSize();
+}
+
+
+//------------------------------------------------------------------------------
 // FdContentProvider constructor
 //------------------------------------------------------------------------------
 FdContentProvider::FdContentProvider(int fd) : _fd(fd) {

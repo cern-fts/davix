@@ -127,3 +127,14 @@ TEST(ContentProvider, Buffer) {
 
   ASSERT_EQ(provider.pullBytes(buffer, 100), 0);
 }
+
+TEST(ContentProvider, OwnedBuffer) {
+  OwnedBufferContentProvider provider("test");
+
+  char buffer[1024];
+  ASSERT_TRUE(provider.ok());
+  ASSERT_EQ(provider.getSize(), 4);
+
+  ASSERT_EQ(provider.pullBytes(buffer, 3), 3);
+  ASSERT_EQ(std::string(buffer, 3), "tes");
+}

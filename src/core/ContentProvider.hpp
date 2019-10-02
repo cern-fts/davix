@@ -210,6 +210,11 @@ public:
     void *udata);
 
   //----------------------------------------------------------------------------
+  // Constructor
+  //----------------------------------------------------------------------------
+  CallbackContentProvider(DataProviderFun provider, dav_size_t len);
+
+  //----------------------------------------------------------------------------
   // pullBytes implementation.
   //----------------------------------------------------------------------------
   ssize_t pullBytes(char* target, size_t requestedBytes);
@@ -227,9 +232,10 @@ public:
 
 private:
   HttpBodyProvider _provider;
+  DataProviderFun  _providerFun;
+
   dav_size_t _len;
   void *_udata;
-
 };
 
 }

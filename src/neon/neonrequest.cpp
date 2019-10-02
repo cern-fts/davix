@@ -251,10 +251,6 @@ ssize_t NeonRequest::neon_body_content_provider(void* userdata, char* buffer, si
      return (ssize_t) req->_content_provider.callback(req->_content_provider.udata, buffer, buflen);
 }
 
-static dav_ssize_t iocontext_content_provider(HttpBodyProvider provider, void* udata, void* buffer, dav_size_t size) {
-    return provider(udata, (char*) buffer, size);
-}
-
 void NeonRequest::configureRequest(){
 
     // add custom user headers, but make sure they're only added once
@@ -321,16 +317,6 @@ int NeonRequest::processRedirection(int neonCode, DavixError **err){
         end_status = 0;
     }
     return end_status;
-}
-
-static dav_ssize_t readFunction(int fd, void* buffer, dav_size_t size) {
-    dav_ssize_t ret = ::read(fd, buffer, size);
-    if(ret < 0) {
-        int myerr = errno;
-        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Error in readFunction when attempting to read from fd {}: Return code {}, errno: {}", fd, ret, myerr);
-    }
-
-    return ret;
 }
 
 int NeonRequest::startRequest(DavixError **err){

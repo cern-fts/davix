@@ -55,6 +55,47 @@ std::string ContentProvider::getError() const {
 }
 
 //------------------------------------------------------------------------------
+// Constructor
+//------------------------------------------------------------------------------
+BufferContentProvider::BufferContentProvider(const char* buf, size_t count)
+: _buffer(buf), _count(count), _pos(0) {}
+
+//------------------------------------------------------------------------------
+// pullBytes implementation.
+//------------------------------------------------------------------------------
+ssize_t BufferContentProvider::pullBytes(char* target, size_t requestedBytes) {
+  if(_pos >= _count) {
+    // EOF
+    return 0;
+  }
+
+  size_t bytesToGive = requestedBytes;
+  if(_pos + bytesToGive > _count) {
+    // Asked for more bytes than we have, just give all remaining ones
+    bytesToGive = _count - _pos;
+  }
+
+  ::memcpy(target, _buffer + _pos, bytesToGive);
+  _pos += bytesToGive;
+  return bytesToGive;
+}
+
+//------------------------------------------------------------------------------
+// Rewind implementation.
+//------------------------------------------------------------------------------
+bool BufferContentProvider::rewind() {
+  _pos = 0;
+  return true;
+}
+
+//------------------------------------------------------------------------------
+// getSize implementation.
+//------------------------------------------------------------------------------
+ssize_t BufferContentProvider::getSize() {
+  return _count;
+}
+
+//------------------------------------------------------------------------------
 // FdContentProvider constructor
 //------------------------------------------------------------------------------
 FdContentProvider::FdContentProvider(int fd) : _fd(fd) {

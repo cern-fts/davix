@@ -23,7 +23,7 @@ bool makeTemporaryFile(const std::string &path, const std::string &contents) {
 }
 
 
-TEST(FdContentProvider, BasicSanity) {
+TEST(ContentProvider, Fd) {
   ASSERT_TRUE(makeTemporaryFile("/tmp/davix-tests-tmp-file", "123456789"));
 
   int fd = ::open("/tmp/davix-tests-tmp-file", O_RDONLY);
@@ -88,4 +88,42 @@ TEST(FdContentProvider, BasicSanity) {
     ASSERT_FALSE(provider.rewind());
     ASSERT_EQ(provider.pullBytes(buffer, 3), -9);
   }
+}
+
+TEST(ContentProvider, Buffer) {
+  std::string sourceBuffer("123456789");
+  char buffer[1024];
+
+  BufferContentProvider provider(sourceBuffer.c_str(), sourceBuffer.size());
+  ASSERT_TRUE(provider.ok());
+  ASSERT_EQ(provider.getSize(), 9);
+
+  ASSERT_EQ(provider.pullBytes(buffer, 3), 3);
+  ASSERT_EQ(std::string(buffer, 3), "123");
+
+  ASSERT_EQ(provider.pullBytes(buffer, 3), 3);
+  ASSERT_EQ(std::string(buffer, 3), "456");
+
+  ASSERT_EQ(provider.pullBytes(buffer, 3), 3);
+  ASSERT_EQ(std::string(buffer, 3), "789");
+
+  ASSERT_EQ(provider.pullBytes(buffer, 3), 0);
+  ASSERT_EQ(provider.pullBytes(buffer, 3), 0);
+  ASSERT_EQ(provider.pullBytes(buffer, 3), 0);
+
+  ASSERT_TRUE(provider.rewind());
+
+  ASSERT_EQ(provider.pullBytes(buffer, 200), 9);
+  ASSERT_EQ(std::string(buffer, 9), "123456789");
+
+  ASSERT_EQ(provider.pullBytes(buffer, 3), 0);
+  ASSERT_TRUE(provider.rewind());
+
+  ASSERT_EQ(provider.pullBytes(buffer, 4), 4);
+  ASSERT_EQ(std::string(buffer, 4), "1234");
+
+  ASSERT_EQ(provider.pullBytes(buffer, 100), 5);
+  ASSERT_EQ(std::string(buffer, 5), "56789");
+
+  ASSERT_EQ(provider.pullBytes(buffer, 100), 0);
 }

@@ -22,6 +22,7 @@
 #ifndef DAVIX_CORE_CONTENT_PROVIDER_HPP
 #define DAVIX_CORE_CONTENT_PROVIDER_HPP
 
+#include <request/httprequest.hpp>
 #include "stdlib.h"
 #include <string>
 
@@ -130,8 +131,6 @@ private:
   size_t _pos;
 };
 
-
-
 //------------------------------------------------------------------------------
 // Content provider based on a file descriptor - no ownership on underlying
 // file descriptor, keep open while this object is alive.
@@ -161,6 +160,40 @@ public:
 private:
   int _fd;
   ssize_t _fd_size;
+};
+
+//------------------------------------------------------------------------------
+// Content provider based on a HttpBodyProvider callback.
+//------------------------------------------------------------------------------
+class CallbackContentProvider : public ContentProvider {
+public:
+  //----------------------------------------------------------------------------
+  // Constructor
+  //----------------------------------------------------------------------------
+  CallbackContentProvider(HttpBodyProvider provider, dav_size_t len,
+    void *udata);
+
+  //----------------------------------------------------------------------------
+  // pullBytes implementation.
+  //----------------------------------------------------------------------------
+  ssize_t pullBytes(char* target, size_t requestedBytes);
+
+  //----------------------------------------------------------------------------
+  // Rewind implementation.
+  //----------------------------------------------------------------------------
+  bool rewind();
+
+  //----------------------------------------------------------------------------
+  // getSize implementation.
+  //----------------------------------------------------------------------------
+  ssize_t getSize();
+
+
+private:
+  HttpBodyProvider _provider;
+  dav_size_t _len;
+  void *_udata;
+
 };
 
 }

@@ -19,6 +19,7 @@ add_executable(davix-unit-tests
   cache.cpp
   chrono.cpp
   config-parser.cpp
+  content-provider.cpp
   context.cpp
   datetime.cpp
   digest-extractor.cpp

@@ -23,6 +23,7 @@
 #define DAVIX_CORE_CONTENT_PROVIDER_HPP
 
 #include "stdlib.h"
+#include <string>
 
 namespace Davix {
 
@@ -38,7 +39,7 @@ public:
   //----------------------------------------------------------------------------
   // Empty constructor
   //----------------------------------------------------------------------------
-  ContentProvider() {}
+  ContentProvider();
 
   //----------------------------------------------------------------------------
   // Virtual destructor
@@ -57,7 +58,7 @@ public:
   //   The returned value is the negative of the errno. Call errc() and
   //   errMsg() for more information about the issue.
   //----------------------------------------------------------------------------
-  virtual size_t pullBytes(char* target, size_t requestedBytes) = 0;
+  virtual ssize_t pullBytes(char* target, size_t requestedBytes) = 0;
 
   //----------------------------------------------------------------------------
   // Rewind the provider to the beginning. We're probably doing a redirect or
@@ -72,11 +73,61 @@ public:
   // Get total size - should return a constant throughout the lifetime of this
   // object.
   //
-  // Return -1 if size is not known beforehand. davix does not currently\
+  // Return -1 if size is not known beforehand. davix does not currently
   // support this option with libneon, as we don't have chunked encoding
   // for uploads yet.
   //----------------------------------------------------------------------------
-  virtual size_t getSize() = 0;
+  virtual ssize_t getSize() = 0;
+
+  //----------------------------------------------------------------------------
+  // Is the object ok?
+  //----------------------------------------------------------------------------
+  bool ok() const;
+
+  //----------------------------------------------------------------------------
+  // Has there been an error?
+  //----------------------------------------------------------------------------
+  int getErrc() const;
+
+  //----------------------------------------------------------------------------
+  // Get error message
+  //----------------------------------------------------------------------------
+  std::string getError() const;
+
+protected:
+  int _errc;
+  std::string _errMsg;
+};
+
+//------------------------------------------------------------------------------
+// Content provider based on a file descriptor - no ownership on underlying
+// file descriptor, keep open while this object is alive.
+//------------------------------------------------------------------------------
+class FdContentProvider : public ContentProvider {
+public:
+  //----------------------------------------------------------------------------
+  // Constructor
+  //----------------------------------------------------------------------------
+  FdContentProvider(int fd);
+
+  //----------------------------------------------------------------------------
+  // pullBytes implementation.
+  //----------------------------------------------------------------------------
+  ssize_t pullBytes(char* target, size_t requestedBytes);
+
+  //----------------------------------------------------------------------------
+  // Rewind implementation.
+  //----------------------------------------------------------------------------
+  bool rewind();
+
+  //----------------------------------------------------------------------------
+  // getSize implementation.
+  //----------------------------------------------------------------------------
+  ssize_t getSize();
+
+private:
+  int _fd;
+  ssize_t _fd_size;
 };
 
 }

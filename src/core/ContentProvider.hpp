@@ -132,6 +132,42 @@ private:
 };
 
 //------------------------------------------------------------------------------
+// Content provider based on an owned internal buffer - contents are copied
+// on construction.
+//------------------------------------------------------------------------------
+class OwnedBufferContentProvider : public ContentProvider {
+public:
+  //----------------------------------------------------------------------------
+  // Constructor
+  //----------------------------------------------------------------------------
+  OwnedBufferContentProvider(const char* buf, size_t count);
+
+  //----------------------------------------------------------------------------
+  // Constructor
+  //----------------------------------------------------------------------------
+  OwnedBufferContentProvider(const std::string &str);
+
+  //----------------------------------------------------------------------------
+  // pullBytes implementation.
+  //----------------------------------------------------------------------------
+  ssize_t pullBytes(char* target, size_t requestedBytes);
+
+  //----------------------------------------------------------------------------
+  // Rewind implementation.
+  //----------------------------------------------------------------------------
+  bool rewind();
+
+  //----------------------------------------------------------------------------
+  // getSize implementation.
+  //----------------------------------------------------------------------------
+  ssize_t getSize();
+
+private:
+  std::string _contents;
+  BufferContentProvider _provider;
+};
+
+//------------------------------------------------------------------------------
 // Content provider based on a file descriptor - no ownership on underlying
 // file descriptor, keep open while this object is alive.
 //------------------------------------------------------------------------------

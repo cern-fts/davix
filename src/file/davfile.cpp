@@ -251,22 +251,6 @@ void DavFile::put(const RequestParams *params, const DataProviderFun &callback, 
     d_ptr->getIOChain(chain).writeFromProvider(io_context, provider);
 }
 
-
-static dav_ssize_t buffer_mapper(void* buffer, dav_size_t max_size, const char* origin_buffer, dav_size_t buffer_size, dav_size_t* written_bytes){
-    dav_ssize_t res;
-
-    if(max_size ==0 || buffer_size == *written_bytes){
-        *written_bytes =0;
-        return 0;
-    }
-
-    res = std::min(max_size, buffer_size - *written_bytes);
-    memcpy(buffer, origin_buffer+ *written_bytes, res);
-    *written_bytes += res;
-
-    return res;
-}
-
 void DavFile::put(const RequestParams *params, const char *buffer, dav_size_t size_write){
     HttpIOChain chain;
     IOChainContext io_context = d_ptr->getIOContext(params);

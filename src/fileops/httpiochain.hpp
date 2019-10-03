@@ -154,10 +154,6 @@ public:
     // lseek prototype
     virtual dav_off_t lseek(IOChainContext & iocontext, dav_off_t offset, int flags);
 
-
-    // sequential write
-    virtual dav_ssize_t write(IOChainContext & iocontext, const void* buf, dav_size_t count);
-
     // write provided contents
     virtual dav_ssize_t writeFromProvider(IOChainContext & iocontext, ContentProvider &provider);
 

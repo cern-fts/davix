@@ -137,18 +137,7 @@ private:
 
     void freeRequest();
 
-
     void createError(int ne_status, DavixError** err);
-
-	static ssize_t neon_body_content_provider(void* userdata, char* buffer, size_t buflen);
-
-    static void neon_hook_pre_send(ne_request *req, void *userdata,
-                                           ne_buffer *header);
-
-    static void neon_hook_pre_rec(ne_request *req, void *userdata,
-                                        const ne_status *status);
-
-
     friend class NEONSessionWrapper;
 };
 
@@ -156,9 +145,6 @@ private:
 //
 // translate a neon error code to a davix one
 //
-void neon_to_davix_code(int ne_status,ne_session* sess, const std::string & scope, DavixError** err);
-
-
 void neon_simple_req_code_to_davix_code(int ne_status, ne_session* sess, const std::string & scope, DavixError** err);
 
 void configureRequestParamsProto(const Uri &uri, RequestParams &params);

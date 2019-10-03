@@ -22,6 +22,7 @@
 #ifndef DAVIX_BACKEND_STANDALONE_NEON_REQUEST_HPP
 #define DAVIX_BACKEND_STANDALONE_NEON_REQUEST_HPP
 
+#include "BoundHooks.hpp"
 #include <memory>
 
 namespace Davix {
@@ -29,12 +30,14 @@ namespace Davix {
 class NEONSessionFactory;
 class Uri;
 class RequestParams;
+class NeonSessionWrapper;
 
 //------------------------------------------------------------------------------
 // Represent a single, standalone HTTP request with libneon implementation.
 //
-// No magic - no automatic redirections, no automatic retries, nothing. Just a
-// single HTTP request / response.
+// No magic here. No automatic redirections, no cached redirections, no
+// compatibility hacks, no automatic retries, nothing. Just a single
+// HTTP request / response.
 //
 // The magic is to be added by higher-level classes building upon this one.
 //------------------------------------------------------------------------------
@@ -43,14 +46,20 @@ public:
   //----------------------------------------------------------------------------
   // Constructor
   //
-  // sessionFactory: Required to retrieve an HTTP connection.
+  // sessionFactory: Required to obtain an HTTP session.
   //
   // reuseSession: Whether to re-use a previously created session, if available,
   //               or create a brand-new one.
   //
+  // boundHooks: Sometimes the user will set hooks which activate at certain
+  //             points during request execution.
+  //
+  // uri: Target URI to hit.
+  //
+  // param: Request parameters, authentication, etc.
   //----------------------------------------------------------------------------
   StandaloneNeonRequest(NEONSessionFactory *sessionFactory, bool reuseSession,
-    const Uri &uri, const RequestParams &param);
+    const BoundHooks &boundHooks, const Uri &uri, const RequestParams &param);
 
   //----------------------------------------------------------------------------
   // Destructor
@@ -59,7 +68,8 @@ public:
 
 
 private:
-
+  BoundHooks _bound_hooks;
+  // std::unique_ptr<NeonSessionWrapper> _session;
 
 };
 

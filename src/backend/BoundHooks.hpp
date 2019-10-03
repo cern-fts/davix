@@ -22,6 +22,9 @@
 #ifndef DAVIX_BACKEND_BOUND_HOOKS_HPP
 #define DAVIX_BACKEND_BOUND_HOOKS_HPP
 
+#include <utils/davix_types.hpp>
+#include <functional>
+
 namespace Davix {
 
 //------------------------------------------------------------------------------

@@ -20,6 +20,7 @@
 */
 
 #include "BackendRequest.hpp"
+#include <core/ContentProvider.hpp>
 #include <utils/davix_s3_utils.hpp>
 #include <utils/davix_azure_utils.hpp>
 #include <utils/davix_gcloud_utils.hpp>
@@ -52,34 +53,32 @@ BackendRequest::BackendRequest(Context &c, const Uri &uri)
     _early_termination(false),
     _early_termination_error(NULL) {}
 
+//------------------------------------------------------------------------------
+// Virtual destructor
+//------------------------------------------------------------------------------
+BackendRequest::~BackendRequest() {}
 
 //------------------------------------------------------------------------------
 // Several different ways to provide the request body.
 //------------------------------------------------------------------------------
 void BackendRequest::setRequestBody(const std::string & body) {
-  _content_body = std::string(body);
-  _content_ptr = (char*) _content_body.c_str();
-  _content_len = _content_body.size();
-  _fd_content = -1;
+  _owned_content_provider.reset(new OwnedBufferContentProvider(body));
+  _content_provider = _owned_content_provider.get();
 }
 
 void BackendRequest::setRequestBody(const void * buffer, dav_size_t len) {
-  _content_ptr = (char*) buffer;
-  _content_len = len;
-  _fd_content = -1;
+  _owned_content_provider.reset(new BufferContentProvider( (const char*) buffer, len));
+  _content_provider = _owned_content_provider.get();
 }
 
 void BackendRequest::setRequestBody(int fd, dav_off_t offset, dav_size_t len) {
-  _fd_content = fd;
-  _content_ptr = NULL;
-  _content_len = len;
-  _content_offset = offset;
+  _owned_content_provider.reset(new FdContentProvider(fd, offset, len));
+  _content_provider = _owned_content_provider.get();
 }
 
 void BackendRequest::setRequestBody(HttpBodyProvider provider, dav_size_t len, void* udata) {
-  _content_len  = len;
-  _content_provider_context.callback = provider;
-  _content_provider_context.udata = udata;
+  _owned_content_provider.reset(new CallbackContentProvider(provider, len, udata));
+  _content_provider = _owned_content_provider.get();
 }
 
 void BackendRequest::setRequestBody(ContentProvider &provider) {

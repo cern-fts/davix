@@ -62,7 +62,7 @@ public:
   //----------------------------------------------------------------------------
   // Virtual destructor
   //----------------------------------------------------------------------------
-  virtual ~BackendRequest() {}
+  virtual ~BackendRequest();
 
   //----------------------------------------------------------------------------
   // No evil constructors, no move semantics.
@@ -259,6 +259,7 @@ protected:
   int _fd_content;
   ContentProviderContext _content_provider_context;
 
+  std::unique_ptr<ContentProvider> _owned_content_provider;
   ContentProvider *_content_provider;
 
   //----------------------------------------------------------------------------

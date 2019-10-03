@@ -33,8 +33,8 @@
 #include <ne_auth.h>
 #include <neon/neonsessionfactory.hpp>
 
-#include <request/httprequest.hpp>
 #include <neon/neonsession.hpp>
+#include <backend/BoundHooks.hpp>
 
 #include "../backend/BackendRequest.hpp"
 
@@ -45,13 +45,12 @@ namespace Davix {
 
 class NEONSessionFactory;
 class NEONSession;
-class HttpRequest;
 class NEONSessionWrapper;
 
 class NeonRequest : public BackendRequest
 {
 public:
-    NeonRequest(HttpRequest &h, Context& f, const Uri & uri_req);
+    NeonRequest(const BoundHooks &hooks, Context& f, const Uri & uri_req);
     virtual ~NeonRequest();
 
     //--------------------------------------------------------------------------
@@ -95,6 +94,8 @@ private:
     // neon internal field
     std::unique_ptr<NEONSessionWrapper> _neon_sess;
 
+    // bound hooks
+    BoundHooks _bound_hooks;
 
     ne_request * _req;
     // req info
@@ -104,7 +105,6 @@ private:
     // read info
     dav_ssize_t _total_read_size, _last_read;
 
-    HttpRequest & _h;
     bool req_started, req_running;
 
     int _accepted_202_retries;

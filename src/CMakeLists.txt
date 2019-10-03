@@ -7,6 +7,7 @@ set(DAVIX_SOURCES
 
   backend/BackendRequest.hpp                             backend/BackendRequest.cpp
   backend/SessionFactory.hpp                             backend/SessionFactory.cpp
+  backend/StandaloneNeonRequest.hpp                      backend/StandaloneNeonRequest.cpp
 
   core/ContentProvider.hpp                               core/ContentProvider.cpp
   core/RedirectionResolver.hpp                           core/RedirectionResolver.cpp

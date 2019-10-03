@@ -49,8 +49,28 @@ private:
 
 typedef NEONRequest WrappedBackendRequest;
 
+template <typename...> struct WhichType;
+
+
 static WrappedBackendRequest* createBackendRequest(HttpRequest* req, Context & context, const Uri & uri) {
-    return new WrappedBackendRequest(new NeonRequest(*req, context, uri));
+    BoundHooks boundHooks;
+
+    RequestPreSendHook presendHook = context.getHook<RequestPreSendHook>();
+    RequestPreReceHook prereceiveHook = context.getHook<RequestPreReceHook>();
+
+    using std::placeholders::_1;
+    using std::placeholders::_2 ;
+    using std::placeholders::_3;
+
+    if(presendHook) {
+        boundHooks.presendHook = std::bind(presendHook, std::ref(*req), _1);
+    }
+
+    if(prereceiveHook) {
+        boundHooks.prereceiveHook = std::bind(prereceiveHook, std::ref(*req), _1, _2, _3);
+    }
+
+    return new WrappedBackendRequest(new NeonRequest(boundHooks, context, uri));
 }
 
 /////////////////////////////////////////////////////////////////////////

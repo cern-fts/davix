@@ -39,21 +39,21 @@ namespace Davix {
 
 class NEONSessionWrapper {
 public:
-    NEONSessionWrapper(NeonRequest* r, const Uri &uri, const RequestParams &p, DavixError **err)
+    NEONSessionWrapper(NeonRequest* r, NEONSessionFactory &factory, const Uri &uri, const RequestParams &p, DavixError **err)
         : _r(r)
     {
-        _sess = ContextExplorer::SessionFactoryFromContext(r->getContext()).provideNEONSession(uri, p, err);
+        _sess = factory.provideNEONSession(uri, p, err);
 
         if(_sess && _sess->get_ne_sess() != NULL){
-            ne_hook_pre_send(_sess->get_ne_sess(), NeonRequest::neon_hook_pre_send, (void*)r);
-            ne_hook_post_headers(_sess->get_ne_sess(), NeonRequest::neon_hook_pre_rec, (void*) r);
+            ne_hook_pre_send(_sess->get_ne_sess(), NEONSessionWrapper::runHookPreSend, (void*) this);
+            ne_hook_post_headers(_sess->get_ne_sess(), NEONSessionWrapper::runHookPreReceive, (void*) this);
         }
     }
 
     virtual ~NEONSessionWrapper() {
         if(_sess->get_ne_sess() != NULL){
-            ne_unhook_pre_send(_sess->get_ne_sess(), NeonRequest::neon_hook_pre_send, (void*)_r);
-            ne_unhook_post_headers(_sess->get_ne_sess(), NeonRequest::neon_hook_pre_rec, (void*) _r);
+            ne_unhook_pre_send(_sess->get_ne_sess(), NEONSessionWrapper::runHookPreSend, (void*) this);
+            ne_unhook_post_headers(_sess->get_ne_sess(), NEONSessionWrapper::runHookPreReceive, (void*) this);
         }
     }
 
@@ -70,6 +70,34 @@ public:
     }
 
 private:
+
+    static void runHookPreSend(ne_request *r, void *userdata, ne_buffer *header) {
+      (void) r;
+
+      NEONSessionWrapper* wrapper = (NEONSessionWrapper*) userdata;
+      BoundHooks &boundHooks = wrapper->_r->_bound_hooks;
+      if(boundHooks.presendHook) {
+        std::string header_line(header->data, (header->used)-1);
+        boundHooks.presendHook(header_line);
+      }
+    }
+
+    static void runHookPreReceive(ne_request *r, void *userdata, const ne_status *status) {
+      (void) r;
+
+      NEONSessionWrapper* wrapper = (NEONSessionWrapper*) userdata;
+      BoundHooks &boundHooks = wrapper->_r->_bound_hooks;
+      if(boundHooks.prereceiveHook){
+        std::ostringstream header_line;
+        HeaderVec headers;
+        wrapper->_r->getAnswerHeaders(headers);
+        header_line << "HTTP/"<< status->major_version << '.' << status->minor_version
+                    << ' ' << status->code << ' ' << status->reason_phrase << '\n';
+
+        boundHooks.prereceiveHook(header_line.str(), headers, status->code);
+      }
+    }
+
     std::unique_ptr<NEONSession> _sess;
     NeonRequest* _r;
 };
@@ -238,7 +266,9 @@ int NeonRequest::createRequest(DavixError** err){
 
 int NeonRequest::instanceSession(DavixError** err){
     DavixError * tmp_err=NULL;
-    _neon_sess.reset(new NEONSessionWrapper(this, *_current, _params, &tmp_err));
+
+    NEONSessionFactory& factory = ContextExplorer::SessionFactoryFromContext(getContext());
+    _neon_sess.reset(new NEONSessionWrapper(this, factory, *_current, _params, &tmp_err));
     if(tmp_err){
         _neon_sess.reset(NULL);
         DavixError::propagateError(err, tmp_err);
@@ -763,33 +793,6 @@ void NeonRequest::createError(int ne_status, DavixError **err){
             break;
     }
     DavixError::setupError(err, davix_scope_http_request(), code, str);
-}
-
-void NeonRequest::neon_hook_pre_send(ne_request *r, void *userdata,
-                   ne_buffer *header){
-    (void) r;
-    NeonRequest* req = (NeonRequest*) userdata;
-    BoundHooks &boundHooks = req->_bound_hooks;
-    if(boundHooks.presendHook) {
-        std::string header_line(header->data, (header->used)-1);
-        boundHooks.presendHook(header_line);
-    }
-}
-
-void NeonRequest::neon_hook_pre_rec(ne_request *r, void *userdata,
-                                    const ne_status *status){
-    (void) r;
-    NeonRequest* req = (NeonRequest*) userdata;
-    BoundHooks &boundHooks = req->_bound_hooks;
-    if(boundHooks.prereceiveHook){
-        std::ostringstream header_line;
-        HeaderVec headers;
-        req->getAnswerHeaders(headers);
-        header_line << "HTTP/"<< status->major_version << '.' << status->minor_version
-                    << ' ' << status->code << ' ' << status->reason_phrase << '\n';
-
-        boundHooks.prereceiveHook(header_line.str(), headers, status->code);
-    }
 }
 
 

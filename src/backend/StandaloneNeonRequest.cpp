@@ -20,14 +20,27 @@
 */
 
 #include "StandaloneNeonRequest.hpp"
+#include <status/davixstatusrequest.hpp>
+#include <neon/neonsession.hpp>
+#include <ne_redirect.h>
+#include <ne_request.h>
 
 namespace Davix {
+
+//------------------------------------------------------------------------------
+// Wrapper class for neon sessions - setup and tear down hooks
+//------------------------------------------------------------------------------
+
+
 
 //------------------------------------------------------------------------------
 // Constructor
 //------------------------------------------------------------------------------
 StandaloneNeonRequest::StandaloneNeonRequest(NEONSessionFactory *sessionFactory, bool reuseSession,
-  const Uri &uri, const RequestParams &param) {
+  const BoundHooks &boundHooks, const Uri &uri, const RequestParams &param)
+: _bound_hooks(boundHooks) {
+
+  // _session.reset(new NeonSessionWrapper());
 
 }
 

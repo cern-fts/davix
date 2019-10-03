@@ -328,6 +328,44 @@ DynafedUris S3IO::retrieveDynafedUris(IOChainContext & iocontext, const std::str
   return retval;
 }
 
+void S3IO::performUgrS3MultiPart(IOChainContext & iocontext, const std::string &posturl, const std::string &pluginId, ContentProvider &provider, DavixError **err) {
+    try {
+        Uri uri(posturl);
+        std::string uploadId = initiateMultipart(iocontext, posturl);
+
+        const dav_size_t MAX_CHUNK_SIZE = 1024 * 1024 * 256; // 256 MB
+        std::vector<char> buffer;
+        buffer.resize(std::min(MAX_CHUNK_SIZE, (dav_size_t) provider.getSize()) + 10);
+
+        size_t nchunks = (provider.getSize() / MAX_CHUNK_SIZE) + 2;
+        DynafedUris uris = retrieveDynafedUris(iocontext, uploadId, pluginId, nchunks);
+
+        if(uris.chunks.size() != nchunks) {
+          DAVIX_SLOG(DAVIX_LOG_WARNING, DAVIX_LOG_CHAIN, "Dynafed returned different number of URIs than expected: {} vs {]", "} retrieveDynafedUris: Obtained list with {} chunk URIs in total", uris.chunks.size(), nchunks);
+          throw DavixException("S3::MultiPart", StatusCode::InvalidServerResponse, "Dynafed returned different number of URIs than expected");
+        }
+
+        std::vector<std::string> etags;
+        size_t partNumber = 1;
+        uint64_t remaining = provider.getSize();
+
+        while(remaining > 0) {
+          dav_size_t bytesRetrieved = fillBufferWithProviderData(buffer, MAX_CHUNK_SIZE, provider);
+          if(bytesRetrieved == 0) {
+            break; // EOF
+          }
+
+          etags.emplace_back(writeChunk(iocontext, buffer.data(), bytesRetrieved, Uri(uris.chunks[partNumber-1]), partNumber));
+          partNumber++;
+          remaining -= bytesRetrieved;
+        }
+
+        commitChunks(iocontext, Uri(uris.post), etags);
+    }
+    CATCH_DAVIX(err);
+}
+
+
 void S3IO::performUgrS3MultiPart(IOChainContext & iocontext, const std::string &posturl, const std::string &pluginId, const DataProviderFun &func, dav_size_t size, DavixError **err) {
     try {
         Uri uri(posturl);

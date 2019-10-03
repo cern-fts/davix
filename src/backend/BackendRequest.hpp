@@ -252,13 +252,6 @@ protected:
   //----------------------------------------------------------------------------
   // Request content.
   //----------------------------------------------------------------------------
-  char* _content_ptr;
-  dav_size_t _content_len;
-  dav_off_t _content_offset;
-  std::string _content_body;
-  int _fd_content;
-  ContentProviderContext _content_provider_context;
-
   std::unique_ptr<ContentProvider> _owned_content_provider;
   ContentProvider *_content_provider;
 

@@ -46,6 +46,7 @@ public:
   virtual dav_ssize_t writeFromProvider(IOChainContext & iocontext, ContentProvider &provider);
 
   void performUgrS3MultiPart(IOChainContext & iocontext, const std::string &posturl, const std::string &pluginId, const DataProviderFun &func, dav_size_t size, DavixError **err);
+  void performUgrS3MultiPart(IOChainContext & iocontext, const std::string &posturl, const std::string &pluginId, ContentProvider &provider, DavixError **err);
 
 private:
 

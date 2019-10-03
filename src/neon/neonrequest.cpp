@@ -252,11 +252,6 @@ static ssize_t content_provider_callback(void* userdata, char* buffer, size_t bu
     return provider->pullBytes(buffer, buflen);
 }
 
-ssize_t NeonRequest::neon_body_content_provider(void* userdata, char* buffer, size_t buflen){
-	NeonRequest* req = static_cast<NeonRequest*>(userdata);
-     return (ssize_t) req->_content_provider_context.callback(req->_content_provider_context.udata, buffer, buflen);
-}
-
 void NeonRequest::configureRequest(){
 
     // add custom user headers, but make sure they're only added once
@@ -269,8 +264,8 @@ void NeonRequest::configureRequest(){
     // Doing a PUT to Azure? Detect if this is happening, and engage
     // Azure-specific upload machinery.
     //--------------------------------------------------------------------------
-    if(CompatibilityHacks::azureChunkedUpload(_request_type, *_current.get(), _context, _params, _fd_content,
-      _content_len, &_early_termination_error, _content_provider_context)) {
+    if(_content_provider && CompatibilityHacks::azureChunkedUpload(_request_type, *_current.get(), _context, _params, *_content_provider,
+      &_early_termination_error)) {
         _early_termination = true;
     }
 
@@ -294,14 +289,6 @@ void NeonRequest::configureRequest(){
         _content_provider->rewind();
         ne_set_request_body_provider(_req, _content_provider->getSize(),
                                      content_provider_callback, _content_provider);
-    }
-    else if(_fd_content > 0){
-        ne_set_request_body_fd(_req, _fd_content, _content_offset, _content_len);
-    }else if(_content_provider_context.callback) {
-        ne_set_request_body_provider(_req, _content_len,
-                                     &neon_body_content_provider, this);
-    }else if(_content_ptr && _content_len >0){
-        ne_set_request_body_buffer(_req, _content_ptr, _content_len);
     }
 }
 
@@ -414,8 +401,8 @@ int NeonRequest::negotiateRequest(DavixError** err){
             case 303:
             case 307:
 
-                if(CompatibilityHacks::dynafedAssistedS3Upload(*this, *_current.get(), _context, _params, _fd_content,
-                  _content_len, &_early_termination_error, _content_provider_context)) {
+                if(_content_provider && CompatibilityHacks::dynafedAssistedS3Upload(*this, *_current.get(), _context, _params, *_content_provider,
+                   &_early_termination_error)) {
 
                     // Dynafed mechanism was engaged, end request
                     requestCleanup();

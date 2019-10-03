@@ -53,7 +53,7 @@ public:
   // Function returns true if Azure mechanism was engaged, false otherwise.
   // (False means "This is not an Azure URL")
   //----------------------------------------------------------------------------
-  static bool azureChunkedUpload(const std::string &requestType, const Uri& uri, Context &context, const RequestParams &params, int fdContent, dav_size_t contentLen, DavixError** err, ContentProviderContext &contentProvider);
+  static bool azureChunkedUpload(const std::string &requestType, const Uri& uri, Context &context, const RequestParams &params, ContentProvider &provider, DavixError** err);
 
   //----------------------------------------------------------------------------
   // Heuristic to check if URL + requestType should engage the Azure
@@ -65,7 +65,7 @@ public:
   // Dynafed-assisted multi-chunk S3 upload.
   // Returns if dynafed mechanism was engaged.
   //----------------------------------------------------------------------------
-  static bool dynafedAssistedS3Upload(const BackendRequest &originatingRequest, const Uri& uri, Context &context, const RequestParams &params, int fdContent, dav_size_t contentLen, DavixError** err, ContentProviderContext &contentProvider);
+  static bool dynafedAssistedS3Upload(const BackendRequest &originatingRequest, const Uri& uri, Context &context, const RequestParams &params, ContentProvider &provider, DavixError** err);
 
 
 

@@ -20,6 +20,7 @@
  */
 
 #include "CompatibilityHacks.hpp"
+#include <core/ContentProvider.hpp>
 #include <fileops/AzureIO.hpp>
 #include <fileops/S3IO.hpp>
 #include <utils/davix_logger_internal.hpp>
@@ -56,7 +57,7 @@ static dav_ssize_t readFunction(int fd, void* buffer, dav_size_t size) {
 // Function returns true if Azure mechanism was engaged, false otherwise.
 // (False means "This is not an Azure URL")
 //------------------------------------------------------------------------------
-bool CompatibilityHacks::azureChunkedUpload(const std::string &requestType, const Uri& uri, Context &context, const RequestParams &params, int fdContent, dav_size_t contentLen, DavixError **err, ContentProviderContext &contentProvider) {
+bool CompatibilityHacks::azureChunkedUpload(const std::string &requestType, const Uri& uri, Context &context, const RequestParams &params, ContentProvider &provider, DavixError **err) {
   if(!shouldEngageAzureChunkedUpload(requestType, uri)) {
     return false;
   }
@@ -68,17 +69,7 @@ bool CompatibilityHacks::azureChunkedUpload(const std::string &requestType, cons
 
   try {
     AzureIO azureio;
-
-    if(fdContent > 0) {
-      azureio.writeFromFd(iocontext, fdContent, contentLen);
-    }
-    else if(contentProvider.callback) {
-      DataProviderFun provider = std::bind(iocontext_content_provider, contentProvider.callback, contentProvider.udata, _1, _2);
-      azureio.writeFromCb(iocontext, provider, contentLen);
-    }
-    else {
-      throw DavixException("Azure IO", StatusCode::InvalidArgument, "unable to use Azure PUT by providing a direct string");
-    }
+    azureio.writeFromProvider(iocontext, provider);
   }
   catch(DavixException &e) {
     e.toDavixError(err);
@@ -111,7 +102,7 @@ bool CompatibilityHacks::shouldEngageAzureChunkedUpload(const std::string &reque
 // Dynafed-assisted multi-chunk S3 upload.
 // Returns if dynafed mechanism was engaged.
 //------------------------------------------------------------------------------
-bool CompatibilityHacks::dynafedAssistedS3Upload(const BackendRequest& originatingRequest, const Uri& uri, Context& context, const RequestParams &params, int fdContent, dav_size_t contentLen, DavixError** err, ContentProviderContext &contentProvider) {
+bool CompatibilityHacks::dynafedAssistedS3Upload(const BackendRequest& originatingRequest, const Uri& uri, Context& context, const RequestParams &params, ContentProvider &provider, DavixError** err) {
   std::string ugrs3post;
   std::string ugrpluginid;
 
@@ -131,7 +122,7 @@ bool CompatibilityHacks::dynafedAssistedS3Upload(const BackendRequest& originati
 
   // Don't engage if size to upload is less than the specified threshold.
   // Override with 'forceMultiPart' fragment param.
-  if(contentLen < s3SizeThreshold && !uri.fragmentParamExists("forceMultiPart")) {
+  if(provider.getSize() < s3SizeThreshold && !uri.fragmentParamExists("forceMultiPart")) {
     return false;
   }
 
@@ -142,17 +133,7 @@ bool CompatibilityHacks::dynafedAssistedS3Upload(const BackendRequest& originati
   using std::placeholders::_2;
 
   S3IO s3io;
-  DataProviderFun provider;
-
-
-  if(fdContent > 0) {
-    provider = std::bind(readFunction, fdContent, _1, _2);
-  }
-  else if(contentProvider.callback) {
-   provider = std::bind(iocontext_content_provider, contentProvider.callback, contentProvider.udata, _1, _2);
-  }
-
-  s3io.performUgrS3MultiPart(iocontext, ugrs3post, ugrpluginid, provider, contentLen, err);
+  s3io.performUgrS3MultiPart(iocontext, ugrs3post, ugrpluginid, provider, err);
   return true;
 }
 

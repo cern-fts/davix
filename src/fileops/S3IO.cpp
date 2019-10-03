@@ -167,18 +167,6 @@ static dav_ssize_t readFunction(int fd, void* buffer, dav_size_t size) {
   return ret;
 }
 
-dav_ssize_t S3IO::writeFromFd(IOChainContext & iocontext, int fd, dav_size_t size) {
-  if(!should_use_s3_multipart(iocontext, size)) {
-    CHAIN_FORWARD(writeFromFd(iocontext, fd, size));
-  }
-
-  using std::placeholders::_1;
-  using std::placeholders::_2;
-
-  DataProviderFun providerFunc = std::bind(readFunction, fd, _1, _2);
-  return this->writeFromCb(iocontext, providerFunc, size);
-}
-
 static dav_size_t fillBufferWithProviderData(std::vector<char> &buffer, const dav_size_t maxChunkSize, ContentProvider &provider) {
     dav_size_t written = 0u;
     dav_size_t remaining = maxChunkSize;

@@ -36,9 +36,6 @@ public:
   S3IO();
   ~S3IO();
 
-  // write the entire content from a file descriptor
-  virtual dav_ssize_t writeFromFd(IOChainContext & iocontext, int fd, dav_size_t size);
-
   // wirte the entire content from a defined callback
   virtual dav_ssize_t writeFromCb(IOChainContext & iocontext, const DataProviderFun & func, dav_size_t size);
 

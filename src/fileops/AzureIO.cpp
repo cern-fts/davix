@@ -122,23 +122,6 @@ static std::string get_uuid() {
   return uuid_to_string(uuid);
 }
 
-static dav_ssize_t readFunction(int fd, void* buffer, dav_size_t size) {
-  return read(fd, buffer, size);
-}
-
-// write the entire content from a file descriptor
-dav_ssize_t AzureIO::writeFromFd(IOChainContext & iocontext, int fd, dav_size_t size) {
-  if(!is_azure_operation(iocontext)) {
-    CHAIN_FORWARD(writeFromFd(iocontext, fd, size));
-  }
-
-  using std::placeholders::_1;
-  using std::placeholders::_2;
-
-  DataProviderFun providerFunc = std::bind(readFunction, fd, _1, _2);
-  return this->writeFromCb(iocontext, providerFunc, size);
-}
-
 // wirte the entire content from a defined callback
 dav_ssize_t AzureIO::writeFromCb(IOChainContext & iocontext, const DataProviderFun & func, dav_size_t size) {
   if(!is_azure_operation(iocontext)) {

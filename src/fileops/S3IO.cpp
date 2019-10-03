@@ -158,15 +158,6 @@ void S3IO::commitChunks(IOChainContext & iocontext,  const Uri &url, const std::
   checkDavixError(&tmp_err);
 }
 
-static dav_ssize_t readFunction(int fd, void* buffer, dav_size_t size) {
-  dav_ssize_t ret = ::read(fd, buffer, size);
-  if(ret < 0) {
-    int myerr = errno;
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Error in readFunction when attempting to read from fd {}: Return code {}, errno: {}", fd, ret, myerr);
-  }
-  return ret;
-}
-
 static dav_size_t fillBufferWithProviderData(std::vector<char> &buffer, const dav_size_t maxChunkSize, ContentProvider &provider) {
     dav_size_t written = 0u;
     dav_size_t remaining = maxChunkSize;
@@ -218,65 +209,6 @@ dav_ssize_t S3IO::writeFromProvider(IOChainContext & iocontext, ContentProvider 
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "S3IO write: toRead from cb {}", toRead);
 
     dav_size_t bytesRead = fillBufferWithProviderData(buffer, MAX_CHUNK_SIZE, provider);
-    if(bytesRead == 0) break; // EOF
-
-    partNumber++;
-    etags.emplace_back(writeChunk(iocontext, buffer.data(), bytesRead, uploadId, partNumber));
-   }
-
-   commitChunks(iocontext, uploadId, etags);
-}
-
-static dav_size_t fillBufferWithProviderData(std::vector<char> &buffer, const dav_size_t maxChunkSize, const DataProviderFun &func) {
-    dav_size_t written = 0u;
-    dav_size_t remaining = maxChunkSize;
-
-    while(true) {
-      dav_ssize_t bytesRead = func(buffer.data(), remaining);
-      if(bytesRead < 0) {
-        throw DavixException(davix_scope_io_buff(), StatusCode::InvalidFileHandle, fmt::format("Error when reading from callback: {}", bytesRead));
-      }
-
-      remaining -= bytesRead;
-      written += bytesRead;
-
-      if(bytesRead == 0) {
-        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Reached data provider EOF, received 0 bytes, even though asked for {}", remaining);
-        break; // EOF
-      }
-
-      if(remaining == 0) {
-        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Data provider buffer has been filled");
-        break; // buffer is full
-      }
-    }
-
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Retrieved {} bytes from data provider", written);
-    return written;
-}
-
-dav_ssize_t S3IO::writeFromCb(IOChainContext & iocontext, const DataProviderFun & func, dav_size_t size) {
-  if(!should_use_s3_multipart(iocontext, size)) {
-    CHAIN_FORWARD(writeFromCb(iocontext, func, size));
-  }
-
-  DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Initiating multi-part upload towards {} to upload file with size {}", iocontext._uri, size);
-  std::string uploadId = initiateMultipart(iocontext);
-
-  size_t remaining = size;
-  const dav_size_t MAX_CHUNK_SIZE = 1024 * 1024 * 256; // 256 MB
-
-  std::vector<char> buffer;
-  buffer.resize(std::min(MAX_CHUNK_SIZE, size) + 10);
-
-  std::vector<std::string> etags;
-
-  size_t partNumber = 0;
-  while(remaining > 0) {
-    size_t toRead = std::min(size, MAX_CHUNK_SIZE);
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "S3IO write: toRead from cb {}", toRead);
-
-    dav_size_t bytesRead = fillBufferWithProviderData(buffer, MAX_CHUNK_SIZE, func);
     if(bytesRead == 0) break; // EOF
 
     partNumber++;
@@ -353,42 +285,5 @@ void S3IO::performUgrS3MultiPart(IOChainContext & iocontext, const std::string &
     CATCH_DAVIX(err);
 }
 
-
-void S3IO::performUgrS3MultiPart(IOChainContext & iocontext, const std::string &posturl, const std::string &pluginId, const DataProviderFun &func, dav_size_t size, DavixError **err) {
-    try {
-        Uri uri(posturl);
-        std::string uploadId = initiateMultipart(iocontext, posturl);
-
-        const dav_size_t MAX_CHUNK_SIZE = 1024 * 1024 * 256; // 256 MB
-        std::vector<char> buffer;
-        buffer.resize(std::min(MAX_CHUNK_SIZE, size) + 10);
-
-        size_t nchunks = (size / MAX_CHUNK_SIZE) + 2;
-        DynafedUris uris = retrieveDynafedUris(iocontext, uploadId, pluginId, nchunks);
-
-        if(uris.chunks.size() != nchunks) {
-          DAVIX_SLOG(DAVIX_LOG_WARNING, DAVIX_LOG_CHAIN, "Dynafed returned different number of URIs than expected: {} vs {]", "} retrieveDynafedUris: Obtained list with {} chunk URIs in total", uris.chunks.size(), nchunks);
-          throw DavixException("S3::MultiPart", StatusCode::InvalidServerResponse, "Dynafed returned different number of URIs than expected");
-        }
-
-        std::vector<std::string> etags;
-        size_t partNumber = 1;
-        uint64_t remaining = size;
-
-        while(remaining > 0) {
-          dav_size_t bytesRetrieved = fillBufferWithProviderData(buffer, MAX_CHUNK_SIZE, func);
-          if(bytesRetrieved == 0) {
-            break; // EOF
-          }
-
-          etags.emplace_back(writeChunk(iocontext, buffer.data(), bytesRetrieved, Uri(uris.chunks[partNumber-1]), partNumber));
-          partNumber++;
-          remaining -= bytesRetrieved;
-        }
-
-        commitChunks(iocontext, Uri(uris.post), etags);
-    }
-    CATCH_DAVIX(err);
-}
 
 }

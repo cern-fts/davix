@@ -27,20 +27,6 @@
 
 namespace Davix {
 
-static dav_ssize_t iocontext_content_provider(HttpBodyProvider provider, void* udata, void* buffer, dav_size_t size) {
-    return provider(udata, (char*) buffer, size);
-}
-
-static dav_ssize_t readFunction(int fd, void* buffer, dav_size_t size) {
-    dav_ssize_t ret = ::read(fd, buffer, size);
-    if(ret < 0) {
-        int myerr = errno;
-        DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Error in readFunction when attempting to read from fd {}: Return code {}, errno: {}", fd, ret, myerr);
-    }
-
-    return ret;
-}
-
 //------------------------------------------------------------------------------
 // Azure has a rather restrictive limit of 256 MB uploaded per each HTTP
 // request.

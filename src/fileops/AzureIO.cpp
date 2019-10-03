@@ -122,46 +122,6 @@ static std::string get_uuid() {
   return uuid_to_string(uuid);
 }
 
-// wirte the entire content from a defined callback
-dav_ssize_t AzureIO::writeFromCb(IOChainContext & iocontext, const DataProviderFun & func, dav_size_t size) {
-  if(!is_azure_operation(iocontext)) {
-    CHAIN_FORWARD(writeFromCb(iocontext, func, size));
-  }
-
-  std::vector<std::string> blockIDs;
-
-  DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Azure write: size {}, splitting into blocks", size);
-  std::vector<char> buffer;
-
-  const dav_size_t MAX_CHUNK_SIZE = 1024 * 1024 * 100; // 100 MB
-  buffer.resize(std::min(MAX_CHUNK_SIZE, size) + 10);
-
-  // generate UUID to use as blockid prefix
-  std::string prefix = get_uuid();
-
-  size_t blockid = 0;
-  size_t remaining = size;
-  while(remaining > 0) {
-    size_t toRead = std::min(size, MAX_CHUNK_SIZE);
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Azure write: toRead from cb {}", toRead);
-
-    size_t bytesRead = func(buffer.data(), toRead);
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Azure write: bytesRead from cb {}", bytesRead);
-    if(bytesRead == 0) break; // EOF?
-
-    blockIDs.push_back(stringifyBlockID(prefix, blockid));
-    writeChunk(iocontext, buffer.data(), bytesRead, blockIDs.back());
-    blockid++;
-
-    remaining -= bytesRead;
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Azure write: remaining bytes {}", remaining);
-  }
-
-  // Now let's commit the blobs
-  commitChunks(iocontext, blockIDs);
-  return size;
-}
-
 // write from content provider
 dav_ssize_t AzureIO::writeFromProvider(IOChainContext & iocontext, ContentProvider &provider) {
   if(!is_azure_operation(iocontext)) {

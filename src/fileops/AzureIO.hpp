@@ -31,9 +31,6 @@ public:
   AzureIO();
   ~AzureIO();
 
-  // wirte the entire content from a defined callback
-  virtual dav_ssize_t writeFromCb(IOChainContext & iocontext, const DataProviderFun & func, dav_size_t size);
-
   // write from content provider
   virtual dav_ssize_t writeFromProvider(IOChainContext & iocontext, ContentProvider &provider);
 

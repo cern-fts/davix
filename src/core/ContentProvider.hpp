@@ -34,6 +34,8 @@ namespace Davix {
 //
 // Core methods:
 // - pullBytes for reading through the contents.
+// - rewind for starting back from the beginning.
+// - getSize for getting the total size.
 //------------------------------------------------------------------------------
 class ContentProvider {
 public:
@@ -174,9 +176,10 @@ private:
 class FdContentProvider : public ContentProvider {
 public:
   //----------------------------------------------------------------------------
-  // Constructor
+  // Constructor. Start from the given offset, read a maximum of maxLen further
+  // bytes. With maxLen = 0, read the entire rest of the fd contents.
   //----------------------------------------------------------------------------
-  FdContentProvider(int fd);
+  FdContentProvider(int fd, off_t offset = 0, size_t maxLen = 0);
 
   //----------------------------------------------------------------------------
   // pullBytes implementation.
@@ -196,6 +199,10 @@ public:
 private:
   int _fd;
   ssize_t _fd_size;
+  off_t _offset;
+  size_t _target_len;
+  bool eof;
+  size_t _bytes_provided;
 };
 
 //------------------------------------------------------------------------------

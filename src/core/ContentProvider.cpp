@@ -23,6 +23,9 @@
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
+#include <sstream>
+
+#define SSTR(message) static_cast<std::ostringstream&>(std::ostringstream().flush() << message).str()
 
 namespace Davix {
 
@@ -137,12 +140,26 @@ ssize_t OwnedBufferContentProvider::getSize() {
   return _provider.getSize();
 }
 
-
 //------------------------------------------------------------------------------
 // FdContentProvider constructor
 //------------------------------------------------------------------------------
-FdContentProvider::FdContentProvider(int fd) : _fd(fd) {
+FdContentProvider::FdContentProvider(int fd, off_t offset, size_t maxLen)
+: _fd(fd), _offset(offset), _target_len(maxLen) {
+
   _fd_size = ::lseek(_fd, 0, SEEK_END);
+
+  if(_offset >= _fd_size) {
+    _errc = ERANGE;
+    _errMsg = SSTR("Invalid offset (" << offset << ") given, fd contains only " << _fd_size << " bytes");
+    return;
+  }
+
+  if(_target_len == 0) {
+    _target_len = _fd_size - _offset;
+  }
+  else {
+    _target_len = std::min( (ssize_t) _target_len, _fd_size - _offset);
+  }
 
   if(_fd_size == -1) {
     _errc = errno;
@@ -161,11 +178,20 @@ ssize_t FdContentProvider::pullBytes(char* target, size_t requestedBytes) {
     return - _errc;
   }
 
+  if(eof) {
+    return 0;
+  }
+
+  if(requestedBytes > _target_len - _bytes_provided) {
+    requestedBytes = _target_len - _bytes_provided;
+  }
+
   while(true) {
     ssize_t retval = ::read(_fd, target, requestedBytes);
 
     if(retval >= 0) {
       // No errors
+      _bytes_provided += retval;
       return retval;
     }
     else if(retval == -1 && errno == EINTR) {
@@ -189,7 +215,10 @@ bool FdContentProvider::rewind() {
     return false;
   }
 
-  off_t retval = ::lseek(_fd, 0, SEEK_SET);
+  _bytes_provided = 0;
+  eof = false;
+
+  off_t retval = ::lseek(_fd, _offset, SEEK_SET);
   if(retval == -1) {
     _errc = errno;
     _errMsg = strerror(_errc);
@@ -203,7 +232,7 @@ bool FdContentProvider::rewind() {
 // getSize implementation.
 //------------------------------------------------------------------------------
 ssize_t FdContentProvider::getSize() {
-  return _fd_size;
+  return _target_len;
 }
 
 //------------------------------------------------------------------------------

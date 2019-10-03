@@ -90,6 +90,141 @@ TEST(ContentProvider, Fd) {
   }
 }
 
+TEST(ContentProvider, FdWithOffset) {
+  ASSERT_TRUE(makeTemporaryFile("/tmp/davix-tests-tmp-file", "123456789"));
+
+  int fd = ::open("/tmp/davix-tests-tmp-file", O_RDONLY);
+
+  FdContentProvider provider(fd, 2);
+  ASSERT_TRUE(provider.ok());
+  ASSERT_EQ(provider.getSize(), 7);
+
+  char buffer[1024];
+
+  // Read and rewind 3 times
+  for(size_t i = 0; i < 3; i++) {
+    ASSERT_EQ(provider.pullBytes(buffer, 3), 3);
+    ASSERT_EQ(std::string(buffer, 3), "345");
+    ASSERT_TRUE(provider.rewind());
+  }
+
+  provider = FdContentProvider(fd, 30);
+  ASSERT_FALSE(provider.ok());
+  ASSERT_EQ(provider.getErrc(), ERANGE);
+  ASSERT_EQ(provider.getError(), "Invalid offset (30) given, fd contains only 9 bytes");
+  ASSERT_FALSE(provider.rewind());
+
+  // Test with offset near the limits of the fd
+  provider = FdContentProvider(fd, 8);
+
+  for(size_t i = 0; i < 3; i++) {
+    ASSERT_TRUE(provider.ok());
+    ASSERT_EQ(provider.getSize(), 1);
+
+    ASSERT_EQ(provider.pullBytes(buffer, 3), 1);
+    ASSERT_EQ(std::string(buffer, 1), "9");
+    ASSERT_TRUE(provider.rewind());
+  }
+
+  provider = FdContentProvider(fd, 9);
+  ASSERT_FALSE(provider.ok());
+  ASSERT_EQ(provider.getErrc(), ERANGE);
+  ASSERT_EQ(provider.getError(), "Invalid offset (9) given, fd contains only 9 bytes");
+
+  ASSERT_EQ(::close(fd), 0);
+}
+
+TEST(ContentProvider, FdWithMaxlen) {
+  ASSERT_TRUE(makeTemporaryFile("/tmp/davix-tests-tmp-file", "123456789"));
+  int fd = ::open("/tmp/davix-tests-tmp-file", O_RDONLY);
+
+  FdContentProvider provider(fd, 0, 5);
+  ASSERT_TRUE(provider.ok());
+  ASSERT_EQ(provider.getSize(), 5);
+
+  char buffer[1024];
+
+  // Read and rewind 3 times
+  for(size_t i = 0; i < 3; i++) {
+    ASSERT_EQ(provider.pullBytes(buffer, 3), 3);
+    ASSERT_EQ(std::string(buffer, 3), "123");
+
+    ASSERT_EQ(provider.pullBytes(buffer, 2), 2);
+    ASSERT_EQ(std::string(buffer, 2), "45");
+
+    ASSERT_EQ(provider.pullBytes(buffer, 1), 0);
+    ASSERT_EQ(provider.pullBytes(buffer, 1), 0);
+
+    ASSERT_TRUE(provider.rewind());
+  }
+
+  ASSERT_EQ(provider.pullBytes(buffer, 100), 5);
+  ASSERT_EQ(std::string(buffer, 5), "12345");
+  ASSERT_EQ(provider.pullBytes(buffer, 1), 0);
+
+  ASSERT_EQ(::close(fd), 0);
+}
+
+TEST(ContentProvider, FdWithOffsetAndMaxlen) {
+  ASSERT_TRUE(makeTemporaryFile("/tmp/davix-tests-tmp-file", "123456789"));
+  int fd = ::open("/tmp/davix-tests-tmp-file", O_RDONLY);
+
+  FdContentProvider provider(fd, 2, 5);
+  ASSERT_TRUE(provider.ok());
+  ASSERT_EQ(provider.getSize(), 5);
+
+  char buffer[1024];
+
+  // Read and rewind 3 times
+  for(size_t i = 0; i < 3; i++) {
+    ASSERT_EQ(provider.pullBytes(buffer, 3), 3);
+    ASSERT_EQ(std::string(buffer, 3), "345");
+
+    ASSERT_EQ(provider.pullBytes(buffer, 2), 2);
+    ASSERT_EQ(std::string(buffer, 2), "67");
+
+    ASSERT_EQ(provider.pullBytes(buffer, 1), 0);
+    ASSERT_EQ(provider.pullBytes(buffer, 1), 0);
+
+    ASSERT_TRUE(provider.rewind());
+  }
+
+  ASSERT_EQ(provider.pullBytes(buffer, 100), 5);
+  ASSERT_EQ(std::string(buffer, 5), "34567");
+  ASSERT_EQ(provider.pullBytes(buffer, 1), 0);
+
+  ASSERT_EQ(::close(fd), 0);
+}
+
+TEST(ContentProvider, FdExcessiveLen) {
+  ASSERT_TRUE(makeTemporaryFile("/tmp/davix-tests-tmp-file", "123456789"));
+  int fd = ::open("/tmp/davix-tests-tmp-file", O_RDONLY);
+
+  FdContentProvider provider(fd, 1, 10000);
+
+  ASSERT_TRUE(provider.ok());
+  ASSERT_EQ(provider.getSize(), 8);
+
+  char buffer[1024];
+
+  // Read and rewind 3 times
+  for(size_t i = 0; i < 3; i++) {
+    ASSERT_EQ(provider.pullBytes(buffer, 100), 8);
+    ASSERT_EQ(std::string(buffer, 8), "23456789");
+
+    ASSERT_EQ(provider.pullBytes(buffer, 1), 0);
+    ASSERT_EQ(provider.pullBytes(buffer, 1), 0);
+
+    ASSERT_TRUE(provider.rewind());
+  }
+
+  ASSERT_EQ(provider.pullBytes(buffer, 100), 8);
+  ASSERT_EQ(std::string(buffer, 8), "23456789");
+  ASSERT_EQ(provider.pullBytes(buffer, 1), 0);
+
+  ASSERT_EQ(::close(fd), 0);
+}
+
 TEST(ContentProvider, Buffer) {
   std::string sourceBuffer("123456789");
   char buffer[1024];

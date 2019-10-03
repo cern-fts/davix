@@ -65,8 +65,8 @@ public:
         return _sess->isRecycledSession();
     }
 
-    void disable_session_reuse() {
-        _sess->disable_session_reuse();
+    void do_not_reuse_this_session() {
+        _sess->do_not_reuse_this_session();
     }
 
 private:
@@ -153,15 +153,15 @@ void neon_simple_req_code_to_davix_code(int ne_status, ne_session* sess, const s
 
 
 
-NeonRequest::NeonRequest(HttpRequest & h, Context& context, const Uri & uri_req) :
+NeonRequest::NeonRequest(const BoundHooks &hooks, Context& context, const Uri & uri_req) :
     BackendRequest(context, uri_req),
     _neon_sess(),
+    _bound_hooks(hooks),
     _req(NULL),
     _number_try(0),
     _redirects(0),
     _total_read_size(0),
     _last_read(-1),
-    _h(h),
     req_started(false),
     req_running(false),
     _accepted_202_retries(0) {
@@ -179,7 +179,7 @@ void NeonRequest::cancelSessionReuse(){
    //
    if(_neon_sess.get() != NULL){
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "Connection problem: eradicate session");
-       _neon_sess->disable_session_reuse();
+       _neon_sess->do_not_reuse_this_session();
     }
 }
 
@@ -283,7 +283,7 @@ void NeonRequest::configureRequest(){
 
     // configure connexion parameters for PUT request
     if( (_req_flag & RequestFlag::SupportContinue100) == true)
-        _neon_sess->disable_session_reuse();
+        _neon_sess->do_not_reuse_this_session();
 
     if(_content_provider) {
         _content_provider->rewind();
@@ -501,7 +501,7 @@ bool NeonRequest::requestCleanup(){
 
     // disable recycling
     // server supporting broken pipelining will trigger if reused
-    _neon_sess->disable_session_reuse();
+    _neon_sess->do_not_reuse_this_session();
 
     // check if we had a redirection
     // if it's the case redirection can be expired, then
@@ -769,10 +769,10 @@ void NeonRequest::neon_hook_pre_send(ne_request *r, void *userdata,
                    ne_buffer *header){
     (void) r;
     NeonRequest* req = (NeonRequest*) userdata;
-    RequestPreSendHook hook = req->_context.getHook<RequestPreSendHook>();
-    if(hook){
+    BoundHooks &boundHooks = req->_bound_hooks;
+    if(boundHooks.presendHook) {
         std::string header_line(header->data, (header->used)-1);
-        hook(req->_h, header_line);
+        boundHooks.presendHook(header_line);
     }
 }
 
@@ -780,15 +780,15 @@ void NeonRequest::neon_hook_pre_rec(ne_request *r, void *userdata,
                                     const ne_status *status){
     (void) r;
     NeonRequest* req = (NeonRequest*) userdata;
-    RequestPreReceHook hook = req->_context.getHook<RequestPreReceHook>();
-    if(hook){
+    BoundHooks &boundHooks = req->_bound_hooks;
+    if(boundHooks.prereceiveHook){
         std::ostringstream header_line;
         HeaderVec headers;
         req->getAnswerHeaders(headers);
         header_line << "HTTP/"<< status->major_version << '.' << status->minor_version
                     << ' ' << status->code << ' ' << status->reason_phrase << '\n';
 
-        hook(req->_h, header_line.str(), headers, status->code);
+        boundHooks.prereceiveHook(header_line.str(), headers, status->code);
     }
 }
 

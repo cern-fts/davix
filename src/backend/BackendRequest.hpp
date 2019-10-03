@@ -32,15 +32,6 @@
 namespace Davix{
 
 //------------------------------------------------------------------------------
-// Callback + user data pointer for HttpBodyProvider.
-//------------------------------------------------------------------------------
-struct ContentProviderContext {
-    ContentProviderContext(): callback(NULL), udata(NULL) {}
-    HttpBodyProvider callback;
-    void *udata;
-};
-
-//------------------------------------------------------------------------------
 // Describe current request status.
 //------------------------------------------------------------------------------
 enum class RequestStatus {

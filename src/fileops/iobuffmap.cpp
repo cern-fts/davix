@@ -511,7 +511,9 @@ void HttpIOBuffer::commitLocal(IOChainContext & iocontext){
         memset(&st,0, sizeof(struct stat));
         fstat(_local->_fd, &st);
         DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CHAIN, "Commit local file modifications, {} bytes", st.st_size);
-        _start->writeFromFd(iocontext, _local->_fd, st.st_size);
+
+        FdContentProvider provider(_local->_fd, 0, st.st_size);
+        _start->writeFromProvider(iocontext, provider);
         _local.reset();
     }
 }

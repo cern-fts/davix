@@ -53,8 +53,8 @@ public:
   }
 
 private:
-  int fd = -1;
-  int localerrno = 0;
+  int fd;
+  int localerrno;
   std::string error;
 };
 

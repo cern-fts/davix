@@ -89,6 +89,10 @@ private:
   int _port;
   int _socketFd;
 
+  std::vector<int> _overflowFds;
+  std::mutex _mtx;
+  std::condition_variable _cv;
+
 };
 
 #endif

@@ -104,9 +104,9 @@ DrunkServer::~DrunkServer() {
 //------------------------------------------------------------------------------
 std::unique_ptr<DrunkServer::Connection> DrunkServer::accept(int timeoutSeconds) {
 
-  std::chrono::steady_clock::time_point deadline = std::chrono::steady_clock::now() + std::chrono::seconds(timeoutSeconds);
+  std::chrono::system_clock::time_point deadline = std::chrono::system_clock::now() + std::chrono::seconds(timeoutSeconds);
 
-  while(std::chrono::steady_clock::now() < deadline) {
+  while(std::chrono::system_clock::now() < deadline) {
 
     std::unique_lock<std::mutex> lock(_mtx);
     if(_overflowFds.size() > 0) {

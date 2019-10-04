@@ -22,6 +22,7 @@
 #include "DrunkServer.hpp"
 
 #include <sstream>
+#include <iostream>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -84,6 +85,8 @@ DrunkServer::DrunkServer(int port) {
     perror("listen");
     exit(1);
   }
+
+  _acceptor_thread.reset(&DrunkServer::runAcceptorThread, this);
 }
 
 //------------------------------------------------------------------------------
@@ -91,6 +94,7 @@ DrunkServer::DrunkServer(int port) {
 //------------------------------------------------------------------------------
 DrunkServer::~DrunkServer() {
   ::shutdown(_socketFd, SHUT_RDWR); // kill the socket
+  _shutdown_fd.notify();
   ::close(_socketFd);
 }
 
@@ -100,35 +104,22 @@ DrunkServer::~DrunkServer() {
 //------------------------------------------------------------------------------
 std::unique_ptr<DrunkServer::Connection> DrunkServer::accept(int timeoutSeconds) {
 
-  //----------------------------------------------------------------------------
-  // Wait until there's an event..
-  //----------------------------------------------------------------------------
-  struct pollfd polls[1];
-  polls[0].fd = _socketFd;
-  polls[0].events = POLLIN;
-  polls[0].revents = 0;
+  std::chrono::steady_clock::time_point deadline = std::chrono::steady_clock::now() + std::chrono::seconds(timeoutSeconds);
 
-  int rpoll = poll(polls, 1, timeoutSeconds * 1000);
+  while(std::chrono::steady_clock::now() < deadline) {
 
-  //----------------------------------------------------------------------------
-  // We timed-out? Exit
-  //----------------------------------------------------------------------------
-  if(rpoll != 1) {
-    return {};
+    std::unique_lock<std::mutex> lock(_mtx);
+    if(_overflowFds.size() > 0) {
+      int clientFd = _overflowFds.front();
+      std::unique_ptr<Connection> conn = std::unique_ptr<Connection>(new Connection(clientFd));
+      _overflowFds.pop_front();
+      return std::move(conn);
+    }
+
+    _cv.wait_until(lock, deadline);
   }
 
-  struct sockaddr_in remote;
-  socklen_t remoteSize = sizeof(remote);
-
-  //----------------------------------------------------------------------------
-  // There's an event. In any case, try to obtain an fd.
-  //----------------------------------------------------------------------------
-  int fd = ::accept(_socketFd, (struct sockaddr*) &remote, &remoteSize);
-  if(fd < 0) {
-    return {};
-  }
-
-  return std::unique_ptr<DrunkServer::Connection>(new Connection(fd));
+  return {};
 }
 
 //------------------------------------------------------------------------------
@@ -175,3 +166,39 @@ ssize_t DrunkServer::Connection::write(const char* buf, size_t count) {
 ssize_t DrunkServer::Connection::write(const std::string &buf) {
   return write(buf.c_str(), buf.size());
 }
+
+//------------------------------------------------------------------------------
+// Run acceptor thread
+//------------------------------------------------------------------------------
+void DrunkServer::runAcceptorThread(ThreadAssistant &assistant) {
+  while(!assistant.terminationRequested()) {
+    struct pollfd polls[2];
+    polls[0].fd = _socketFd;
+    polls[0].events = POLLIN;
+    polls[0].revents = 0;
+
+    polls[1].fd = _shutdown_fd.getFD();
+    polls[1].events = POLLIN;
+    polls[1].revents = 0;
+
+    int rpoll = poll(polls, 2, -1);
+
+    if(polls[1].revents != 0 || rpoll < 0) {
+      return;
+    }
+
+    struct sockaddr_in remote;
+    socklen_t remoteSize = sizeof(remote);
+
+    int fd = ::accept(_socketFd, (struct sockaddr*) &remote, &remoteSize);
+    if(fd < 0) {
+      return;
+    }
+
+    std::lock_guard<std::mutex> lock(_mtx);
+    _overflowFds.emplace_back(fd);
+    _cv.notify_one();
+  }
+
+}
+

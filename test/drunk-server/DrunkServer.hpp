@@ -24,6 +24,10 @@
 
 #include <netinet/in.h>
 #include <memory>
+#include <vector>
+#include <thread>
+#include <condition_variable>
+#include <mutex>
 
 //------------------------------------------------------------------------------
 // A barebones server to be used for testing davix.

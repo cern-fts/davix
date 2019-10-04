@@ -22,11 +22,15 @@
 #ifndef DAVIX_TEST_DRUNK_SERVER_HPP
 #define DAVIX_TEST_DRUNK_SERVER_HPP
 
+#include "AssistedThread.hh"
+#include "EventFD.hh"
+
 #include <netinet/in.h>
 #include <memory>
 #include <vector>
 #include <thread>
 #include <condition_variable>
+#include <deque>
 #include <mutex>
 
 //------------------------------------------------------------------------------
@@ -90,10 +94,19 @@ public:
   std::unique_ptr<Connection> accept(int timeoutSeconds);
 
 private:
+
+  //----------------------------------------------------------------------------
+  // Run acceptor thread
+  //----------------------------------------------------------------------------
+  void runAcceptorThread(ThreadAssistant &assistant);
+
   int _port;
   int _socketFd;
 
-  std::vector<int> _overflowFds;
+  AssistedThread _acceptor_thread;
+  EventFD _shutdown_fd;
+
+  std::deque<int> _overflowFds;
   std::mutex _mtx;
   std::condition_variable _cv;
 

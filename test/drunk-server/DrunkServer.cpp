@@ -21,6 +21,8 @@
 
 #include "DrunkServer.hpp"
 
+#include <sstream>
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -32,6 +34,9 @@
 #include <sys/ioctl.h>
 #include <poll.h>
 #include <unistd.h>
+#include <stdlib.h>
+
+#define SSTR(message) static_cast<std::ostringstream&>(std::ostringstream().flush() << message).str()
 
 //------------------------------------------------------------------------------
 // Start listening for incoming connections on the given port.
@@ -45,7 +50,7 @@ DrunkServer::DrunkServer(int port) {
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_flags = AI_PASSIVE; // use my IP
 
-  if ((rv = getaddrinfo(NULL, std::to_string(port).c_str(), &hints, &servinfo)) != 0) {
+  if ((rv = getaddrinfo(NULL, SSTR(port).c_str(), &hints, &servinfo)) != 0) {
     fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
     exit(1);
   }

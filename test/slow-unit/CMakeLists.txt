@@ -18,6 +18,7 @@ add_executable(davix-slow-unit-tests
   ../drunk-server/ConnectionInitiator.cpp
 
   drunk-server.cpp
+  standalone-neon-request.cpp
 
   ${SRC_HMACSHA1} ${src_files} ${src_alibxx}
 )

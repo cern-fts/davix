@@ -22,12 +22,14 @@
 #ifndef DAVIX_TEST_ASSISTED_THREAD_HPP
 #define DAVIX_TEST_ASSISTED_THREAD_HPP
 
-#include <atomic>
+#include "Synchronized.hpp"
+
 #include <thread>
 #include <mutex>
 #include <condition_variable>
 #include <functional>
 #include <vector>
+
 
 //------------------------------------------------------------------------------
 // C++ threads offer no easy way to stop a thread once it's started. Signalling
@@ -63,14 +65,14 @@ class AssistedThread;
 class ThreadAssistant {
 public:
   void reset() {
-    stopFlag = false;
+    stopFlag.set(false);
     terminationCallbacks.clear();
   }
 
   void requestTermination() {
     std::lock_guard<std::mutex> lock(mtx);
-    if(!stopFlag) {
-      stopFlag = true;
+    if(!stopFlag.get()) {
+      stopFlag.set(true);
       notifier.notify_all();
 
       for(size_t i = 0; i < terminationCallbacks.size(); i++) {
@@ -83,7 +85,7 @@ public:
     std::lock_guard<std::mutex> lock(mtx);
     terminationCallbacks.emplace_back(std::move(callable));
 
-    if(stopFlag) {
+    if(stopFlag.get()) {
       //------------------------------------------------------------------------
       // Careful here.. This is a race condition where thread termination has
       // already been requested, even though we're not done yet registering
@@ -101,7 +103,7 @@ public:
   }
 
   bool terminationRequested() {
-    return stopFlag;
+    return stopFlag.get();
   }
 
   template<typename T>
@@ -152,10 +154,13 @@ public:
 
 private:
   // Private constructor - only AssistedThread can create such an object.
-  ThreadAssistant(bool flag) : stopFlag(flag) {}
+  ThreadAssistant(bool flag) {
+    stopFlag.set(flag);
+  }
+
   friend class AssistedThread;
 
-  std::atomic<bool> stopFlag;
+  Synchronized<bool> stopFlag;
   std::mutex mtx;
   std::condition_variable notifier;
 

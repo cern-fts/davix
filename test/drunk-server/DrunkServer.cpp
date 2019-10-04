@@ -136,3 +136,37 @@ DrunkServer::Connection::Connection(int fd) : _fd(fd) {}
 //------------------------------------------------------------------------------
 DrunkServer::Connection::~Connection() {}
 
+//------------------------------------------------------------------------------
+// Read into buffer
+//------------------------------------------------------------------------------
+ssize_t DrunkServer::Connection::read(char* buf, size_t count) {
+  return ::read(_fd, buf, count);
+}
+
+//------------------------------------------------------------------------------
+// Read into string
+//------------------------------------------------------------------------------
+ssize_t DrunkServer::Connection::read(std::string &buf, size_t count) {
+  buf.resize(count);
+  ssize_t out = read( (char*) buf.c_str(), count);
+
+  if(out > 0) {
+    buf.resize(out);
+  }
+
+  return out;
+}
+
+//------------------------------------------------------------------------------
+// Write
+//------------------------------------------------------------------------------
+ssize_t DrunkServer::Connection::write(const char* buf, size_t count) {
+  return ::write(_fd, buf, count);
+}
+
+//------------------------------------------------------------------------------
+// Write string
+//------------------------------------------------------------------------------
+ssize_t DrunkServer::Connection::write(const std::string &buf) {
+  return write(buf.c_str(), buf.size());
+}

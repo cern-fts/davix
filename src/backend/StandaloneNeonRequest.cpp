@@ -238,6 +238,13 @@ dav_ssize_t StandaloneNeonRequest::readBlock(char* buffer, dav_size_t max_size, 
 }
 
 //------------------------------------------------------------------------------
+// Check request state
+//------------------------------------------------------------------------------
+RequestState StandaloneNeonRequest::getState() const {
+  return _state;
+}
+
+//------------------------------------------------------------------------------
 // Get a specific response header
 //------------------------------------------------------------------------------
 bool StandaloneNeonRequest::getAnswerHeader(const std::string &header_name, std::string &value) const {

@@ -110,6 +110,11 @@ public:
   //----------------------------------------------------------------------------
   dav_ssize_t readBlock(char* buffer, dav_size_t max_size, DavixError** err);
 
+  //----------------------------------------------------------------------------
+  // Check request state
+  //----------------------------------------------------------------------------
+  RequestState getState() const;
+
 private:
   NEONSessionFactory &_session_factory;
   bool _reuse_session;

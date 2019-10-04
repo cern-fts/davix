@@ -40,6 +40,9 @@ inline std::string q(const std::string &str) {
 }
 
 ConnectionInitiator::ConnectionInitiator(const std::string &hostname, int port) {
+  fd = -1;
+  localerrno = 0;
+
   struct addrinfo hints, *servinfo, *p;
 
   int rv;
@@ -48,7 +51,7 @@ ConnectionInitiator::ConnectionInitiator(const std::string &hostname, int port) 
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_flags = AI_CANONNAME;
 
-  if ((rv = getaddrinfo(hostname.c_str(), std::to_string(port).c_str(),
+  if ((rv = getaddrinfo(hostname.c_str(), SSTR(port).c_str(),
                         &hints, &servinfo)) != 0) {
     localerrno = rv;
     error = SSTR("error when resolving " << q(hostname) << ": " << gai_strerror(rv));

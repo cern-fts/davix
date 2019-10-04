@@ -20,9 +20,51 @@
 */
 
 #include <gtest/gtest.h>
+#include <backend/StandaloneNeonRequest.hpp>
+#include <neon/neonsessionfactory.hpp>
 #include "../drunk-server/DrunkServer.hpp"
 
+using namespace Davix;
+
 TEST(StandaloneNeonRequest, BasicSanity) {
+  NEONSessionFactory factory;
+  BoundHooks boundHooks;
+  Uri uri("http://localhost:22222/chickens");
+  std::string verb = "GET";
+
+  RequestParams params;
+
+  std::vector<HeaderLine> headers;
+  headers.push_back(HeaderLine("I like", "Turtles"));
+
+  int flags = 0;
+  Chrono::TimePoint invalid;
+
+
+  DrunkServer ds(22222);
+
+  StandaloneNeonRequest request(factory, true, boundHooks, uri, verb, params, headers, flags, NULL, invalid);
+  ASSERT_EQ(request.getState(), RequestState::kNotStarted);
+
+  DavixError **err = NULL;
+  ASSERT_FALSE(err);
+  request.startRequest(err);
+  ASSERT_EQ(request.getState(), RequestState::kStarted);
+
+  // char buffer[2048];
+  // request.readBlock(buffer, 2048, err);
+
+  // std::unique_ptr<DrunkServer::Connection> conn = ds.accept(1);
+  // ASSERT_TRUE(conn);
+
+
+
+
+
+
+
+
+
 
 }
 

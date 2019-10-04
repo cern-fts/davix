@@ -354,9 +354,6 @@ int NeonRequest::startRequest(DavixError **err){
 }
 
 int NeonRequest::negotiateRequest(DavixError** err){
-    std::string ugrs3post;
-    std::string ugrpluginid;
-
     const int auth_retry_limit = _params.getOperationRetry();
     int code, status, end_status = NE_RETRY;
     _last_read = -1;

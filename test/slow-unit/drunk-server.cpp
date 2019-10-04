@@ -33,9 +33,15 @@ TEST(DrunkServer, ClientInteraction) {
   DrunkServer ds(22222);
 
   ConnectionInitiator initiator("localhost", 22222);
-  std::unique_ptr<DrunkServer::Connection> conn = ds.accept(1);
-  ASSERT_TRUE(conn);
+  std::unique_ptr<DrunkServer::Connection> connSrv = ds.accept(1);
+  ASSERT_TRUE(connSrv);
 
+  std::unique_ptr<DrunkServer::Connection> connCl(new DrunkServer::Connection(initiator.getFd()));
 
+  ASSERT_EQ(connCl->write("hey there"), 9);
+
+  std::string buff;
+  ASSERT_EQ(connSrv->read(buff, 9), 9);
+  ASSERT_EQ(buff, "hey there");
 }
 

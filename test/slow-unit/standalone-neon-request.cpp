@@ -26,6 +26,28 @@
 
 using namespace Davix;
 
+class TrivialInteractor : public Interactor {
+public:
+  TrivialInteractor() {}
+
+  ~TrivialInteractor() {}
+
+  virtual void handleConnection(std::unique_ptr<DrunkServer::Connection> conn) {
+    _thread.reset(&TrivialInteractor::main, this, std::move(conn));
+  }
+
+  void main(std::unique_ptr<DrunkServer::Connection> conn, ThreadAssistant &assistant) {
+    char buffer[1024];
+    while(true) {
+      size_t sz = conn->read(buffer, 1024);
+      std::cout << std::string(buffer, sz);
+    }
+  }
+
+private:
+  AssistedThread _thread;
+};
+
 TEST(StandaloneNeonRequest, BasicSanity) {
   NEONSessionFactory factory;
   BoundHooks boundHooks;
@@ -42,6 +64,8 @@ TEST(StandaloneNeonRequest, BasicSanity) {
 
 
   DrunkServer ds(22222);
+  TrivialInteractor inter;
+  ds.autoAcceptNext(&inter);
 
   StandaloneNeonRequest request(factory, true, boundHooks, uri, verb, params, headers, flags, NULL, invalid);
   ASSERT_EQ(request.getState(), RequestState::kNotStarted);
@@ -53,17 +77,6 @@ TEST(StandaloneNeonRequest, BasicSanity) {
 
   // char buffer[2048];
   // request.readBlock(buffer, 2048, err);
-
-  // std::unique_ptr<DrunkServer::Connection> conn = ds.accept(1);
-  // ASSERT_TRUE(conn);
-
-
-
-
-
-
-
-
 
 
 }

@@ -144,6 +144,11 @@ private:
   //----------------------------------------------------------------------------
   void markCompleted();
 
+  //----------------------------------------------------------------------------
+  // Create davix error object based on errors in the current session,
+  // or request
+  //----------------------------------------------------------------------------
+  void createError(int ne_status, DavixError** err);
 
 };
 

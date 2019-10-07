@@ -136,11 +136,6 @@ void DrunkServer::autoAcceptNext(Interactor *intr) {
 DrunkServer::Connection::Connection(int fd) : _fd(fd) {}
 
 //------------------------------------------------------------------------------
-// Destructor
-//------------------------------------------------------------------------------
-DrunkServer::Connection::~Connection() {}
-
-//------------------------------------------------------------------------------
 // Read into buffer
 //------------------------------------------------------------------------------
 ssize_t DrunkServer::Connection::read(char* buf, size_t count) {

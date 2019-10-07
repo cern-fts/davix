@@ -123,6 +123,14 @@ std::unique_ptr<DrunkServer::Connection> DrunkServer::accept(int timeoutSeconds)
 }
 
 //------------------------------------------------------------------------------
+// Auto-accept next connection with the given interactor
+//------------------------------------------------------------------------------
+void DrunkServer::autoAcceptNext(Interactor *intr) {
+  std::lock_guard<std::mutex> lock(_mtx);
+  _interactors.emplace_back(intr);
+}
+
+//------------------------------------------------------------------------------
 // Constructor
 //------------------------------------------------------------------------------
 DrunkServer::Connection::Connection(int fd) : _fd(fd) {}
@@ -195,9 +203,20 @@ void DrunkServer::runAcceptorThread(ThreadAssistant &assistant) {
       return;
     }
 
-    std::lock_guard<std::mutex> lock(_mtx);
-    _overflowFds.emplace_back(fd);
-    _cv.notify_one();
+    std::unique_lock<std::mutex> lock(_mtx);
+
+    if(!_interactors.empty()) {
+      Interactor *interactor = _interactors.front();
+      _interactors.pop_front();
+
+      lock.unlock();
+      interactor->handleConnection(std::unique_ptr<Connection>(new Connection(fd)));
+    }
+    else {
+      _overflowFds.emplace_back(fd);
+      _cv.notify_one();
+    }
+
   }
 
 }

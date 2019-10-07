@@ -126,6 +126,58 @@ StandaloneNeonRequest::~StandaloneNeonRequest() {
 }
 
 //------------------------------------------------------------------------------
+// Map a neon error to davix error
+//------------------------------------------------------------------------------
+static void neon_error_mapper(int ne_status, StatusCode::Code & code, std::string & str) {
+  switch(ne_status){
+    case NE_OK: {
+      code = StatusCode::OK;
+      str= "Status Ok";
+      break;
+    }
+    case NE_LOOKUP: {
+      code = StatusCode::NameResolutionFailure;
+      str= "Domain name resolution failed";
+      break;
+    }
+    case NE_AUTH: {
+      code = StatusCode::AuthenticationError;
+      str=  "Authentification failed on server";
+      break;
+    }
+    case NE_PROXYAUTH: {
+      code = StatusCode::AuthenticationError;
+      str=  "Authentification failed on proxy";
+      break;
+    }
+    case NE_CONNECT: {
+      code = StatusCode::ConnectionProblem;
+      str= "Could not connect to server";
+      break;
+    }
+    case NE_TIMEOUT: {
+      code = StatusCode::ConnectionTimeout;
+      str= "Connection timed out";
+      break;
+    }
+    case NE_FAILED: {
+      code = StatusCode::SessionCreationError;
+      str=  "The precondition failed";
+      break;
+    }
+    case NE_RETRY: {
+      code = StatusCode::RedirectionNeeded;
+      str= "Retry Request";
+      break;
+    }
+    default: {
+      code= StatusCode::UnknowError;
+      str= "Unknow Error from libneon";
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 // Start request - calling this multiple times will do nothing.
 //------------------------------------------------------------------------------
 void StandaloneNeonRequest::startRequest(DavixError **err) {
@@ -185,7 +237,22 @@ void StandaloneNeonRequest::startRequest(DavixError **err) {
   }
 
   //----------------------------------------------------------------------------
-  // We're off to go
+  // Initiate the network connection
+  //----------------------------------------------------------------------------
+  int status = ne_begin_request(_neon_req);
+
+  if(status != NE_OK && status != NE_REDIRECT) {
+    //--------------------------------------------------------------------------
+    // Network trouble, don't re-use session
+    //--------------------------------------------------------------------------
+    createError(status, err);
+    _session->do_not_reuse_this_session();
+    markCompleted();
+    return;
+  }
+
+  //----------------------------------------------------------------------------
+  // Connection OK, we're good to go
   //----------------------------------------------------------------------------
   _state = RequestState::kStarted;
 }
@@ -287,5 +354,29 @@ void StandaloneNeonRequest::markCompleted() {
   _session.reset();
 }
 
+//------------------------------------------------------------------------------
+// Create davix error object based on errors in the current session,
+// or request
+//------------------------------------------------------------------------------
+void StandaloneNeonRequest::createError(int ne_status, DavixError** err) {
+  StatusCode::Code code;
+  std::string str;
+
+  if(ne_status == NE_ERROR && _session) {
+    const char * neon_error = ne_get_error(_session->get_ne_sess());
+    str = std::string("(Neon): ").append((neon_error)?(neon_error):"");
+    if (str.find("SSL handshake failed") == std::string::npos) {
+      code = StatusCode::ConnectionProblem;
+    }
+    else {
+      code = StatusCode::SSLError;
+    }
+  }
+  else{
+    neon_error_mapper(ne_status, code, str);
+  }
+
+  DavixError::setupError(err, davix_scope_http_request(), code, str);
+}
 
 }

@@ -33,6 +33,8 @@
 #include <deque>
 #include <mutex>
 
+class Interactor;
+
 //------------------------------------------------------------------------------
 // A barebones server to be used for testing davix.
 //------------------------------------------------------------------------------
@@ -93,6 +95,11 @@ public:
   //----------------------------------------------------------------------------
   std::unique_ptr<Connection> accept(int timeoutSeconds);
 
+  //----------------------------------------------------------------------------
+  // Auto-accept next connection with the given interactor
+  //----------------------------------------------------------------------------
+  void autoAcceptNext(Interactor *intr);
+
 private:
 
   //----------------------------------------------------------------------------
@@ -107,9 +114,42 @@ private:
   EventFD _shutdown_fd;
 
   std::deque<int> _overflowFds;
+  std::deque<Interactor*> _interactors;
   std::mutex _mtx;
   std::condition_variable _cv;
 
+};
+
+//------------------------------------------------------------------------------
+// An Interactor class that fully handles a specific client connection
+//------------------------------------------------------------------------------
+class Interactor {
+public:
+  //----------------------------------------------------------------------------
+  // Constructor
+  //----------------------------------------------------------------------------
+  Interactor() : _is_ok(false) {}
+
+  //----------------------------------------------------------------------------
+  // Virtual destructor
+  //----------------------------------------------------------------------------
+  virtual ~Interactor() {}
+
+  //----------------------------------------------------------------------------
+  // Take over the specified connection - call only once. Should spawn a
+  // thread in the background for reading / writing on the socket.
+  //----------------------------------------------------------------------------
+  virtual void handleConnection(std::unique_ptr<DrunkServer::Connection> conn) = 0;
+
+  //----------------------------------------------------------------------------
+  // Was the interaction ok?
+  //----------------------------------------------------------------------------
+  bool ok() const {
+    return _is_ok;
+  }
+
+private:
+  bool _is_ok;
 };
 
 #endif

@@ -110,7 +110,7 @@ public:
   void wait_for(T duration) {
     std::unique_lock<std::mutex> lock(mtx);
 
-    if(stopFlag) return;
+    if(stopFlag.get()) return;
     notifier.wait_for(lock, duration);
   }
 
@@ -118,7 +118,7 @@ public:
   void wait_until(T duration) {
     std::unique_lock<std::mutex> lock(mtx);
 
-    if(stopFlag) return;
+    if(stopFlag.get()) return;
     notifier.wait_until(lock, duration);
   }
 

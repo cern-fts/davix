@@ -66,7 +66,7 @@ public:
     return fd;
   }
 private:
-  int fd = -1;
+  int fd;
 };
 
 #endif

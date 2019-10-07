@@ -44,7 +44,6 @@ public:
   int consumeLine(std::string &output);
 
 private:
-  static constexpr size_t kBufferSize = 1024 * 1024 * 10; // 10 MB
   DrunkServer::Connection *_conn;
   std::ostringstream _ss;
 };

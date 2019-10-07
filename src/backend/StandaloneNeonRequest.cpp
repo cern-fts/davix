@@ -258,6 +258,13 @@ void StandaloneNeonRequest::startRequest(DavixError **err) {
 }
 
 //------------------------------------------------------------------------------
+// Finish an already started request.
+//------------------------------------------------------------------------------
+void StandaloneNeonRequest::endRequest(DavixError** err) {
+  markCompleted();
+}
+
+//------------------------------------------------------------------------------
 // Check if timeout has passed
 //------------------------------------------------------------------------------
 bool StandaloneNeonRequest::checkTimeout(DavixError **err) {
@@ -350,7 +357,15 @@ void StandaloneNeonRequest::markCompleted() {
   }
 
   _state = RequestState::kFinished;
-  ne_end_request(_neon_req);
+
+  if(_last_read == 0) {
+    ne_end_request(_neon_req);
+  }
+  else {
+    ne_abort_request(_neon_req);
+    _session->do_not_reuse_this_session();
+  }
+
   _session.reset();
 }
 

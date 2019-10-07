@@ -29,10 +29,6 @@ using namespace Davix;
 
 class TrivialInteractor : public Interactor {
 public:
-  TrivialInteractor() {}
-
-  ~TrivialInteractor() {}
-
   virtual void handleConnection(std::unique_ptr<DrunkServer::Connection> conn) {
     _thread.reset(&TrivialInteractor::main, this, std::move(conn));
   }

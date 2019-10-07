@@ -23,6 +23,7 @@
 #include <backend/StandaloneNeonRequest.hpp>
 #include <neon/neonsessionfactory.hpp>
 #include "../drunk-server/DrunkServer.hpp"
+#include "../drunk-server/LineReader.hpp"
 
 using namespace Davix;
 
@@ -37,11 +38,42 @@ public:
   }
 
   void main(std::unique_ptr<DrunkServer::Connection> conn, ThreadAssistant &assistant) {
-    char buffer[1024];
-    while(true) {
-      size_t sz = conn->read(buffer, 1024);
-      std::cout << std::string(buffer, sz);
-    }
+    LineReader lineReader(conn.get());
+
+    std::string line;
+
+    ASSERT_GE(lineReader.consumeLine(line), 0);
+    ASSERT_EQ(line, "GET /chickens HTTP/1.1\r\n");
+
+    ASSERT_GE(lineReader.consumeLine(line), 0);
+    // ASSERT_EQ(line, "User-Agent: libdavix/0.7.5.42.eb897f6.dirty neon/0.0.29\r\n");
+
+    ASSERT_GE(lineReader.consumeLine(line), 0);
+    ASSERT_EQ(line, "Keep-Alive: \r\n");
+
+    ASSERT_GE(lineReader.consumeLine(line), 0);
+    ASSERT_EQ(line, "Connection: Keep-Alive\r\n");
+
+    ASSERT_GE(lineReader.consumeLine(line), 0);
+    ASSERT_EQ(line, "TE: trailers\r\n");
+
+    ASSERT_GE(lineReader.consumeLine(line), 0);
+    ASSERT_EQ(line, "Host: localhost:22222\r\n");
+
+    ASSERT_GE(lineReader.consumeLine(line), 0);
+    ASSERT_EQ(line, "I like: Turtles\r\n");
+
+    ASSERT_GE(lineReader.consumeLine(line), 0);
+    ASSERT_EQ(line, "\r\n");
+
+    conn->write(
+      "HTTP/1.1 200 OK\r\n"
+      "Date: Mon, 07 Oct 2019 14:02:25 GMT\r\n"
+      "Content-Type: ayy/lmao\r\n"
+      "Content-Length: 19\r\n"
+      "\r\n"
+      "I like turtles too.\r\n"
+    );
   }
 
 private:
@@ -75,9 +107,16 @@ TEST(StandaloneNeonRequest, BasicSanity) {
   request.startRequest(err);
   ASSERT_EQ(request.getState(), RequestState::kStarted);
 
-  // char buffer[2048];
-  // request.readBlock(buffer, 2048, err);
+  sleep(1); // yes this is a hack to be replaced
 
+  char buffer[2048];
+  ASSERT_EQ(request.readBlock(buffer, 2048, err), 19);
+  ASSERT_EQ(std::string(buffer, 19), "I like turtles too.");
+  ASSERT_EQ(request.readBlock(buffer, 2048, err), 0);
 
+  ASSERT_EQ(request.getState(), RequestState::kStarted);
+  request.endRequest(err);
+  ASSERT_EQ(request.getState(), RequestState::kFinished);
+  ASSERT_EQ(err, (DavixError**) NULL);
 }
 

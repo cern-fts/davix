@@ -30,11 +30,12 @@ using namespace Davix;
 class TrivialInteractor : public Interactor {
 public:
   virtual void handleConnection(std::unique_ptr<DrunkServer::Connection> conn) {
-    _thread.reset(&TrivialInteractor::main, this, std::move(conn));
+    _conn = std::move(conn);
+    _thread.reset(&TrivialInteractor::main, this);
   }
 
-  void main(std::unique_ptr<DrunkServer::Connection> conn, ThreadAssistant &assistant) {
-    LineReader lineReader(conn.get());
+  void main(ThreadAssistant &assistant) {
+    LineReader lineReader(_conn.get());
 
     std::string line;
 
@@ -62,7 +63,7 @@ public:
     ASSERT_GE(lineReader.consumeLine(line), 0);
     ASSERT_EQ(line, "\r\n");
 
-    conn->write(
+    _conn->write(
       "HTTP/1.1 200 OK\r\n"
       "Date: Mon, 07 Oct 2019 14:02:25 GMT\r\n"
       "Content-Type: ayy/lmao\r\n"
@@ -74,6 +75,7 @@ public:
 
 private:
   AssistedThread _thread;
+  std::unique_ptr<DrunkServer::Connection> _conn;
 };
 
 TEST(StandaloneNeonRequest, BasicSanity) {

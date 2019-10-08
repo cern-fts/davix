@@ -27,6 +27,7 @@
 #include <utils/davix_uri.hpp>
 #include <ne_request.h>
 #include <params/davixrequestparams.hpp>
+#include <status/DavixStatus.hpp>
 #include <memory>
 
 namespace Davix {
@@ -98,7 +99,7 @@ public:
   //----------------------------------------------------------------------------
   // Start request - calling this more than once will not have any effect.
   //----------------------------------------------------------------------------
-  void startRequest(DavixError **err);
+  Status startRequest();
 
   //----------------------------------------------------------------------------
   // Finish an already started request.

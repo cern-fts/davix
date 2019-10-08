@@ -143,7 +143,7 @@ public:
     return _is_ok;
   }
 
-private:
+protected:
   bool _is_ok;
 };
 

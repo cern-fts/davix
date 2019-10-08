@@ -45,6 +45,18 @@ public:
     );
   }
 
+  void setConnectionTimeout(std::chrono::seconds dur) {
+    struct timespec tm;
+    tm.tv_sec = dur.count();
+    tm.tv_nsec = 0;
+
+    _params.setConnectionTimeout(&tm);
+  }
+
+  // void setDeadlineFromNow(std::chrono::milliseconds dur) {
+  //   _deadline =  Chrono::Clock(Chrono::Clock::Monolitic).now() + Chrono::
+  // }
+
 protected:
   std::unique_ptr<DrunkServer> _drunk_server;
   Davix::NEONSessionFactory _factory;

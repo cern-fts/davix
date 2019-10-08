@@ -45,3 +45,11 @@ std::string BasicInteractor::consumeLine() {
   _reader->consumeLine(out);
   return out;
 }
+
+//------------------------------------------------------------------------------
+// Run interacting thread
+//------------------------------------------------------------------------------
+void ConnectionShutdownInteractor::main(ThreadAssistant &assistant) {
+  _reader.reset();
+  _conn.reset();
+}

@@ -88,6 +88,16 @@ TEST_F(Standalone_Neon_Request, BasicSanity) {
 
 }
 
-// TEST(StandaloneNeonRequest, NetworkError) {
-//
-// }
+TEST_F(Standalone_Neon_Request, NetworkError) {
+  setConnectionTimeout(std::chrono::seconds(1));
+
+  ConnectionShutdownInteractor inter;
+  _drunk_server->autoAcceptNext(&inter);
+
+  std::unique_ptr<StandaloneNeonRequest> request = makeStandaloneNeonReq();
+  ASSERT_EQ(request->getState(), RequestState::kNotStarted);
+
+  DavixError **err = NULL;
+  request->startRequest(err);
+  ASSERT_EQ(request->getState(), RequestState::kFinished);
+}

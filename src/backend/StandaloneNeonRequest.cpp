@@ -387,7 +387,7 @@ void StandaloneNeonRequest::createError(int ne_status, DavixError** err) {
       code = StatusCode::SSLError;
     }
   }
-  else{
+  else {
     neon_error_mapper(ne_status, code, str);
   }
 

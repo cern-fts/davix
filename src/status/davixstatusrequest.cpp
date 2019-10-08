@@ -23,32 +23,9 @@
 #include <utils/davix_logger_internal.hpp>
 #include <utils/davix_types.hpp>
 #include <status/davixstatusrequest.hpp>
-
-
+#include <status/DavixErrorInternal.hpp>
 
 namespace Davix {
-
-
-
-struct DavixErrorInternal{
-    DavixErrorInternal(const std::string &scope, StatusCode::Code errCode, const std::string &errMsg) :
-        _scope(scope),
-        _code(errCode),
-        _errMsg(errMsg){
-    }
-
-    DavixErrorInternal(const DavixErrorInternal & e) :
-        _scope(e._scope),
-        _code(e._code),
-        _errMsg(e._errMsg){
-
-    }
-
-    std::string _scope;
-    StatusCode::Code _code;
-    std::string _errMsg;
-};
-
 
 DavixError::DavixError(const std::string &scope, StatusCode::Code errCode, const std::string &errMsg) :
     d_ptr(new DavixErrorInternal(scope, errCode, errMsg)){

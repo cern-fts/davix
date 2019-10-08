@@ -31,6 +31,7 @@ add_executable(davix-unit-tests
   parser.cpp
   session-factory.cpp
   session.cpp
+  status.cpp
   testcert.cpp
   typeconv.cpp
   utils.cpp

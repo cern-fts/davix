@@ -32,7 +32,9 @@ set(DAVIX_SOURCES
   neon/neonsessionfactory.hpp                            neon/neonsessionfactory.cpp
                                                          params/davixrequestparams.cpp
                                                          request/httprequest.cpp
+  status/DavixStatus.hpp                                 status/DavixStatus.cpp
                                                          status/davixstatusrequest.cpp
+
   utils/checksum_extractor.hpp                           utils/checksum_extractor.cpp
   utils/CompatibilityHacks.hpp                           utils/CompatibilityHacks.cpp
                                                          utils/davix_azure_utils.cpp

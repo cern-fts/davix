@@ -28,6 +28,12 @@
 #include <backend/StandaloneNeonRequest.hpp>
 #include <neon/neonsessionfactory.hpp>
 
+#define SSTR(message) static_cast<std::ostringstream&>(std::ostringstream().flush() << message).str()
+
+inline std::string getDefaultUserAgent() {
+  return SSTR("User-Agent: " << Davix::RequestParams().getUserAgent() << " neon/0.0.29\r\n");
+}
+
 class DavixTestFixture : public ::testing::Test {
 public:
   DavixTestFixture() : _drunk_server(new DrunkServer(22222)),

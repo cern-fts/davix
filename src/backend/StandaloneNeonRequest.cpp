@@ -280,12 +280,25 @@ bool StandaloneNeonRequest::checkTimeout(DavixError **err) {
 }
 
 //------------------------------------------------------------------------------
+// Check if timeout has passed
+//------------------------------------------------------------------------------
+Status StandaloneNeonRequest::checkTimeout() {
+  if(_deadline.isValid() && _deadline < Chrono::Clock(Chrono::Clock::Monolitic).now()) {
+    std::ostringstream ss;
+    ss << "timeout of " << _params.getOperationTimeout()->tv_sec << "s";
+    return Status(davix_scope_http_request(), StatusCode::OperationTimeout, ss.str());
+  }
+
+  return Status();
+}
+
+//------------------------------------------------------------------------------
 // Major read function - read a block of max_size bytes (at max) into buffer.
 //------------------------------------------------------------------------------
-dav_ssize_t StandaloneNeonRequest::readBlock(char* buffer, dav_size_t max_size, DavixError** err) {
+dav_ssize_t StandaloneNeonRequest::readBlock(char* buffer, dav_size_t max_size, Status& st) {
 
   if(!_neon_req) {
-    DavixError::setupError(err, davix_scope_http_request(), StatusCode::AlreadyRunning, "Request has not been started yet");
+    st = Status(davix_scope_http_request(), StatusCode::AlreadyRunning, "Request has not been started yet");
     return -1;
   }
 
@@ -293,14 +306,14 @@ dav_ssize_t StandaloneNeonRequest::readBlock(char* buffer, dav_size_t max_size, 
     return 0;
   }
 
-  if(checkTimeout(err)) {
-    markCompleted();
+  st = checkTimeout();
+  if(!st.ok()) {
     return -1;
   }
 
   _last_read = ne_read_response_block(_neon_req, buffer, max_size);
   if(_last_read < 0) {
-    DavixError::setupError(err, davix_scope_http_request(), StatusCode::ConnectionProblem, "Invalid read in request");
+    st = Status(davix_scope_http_request(), StatusCode::ConnectionProblem, "Invalid read in request");
     _session->do_not_reuse_this_session();
     markCompleted();
     return -1;

@@ -38,19 +38,29 @@ Status::Status(const std::string &scope, StatusCode::Code errcode, const std::st
 }
 
 //------------------------------------------------------------------------------
+// Constructor from DavixError**
+//------------------------------------------------------------------------------
+Status::Status(DavixError** err) {
+  if(err && *err) {
+    d_ptr = new DavixErrorInternal( (*err)->getErrScope(), (*err)->getStatus(), (*err)->getErrMsg());
+  }
+  else {
+    d_ptr = NULL;
+  }
+}
+
+//------------------------------------------------------------------------------
 // Destructor
 //------------------------------------------------------------------------------
 Status::~Status() {
-  if(d_ptr) {
-    delete d_ptr;
-    d_ptr = NULL;
-  }
+  clear();
 }
 
 //------------------------------------------------------------------------------
 // Copy constructor
 //------------------------------------------------------------------------------
 Status::Status(const Status &other) {
+  d_ptr = NULL;
   *this = other;
 }
 
@@ -58,6 +68,8 @@ Status::Status(const Status &other) {
 // Copy assignment operator
 //------------------------------------------------------------------------------
 Status& Status::operator=(const Status &other) {
+  clear();
+
   if(other.d_ptr) {
     d_ptr = new DavixErrorInternal(*other.d_ptr);
   }
@@ -108,6 +120,28 @@ std::string Status::getScope() const {
   }
   else {
     return d_ptr->_scope;
+  }
+}
+
+//----------------------------------------------------------------------------
+// Clear contents
+//----------------------------------------------------------------------------
+void Status::clear() {
+  if(d_ptr) {
+    delete d_ptr;
+    d_ptr = NULL;
+  }
+}
+
+//------------------------------------------------------------------------------
+// To DavixError (ugh)
+//------------------------------------------------------------------------------
+void Status::toDavixError(DavixError **err) const {
+  if(d_ptr) {
+    DavixError::setupError(err, d_ptr->_scope, d_ptr->_code, d_ptr->_errMsg);
+  }
+  else {
+    DavixError::clearError(err);
   }
 }
 

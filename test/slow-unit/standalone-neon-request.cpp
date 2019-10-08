@@ -24,44 +24,22 @@
 #include <neon/neonsessionfactory.hpp>
 #include "../drunk-server/DrunkServer.hpp"
 #include "../drunk-server/LineReader.hpp"
+#include "../drunk-server/Interactors.hpp"
 
 using namespace Davix;
 
-class TrivialInteractor : public Interactor {
+class TrivialInteractor : public BasicInteractor {
 public:
-  virtual void handleConnection(std::unique_ptr<DrunkServer::Connection> conn) {
-    _conn = std::move(conn);
-    _thread.reset(&TrivialInteractor::main, this);
-  }
 
   void main(ThreadAssistant &assistant) {
-    LineReader lineReader(_conn.get());
-
-    std::string line;
-
-    ASSERT_GE(lineReader.consumeLine(line), 0);
-    ASSERT_EQ(line, "GET /chickens HTTP/1.1\r\n");
-
-    ASSERT_GE(lineReader.consumeLine(line), 0);
-    // ASSERT_EQ(line, "User-Agent: libdavix/0.7.5.42.eb897f6.dirty neon/0.0.29\r\n");
-
-    ASSERT_GE(lineReader.consumeLine(line), 0);
-    ASSERT_EQ(line, "Keep-Alive: \r\n");
-
-    ASSERT_GE(lineReader.consumeLine(line), 0);
-    ASSERT_EQ(line, "Connection: Keep-Alive\r\n");
-
-    ASSERT_GE(lineReader.consumeLine(line), 0);
-    ASSERT_EQ(line, "TE: trailers\r\n");
-
-    ASSERT_GE(lineReader.consumeLine(line), 0);
-    ASSERT_EQ(line, "Host: localhost:22222\r\n");
-
-    ASSERT_GE(lineReader.consumeLine(line), 0);
-    ASSERT_EQ(line, "I like: Turtles\r\n");
-
-    ASSERT_GE(lineReader.consumeLine(line), 0);
-    ASSERT_EQ(line, "\r\n");
+    ASSERT_EQ(consumeLine(), "GET /chickens HTTP/1.1\r\n");
+    consumeLine(); // User-Agent
+    ASSERT_EQ(consumeLine(), "Keep-Alive: \r\n");
+    ASSERT_EQ(consumeLine(), "Connection: Keep-Alive\r\n");
+    ASSERT_EQ(consumeLine(), "TE: trailers\r\n");
+    ASSERT_EQ(consumeLine(), "Host: localhost:22222\r\n");
+    ASSERT_EQ(consumeLine(), "I like: Turtles\r\n");
+    ASSERT_EQ(consumeLine(), "\r\n");
 
     _conn->write(
       "HTTP/1.1 200 OK\r\n"
@@ -72,10 +50,6 @@ public:
       "I like turtles too.\r\n"
     );
   }
-
-private:
-  AssistedThread _thread;
-  std::unique_ptr<DrunkServer::Connection> _conn;
 };
 
 TEST(StandaloneNeonRequest, BasicSanity) {
@@ -104,6 +78,10 @@ TEST(StandaloneNeonRequest, BasicSanity) {
   ASSERT_FALSE(err);
   request.startRequest(err);
   ASSERT_EQ(request.getState(), RequestState::kStarted);
+
+  std::string headerLine;
+  ASSERT_TRUE(request.getAnswerHeader("Content-Type", headerLine));
+  ASSERT_EQ(headerLine, "ayy/lmao");
 
   sleep(1); // yes this is a hack to be replaced
 

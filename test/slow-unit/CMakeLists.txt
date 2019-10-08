@@ -16,6 +16,7 @@ include_directories(
 add_executable(davix-slow-unit-tests
   ../drunk-server/ConnectionInitiator.cpp
   ../drunk-server/DrunkServer.cpp
+  ../drunk-server/Interactors.cpp
   ../drunk-server/LineReader.cpp
 
   drunk-server.cpp

@@ -25,6 +25,7 @@
 #include "../drunk-server/DrunkServer.hpp"
 #include "../drunk-server/LineReader.hpp"
 #include "../drunk-server/Interactors.hpp"
+#include "test-utils.hpp"
 
 using namespace Davix;
 
@@ -52,47 +53,41 @@ public:
   }
 };
 
-TEST(StandaloneNeonRequest, BasicSanity) {
-  NEONSessionFactory factory;
-  BoundHooks boundHooks;
-  Uri uri("http://localhost:22222/chickens");
-  std::string verb = "GET";
+class Standalone_Neon_Request : public DavixTestFixture {};
 
-  RequestParams params;
+TEST_F(Standalone_Neon_Request, BasicSanity) {
+  _headers.push_back(HeaderLine("I like", "Turtles"));
+  _uri = Uri("http://localhost:22222/chickens");
 
-  std::vector<HeaderLine> headers;
-  headers.push_back(HeaderLine("I like", "Turtles"));
-
-  int flags = 0;
-  Chrono::TimePoint invalid;
-
-
-  DrunkServer ds(22222);
   TrivialInteractor inter;
-  ds.autoAcceptNext(&inter);
+  _drunk_server->autoAcceptNext(&inter);
 
-  StandaloneNeonRequest request(factory, true, boundHooks, uri, verb, params, headers, flags, NULL, invalid);
-  ASSERT_EQ(request.getState(), RequestState::kNotStarted);
+  std::unique_ptr<StandaloneNeonRequest> request = makeStandaloneNeonReq();
+  ASSERT_EQ(request->getState(), RequestState::kNotStarted);
 
   DavixError **err = NULL;
   ASSERT_FALSE(err);
-  request.startRequest(err);
-  ASSERT_EQ(request.getState(), RequestState::kStarted);
+  request->startRequest(err);
+  ASSERT_EQ(request->getState(), RequestState::kStarted);
 
   std::string headerLine;
-  ASSERT_TRUE(request.getAnswerHeader("Content-Type", headerLine));
+  ASSERT_TRUE(request->getAnswerHeader("Content-Type", headerLine));
   ASSERT_EQ(headerLine, "ayy/lmao");
 
   sleep(1); // yes this is a hack to be replaced
 
   char buffer[2048];
-  ASSERT_EQ(request.readBlock(buffer, 2048, err), 19);
+  ASSERT_EQ(request->readBlock(buffer, 2048, err), 19);
   ASSERT_EQ(std::string(buffer, 19), "I like turtles too.");
-  ASSERT_EQ(request.readBlock(buffer, 2048, err), 0);
+  ASSERT_EQ(request->readBlock(buffer, 2048, err), 0);
 
-  ASSERT_EQ(request.getState(), RequestState::kStarted);
-  request.endRequest(err);
-  ASSERT_EQ(request.getState(), RequestState::kFinished);
+  ASSERT_EQ(request->getState(), RequestState::kStarted);
+  request->endRequest(err);
+  ASSERT_EQ(request->getState(), RequestState::kFinished);
   ASSERT_EQ(err, (DavixError**) NULL);
+
 }
 
+// TEST(StandaloneNeonRequest, NetworkError) {
+//
+// }

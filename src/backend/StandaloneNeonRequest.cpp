@@ -180,17 +180,18 @@ static void neon_error_mapper(int ne_status, StatusCode::Code & code, std::strin
 //------------------------------------------------------------------------------
 // Start request - calling this multiple times will do nothing.
 //------------------------------------------------------------------------------
-void StandaloneNeonRequest::startRequest(DavixError **err) {
+Status StandaloneNeonRequest::startRequest() {
   if(_state != RequestState::kNotStarted) {
-    return;
+    return Status(); ;
   }
 
   //----------------------------------------------------------------------------
   // Have we timed out already?
   //----------------------------------------------------------------------------
+  DavixError** err = NULL;
   if(checkTimeout(err)) {
     markCompleted();
-    return;
+    return Status(err);
   }
 
   //----------------------------------------------------------------------------
@@ -199,10 +200,9 @@ void StandaloneNeonRequest::startRequest(DavixError **err) {
   DavixError* tmp_err = NULL;
   _session.reset(new NeonSessionWrapper(this, _session_factory, _uri, _params, &tmp_err));
 
-  if(tmp_err){
-    _session.reset();
-    DavixError::propagateError(err, tmp_err);
-    return;
+  if(tmp_err) {
+    markCompleted();
+    return Status(&tmp_err);
   }
 
   _neon_req = ne_request_create(_session->get_ne_sess(), _verb.c_str(), _uri.getPathAndQuery().c_str());
@@ -248,13 +248,14 @@ void StandaloneNeonRequest::startRequest(DavixError **err) {
     createError(status, err);
     _session->do_not_reuse_this_session();
     markCompleted();
-    return;
+    return Status(err);
   }
 
   //----------------------------------------------------------------------------
   // Connection OK, we're good to go
   //----------------------------------------------------------------------------
   _state = RequestState::kStarted;
+  return Status();
 }
 
 //------------------------------------------------------------------------------

@@ -65,9 +65,7 @@ TEST_F(Standalone_Neon_Request, BasicSanity) {
   std::unique_ptr<StandaloneNeonRequest> request = makeStandaloneNeonReq();
   ASSERT_EQ(request->getState(), RequestState::kNotStarted);
 
-  DavixError **err = NULL;
-  ASSERT_FALSE(err);
-  request->startRequest(err);
+  ASSERT_TRUE(request->startRequest().ok());
   ASSERT_EQ(request->getState(), RequestState::kStarted);
 
   std::string headerLine;
@@ -77,6 +75,8 @@ TEST_F(Standalone_Neon_Request, BasicSanity) {
   sleep(1); // yes this is a hack to be replaced
 
   char buffer[2048];
+
+  DavixError **err = NULL;
   ASSERT_EQ(request->readBlock(buffer, 2048, err), 19);
   ASSERT_EQ(std::string(buffer, 19), "I like turtles too.");
   ASSERT_EQ(request->readBlock(buffer, 2048, err), 0);
@@ -97,7 +97,7 @@ TEST_F(Standalone_Neon_Request, NetworkError) {
   std::unique_ptr<StandaloneNeonRequest> request = makeStandaloneNeonReq();
   ASSERT_EQ(request->getState(), RequestState::kNotStarted);
 
-  DavixError **err = NULL;
-  request->startRequest(err);
+  Status st = request->startRequest();
   ASSERT_EQ(request->getState(), RequestState::kFinished);
+  // ASSERT_FALSE(st.ok());
 }

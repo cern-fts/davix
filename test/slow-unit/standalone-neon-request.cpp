@@ -34,7 +34,7 @@ public:
 
   void main(ThreadAssistant &assistant) {
     ASSERT_EQ(consumeLine(), "GET /chickens HTTP/1.1\r\n");
-    consumeLine(); // User-Agent
+    ASSERT_EQ(consumeLine(), getDefaultUserAgent());
     ASSERT_EQ(consumeLine(), "Keep-Alive: \r\n");
     ASSERT_EQ(consumeLine(), "Connection: Keep-Alive\r\n");
     ASSERT_EQ(consumeLine(), "TE: trailers\r\n");

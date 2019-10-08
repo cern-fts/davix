@@ -76,16 +76,18 @@ TEST_F(Standalone_Neon_Request, BasicSanity) {
 
   char buffer[2048];
 
-  DavixError **err = NULL;
-  ASSERT_EQ(request->readBlock(buffer, 2048, err), 19);
+  Status st;
+  ASSERT_EQ(request->readBlock(buffer, 2048, st), 19);
+  ASSERT_TRUE(st.ok());
   ASSERT_EQ(std::string(buffer, 19), "I like turtles too.");
-  ASSERT_EQ(request->readBlock(buffer, 2048, err), 0);
+  ASSERT_EQ(request->readBlock(buffer, 2048, st), 0);
+  ASSERT_TRUE(st.ok());
 
+  DavixError **err = NULL;
   ASSERT_EQ(request->getState(), RequestState::kStarted);
   request->endRequest(err);
   ASSERT_EQ(request->getState(), RequestState::kFinished);
   ASSERT_EQ(err, (DavixError**) NULL);
-
 }
 
 TEST_F(Standalone_Neon_Request, NetworkError) {

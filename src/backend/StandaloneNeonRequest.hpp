@@ -109,7 +109,7 @@ public:
   //----------------------------------------------------------------------------
   // Major read function - read a block of max_size bytes (at max) into buffer.
   //----------------------------------------------------------------------------
-  dav_ssize_t readBlock(char* buffer, dav_size_t max_size, DavixError** err);
+  dav_ssize_t readBlock(char* buffer, dav_size_t max_size, Status& st);
 
   //----------------------------------------------------------------------------
   // Check request state
@@ -139,6 +139,11 @@ private:
   // Check if timeout has passed
   //----------------------------------------------------------------------------
   bool checkTimeout(DavixError **err);
+
+  //----------------------------------------------------------------------------
+  // Check if timeout has passed
+  //----------------------------------------------------------------------------
+  Status checkTimeout();
 
   //----------------------------------------------------------------------------
   // Mark request as completed, release any resources

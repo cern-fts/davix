@@ -188,10 +188,10 @@ Status StandaloneNeonRequest::startRequest() {
   //----------------------------------------------------------------------------
   // Have we timed out already?
   //----------------------------------------------------------------------------
-  DavixError** err = NULL;
-  if(checkTimeout(err)) {
+  Status st = checkTimeout();
+  if(!st.ok()) {
     markCompleted();
-    return Status(err);
+    return st;
   }
 
   //----------------------------------------------------------------------------
@@ -245,6 +245,7 @@ Status StandaloneNeonRequest::startRequest() {
     //--------------------------------------------------------------------------
     // Network trouble, don't re-use session
     //--------------------------------------------------------------------------
+    DavixError **err = NULL;
     createError(status, err);
     _session->do_not_reuse_this_session();
     markCompleted();
@@ -261,22 +262,9 @@ Status StandaloneNeonRequest::startRequest() {
 //------------------------------------------------------------------------------
 // Finish an already started request.
 //------------------------------------------------------------------------------
-void StandaloneNeonRequest::endRequest(DavixError** err) {
+Status StandaloneNeonRequest::endRequest() {
   markCompleted();
-}
-
-//------------------------------------------------------------------------------
-// Check if timeout has passed
-//------------------------------------------------------------------------------
-bool StandaloneNeonRequest::checkTimeout(DavixError **err) {
-  if(_deadline.isValid() && _deadline < Chrono::Clock(Chrono::Clock::Monolitic).now()) {
-    std::ostringstream ss;
-    ss << "timeout of " << _params.getOperationTimeout()->tv_sec << "s";
-    DavixError::setupError(err, davix_scope_http_request(), StatusCode::OperationTimeout, ss.str());
-    return true;
-  }
-
-  return false;
+  return Status();
 }
 
 //------------------------------------------------------------------------------

@@ -100,5 +100,9 @@ TEST_F(Standalone_Neon_Request, NetworkError) {
 
   Status st = request->startRequest();
   ASSERT_EQ(request->getState(), RequestState::kFinished);
-  // ASSERT_FALSE(st.ok());
+
+  ASSERT_FALSE(st.ok());
+  ASSERT_EQ(st.getScope(), "Davix::HttpRequest");
+  ASSERT_EQ(st.getCode(), StatusCode::ConnectionProblem);
+  ASSERT_EQ(st.getErrorMessage(), "(Neon): Could not read status line: connection was closed by server");
 }

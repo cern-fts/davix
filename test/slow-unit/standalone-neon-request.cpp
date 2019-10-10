@@ -29,37 +29,31 @@
 
 using namespace Davix;
 
-class TrivialInteractor : public BasicInteractor {
-public:
-
-  void main(ThreadAssistant &assistant) {
-    ASSERT_EQ(consumeLine(), "GET /chickens HTTP/1.1\r\n");
-    ASSERT_EQ(consumeLine(), getDefaultUserAgent());
-    ASSERT_EQ(consumeLine(), "Keep-Alive: \r\n");
-    ASSERT_EQ(consumeLine(), "Connection: Keep-Alive\r\n");
-    ASSERT_EQ(consumeLine(), "TE: trailers\r\n");
-    ASSERT_EQ(consumeLine(), "Host: localhost:22222\r\n");
-    ASSERT_EQ(consumeLine(), "I like: Turtles\r\n");
-    ASSERT_EQ(consumeLine(), "\r\n");
-
-    _conn->write(
-      "HTTP/1.1 200 OK\r\n"
-      "Date: Mon, 07 Oct 2019 14:02:25 GMT\r\n"
-      "Content-Type: ayy/lmao\r\n"
-      "Content-Length: 19\r\n"
-      "\r\n"
-      "I like turtles too.\r\n"
-    );
-  }
-};
-
 class Standalone_Neon_Request : public DavixTestFixture {};
 
 TEST_F(Standalone_Neon_Request, BasicSanity) {
   _headers.push_back(HeaderLine("I like", "Turtles"));
   _uri = Uri("http://localhost:22222/chickens");
 
-  TrivialInteractor inter;
+  SingleShotInteractor inter(
+    SSTR("GET /chickens HTTP/1.1\r\n"  <<
+          getDefaultUserAgent()        <<
+          "Keep-Alive: \r\n"           <<
+          "Connection: Keep-Alive\r\n" <<
+          "TE: trailers\r\n"           <<
+          "Host: localhost:22222\r\n"  <<
+          "I like: Turtles\r\n"        <<
+          "\r\n"),
+
+    SSTR("HTTP/1.1 200 OK\r\n"                       <<
+         "Date: Mon, 07 Oct 2019 14:02:25 GMT\r\n"   <<
+         "Content-Type: ayy/lmao\r\n"                <<
+         "Content-Length: 19\r\n"                    <<
+         "\r\n"                                      <<
+         "I like turtles too.\r\n")
+  );
+
+  // TrivialInteractor inter;
   _drunk_server->autoAcceptNext(&inter);
 
   std::unique_ptr<StandaloneNeonRequest> request = makeStandaloneNeonReq();
@@ -87,6 +81,7 @@ TEST_F(Standalone_Neon_Request, BasicSanity) {
   st = request->endRequest();
   ASSERT_EQ(request->getState(), RequestState::kFinished);
   ASSERT_TRUE(st.ok());
+  ASSERT_TRUE(inter.ok());
 }
 
 TEST_F(Standalone_Neon_Request, NetworkError) {

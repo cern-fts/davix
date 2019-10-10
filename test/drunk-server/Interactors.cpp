@@ -21,6 +21,7 @@
 
 #include "Interactors.hpp"
 #include "LineReader.hpp"
+#include <iostream>
 
 //------------------------------------------------------------------------------
 // Destructor
@@ -52,4 +53,51 @@ std::string BasicInteractor::consumeLine() {
 void ConnectionShutdownInteractor::main(ThreadAssistant &assistant) {
   _reader.reset();
   _conn.reset();
+}
+
+//------------------------------------------------------------------------------
+// Constructor
+//------------------------------------------------------------------------------
+SingleShotInteractor::SingleShotInteractor(const std::string &expectedReq, const std::string &response)
+: _expected_request(expectedReq), _response(response) {}
+
+//------------------------------------------------------------------------------
+// Split utility function - move to common header eventually
+//------------------------------------------------------------------------------
+static std::vector<std::string> split(std::string data, std::string token) {
+  std::vector<std::string> output;
+  size_t pos = std::string::npos;
+  do {
+    pos = data.find(token);
+    output.push_back(data.substr(0, pos));
+    if(std::string::npos != pos) data = data.substr(pos + token.size());
+  } while (std::string::npos != pos);
+  return output;
+}
+
+//------------------------------------------------------------------------------
+// Run interacting thread
+//------------------------------------------------------------------------------
+void SingleShotInteractor::main(ThreadAssistant &assistant) {
+  std::vector<std::string> lines = split(_expected_request, "\r\n");
+
+  for(size_t i = 0; i < lines.size(); i++) {
+    if(i == lines.size() - 1 && lines[i].empty()) {
+      break;
+    }
+
+    std::string line = consumeLine();
+
+    lines[i] += "\r\n";
+
+    if(line != lines[i]) {
+      return;
+    }
+  }
+
+  if(_conn->write(_response) != _response.size()) {
+    return;
+  }
+
+  _is_ok = true;
 }

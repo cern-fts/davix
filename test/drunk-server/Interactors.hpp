@@ -76,16 +76,21 @@ public:
 //------------------------------------------------------------------------------
 // Single-shot interactor - just a single request and response
 //------------------------------------------------------------------------------
-// class SingleShotInteractor : public BasicInteractor {
-// public:
-//   //----------------------------------------------------------------------------
-//   // Constructor
-//   //----------------------------------------------------------------------------
-//   SingleShotInteractor(const std::string &expectedReq, const std::string &response);
+class SingleShotInteractor : public BasicInteractor {
+public:
+  //----------------------------------------------------------------------------
+  // Constructor
+  //----------------------------------------------------------------------------
+  SingleShotInteractor(const std::string &expectedReq, const std::string &response);
 
-// protected:
-//   std::string _expected_request;
-//   std::string _response;
-// };
+  //----------------------------------------------------------------------------
+  // Run interacting thread
+  //----------------------------------------------------------------------------
+  void main(ThreadAssistant &assistant);
+
+protected:
+  std::string _expected_request;
+  std::string _response;
+};
 
 #endif

@@ -83,11 +83,10 @@ TEST_F(Standalone_Neon_Request, BasicSanity) {
   ASSERT_EQ(request->readBlock(buffer, 2048, st), 0);
   ASSERT_TRUE(st.ok());
 
-  DavixError **err = NULL;
   ASSERT_EQ(request->getState(), RequestState::kStarted);
-  request->endRequest(err);
+  st = request->endRequest();
   ASSERT_EQ(request->getState(), RequestState::kFinished);
-  ASSERT_EQ(err, (DavixError**) NULL);
+  ASSERT_TRUE(st.ok());
 }
 
 TEST_F(Standalone_Neon_Request, NetworkError) {

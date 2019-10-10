@@ -104,7 +104,7 @@ public:
   //----------------------------------------------------------------------------
   // Finish an already started request.
   //----------------------------------------------------------------------------
-  void endRequest(DavixError** err);
+  Status endRequest();
 
   //----------------------------------------------------------------------------
   // Major read function - read a block of max_size bytes (at max) into buffer.
@@ -134,11 +134,6 @@ private:
   ne_request* _neon_req;
   dav_ssize_t _total_read_size;
   dav_ssize_t _last_read;
-
-  //----------------------------------------------------------------------------
-  // Check if timeout has passed
-  //----------------------------------------------------------------------------
-  bool checkTimeout(DavixError **err);
 
   //----------------------------------------------------------------------------
   // Check if timeout has passed

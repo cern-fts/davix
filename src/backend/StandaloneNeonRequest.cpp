@@ -245,11 +245,10 @@ Status StandaloneNeonRequest::startRequest() {
     //--------------------------------------------------------------------------
     // Network trouble, don't re-use session
     //--------------------------------------------------------------------------
-    DavixError **err = NULL;
-    createError(status, err);
+    Status st = createError(status);
     _session->do_not_reuse_this_session();
     markCompleted();
-    return Status(err);
+    return st;
   }
 
   //----------------------------------------------------------------------------
@@ -375,7 +374,7 @@ void StandaloneNeonRequest::markCompleted() {
 // Create davix error object based on errors in the current session,
 // or request
 //------------------------------------------------------------------------------
-void StandaloneNeonRequest::createError(int ne_status, DavixError** err) {
+Status StandaloneNeonRequest::createError(int ne_status) {
   StatusCode::Code code;
   std::string str;
 
@@ -393,7 +392,7 @@ void StandaloneNeonRequest::createError(int ne_status, DavixError** err) {
     neon_error_mapper(ne_status, code, str);
   }
 
-  DavixError::setupError(err, davix_scope_http_request(), code, str);
+  return Status(davix_scope_http_request(), code, str);
 }
 
 }

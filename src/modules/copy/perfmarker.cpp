@@ -21,6 +21,7 @@
 
 #include <cstdlib>
 #include <davix.hpp>
+#include <utils/davix_logger_internal.hpp>
 
 using namespace Davix;
 
@@ -51,10 +52,14 @@ PerformanceData::~PerformanceData()
 
 void PerformanceData::update(const PerformanceMarker& in)
 {
+    if(in.count > 8192) {
+        DAVIX_SLOG(DAVIX_LOG_WARNING, DAVIX_LOG_GRID, "Received unreasonably high number of stripes, something is wrong: {}", in.count);
+    }
+
     if (markers.size() != in.count)
         markers.resize(in.count);
 
-    if (in.index < 0 || in.index > markers.size())
+    if (in.index < 0 || in.index >= markers.size())
         return;
 
     PerformanceMarker& marker = markers[in.index];

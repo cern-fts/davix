@@ -119,10 +119,14 @@ StandaloneNeonRequest::StandaloneNeonRequest(NEONSessionFactory &sessionFactory,
 // Destructor
 //------------------------------------------------------------------------------
 StandaloneNeonRequest::~StandaloneNeonRequest() {
+  markCompleted();
+
   if(_neon_req) {
     ne_request_destroy(_neon_req);
     _neon_req = NULL;
   }
+
+  _session.reset();
 }
 
 //------------------------------------------------------------------------------
@@ -368,8 +372,6 @@ void StandaloneNeonRequest::markCompleted() {
       _session->do_not_reuse_this_session();
     }
   }
-
-  _session.reset();
 }
 
 //------------------------------------------------------------------------------

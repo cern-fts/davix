@@ -359,12 +359,14 @@ void StandaloneNeonRequest::markCompleted() {
 
   _state = RequestState::kFinished;
 
-  if(_last_read == 0) {
-    ne_end_request(_neon_req);
-  }
-  else {
-    ne_abort_request(_neon_req);
-    _session->do_not_reuse_this_session();
+  if(_neon_req) {
+    if(_last_read == 0) {
+      ne_end_request(_neon_req);
+    }
+    else {
+      ne_abort_request(_neon_req);
+      _session->do_not_reuse_this_session();
+    }
   }
 
   _session.reset();

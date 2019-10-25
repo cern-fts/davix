@@ -54,6 +54,7 @@ void PerformanceData::update(const PerformanceMarker& in)
 {
     if(in.count > 8192) {
         DAVIX_SLOG(DAVIX_LOG_WARNING, DAVIX_LOG_GRID, "Received unreasonably high number of stripes, something is wrong: {}", in.count);
+        return;
     }
 
     if (markers.size() != in.count)

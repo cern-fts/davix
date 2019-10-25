@@ -26,6 +26,9 @@
 #include "../drunk-server/LineReader.hpp"
 #include "../drunk-server/Interactors.hpp"
 #include "test-utils.hpp"
+#include <iostream>
+
+#define DBG(message) std::cerr << __FILE__ << ":" << __LINE__ << " -- " << #message << " = " << message << std::endl;
 
 using namespace Davix;
 
@@ -53,7 +56,6 @@ TEST_F(Standalone_Neon_Request, BasicSanity) {
          "I like turtles too.\r\n")
   );
 
-  // TrivialInteractor inter;
   _drunk_server->autoAcceptNext(&inter);
 
   std::unique_ptr<StandaloneNeonRequest> request = makeStandaloneNeonReq();
@@ -102,4 +104,11 @@ TEST_F(Standalone_Neon_Request, NetworkError) {
   ASSERT_EQ(st.getErrorMessage(), "(Neon): Could not read status line: connection was closed by server");
 
   _drunk_server.reset();
+}
+
+TEST_F(Standalone_Neon_Request, StopNoStart) {
+  std::unique_ptr<StandaloneNeonRequest> request = makeStandaloneNeonReq();
+  ASSERT_EQ(request->getState(), RequestState::kNotStarted);
+  ASSERT_TRUE(request->endRequest().ok());
+  ASSERT_EQ(request->getState(), RequestState::kFinished);
 }

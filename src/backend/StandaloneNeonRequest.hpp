@@ -87,6 +87,14 @@ public:
   virtual ~StandaloneNeonRequest();
 
   //----------------------------------------------------------------------------
+  // No evil constructors, no move semantics.
+  //----------------------------------------------------------------------------
+  StandaloneNeonRequest(const StandaloneNeonRequest& other) = delete;
+  StandaloneNeonRequest(StandaloneNeonRequest&& other) = delete;
+  StandaloneNeonRequest& operator=(StandaloneNeonRequest&& other) = delete;
+  StandaloneNeonRequest& operator=(const StandaloneNeonRequest& other) = delete;
+
+  //----------------------------------------------------------------------------
   // Get a specific response header
   //----------------------------------------------------------------------------
   bool getAnswerHeader(const std::string &header_name, std::string &value) const;

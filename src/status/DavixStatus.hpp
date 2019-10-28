@@ -86,7 +86,7 @@ public:
   //----------------------------------------------------------------------------
   // To DavixError (ugh)
   //----------------------------------------------------------------------------
-  void toDavixError(DavixError **err) const;
+  int toDavixError(DavixError **err) const;
 
 private:
   DavixErrorInternal* d_ptr;

@@ -124,6 +124,11 @@ public:
   //----------------------------------------------------------------------------
   RequestState getState() const;
 
+  //----------------------------------------------------------------------------
+  // Get status code - returns 0 if impossible to determine
+  //----------------------------------------------------------------------------
+  int getStatusCode() const;
+
 private:
   NEONSessionFactory &_session_factory;
   bool _reuse_session;

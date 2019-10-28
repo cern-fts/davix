@@ -67,6 +67,7 @@ TEST_F(Standalone_Neon_Request, BasicSanity) {
   std::string headerLine;
   ASSERT_TRUE(request->getAnswerHeader("Content-Type", headerLine));
   ASSERT_EQ(headerLine, "ayy/lmao");
+  ASSERT_EQ(request->getStatusCode(), 200);
 
   sleep(1); // yes this is a hack to be replaced
 
@@ -84,6 +85,7 @@ TEST_F(Standalone_Neon_Request, BasicSanity) {
   ASSERT_EQ(request->getState(), RequestState::kFinished);
   ASSERT_TRUE(st.ok());
   ASSERT_TRUE(inter.ok());
+  ASSERT_EQ(request->getStatusCode(), 200);
 }
 
 TEST_F(Standalone_Neon_Request, NetworkError) {
@@ -102,6 +104,7 @@ TEST_F(Standalone_Neon_Request, NetworkError) {
   ASSERT_EQ(st.getScope(), "Davix::HttpRequest");
   ASSERT_EQ(st.getCode(), StatusCode::ConnectionProblem);
   ASSERT_EQ(st.getErrorMessage(), "(Neon): Could not read status line: connection was closed by server");
+  ASSERT_EQ(request->getStatusCode(), 0);
 
   _drunk_server.reset();
 }
@@ -111,4 +114,5 @@ TEST_F(Standalone_Neon_Request, StopNoStart) {
   ASSERT_EQ(request->getState(), RequestState::kNotStarted);
   ASSERT_TRUE(request->endRequest().ok());
   ASSERT_EQ(request->getState(), RequestState::kFinished);
+  ASSERT_EQ(request->getStatusCode(), 0);
 }

@@ -35,6 +35,8 @@
 #include <core/RedirectionResolver.hpp>
 #include <utils/CompatibilityHacks.hpp>
 
+#include "../backend/StandaloneNeonRequest.hpp"
+
 namespace Davix {
 
 class NEONSessionWrapper {
@@ -220,29 +222,10 @@ void NeonRequest::resetRequest(){
     freeRequest();
 }
 
-int NeonRequest::createRequest(DavixError** err){
-    if(_req){
-       resetRequest();
-    }
-
-    std::shared_ptr<Uri> redir_url;
-    if(this->_params.getTransparentRedirectionSupport()) {
-        redir_url = ContextExplorer::RedirectionResolverFromContext(_context).redirectionResolve(_request_type, *_current);
-    }
-
-    // performing an operation which could change the PFN? Clear all cache entries for selected URL
-    if(_request_type == "DELETE" || _request_type == "MOVE") {
-        ContextExplorer::RedirectionResolverFromContext(_context).redirectionClean(*_current.get());
-    }
-
-    if(redir_url.get() != NULL){
-        _current.swap(redir_url);
-    }
-
-    if( instanceSession(err) < 0)
-        return -1;
-
-
+//------------------------------------------------------------------------------
+// Prepare URI & params
+//------------------------------------------------------------------------------
+void NeonRequest::prepareUriParams() {
     // reconfigure protos
     configureRequestParamsProto(*_current, _params);
 
@@ -257,6 +240,37 @@ int NeonRequest::createRequest(DavixError** err){
     // configure gcloud params if needed
     if(_params.getProtocol() == RequestProtocol::Gcloud)
         configureGcloudParams();
+}
+
+//------------------------------------------------------------------------------
+// Check redirect cache
+//------------------------------------------------------------------------------
+void NeonRequest::checkRedirectCache() {
+    std::shared_ptr<Uri> redir_url;
+    if(this->_params.getTransparentRedirectionSupport()) {
+        redir_url = ContextExplorer::RedirectionResolverFromContext(_context).redirectionResolve(_request_type, *_current);
+    }
+
+    // performing an operation which could change the PFN? Clear all cache entries for selected URL
+    if(_request_type == "DELETE" || _request_type == "MOVE") {
+        ContextExplorer::RedirectionResolverFromContext(_context).redirectionClean(*_current.get());
+    }
+
+    if(redir_url.get()) {
+        _current = redir_url;
+    }
+}
+
+int NeonRequest::createRequest(DavixError** err){
+    if(_req){
+       resetRequest();
+    }
+
+    checkRedirectCache();
+    prepareUriParams();
+
+    if( instanceSession(err) < 0)
+        return -1;
 
     _req= ne_request_create(_neon_sess->get_ne_sess(), _request_type.c_str(), _current->getPathAndQuery().c_str());
     configureRequest();
@@ -322,6 +336,27 @@ void NeonRequest::configureRequest(){
     }
 }
 
+//------------------------------------------------------------------------------
+// Initialize and configure _neon_req
+//------------------------------------------------------------------------------
+void NeonRequest::createBackendRequest() {
+    checkRedirectCache();
+    prepareUriParams();
+
+    NEONSessionFactory& factory = ContextExplorer::SessionFactoryFromContext(getContext());
+    _neon_req.reset(new StandaloneNeonRequest(
+        factory,
+        true,
+        _bound_hooks,
+        * (_current.get()),
+        _request_type,
+        _params,
+        _headers_field,
+        _req_flag,
+        _content_provider,
+        _deadline
+    ));
+}
 
 int NeonRequest::processRedirection(int neonCode, DavixError **err){
     int end_status = -1;

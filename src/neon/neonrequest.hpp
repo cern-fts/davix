@@ -46,6 +46,7 @@ namespace Davix {
 class NEONSessionFactory;
 class NEONSession;
 class NEONSessionWrapper;
+class StandaloneNeonRequest;
 
 class NeonRequest : public BackendRequest
 {
@@ -90,6 +91,23 @@ public:
     virtual size_t getAnswerHeaders(std::vector<std::pair<std::string, std::string > > & vec_headers) const;
 
 private:
+    //--------------------------------------------------------------------------
+    // Initialize and configure _neon_req
+    //--------------------------------------------------------------------------
+    void createBackendRequest();
+
+    //--------------------------------------------------------------------------
+    // Check redirect cache
+    //--------------------------------------------------------------------------
+    void checkRedirectCache();
+
+    //--------------------------------------------------------------------------
+    // Prepare URI & params
+    //--------------------------------------------------------------------------
+    void prepareUriParams();
+
+    // neon standalone request
+    std::unique_ptr<StandaloneNeonRequest> _neon_req;
 
     // neon internal field
     std::unique_ptr<NEONSessionWrapper> _neon_sess;

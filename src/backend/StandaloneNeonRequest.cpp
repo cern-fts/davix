@@ -410,4 +410,13 @@ int StandaloneNeonRequest::getStatusCode() const {
   return 0;
 }
 
+//------------------------------------------------------------------------------
+// Do not re-use underlying session
+//------------------------------------------------------------------------------
+void StandaloneNeonRequest::doNotReuseSession() {
+  if(_session) {
+    _session->do_not_reuse_this_session();
+  }
+}
+
 }

@@ -129,6 +129,11 @@ public:
   //----------------------------------------------------------------------------
   int getStatusCode() const;
 
+  //----------------------------------------------------------------------------
+  // Do not re-use underlying session
+  //----------------------------------------------------------------------------
+  void doNotReuseSession();
+
 private:
   NEONSessionFactory &_session_factory;
   bool _reuse_session;

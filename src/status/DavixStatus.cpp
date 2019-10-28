@@ -136,12 +136,14 @@ void Status::clear() {
 //------------------------------------------------------------------------------
 // To DavixError (ugh)
 //------------------------------------------------------------------------------
-void Status::toDavixError(DavixError **err) const {
+int Status::toDavixError(DavixError **err) const {
   if(d_ptr) {
     DavixError::setupError(err, d_ptr->_scope, d_ptr->_code, d_ptr->_errMsg);
+    return 1;
   }
   else {
     DavixError::clearError(err);
+    return 0;
   }
 }
 

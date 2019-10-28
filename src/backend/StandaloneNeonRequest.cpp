@@ -399,4 +399,15 @@ Status StandaloneNeonRequest::createError(int ne_status) {
   return Status(davix_scope_http_request(), code, str);
 }
 
+//------------------------------------------------------------------------------
+// Get status code - returns 0 if impossible to determine
+//------------------------------------------------------------------------------
+int StandaloneNeonRequest::getStatusCode() const {
+  if(_neon_req) {
+    return ne_get_status(_neon_req)->code;
+  }
+
+  return 0;
+}
+
 }

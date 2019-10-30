@@ -42,7 +42,6 @@ BackendRequest::BackendRequest(Context &c, const Uri &uri)
     _req_flag(RequestFlag::IdempotentRequest),
     _deadline(),
     _content_provider(NULL),
-    _internal_status(RequestStatus::kNotStarted),
     _ans_size(-1),
     _early_termination(false),
     _early_termination_error(NULL) {}
@@ -301,7 +300,7 @@ dav_ssize_t BackendRequest::readLine(char* buffer, dav_size_t max_size, DavixErr
 // Access response buffer.
 //------------------------------------------------------------------------------
 const char* BackendRequest::getAnswerContent() {
-  if(_internal_status == RequestStatus::kCompletedOneShot) {
+  if(_vec.size() != 0) {
     return (const char*) &(_vec.at(0));
   }
 

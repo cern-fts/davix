@@ -288,7 +288,7 @@ int NeonRequest::instanceSession(DavixError** err){
     NEONSessionFactory& factory = ContextExplorer::SessionFactoryFromContext(getContext());
     _neon_sess.reset(new NEONSessionWrapper(this, factory, *_current, _params, &tmp_err));
     if(tmp_err){
-        _neon_sess.reset(NULL);
+        _neon_sess.reset();
         DavixError::propagateError(err, tmp_err);
         return -1;
     }
@@ -581,27 +581,44 @@ bool NeonRequest::requestCleanup(){
     return false;
 }
 
-int NeonRequest::redirectRequest(DavixError **err){
-    std::shared_ptr<Uri> old_uri;
+//------------------------------------------------------------------------------
+// We're following a redirect, store new location into the given Uri.
+//------------------------------------------------------------------------------
+Status NeonRequest::obtainRedirectedLocation(Uri &out) {
+    if(_neon_req) {
+        return _neon_req->obtainRedirectedLocation(out);
+    }
+
     const ne_uri * new_uri = ne_redirect_location(_neon_sess->get_ne_sess());
-    if(!new_uri){
-        DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, "Impossible to get the new redirected destination");
-        return -1;
+
+    if(!new_uri) {
+        return Status(davix_scope_http_request(), StatusCode::UriParsingError, "Impossible to get the new redirected destination");
     }
 
     char* dst_uri = ne_uri_unparse(new_uri);
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "redirection from {} to {}", _current->getString(), dst_uri);
+    out = Uri(dst_uri);
+    ne_free(dst_uri);
+    return Status();
+}
+
+int NeonRequest::redirectRequest(DavixError **err) {
+    Uri location;
+    Status st = obtainRedirectedLocation(location);
+
+    if(!st.ok()) {
+        st.toDavixError(err);
+        return -1;
+    }
 
     // setup new path & session target
-    old_uri = _current;
-    _current= std::shared_ptr<Uri>(new Uri(dst_uri));
-    ne_free(dst_uri);
+    std::shared_ptr<Uri> old_uri = _current;
+    _current= std::shared_ptr<Uri>(new Uri(location));
     ContextExplorer::RedirectionResolverFromContext(_context).addRedirection(_request_type, *old_uri, _current);
-
 
     // recycle old request and session
     freeRequest();
-    _neon_sess.reset(NULL);
+    _neon_sess.reset();
 
     // renew request
     req_started = false;
@@ -700,6 +717,15 @@ dav_ssize_t NeonRequest::readBlock(char* buffer, dav_size_t max_size, DavixError
        }
     }
 
+    if(_neon_req) {
+        Status st;
+        dav_ssize_t retval = _neon_req->readBlock(buffer, max_size, st);
+        if(!st.ok()) {
+          st.toDavixError(err);
+          return retval;
+        }
+    }
+
     if(_last_read ==0){
         return 0;
     }
@@ -725,6 +751,11 @@ dav_ssize_t NeonRequest::readBlock(char* buffer, dav_size_t max_size, DavixError
 int NeonRequest::endRequest(DavixError** err){
     int status;
     (void) err;
+
+    if(_neon_req) {
+        req_started = req_running = false;
+        return _neon_req->endRequest().toDavixError(err);
+    }
 
     if(_req  && req_running == true){
 
@@ -753,7 +784,7 @@ int NeonRequest::endRequest(DavixError** err){
 //------------------------------------------------------------------------------
 // Get response status.
 //------------------------------------------------------------------------------
-int NeonRequest::getRequestCode(){
+int NeonRequest::getRequestCode() {
     if(_early_termination) {
         if(!_early_termination_error) return 200;
         return _early_termination_error->getStatus();

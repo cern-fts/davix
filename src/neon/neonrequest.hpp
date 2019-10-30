@@ -35,6 +35,7 @@
 
 #include <neon/neonsession.hpp>
 #include <backend/BoundHooks.hpp>
+#include <status/DavixStatus.hpp>
 
 #include "../backend/BackendRequest.hpp"
 
@@ -105,6 +106,11 @@ private:
     // Prepare URI & params
     //--------------------------------------------------------------------------
     void prepareUriParams();
+
+    //--------------------------------------------------------------------------
+    // We're following a redirect, store new location into the given Uri.
+    //--------------------------------------------------------------------------
+    Status obtainRedirectedLocation(Uri &out);
 
     // neon standalone request
     std::unique_ptr<StandaloneNeonRequest> _neon_req;

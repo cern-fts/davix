@@ -211,6 +211,10 @@ void NeonRequest::cancelSessionReuse(){
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "Connection problem: eradicate session");
        _neon_sess->do_not_reuse_this_session();
     }
+
+    if(_neon_req) {
+        _neon_req->doNotReuseSession();
+    }
 }
 
 
@@ -611,7 +615,6 @@ int NeonRequest::redirectRequest(DavixError **err){
 
 int NeonRequest::executeRequest(DavixError** err){
     dav_ssize_t read_status=1, total_read=0;
-    _internal_status = RequestStatus::kNotStarted;
     _vec.clear();
 
     DAVIX_SCOPE_TRACE(DAVIX_LOG_HTTP, execReq);
@@ -652,18 +655,15 @@ int NeonRequest::executeRequest(DavixError** err){
        return -1;
    }
 
-   _internal_status = RequestStatus::kCompletedOneShot;
    return 0;
 }
 
 int NeonRequest::beginRequest(DavixError** err){
     int ret = -1;
-    _internal_status = RequestStatus::kNotStarted;
     _vec.clear();
     if( (ret= startRequest(err)) < 0)
         return -1;
 
-    _internal_status = RequestStatus::kStarted;
     return ret;
 }
 
@@ -758,10 +758,19 @@ int NeonRequest::getRequestCode(){
         if(!_early_termination_error) return 200;
         return _early_termination_error->getStatus();
     }
+
+    if(_neon_req) {
+        return _neon_req->getStatusCode();
+    }
+
     return ne_get_status(_req)->code;
 }
 
 bool NeonRequest::getAnswerHeader(const std::string &header_name, std::string &value) const {
+    if(_neon_req) {
+        return _neon_req->getAnswerHeader(header_name, value);
+    }
+
     if(_req){
         const char* answer_content = ne_get_response_header(_req, header_name.c_str());
         if(answer_content){
@@ -773,6 +782,10 @@ bool NeonRequest::getAnswerHeader(const std::string &header_name, std::string &v
 }
 
 size_t NeonRequest::getAnswerHeaders( HeaderVec & vec_headers) const {
+    if(_neon_req) {
+        return _neon_req->getAnswerHeaders(vec_headers);
+    }
+
     if(_req){
         void * handle = NULL;
         const char* name=NULL, *value=NULL;
@@ -789,6 +802,8 @@ void NeonRequest::freeRequest(){
         ne_request_destroy(_req);
         _req=NULL;
     }
+
+    _neon_req.reset();
 }
 
 

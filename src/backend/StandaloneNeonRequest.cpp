@@ -434,6 +434,21 @@ bool StandaloneNeonRequest::isRecycledSession() const {
   return false;
 }
 
+//------------------------------------------------------------------------------
+// Get session error, if available
+//------------------------------------------------------------------------------
+std::string StandaloneNeonRequest::getSessionError() const {
+    if(!_session) {
+        return std::string();
+    }
+
+    const char *neon_error = ne_get_error(_session->get_ne_sess());
+    if(neon_error) {
+      return std::string(neon_error);
+    }
+
+    return std::string();
+}
 
 //------------------------------------------------------------------------------
 // Obtain redirected location, store into the given Uri

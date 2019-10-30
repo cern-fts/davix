@@ -134,6 +134,11 @@ public:
   //----------------------------------------------------------------------------
   void doNotReuseSession();
 
+  //----------------------------------------------------------------------------
+  // Obtain redirected location, store into the given Uri
+  //----------------------------------------------------------------------------
+  Status obtainRedirectedLocation(Uri &out);
+
 private:
   NEONSessionFactory &_session_factory;
   bool _reuse_session;

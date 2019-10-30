@@ -69,6 +69,9 @@ TEST_F(Standalone_Neon_Request, BasicSanity) {
   ASSERT_EQ(headerLine, "ayy/lmao");
   ASSERT_EQ(request->getStatusCode(), 200);
 
+  Uri redirect;
+  ASSERT_FALSE(request->obtainRedirectedLocation(redirect).ok());
+
   sleep(1); // yes this is a hack to be replaced
 
   char buffer[2048];
@@ -86,6 +89,40 @@ TEST_F(Standalone_Neon_Request, BasicSanity) {
   ASSERT_TRUE(st.ok());
   ASSERT_TRUE(inter.ok());
   ASSERT_EQ(request->getStatusCode(), 200);
+}
+
+TEST_F(Standalone_Neon_Request, Redirect) {
+  _uri = Uri("http://localhost:22222/test");
+
+  SingleShotInteractor inter(
+    SSTR("GET /test HTTP/1.1\r\n"      <<
+          getDefaultUserAgent()        <<
+          "Keep-Alive: \r\n"           <<
+          "Connection: Keep-Alive\r\n" <<
+          "TE: trailers\r\n"           <<
+          "Host: localhost:22222\r\n"  <<
+          "\r\n"),
+
+    SSTR("HTTP/1.1 307 Temporary Redirect\r\n"                <<
+         "Date: Mon, 07 Oct 2019 14:02:25 GMT\r\n"            <<
+         "LoCaTiON: https://example.com/redirect-test\r\n"    <<
+         "\r\n")
+  );
+
+  _drunk_server->autoAcceptNext(&inter);
+  std::unique_ptr<StandaloneNeonRequest> request = makeStandaloneNeonReq();
+
+  ASSERT_TRUE(request->startRequest().ok());
+
+  std::string headerLine;
+  ASSERT_TRUE(request->getAnswerHeader("LoCaTiON", headerLine));
+  ASSERT_EQ(headerLine, "https://example.com/redirect-test");
+  ASSERT_EQ(request->getStatusCode(), 307);
+  ASSERT_TRUE(request->endRequest().ok());
+
+  Uri uri;
+  ASSERT_TRUE(request->obtainRedirectedLocation(uri).ok());
+  ASSERT_EQ(uri.getString(), "https://example.com/redirect-test");
 }
 
 TEST_F(Standalone_Neon_Request, NetworkError) {

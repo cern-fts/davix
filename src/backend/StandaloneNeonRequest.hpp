@@ -135,6 +135,11 @@ public:
   void doNotReuseSession();
 
   //----------------------------------------------------------------------------
+  // Has the underlying session been used before?
+  //----------------------------------------------------------------------------
+  bool isRecycledSession() const;
+
+  //----------------------------------------------------------------------------
   // Obtain redirected location, store into the given Uri
   //----------------------------------------------------------------------------
   Status obtainRedirectedLocation(Uri &out);

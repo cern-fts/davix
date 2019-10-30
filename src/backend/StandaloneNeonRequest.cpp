@@ -422,6 +422,20 @@ void StandaloneNeonRequest::doNotReuseSession() {
 }
 
 //------------------------------------------------------------------------------
+// Has the underlying session been used before?
+//------------------------------------------------------------------------------
+bool StandaloneNeonRequest::isRecycledSession() const {
+  if(_session) {
+    return _session->isRecycledSession();
+  }
+
+  // We don't have a session at all, so by definition we can't be using any
+  // recycled session
+  return false;
+}
+
+
+//------------------------------------------------------------------------------
 // Obtain redirected location, store into the given Uri
 //------------------------------------------------------------------------------
 Status StandaloneNeonRequest::obtainRedirectedLocation(Uri &out) {

@@ -59,6 +59,7 @@ TEST_F(Standalone_Neon_Request, BasicSanity) {
   _drunk_server->autoAcceptNext(&inter);
 
   std::unique_ptr<StandaloneNeonRequest> request = makeStandaloneNeonReq();
+  ASSERT_FALSE(request->isRecycledSession());
   ASSERT_EQ(request->getState(), RequestState::kNotStarted);
 
   ASSERT_TRUE(request->startRequest().ok());
@@ -89,6 +90,7 @@ TEST_F(Standalone_Neon_Request, BasicSanity) {
   ASSERT_TRUE(st.ok());
   ASSERT_TRUE(inter.ok());
   ASSERT_EQ(request->getStatusCode(), 200);
+  ASSERT_FALSE(request->isRecycledSession());
 }
 
 TEST_F(Standalone_Neon_Request, Redirect) {

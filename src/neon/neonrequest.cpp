@@ -392,6 +392,29 @@ int NeonRequest::startRequest(DavixError **err){
     return negotiateRequest(err);
 }
 
+//------------------------------------------------------------------------------
+// Is the given session error network-related?
+//------------------------------------------------------------------------------
+static bool isNetworkError(const char* sessionErr) {
+    if(!sessionErr) {
+        return false;
+    }
+
+    if(strstr(sessionErr, "Could not") != NULL) {
+        return true;
+    }
+
+    if(strstr(sessionErr, "Connection reset by peer") != NULL) {
+        return true;
+    }
+
+    if(strstr(sessionErr, "Broken pipe") != NULL) {
+        return true;
+    }
+
+    return false;
+}
+
 int NeonRequest::negotiateRequest(DavixError** err){
     const int auth_retry_limit = _params.getOperationRetry();
     int code, status, end_status = NE_RETRY;
@@ -418,13 +441,7 @@ int NeonRequest::negotiateRequest(DavixError** err){
         if( (status = ne_begin_request(_req)) != NE_OK && status != NE_REDIRECT){
             _last_read = -1;
 
-            if( status == NE_ERROR
-                &&  requestCleanup()
-                && (
-                    strstr(ne_get_error(_neon_sess->get_ne_sess()), "Could not") != NULL
-                    || strstr(ne_get_error(_neon_sess->get_ne_sess()), "Connection reset by peer") != NULL
-                    || strstr(ne_get_error(_neon_sess->get_ne_sess()), "Broken pipe") != NULL
-                    )){
+            if( status == NE_ERROR && requestCleanup() && isNetworkError(ne_get_error(_neon_sess->get_ne_sess()))) {
                DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_HTTP, "Connection problem, retry");
                _number_try++;
                 return startRequest(err);

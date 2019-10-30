@@ -144,6 +144,11 @@ public:
   //----------------------------------------------------------------------------
   Status obtainRedirectedLocation(Uri &out);
 
+  //----------------------------------------------------------------------------
+  // Get session error, if available
+  //----------------------------------------------------------------------------
+  std::string getSessionError() const;
+
 private:
   NEONSessionFactory &_session_factory;
   bool _reuse_session;

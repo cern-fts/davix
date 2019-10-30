@@ -26,6 +26,8 @@
 #include <ne_redirect.h>
 #include <ne_request.h>
 
+#define DBG(message) std::cerr << __FILE__ << ":" << __LINE__ << " -- " << #message << " = " << message << std::endl;
+
 namespace Davix {
 
 //------------------------------------------------------------------------------
@@ -417,6 +419,26 @@ void StandaloneNeonRequest::doNotReuseSession() {
   if(_session) {
     _session->do_not_reuse_this_session();
   }
+}
+
+//------------------------------------------------------------------------------
+// Obtain redirected location, store into the given Uri
+//------------------------------------------------------------------------------
+Status StandaloneNeonRequest::obtainRedirectedLocation(Uri &out) {
+  if(!_neon_req) {
+    return Status(davix_scope_http_request(), StatusCode::InvalidArgument, "Request not active, impossible to obtain redirected location");
+  }
+
+  void * handle = NULL;
+  const char* name = NULL, *value = NULL;
+  while( (handle = ne_response_header_iterate(_neon_req, handle, &name, &value)) != NULL) {
+    if(strcasecmp("location", name) == 0) {
+      out = Uri(value);
+      return Status();
+    }
+  }
+
+  return Status(davix_scope_http_request(), StatusCode::InvalidArgument, "Could not find Location header in answer headers");
 }
 
 }

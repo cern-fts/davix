@@ -331,7 +331,7 @@ dav_ssize_t HttpIOVecOps::simulateMultirange(IOChainContext & iocontext,
     }
 
     for(uint i = 0; i < num_threads; i++) {
-        if(data[i].exc) {
+        if(data[i].exc == std::exception_ptr()) {
             std::rethrow_exception(data[i].exc);
         }
     }

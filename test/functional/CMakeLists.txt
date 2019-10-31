@@ -21,9 +21,6 @@ set(src_davix_test_lib "davix_test_lib.cpp")
 #set( src_tool_get_replicas "tool_get_replica_simple.cpp")
 #set( src_test_mv "test_mv.cpp")
 
-set( src_tester "davix-tester.cpp")
-
-
 add_library(test_davix_functional_lib STATIC ${src_davix_test_lib})
 
 #add_executable(test_request ${src_test_req} )
@@ -80,7 +77,7 @@ add_library(test_davix_functional_lib STATIC ${src_davix_test_lib})
 #add_executable(test_mv ${src_test_mv})
 #target_link_libraries(test_mv libdavix test_davix_functional_lib)
 
-add_executable(davix-tester ${src_tester})
+add_executable(davix-tester ../TestcaseHandler.cpp davix-tester.cpp)
 target_link_libraries(davix-tester libdavix test_davix_functional_lib)
 
 install(TARGETS davix-tester

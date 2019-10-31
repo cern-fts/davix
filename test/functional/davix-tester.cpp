@@ -11,6 +11,7 @@
 #include "../TestcaseHandler.hpp"
 
 using namespace Davix;
+using std::placeholders::_1;
 
 #define DBG(message) std::cerr << __FILE__ << ":" << __LINE__ << " -- " << #message << " = " << message << std::endl;
 #define SSTR(message) static_cast<std::ostringstream&>(std::ostringstream().flush() << message).str()
@@ -209,10 +210,12 @@ void statdir(TestcaseHandler &handler, const RequestParams &params, Uri uri) {
 void makeCollection(TestcaseHandler &handler, const RequestParams &params, Uri uri) {
     handler.setName(SSTR("Create directory on " << uri.getString()));
 
+    DavixError* err = NULL;
+
     Context context;
     DavFile file(context, params, uri);
-    file.makeCollection(&params);
-    handler.pass("Run makeCollection");
+    file.makeCollection(&params, &err);
+    if(!handler.checkDavixError(&err)) return;
 
     // make sure it is empty
     DavFile::Iterator it = file.listCollection(&params);
@@ -300,7 +303,14 @@ void uploadFile(TestcaseHandler &handler, Context &ctx, const RequestParams &par
     handler.setName(SSTR("Upload testfile to " << uri.getString()));
 
     DavFile file(ctx, params, uri);
-    file.put(NULL, testString.c_str(), testString.size());
+
+    try {
+        file.put(NULL, testString.c_str(), testString.size());
+    }
+    catch(const DavixException &err) {
+        handler.fail(SSTR("Exception: " << err.what()));
+    }
+
     handler.pass(SSTR("File " << uri.getString() << " uploaded."));
     statfile(handler, params, uri);
 }
@@ -488,6 +498,7 @@ void preadvec(TestcaseHandler &handler, const RequestParams &params, const Uri u
     DavFile file(context, params, u);
     DavixError *err = NULL;
     file.readPartialBufferVec(&params, inVec, outVec, ranges.size(), &err);
+    if(!handler.checkDavixError(&err)) return;
 
     for(size_t i = 0; i < ranges.size(); i++) {
         std::string chunk( (char*) outVec[i].diov_buffer, outVec[i].diov_size);

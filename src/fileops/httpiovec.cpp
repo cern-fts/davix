@@ -27,6 +27,7 @@
 
 #include <map>
 
+#define DBG(message) std::cerr << __FILE__ << ":" << __LINE__ << " -- " << #message << " = " << message << std::endl;
 using namespace StrUtil;
 
 // remove trailing crlf
@@ -267,6 +268,7 @@ typedef struct thread_data {
     dav_size_t start, end;
 
     dav_ssize_t size;
+    std::exception_ptr exc;
 } thdata;
 
 void* parallelSingleRange(void *args) {
@@ -276,10 +278,17 @@ void* parallelSingleRange(void *args) {
 
     data->size = 0;
     for(dav_size_t i = data->start; i < data->end; i++) {
-        data->size += data->ptr->singleRangeRequest(*data->iocontext, *data->tree,
-                                                    ranges[i].first,
-                                                    ranges[i].second - ranges[i].first + 1);
+        try {
+          data->size += data->ptr->singleRangeRequest(*data->iocontext, *data->tree,
+                                                      ranges[i].first,
+                                                      ranges[i].second - ranges[i].first + 1);
+        }
+        catch(const Davix::DavixException &err) {
+          data->exc = std::current_exception();
+          return NULL;
+        }
     }
+
     return NULL;
 }
 
@@ -319,6 +328,12 @@ dav_ssize_t HttpIOVecOps::simulateMultirange(IOChainContext & iocontext,
     for(uint i = 0; i < num_threads; i++) {
         pthread_join(threads[i], NULL);
         size += data[i].size;
+    }
+
+    for(uint i = 0; i < num_threads; i++) {
+        if(data[i].exc) {
+            std::rethrow_exception(data[i].exc);
+        }
     }
 
     return size;

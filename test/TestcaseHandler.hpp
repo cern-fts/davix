@@ -25,6 +25,11 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <functional>
+
+namespace Davix {
+  class DavixError;
+}
 
 class TermFormat {
 public:
@@ -75,6 +80,11 @@ public:
   // Test ok so far?
   //----------------------------------------------------------------------------
   bool ok() const;
+
+  //----------------------------------------------------------------------------
+  // Ensure no davix error occured
+  //----------------------------------------------------------------------------
+  bool checkDavixError(Davix::DavixError **err);
 
   //----------------------------------------------------------------------------
   // Make child

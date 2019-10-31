@@ -500,6 +500,23 @@ void preadvec(TestcaseHandler &handler, const RequestParams &params, const Uri u
     }
 }
 
+void preadvec_all_opts(TestcaseHandler &handler, const RequestParams &params, const Uri uri, const std::string str_ranges) {
+    handler.setName(SSTR("preadvec-all-opts on " << uri.getString() << ": " << str_ranges));
+
+    preadvec(handler.makeChild(), params, uri, str_ranges, split("mergewindow=1", ","));
+    preadvec(handler.makeChild(), params, uri, str_ranges, split("mergewindow=1000", ","));
+    preadvec(handler.makeChild(), params, uri, str_ranges, split("nomulti,mergewindow=1", ","));
+    preadvec(handler.makeChild(), params, uri, str_ranges, split("nomulti,mergewindow=1", ","));
+}
+
+void preadvec_all(TestcaseHandler &handler, const RequestParams &params, const Uri uri) {
+    handler.setName(SSTR("preadvec-all on " << uri.getString()));
+
+    preadvec_all_opts(handler.makeChild(), params, uri, "0-10,5-10,3-4,30-40,200-305,1000-1500");
+    preadvec_all_opts(handler.makeChild(), params, uri, "0-10,5-10");
+    preadvec_all_opts(handler.makeChild(), params, uri, "0-10,15-20");
+}
+
 void detectwebdav(TestcaseHandler &handler, const RequestParams &params, const Uri uri, bool result) {
     handler.setName(SSTR("Detect WebDAV support on " << uri.getString() << ", expect " << result));
 
@@ -601,6 +618,14 @@ bool run(int argc, char** argv) {
             handler.fail("Wrong number of arguments to preadvec");
         }
     }
+    else if(cmd[0] == "preadvec-all-opts") {
+        assert_args(cmd, 1);
+        preadvec_all_opts(handler, params, uri, cmd[1]);
+    }
+    else if(cmd[0] == "preadvec-all") {
+        assert_args(cmd, 0);
+        preadvec_all(handler, params, uri);
+    }
     else if(cmd[0] == "detectwebdav") {
         assert_args(cmd, 1);
         bool expected = false;
@@ -615,6 +640,45 @@ bool run(int argc, char** argv) {
         }
 
         detectwebdav(handler, params, uri, expected);
+    }
+    else if(cmd[0] == "fulltest") {
+        assert_args(cmd, 0);
+
+        handler.setName(SSTR("Full-test on " << uri.getString()));
+
+        makeCollection(handler.makeChild(), params, uri);
+        populate(handler.makeChild(), params, uri, 5);
+        listing(handler.makeChild(), params, uri, 5);
+        preadvec_all(handler.makeChild(), params, uri);
+        movefile(handler.makeChild(), params, uri);
+        depopulate(handler.makeChild(), params, uri, 3);
+        countfiles(handler.makeChild(), params, uri, 2);
+        remove(handler.makeChild(), params, uri);
+    }
+    else if(cmd[0] == "fulltest-s3") {
+        assert_args(cmd, 0);
+
+        handler.setName(SSTR("Full-test S3 on " << uri.getString()));
+
+        makeCollection(handler.makeChild(), params, uri);
+        populate(handler.makeChild(), params, uri, 5);
+        listing(handler.makeChild(), params, uri, 5);
+        preadvec_all(handler.makeChild(), params, uri);
+        movefile(handler.makeChild(), params, uri);
+        depopulate(handler.makeChild(), params, uri, 3);
+        countfiles(handler.makeChild(), params, uri, 2);
+        depopulate(handler.makeChild(), params, uri, 5);
+    }
+    else if(cmd[0] == "fulltest-azure") {
+        assert_args(cmd, 0);
+
+        handler.setName(SSTR("Full-test Azure on " << uri.getString()));
+
+        populate(handler.makeChild(), params, uri, 5);
+        statdir(handler.makeChild(), params, uri);
+        listing(handler.makeChild(), params, uri, 5);
+        preadvec_all(handler.makeChild(), params, uri);
+        depopulate(handler.makeChild(), params, uri, 5);
     }
     else {
         ASSERT(false, "Unknown command: " << cmd[0]);

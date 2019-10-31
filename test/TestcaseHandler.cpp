@@ -22,6 +22,9 @@
 #include "TestcaseHandler.hpp"
 #include <iostream>
 #include <sstream>
+#include <davix.hpp>
+
+#define SSTR(message) static_cast<std::ostringstream&>(std::ostringstream().flush() << message).str()
 
 //------------------------------------------------------------------------------
 // TermFormat: red
@@ -191,4 +194,14 @@ TestcaseHandler& TestcaseHandler::makeChild() {
   return *(mChildren.back().get());
 }
 
+//------------------------------------------------------------------------------
+// Ensure no davix error occured
+//------------------------------------------------------------------------------
+bool TestcaseHandler::checkDavixError(Davix::DavixError **err) {
+  if(err && *err) {
+    this->fail(SSTR("DavixError: " << (*err)->getErrMsg()));
+    return false;
+  }
 
+  return true;
+}

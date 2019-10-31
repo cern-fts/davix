@@ -14,7 +14,6 @@ using namespace Davix;
 
 #define DBG(message) std::cerr << __FILE__ << ":" << __LINE__ << " -- " << #message << " = " << message << std::endl;
 #define SSTR(message) static_cast<std::ostringstream&>(std::ostringstream().flush() << message).str()
-#define DECLARE_TEST() std::cout << "----- Performing test: " << __FUNCTION__ << " on " << uri << std::endl
 
 #include "lorem-ipsum.h" // define std::string teststring
 const std::string testfile("davix-testfile-");
@@ -381,8 +380,9 @@ void listing(TestcaseHandler &handler, const RequestParams &params, const Uri ur
 }
 
 /* upload a file and move it around */
-void putMoveDelete(const RequestParams &params, const Uri uri) {
-    DECLARE_TEST();
+void putMoveDelete(TestcaseHandler &handler, const RequestParams &params, const Uri uri) {
+    handler.setName(SSTR("Put-move-delete on " << uri.getString()));
+
     Uri u = uri;
     Uri u2 = uri;
     u.addPathSegment(SSTR(testfile << "put-move-delete"));
@@ -391,16 +391,35 @@ void putMoveDelete(const RequestParams &params, const Uri uri) {
     Context context;
     DavFile file(context, params, u);
     file.put(&params, testString.c_str(), testString.size());
+    handler.pass(SSTR("Put on " << u.getString()));
 
     DavFile movedFile(context, params, u2);
     file.move(&params, movedFile);
+    handler.pass(SSTR("Move on " << u2.getString()));
 
     movedFile.deletion(&params);
-    std::cout << "All OK" << std::endl;
+    handler.pass(SSTR("Delete on " << u2.getString()));
 }
 
-void preadvec(const RequestParams &params, const Uri uri, const std::string str_ranges, std::vector<std::string> options) {
-    DECLARE_TEST();
+//------------------------------------------------------------------------------
+// Concatenate vector into a string
+//------------------------------------------------------------------------------
+static std::string vecToString(const std::vector<std::string> &vec, const std::string &delim) {
+    std::ostringstream ss;
+    for(size_t i = 0; i < vec.size(); i++) {
+        ss << vec[i];
+
+        if(i != vec.size() - 1) {
+            ss << delim;
+        }
+    }
+
+    return ss.str();
+}
+
+void preadvec(TestcaseHandler &handler, const RequestParams &params, const Uri uri, const std::string str_ranges, std::vector<std::string> options) {
+    handler.setName(SSTR("preadvec on " << uri.getString() << ": " << str_ranges << " | " << vecToString(options, ",")));
+
     Uri u = uri;
 
     std::string filename = SSTR(testfile << 1);
@@ -415,16 +434,27 @@ void preadvec(const RequestParams &params, const Uri uri, const std::string str_
         }
         else if(it->find("nconnections=", 0) == 0) {
             int nconnections = atoi(it->c_str() + 13);
-            ASSERT(nconnections > 0, "Unable to parse nconnections");
+
+            if(nconnections <= 0) {
+                handler.fail("Unable to parse nconnections");
+                return;
+            }
+
             u.addFragmentParam("nconnections", SSTR(nconnections));
         }
         else if(it->find("mergewindow=", 0) == 0) {
             int mergewindow = atoi(it->c_str() + 12);
-            ASSERT(mergewindow > 0, "Unable to parse mergewindow");
+
+            if(mergewindow <= 0) {
+                handler.fail("Unable to parse mergewindow");
+                return;
+            }
+
             u.addFragmentParam("mergewindow", SSTR(mergewindow));
         }
         else {
-            ASSERT(false, "Unknown option to preadvec: " << *it);
+            handler.fail(SSTR("Unknown option to preadvec: " << *it));
+            return;
         }
     }
 
@@ -438,7 +468,12 @@ void preadvec(const RequestParams &params, const Uri uri, const std::string str_
 
     for(size_t i = 0; i < ranges.size(); i++) {
         std::vector<std::string> parts = split(ranges[i], "-");
-        ASSERT(parts.size() == 2, "Cannot parse range");
+
+        if(parts.size() != 2) {
+            handler.fail(SSTR("Cannot parse range: " << ranges[i]));
+            return;
+        }
+
         dav_off_t start = atoi(parts[0].c_str());
         dav_off_t end = atoi(parts[1].c_str());
 
@@ -447,8 +482,6 @@ void preadvec(const RequestParams &params, const Uri uri, const std::string str_
         inVec[i].diov_buffer = new char[size];
         inVec[i].diov_size = size;
         inVec[i].diov_offset = start;
-
-        std::cout << "Adding range: " << start << "-" << end << std::endl;
     }
 
     Context context;
@@ -458,30 +491,31 @@ void preadvec(const RequestParams &params, const Uri uri, const std::string str_
 
     for(size_t i = 0; i < ranges.size(); i++) {
         std::string chunk( (char*) outVec[i].diov_buffer, outVec[i].diov_size);
-        std::cout << "Chunk: " << chunk << std::endl;
 
-        ASSERT(chunk.size() == inVec[i].diov_size, "unexpected chunk size");
+        handler.check(chunk.size() == inVec[i].diov_size, SSTR("Validate chunk #" << i << " size"));
+
         if(filename == SSTR(testfile << 1)) {
-            ASSERT(chunk == testString.substr(inVec[i].diov_offset, inVec[i].diov_size), "wrong chunk contents");
+            handler.check(chunk == testString.substr(inVec[i].diov_offset, inVec[i].diov_size), SSTR("Validate chunk #" << i << " contents"));
         }
     }
-    std::cout << "All OK" << std::endl;
 }
 
-void detectwebdav(const RequestParams &params, const Uri uri, bool result) {
-    DECLARE_TEST();
+void detectwebdav(TestcaseHandler &handler, const RequestParams &params, const Uri uri, bool result) {
+    handler.setName(SSTR("Detect WebDAV support on " << uri.getString() << ", expect " << result));
 
     Context context;
     DavixError *err = NULL;
     WebdavSupport::Type res = detect_webdav_support(context, params, uri, &err);
+
     if(result) {
+        handler.check(res == WebdavSupport::YES, "Ensure endpoint has WebDAV support");
         ASSERT(res == WebdavSupport::YES, "");
     }
     else if(!result) {
-        ASSERT(res == WebdavSupport::NO || res == WebdavSupport::UNKNOWN, "");
+        handler.check(res == WebdavSupport::NO || res == WebdavSupport::UNKNOWN, "Ensure endpoint does not have WebDAV support");
     }
     else {
-      ASSERT(false, "Unknown result");
+        handler.fail("Unknown failure");
     }
 }
 
@@ -534,7 +568,7 @@ bool run(int argc, char** argv) {
     else if(cmd[0] == "putMoveDelete") {
         assert_args(cmd, 0);
         ASSERT(cmd.size() == 1, "Wrong number of arguments to putMoveDelete");
-        putMoveDelete(params, uri);
+        putMoveDelete(handler, params, uri);
     }
     else if(cmd[0] == "depopulate") {
         assert_args(cmd, 1);
@@ -558,13 +592,13 @@ bool run(int argc, char** argv) {
     }
     else if(cmd[0] == "preadvec") {
         if(cmd.size() == 2) {
-            preadvec(params, uri, cmd[1], std::vector<std::string>());
+            preadvec(handler, params, uri, cmd[1], std::vector<std::string>());
         }
         else if(cmd.size() == 3) {
-            preadvec(params, uri, cmd[1], split(cmd[2], ","));
+            preadvec(handler, params, uri, cmd[1], split(cmd[2], ","));
         }
         else {
-            ASSERT(false, "Wrong number of arguments to preadvec");
+            handler.fail("Wrong number of arguments to preadvec");
         }
     }
     else if(cmd[0] == "detectwebdav") {
@@ -580,7 +614,7 @@ bool run(int argc, char** argv) {
             ASSERT(false, "Unexpected input for expected result");
         }
 
-        detectwebdav(params, uri, expected);
+        detectwebdav(handler, params, uri, expected);
     }
     else {
         ASSERT(false, "Unknown command: " << cmd[0]);

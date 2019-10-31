@@ -12,6 +12,7 @@
 
 using namespace Davix;
 
+#define DBG(message) std::cerr << __FILE__ << ":" << __LINE__ << " -- " << #message << " = " << message << std::endl;
 #define SSTR(message) static_cast<std::ostringstream&>(std::ostringstream().flush() << message).str()
 #define DECLARE_TEST() std::cout << "----- Performing test: " << __FUNCTION__ << " on " << uri << std::endl
 
@@ -198,7 +199,12 @@ void statdir(TestcaseHandler &handler, const RequestParams &params, Uri uri) {
 
     handler.info(SSTR("Mode: " << string_from_mode(info.mode)));
     handler.info(SSTR("Size: " << info.size));
-    handler.check(S_ISDIR(info.mode), "Ensure S_ISDIR shows a directory");
+
+    // http / https will use a HEAD, from which we can't determine if this is
+    // a directory or not
+    if(uri.getProtocol() != "http" && uri.getProtocol() != "https") {
+        handler.check(S_ISDIR(info.mode), "Ensure S_ISDIR shows a directory");
+    }
 }
 
 void makeCollection(TestcaseHandler &handler, const RequestParams &params, Uri uri) {
@@ -271,22 +277,23 @@ void statfile(TestcaseHandler &handler, const RequestParams &params, const Uri u
     }
 }
 
-void movefile(const RequestParams &params, const Uri uri) {
-    DECLARE_TEST();
-    Context context;
+void movefile(TestcaseHandler &handler, const RequestParams &params, const Uri uri) {
     Uri u1(uri);
     Uri u2(uri);
 
     u1.addPathSegment(SSTR(testfile << 1));
     u2.addPathSegment(SSTR(testfile << 1 << "-moved"));
 
+    handler.setName(SSTR("Move " << u1.getString() << " to " << u2.getString()));
+
+    Context context;
+
     DavFile source(context, params, u1);
     DavFile dest(context, params, u2);
 
     source.move(&params, dest);
 
-    TestcaseHandler handler;
-    statfile(handler, params, u2);
+    statfile(handler.makeChild(), params, u2);
     dest.move(&params, source);
 }
 
@@ -311,8 +318,9 @@ void populate(TestcaseHandler &handler, const RequestParams &params, const Uri u
 }
 
 // count the number of files in folder
-void countfiles(const RequestParams &params, const Uri uri, const int nfiles) {
-    DECLARE_TEST();
+void countfiles(TestcaseHandler &handler, const RequestParams &params, const Uri uri, const int nfiles) {
+    handler.setName(SSTR("List " << uri.getString() << ", expect " << nfiles << " files"));
+
     Context context;
     DavFile file(context, params, uri);
     DavFile::Iterator it = file.listCollection(&params);
@@ -322,13 +330,13 @@ void countfiles(const RequestParams &params, const Uri uri, const int nfiles) {
         i++;
     } while(it.next());
 
-    ASSERT(i == nfiles, "wrong number of files; expected " << nfiles << ", found " << i);
-    std::cout << "All OK" << std::endl;
+    handler.check(i == nfiles, SSTR("Directory contains " << nfiles << " files"));
 }
 
 // confirm that the files listed are the exact same ones uploaded during a populate test
-void listing(const RequestParams &params, const Uri uri, const int nfiles) {
-    DECLARE_TEST();
+void listing(TestcaseHandler &handler, const RequestParams &params, const Uri uri, const int nfiles) {
+    handler.setName(SSTR("List " << uri.getString() << ", expect " << nfiles << " files"));
+
     int hits[nfiles+1];
     for(int i = 0; i <= nfiles; i++) hits[i] = 0;
 
@@ -340,26 +348,36 @@ void listing(const RequestParams &params, const Uri uri, const int nfiles) {
     do {
         i++;
         std::string name = it.name();
-        std::cout << "Found " << name << std::endl;
 
         // make sure the filenames are the same as the ones we uploaded
-        ASSERT(name.size() > testfile.size(), "Unexpected filename: " << name);
+        if(name.size() <= testfile.size()) {
+            handler.fail(SSTR("Unexpected filename: " << name));
+            return;
+        }
+
         std::string part1 = name.substr(0, testfile.size());
         std::string part2 = name.substr(testfile.size(), name.size()-1);
 
-        ASSERT(part1 == testfile, "Unexpected filename: " << part1);
+        if(part1 != testfile) {
+            handler.fail(SSTR("Unexpected filename: " << part1));
+            return;
+        }
+
         int num = atoi(part2.c_str());
-        ASSERT(num > 0, "Unexpected file number: " << num);
-        ASSERT(num <= nfiles, "Unexpected file number: " << num);
+        if(num <= 0 || num > nfiles) {
+            handler.fail(SSTR("Unexpected file number: " << num));
+            return;
+        }
+
         hits[num]++;
     } while(it.next());
 
-    // count all hits to make sure all have exactly one
-    ASSERT(i == nfiles, "wrong number of files; expected " << nfiles << ", found " << i);
-    for(int i = 1; i <= nfiles; i++)
-        ASSERT(hits[i] == 1, "hits check for file" << i << " failed. Expected 1, found " << hits[i]);
+    handler.check(i == nfiles, SSTR("Ensure directory contains " << nfiles << " files"));
 
-    std::cout << "All OK" << std::endl;
+    // count all hits to make sure all have exactly one
+    for(int i = 1; i <= nfiles; i++) {
+        handler.check(hits[i] == 1, SSTR("Ensure testfile #" << i << " is found"));
+    }
 }
 
 /* upload a file and move it around */
@@ -511,7 +529,7 @@ bool run(int argc, char** argv) {
     }
     else if(cmd[0] == "listing") {
         assert_args(cmd, 1);
-        listing(params, uri, atoi(cmd[1].c_str()));
+        listing(handler, params, uri, atoi(cmd[1].c_str()));
     }
     else if(cmd[0] == "putMoveDelete") {
         assert_args(cmd, 0);
@@ -524,7 +542,7 @@ bool run(int argc, char** argv) {
     }
     else if(cmd[0] == "countfiles") {
         assert_args(cmd, 1);
-        countfiles(params, uri, atoi(cmd[1].c_str()));
+        countfiles(handler, params, uri, atoi(cmd[1].c_str()));
     }
     else if(cmd[0] == "statdir") {
         assert_args(cmd, 0);
@@ -536,7 +554,7 @@ bool run(int argc, char** argv) {
     }
     else if(cmd[0] == "movefile") {
         assert_args(cmd, 0);
-        movefile(params, uri);
+        movefile(handler, params, uri);
     }
     else if(cmd[0] == "preadvec") {
         if(cmd.size() == 2) {

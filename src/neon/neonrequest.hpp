@@ -138,7 +138,7 @@ private:
     // Private Members
     int startRequest(DavixError** err);
 
-    int processRedirection(int neonCode, DavixError** err); // analyze and process redirection if needed
+    int processRedirection(DavixError** err); // analyze and process redirection if needed
 
     void resetRequest();
 

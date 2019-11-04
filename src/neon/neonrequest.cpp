@@ -356,7 +356,7 @@ void NeonRequest::createBackendRequest() {
 
 }
 
-int NeonRequest::processRedirection(int neonCode, DavixError **err){
+int NeonRequest::processRedirection(DavixError **err){
     ne_discard_response(_req);              // Get a valid redirection, drop request content
     _last_read =0;
     ne_end_request(_req);      // submit the redirection
@@ -483,7 +483,7 @@ int NeonRequest::negotiateRequest(DavixError** err){
                     break;
                 }
 
-                if( (end_status = processRedirection(status, err)) <0){
+                if( (end_status = processRedirection(err)) <0){
                    return -1;
                 }
 
@@ -504,34 +504,25 @@ int NeonRequest::negotiateRequest(DavixError** err){
             case 401: // authentification requested, do retry
             case 403:
                 ne_discard_response(_req);
-                end_status = ne_end_request(_req);
+                ne_end_request(_req);
                 _last_read = -1;
 
-                if( end_status != NE_RETRY){
-                    req_started= req_running = false;
-                    clearAnswerContent();
+                req_started= req_running = false;
+                clearAnswerContent();
 
-                    _number_try++;
-                    if (requestCleanup()){
-                        DavixError::clearError(err);
-                        endRequest(NULL);
-                        return startRequest(err);
-                    }
-
-                    if(end_status == NE_OK){
-                        httpcodeToDavixError(code, davix_scope_http_request(), "", err);
-                        return -1;
-                    }
-
-                    createError(end_status, err);
-                    return -1;
+                _number_try++;
+                if (_number_try <= auth_retry_limit && requestCleanup()){
+                    DavixError::clearError(err);
+                    endRequest(NULL);
+                    return startRequest(err);
                 }
-                DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "(NEON) {} code -> request again ", code);
-                break;
+
+                httpcodeToDavixError(code, davix_scope_http_request(), "", err);
+                return -1;
             case 501:
                  // cleanup redirection
                 _number_try++;
-                if( requestCleanup()){
+                if(_number_try <= auth_retry_limit && requestCleanup()){
                     // recursive call, restart request
                     endRequest(NULL);
                     return startRequest(err);

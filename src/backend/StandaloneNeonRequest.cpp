@@ -295,7 +295,11 @@ dav_ssize_t StandaloneNeonRequest::readBlock(char* buffer, dav_size_t max_size, 
     return -1;
   }
 
-  if(max_size ==0) {
+  if(max_size == 0) {
+    return 0;
+  }
+
+  if(_last_read == 0) {
     return 0;
   }
 

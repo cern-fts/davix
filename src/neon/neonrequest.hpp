@@ -107,21 +107,12 @@ private:
     //--------------------------------------------------------------------------
     void prepareUriParams();
 
-    //--------------------------------------------------------------------------
-    // We're following a redirect, store new location into the given Uri.
-    //--------------------------------------------------------------------------
-    Status obtainRedirectedLocation(Uri &out);
-
     // neon standalone request
     std::unique_ptr<StandaloneNeonRequest> _neon_req;
-
-    // neon internal field
-    std::unique_ptr<NEONSessionWrapper> _neon_sess;
 
     // bound hooks
     BoundHooks _bound_hooks;
 
-    ne_request * _req;
     // req info
     int _number_try;
     // number of redirects so far
@@ -129,7 +120,7 @@ private:
     // read info
     dav_ssize_t _total_read_size, _last_read;
 
-    bool req_started, req_running;
+    bool req_started;
     bool _headers_configured;
 
     int _accepted_202_retries;
@@ -140,17 +131,8 @@ private:
 
     int processRedirection(DavixError** err); // analyze and process redirection if needed
 
-    void resetRequest();
-
-    int instanceSession(DavixError** err);
-
     void configureHeaders();
-    void configureRequest();
-
     void cancelSessionReuse();
-
-    // create initial neon request object
-    int createRequest(DavixError** err);
 
     // negociate the request : authentification, redirection, name resolution
     int negotiateRequest(DavixError** err);

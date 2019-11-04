@@ -22,6 +22,7 @@
 #ifndef DAVIX_BACKEND_STANDALONE_NEON_REQUEST_HPP
 #define DAVIX_BACKEND_STANDALONE_NEON_REQUEST_HPP
 
+#include <backend/StandaloneRequest.hpp>
 #include "BoundHooks.hpp"
 #include <davix_internal.hpp>
 #include <utils/davix_uri.hpp>
@@ -38,19 +39,6 @@ class RequestParams;
 class NeonSessionWrapper;
 
 //------------------------------------------------------------------------------
-// Describe current request state.
-//------------------------------------------------------------------------------
-enum class RequestState {
-  kNotStarted = 0,      // request object has been constructed,
-                        // but startRequest has not been called yet
-
-  kStarted,             // startRequest has been called
-
-  kFinished             // request is done, session has been released
-};
-
-
-//------------------------------------------------------------------------------
 // Represent a single, standalone HTTP request with libneon implementation.
 //
 // No magic here. No automatic redirections, no cached redirections, no
@@ -59,7 +47,7 @@ enum class RequestState {
 //
 // The magic is to be added by higher-level classes building upon this one.
 //------------------------------------------------------------------------------
-class StandaloneNeonRequest {
+class StandaloneNeonRequest : public StandaloneRequest {
 public:
   //----------------------------------------------------------------------------
   // Constructor
@@ -97,57 +85,57 @@ public:
   //----------------------------------------------------------------------------
   // Get a specific response header
   //----------------------------------------------------------------------------
-  bool getAnswerHeader(const std::string &header_name, std::string &value) const;
+  virtual bool getAnswerHeader(const std::string &header_name, std::string &value) const;
 
   //----------------------------------------------------------------------------
   // Get all response headers
   //----------------------------------------------------------------------------
-  size_t getAnswerHeaders(std::vector<std::pair<std::string, std::string > > & vec_headers) const;
+  virtual size_t getAnswerHeaders(std::vector<std::pair<std::string, std::string > > & vec_headers) const;
 
   //----------------------------------------------------------------------------
   // Start request - calling this more than once will not have any effect.
   //----------------------------------------------------------------------------
-  Status startRequest();
+  virtual Status startRequest();
 
   //----------------------------------------------------------------------------
   // Finish an already started request.
   //----------------------------------------------------------------------------
-  Status endRequest();
+  virtual Status endRequest();
 
   //----------------------------------------------------------------------------
   // Major read function - read a block of max_size bytes (at max) into buffer.
   //----------------------------------------------------------------------------
-  dav_ssize_t readBlock(char* buffer, dav_size_t max_size, Status& st);
+  virtual dav_ssize_t readBlock(char* buffer, dav_size_t max_size, Status& st);
 
   //----------------------------------------------------------------------------
   // Check request state
   //----------------------------------------------------------------------------
-  RequestState getState() const;
+  virtual RequestState getState() const;
 
   //----------------------------------------------------------------------------
   // Get status code - returns 0 if impossible to determine
   //----------------------------------------------------------------------------
-  int getStatusCode() const;
+  virtual int getStatusCode() const;
 
   //----------------------------------------------------------------------------
   // Do not re-use underlying session
   //----------------------------------------------------------------------------
-  void doNotReuseSession();
+  virtual void doNotReuseSession();
 
   //----------------------------------------------------------------------------
   // Has the underlying session been used before?
   //----------------------------------------------------------------------------
-  bool isRecycledSession() const;
+  virtual bool isRecycledSession() const;
 
   //----------------------------------------------------------------------------
   // Obtain redirected location, store into the given Uri
   //----------------------------------------------------------------------------
-  Status obtainRedirectedLocation(Uri &out);
+  virtual Status obtainRedirectedLocation(Uri &out);
 
   //----------------------------------------------------------------------------
   // Get session error, if available
   //----------------------------------------------------------------------------
-  std::string getSessionError() const;
+  virtual std::string getSessionError() const;
 
 private:
   NEONSessionFactory &_session_factory;

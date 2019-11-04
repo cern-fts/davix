@@ -162,9 +162,15 @@ void remove(TestcaseHandler &handler, const RequestParams &params, const Uri uri
     if(!safePath) return;
 
     Context context;
-    DavFile file(context, params, uri);
-    file.deletion(&params);
-    handler.pass("Deletion successful");
+
+    try {
+        DavFile file(context, params, uri);
+        file.deletion(&params);
+        handler.pass("Deletion successful");
+    }
+    catch(const DavixException &exc) {
+        handler.fail(SSTR("Exception: " << exc.what()));
+    }
 }
 
 void depopulate(TestcaseHandler &handler, const RequestParams &params, Uri uri, int nfiles) {
@@ -266,12 +272,18 @@ void statfile(TestcaseHandler &handler, const RequestParams &params, const Uri u
     Context context;
     DavFile file(context, params, uri);
     StatInfo info;
-    file.statInfo(&params, info);
 
-    handler.info(SSTR("Mode: " << string_from_mode(info.mode)));
-    handler.info(SSTR("Size: " << info.size));
+    try {
+        file.statInfo(&params, info);
+        handler.info(SSTR("Mode: " << string_from_mode(info.mode)));
+        handler.info(SSTR("Size: " << info.size));
 
-    handler.check(!S_ISDIR(info.mode), "Ensure S_ISDIR shows a file");
+        handler.check(!S_ISDIR(info.mode), "Ensure S_ISDIR shows a file");
+    }
+    catch(const DavixException &exc) {
+        handler.fail(SSTR("Exception: " << exc.what()));
+    }
+
 
     if(!params.getAwsAutorizationKeys().first.empty()) {
       // Now try statting through the signed URL
@@ -293,10 +305,15 @@ void movefile(TestcaseHandler &handler, const RequestParams &params, const Uri u
     DavFile source(context, params, u1);
     DavFile dest(context, params, u2);
 
-    source.move(&params, dest);
-
-    statfile(handler.makeChild(), params, u2);
-    dest.move(&params, source);
+    try {
+        source.move(&params, dest);
+        statfile(handler.makeChild(), params, u2);
+        dest.move(&params, source);
+        handler.pass("Move successful");
+    }
+    catch(const DavixException &exc) {
+        handler.fail(SSTR("Exception: " << exc.what()));
+    }
 }
 
 void uploadFile(TestcaseHandler &handler, Context &ctx, const RequestParams &params, const Uri uri) {
@@ -306,12 +323,12 @@ void uploadFile(TestcaseHandler &handler, Context &ctx, const RequestParams &par
 
     try {
         file.put(NULL, testString.c_str(), testString.size());
+        handler.pass(SSTR("File " << uri.getString() << " uploaded."));
     }
     catch(const DavixException &err) {
         handler.fail(SSTR("Exception: " << err.what()));
     }
 
-    handler.pass(SSTR("File " << uri.getString() << " uploaded."));
     statfile(handler, params, uri);
 }
 

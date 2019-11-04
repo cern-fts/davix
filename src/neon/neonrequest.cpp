@@ -158,31 +158,6 @@ void neon_generic_error_mapper(int ne_status, StatusCode::Code & code, std::stri
 }
 
 
-// convert neon_simple_request error to davix code,
-void neon_simple_req_code_to_davix_code(int ne_status, ne_session* sess, const std::string & scope, DavixError** err){
-    StatusCode::Code code;
-    std::string str;
-    switch(ne_status){
-        case NE_ERROR:{
-             const char * str_error = ne_get_error(sess);
-             if(strstr(str_error, "404") != NULL){
-                 code = StatusCode::FileNotFound;
-             }else if(strstr(str_error, "401") != NULL || strstr(str_error, "403") != NULL){
-                 code = StatusCode::PermissionRefused;
-             }else{
-                 code = StatusCode::ConnectionProblem;
-             }
-             str = std::string("(Neon): ").append(str_error);
-             break;
-        }
-        default:
-            neon_generic_error_mapper(ne_status, code, str);
-    }
-    DavixError::setupError(err,scope, code, str);
-}
-
-
-
 NeonRequest::NeonRequest(const BoundHooks &hooks, Context& context, const Uri & uri_req) :
     BackendRequest(context, uri_req),
     _neon_sess(),
@@ -207,7 +182,7 @@ void NeonRequest::cancelSessionReuse(){
    // if session registered
    // cancel any re-use of the session
    //
-   if(_neon_sess.get() != NULL){
+   if(_neon_sess) {
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "Connection problem: eradicate session");
        _neon_sess->do_not_reuse_this_session();
     }

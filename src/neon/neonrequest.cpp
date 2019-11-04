@@ -116,9 +116,9 @@ void NeonRequest::cancelSessionReuse(){
    // if session registered
    // cancel any re-use of the session
    //
-    if(_neon_req) {
+    if(_standalone_req) {
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "Connection problem: eradicate session");
-        _neon_req->doNotReuseSession();
+        _standalone_req->doNotReuseSession();
     }
 }
 
@@ -172,7 +172,7 @@ void NeonRequest::configureHeaders() {
 }
 
 //------------------------------------------------------------------------------
-// Initialize and configure _neon_req
+// Initialize and configure _standalone_req
 //------------------------------------------------------------------------------
 void NeonRequest::createBackendRequest() {
     configureHeaders();
@@ -193,7 +193,7 @@ void NeonRequest::createBackendRequest() {
     setupDeadlineIfUnset();
 
     NEONSessionFactory& factory = ContextExplorer::SessionFactoryFromContext(getContext());
-    _neon_req.reset(new StandaloneNeonRequest(
+    _standalone_req.reset(new StandaloneNeonRequest(
         factory,
         true,
         _bound_hooks,
@@ -208,7 +208,7 @@ void NeonRequest::createBackendRequest() {
 
     // configure connexion parameters for PUT request
     if( (_req_flag & RequestFlag::SupportContinue100) == true) {
-        _neon_req->doNotReuseSession();
+        _standalone_req->doNotReuseSession();
     }
 }
 
@@ -248,7 +248,7 @@ int NeonRequest::negotiateRequest(DavixError** err){
     while(end_status == NE_RETRY && _number_try <= auth_retry_limit) {
         DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_HTTP, "NEON start internal request");
 
-        Status st = _neon_req->startRequest();
+        Status st = _standalone_req->startRequest();
 
         // if(status != NE_OK && status != NE_REDIRECT) {
         if(!st.ok()) {
@@ -384,13 +384,13 @@ bool NeonRequest::requestCleanup(){
 
     // disable recycling
     // server supporting broken pipelining will trigger if reused
-    if(_neon_req) {
-        _neon_req->doNotReuseSession();
+    if(_standalone_req) {
+        _standalone_req->doNotReuseSession();
     }
 
     // check if we had a redirection
     // if it's the case redirection can be expired, then
-    if(_current != _orig || _neon_req->isRecycledSession()){
+    if(_current != _orig || _standalone_req->isRecycledSession()){
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, " ->  Error when using reycling of session/redirect : cancel and try again");
         // disable session reuse for this request, avoid picking up a session already expired
         _params.setKeepAlive(false);
@@ -402,7 +402,7 @@ bool NeonRequest::requestCleanup(){
 
 int NeonRequest::redirectRequest(DavixError **err) {
     Uri location;
-    Status st = _neon_req->obtainRedirectedLocation(location);
+    Status st = _standalone_req->obtainRedirectedLocation(location);
 
     if(!st.ok()) {
         st.toDavixError(err);
@@ -482,7 +482,7 @@ int NeonRequest::beginRequest(DavixError** err){
 dav_ssize_t NeonRequest::readBlock(char* buffer, dav_size_t max_size, DavixError** err){
     dav_ssize_t read_status=-1;
 
-    if(!_neon_req) {
+    if(!_standalone_req) {
         DavixError::setupError(err, davix_scope_http_request(), StatusCode::AlreadyRunning, "No request started");
         return -1;
     }
@@ -512,9 +512,9 @@ dav_ssize_t NeonRequest::readBlock(char* buffer, dav_size_t max_size, DavixError
        }
     }
 
-    if(_neon_req) {
+    if(_standalone_req) {
         Status st;
-        dav_ssize_t retval = _neon_req->readBlock(buffer, max_size, st);
+        dav_ssize_t retval = _standalone_req->readBlock(buffer, max_size, st);
         if(!st.ok()) {
           st.toDavixError(err);
         }
@@ -532,13 +532,13 @@ dav_ssize_t NeonRequest::readBlock(char* buffer, dav_size_t max_size, DavixError
 }
 
 int NeonRequest::endRequest(DavixError** err){
-    if(!_neon_req) {
+    if(!_standalone_req) {
       DavixError::setupError(err, davix_scope_http_request(), StatusCode::InvalidArgument, "Request not started");
       return -1;
     }
 
     req_started = false;
-    return _neon_req->endRequest().toDavixError(err);
+    return _standalone_req->endRequest().toDavixError(err);
 }
 
 //------------------------------------------------------------------------------
@@ -550,24 +550,24 @@ int NeonRequest::getRequestCode() {
         return _early_termination_error->getStatus();
     }
 
-    if(_neon_req) {
-        return _neon_req->getStatusCode();
+    if(_standalone_req) {
+        return _standalone_req->getStatusCode();
     }
 
     return 0;
 }
 
 bool NeonRequest::getAnswerHeader(const std::string &header_name, std::string &value) const {
-    if(_neon_req) {
-        return _neon_req->getAnswerHeader(header_name, value);
+    if(_standalone_req) {
+        return _standalone_req->getAnswerHeader(header_name, value);
     }
 
     return false;
 }
 
 size_t NeonRequest::getAnswerHeaders( HeaderVec & vec_headers) const {
-    if(_neon_req) {
-        return _neon_req->getAnswerHeaders(vec_headers);
+    if(_standalone_req) {
+        return _standalone_req->getAnswerHeaders(vec_headers);
     }
 
     return vec_headers.size();
@@ -575,7 +575,7 @@ size_t NeonRequest::getAnswerHeaders( HeaderVec & vec_headers) const {
 
 void NeonRequest::freeRequest(){
     DavixError::clearError(&_early_termination_error);
-    _neon_req.reset();
+    _standalone_req.reset();
 }
 
 void NeonRequest::createError(int ne_status, DavixError **err){
@@ -584,7 +584,7 @@ void NeonRequest::createError(int ne_status, DavixError **err){
     switch(ne_status){
         case NE_ERROR:
             {
-             str = std::string("(Neon): ").append(_neon_req->getSessionError());
+             str = std::string("(Neon): ").append(_standalone_req->getSessionError());
              if (str.find("SSL handshake failed") == std::string::npos)
                  code = StatusCode::ConnectionProblem;
              else

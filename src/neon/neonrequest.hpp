@@ -47,7 +47,7 @@ namespace Davix {
 class NEONSessionFactory;
 class NEONSession;
 class NEONSessionWrapper;
-class StandaloneNeonRequest;
+class StandaloneRequest;
 
 class NeonRequest : public BackendRequest
 {
@@ -108,7 +108,7 @@ private:
     void prepareUriParams();
 
     // neon standalone request
-    std::unique_ptr<StandaloneNeonRequest> _neon_req;
+    std::unique_ptr<StandaloneRequest> _standalone_req;
 
     // bound hooks
     BoundHooks _bound_hooks;

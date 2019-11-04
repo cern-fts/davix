@@ -37,6 +37,8 @@
 
 #include "../backend/StandaloneNeonRequest.hpp"
 
+#define DBG(message) std::cerr << __FILE__ << ":" << __LINE__ << " -- " << #message << " = " << message << std::endl
+
 namespace Davix {
 
 class NEONSessionWrapper {
@@ -326,6 +328,7 @@ void NeonRequest::configureRequest(){
 // Initialize and configure _neon_req
 //------------------------------------------------------------------------------
 void NeonRequest::createBackendRequest() {
+    configureHeaders();
     checkRedirectCache();
     prepareUriParams();
 
@@ -354,27 +357,13 @@ void NeonRequest::createBackendRequest() {
 }
 
 int NeonRequest::processRedirection(int neonCode, DavixError **err){
-    int end_status = -1;
-    if (this->_params.getTransparentRedirectionSupport()) {
-        if( neonCode != NE_OK
-                && neonCode != NE_RETRY
-                && neonCode != NE_REDIRECT){
-            req_started= req_running = false;
-            createError(neonCode, err);
-            return -1;
-        }
-        ne_discard_response(_req);              // Get a valid redirection, drop request content
-        _last_read =0;
-        end_status = ne_end_request(_req);      // submit the redirection
-        if(redirectRequest(err) <0){           // accept redirection
-            return -1;
-        }
-        end_status = NE_RETRY;
+    ne_discard_response(_req);              // Get a valid redirection, drop request content
+    _last_read =0;
+    ne_end_request(_req);      // submit the redirection
+    if(redirectRequest(err) <0){           // accept redirection
+        return -1;
     }
-    else {
-        end_status = 0;
-    }
-    return end_status;
+    return NE_RETRY;
 }
 
 int NeonRequest::startRequest(DavixError **err){
@@ -486,6 +475,12 @@ int NeonRequest::negotiateRequest(DavixError** err){
                     _early_termination = true;
                     if(!_early_termination_error) return 0;
                     return -1;
+                }
+
+                if(!this->_params.getTransparentRedirectionSupport()) {
+                    // We don't follow redirects, give response as-is
+                    end_status = NE_OK;
+                    break;
                 }
 
                 if( (end_status = processRedirection(status, err)) <0){

@@ -135,6 +135,8 @@ std::string detect_region(const Uri &uri) {
     req.setParameters(p);
     req.executeRequest(&err);
 
+    DavixError::clearError(&err);
+
     std::string region;
     if(req.getAnswerHeader("x-amz-region", region)) {
         return region;

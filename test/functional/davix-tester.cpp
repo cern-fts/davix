@@ -476,6 +476,8 @@ void preadvec(TestcaseHandler &handler, const RequestParams &params, const Uri u
     DavIOVecInput inVec[ranges.size()];
     DavIOVecOuput outVec[ranges.size()];
 
+    std::vector<std::unique_ptr<std::string>> buffers;
+
     for(size_t i = 0; i < ranges.size(); i++) {
         std::vector<std::string> parts = split(ranges[i], "-");
 
@@ -489,7 +491,8 @@ void preadvec(TestcaseHandler &handler, const RequestParams &params, const Uri u
 
         dav_ssize_t size = end - start + 1;
 
-        inVec[i].diov_buffer = new char[size];
+        buffers.emplace_back(new std::string(size, ' '));
+        inVec[i].diov_buffer = (void*) buffers.back()->c_str(); // new char[size];
         inVec[i].diov_size = size;
         inVec[i].diov_offset = start;
     }

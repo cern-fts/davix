@@ -169,6 +169,7 @@ NeonRequest::NeonRequest(const BoundHooks &hooks, Context& context, const Uri & 
     _last_read(-1),
     req_started(false),
     req_running(false),
+    _headers_configured(false),
     _accepted_202_retries(0) {
 }
 
@@ -275,13 +276,19 @@ static ssize_t content_provider_callback(void* userdata, char* buffer, size_t bu
     return provider->pullBytes(buffer, buflen);
 }
 
-void NeonRequest::configureRequest(){
-
+void NeonRequest::configureHeaders() {
     // add custom user headers, but make sure they're only added once
     // in case of a redirect
-    if(!req_running) {
+
+    if(!_headers_configured) {
         std::copy(_params.getHeaders().begin(), _params.getHeaders().end(), std::back_inserter(_headers_field));
+        _headers_configured = true;
     }
+}
+
+void NeonRequest::configureRequest(){
+
+    configureHeaders();
 
     //--------------------------------------------------------------------------
     // Doing a PUT to Azure? Detect if this is happening, and engage
@@ -322,6 +329,9 @@ void NeonRequest::createBackendRequest() {
     checkRedirectCache();
     prepareUriParams();
 
+    // setup timeout
+    setupDeadlineIfUnset();
+
     NEONSessionFactory& factory = ContextExplorer::SessionFactoryFromContext(getContext());
     _neon_req.reset(new StandaloneNeonRequest(
         factory,
@@ -335,6 +345,12 @@ void NeonRequest::createBackendRequest() {
         _content_provider,
         _deadline
     ));
+
+    // configure connexion parameters for PUT request
+    if( (_req_flag & RequestFlag::SupportContinue100) == true) {
+        _neon_req->doNotReuseSession();
+    }
+
 }
 
 int NeonRequest::processRedirection(int neonCode, DavixError **err){

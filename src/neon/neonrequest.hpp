@@ -130,6 +130,7 @@ private:
     dav_ssize_t _total_read_size, _last_read;
 
     bool req_started, req_running;
+    bool _headers_configured;
 
     int _accepted_202_retries;
 
@@ -143,6 +144,7 @@ private:
 
     int instanceSession(DavixError** err);
 
+    void configureHeaders();
     void configureRequest();
 
     void cancelSessionReuse();

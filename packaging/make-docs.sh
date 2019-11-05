@@ -13,7 +13,7 @@ dnf builddep -y build/SRPMS/*
 #-------------------------------------------------------------------------------
 rm -rf build
 mkdir build && cd build
-cmake -DENABLE_HTML_DOCS=TRUE ..
+sphinx-build-3 -q -b html "${PWD}/sphinx" "${PWD}/build/html/")
 
-make sphinx
+cmake -DENABLE_HTML_DOCS=TRUE ..
 make doc

@@ -21,21 +21,15 @@
 
 #include "SessionFactory.hpp"
 #include <stdlib.h>
+#include <neon/neonsessionfactory.hpp>
 
 namespace Davix {
-
-//------------------------------------------------------------------------------
-// Check if session caching is disabled from environment variables
-//------------------------------------------------------------------------------
-static bool isSessionCachingDisabled(){
-  return ( getenv("DAVIX_DISABLE_SESSION_CACHING") != NULL);
-}
 
 //------------------------------------------------------------------------------
 // Constructor
 //------------------------------------------------------------------------------
 SessionFactory::SessionFactory() {
-  _session_caching = !isSessionCachingDisabled();
+  _neon_factory.reset(new NEONSessionFactory());
 }
 
 //------------------------------------------------------------------------------
@@ -44,20 +38,24 @@ SessionFactory::SessionFactory() {
 SessionFactory::~SessionFactory() {}
 
 //------------------------------------------------------------------------------
+// Get neon session factory
+//------------------------------------------------------------------------------
+NEONSessionFactory& SessionFactory::getNeon() {
+  return *(_neon_factory.get());
+}
+
+//------------------------------------------------------------------------------
 // Set caching on or off
 //------------------------------------------------------------------------------
 void SessionFactory::setSessionCaching(bool caching) {
-  std::lock_guard<std::mutex> lock(_session_caching_mtx);
-  _session_caching = caching && !isSessionCachingDisabled();
+  _neon_factory->setSessionCaching(caching);
 }
 
 //------------------------------------------------------------------------------
 // Get caching status
 //------------------------------------------------------------------------------
 bool SessionFactory::getSessionCaching() const {
-  std::lock_guard<std::mutex> lock(_session_caching_mtx);
-  return _session_caching;
+  return _neon_factory->getSessionCaching();
 }
-
 
 }

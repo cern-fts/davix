@@ -144,7 +144,6 @@ NEONSession::NEONSession(NEONSessionFactory &f, ne_session *sess, const Uri & ur
             configureSession(_sess, _u, p, &NEONSession::provide_login_passwd_fn, this, &NEONSession::authNeonCliCertMapper, this, reused);
 }
 
-
 NEONSession::~NEONSession(){
         if(_sess){
             if(_session_recycling)

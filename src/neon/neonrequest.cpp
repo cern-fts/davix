@@ -192,7 +192,7 @@ void NeonRequest::createBackendRequest() {
     // setup timeout
     setupDeadlineIfUnset();
 
-    NEONSessionFactory& factory = ContextExplorer::SessionFactoryFromContext(getContext());
+    NEONSessionFactory& factory = ContextExplorer::SessionFactoryFromContext(getContext()).getNeon();
     _standalone_req.reset(new StandaloneNeonRequest(
         factory,
         true,

@@ -22,10 +22,9 @@
 #ifndef NEONSESSION_HPP
 #define NEONSESSION_HPP
 
-
+#include <utils/davix_logger_internal.hpp>
 #include <davix_context_internal.hpp>
 #include <params/davixrequestparams.hpp>
-
 
 #include <pthread.h>
 #include <ne_session.h>

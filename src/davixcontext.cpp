@@ -25,7 +25,7 @@
 #include <string_utils/stringutils.hpp>
 #include <utils/davix_uri.hpp>
 #include <modules/modules_profiles.hpp>
-#include <neon/neonsessionfactory.hpp>
+#include <backend/SessionFactory.hpp>
 #include <davix_context_internal.hpp>
 #include <core/RedirectionResolver.hpp>
 #include <set>
@@ -47,7 +47,7 @@ static bool redirCachingDisabled(){
 struct ContextInternal
 {
     ContextInternal():
-        _fsess(new NEONSessionFactory()),
+        _fsess(new SessionFactory()),
         _redirectionResolver(new RedirectionResolver(!redirCachingDisabled())),
         _hook_list()
     {
@@ -55,7 +55,7 @@ struct ContextInternal
     }
 
     ContextInternal(const ContextInternal & orig) :
-        _fsess(new NEONSessionFactory()),
+        _fsess(new SessionFactory()),
         _redirectionResolver(new RedirectionResolver(!redirCachingDisabled())),
         _hook_list(orig._hook_list)
     {
@@ -64,7 +64,7 @@ struct ContextInternal
     virtual ~ContextInternal(){}
 
     // implementation of getSessionFactory
-    inline NEONSessionFactory* getSessionFactory(){
+    inline SessionFactory* getSessionFactory(){
          return _fsess.get();
     }
 
@@ -72,7 +72,7 @@ struct ContextInternal
         return _redirectionResolver.get();
     }
 
-    std::unique_ptr<NEONSessionFactory>  _fsess;
+    std::unique_ptr<SessionFactory>  _fsess;
     std::unique_ptr<RedirectionResolver> _redirectionResolver;
     HookList _hook_list;
 };
@@ -118,7 +118,7 @@ bool Context::getSessionCaching() const{
 }
 
 void Context::clearCache() {
-  _intern->_fsess.reset(new NEONSessionFactory());
+  _intern->_fsess.reset(new SessionFactory());
 }
 
 HttpRequest* Context::createRequest(const std::string & url, DavixError** err){
@@ -143,8 +143,8 @@ HookList & Context::getHookList(){
     return _intern->_hook_list;
 }
 
-NEONSessionFactory & ContextExplorer::SessionFactoryFromContext(Context & c){
-    return *static_cast<NEONSessionFactory*>(c._intern->getSessionFactory());
+SessionFactory& ContextExplorer::SessionFactoryFromContext(Context & c){
+    return *(c._intern->getSessionFactory());
 }
 
 RedirectionResolver & ContextExplorer::RedirectionResolverFromContext(Context &c) {

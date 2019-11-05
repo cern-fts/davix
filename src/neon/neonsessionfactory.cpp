@@ -158,4 +158,27 @@ std::string create_map_keys_from_URL(const std::string & protocol, const std::st
     return host_port;
 }
 
+//------------------------------------------------------------------------------
+// Check if session caching is disabled from environment variables
+//------------------------------------------------------------------------------
+static bool isSessionCachingDisabled(){
+  return ( getenv("DAVIX_DISABLE_SESSION_CACHING") != NULL);
+}
+
+//------------------------------------------------------------------------------
+// Set caching on or off
+//------------------------------------------------------------------------------
+void NEONSessionFactory::setSessionCaching(bool caching) {
+  std::lock_guard<std::mutex> lock(_session_caching_mtx);
+  _session_caching = caching && !isSessionCachingDisabled();
+}
+
+//------------------------------------------------------------------------------
+// Get caching status
+//------------------------------------------------------------------------------
+bool NEONSessionFactory::getSessionCaching() const {
+  std::lock_guard<std::mutex> lock(_session_caching_mtx);
+  return _session_caching;
+}
+
 } // namespace Davix

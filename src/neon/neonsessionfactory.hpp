@@ -32,7 +32,7 @@ namespace Davix {
 
 class HttpRequest;
 
-class NEONSessionFactory : public SessionFactory
+class NEONSessionFactory
 {
 public:
     NEONSessionFactory();
@@ -43,10 +43,20 @@ public:
     //--------------------------------------------------------------------------
     std::unique_ptr<NEONSession> provideNEONSession(const Uri &uri, const RequestParams &params, DavixError **err);
 
-    /**
-      store a Neon session object for session reuse purpose
-    */
+    //--------------------------------------------------------------------------
+    // Store a Neon session object for session reuse purposes
+    //--------------------------------------------------------------------------
     void storeNeonSession(ne_session *sess);
+
+    //--------------------------------------------------------------------------
+    // Set caching on or off
+    //--------------------------------------------------------------------------
+    void setSessionCaching(bool caching);
+
+    //--------------------------------------------------------------------------
+    // Get caching status
+    //--------------------------------------------------------------------------
+    bool getSessionCaching() const;
 
 private:
     // session pool
@@ -61,6 +71,12 @@ private:
     // Create a brand new neon session object, internal use only.
     //--------------------------------------------------------------------------
     ne_session* createNeonSession(const RequestParams & params, const Uri & uri, DavixError** err);
+
+    //--------------------------------------------------------------------------
+    // Variables to control session caching
+    //--------------------------------------------------------------------------
+    mutable std::mutex _session_caching_mtx;
+    bool _session_caching;
 
 };
 

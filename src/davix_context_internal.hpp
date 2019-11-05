@@ -34,12 +34,12 @@ namespace Davix {
 /// @cond HIDDEN_SYMBOLS
 
 class RedirectionResolver;
-class NEONSessionFactory;
+class SessionFactory;
 
 
 struct ContextExplorer{
 
-static NEONSessionFactory & SessionFactoryFromContext(Context & c);
+static SessionFactory & SessionFactoryFromContext(Context & c);
 static RedirectionResolver & RedirectionResolverFromContext(Context &c);
 
 };

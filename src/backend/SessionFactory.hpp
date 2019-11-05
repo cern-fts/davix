@@ -22,12 +22,17 @@
 #ifndef DAVIX_SESSION_FACTORY_HPP
 #define DAVIX_SESSION_FACTORY_HPP
 
-#include <atomic>
+#include <davix_internal.hpp>
+
+#include <mutex>
+#include <memory>
 
 namespace Davix {
 
+class NEONSessionFactory;
+
 //------------------------------------------------------------------------------
-// Abstract SessionFactory class towards a type of backend.
+// Store session factories of both neon and curl implementations.
 //------------------------------------------------------------------------------
 class SessionFactory {
 public:
@@ -42,6 +47,11 @@ public:
   virtual ~SessionFactory();
 
   //----------------------------------------------------------------------------
+  // Get neon session factory
+  //----------------------------------------------------------------------------
+  NEONSessionFactory& getNeon();
+
+  //----------------------------------------------------------------------------
   // Set caching on or off
   //----------------------------------------------------------------------------
   void setSessionCaching(bool caching);
@@ -52,7 +62,7 @@ public:
   bool getSessionCaching() const;
 
 protected:
-  std::atomic<bool> _session_caching;
+  std::unique_ptr<NEONSessionFactory> _neon_factory;
 
 };
 

@@ -62,8 +62,6 @@ include(MacroAddDoxygen REQUIRED)
 include(CMakeCXX11Support REQUIRED)
 include(PortabilityGNUCheck REQUIRED)
 
-#enable testing
-INCLUDE(CTest)
 
 
 set(OUTPUT_NAME_DAVIX "davix")
@@ -103,6 +101,14 @@ add_subdirectory(deps)
 #libuuid
 find_package(uuid)
 
+#-------------------------------------------------------------------------------
+# Are we using system, or embedded libcurl?
+#-------------------------------------------------------------------------------
+option(EMBEDDED_LIBCURL "Use embedded libcurl" TRUE)
+
+if(EMBEDDED_LIBCURL)
+  add_subdirectory(deps/curl)
+endif()
 
 ## general defs
 add_definitions( -D_GNU_SOURCE)              # GNU source, import LFS, etc...
@@ -150,5 +156,5 @@ CONFIGURE_FILE(
   "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
   IMMEDIATE @ONLY)
 
-ADD_CUSTOM_TARGET(uninstall
-  "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
+# ADD_CUSTOM_TARGET(uninstall
+#   "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")

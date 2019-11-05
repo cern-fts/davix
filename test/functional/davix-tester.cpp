@@ -445,7 +445,8 @@ static std::string vecToString(const std::vector<std::string> &vec, const std::s
 }
 
 void preadvec(TestcaseHandler &handler, const RequestParams &params, const Uri uri, const std::string str_ranges, std::vector<std::string> options) {
-    handler.setName(SSTR("preadvec on " << uri.getString() << ": " << str_ranges << " | " << vecToString(options, ",")));
+    handler.setName(SSTR("preadvec on " << uri.getString()));
+    handler.info(SSTR("Options: " << str_ranges << " | " << vecToString(options, ",")));
 
     Uri u = uri;
 

@@ -1,5 +1,5 @@
-# unversionned doc dir F20 change https://fedoraproject.org/wiki/Changes/UnversionedDocdirs
 %{!?_pkgdocdir: %global _pkgdocdir %{_docdir}/%{name}-%{version}}
+%define __cmake /usr/bin/cmake3
 
 Name:				davix
 Version:			@VERSION_FULL@
@@ -84,17 +84,13 @@ rm -rf test/pywebdav/
 
 %build
 
-cmake3 \
+%cmake \
 -DDOC_INSTALL_DIR=%{_pkgdocdir} \
 -DENABLE_THIRD_PARTY_COPY=TRUE \
 -DENABLE_HTML_DOCS=TRUE \
 .
 make %{?_smp_mflags}
 make doc
-
-%check
-ctest -V -T Test
-
 
 %install
 rm -rf %{buildroot}

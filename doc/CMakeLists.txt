@@ -9,19 +9,6 @@ if(ENABLE_HTML_DOCS)
   add_dependencies(doc doxygen)
 
   SET( l_doc "${CMAKE_CURRENT_BINARY_DIR}/build/html/")
-
-  # find_package(Sphinx)
-  # if(SPHINX_FOUND)
-  #   add_custom_target(sphinx
-  #     DEPENDS doxygen
-  #     COMMAND ${SPHINX_EXECUTABLE}
-  #     -q -b html
-  #     "${CMAKE_CURRENT_SOURCE_DIR}/sphinx"
-  #     "${l_doc}/")
-
-  #   add_dependencies(doc sphinx)
-  # endif(SPHINX_FOUND)
-
   install(DIRECTORY ${l_doc} DESTINATION ${DOC_INSTALL_DIR}/html)
 endif(ENABLE_HTML_DOCS)
 

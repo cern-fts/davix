@@ -2,7 +2,7 @@
 # Initialize
 #-------------------------------------------------------------------------------
 project (davix)
-cmake_minimum_required (VERSION 2.8.11)
+cmake_minimum_required (VERSION 3.0)
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 
 #-------------------------------------------------------------------------------
@@ -107,7 +107,7 @@ find_package(uuid)
 option(EMBEDDED_LIBCURL "Use embedded libcurl" TRUE)
 
 if(EMBEDDED_LIBCURL)
-  add_subdirectory(deps/curl)
+  add_subdirectory(deps/curl EXCLUDE_FROM_ALL)
 endif()
 
 ## general defs

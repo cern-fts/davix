@@ -1,5 +1,5 @@
 %{!?_pkgdocdir: %global _pkgdocdir %{_docdir}/%{name}-%{version}}
-%define __cmake /usr/bin/cmake3
+%global __cmake cmake3
 
 Name:				davix
 Version:			@VERSION_FULL@

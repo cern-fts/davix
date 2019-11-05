@@ -15,7 +15,7 @@ cmake-no-git:
     - rm -rf .git build
     - mkdir build
     - cd build
-    - cmake ..
+    - cmake3 ..
 
 cmake-tarball:
   stage: build
@@ -31,7 +31,7 @@ cmake-tarball:
     - tar xf davix-*.tar.gz
     - cd davix-*/
     - mkdir build && cd build
-    - cmake ..
+    - cmake3 ..
 
 cc7:
   stage: build

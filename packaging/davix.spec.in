@@ -13,6 +13,7 @@ Source0:			http://grid-deployment.web.cern.ch/grid-deployment/dms/lcgutil/tar/%{
 #main lib dependencies
 BuildRequires:                  python2
 BuildRequires:                  libuuid-devel
+BuildRequires:                  cmake
 BuildRequires:                  cmake3
 BuildRequires:                  doxygen
 BuildRequires:                  libxml2-devel

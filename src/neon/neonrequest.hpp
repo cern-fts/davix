@@ -120,9 +120,7 @@ private:
     // read info
     dav_ssize_t _total_read_size, _last_read;
 
-    bool req_started;
     bool _headers_configured;
-
     int _accepted_202_retries;
 
     ////////////////////////////////////////////

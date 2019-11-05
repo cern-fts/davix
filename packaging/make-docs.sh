@@ -11,9 +11,9 @@ dnf builddep -y build/SRPMS/*
 #-------------------------------------------------------------------------------
 # Generate a docs folder - run this from the root of the git repository.
 #-------------------------------------------------------------------------------
-rm -rf build
 SPHINX_DIR="${PWD}/doc/sphinx"
 
+rm -rf build
 mkdir build && cd build
 sphinx-build-3 -q -b html "${SPHINX_DIR}" "${PWD}/build/html/"
 

@@ -101,7 +101,6 @@ NeonRequest::NeonRequest(const BoundHooks &hooks, Context& context, const Uri & 
     _number_try(0),
     _redirects(0),
     _total_read_size(0),
-    req_started(false),
     _headers_configured(false),
     _accepted_202_retries(0) {
 }
@@ -221,8 +220,6 @@ int NeonRequest::processRedirection(DavixError **err){
 
 int NeonRequest::startRequest(DavixError **err){
     createBackendRequest();
-    // if( createRequest(err) < 0)
-    //         return -1;
     return negotiateRequest(err);
 }
 
@@ -238,13 +235,6 @@ int NeonRequest::negotiateRequest(DavixError** err){
     if(checkTimeout(err) == true)
         return -1;
 
-    if(req_started){
-        DavixError::setupError(err, davix_scope_http_request(), StatusCode::AlreadyRunning, "Http request already started, Error");
-        return -1;
-    }
-
-    req_started = true;
-
     while(end_status == NE_RETRY && _number_try <= auth_retry_limit) {
         DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_HTTP, "NEON start internal request");
 
@@ -259,8 +249,6 @@ int NeonRequest::negotiateRequest(DavixError** err){
                 _number_try++;
                 return startRequest(err);
             }
-
-            req_started = false;
 
             st.toDavixError(err);
 
@@ -330,7 +318,6 @@ int NeonRequest::negotiateRequest(DavixError** err){
                 break;
             case 401: // authentification requested, do retry
             case 403:
-                req_started = false;
                 clearAnswerContent();
 
                 _number_try++;
@@ -417,11 +404,8 @@ int NeonRequest::redirectRequest(DavixError **err) {
     // recycle old request and session
     freeRequest();
 
-    // renew request
-    req_started = false;
     // create a new couple of session + request
     createBackendRequest();
-    req_started= true;
     return 0;
 }
 
@@ -471,6 +455,11 @@ int NeonRequest::executeRequest(DavixError** err){
 }
 
 int NeonRequest::beginRequest(DavixError** err){
+    if(_standalone_req) {
+        DavixError::setupError(err, davix_scope_http_request(), StatusCode::AlreadyRunning, "Http request already started, Error");
+        return -1;
+    }
+
     int ret = -1;
     _vec.clear();
     if( (ret= startRequest(err)) < 0)
@@ -537,7 +526,6 @@ int NeonRequest::endRequest(DavixError** err){
       return -1;
     }
 
-    req_started = false;
     return _standalone_req->endRequest().toDavixError(err);
 }
 

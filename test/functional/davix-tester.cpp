@@ -347,62 +347,72 @@ void populate(TestcaseHandler &handler, const RequestParams &params, const Uri u
 void countfiles(TestcaseHandler &handler, const RequestParams &params, const Uri uri, const int nfiles) {
     handler.setName(SSTR("List " << uri.getString() << ", expect " << nfiles << " files"));
 
-    Context context;
-    DavFile file(context, params, uri);
-    DavFile::Iterator it = file.listCollection(&params);
-    int i = 0;
+    try {
+        Context context;
+        DavFile file(context, params, uri);
+        DavFile::Iterator it = file.listCollection(&params);
+        int i = 0;
 
-    do {
-        i++;
-    } while(it.next());
+        do {
+            i++;
+        } while(it.next());
 
-    handler.check(i == nfiles, SSTR("Directory contains " << nfiles << " files"));
+        handler.check(i == nfiles, SSTR("Directory contains " << nfiles << " files"));
+    }
+    catch(const DavixException &exc) {
+        handler.fail(SSTR("Exception: " << exc.what()));
+    }
 }
 
 // confirm that the files listed are the exact same ones uploaded during a populate test
 void listing(TestcaseHandler &handler, const RequestParams &params, const Uri uri, const int nfiles) {
     handler.setName(SSTR("List " << uri.getString() << ", expect " << nfiles << " files"));
 
-    int hits[nfiles+1];
-    for(int i = 0; i <= nfiles; i++) hits[i] = 0;
+    try {
+        int hits[nfiles+1];
+        for(int i = 0; i <= nfiles; i++) hits[i] = 0;
 
-    Context context;
-    DavFile file(context, params, uri);
-    DavFile::Iterator it = file.listCollection(&params);
+        Context context;
+        DavFile file(context, params, uri);
+        DavFile::Iterator it = file.listCollection(&params);
 
-    int i = 0;
-    do {
-        i++;
-        std::string name = it.name();
+        int i = 0;
+        do {
+            i++;
+            std::string name = it.name();
 
-        // make sure the filenames are the same as the ones we uploaded
-        if(name.size() <= testfile.size()) {
-            handler.fail(SSTR("Unexpected filename: " << name));
-            return;
+            // make sure the filenames are the same as the ones we uploaded
+            if(name.size() <= testfile.size()) {
+                handler.fail(SSTR("Unexpected filename: " << name));
+                return;
+            }
+
+            std::string part1 = name.substr(0, testfile.size());
+            std::string part2 = name.substr(testfile.size(), name.size()-1);
+
+            if(part1 != testfile) {
+                handler.fail(SSTR("Unexpected filename: " << part1));
+                return;
+            }
+
+            int num = atoi(part2.c_str());
+            if(num <= 0 || num > nfiles) {
+                handler.fail(SSTR("Unexpected file number: " << num));
+                return;
+            }
+
+            hits[num]++;
+        } while(it.next());
+
+        handler.check(i == nfiles, SSTR("Ensure directory contains " << nfiles << " files"));
+
+        // count all hits to make sure all have exactly one
+        for(int i = 1; i <= nfiles; i++) {
+            handler.check(hits[i] == 1, SSTR("Ensure testfile #" << i << " is found"));
         }
-
-        std::string part1 = name.substr(0, testfile.size());
-        std::string part2 = name.substr(testfile.size(), name.size()-1);
-
-        if(part1 != testfile) {
-            handler.fail(SSTR("Unexpected filename: " << part1));
-            return;
-        }
-
-        int num = atoi(part2.c_str());
-        if(num <= 0 || num > nfiles) {
-            handler.fail(SSTR("Unexpected file number: " << num));
-            return;
-        }
-
-        hits[num]++;
-    } while(it.next());
-
-    handler.check(i == nfiles, SSTR("Ensure directory contains " << nfiles << " files"));
-
-    // count all hits to make sure all have exactly one
-    for(int i = 1; i <= nfiles; i++) {
-        handler.check(hits[i] == 1, SSTR("Ensure testfile #" << i << " is found"));
+    }
+    catch(const DavixException &exc) {
+        handler.fail(SSTR("Exception: " << exc.what()));
     }
 }
 

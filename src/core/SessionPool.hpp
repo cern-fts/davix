@@ -22,7 +22,30 @@
 #ifndef DAVIX_CORE_SESSION_POOL_HPP
 #define DAVIX_CORE_SESSION_POOL_HPP
 
+#include <multimap>
+#include <mutex>
+
+//------------------------------------------------------------------------------
+// Utility class to juggle sessions based on URI and parameters.
+//------------------------------------------------------------------------------
+template<typename T>
 class SessionPool {
+public:
+  //----------------------------------------------------------------------------
+  // Constructor
+  //----------------------------------------------------------------------------
+  SessionPool() {}
+
+  //----------------------------------------------------------------------------
+  // Destructor
+  //----------------------------------------------------------------------------
+  virtual ~SessionPool() {}
+
+
+
+private:
+  std::multimap<std::string, T> _map;
+  std::mutex _mutex;
 
 };
 

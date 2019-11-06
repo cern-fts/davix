@@ -69,6 +69,7 @@ set(OUTPUT_NAME_DAVIX "davix")
 # components
 option(ENABLE_TOOLS "enable or disable tools " TRUE)
 option(ENABLE_HTML_DOCS "enable or disable generation of HTML documentation" FALSE)
+option(EMBEDDED_LIBCURL "Use embedded libcurl" TRUE)
 
 # features
 option(ENABLE_IPV6 "enable or disable IPv6 support " TRUE)
@@ -101,21 +102,6 @@ add_subdirectory(deps)
 #libuuid
 find_package(uuid)
 
-#-------------------------------------------------------------------------------
-# Are we using system, or embedded libcurl?
-#-------------------------------------------------------------------------------
-option(EMBEDDED_LIBCURL "Use embedded libcurl" TRUE)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-if(EMBEDDED_LIBCURL)
-  set(BUILD_SHARED_LIBS OFF)
-  set(ENABLE_STATIC ON)
-  add_subdirectory(deps/curl EXCLUDE_FROM_ALL)
-  set(BUILD_SHARED_LIBS ON)
-
-  include_directories(deps/curl/include)
-endif()
-
 ## general defs
 add_definitions( -D_GNU_SOURCE)              # GNU source, import LFS, etc...
 add_definitions( -D__DAVIX_INSIDE__)         # protection flag
@@ -124,9 +110,18 @@ add_definitions( -D__STDC_LIMIT_MACROS )     # C99 limit macros
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_FLAG_ENABLE}")
 
+#-------------------------------------------------------------------------------
+# Are we using system, or embedded libcurl?
+#-------------------------------------------------------------------------------
+if(EMBEDDED_LIBCURL)
+  include(buildCurl REQUIRED)
+  buildCurl()
+endif()
+
 include_directories( ${HTTPLIB_PKG_INCLUDE_DIRS} ${GLIB2_PKG_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/deps ${CMAKE_CURRENT_SOURCE_DIR}/deps/libneon/src/ ${UUID_INCLUDE_DIRS} )
 include_directories( ${CMAKE_SOURCE_DIR}/include/davix )
 include_directories( ${CMAKE_SOURCE_DIR}/src/libs/)
+include_directories( ${CURL_INCLUDE_DIRS} )
 
 add_subdirectory (src)
 add_subdirectory (doc)

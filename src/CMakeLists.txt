@@ -12,6 +12,9 @@ set(DAVIX_SOURCES
   core/ContentProvider.hpp                               core/ContentProvider.cpp
   core/RedirectionResolver.hpp                           core/RedirectionResolver.cpp
   core/SessionPool.hpp
+
+  curl/CurlSessionFactory.hpp                            curl/CurlSessionFactory.cpp
+
                                                          deprecated/httpcachetoken.cpp
                                                          file/davfile.cpp
                                                          file/davposix.cpp
@@ -84,7 +87,7 @@ add_library(libdavix  SHARED ${SRC_DAVIX_FULL} )
 add_dependencies(libdavix neon)
 
 
-target_link_libraries(libdavix  alibxx_core ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES}
+target_link_libraries(libdavix  libcurl alibxx_core ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES}
                                 ${CMAKE_THREAD_LIBS_INIT} ${SOCKET_PKG_LIBRARIES} ${UUID_LIBRARIES})
 
 set_target_properties(libdavix PROPERTIES

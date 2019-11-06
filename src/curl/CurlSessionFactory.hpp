@@ -1,7 +1,7 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013
- * Author: Adrien Devresse <adrien.devresse@cern.ch>
+ * Copyright (C) CERN 2019
+ * Author: Georgios Bitzes <georgois.bitzes@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,33 +19,32 @@
  *
 */
 
-#ifndef DAVIX_NEONSESSIONFACTORY_H
-#define DAVIX_NEONSESSIONFACTORY_H
+#ifndef DAVIX_CURL_SESSION_FACTORY_HPP
+#define DAVIX_CURL_SESSION_FACTORY_HPP
 
-#include <map>
-#include <mutex>
-#include <utils/davix_uri.hpp>
-#include <neon/neonrequest.hpp>
+#include "../backend/SessionFactory.hpp"
+#include <status/DavixStatus.hpp>
 
 namespace Davix {
 
-class HttpRequest;
+class CurlSession;
 
-class NEONSessionFactory
-{
+class CurlSessionFactory {
 public:
-    NEONSessionFactory();
-    virtual ~NEONSessionFactory();
+    //--------------------------------------------------------------------------
+    // Constructor
+    //--------------------------------------------------------------------------
+    CurlSessionFactory();
 
     //--------------------------------------------------------------------------
-    // Create a NEONSession tied to this class.
+    // Destructor
     //--------------------------------------------------------------------------
-    std::unique_ptr<NEONSession> provideNEONSession(const Uri &uri, const RequestParams &params, DavixError **err);
+    virtual ~CurlSessionFactory();
 
     //--------------------------------------------------------------------------
-    // Store a Neon session object for session reuse purposes
+    // Create a CurlSession tied to this class.
     //--------------------------------------------------------------------------
-    void storeNeonSession(ne_session *sess);
+    std::unique_ptr<CurlSession> provideCurlSession(const Uri &uri, const RequestParams &params, Status &st);
 
     //--------------------------------------------------------------------------
     // Set caching on or off
@@ -58,19 +57,6 @@ public:
     bool getSessionCaching() const;
 
 private:
-    // session pool
-    std::multimap<std::string, ne_session*> _sess_map;
-    std::mutex _sess_mut;
-
-    void internal_release_session_handle(ne_session* sess);
-    ne_session* create_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);
-    ne_session* create_recycled_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);
-
-    //--------------------------------------------------------------------------
-    // Create a brand new neon session object, internal use only.
-    //--------------------------------------------------------------------------
-    ne_session* createNeonSession(const RequestParams & params, const Uri & uri, DavixError** err);
-
     //--------------------------------------------------------------------------
     // Variables to control session caching
     //--------------------------------------------------------------------------
@@ -79,10 +65,7 @@ private:
 
 };
 
-std::string create_map_keys_from_URL(const std::string & protocol, const std::string &host, unsigned int port);
+}
 
-} // namespace Davix
+#endif
 
-
-
-#endif // DAVIX_NEONSESSIONFACTORY_H

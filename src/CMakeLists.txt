@@ -13,6 +13,7 @@ set(DAVIX_SOURCES
   core/RedirectionResolver.hpp                           core/RedirectionResolver.cpp
   core/SessionPool.hpp
 
+  curl/CurlSession.hpp                                   curl/CurlSession.cpp
   curl/CurlSessionFactory.hpp                            curl/CurlSessionFactory.cpp
 
                                                          deprecated/httpcachetoken.cpp

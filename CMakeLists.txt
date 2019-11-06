@@ -108,7 +108,11 @@ option(EMBEDDED_LIBCURL "Use embedded libcurl" TRUE)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if(EMBEDDED_LIBCURL)
+  set(BUILD_SHARED_LIBS OFF)
+  set(ENABLE_STATIC ON)
   add_subdirectory(deps/curl EXCLUDE_FROM_ALL)
+  set(BUILD_SHARED_LIBS ON)
+
   include_directories(deps/curl/include)
 endif()
 

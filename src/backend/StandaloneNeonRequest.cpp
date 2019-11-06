@@ -216,8 +216,6 @@ Status StandaloneNeonRequest::startRequest() {
   //----------------------------------------------------------------------------
   // Setup headers
   //----------------------------------------------------------------------------
-  std::copy(_params.getHeaders().begin(), _params.getHeaders().end(), std::back_inserter(_headers));
-
   for(size_t i = 0; i < _headers.size(); i++) {
     ne_add_request_header(_neon_req, _headers[i].first.c_str(),  _headers[i].second.c_str());
   }

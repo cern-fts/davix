@@ -240,9 +240,7 @@ int NeonRequest::negotiateRequest(DavixError** err){
 
         Status st = _standalone_req->startRequest();
 
-        // if(status != NE_OK && status != NE_REDIRECT) {
         if(!st.ok()) {
-
             if(_number_try <= auth_retry_limit) {
                 DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_HTTP, "Connection problem, retry");
                 requestCleanup();

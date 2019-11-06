@@ -34,6 +34,7 @@
 #include <fileops/S3IO.hpp>
 #include <core/RedirectionResolver.hpp>
 #include <utils/CompatibilityHacks.hpp>
+#include <backend/SessionFactory.hpp>
 
 #include "../backend/StandaloneNeonRequest.hpp"
 

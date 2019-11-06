@@ -105,9 +105,11 @@ find_package(uuid)
 # Are we using system, or embedded libcurl?
 #-------------------------------------------------------------------------------
 option(EMBEDDED_LIBCURL "Use embedded libcurl" TRUE)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if(EMBEDDED_LIBCURL)
   add_subdirectory(deps/curl EXCLUDE_FROM_ALL)
+  include_directories(deps/curl/include)
 endif()
 
 ## general defs

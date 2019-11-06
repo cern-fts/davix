@@ -88,7 +88,7 @@ add_library(libdavix  SHARED ${SRC_DAVIX_FULL} )
 add_dependencies(libdavix neon)
 
 
-target_link_libraries(libdavix  libcurl alibxx_core ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES}
+target_link_libraries(libdavix  libcurl rt alibxx_core ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES}
                                 ${CMAKE_THREAD_LIBS_INIT} ${SOCKET_PKG_LIBRARIES} ${UUID_LIBRARIES})
 
 set_target_properties(libdavix PROPERTIES

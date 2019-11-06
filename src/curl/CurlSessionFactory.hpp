@@ -58,6 +58,16 @@ public:
 
 private:
     //--------------------------------------------------------------------------
+    // Retrieve cached session, if possible
+    //--------------------------------------------------------------------------
+    std::unique_ptr<CurlSession> getCachedSession(const Uri &uri, const RequestParams &params);
+
+    //--------------------------------------------------------------------------
+    // Provide brand-new session
+    //--------------------------------------------------------------------------
+    std::unique_ptr<CurlSession> makeNewSession(const Uri &uri, const RequestParams &params);
+
+    //--------------------------------------------------------------------------
     // Variables to control session caching
     //--------------------------------------------------------------------------
     mutable std::mutex _session_caching_mtx;

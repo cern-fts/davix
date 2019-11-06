@@ -20,22 +20,15 @@
 */
 
 #include "CurlSessionFactory.hpp"
+#include "CurlSession.hpp"
 #include <curl/curl.h>
 
 namespace Davix {
 
-static std::once_flag curl_once;
-
-void init_curl() {
-  curl_global_init(CURL_GLOBAL_ALL);
-}
-
 //------------------------------------------------------------------------------
 // Constructor
 //------------------------------------------------------------------------------
-CurlSessionFactory::CurlSessionFactory() {
-  std::call_once(curl_once, &init_curl);
-}
+CurlSessionFactory::CurlSessionFactory() {}
 
 //------------------------------------------------------------------------------
 // Destructor
@@ -46,6 +39,13 @@ CurlSessionFactory::~CurlSessionFactory() {}
 // Create a CurlSession tied to this class.
 //--------------------------------------------------------------------------
 std::unique_ptr<CurlSession> CurlSessionFactory::provideCurlSession(const Uri &uri, const RequestParams &params, Status &st) {
+  std::unique_ptr<CurlSession> cached = getCachedSession(uri, params);
+
+  if(cached) {
+    return cached;
+  }
+
+  return makeNewSession(uri, params);
 }
 
 //------------------------------------------------------------------------------
@@ -71,5 +71,18 @@ bool CurlSessionFactory::getSessionCaching() const {
   return _session_caching;
 }
 
+//--------------------------------------------------------------------------
+// Retrieve cached session, if possible
+//--------------------------------------------------------------------------
+std::unique_ptr<CurlSession> CurlSessionFactory::getCachedSession(const Uri &uri, const RequestParams &params) {
+
+}
+
+//--------------------------------------------------------------------------
+// Provide brand-new session
+//--------------------------------------------------------------------------
+std::unique_ptr<CurlSession> CurlSessionFactory::makeNewSession(const Uri &uri, const RequestParams &params) {
+
+}
 
 }

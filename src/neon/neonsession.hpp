@@ -31,20 +31,17 @@
 
 namespace Davix{
 
-using ne_session_ptr = std::unique_ptr<ne_session, decltype(&ne_session_destroy)>;
-
-
 class NEONSessionFactory;
 
 class NEONSession
 {
 public:
-    NEONSession(NEONSessionFactory &f, ne_session_ptr sess, const Uri & uri, const RequestParams & p, DavixError** err);
+    NEONSession(NEONSessionFactory &f, ne_session *sess, const Uri & uri, const RequestParams & p, DavixError** err);
     virtual ~NEONSession();
 
 
     inline ne_session* get_ne_sess(){
-        return _sess.get();
+        return _sess;
     }
 
     inline bool isRecycledSession(){
@@ -58,7 +55,7 @@ public:
 
 private:
     NEONSessionFactory & _f;
-    ne_session_ptr _sess;
+    ne_session* _sess;
     const RequestParams & _params;
     DavixError* _last_error;
     bool _session_recycling;
@@ -81,7 +78,7 @@ private:
 };
 
 
-void configureSession(ne_session_ptr &_sess, const Uri & uri, const RequestParams &params, ne_auth_creds lp_callbac, void* lp_userdata,
+void configureSession(ne_session *_sess, const Uri & uri, const RequestParams &params, ne_auth_creds lp_callbac, void* lp_userdata,
                       ne_ssl_provide_fn cred_callback,  void* cred_userdata, bool & reused);
 
 

@@ -42,7 +42,9 @@ NEONSessionFactory::NEONSessionFactory() {
 
 NEONSessionFactory::~NEONSessionFactory(){
     std::lock_guard<std::mutex> lock(_sess_mut);
-    _sess_map.clear();
+    for(std::multimap<std::string, ne_session*>::iterator it = _sess_map.begin(); it != _sess_map.end(); ++it){
+        ne_session_destroy(it->second);
+    }
 }
 
 inline std::string davix_session_uri_rewrite(const Uri & u){
@@ -63,15 +65,15 @@ inline std::string davix_session_uri_rewrite(const Uri & u){
 // Create a NEONSession.
 //------------------------------------------------------------------------------
 std::unique_ptr<NEONSession> NEONSessionFactory::provideNEONSession(const Uri &uri, const RequestParams &params, DavixError **err) {
-    ne_session_ptr internal_session = createNeonSession(params, uri, err);
+    ne_session *internal_session = createNeonSession(params, uri, err);
     if(!internal_session) {
       return {};
     }
 
-    return std::unique_ptr<NEONSession>(new NEONSession(*this, std::move(internal_session), uri, params, err));
+    return std::unique_ptr<NEONSession>(new NEONSession(*this, internal_session, uri, params, err));
 }
 
-ne_session_ptr NEONSessionFactory::createNeonSession(const RequestParams & params, const Uri & uri, DavixError **err){
+ne_session* NEONSessionFactory::createNeonSession(const RequestParams & params, const Uri & uri, DavixError **err){
     if(uri.getStatus() == StatusCode::OK){
         std::string scheme = davix_session_uri_rewrite(uri);
         if(scheme.size() > 0){
@@ -80,14 +82,14 @@ ne_session_ptr NEONSessionFactory::createNeonSession(const RequestParams & param
     }
 
     DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, fmt::format("impossible to parse {}, not a valid HTTP, S3 or Webdav URL", uri.getString()));
-    return {NULL, ne_session_destroy};
+    return NULL;
 }
 
-void NEONSessionFactory::storeNeonSession(ne_session_ptr sess){
-    internal_release_session_handle(std::move(sess));
+void NEONSessionFactory::storeNeonSession(ne_session* sess){
+    internal_release_session_handle(sess);
 }
 
-ne_session_ptr NEONSessionFactory::create_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port){
+ne_session* NEONSessionFactory::create_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port){
     ne_session *se;
     se = ne_session_create(protocol.c_str(), host.c_str(), (int) port);
 
@@ -110,17 +112,18 @@ ne_session_ptr NEONSessionFactory::create_session(const RequestParams & params, 
 
     }
     //ne_ssl_trust_default_ca(se); not stable in neon on epel 5
-    return {se, ne_session_destroy};
+    return se;
 }
 
-ne_session_ptr NEONSessionFactory::create_recycled_session(const RequestParams & params, const std::string &protocol, const std::string &host, unsigned int port){
+ne_session* NEONSessionFactory::create_recycled_session(const RequestParams & params, const std::string &protocol, const std::string &host, unsigned int port){
 
     if(params.getKeepAlive()){
+        ne_session* se= NULL;
         std::lock_guard<std::mutex> lock(_sess_mut);
-        std::multimap<std::string, ne_session_ptr>::iterator it;
+        std::multimap<std::string, ne_session*>::iterator it;
         if( (it = _sess_map.find(create_map_keys_from_URL(protocol, host, port))) != _sess_map.end()){
             DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "cached ne_session found ! taken from cache ");
-            ne_session_ptr se = std::move(it->second);
+            se = it->second;
             _sess_map.erase(it);
             return se;
         }
@@ -130,15 +133,18 @@ ne_session_ptr NEONSessionFactory::create_recycled_session(const RequestParams &
     return create_session(params, protocol, host, port);
 }
 
-void NEONSessionFactory::internal_release_session_handle(ne_session_ptr sess){
+void NEONSessionFactory::internal_release_session_handle(ne_session* sess){
     // clear sensitive data
+    // none
+    //
     std::lock_guard<std::mutex> lock(_sess_mut);
-    std::multimap<std::string, ne_session_ptr>::iterator it;
+    std::multimap<std::string, ne_session*>::iterator it;
     std::string sess_key;
-    sess_key.append(ne_get_scheme(sess.get())).append(ne_get_server_hostport(sess.get()));
+    sess_key.append(ne_get_scheme(sess)).append(ne_get_server_hostport(sess));
 
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "add old session to cache {}", sess_key.c_str());
-    _sess_map.insert(std::pair<std::string, ne_session_ptr>(sess_key, std::move(sess)));
+
+    _sess_map.insert(std::pair<std::string, ne_session*>(sess_key, sess));
 }
 
 std::string create_map_keys_from_URL(const std::string & protocol, const std::string &host, unsigned int port){

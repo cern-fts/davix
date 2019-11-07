@@ -29,6 +29,8 @@
 
 namespace Davix {
 
+using ne_session_ptr = std::unique_ptr<ne_session, decltype(&ne_session_destroy)>;
+
 class HttpRequest;
 
 class NEONSessionFactory
@@ -45,7 +47,7 @@ public:
     //--------------------------------------------------------------------------
     // Store a Neon session object for session reuse purposes
     //--------------------------------------------------------------------------
-    void storeNeonSession(ne_session *sess);
+    void storeNeonSession(ne_session_ptr sess);
 
     //--------------------------------------------------------------------------
     // Set caching on or off
@@ -59,17 +61,17 @@ public:
 
 private:
     // session pool
-    std::multimap<std::string, ne_session*> _sess_map;
+    std::multimap<std::string, ne_session_ptr> _sess_map;
     std::mutex _sess_mut;
 
-    void internal_release_session_handle(ne_session* sess);
-    ne_session* create_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);
-    ne_session* create_recycled_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);
+    void internal_release_session_handle(ne_session_ptr sess);
+    ne_session_ptr create_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);
+    ne_session_ptr create_recycled_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);
 
     //--------------------------------------------------------------------------
     // Create a brand new neon session object, internal use only.
     //--------------------------------------------------------------------------
-    ne_session* createNeonSession(const RequestParams & params, const Uri & uri, DavixError** err);
+    ne_session_ptr createNeonSession(const RequestParams & params, const Uri & uri, DavixError** err);
 
     //--------------------------------------------------------------------------
     // Variables to control session caching

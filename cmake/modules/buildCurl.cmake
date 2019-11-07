@@ -5,7 +5,7 @@ macro(buildCurl)
       SOURCE_DIR "${CMAKE_SOURCE_DIR}/deps/curl"
       PREFIX "${CMAKE_BINARY_DIR}/curl"
       BUILD_IN_SOURCE 1
-      CONFIGURE_COMMAND bash -c "autoreconf -i && ./configure --prefix=${CMAKE_CURRENT_BINARY_DIR}/curl"
+      CONFIGURE_COMMAND bash -c "autoreconf -i && ./configure  --prefix=${CMAKE_CURRENT_BINARY_DIR}/curl --disable-ldap --disable-ldaps && ${CMAKE_SOURCE_DIR}/patch-curl-clock-gettime.sh"
       BUILD_COMMAND ${MAKE}
   )
 

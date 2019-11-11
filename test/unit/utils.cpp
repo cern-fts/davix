@@ -5,6 +5,7 @@
 #include <alibxx/crypto/hmacsha.hpp>
 #include <utils/davix_s3_utils.hpp>
 #include <gtest/gtest.h>
+#include <core/SessionPool.hpp>
 
 using namespace std;
 using namespace Davix;
@@ -195,5 +196,37 @@ TEST(testAuthS3, ReqToTokenWithHeaders){
 TEST(CanonicalizedResourceQueryParams, BasicSanity) {
     //Uri url(
 
+}
+
+TEST(SessionPool, BasicSanity) {
+    SessionPool<int> pool;
+
+    int out;
+
+    pool.insert("test-1", 3);
+    ASSERT_FALSE(pool.retrieve("test", out));
+
+    ASSERT_TRUE(pool.retrieve("test-1", out));
+    ASSERT_EQ(out, 3);
+
+    ASSERT_FALSE(pool.retrieve("test-1", out));
+
+
+    pool.insert("test-2", 3);
+    pool.insert("test-2", 4);
+    pool.insert("test-2", 3);
+    pool.insert("test-2", 5);
+
+    ASSERT_TRUE(pool.retrieve("test-2", out));
+    ASSERT_EQ(out, 3);
+
+    ASSERT_TRUE(pool.retrieve("test-2", out));
+    ASSERT_EQ(out, 4);
+
+    ASSERT_TRUE(pool.retrieve("test-2", out));
+    ASSERT_EQ(out, 3);
+
+    ASSERT_TRUE(pool.retrieve("test-2", out));
+    ASSERT_EQ(out, 5);
 }
 

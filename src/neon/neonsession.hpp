@@ -28,11 +28,11 @@
 
 #include <pthread.h>
 #include <ne_session.h>
+#include <memory>
 
 namespace Davix{
 
-using ne_session_ptr = std::shared_ptr<ne_session>;
-
+typedef std::shared_ptr<ne_session> ne_session_ptr;
 
 class NEONSessionFactory;
 

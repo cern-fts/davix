@@ -26,6 +26,7 @@
 #include <mutex>
 #include <utils/davix_uri.hpp>
 #include <neon/neonrequest.hpp>
+#include <core/SessionPool.hpp>
 
 namespace Davix {
 
@@ -60,9 +61,10 @@ public:
     bool getSessionCaching() const;
 
 private:
-    // session pool
-    std::multimap<std::string, ne_session_ptr> _sess_map;
-    std::mutex _sess_mut;
+    //--------------------------------------------------------------------------
+    // Neon session pool
+    //--------------------------------------------------------------------------
+    SessionPool<ne_session_ptr> _session_pool;
 
     void internal_release_session_handle(ne_session_ptr sess);
     ne_session_ptr create_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);

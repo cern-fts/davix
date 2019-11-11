@@ -41,8 +41,7 @@ NEONSessionFactory::NEONSessionFactory() {
 }
 
 NEONSessionFactory::~NEONSessionFactory(){
-    std::lock_guard<std::mutex> lock(_sess_mut);
-    _sess_map.clear();
+    _session_pool.clear();
 }
 
 inline std::string davix_session_uri_rewrite(const Uri & u){
@@ -116,15 +115,11 @@ ne_session_ptr NEONSessionFactory::create_session(const RequestParams & params, 
 ne_session_ptr NEONSessionFactory::create_recycled_session(const RequestParams & params, const std::string &protocol, const std::string &host, unsigned int port){
 
     if(params.getKeepAlive()){
-        std::lock_guard<std::mutex> lock(_sess_mut);
-        std::multimap<std::string, ne_session_ptr>::iterator it;
-        if( (it = _sess_map.find(create_map_keys_from_URL(protocol, host, port))) != _sess_map.end()){
+        ne_session_ptr out;
+        if(_session_pool.retrieve(create_map_keys_from_URL(protocol, host, port), out)) {
             DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "cached ne_session found ! taken from cache ");
-            ne_session_ptr se = std::move(it->second);
-            _sess_map.erase(it);
-            return se;
+            return out;
         }
-
     }
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "no cached ne_session, create a new one ");
     return create_session(params, protocol, host, port);
@@ -132,13 +127,11 @@ ne_session_ptr NEONSessionFactory::create_recycled_session(const RequestParams &
 
 void NEONSessionFactory::internal_release_session_handle(ne_session_ptr sess){
     // clear sensitive data
-    std::lock_guard<std::mutex> lock(_sess_mut);
-    std::multimap<std::string, ne_session_ptr>::iterator it;
     std::string sess_key;
     sess_key.append(ne_get_scheme(sess.get())).append(ne_get_server_hostport(sess.get()));
 
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "add old session to cache {}", sess_key.c_str());
-    _sess_map.insert(std::pair<std::string, ne_session_ptr>(sess_key, std::move(sess)));
+    _session_pool.insert(sess_key, sess);
 }
 
 std::string create_map_keys_from_URL(const std::string & protocol, const std::string &host, unsigned int port){

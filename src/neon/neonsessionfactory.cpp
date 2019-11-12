@@ -24,7 +24,6 @@
 #include <mutex>
 #include <davix_internal.hpp>
 #include "neonsessionfactory.hpp"
-#include <backend/SessionFactory.hpp>
 
 #include <utils/davix_logger_internal.hpp>
 
@@ -73,7 +72,10 @@ std::unique_ptr<NEONSession> NEONSessionFactory::provideNEONSession(const Uri &u
 
 ne_session_ptr NEONSessionFactory::createNeonSession(const RequestParams & params, const Uri & uri, DavixError **err){
     if(uri.getStatus() == StatusCode::OK){
-        return create_recycled_session(params, uri.getProtocol(), uri.getHost(), httpUriGetPort(uri));
+        std::string scheme = davix_session_uri_rewrite(uri);
+        if(scheme.size() > 0){
+            return create_recycled_session(params, scheme, uri.getHost(), httpUriGetPort(uri));
+        }
     }
 
     DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, fmt::format("impossible to parse {}, not a valid HTTP, S3 or Webdav URL", uri.getString()));
@@ -114,7 +116,7 @@ ne_session_ptr NEONSessionFactory::create_recycled_session(const RequestParams &
 
     if(params.getKeepAlive()){
         ne_session_ptr out;
-        if(_session_pool.retrieve(SessionFactory::buildSessionKey(protocol, host, port), out)) {
+        if(_session_pool.retrieve(create_map_keys_from_URL(protocol, host, port), out)) {
             DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "cached ne_session found ! taken from cache ");
             return out;
         }
@@ -130,6 +132,17 @@ void NEONSessionFactory::internal_release_session_handle(ne_session_ptr sess){
 
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "add old session to cache {}", sess_key.c_str());
     _session_pool.insert(sess_key, sess);
+}
+
+std::string create_map_keys_from_URL(const std::string & protocol, const std::string &host, unsigned int port){
+    std::string host_port;
+    if( (strcmp(protocol.c_str(), "http") ==0 && port == 80)
+            || ( strcmp(protocol.c_str(), "https") ==0 && port == 443)){
+        host_port = fmt::format("{}{}", protocol, host);
+    }else
+        host_port = fmt::format("{}{}:{}", protocol, host, port);
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, " creating session keys... {}", host_port);
+    return host_port;
 }
 
 //------------------------------------------------------------------------------

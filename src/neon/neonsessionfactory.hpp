@@ -83,8 +83,6 @@ private:
 
 };
 
-std::string create_map_keys_from_URL(const std::string & protocol, const std::string &host, unsigned int port);
-
 } // namespace Davix
 
 

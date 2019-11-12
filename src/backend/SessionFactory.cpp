@@ -23,8 +23,6 @@
 #include <stdlib.h>
 #include <neon/neonsessionfactory.hpp>
 
-#define SSTR(message) static_cast<std::ostringstream&>(std::ostringstream().flush() << message).str()
-
 namespace Davix {
 
 //------------------------------------------------------------------------------
@@ -58,30 +56,6 @@ void SessionFactory::setSessionCaching(bool caching) {
 //------------------------------------------------------------------------------
 bool SessionFactory::getSessionCaching() const {
   return _neon_factory->getSessionCaching();
-}
-
-//------------------------------------------------------------------------------
-// Build session key, common for all factory types
-//------------------------------------------------------------------------------
-std::string SessionFactory::buildSessionKey(const std::string &protocol, const std::string &host, int port) {
-  std::string proto = protocol;
-
-  if(proto.compare(0,4, "http") == 0 ||
-     proto.compare(0,2, "s3") == 0   ||
-     proto.compare(0,3, "dav") == 0  ||
-     proto.compare(0, 6, "gcloud") == 0) {
-
-    proto.assign("http");
-    if(*(protocol.rbegin()) == 's') {
-      proto.append("s");
-    }
-  }
-
-  if( (proto == "http" && port == 80) || (proto == "https" && port == 443) ) {
-    return SSTR(protocol << host);
-  }
-
-  return SSTR(protocol << host << ":" << port);
 }
 
 }

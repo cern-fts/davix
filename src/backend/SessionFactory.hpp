@@ -30,6 +30,7 @@
 namespace Davix {
 
 class NEONSessionFactory;
+class CurlSessionFactory;
 class Uri;
 
 //------------------------------------------------------------------------------
@@ -53,6 +54,11 @@ public:
   NEONSessionFactory& getNeon();
 
   //----------------------------------------------------------------------------
+  // Get curl session factory
+  //----------------------------------------------------------------------------
+  CurlSessionFactory& getCurl();
+
+  //----------------------------------------------------------------------------
   // Set caching on or off
   //----------------------------------------------------------------------------
   void setSessionCaching(bool caching);
@@ -74,6 +80,7 @@ public:
 
 protected:
   std::unique_ptr<NEONSessionFactory> _neon_factory;
+  std::unique_ptr<CurlSessionFactory> _curl_factory;
 
 };
 

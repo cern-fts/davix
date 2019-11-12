@@ -22,6 +22,7 @@
 #include "SessionFactory.hpp"
 #include <stdlib.h>
 #include <neon/neonsessionfactory.hpp>
+#include <curl/CurlSessionFactory.hpp>
 
 #define SSTR(message) static_cast<std::ostringstream&>(std::ostringstream().flush() << message).str()
 
@@ -32,6 +33,7 @@ namespace Davix {
 //------------------------------------------------------------------------------
 SessionFactory::SessionFactory() {
   _neon_factory.reset(new NEONSessionFactory());
+  _curl_factory.reset(new CurlSessionFactory());
 }
 
 //------------------------------------------------------------------------------
@@ -44,6 +46,13 @@ SessionFactory::~SessionFactory() {}
 //------------------------------------------------------------------------------
 NEONSessionFactory& SessionFactory::getNeon() {
   return *(_neon_factory.get());
+}
+
+//------------------------------------------------------------------------------
+// Get curl session factory
+//------------------------------------------------------------------------------
+CurlSessionFactory& SessionFactory::getCurl() {
+  return *(_curl_factory.get());
 }
 
 //------------------------------------------------------------------------------

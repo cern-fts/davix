@@ -29,6 +29,13 @@
 
 namespace Davix {
 
+NeonHandle::~NeonHandle() {
+    if(session) {
+        ne_session_destroy(session);
+        session = NULL;
+    }
+}
+
 static std::once_flag neon_once;
 
 static void init_neon(){
@@ -62,7 +69,7 @@ inline std::string davix_session_uri_rewrite(const Uri & u){
 // Create a NEONSession.
 //------------------------------------------------------------------------------
 std::unique_ptr<NEONSession> NEONSessionFactory::provideNEONSession(const Uri &uri, const RequestParams &params, DavixError **err) {
-    ne_session_ptr internal_session = createNeonSession(params, uri, err);
+    NeonHandlePtr internal_session = createNeonSession(params, uri, err);
     if(!internal_session) {
       return {};
     }
@@ -70,7 +77,7 @@ std::unique_ptr<NEONSession> NEONSessionFactory::provideNEONSession(const Uri &u
     return std::unique_ptr<NEONSession>(new NEONSession(*this, std::move(internal_session), uri, params, err));
 }
 
-ne_session_ptr NEONSessionFactory::createNeonSession(const RequestParams & params, const Uri & uri, DavixError **err){
+NeonHandlePtr NEONSessionFactory::createNeonSession(const RequestParams & params, const Uri & uri, DavixError **err){
     if(uri.getStatus() == StatusCode::OK){
         std::string scheme = davix_session_uri_rewrite(uri);
         if(scheme.size() > 0){
@@ -79,14 +86,15 @@ ne_session_ptr NEONSessionFactory::createNeonSession(const RequestParams & param
     }
 
     DavixError::setupError(err, davix_scope_http_request(), StatusCode::UriParsingError, fmt::format("impossible to parse {}, not a valid HTTP, S3 or Webdav URL", uri.getString()));
-    return ne_session_ptr();
+    return NeonHandlePtr();
 }
 
-void NEONSessionFactory::storeNeonSession(ne_session_ptr sess){
-    internal_release_session_handle(std::move(sess));
+void NEONSessionFactory::storeNeonSession(NeonHandlePtr sess){
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "add old session to cache {}", sess->key.c_str());
+    _session_pool.insert(sess->key, sess);
 }
 
-ne_session_ptr NEONSessionFactory::create_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port){
+NeonHandlePtr NEONSessionFactory::create_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port){
     ne_session *se;
     se = ne_session_create(protocol.c_str(), host.c_str(), (int) port);
 
@@ -108,14 +116,15 @@ ne_session_ptr NEONSessionFactory::create_session(const RequestParams & params, 
         }
 
     }
+
     //ne_ssl_trust_default_ca(se); not stable in neon on epel 5
-    return {se, ne_session_destroy};
+    return NeonHandlePtr(new NeonHandle(create_map_keys_from_URL(protocol, host, port), se));
 }
 
-ne_session_ptr NEONSessionFactory::create_recycled_session(const RequestParams & params, const std::string &protocol, const std::string &host, unsigned int port){
+NeonHandlePtr NEONSessionFactory::create_recycled_session(const RequestParams & params, const std::string &protocol, const std::string &host, unsigned int port){
 
     if(params.getKeepAlive()){
-        ne_session_ptr out;
+        NeonHandlePtr out;
         if(_session_pool.retrieve(create_map_keys_from_URL(protocol, host, port), out)) {
             DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "cached ne_session found ! taken from cache ");
             return out;
@@ -123,15 +132,6 @@ ne_session_ptr NEONSessionFactory::create_recycled_session(const RequestParams &
     }
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "no cached ne_session, create a new one ");
     return create_session(params, protocol, host, port);
-}
-
-void NEONSessionFactory::internal_release_session_handle(ne_session_ptr sess){
-    // clear sensitive data
-    std::string sess_key;
-    sess_key.append(ne_get_scheme(sess.get())).append(ne_get_server_hostport(sess.get()));
-
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "add old session to cache {}", sess_key.c_str());
-    _session_pool.insert(sess_key, sess);
 }
 
 std::string create_map_keys_from_URL(const std::string & protocol, const std::string &host, unsigned int port){

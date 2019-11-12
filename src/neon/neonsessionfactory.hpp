@@ -30,9 +30,18 @@
 
 namespace Davix {
 
-typedef std::shared_ptr<ne_session> ne_session_ptr;
-
 class HttpRequest;
+
+struct NeonHandle {
+    NeonHandle() : session(NULL) {}
+    NeonHandle(const std::string &k, ne_session *s) : key(k), session(s) {}
+    ~NeonHandle();
+
+    std::string key;
+    ne_session *session;
+};
+
+typedef std::shared_ptr<NeonHandle> NeonHandlePtr;
 
 class NEONSessionFactory
 {
@@ -48,7 +57,7 @@ public:
     //--------------------------------------------------------------------------
     // Store a Neon session object for session reuse purposes
     //--------------------------------------------------------------------------
-    void storeNeonSession(ne_session_ptr sess);
+    void storeNeonSession(NeonHandlePtr sess);
 
     //--------------------------------------------------------------------------
     // Set caching on or off
@@ -64,16 +73,15 @@ private:
     //--------------------------------------------------------------------------
     // Neon session pool
     //--------------------------------------------------------------------------
-    SessionPool<ne_session_ptr> _session_pool;
+    SessionPool<NeonHandlePtr> _session_pool;
 
-    void internal_release_session_handle(ne_session_ptr sess);
-    ne_session_ptr create_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);
-    ne_session_ptr create_recycled_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);
+    NeonHandlePtr create_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);
+    NeonHandlePtr create_recycled_session(const RequestParams & params, const std::string & protocol, const std::string &host, unsigned int port);
 
     //--------------------------------------------------------------------------
     // Create a brand new neon session object, internal use only.
     //--------------------------------------------------------------------------
-    ne_session_ptr createNeonSession(const RequestParams & params, const Uri & uri, DavixError** err);
+    NeonHandlePtr createNeonSession(const RequestParams & params, const Uri & uri, DavixError** err);
 
     //--------------------------------------------------------------------------
     // Variables to control session caching

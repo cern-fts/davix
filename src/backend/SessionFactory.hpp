@@ -30,6 +30,7 @@
 namespace Davix {
 
 class NEONSessionFactory;
+class Uri;
 
 //------------------------------------------------------------------------------
 // Store session factories of both neon and curl implementations.
@@ -65,6 +66,11 @@ public:
   // "httpize" protocol
   //----------------------------------------------------------------------------
   static std::string httpizeProtocol(const std::string &protocol);
+
+  //----------------------------------------------------------------------------
+  // Create session key based on Uri
+  //----------------------------------------------------------------------------
+  static std::string makeSessionKey(const Uri &uri);
 
 protected:
   std::unique_ptr<NEONSessionFactory> _neon_factory;

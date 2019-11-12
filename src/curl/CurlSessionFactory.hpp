@@ -24,8 +24,12 @@
 
 #include "../backend/SessionFactory.hpp"
 #include <status/DavixStatus.hpp>
+#include <core/SessionPool.hpp>
 
 namespace Davix {
+
+struct CurlHandle;
+typedef std::shared_ptr<CurlHandle> CurlHandlePtr;
 
 class CurlSession;
 
@@ -58,14 +62,14 @@ public:
 
 private:
     //--------------------------------------------------------------------------
-    // Retrieve cached session, if possible
+    // Retrieve cached handle, if possible
     //--------------------------------------------------------------------------
-    std::unique_ptr<CurlSession> getCachedSession(const Uri &uri, const RequestParams &params);
+    CurlHandlePtr getCachedHandle(const Uri &uri, const RequestParams &params);
 
     //--------------------------------------------------------------------------
-    // Provide brand-new session
+    // Provide brand-new handle
     //--------------------------------------------------------------------------
-    std::unique_ptr<CurlSession> makeNewSession(const Uri &uri, const RequestParams &params);
+    CurlHandlePtr makeNewHandle(const Uri &uri, const RequestParams &params);
 
     //--------------------------------------------------------------------------
     // Variables to control session caching
@@ -73,6 +77,10 @@ private:
     mutable std::mutex _session_caching_mtx;
     bool _session_caching;
 
+    //--------------------------------------------------------------------------
+    // Session pool
+    //--------------------------------------------------------------------------
+    SessionPool<CurlHandlePtr> _session_pool;
 };
 
 }

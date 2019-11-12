@@ -21,6 +21,7 @@
 
 #include "CurlSessionFactory.hpp"
 #include "CurlSession.hpp"
+#include <backend/SessionFactory.hpp>
 #include <curl/curl.h>
 
 namespace Davix {
@@ -35,17 +36,25 @@ CurlSessionFactory::CurlSessionFactory() {}
 //------------------------------------------------------------------------------
 CurlSessionFactory::~CurlSessionFactory() {}
 
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // Create a CurlSession tied to this class.
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::unique_ptr<CurlSession> CurlSessionFactory::provideCurlSession(const Uri &uri, const RequestParams &params, Status &st) {
-  std::unique_ptr<CurlSession> cached = getCachedSession(uri, params);
+  CurlHandlePtr handle = getCachedHandle(uri, params);
 
-  if(cached) {
-    return cached;
+  if(!handle) {
+    handle = makeNewHandle(uri, params);
   }
 
-  return makeNewSession(uri, params);
+  std::unique_ptr<CurlSession> out(new CurlSession(*this, handle, uri, params, st));
+  if(!st.ok()) {
+    out.reset();
+    handle.reset();
+  }
+
+  handle = makeNewHandle(uri, params);
+  out.reset(new CurlSession(*this, handle, uri, params, st));
+  return out;
 }
 
 //------------------------------------------------------------------------------
@@ -71,18 +80,30 @@ bool CurlSessionFactory::getSessionCaching() const {
   return _session_caching;
 }
 
-//--------------------------------------------------------------------------
-// Retrieve cached session, if possible
-//--------------------------------------------------------------------------
-std::unique_ptr<CurlSession> CurlSessionFactory::getCachedSession(const Uri &uri, const RequestParams &params) {
+//------------------------------------------------------------------------------
+// Retrieve cached handle, if possible
+//------------------------------------------------------------------------------
+CurlHandlePtr CurlSessionFactory::getCachedHandle(const Uri &uri, const RequestParams &params) {
+  CurlHandlePtr out;
+  std::string sessionKey = SessionFactory::makeSessionKey(uri);
 
+  if(_session_pool.retrieve(sessionKey, out)) {
+    out->renewHandle();
+  }
+
+  return out;
 }
 
-//--------------------------------------------------------------------------
-// Provide brand-new session
-//--------------------------------------------------------------------------
-std::unique_ptr<CurlSession> CurlSessionFactory::makeNewSession(const Uri &uri, const RequestParams &params) {
+//------------------------------------------------------------------------------
+// Provide brand-new handle
+//------------------------------------------------------------------------------
+CurlHandlePtr CurlSessionFactory::makeNewHandle(const Uri &uri, const RequestParams &params) {
+  std::string sessionKey = SessionFactory::makeSessionKey(uri);
 
+  CURL *handle = curl_easy_init();
+  CURLM *mhandle = curl_multi_init();
+
+  return CurlHandlePtr(new CurlHandle(sessionKey, handle, mhandle));
 }
 
 }

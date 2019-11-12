@@ -61,6 +61,11 @@ public:
   //----------------------------------------------------------------------------
   bool getSessionCaching() const;
 
+  //----------------------------------------------------------------------------
+  // "httpize" protocol
+  //----------------------------------------------------------------------------
+  static std::string httpizeProtocol(const std::string &protocol);
+
 protected:
   std::unique_ptr<NEONSessionFactory> _neon_factory;
 

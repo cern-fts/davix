@@ -33,10 +33,34 @@ void init_curl() {
 }
 
 //------------------------------------------------------------------------------
+// CurlHandle: Destructor
+//------------------------------------------------------------------------------
+CurlHandle::~CurlHandle() {
+  if(handle) {
+    curl_easy_cleanup(handle);
+  }
+
+  if(mhandle) {
+    curl_multi_cleanup(mhandle);
+  }
+}
+
+//------------------------------------------------------------------------------
+// Renew curl handle
+//------------------------------------------------------------------------------
+void CurlHandle::renewHandle() {
+  if(handle) {
+    curl_easy_cleanup(handle);
+  }
+
+  handle = curl_easy_init();
+}
+
+//------------------------------------------------------------------------------
 // Constructor
 //------------------------------------------------------------------------------
-CurlSession::CurlSession(CurlSessionFactory &f, CURLM *mhandle, CURL *handle, const Uri & uri, const RequestParams & p, Status &st)
-: _factory(f), _mhandle(mhandle), _handle(handle) {
+CurlSession::CurlSession(CurlSessionFactory &f, CurlHandlePtr h, const Uri & uri, const RequestParams & p, Status &st)
+: _factory(f), _handle(h) {
 
   configureSession(p, st);
 }
@@ -44,17 +68,14 @@ CurlSession::CurlSession(CurlSessionFactory &f, CURLM *mhandle, CURL *handle, co
 //------------------------------------------------------------------------------
 // Destructor
 //------------------------------------------------------------------------------
-CurlSession::~CurlSession() {
-  curl_easy_cleanup(_handle);
-  curl_multi_cleanup(_mhandle);
-}
+CurlSession::~CurlSession() {}
 
 //------------------------------------------------------------------------------
 // Configure session
 //------------------------------------------------------------------------------
 void CurlSession::configureSession(const RequestParams &params, Status &st) {
   if(!params.getSSLCACheck()) {
-    curl_easy_setopt(_handle, CURLOPT_SSL_VERIFYPEER, 0L);
+    curl_easy_setopt(_handle->handle, CURLOPT_SSL_VERIFYPEER, 0L);
   }
 }
 

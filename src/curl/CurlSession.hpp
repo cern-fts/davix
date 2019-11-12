@@ -22,6 +22,8 @@
 #ifndef DAVIX_CURL_SESSION_HPP
 #define DAVIX_CURL_SESSION_HPP
 
+#include <memory>
+
 typedef void CURL;
 typedef void CURLM;
 
@@ -32,12 +34,28 @@ class Uri;
 class RequestParams;
 class Status;
 
+//------------------------------------------------------------------------------
+// CurlHandle, internal use only
+//------------------------------------------------------------------------------
+struct CurlHandle {
+  std::string key;
+  CURLM *mhandle;
+  CURL *handle;
+
+  void renewHandle();
+  CurlHandle(const std::string &k, CURLM *mh, CURL *h) : key(k), mhandle(mh), handle(h) {}
+  CurlHandle() : mhandle(NULL), handle(NULL) {}
+  ~CurlHandle();
+};
+
+typedef std::shared_ptr<CurlHandle> CurlHandlePtr;
+
 class CurlSession {
 public:
   //----------------------------------------------------------------------------
   // Constructor
   //----------------------------------------------------------------------------
-  CurlSession(CurlSessionFactory &f, CURLM *mhandle, CURL *handle, const Uri & uri,
+  CurlSession(CurlSessionFactory &f, CurlHandlePtr handle, const Uri & uri,
     const RequestParams & p, Status &st);
 
   //----------------------------------------------------------------------------
@@ -52,9 +70,7 @@ private:
   void configureSession(const RequestParams &params, Status &st);
 
   CurlSessionFactory &_factory;
-  CURLM *_mhandle;
-  CURL *_handle;
-
+  CurlHandlePtr _handle;
 };
 
 }

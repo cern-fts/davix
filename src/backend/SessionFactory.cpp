@@ -23,6 +23,8 @@
 #include <stdlib.h>
 #include <neon/neonsessionfactory.hpp>
 
+#define SSTR(message) static_cast<std::ostringstream&>(std::ostringstream().flush() << message).str()
+
 namespace Davix {
 
 //------------------------------------------------------------------------------
@@ -77,5 +79,13 @@ std::string SessionFactory::httpizeProtocol(const std::string &protocol) {
 
     return proto;
 }
+
+//------------------------------------------------------------------------------
+// Create session key based on Uri
+//------------------------------------------------------------------------------
+std::string SessionFactory::makeSessionKey(const Uri &uri) {
+    return SSTR(httpizeProtocol(uri.getProtocol()) << uri.getHost() << ":" << uri.getPort());
+}
+
 
 }

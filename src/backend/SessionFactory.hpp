@@ -61,6 +61,11 @@ public:
   //----------------------------------------------------------------------------
   bool getSessionCaching() const;
 
+  //----------------------------------------------------------------------------
+  // Build session key, common for all factory types
+  //----------------------------------------------------------------------------
+  static std::string buildSessionKey(const std::string &protocol, const std::string &host, int port);
+
 protected:
   std::unique_ptr<NEONSessionFactory> _neon_factory;
 

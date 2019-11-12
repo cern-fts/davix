@@ -58,4 +58,24 @@ bool SessionFactory::getSessionCaching() const {
   return _neon_factory->getSessionCaching();
 }
 
+//------------------------------------------------------------------------------
+// "httpize" protocol
+//------------------------------------------------------------------------------
+std::string SessionFactory::httpizeProtocol(const std::string &protocol) {
+    std::string proto = protocol;
+    if(proto.compare(0,4, "http") == 0 ||
+       proto.compare(0,2, "s3") == 0   ||
+       proto.compare(0,3, "dav") == 0  ||
+       proto.compare(0, 6, "gcloud") == 0) {
+
+        proto.assign("http");
+
+      if(*(protocol.rbegin()) == 's') {
+          proto.append("s");
+      }
+    }
+
+    return proto;
+}
+
 }

@@ -23,6 +23,7 @@
 #define DAVIX_CURL_SESSION_HPP
 
 #include <memory>
+#include <string>
 
 typedef void CURL;
 typedef void CURLM;

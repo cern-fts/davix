@@ -6,6 +6,7 @@
 #include <utils/davix_s3_utils.hpp>
 #include <gtest/gtest.h>
 #include <core/SessionPool.hpp>
+#include <curl/HeaderlineParser.hpp>
 
 using namespace std;
 using namespace Davix;
@@ -230,3 +231,37 @@ TEST(SessionPool, BasicSanity) {
     ASSERT_EQ(out, 5);
 }
 
+TEST(HeaderlineParser, BasicSanity) {
+    HeaderlineParser parser("");
+    ASSERT_EQ(parser.getKey(), "");
+    ASSERT_EQ(parser.getValue(), "");
+
+    std::string buff("12345");
+    parser = HeaderlineParser(buff.c_str(), buff.size()+1);
+    ASSERT_EQ(parser.getKey(), "12345");
+    ASSERT_EQ(parser.getValue(), "");
+
+    parser = HeaderlineParser("test");
+    ASSERT_EQ(parser.getKey(), "test");
+    ASSERT_EQ(parser.getValue(), "");
+
+    parser = HeaderlineParser("aaa: bbb");
+    ASSERT_EQ(parser.getKey(), "aaa");
+    ASSERT_EQ(parser.getValue(), "bbb");
+
+    parser = HeaderlineParser("aaa:bbb");
+    ASSERT_EQ(parser.getKey(), "aaa");
+    ASSERT_EQ(parser.getValue(), "bbb");
+
+    parser = HeaderlineParser("aaa:                             bbb");
+    ASSERT_EQ(parser.getKey(), "aaa");
+    ASSERT_EQ(parser.getValue(), "bbb");
+
+    parser = HeaderlineParser("aaa: bbb\r\n");
+    ASSERT_EQ(parser.getKey(), "aaa");
+    ASSERT_EQ(parser.getValue(), "bbb");
+
+    parser = HeaderlineParser("aaa:                             bbb\r\n");
+    ASSERT_EQ(parser.getKey(), "aaa");
+    ASSERT_EQ(parser.getValue(), "bbb");
+}

@@ -26,7 +26,9 @@
 
 #include <gtest/gtest.h>
 #include <backend/StandaloneNeonRequest.hpp>
-#include <neon/neonsessionfactory.hpp>
+#include <backend/SessionFactory.hpp>
+#include <curl/StandaloneCurlRequest.hpp>
+
 
 #define SSTR(message) static_cast<std::ostringstream&>(std::ostringstream().flush() << message).str()
 
@@ -41,7 +43,13 @@ public:
 
   std::unique_ptr<Davix::StandaloneNeonRequest> makeStandaloneNeonReq() {
     return std::unique_ptr<Davix::StandaloneNeonRequest>(
-      new Davix::StandaloneNeonRequest(_factory, true, _boundHooks, _uri, _verb, _params, _headers, _flags, NULL, _deadline)
+      new Davix::StandaloneNeonRequest(_factory.getNeon(), true, _boundHooks, _uri, _verb, _params, _headers, _flags, NULL, _deadline)
+    );
+  }
+
+  std::unique_ptr<Davix::StandaloneCurlRequest> makeStandaloneCurlReq() {
+    return std::unique_ptr<Davix::StandaloneCurlRequest>(
+      new Davix::StandaloneCurlRequest(_factory.getCurl(), true, _boundHooks, _uri, _verb, _params, _headers, _flags, NULL, _deadline)
     );
   }
 
@@ -59,7 +67,7 @@ public:
 
 protected:
   std::unique_ptr<DrunkServer> _drunk_server;
-  Davix::NEONSessionFactory _factory;
+  Davix::SessionFactory _factory;
   Davix::BoundHooks _boundHooks;
   Davix::Uri _uri;
   std::string _verb;

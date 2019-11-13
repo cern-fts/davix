@@ -58,7 +58,7 @@ TEST_F(Standalone_Neon_Request, BasicSanity) {
 
   _drunk_server->autoAcceptNext(&inter);
 
-  std::unique_ptr<StandaloneNeonRequest> request = makeStandaloneNeonReq();
+  std::unique_ptr<StandaloneRequest> request = makeStandaloneNeonReq();
   ASSERT_FALSE(request->isRecycledSession());
   ASSERT_EQ(request->getState(), RequestState::kNotStarted);
 
@@ -112,7 +112,7 @@ TEST_F(Standalone_Neon_Request, Redirect) {
   );
 
   _drunk_server->autoAcceptNext(&inter);
-  std::unique_ptr<StandaloneNeonRequest> request = makeStandaloneNeonReq();
+  std::unique_ptr<StandaloneRequest> request = makeStandaloneNeonReq();
 
   ASSERT_TRUE(request->startRequest().ok());
 
@@ -133,7 +133,7 @@ TEST_F(Standalone_Neon_Request, NetworkError) {
   ConnectionShutdownInteractor inter;
   _drunk_server->autoAcceptNext(&inter);
 
-  std::unique_ptr<StandaloneNeonRequest> request = makeStandaloneNeonReq();
+  std::unique_ptr<StandaloneRequest> request = makeStandaloneNeonReq();
   ASSERT_EQ(request->getState(), RequestState::kNotStarted);
 
   Status st = request->startRequest();
@@ -150,7 +150,7 @@ TEST_F(Standalone_Neon_Request, NetworkError) {
 }
 
 TEST_F(Standalone_Neon_Request, StopNoStart) {
-  std::unique_ptr<StandaloneNeonRequest> request = makeStandaloneNeonReq();
+  std::unique_ptr<StandaloneRequest> request = makeStandaloneNeonReq();
   ASSERT_EQ(request->getState(), RequestState::kNotStarted);
   ASSERT_TRUE(request->endRequest().ok());
   ASSERT_EQ(request->getState(), RequestState::kFinished);

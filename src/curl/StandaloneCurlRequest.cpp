@@ -90,7 +90,7 @@ Status StandaloneCurlRequest::startRequest() {
   CURL* handle = _session->getHandle()->handle;
 
   curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, _verb.c_str());
-  curl_easy_setopt(handle, CURLOPT_URL, _uri.getString());
+  curl_easy_setopt(handle, CURLOPT_URL, _uri.getString().c_str());
 
   //----------------------------------------------------------------------------
   // Set-up headers

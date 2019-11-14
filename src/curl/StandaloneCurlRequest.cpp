@@ -23,6 +23,8 @@
 #include "CurlSessionFactory.hpp"
 #include "CurlSession.hpp"
 #include "HeaderlineParser.hpp"
+#include <utils/davix_logger_internal.hpp>
+#include <core/ContentProvider.hpp>
 #include <curl/curl.h>
 
 #define SSTR(message) static_cast<std::ostringstream&>(std::ostringstream().flush() << message).str()
@@ -50,6 +52,23 @@ static size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdat
   ResponseBuffer* buff = (ResponseBuffer*) userdata;
   buff->feed(ptr, bytes);
   return bytes;
+}
+
+//------------------------------------------------------------------------------
+// Read callback
+//------------------------------------------------------------------------------
+size_t read_callback(char *buffer, size_t size, size_t nitems, void *userdata) {
+  size_t bytes = size * nitems;
+
+  ContentProvider* provider = (ContentProvider*) userdata;
+  ssize_t retval = provider->pullBytes(buffer, bytes);
+
+  if(retval < 0) {
+    DAVIX_SLOG(DAVIX_LOG_WARNING, DAVIX_LOG_HTTP, "Content provider reported an errc={}", retval);
+    return 0;
+  }
+
+  return retval;
 }
 
 //------------------------------------------------------------------------------
@@ -139,6 +158,15 @@ Status StandaloneCurlRequest::startRequest() {
   //----------------------------------------------------------------------------
   curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_callback);
   curl_easy_setopt(handle, CURLOPT_WRITEDATA, &_response_buffer);
+
+  //----------------------------------------------------------------------------
+  // Set up callback to provide request body
+  //----------------------------------------------------------------------------
+  if(_content_provider) {
+    _content_provider->rewind();
+    curl_easy_setopt(handle, CURLOPT_READFUNCTION, read_callback);
+    curl_easy_setopt(handle, CURLOPT_READDATA, _content_provider);
+  }
 
   //----------------------------------------------------------------------------
   // Set-up headers

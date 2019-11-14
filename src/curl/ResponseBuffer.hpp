@@ -33,7 +33,7 @@ namespace Davix {
 class ResponseBuffer {
 public:
 
-  ResponseBuffer(size_t bsize = 1024 * 16);
+  ResponseBuffer(size_t bsize = 16384u);
   ~ResponseBuffer();
 
   //----------------------------------------------------------------------------

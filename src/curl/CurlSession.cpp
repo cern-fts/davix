@@ -24,6 +24,8 @@
 #include <params/davixrequestparams.hpp>
 #include <mutex>
 
+#define DBG(message) std::cerr << __FILE__ << ":" << __LINE__ << " -- " << #message << " = " << message << std::endl;
+
 namespace Davix {
 
 static std::once_flag curl_once;
@@ -46,6 +48,13 @@ CurlHandle::~CurlHandle() {
 }
 
 //------------------------------------------------------------------------------
+// CurlHandle: Constructor
+//------------------------------------------------------------------------------
+CurlHandle::CurlHandle(const std::string &k, CURLM *mh, CURL *h) : key(k), mhandle(mh), handle(h) {
+  curl_multi_add_handle(mhandle, handle);
+}
+
+//------------------------------------------------------------------------------
 // Renew curl handle
 //------------------------------------------------------------------------------
 void CurlHandle::renewHandle() {
@@ -54,6 +63,7 @@ void CurlHandle::renewHandle() {
   }
 
   handle = curl_easy_init();
+  curl_multi_add_handle(mhandle, handle);
 }
 
 //------------------------------------------------------------------------------

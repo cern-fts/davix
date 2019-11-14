@@ -44,7 +44,7 @@ struct CurlHandle {
   CURL *handle;
 
   void renewHandle();
-  CurlHandle(const std::string &k, CURLM *mh, CURL *h) : key(k), mhandle(mh), handle(h) {}
+  CurlHandle(const std::string &k, CURLM *mh, CURL *h);
   CurlHandle() : mhandle(NULL), handle(NULL) {}
   ~CurlHandle();
 };

@@ -33,6 +33,7 @@
 using namespace Davix;
 
 class Standalone_Neon_Request : public DavixTestFixture {};
+class Standalone_Curl_Request : public DavixTestFixture {};
 
 TEST_F(Standalone_Neon_Request, BasicSanity) {
   _headers.push_back(HeaderLine("I like", "Turtles"));
@@ -64,11 +65,66 @@ TEST_F(Standalone_Neon_Request, BasicSanity) {
 
   ASSERT_TRUE(request->startRequest().ok());
   ASSERT_EQ(request->getState(), RequestState::kStarted);
+  ASSERT_EQ(request->getStatusCode(), 200);
 
   std::string headerLine;
   ASSERT_TRUE(request->getAnswerHeader("Content-Type", headerLine));
   ASSERT_EQ(headerLine, "ayy/lmao");
+
+  Uri redirect;
+  ASSERT_FALSE(request->obtainRedirectedLocation(redirect).ok());
+
+  sleep(1); // yes this is a hack to be replaced
+
+  char buffer[2048];
+
+  Status st;
+  ASSERT_EQ(request->readBlock(buffer, 2048, st), 19);
+  ASSERT_TRUE(st.ok());
+  ASSERT_EQ(std::string(buffer, 19), "I like turtles too.");
+  ASSERT_EQ(request->readBlock(buffer, 2048, st), 0);
+  ASSERT_TRUE(st.ok());
+
+  ASSERT_EQ(request->getState(), RequestState::kStarted);
+  st = request->endRequest();
+  ASSERT_EQ(request->getState(), RequestState::kFinished);
+  ASSERT_TRUE(st.ok());
+  ASSERT_TRUE(inter.ok());
   ASSERT_EQ(request->getStatusCode(), 200);
+  ASSERT_FALSE(request->isRecycledSession());
+}
+
+TEST_F(Standalone_Curl_Request, BasicSanity) {
+  _headers.push_back(HeaderLine("I like", "Turtles"));
+  _uri = Uri("http://localhost:22222/chickens");
+
+  SingleShotInteractor inter(
+    SSTR("GET /chickens HTTP/1.1\r\n"  <<
+          "Host: localhost:22222\r\n"  <<
+          "Accept: */*\r\n"            <<
+          "I like: Turtles\r\n"),
+
+    SSTR("HTTP/1.1 200 OK\r\n"                       <<
+         "Date: Mon, 07 Oct 2019 14:02:25 GMT\r\n"   <<
+         "Content-Type: ayy/lmao\r\n"                <<
+         "Content-Length: 19\r\n"                    <<
+         "\r\n"                                      <<
+         "I like turtles too.\r\n")
+  );
+
+  _drunk_server->autoAcceptNext(&inter);
+
+  std::unique_ptr<StandaloneRequest> request = makeStandaloneCurlReq();
+  ASSERT_FALSE(request->isRecycledSession());
+  ASSERT_EQ(request->getState(), RequestState::kNotStarted);
+
+  ASSERT_TRUE(request->startRequest().ok());
+  ASSERT_EQ(request->getState(), RequestState::kStarted);
+  ASSERT_EQ(request->getStatusCode(), 200);
+
+  std::string headerLine;
+  ASSERT_TRUE(request->getAnswerHeader("Content-Type", headerLine));
+  ASSERT_EQ(headerLine, "ayy/lmao");
 
   Uri redirect;
   ASSERT_FALSE(request->obtainRedirectedLocation(redirect).ok());

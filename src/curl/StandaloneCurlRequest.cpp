@@ -113,6 +113,22 @@ size_t StandaloneCurlRequest::getAnswerHeaders(std::vector<std::pair<std::string
 }
 
 //------------------------------------------------------------------------------
+// Traslate curl code into status
+//------------------------------------------------------------------------------
+static Status curlCodeToStatus(CURLcode code) {
+  switch(code) {
+    case CURLE_OK: {
+      return Status();
+    }
+    default: {
+      std::ostringstream ss;
+      ss << "curl error (" << code << "): " << curl_easy_strerror(code);
+      return Status(davix_scope_http_request(), StatusCode::UnknowError, ss.str());
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 // Start request - calling this multiple times will do nothing.
 //------------------------------------------------------------------------------
 Status StandaloneCurlRequest::startRequest() {
@@ -169,6 +185,25 @@ Status StandaloneCurlRequest::startRequest() {
   }
 
   //----------------------------------------------------------------------------
+  // Set up CA store
+  //----------------------------------------------------------------------------
+  if(_params.getSSLCACheck()) {
+    for(auto it = _params.listCertificateAuthorityPath().begin(); it != _params.listCertificateAuthorityPath().end(); it++) {
+      struct stat st;
+      if (stat(it->c_str(), &st) < 0 || S_ISDIR(st.st_mode) == false) {
+        DAVIX_SLOG(DAVIX_LOG_WARNING, DAVIX_LOG_HTTP, "CA Path invalid : {}, {} ", *it, ((errno != 0)?strerror(errno):strerror(ENOTDIR)));
+        errno = 0;
+      } else {
+        DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_HTTP, "add CA PATH {}", *it);
+        curl_easy_setopt(handle, CURLOPT_CAPATH, it->c_str());
+      }
+    }
+  }
+  else {
+    curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 0);
+  }
+
+  //----------------------------------------------------------------------------
   // Set-up headers
   //----------------------------------------------------------------------------
   for(size_t i = 0; i < _headers.size(); i++) {
@@ -189,6 +224,15 @@ Status StandaloneCurlRequest::startRequest() {
   }
 
   _state = RequestState::kStarted;
+
+  CURLMsg *msg;
+  int msgs_left = 0;
+  while(msg = curl_multi_info_read(mhandle, &msgs_left)) {
+    if(msg->msg == CURLMSG_DONE && msg->data.result != CURLE_OK) {
+      return curlCodeToStatus(msg->data.result);
+    }
+  }
+
   return Status();
 }
 

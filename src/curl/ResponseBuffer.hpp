@@ -53,9 +53,9 @@ public:
 
 private:
   std::deque<std::vector<char>> buffers;
-  size_t bufferSize = 0;
-  size_t posWrite = 0;
-  size_t posRead = 0;
+  size_t bufferSize;
+  size_t posWrite;
+  size_t posRead;
 };
 
 }

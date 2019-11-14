@@ -1,7 +1,7 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
  * Copyright (C) CERN 2019
- * Author: Georgios Bitzes <georgios.bitzes@cern.ch>
+ * Author: Georgios Bitzes <georgois.bitzes@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,11 +22,35 @@
 #include "StandaloneCurlRequest.hpp"
 #include "CurlSessionFactory.hpp"
 #include "CurlSession.hpp"
+#include "HeaderlineParser.hpp"
 #include <curl/curl.h>
 
 #define SSTR(message) static_cast<std::ostringstream&>(std::ostringstream().flush() << message).str()
+#define DBG(message) std::cerr << __FILE__ << ":" << __LINE__ << " -- " << #message << " = " << message << std::endl;
 
 namespace Davix {
+
+//------------------------------------------------------------------------------
+// Header callback
+//------------------------------------------------------------------------------
+static size_t header_callback(char *buffer, size_t size, size_t nitems, void *userdata) {
+  size_t bytes = size * nitems;
+
+  StandaloneCurlRequest* req = (StandaloneCurlRequest*) userdata;
+  req->feedResponseHeader(std::string(buffer, bytes));
+  return bytes;
+}
+
+//------------------------------------------------------------------------------
+// Write callback
+//------------------------------------------------------------------------------
+static size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata) {
+  size_t bytes = size * nmemb;
+
+  ResponseBuffer* buff = (ResponseBuffer*) userdata;
+  buff->feed(ptr, bytes);
+  return bytes;
+}
 
 //------------------------------------------------------------------------------
 // Constructor
@@ -37,25 +61,36 @@ StandaloneCurlRequest::StandaloneCurlRequest(CurlSessionFactory &sessionFactory,
   Chrono::TimePoint deadline)
 : _session_factory(sessionFactory), _reuse_session(reuseSession), _bound_hooks(boundHooks),
   _uri(uri), _verb(verb), _params(params), _headers(headers), _req_flag(reqFlag),
-  _content_provider(contentProvider), _deadline(deadline), _state(RequestState::kNotStarted) {}
+  _content_provider(contentProvider), _deadline(deadline), _state(RequestState::kNotStarted),
+  _chunklist(NULL), _received_headers(false) {}
 
 //------------------------------------------------------------------------------
 // Destructor
 //------------------------------------------------------------------------------
-StandaloneCurlRequest::~StandaloneCurlRequest() {}
+StandaloneCurlRequest::~StandaloneCurlRequest() {
+    curl_slist_free_all(_chunklist);
+}
 
 //------------------------------------------------------------------------------
 // Get a specific response header
 //------------------------------------------------------------------------------
 bool StandaloneCurlRequest::getAnswerHeader(const std::string &header_name, std::string &value) const {
+  for(auto it = _response_headers.begin(); it != _response_headers.end(); it++) {
+    if(it->first == header_name) {
+      value = it->second;
+      return true;
+    }
+  }
 
+  return false;
 }
 
 //------------------------------------------------------------------------------
 // Get all response headers
 //------------------------------------------------------------------------------
 size_t StandaloneCurlRequest::getAnswerHeaders(std::vector<std::pair<std::string, std::string > > & vec_headers) const {
-
+  vec_headers = _response_headers;
+  return vec_headers.size();
 }
 
 //------------------------------------------------------------------------------
@@ -88,26 +123,45 @@ Status StandaloneCurlRequest::startRequest() {
   // Set request verb, target URL
   //----------------------------------------------------------------------------
   CURL* handle = _session->getHandle()->handle;
+  CURLM* mhandle = _session->getHandle()->mhandle;
 
   curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, _verb.c_str());
   curl_easy_setopt(handle, CURLOPT_URL, _uri.getString().c_str());
 
   //----------------------------------------------------------------------------
+  // Set up callback to consume response headers
+  //----------------------------------------------------------------------------
+  curl_easy_setopt(handle, CURLOPT_HEADERFUNCTION, header_callback);
+  curl_easy_setopt(handle, CURLOPT_HEADERDATA, this);
+
+  //----------------------------------------------------------------------------
+  // Set up callback to consume response body
+  //----------------------------------------------------------------------------
+  curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_callback);
+  curl_easy_setopt(handle, CURLOPT_WRITEDATA, &_response_buffer);
+
+  //----------------------------------------------------------------------------
   // Set-up headers
   //----------------------------------------------------------------------------
-  struct curl_slist *chunk = NULL;
-
   for(size_t i = 0; i < _headers.size(); i++) {
-    chunk = curl_slist_append(chunk, SSTR(_headers[i].first << ": " << _headers[i].second).c_str());
+    _chunklist = curl_slist_append(_chunklist, SSTR(_headers[i].first << ": " << _headers[i].second).c_str());
   }
 
+  curl_easy_setopt(handle, CURLOPT_HTTPHEADER, _chunklist);
+
   //----------------------------------------------------------------------------
-  // Assign easy handle to multi
+  // Start request
   //----------------------------------------------------------------------------
-  curl_multi_add_handle(_session->getHandle()->mhandle, handle);
+  int still_running = 1;
 
+  while(still_running != 0) {
+    if(curl_multi_perform(mhandle, &still_running) != CURLM_OK) {
+      break;
+    }
+  }
 
-
+  _state = RequestState::kStarted;
+  return Status();
 }
 
 //------------------------------------------------------------------------------
@@ -119,22 +173,33 @@ dav_ssize_t StandaloneCurlRequest::readBlock(char* buffer, dav_size_t max_size, 
     return -1;
   }
 
+  if(max_size == 0) {
+    return 0;
+  }
+
+  st = checkTimeout();
+  if(!st.ok()) {
+    return -1;
+  }
+
+  st = Status();
+  return _response_buffer.consume(buffer, max_size);
 }
 
 //------------------------------------------------------------------------------
 // Finish an already started request.
 //------------------------------------------------------------------------------
 Status StandaloneCurlRequest::endRequest() {
-
+  _state = RequestState::kFinished;
+  return Status();
 }
 
 //------------------------------------------------------------------------------
 // Check request state
 //------------------------------------------------------------------------------
 RequestState StandaloneCurlRequest::getState() const {
-
+  return _state;
 }
-
 
 //------------------------------------------------------------------------------
 // Check if timeout has passed
@@ -177,7 +242,18 @@ bool StandaloneCurlRequest::isRecycledSession() const {
 // Obtain redirected location, store into the given Uri
 //------------------------------------------------------------------------------
 Status StandaloneCurlRequest::obtainRedirectedLocation(Uri &out) {
+  if(!_session) {
+    return Status(davix_scope_http_request(), StatusCode::InvalidArgument, "Request not active, impossible to obtain redirected location");
+  }
 
+  for(auto it = _response_headers.begin(); it != _response_headers.end(); it++) {
+    if(strcasecmp("location", it->first.c_str()) == 0) {
+      out = Uri(it->second);
+      return Status();
+    }
+  }
+
+  return Status(davix_scope_http_request(), StatusCode::InvalidArgument, "Could not find Location header in answer headers");
 }
 
 //------------------------------------------------------------------------------
@@ -187,7 +263,25 @@ std::string StandaloneCurlRequest::getSessionError() const {
 
 }
 
+//------------------------------------------------------------------------------
+// Block until all response headers have been received
+//------------------------------------------------------------------------------
+Status StandaloneCurlRequest::readResponseHeaders() {
 
+}
+
+//------------------------------------------------------------------------------
+// Feed response header
+//------------------------------------------------------------------------------
+void StandaloneCurlRequest::feedResponseHeader(const std::string &header) {
+  if(header == "\r\n") {
+    _received_headers = true;
+    return;
+  }
+
+  HeaderlineParser parser(header);
+  _response_headers.push_back(std::pair<std::string, std::string>(parser.getKey(), parser.getValue()));
+}
 
 
 }

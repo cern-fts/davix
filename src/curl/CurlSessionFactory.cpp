@@ -24,6 +24,8 @@
 #include <backend/SessionFactory.hpp>
 #include <curl/curl.h>
 
+#define DBG(message) std::cerr << __FILE__ << ":" << __LINE__ << " -- " << #message << " = " << message << std::endl;
+
 namespace Davix {
 
 //------------------------------------------------------------------------------
@@ -47,10 +49,12 @@ std::unique_ptr<CurlSession> CurlSessionFactory::provideCurlSession(const Uri &u
   }
 
   std::unique_ptr<CurlSession> out(new CurlSession(*this, handle, uri, params, st));
-  if(!st.ok()) {
-    out.reset();
-    handle.reset();
+  if(st.ok()) {
+    return out;
   }
+
+  out.reset();
+  handle.reset();
 
   handle = makeNewHandle(uri, params);
   out.reset(new CurlSession(*this, handle, uri, params, st));
@@ -103,7 +107,7 @@ CurlHandlePtr CurlSessionFactory::makeNewHandle(const Uri &uri, const RequestPar
   CURL *handle = curl_easy_init();
   CURLM *mhandle = curl_multi_init();
 
-  return CurlHandlePtr(new CurlHandle(sessionKey, handle, mhandle));
+  return CurlHandlePtr(new CurlHandle(sessionKey, mhandle, handle));
 }
 
 }

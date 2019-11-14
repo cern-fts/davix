@@ -87,13 +87,19 @@ void SingleShotInteractor::main(ThreadAssistant &assistant) {
     }
 
     std::string line = consumeLine();
+    std::cerr << "CONSUMED: " << line << std::endl;
 
     lines[i] += "\r\n";
 
     if(line != lines[i]) {
+      std::cerr << "MISMATCH" << std::endl;
+      std::cerr << "'" << line << "'" << std::endl;
+      std::cerr << "'" << lines[i] << "'" << std::endl;
       return;
     }
   }
+
+  std::cout << "WRITING RESPONSE" << std::endl;
 
   if(_conn->write(_response) != _response.size()) {
     return;

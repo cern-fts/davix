@@ -23,9 +23,6 @@
 #include <iostream>
 #include <gtest/gtest.h>
 
-#define DBG(message) std::cerr << __FILE__ << ":" << __LINE__ << " -- " << #message << " = " << message << std::endl;
-
-
 using namespace Davix;
 
 class Response_Buffer : public testing::TestWithParam<size_t> {};

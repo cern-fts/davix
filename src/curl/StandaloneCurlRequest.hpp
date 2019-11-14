@@ -19,13 +19,16 @@
  *
 */
 
-#ifndef DAVIX_CURL_REQUEST_HPP
-#define DAVIX_CURL_REQUEST_HPP
+#ifndef DAVIX_STANDALONE_CURL_REQUEST_HPP
+#define DAVIX_STANDALONE_CURL_REQUEST_HPP
 
+#include "ResponseBuffer.hpp"
 #include <davix_internal.hpp>
 #include <backend/StandaloneRequest.hpp>
 #include <backend/BoundHooks.hpp>
 #include <params/davixrequestparams.hpp>
+
+struct curl_slist;
 
 namespace Davix {
 
@@ -114,6 +117,10 @@ public:
   //----------------------------------------------------------------------------
   virtual std::string getSessionError() const;
 
+  //----------------------------------------------------------------------------
+  // Feed response header
+  //----------------------------------------------------------------------------
+  void feedResponseHeader(const std::string &header);
 
 private:
   CurlSessionFactory &_session_factory;
@@ -136,6 +143,23 @@ private:
   //----------------------------------------------------------------------------
   Status checkTimeout();
 
+  //----------------------------------------------------------------------------
+  // Linked list for storing request headers
+  //----------------------------------------------------------------------------
+  struct curl_slist *_chunklist;
+
+  //----------------------------------------------------------------------------
+  // Response variables
+  //----------------------------------------------------------------------------
+  std::vector<std::pair<std::string, std::string > > _response_headers;
+  bool _received_headers;
+
+  ResponseBuffer _response_buffer;
+
+  //----------------------------------------------------------------------------
+  // Block until all response headers have been received
+  //----------------------------------------------------------------------------
+  Status readResponseHeaders();
 
 
 };

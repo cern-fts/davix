@@ -107,6 +107,11 @@ private:
     //--------------------------------------------------------------------------
     void prepareUriParams();
 
+    //--------------------------------------------------------------------------
+    // Initialize standalone request
+    //--------------------------------------------------------------------------
+    void initStandaloneRequest();
+
     // neon standalone request
     std::unique_ptr<StandaloneRequest> _standalone_req;
 

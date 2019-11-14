@@ -20,7 +20,7 @@ add_executable(davix-slow-unit-tests
   ../drunk-server/LineReader.cpp
 
   drunk-server.cpp
-  standalone-neon-request.cpp
+  standalone-request.cpp
 
   ${SRC_HMACSHA1} ${src_files} ${src_alibxx}
 )

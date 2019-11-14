@@ -35,6 +35,7 @@
 #include <core/RedirectionResolver.hpp>
 #include <utils/CompatibilityHacks.hpp>
 #include <backend/SessionFactory.hpp>
+#include <curl/StandaloneCurlRequest.hpp>
 
 #include "../backend/StandaloneNeonRequest.hpp"
 
@@ -172,6 +173,42 @@ void NeonRequest::configureHeaders() {
 }
 
 //------------------------------------------------------------------------------
+// Initialize standalone request
+//------------------------------------------------------------------------------
+void NeonRequest::initStandaloneRequest() {
+    if(getenv("DAVIX_USE_LIBCURL") != NULL) {
+        CurlSessionFactory& factory = ContextExplorer::SessionFactoryFromContext(getContext()).getCurl();
+        _standalone_req.reset(new StandaloneCurlRequest(
+            factory,
+            true,
+            _bound_hooks,
+            * (_current.get()),
+            _request_type,
+            _params,
+            _headers_field,
+            _req_flag,
+            _content_provider,
+            _deadline
+        ));
+    }
+    else {
+        NEONSessionFactory& factory = ContextExplorer::SessionFactoryFromContext(getContext()).getNeon();
+        _standalone_req.reset(new StandaloneNeonRequest(
+            factory,
+            true,
+            _bound_hooks,
+            * (_current.get()),
+            _request_type,
+            _params,
+            _headers_field,
+            _req_flag,
+            _content_provider,
+            _deadline
+        ));
+    }
+}
+
+//------------------------------------------------------------------------------
 // Initialize and configure _standalone_req
 //------------------------------------------------------------------------------
 void NeonRequest::createBackendRequest() {
@@ -192,19 +229,8 @@ void NeonRequest::createBackendRequest() {
     // setup timeout
     setupDeadlineIfUnset();
 
-    NEONSessionFactory& factory = ContextExplorer::SessionFactoryFromContext(getContext()).getNeon();
-    _standalone_req.reset(new StandaloneNeonRequest(
-        factory,
-        true,
-        _bound_hooks,
-        * (_current.get()),
-        _request_type,
-        _params,
-        _headers_field,
-        _req_flag,
-        _content_provider,
-        _deadline
-    ));
+    // setup standalone req object
+    initStandaloneRequest();
 
     // configure connexion parameters for PUT request
     if( (_req_flag & RequestFlag::SupportContinue100) == true) {

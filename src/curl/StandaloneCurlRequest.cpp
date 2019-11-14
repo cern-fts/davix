@@ -161,8 +161,11 @@ Status StandaloneCurlRequest::startRequest() {
   CURL* handle = _session->getHandle()->handle;
   CURLM* mhandle = _session->getHandle()->mhandle;
 
+  Uri uriCopy(_uri);
+  uriCopy.httpizeProtocol();
+
   curl_easy_setopt(handle, CURLOPT_CUSTOMREQUEST, _verb.c_str());
-  curl_easy_setopt(handle, CURLOPT_URL, _uri.getString().c_str());
+  curl_easy_setopt(handle, CURLOPT_URL, uriCopy.getString().c_str());
 
   //----------------------------------------------------------------------------
   // Set up callback to consume response headers

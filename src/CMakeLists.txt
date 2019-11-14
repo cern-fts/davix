@@ -16,6 +16,7 @@ set(DAVIX_SOURCES
   curl/CurlSession.hpp                                   curl/CurlSession.cpp
   curl/CurlSessionFactory.hpp                            curl/CurlSessionFactory.cpp
   curl/HeaderlineParser.hpp                              curl/HeaderlineParser.cpp
+  curl/ResponseBuffer.hpp                                curl/ResponseBuffer.cpp
   curl/StandaloneCurlRequest.hpp                         curl/StandaloneCurlRequest.cpp
 
                                                          deprecated/httpcachetoken.cpp

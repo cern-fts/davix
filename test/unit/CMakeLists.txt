@@ -29,6 +29,7 @@ add_executable(davix-unit-tests
   metalink-replica.cpp
   neon.cpp
   parser.cpp
+  response-buffer.cpp
   session-factory.cpp
   session.cpp
   status.cpp

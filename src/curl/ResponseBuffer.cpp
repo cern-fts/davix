@@ -30,7 +30,8 @@ namespace Davix {
 //------------------------------------------------------------------------------
 // Constructor
 //------------------------------------------------------------------------------
-ResponseBuffer::ResponseBuffer(size_t bsize) : bufferSize(bsize) {}
+ResponseBuffer::ResponseBuffer(size_t bsize) : bufferSize(bsize), posWrite(0),
+    posRead(0) {}
 
 //------------------------------------------------------------------------------
 // Destructor

@@ -26,6 +26,7 @@
 #include <utils/davix_logger_internal.hpp>
 #include <core/ContentProvider.hpp>
 #include <curl/curl.h>
+#include <auth/davixx509cred_internal.hpp>
 
 #define SSTR(message) static_cast<std::ostringstream&>(std::ostringstream().flush() << message).str()
 #define DBG(message) std::cerr << __FILE__ << ":" << __LINE__ << " -- " << #message << " = " << message << std::endl;
@@ -180,6 +181,7 @@ Status StandaloneCurlRequest::startRequest() {
   //----------------------------------------------------------------------------
   if(_content_provider) {
     _content_provider->rewind();
+    curl_easy_setopt(handle, CURLOPT_UPLOAD, 1L);
     curl_easy_setopt(handle, CURLOPT_READFUNCTION, read_callback);
     curl_easy_setopt(handle, CURLOPT_READDATA, _content_provider);
   }
@@ -201,6 +203,21 @@ Status StandaloneCurlRequest::startRequest() {
   }
   else {
     curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 0);
+    curl_easy_setopt(handle, CURLOPT_SSL_VERIFYHOST, 0);
+  }
+
+  //----------------------------------------------------------------------------
+  // Set up client certificate
+  //----------------------------------------------------------------------------
+  const X509Credential& clientCert = _params.getClientCertX509();
+
+  std::string userCertificate;
+  std::string userKey;
+  std::string password;
+
+  if(X509CredentialExtra::get_x509_info(clientCert, &userCertificate, &userKey, &password)) {
+    curl_easy_setopt(handle, CURLOPT_SSLCERT, userCertificate.c_str());
+    curl_easy_setopt(handle, CURLOPT_SSLKEY,  userKey.c_str());
   }
 
   //----------------------------------------------------------------------------
@@ -353,6 +370,7 @@ void StandaloneCurlRequest::feedResponseHeader(const std::string &header) {
 
   HeaderlineParser parser(header);
   _response_headers.push_back(std::pair<std::string, std::string>(parser.getKey(), parser.getValue()));
+  DAVIX_SLOG(DAVIX_LOG_WARNING, DAVIX_LOG_HEADER, "> {}", header);
 }
 
 

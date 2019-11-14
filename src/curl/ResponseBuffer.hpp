@@ -24,6 +24,7 @@
 
 #include <vector>
 #include <deque>
+#include <stddef.h>
 
 namespace Davix {
 

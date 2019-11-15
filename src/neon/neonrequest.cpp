@@ -173,10 +173,26 @@ void NeonRequest::configureHeaders() {
 }
 
 //------------------------------------------------------------------------------
+// Should we use libcurl?
+//------------------------------------------------------------------------------
+static bool useLibcurl() {
+    const char *opt = getenv("DAVIX_USE_LIBCURL");
+    if(opt == NULL) {
+        return false;
+    }
+
+    if(opt[0] == '1' || opt[0] == 'Y' || opt[0] == 'y') {
+        return true;
+    }
+
+    return false;
+}
+
+//------------------------------------------------------------------------------
 // Initialize standalone request
 //------------------------------------------------------------------------------
 void NeonRequest::initStandaloneRequest() {
-    if(getenv("DAVIX_USE_LIBCURL") != NULL) {
+    if(useLibcurl()) {
         CurlSessionFactory& factory = ContextExplorer::SessionFactoryFromContext(getContext()).getCurl();
         _standalone_req.reset(new StandaloneCurlRequest(
             factory,

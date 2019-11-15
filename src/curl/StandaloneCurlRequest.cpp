@@ -33,6 +33,86 @@
 
 namespace Davix {
 
+static std::vector<std::string> split(std::string data, std::string token) {
+  std::vector<std::string> output;
+  size_t pos = std::string::npos;
+  do {
+    pos = data.find(token);
+    output.push_back(data.substr(0, pos));
+    if(std::string::npos != pos) data = data.substr(pos + token.size());
+  } while (std::string::npos != pos);
+  return output;
+}
+
+static std::string chopNewline(const std::string &line) {
+  if(line.size() > 2 && line[line.size()-2] == '\r' && line[line.size()-1] == '\n') {
+    return std::string(line.begin(), line.begin()+line.size()-2);
+  }
+
+  if(line.size() > 1 && line[line.size()-1] == '\n') {
+    return std::string(line.begin(), line.begin()+line.size()-1);
+  }
+
+  return line;
+}
+
+//------------------------------------------------------------------------------
+// Debug callback
+//------------------------------------------------------------------------------
+int debug_callback(CURL *handle, curl_infotype type, char *data, size_t size, void *userptr) {
+  static bool prevHeaderOut = false;
+  static bool prevHeaderIn = false;
+
+  switch(type) {
+    case CURLINFO_HEADER_IN: {
+      prevHeaderOut = false;
+
+      if(!prevHeaderIn) {
+        DAVIX_SLOG(DAVIX_LOG_WARNING, DAVIX_LOG_HEADER, "");
+        prevHeaderIn = true;
+      }
+
+      if(::Davix::getLogScope() & DAVIX_LOG_HEADER) {
+        std::vector<std::string> lines = split(std::string(data, size), "\r\n");
+        for(size_t i = 0; i < lines.size(); i++) {
+          std::string chopped = chopNewline(lines[i]);
+
+          if(!chopped.empty()) {
+            DAVIX_SLOG(DAVIX_LOG_WARNING, DAVIX_LOG_HEADER, "> {}", chopped);
+          }
+
+        }
+      }
+
+      break;
+    }
+    case CURLINFO_HEADER_OUT: {
+      prevHeaderIn = false;
+
+      if(!prevHeaderOut) {
+        DAVIX_SLOG(DAVIX_LOG_WARNING, DAVIX_LOG_HEADER, "");
+        prevHeaderOut = true;
+      }
+
+      if(::Davix::getLogScope() & DAVIX_LOG_HEADER) {
+        std::vector<std::string> lines = split(std::string(data, size), "\r\n");
+        for(size_t i = 0; i < lines.size(); i++) {
+          std::string chopped = chopNewline(lines[i]);
+
+          if(!chopped.empty()) {
+            DAVIX_SLOG(DAVIX_LOG_WARNING, DAVIX_LOG_HEADER, "< {}", chopped);
+          }
+        }
+      }
+
+      break;
+    }
+    default: {}
+  }
+
+  return 0;
+}
+
 //------------------------------------------------------------------------------
 // Header callback
 //------------------------------------------------------------------------------
@@ -224,13 +304,19 @@ Status StandaloneCurlRequest::startRequest() {
   }
 
   //----------------------------------------------------------------------------
-  // Set-up headers
+  // Set up headers
   //----------------------------------------------------------------------------
   for(size_t i = 0; i < _headers.size(); i++) {
     _chunklist = curl_slist_append(_chunklist, SSTR(_headers[i].first << ": " << _headers[i].second).c_str());
   }
 
   curl_easy_setopt(handle, CURLOPT_HTTPHEADER, _chunklist);
+
+  //----------------------------------------------------------------------------
+  // Set up debugging
+  //----------------------------------------------------------------------------
+  curl_easy_setopt(handle, CURLOPT_DEBUGFUNCTION, debug_callback);
+  curl_easy_setopt(handle, CURLOPT_VERBOSE, 1L);
 
   //----------------------------------------------------------------------------
   // Start request
@@ -310,9 +396,13 @@ Status StandaloneCurlRequest::checkTimeout() {
 // Get status code - returns 0 if impossible to determine
 //------------------------------------------------------------------------------
 int StandaloneCurlRequest::getStatusCode() const {
-  CURL* handle = _session->getHandle()->handle;
   long response_code = 0;
-  curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &response_code);
+
+  if(_session) {
+    CURL* handle = _session->getHandle()->handle;
+    curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &response_code);
+  }
+
   return response_code;
 }
 
@@ -373,7 +463,6 @@ void StandaloneCurlRequest::feedResponseHeader(const std::string &header) {
 
   HeaderlineParser parser(header);
   _response_headers.push_back(std::pair<std::string, std::string>(parser.getKey(), parser.getValue()));
-  DAVIX_SLOG(DAVIX_LOG_WARNING, DAVIX_LOG_HEADER, "> {}", header);
 }
 
 

@@ -210,6 +210,14 @@ static Status curlCodeToStatus(CURLcode code) {
 }
 
 //------------------------------------------------------------------------------
+// Get curl version as string
+//------------------------------------------------------------------------------
+static std::string getCurlVersion() {
+  curl_version_info_data* ver = curl_version_info(CURLVERSION_NOW);
+  return ver->version;
+}
+
+//------------------------------------------------------------------------------
 // Start request - calling this multiple times will do nothing.
 //------------------------------------------------------------------------------
 Status StandaloneCurlRequest::startRequest() {
@@ -309,6 +317,8 @@ Status StandaloneCurlRequest::startRequest() {
   for(size_t i = 0; i < _headers.size(); i++) {
     _chunklist = curl_slist_append(_chunklist, SSTR(_headers[i].first << ": " << _headers[i].second).c_str());
   }
+
+  _chunklist = curl_slist_append(_chunklist, SSTR("User-Agent: " << Davix::RequestParams().getUserAgent() << " libcurl/" << getCurlVersion()).c_str());
 
   curl_easy_setopt(handle, CURLOPT_HTTPHEADER, _chunklist);
 

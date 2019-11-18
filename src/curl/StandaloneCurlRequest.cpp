@@ -275,6 +275,7 @@ Status StandaloneCurlRequest::startRequest() {
     curl_easy_setopt(handle, CURLOPT_UPLOAD, 1L);
     curl_easy_setopt(handle, CURLOPT_READFUNCTION, read_callback);
     curl_easy_setopt(handle, CURLOPT_READDATA, _content_provider);
+    curl_easy_setopt(handle, CURLOPT_INFILESIZE_LARGE, _content_provider->getSize());
   }
 
   //----------------------------------------------------------------------------

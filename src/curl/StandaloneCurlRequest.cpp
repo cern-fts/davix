@@ -107,6 +107,15 @@ int debug_callback(CURL *handle, curl_infotype type, char *data, size_t size, vo
 
       break;
     }
+    case CURLINFO_DATA_IN: {
+      DAVIX_SLOG(DAVIX_LOG_WARNING, DAVIX_LOG_BODY, "Body block incoming ({} bytes): {}", size, std::string(data, size));
+      break;
+    }
+    case CURLINFO_DATA_OUT: {
+      DAVIX_SLOG(DAVIX_LOG_WARNING, DAVIX_LOG_BODY, "Body block outgoing ({} bytes): {}", size, std::string(data, size));
+      break;
+    }
+
     default: {}
   }
 

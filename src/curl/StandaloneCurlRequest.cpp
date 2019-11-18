@@ -341,6 +341,13 @@ Status StandaloneCurlRequest::startRequest() {
   curl_easy_setopt(handle, CURLOPT_HTTPHEADER, _chunklist);
 
   //----------------------------------------------------------------------------
+  // Special case for HEAD
+  //----------------------------------------------------------------------------
+  if(strcasecmp(_verb.c_str(), "HEAD") == 0) {
+    curl_easy_setopt(handle, CURLOPT_NOBODY, 1L);
+  }
+
+  //----------------------------------------------------------------------------
   // Set up debugging
   //----------------------------------------------------------------------------
   curl_easy_setopt(handle, CURLOPT_DEBUGFUNCTION, debug_callback);

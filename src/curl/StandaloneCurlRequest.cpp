@@ -276,6 +276,7 @@ Status StandaloneCurlRequest::startRequest() {
     curl_easy_setopt(handle, CURLOPT_READFUNCTION, read_callback);
     curl_easy_setopt(handle, CURLOPT_READDATA, _content_provider);
     curl_easy_setopt(handle, CURLOPT_INFILESIZE_LARGE, _content_provider->getSize());
+
   }
 
   //----------------------------------------------------------------------------
@@ -317,6 +318,13 @@ Status StandaloneCurlRequest::startRequest() {
   //----------------------------------------------------------------------------
   for(size_t i = 0; i < _headers.size(); i++) {
     _chunklist = curl_slist_append(_chunklist, SSTR(_headers[i].first << ": " << _headers[i].second).c_str());
+
+    if(_content_provider && _params.get100ContinueSupport() && (_req_flag & RequestFlag::SupportContinue100) ) {
+      _chunklist = curl_slist_append(_chunklist, "Expect: 100-continue");
+    }
+    else {
+      _chunklist = curl_slist_append(_chunklist, "Expect:");
+    }
   }
 
   _chunklist = curl_slist_append(_chunklist, SSTR("User-Agent: " << Davix::RequestParams().getUserAgent() << " libcurl/" << getCurlVersion()).c_str());

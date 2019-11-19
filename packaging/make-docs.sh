@@ -15,7 +15,7 @@ SPHINX_DIR="${PWD}/doc/sphinx"
 
 rm -rf build
 mkdir build && cd build
-sphinx-build-3 -q -b html "${SPHINX_DIR}" "${PWD}/build/html/"
+sphinx-build-3 -q -b html "${SPHINX_DIR}" "${PWD}/doc/build/html/"
 
 cmake -DENABLE_HTML_DOCS=TRUE ..
 make doc

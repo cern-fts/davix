@@ -91,8 +91,13 @@ add_library(libdavix  SHARED ${SRC_DAVIX_FULL} )
 add_dependencies(libdavix neon)
 
 
+set(SECURE_TRANSPORT_LIBRARIES "")
+if(APPLE)
+  set(SECURE_TRANSPORT_LIBRARIES "-framework Security")
+endif()
+
 target_link_libraries(libdavix  libcurl alibxx_core ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES}
-                                ${CMAKE_THREAD_LIBS_INIT} ${SOCKET_PKG_LIBRARIES} ${UUID_LIBRARIES})
+                                ${CMAKE_THREAD_LIBS_INIT} ${SOCKET_PKG_LIBRARIES} ${UUID_LIBRARIES} z)
 
 set_target_properties(libdavix PROPERTIES
                             VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}

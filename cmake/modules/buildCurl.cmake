@@ -1,11 +1,16 @@
 macro(buildCurl)
   include(ExternalProject)
 
+  set(SECURE_TRANSPORT_FLAGS "")
+  if(APPLE)
+    set(SECURE_TRANSPORT_FLAG "--with-secure-transport")
+  endif()
+
   ExternalProject_Add(BuildCurlBundled
       SOURCE_DIR "${CMAKE_SOURCE_DIR}/deps/curl"
       PREFIX "${CMAKE_BINARY_DIR}/curl"
       BUILD_IN_SOURCE 1
-      CONFIGURE_COMMAND bash -c "autoreconf -i && ./configure  --prefix=${CMAKE_CURRENT_BINARY_DIR}/curl --disable-ldap --disable-ldaps && ${CMAKE_SOURCE_DIR}/patch-curl-clock-gettime.sh"
+      CONFIGURE_COMMAND bash -c "autoreconf -i && ./configure  --prefix=${CMAKE_CURRENT_BINARY_DIR}/curl --disable-ldap --disable-ldaps ${SECURE_TRANSPORT_FLAGS} && ${CMAKE_SOURCE_DIR}/patch-curl-clock-gettime.sh"
       BUILD_COMMAND ${MAKE}
   )
 

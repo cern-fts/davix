@@ -52,7 +52,6 @@ private:
 
     DavixTaskQueue* _tq;
     pthread_t worker;
-    pthread_cond_t eventConvar;
 
 public:
     /*

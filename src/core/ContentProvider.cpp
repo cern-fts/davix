@@ -158,7 +158,7 @@ FdContentProvider::FdContentProvider(int fd, off_t offset, size_t maxLen)
     _target_len = _fd_size - _offset;
   }
   else {
-    _target_len = std::min( (ssize_t) _target_len, _fd_size - _offset);
+    _target_len = std::min<ssize_t>( (ssize_t) _target_len, (ssize_t) _fd_size - _offset);
   }
 
   if(_fd_size == -1) {

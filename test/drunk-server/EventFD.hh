@@ -22,14 +22,29 @@
 #ifndef DAVIX_TEST_EVENT_FD_HPP
 #define DAVIX_TEST_EVENT_FD_HPP
 
-#include <sys/eventfd.h>
+#include <iostream>
 #include <unistd.h>
-#include <poll.h>
+#include <string.h>
+#include <cstdlib>
+#include <fcntl.h>
 
 class EventFD {
 public:
   EventFD() {
-    fd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
+    int status = pipe(fildes);
+    if(status != 0) {
+      std::cerr << "davix: CRITICAL: Could not obtain file descriptors for EventFD class, errno = " << errno << std::endl;
+      std::abort();
+    }
+
+    for(size_t i = 0; i < 2; i++) {
+      int flags = fcntl(fildes[i], F_GETFL, 0);
+      int status = fcntl(fildes[i], F_SETFL, flags | O_NONBLOCK);
+      if(status != 0) {
+        std::cerr << "davix: CRITICAL: Could not set file descriptor as non-blocking" << std::endl;
+        std::abort();
+      }
+    }
   }
 
   ~EventFD() {
@@ -37,36 +52,37 @@ public:
   }
 
   void close() {
-    if(fd >= 0) {
-      ::close(fd);
-      fd = -1;
+    ::close(fildes[0]);
+    ::close(fildes[1]);
+  }
+
+  void notify() {
+    char val = 1;
+    int rc = write(fildes[1], &val, sizeof(val));
+
+    if (rc != sizeof(val)) {
+      std::cerr << "davix: CRITICAL: could not write to EventFD pipe, return code "
+                << rc << ": " << strerror(errno) << std::endl;
     }
   }
 
-  void wait() {
-    struct pollfd polls[1];
-    polls[0].fd = fd;
-    polls[0].events = POLLIN;
-    polls[0].revents = 0;
-
-    poll(polls, 1, -1);
+  inline int getFD() const {
+    return fildes[0];
   }
 
-  int notify(int64_t val = 1) {
-    return write(fd, &val, sizeof(val));
+  void clear() {
+    while(true) {
+      char buffer[128];
+      int rc = ::read(fildes[0], buffer, 64);
+
+      if(rc <= 0) {
+        break;
+      }
+    }
   }
 
-  int64_t reset() {
-    int64_t tmp;
-    read(fd, &tmp, sizeof(tmp));
-    return tmp;
-  }
-
-  int getFD() {
-    return fd;
-  }
 private:
-  int fd;
+  int fildes[2];
 };
 
 #endif

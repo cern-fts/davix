@@ -117,7 +117,7 @@ struct S3PropParser::Internal{
         // new name new fileprop
         if( StrUtil::compare_ncase(name_prop, elem) ==0){
 
-            if((_s3_listing_mode == S3ListingMode::Flat)){  // flat mode
+            if(_s3_listing_mode == S3ListingMode::Flat) {  // flat mode
                 property.filename = current.erase(0,prefix.size());
             }
             else if(prefix.empty()){    // at root level

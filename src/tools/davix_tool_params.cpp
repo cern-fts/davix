@@ -26,6 +26,7 @@
 #include <getopt.h>
 #include <string_utils/stringutils.hpp>
 #include <utils/davix_logger.hpp>
+#include <curl/curl.h>
 
 namespace Davix{
 
@@ -155,6 +156,7 @@ static void option_abort(char** argv){
 
 static void display_version(){
     std::cout << "Version: " << version() << std::endl;
+    std::cout << curl_version() << std::endl;
     exit(0);
 }
 

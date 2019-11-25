@@ -235,13 +235,6 @@ public:
     assistant->dropCallbacks();
   }
 
-  //----------------------------------------------------------------------------
-  //! Set thread name. Useful to have in GDB traces, for example.
-  //----------------------------------------------------------------------------
-  void setName(const std::string &threadName) {
-    pthread_setname_np(th.native_handle(), threadName.c_str());
-  }
-
 private:
   std::unique_ptr<ThreadAssistant> assistant;
   bool joined;

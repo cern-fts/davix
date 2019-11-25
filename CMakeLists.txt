@@ -100,7 +100,9 @@ add_subdirectory(deps)
 
 
 #libuuid
-find_package(uuid)
+if(NOT APPLE)
+  find_package(uuid)
+endif()
 
 ## general defs
 add_definitions( -D_GNU_SOURCE)              # GNU source, import LFS, etc...

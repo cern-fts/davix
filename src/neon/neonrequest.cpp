@@ -177,15 +177,21 @@ void NeonRequest::configureHeaders() {
 //------------------------------------------------------------------------------
 static bool useLibcurl() {
     const char *opt = getenv("DAVIX_USE_LIBCURL");
-    if(opt == NULL) {
-        return false;
+    if(opt) {
+        if(opt[0] == '1' || opt[0] == 'Y' || opt[0] == 'y') {
+            return true;
+        }
+
+        if(opt[0] == '0' || opt[0] == 'N' || opt[0] == 'n') {
+            return false;
+        }
     }
 
-    if(opt[0] == '1' || opt[0] == 'Y' || opt[0] == 'y') {
+#ifdef LIBCURL_BACKEND_BY_DEFAULT
         return true;
-    }
-
-    return false;
+#else
+        return false;
+#endif
 }
 
 //------------------------------------------------------------------------------

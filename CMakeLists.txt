@@ -70,6 +70,7 @@ set(OUTPUT_NAME_DAVIX "davix")
 option(ENABLE_TOOLS "enable or disable tools " TRUE)
 option(ENABLE_HTML_DOCS "enable or disable generation of HTML documentation" FALSE)
 option(EMBEDDED_LIBCURL "Use embedded libcurl" TRUE)
+option(LIBCURL_BACKEND_BY_DEFAULT "Use libcurl by default" FALSE)
 
 # features
 option(ENABLE_IPV6 "enable or disable IPv6 support " TRUE)

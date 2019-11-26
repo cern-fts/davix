@@ -43,6 +43,9 @@ const int default_retry_number= 3;
 // tr1
 #cmakedefine HAVE_TR1_SUPPORT 1
 
+// curl as default
+#cmakedefine LIBCURL_BACKEND_BY_DEFAULT
+
 // default export
 #undef DAVIX_EXPORT
 #define DAVIX_EXPORT

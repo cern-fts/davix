@@ -97,7 +97,7 @@ Type::UInt64 TimePoint::toTimestamp() const{
 }
 
 
-bool TimePoint::isValid(){
+bool TimePoint::isValid() const {
     return (t.tv_sec != 0 && t.tv_nsec != 0);
 }
 
@@ -124,9 +124,9 @@ Type::UInt64 Duration::toTimeValue() const{
     return t.tv_sec;
 }
 
-
-
-
+Type::UInt64 Duration::toMilliseconds() const {
+    return (t.tv_sec * 1000) + (t.tv_nsec / 1000000);
+}
 
 ///////////////////////////////
 //////////////////////////////

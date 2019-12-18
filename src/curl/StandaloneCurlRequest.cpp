@@ -356,25 +356,115 @@ Status StandaloneCurlRequest::startRequest() {
   //----------------------------------------------------------------------------
   // Start request
   //----------------------------------------------------------------------------
-  int still_running = 1;
+  _state = RequestState::kStarted;
 
-  while(still_running != 0) {
-    if(curl_multi_perform(mhandle, &still_running) != CURLM_OK) {
-      break;
+  while(true) {
+    int still_running = 1;
+    Status st = performBlockingRound(still_running);
+
+    if(!st.ok()) {
+      _state = RequestState::kFinished;
+      return st;
+    }
+
+    if(still_running == 0) {
+      return checkErrors();
+    }
+
+    if(_response_buffer.size() != 0u) {
+      //------------------------------------------------------------------------
+      // We've dealt with the headers already, startRequest() is done. Switch
+      // to readBlock() mode.
+      //------------------------------------------------------------------------
+      return checkErrors();
     }
   }
 
   _state = RequestState::kStarted;
+  return checkErrors();
+}
 
+//------------------------------------------------------------------------------
+// Check internal mhandle errors
+//------------------------------------------------------------------------------
+Status StandaloneCurlRequest::checkErrors() {
   CURLMsg *msg;
   int msgs_left = 0;
-  while(msg = curl_multi_info_read(mhandle, &msgs_left)) {
+  while(msg = curl_multi_info_read(_session->getHandle()->mhandle, &msgs_left)) {
     if(msg->msg == CURLMSG_DONE && msg->data.result != CURLE_OK) {
       return curlCodeToStatus(msg->data.result);
     }
   }
 
   return Status();
+}
+
+//------------------------------------------------------------------------------
+// Get remaining number of milliseconds until deadline
+//------------------------------------------------------------------------------
+uint64_t StandaloneCurlRequest::getRemainingMs() const {
+  if(!_deadline.isValid()) {
+    return std::numeric_limits<std::uint64_t>::max();
+  }
+
+  Chrono::TimePoint now = Chrono::Clock(Chrono::Clock::Monolitic).now();
+  if(_deadline < now) {
+    return 0;
+  }
+
+  return (_deadline - now).toMilliseconds();
+}
+
+//------------------------------------------------------------------------------
+// Perform a single blocking round of network I/O
+//------------------------------------------------------------------------------
+Status StandaloneCurlRequest::performBlockingRound(int &still_running) {
+  still_running = 0;
+
+  if(!_session) {
+    return Status(davix_scope_http_request(), StatusCode::InvalidArgument, "Request not active");
+  }
+
+  while(true) {
+    Status st = checkTimeout();
+    if(!st.ok()) {
+      return st;
+    }
+
+    size_t prevSize = _response_buffer.size();
+
+    CURLM* mhandle = _session->getHandle()->mhandle;
+    curl_multi_perform(mhandle, &still_running);
+
+    //--------------------------------------------------------------------------
+    // Any errors from this round?
+    //--------------------------------------------------------------------------
+    Status errs = checkErrors();
+    if(!errs.ok()) {
+      return errs;
+    }
+
+    //--------------------------------------------------------------------------
+    // Are we done?
+    //--------------------------------------------------------------------------
+    if(still_running == 0) {
+      return Status();
+    }
+
+    //--------------------------------------------------------------------------
+    // Was anything actually read? If so, our work here is done, we're
+    // only supposed to do a single blocking round.
+    //--------------------------------------------------------------------------
+    if(prevSize != _response_buffer.size()) {
+      return Status();
+    }
+
+    //--------------------------------------------------------------------------
+    // Nope, we made no progress during this round, retry
+    //--------------------------------------------------------------------------
+    int numfds;
+    curl_multi_poll(_session->getHandle()->mhandle, NULL, 0, getRemainingMs(), &numfds);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -395,7 +485,14 @@ dav_ssize_t StandaloneCurlRequest::readBlock(char* buffer, dav_size_t max_size, 
     return -1;
   }
 
-  st = Status();
+  //----------------------------------------------------------------------------
+  // Keep some data cached inside the response buffer, but not too much
+  //----------------------------------------------------------------------------
+  if(_response_buffer.size() <= 33554432) {
+    int still_running = 0;
+    st = performBlockingRound(still_running);
+  }
+
   return _response_buffer.consume(buffer, max_size);
 }
 

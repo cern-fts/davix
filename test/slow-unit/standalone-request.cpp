@@ -183,6 +183,28 @@ TEST_F(Standalone_Neon_Request, Redirect) {
   ASSERT_EQ(uri.getString(), "https://example.com/redirect-test");
 }
 
+TEST_F(Standalone_Curl_Request, NetworkError) {
+  setConnectionTimeout(std::chrono::seconds(1));
+
+  ConnectionShutdownInteractor inter;
+  _drunk_server->autoAcceptNext(&inter);
+
+  std::unique_ptr<StandaloneRequest> request = makeStandaloneCurlReq();
+  ASSERT_EQ(request->getState(), RequestState::kNotStarted);
+
+  Status st = request->startRequest();
+  ASSERT_EQ(request->getState(), RequestState::kFinished);
+
+  ASSERT_FALSE(st.ok());
+  ASSERT_EQ(st.getScope(), "Davix::HttpRequest");
+  ASSERT_EQ(st.getCode(), StatusCode::ConnectionProblem);
+  ASSERT_EQ(st.getErrorMessage(), "curl error (52): Server returned nothing (no headers, no data)");
+  ASSERT_EQ(request->getSessionError(), "curl error (52): Server returned nothing (no headers, no data)");
+  ASSERT_EQ(request->getStatusCode(), 0);
+
+  _drunk_server.reset();
+}
+
 TEST_F(Standalone_Neon_Request, NetworkError) {
   setConnectionTimeout(std::chrono::seconds(1));
 

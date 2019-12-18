@@ -210,9 +210,15 @@ static Status curlCodeToStatus(CURLcode code) {
     case CURLE_OK: {
       return Status();
     }
+    case CURLE_GOT_NOTHING: {
+      std::ostringstream ss;
+      ss << "curl error (" << code << "): " << curl_easy_strerror(code);
+      return Status(davix_scope_http_request(), StatusCode::ConnectionProblem, ss.str());
+    }
     default: {
       std::ostringstream ss;
       ss << "curl error (" << code << "): " << curl_easy_strerror(code);
+      DBG(ss.str());
       return Status(davix_scope_http_request(), StatusCode::UnknowError, ss.str());
     }
   }
@@ -392,7 +398,8 @@ Status StandaloneCurlRequest::checkErrors() {
   int msgs_left = 0;
   while(msg = curl_multi_info_read(_session->getHandle()->mhandle, &msgs_left)) {
     if(msg->msg == CURLMSG_DONE && msg->data.result != CURLE_OK) {
-      return curlCodeToStatus(msg->data.result);
+      sessionError = curlCodeToStatus(msg->data.result);
+      return sessionError;
     }
   }
 
@@ -574,7 +581,7 @@ Status StandaloneCurlRequest::obtainRedirectedLocation(Uri &out) {
 // Get session error, if available
 //------------------------------------------------------------------------------
 std::string StandaloneCurlRequest::getSessionError() const {
-
+  return sessionError.getErrorMessage();
 }
 
 //------------------------------------------------------------------------------

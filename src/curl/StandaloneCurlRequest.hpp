@@ -137,6 +137,7 @@ private:
   RequestState _state;
 
   std::unique_ptr<CurlSession> _session;
+  Status sessionError;
 
   //----------------------------------------------------------------------------
   // Check if timeout has passed

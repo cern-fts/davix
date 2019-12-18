@@ -32,6 +32,10 @@
 
 #define SSTR(message) static_cast<std::ostringstream&>(std::ostringstream().flush() << message).str()
 
+inline std::string getCurlUserAgent() {
+  return SSTR("User-Agent: " << Davix::RequestParams().getUserAgent() << " libcurl/7.67.0-DEV\r\n");
+}
+
 inline std::string getDefaultUserAgent() {
   return SSTR("User-Agent: " << Davix::RequestParams().getUserAgent() << " neon/0.0.29\r\n");
 }
@@ -61,9 +65,9 @@ public:
     _params.setConnectionTimeout(&tm);
   }
 
-  // void setDeadlineFromNow(std::chrono::milliseconds dur) {
-  //   _deadline =  Chrono::Clock(Chrono::Clock::Monolitic).now() + Chrono::
-  // }
+  void setDeadlineFromNow(std::chrono::milliseconds dur) {
+    _deadline = Davix::Chrono::Clock(Davix::Chrono::Clock::Monolitic).now() + Davix::Chrono::Duration::milliseconds(dur.count());
+  }
 
 protected:
   std::unique_ptr<DrunkServer> _drunk_server;

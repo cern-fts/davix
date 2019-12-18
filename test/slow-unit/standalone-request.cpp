@@ -183,6 +183,40 @@ TEST_F(Standalone_Neon_Request, Redirect) {
   ASSERT_EQ(uri.getString(), "https://example.com/redirect-test");
 }
 
+TEST_F(Standalone_Curl_Request, Redirect) {
+  _uri = Uri("http://localhost:22222/test");
+
+  SingleShotInteractor inter(
+    SSTR("GET /test HTTP/1.1\r\n"  <<
+          "Host: localhost:22222\r\n"  <<
+          "Accept: */*\r\n" <<
+          getCurlUserAgent() <<
+          "\r\n"),
+
+    SSTR("HTTP/1.1 307 Temporary Redirect\r\n"                <<
+         "Date: Mon, 07 Oct 2019 14:02:25 GMT\r\n"            <<
+         "LoCaTiON: https://example.com/redirect-test\r\n"    <<
+         "Content-Length: 0\r\n" <<
+         "\r\n")
+  );
+
+  _drunk_server->autoAcceptNext(&inter);
+  std::unique_ptr<StandaloneRequest> request = makeStandaloneCurlReq();
+
+  ASSERT_TRUE(request->startRequest().ok());
+
+  std::string headerLine;
+  ASSERT_TRUE(request->getAnswerHeader("LoCaTiON", headerLine));
+  ASSERT_EQ(headerLine, "https://example.com/redirect-test");
+  ASSERT_EQ(request->getStatusCode(), 307);
+  ASSERT_TRUE(request->endRequest().ok());
+
+  Uri uri;
+  ASSERT_TRUE(request->obtainRedirectedLocation(uri).ok());
+  ASSERT_EQ(uri.getString(), "https://example.com/redirect-test");
+}
+
+
 TEST_F(Standalone_Curl_Request, NetworkError) {
   setConnectionTimeout(std::chrono::seconds(1));
 
@@ -225,6 +259,14 @@ TEST_F(Standalone_Neon_Request, NetworkError) {
   ASSERT_EQ(request->getStatusCode(), 0);
 
   _drunk_server.reset();
+}
+
+TEST_F(Standalone_Curl_Request, StopNoStart) {
+  std::unique_ptr<StandaloneRequest> request = makeStandaloneCurlReq();
+  ASSERT_EQ(request->getState(), RequestState::kNotStarted);
+  ASSERT_TRUE(request->endRequest().ok());
+  ASSERT_EQ(request->getState(), RequestState::kFinished);
+  ASSERT_EQ(request->getStatusCode(), 0);
 }
 
 TEST_F(Standalone_Neon_Request, StopNoStart) {

@@ -60,6 +60,8 @@ public:
     Duration(Type::UInt64 seconds);
     ~Duration();
 
+    static Duration milliseconds(Type::UInt64 v);
+
     /// return duration value in seconds
     Type::UInt64 toTimeValue() const;
 

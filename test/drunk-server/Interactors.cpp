@@ -102,8 +102,10 @@ void SingleShotInteractor::main(ThreadAssistant &assistant) {
   std::cout << "WRITING RESPONSE" << std::endl;
 
   if(_conn->write(_response) != _response.size()) {
+    std::cout << "Error when writing response" << std::endl;
     return;
   }
 
+  std::cout << "Response written successfully" << std::endl;
   _is_ok = true;
 }

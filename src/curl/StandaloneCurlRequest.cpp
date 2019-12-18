@@ -218,7 +218,6 @@ static Status curlCodeToStatus(CURLcode code) {
     default: {
       std::ostringstream ss;
       ss << "curl error (" << code << "): " << curl_easy_strerror(code);
-      DBG(ss.str());
       return Status(davix_scope_http_request(), StatusCode::UnknowError, ss.str());
     }
   }
@@ -382,12 +381,10 @@ Status StandaloneCurlRequest::startRequest() {
       // We've dealt with the headers already, startRequest() is done. Switch
       // to readBlock() mode.
       //------------------------------------------------------------------------
+      _state = RequestState::kStarted;
       return checkErrors();
     }
   }
-
-  _state = RequestState::kStarted;
-  return checkErrors();
 }
 
 //------------------------------------------------------------------------------

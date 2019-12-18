@@ -120,6 +120,13 @@ Duration::~Duration(){
 
 }
 
+Duration Duration::milliseconds(Type::UInt64 v) {
+    Duration d;
+    d.t.tv_sec = v / 1000;
+    d.t.tv_nsec = (v % 1000) * 1000;
+    return d;
+}
+
 Type::UInt64 Duration::toTimeValue() const{
     return t.tv_sec;
 }

@@ -206,18 +206,47 @@ size_t StandaloneCurlRequest::getAnswerHeaders(std::vector<std::pair<std::string
 // Traslate curl code into status
 //------------------------------------------------------------------------------
 static Status curlCodeToStatus(CURLcode code) {
+  std::ostringstream ss;
+  if(code != CURLE_OK) {
+    ss << "curl error (" << code << "): " << curl_easy_strerror(code);
+  }
+
   switch(code) {
     case CURLE_OK: {
       return Status();
     }
+    case CURLE_COULDNT_RESOLVE_PROXY:
+    case CURLE_COULDNT_RESOLVE_HOST: {
+      return Status(davix_scope_http_request(), StatusCode::NameResolutionFailure, ss.str());
+    }
+    case CURLE_LOGIN_DENIED:
+    case CURLE_AUTH_ERROR:
+    case CURLE_REMOTE_ACCESS_DENIED: {
+      return Status(davix_scope_http_request(), StatusCode::AuthenticationError, ss.str());
+    }
+    case CURLE_SSL_CONNECT_ERROR:
+    case CURLE_SSL_ENGINE_NOTFOUND:
+    case CURLE_SSL_ENGINE_SETFAILED:
+    case CURLE_SSL_CERTPROBLEM:
+    case CURLE_SSL_CIPHER:
+    case CURLE_PEER_FAILED_VERIFICATION:
+    case CURLE_SSL_SHUTDOWN_FAILED:
+    case CURLE_SSL_CRL_BADFILE:
+    case CURLE_SSL_ISSUER_ERROR:
+    case CURLE_SSL_PINNEDPUBKEYNOTMATCH:
+    case CURLE_SSL_INVALIDCERTSTATUS: {
+      return Status(davix_scope_http_request(), StatusCode::SSLError, ss.str());
+    }
+    case CURLE_SEND_ERROR:
+    case CURLE_RECV_ERROR:
+    case CURLE_COULDNT_CONNECT:
     case CURLE_GOT_NOTHING: {
-      std::ostringstream ss;
-      ss << "curl error (" << code << "): " << curl_easy_strerror(code);
       return Status(davix_scope_http_request(), StatusCode::ConnectionProblem, ss.str());
     }
+    case CURLE_OPERATION_TIMEDOUT: {
+      return Status(davix_scope_http_request(), StatusCode::OperationTimeout, ss.str());
+    }
     default: {
-      std::ostringstream ss;
-      ss << "curl error (" << code << "): " << curl_easy_strerror(code);
       return Status(davix_scope_http_request(), StatusCode::UnknowError, ss.str());
     }
   }

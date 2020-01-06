@@ -59,9 +59,10 @@ set(DAVIX_SOURCES
   xml/metalinkparser.hpp                                 xml/metalinkparser.cpp
   xml/s3deleteparser.hpp                                 xml/s3deleteparser.cpp
   xml/S3MultiPartInitiationParser.hpp                    xml/S3MultiPartInitiationParser.cpp
-  xml/s3propparser.hpp                                   xml/s3propparser.cpp;
+  xml/s3propparser.hpp                                   xml/s3propparser.cpp
 
   davixcontext.cpp
+  $<TARGET_OBJECTS:LibNeonObjects>
 )
 
 include_directories("libs" ".")
@@ -88,7 +89,6 @@ add_definitions(${HTTPLIB_PKG_CFLAGS} )
 
 if(SHARED_LIBRARY)
 add_library(libdavix  SHARED ${SRC_DAVIX_FULL} )
-add_dependencies(libdavix neon)
 
 
 set(SECURE_TRANSPORT_LIBRARIES "")

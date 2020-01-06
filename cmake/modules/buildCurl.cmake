@@ -3,7 +3,7 @@ macro(buildCurl)
 
   set(SECURE_TRANSPORT_FLAGS "")
   if(APPLE)
-    set(SECURE_TRANSPORT_FLAG "--with-secure-transport")
+    set(SECURE_TRANSPORT_FLAGS "--with-secure-transport")
   endif()
 
   ExternalProject_Add(BuildCurlBundled

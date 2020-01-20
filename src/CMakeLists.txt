@@ -82,8 +82,6 @@ include_directories("libs" ".")
 configure_file(davix_internal_config.in ${CMAKE_CURRENT_BINARY_DIR}/davix_internal_config.hpp @ONLY)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
-link_directories(${HTTPLIB_PKG_LIBRARY_DIR} ${CRYPTO_PKG_LIBRARY_DIR}
-                                        ${LIBXML2_PKG_LIBRARY_DIR} )
 
 add_subdirectory(modules/copy)
 add_subdirectory(libs)
@@ -92,13 +90,8 @@ if(ENABLE_TOOLS)
   add_subdirectory(tools)
 endif()
 
-LIST(APPEND SRC_DAVIX_FULL ${DAVIX_SOURCES} )
-
-
-add_definitions(${HTTPLIB_PKG_CFLAGS} )
-
 if(SHARED_LIBRARY)
-add_library(libdavix  SHARED ${SRC_DAVIX_FULL} )
+add_library(libdavix  SHARED ${DAVIX_SOURCES} )
 
 
 set(SECURE_TRANSPORT_LIBRARIES "")
@@ -133,15 +126,15 @@ endif(SHARED_LIBRARY)
 
 if(STATIC_LIBRARY)
 
-add_library(libdavix_static  STATIC ${SRC_DAVIX_FULL})
+add_library(libdavix_static  STATIC ${DAVIX_SOURCES})
 set_target_properties(libdavix_static PROPERTIES
                             OUTPUT_NAME ${OUTPUT_NAME_DAVIX})
-target_link_libraries(libdavix_static PRIVATE libcurl ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} dl ${UUID_LIBRARIES} )
+target_link_libraries(libdavix_static PRIVATE libcurl ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} dl ${UUID_LIBRARIES} z)
 
-add_library(libdavix STATIC ${SRC_DAVIX_FULL})
+add_library(libdavix STATIC ${DAVIX_SOURCES})
 set_target_properties(libdavix PROPERTIES
                             OUTPUT_NAME ${OUTPUT_NAME_DAVIX})
-target_link_libraries(libdavix PRIVATE libcurl ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} dl ${UUID_LIBRARIES} )
+target_link_libraries(libdavix PRIVATE libcurl ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} dl ${UUID_LIBRARIES} z)
 
 install(TARGETS libdavix_static
              DESTINATION ${LIB_INSTALL_DIR} )

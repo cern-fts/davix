@@ -17,5 +17,8 @@ macro(buildCurl)
   add_library(libcurl STATIC IMPORTED)
   set_property(TARGET libcurl PROPERTY IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/curl/lib/libcurl.a)
   add_dependencies(libcurl BuildCurlBundled)
-  target_include_directories(libcurl INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/deps/curl/include)
+
+  # Replace with the following when possible:
+  # target_include_directories(libcurl INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/deps/curl/include)
+  set_property(TARGET libcurl APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/deps/curl/include)
 endmacro()

@@ -1,14 +1,6 @@
 ###
 ## compile dependencies of davix
 
-
-IF(NOT HAVE_STRPTIME_H)
-    SET(SRC_STRPTIME "${CMAKE_CURRENT_SOURCE_DIR}/strptime/strptime.c" PARENT_SCOPE)
-ELSE(NOT HAVE_STRPTIME_H)
-    SET(SRC_STRPTIME "" PARENT_SCOPE)
-ENDIF(NOT HAVE_STRPTIME_H)
-
-
 SET(SRC_SIMPLE_GET_PASS "${CMAKE_CURRENT_SOURCE_DIR}/simple_getpass/simple_get_pass.cpp" PARENT_SCOPE)
 
 

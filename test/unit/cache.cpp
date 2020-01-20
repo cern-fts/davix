@@ -9,7 +9,7 @@
 #undef A_LIB_NAMESPACE
 #define A_LIB_NAMESPACE Davix
 
-#include <alibxx/alibxx.hpp>
+#include "libs/alibxx/alibxx.hpp"
 
 using namespace std;
 

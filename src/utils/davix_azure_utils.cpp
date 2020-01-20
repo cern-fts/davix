@@ -21,11 +21,11 @@
 
 #include <iomanip>
 #include <utils/davix_azure_utils.hpp>
-#include <datetime/datetime_utils.hpp>
+#include "libs/datetime/datetime_utils.hpp"
 #include <davix_internal.hpp>
 #include <utils/davix_logger_internal.hpp>
-#include <alibxx/crypto/hmacsha.hpp>
-#include <alibxx/crypto/base64.hpp>
+#include "libs/alibxx/crypto/hmacsha.hpp"
+#include "libs/alibxx/crypto/base64.hpp"
 
 #define AZURE_TIME_LEEWAY 300
 

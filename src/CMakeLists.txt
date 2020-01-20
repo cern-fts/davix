@@ -81,7 +81,7 @@ set(DAVIX_INTERNAL_INCLUDES
 )
 
 add_definitions(-DA_LIB_NAMESPACE=Davix)
-include_directories("libs" ".")
+include_directories(".")
 
 configure_file(davix_internal_config.in ${CMAKE_CURRENT_BINARY_DIR}/davix_internal_config.hpp @ONLY)
 
@@ -147,5 +147,3 @@ install(TARGETS libdavix_static
              DESTINATION ${LIB_INSTALL_DIR} )
 
 endif(STATIC_LIBRARY)
-
-SET(davix_tool_common_src "${davix_tool_common_src_up}" PARENT_SCOPE)

@@ -25,7 +25,7 @@
 #include <status/davixstatusrequest.hpp>
 #include <fileops/chain_factory.hpp>
 #include <xml/davpropxmlparser.hpp>
-#include <string_utils/stringutils.hpp>
+#include <utils/stringutils.hpp>
 #include <file/davposix.hpp>
 
 using namespace StrUtil;

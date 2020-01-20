@@ -24,7 +24,7 @@
 #include <cstdarg>
 #include <davix_internal.hpp>
 #include <utils/davix_logger.hpp>
-#include <string_utils/stringutils.hpp>
+#include <utils/stringutils.hpp>
 
 #ifdef HAVE_ATOMIC
 #include <atomic>

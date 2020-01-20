@@ -57,6 +57,8 @@ set(DAVIX_SOURCES
   utils/davix_logger_internal.hpp                        utils/davix_logger.cpp
                                                          utils/davix_misc_utils.cpp
   utils/davix_utils_internal.hpp                         utils/davix_s3_utils.cpp
+  utils/stringutils.hpp                                  utils/stringutils.cpp
+
                                                          utils/davixuri.cpp
   xml/azurepropparser.hpp                                xml/azurepropparser.cpp
   xml/davdeletexmlparser.hpp                             xml/davdeletexmlparser.cpp
@@ -89,8 +91,7 @@ if(ENABLE_TOOLS)
 endif()
 
 LIST(APPEND SRC_DAVIX_FULL ${DAVIX_SOURCES} ${src_datetime}
-                           ${SRC_STRPTIME} ${SRC_MEMPCPY} ${SRC_STRLCPY} ${SRC_STRING_UTILS_CPP}
-                           ${SRC_BASE64} ${SRC_HMACSHA1})
+                           ${SRC_STRPTIME} ${SRC_BASE64} ${SRC_HMACSHA1})
 
 
 add_definitions(${HTTPLIB_PKG_CFLAGS} )
@@ -134,12 +135,12 @@ if(STATIC_LIBRARY)
 add_library(libdavix_static  STATIC ${SRC_DAVIX_FULL})
 set_target_properties(libdavix_static PROPERTIES
                             OUTPUT_NAME ${OUTPUT_NAME_DAVIX})
-target_link_libraries(libdavix_static PRIVATE libcurl ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} dl)
+target_link_libraries(libdavix_static PRIVATE libcurl ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} dl ${UUID_LIBRARIES} )
 
 add_library(libdavix STATIC ${SRC_DAVIX_FULL})
 set_target_properties(libdavix PROPERTIES
                             OUTPUT_NAME ${OUTPUT_NAME_DAVIX})
-target_link_libraries(libdavix PRIVATE libcurl ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} dl)
+target_link_libraries(libdavix PRIVATE libcurl ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} dl ${UUID_LIBRARIES} )
 
 install(TARGETS libdavix_static
              DESTINATION ${LIB_INSTALL_DIR} )

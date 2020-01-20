@@ -28,7 +28,7 @@
 #include "delegation/delegation.hpp"
 #include <utils/davix_logger_internal.hpp>
 #include <utils/davix_gcloud_utils.hpp>
-#include <string_utils/stringutils.hpp>
+#include <utils/stringutils.hpp>
 
 using namespace Davix;
 

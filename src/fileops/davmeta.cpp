@@ -37,7 +37,7 @@
 
 #include <request/httprequest.hpp>
 #include <fileops/fileutils.hpp>
-#include <string_utils/stringutils.hpp>
+#include <utils/stringutils.hpp>
 #include <alibxx/crypto/base64.hpp>
 #include <neon/neonrequest.hpp>
 

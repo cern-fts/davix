@@ -1,11 +1,7 @@
 ###
 ## compile dependencies of davix
 
-SET(SRC_SIMPLE_GET_PASS "${CMAKE_CURRENT_SOURCE_DIR}/simple_getpass/simple_get_pass.cpp" PARENT_SCOPE)
-
-
 add_subdirectory(libneon)
-
 
 if(NOT HAVE_SYS_SOCKET_H)
 set(SOCKET_PKG_LIBRARIES "ws2_32")

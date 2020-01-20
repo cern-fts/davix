@@ -19,9 +19,6 @@ set(TCP_NODELAY ${ENABLE_TCP_NODELAY})
 
 configure_file(config.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/config.h @ONLY)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../
-                    ${OPENSSL_INCLUDE_DIR})
-
 add_definitions(  -std=gnu99 -fPIC -DNEON_VERSION="${VERSION_STRING}" -DNE_VERSION_MAJOR=${VERSION_MAJOR}  -DNE_VERSION_MINOR=${VERSION_MINOR} -Wno-unused-parameter)
 add_definitions( -fvisibility=hidden)
 
@@ -54,4 +51,12 @@ add_library(LibNeonObjects OBJECT
   src/ne_openssl.c
 )
 
-target_include_directories(LibNeonObjects PRIVATE ${LIBXML2_INCLUDE_DIR})
+
+
+target_include_directories(LibNeonObjects
+  PRIVATE ${LIBXML2_INCLUDE_DIR}
+          ${CMAKE_CURRENT_SOURCE_DIR}
+          ${CMAKE_CURRENT_BINARY_DIR}
+          ${CMAKE_CURRENT_SOURCE_DIR}/../
+          ${OPENSSL_INCLUDE_DIR}
+)

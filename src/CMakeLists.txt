@@ -89,7 +89,6 @@ add_definitions(-DA_LIB_NAMESPACE=Davix)
 configure_file(davix_internal_config.in ${CMAKE_CURRENT_BINARY_DIR}/davix_internal_config.hpp @ONLY)
 
 add_subdirectory(modules/copy)
-add_subdirectory(libs)
 
 if(ENABLE_TOOLS)
   add_subdirectory(tools)
@@ -105,8 +104,15 @@ if(APPLE)
 endif()
 
 target_include_directories(libdavix PRIVATE ${DAVIX_INTERNAL_INCLUDES} )
-target_link_libraries(libdavix  libcurl ${LIBSSL_PKG_LIBRARIES} ${LIBXML2_LIBRARIES}
-                                ${CMAKE_THREAD_LIBS_INIT} ${UUID_LIBRARIES} z ${SECURE_TRANSPORT_LIBRARIES})
+target_link_libraries(libdavix
+  PRIVATE libcurl
+  PUBLIC ${LIBSSL_PKG_LIBRARIES}
+         ${LIBXML2_LIBRARIES}
+         ${CMAKE_THREAD_LIBS_INIT}
+         ${UUID_LIBRARIES}
+         z
+         ${SECURE_TRANSPORT_LIBRARIES}
+)
 
 set_target_properties(libdavix PROPERTIES
                             VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}
@@ -114,8 +120,7 @@ set_target_properties(libdavix PROPERTIES
                             CLEAN_DIRECT_OUTPUT 1
                             OUTPUT_NAME ${OUTPUT_NAME_DAVIX})
 
-install(TARGETS libdavix
-             DESTINATION ${LIB_INSTALL_DIR} )
+install(TARGETS libdavix DESTINATION ${LIB_INSTALL_DIR} )
 
 add_PkgConfigFile_for_Library("davix.pc" libdavix
                                HEADER_DIRS "davix"
@@ -135,8 +140,17 @@ if(STATIC_LIBRARY)
 add_library(libdavix_static  STATIC ${DAVIX_SOURCES})
 set_target_properties(libdavix_static PROPERTIES
                             OUTPUT_NAME ${OUTPUT_NAME_DAVIX})
-target_link_libraries(libdavix_static PRIVATE libcurl ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} dl ${UUID_LIBRARIES} z ${LIBXML2_LIBRARIES} )
 target_include_directories(libdavix_static PRIVATE ${DAVIX_INTERNAL_INCLUDES} )
+
+target_link_libraries(libdavix_static
+  PRIVATE libcurl
+  PUBLIC  ${OPENSSL_LIBRARIES}
+          ${CMAKE_THREAD_LIBS_INIT}
+          dl ${UUID_LIBRARIES}
+          z
+          ${LIBXML2_LIBRARIES}
+)
+
 
 add_library(libdavix ALIAS libdavix_static)
 

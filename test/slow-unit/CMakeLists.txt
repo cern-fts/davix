@@ -22,7 +22,7 @@ add_executable(davix-slow-unit-tests
   drunk-server.cpp
   standalone-request.cpp
 
-  ${SRC_HMACSHA1} ${src_files}
+  ${src_files}
 )
 
 target_link_libraries(davix-slow-unit-tests

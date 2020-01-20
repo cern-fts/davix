@@ -38,7 +38,7 @@ add_executable(davix-unit-tests
   utils.cpp
   xml-parser.cpp
 
-  ${SRC_HMACSHA1} ${src_files}
+  ${src_files}
 )
 
 target_link_libraries(davix-unit-tests

@@ -40,6 +40,8 @@ set(DAVIX_SOURCES
                                                          libs/alibxx/crypto/hmacsha.cpp
                                                          libs/alibxx/str/format.cpp
 
+  libs/datetime/datetime_utils.hpp                       libs/datetime/datetime_utils.cpp
+
   modules/modules_profiles.hpp                           modules/modules_profiles.cpp
   neon/neonrequest.hpp                                   neon/neonrequest.cpp
   neon/neonsession.hpp                                   neon/neonsession.cpp
@@ -90,8 +92,7 @@ if(ENABLE_TOOLS)
   add_subdirectory(tools)
 endif()
 
-LIST(APPEND SRC_DAVIX_FULL ${DAVIX_SOURCES} ${src_datetime}
-                           ${SRC_STRPTIME} ${SRC_BASE64} ${SRC_HMACSHA1})
+LIST(APPEND SRC_DAVIX_FULL ${DAVIX_SOURCES} )
 
 
 add_definitions(${HTTPLIB_PKG_CFLAGS} )

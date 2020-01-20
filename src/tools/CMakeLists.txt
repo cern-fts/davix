@@ -1,7 +1,7 @@
 # main file for command line tools
 #
 
-include_directories(${PROJECT_SOURCE_DIR}/src)
+include_directories(${DAVIX_INTERNAL_INCLUDES})
 
 SET(davix_tool_common_src "${CMAKE_CURRENT_SOURCE_DIR}/davix_tool_params.cpp"
                                   "${CMAKE_CURRENT_SOURCE_DIR}/davix_tool_util.cpp"

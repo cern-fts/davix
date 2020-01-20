@@ -139,13 +139,8 @@ set_target_properties(libdavix_static PROPERTIES
 target_link_libraries(libdavix_static PRIVATE libcurl ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} dl ${UUID_LIBRARIES} z ${LIBXML2_LIBRARIES} )
 target_include_directories(libdavix_static PRIVATE ${DAVIX_INTERNAL_INCLUDES} )
 
-add_library(libdavix STATIC ${DAVIX_SOURCES})
-set_target_properties(libdavix PROPERTIES
-                            OUTPUT_NAME ${OUTPUT_NAME_DAVIX})
-target_link_libraries(libdavix PRIVATE libcurl ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} dl ${UUID_LIBRARIES} z ${LIBXML2_LIBRARIES} )
-target_include_directories(libdavix PRIVATE ${DAVIX_INTERNAL_INCLUDES} )
+add_library(libdavix ALIAS libdavix_static)
 
-install(TARGETS libdavix_static
-             DESTINATION ${LIB_INSTALL_DIR} )
+install(TARGETS libdavix_static DESTINATION ${LIB_INSTALL_DIR} )
 
 endif(STATIC_LIBRARY)

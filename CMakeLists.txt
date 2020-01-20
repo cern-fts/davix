@@ -1,9 +1,8 @@
 #-------------------------------------------------------------------------------
 # Initialize
 #-------------------------------------------------------------------------------
-project (davix)
 cmake_minimum_required (VERSION 3.0)
-set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
+project (davix)
 
 #-------------------------------------------------------------------------------
 # Find the python executable to use during the build
@@ -121,7 +120,6 @@ if(EMBEDDED_LIBCURL)
   buildCurl()
 endif()
 
-include_directories( ${CURL_INCLUDE_DIRS} )
 include_directories( ${HTTPLIB_PKG_INCLUDE_DIRS} ${GLIB2_PKG_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/deps ${CMAKE_CURRENT_SOURCE_DIR}/deps/libneon/src/ ${UUID_INCLUDE_DIRS} )
 include_directories( ${CMAKE_SOURCE_DIR}/include/davix )
 include_directories( ${CMAKE_SOURCE_DIR}/src/libs/)

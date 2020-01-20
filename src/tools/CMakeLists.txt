@@ -1,23 +1,21 @@
 # main file for command line tools
 #
 
-include_directories(${DAVIX_INTERNAL_INCLUDES})
-
-SET(davix_tool_common_src "${CMAKE_CURRENT_SOURCE_DIR}/davix_tool_params.cpp"
-                                  "${CMAKE_CURRENT_SOURCE_DIR}/davix_tool_util.cpp"
-                                  "${SRC_SIMPLE_GET_PASS}"
-                                  "${CMAKE_CURRENT_SOURCE_DIR}/davix_op.cpp"
-                                  "${CMAKE_CURRENT_SOURCE_DIR}/davix_taskqueue.cpp"
-                                  "${CMAKE_CURRENT_SOURCE_DIR}/davix_thread.cpp"
-                                  "${CMAKE_CURRENT_SOURCE_DIR}/davix_thread_pool.cpp"
-                                  "${CMAKE_CURRENT_SOURCE_DIR}/davix_config_parser.cpp")
-SET(davix_tool_common_src_up "${davix_tool_common_src}" PARENT_SCOPE)
-
-link_directories(${PROJECT_BINARY_DIR}/src/)
-
-
 ## davix tool lib
-add_library(davix_tool_lib STATIC ${davix_tool_common_src})
+add_library(davix_tool_lib STATIC
+  davix_tool_params.cpp
+  davix_tool_util.cpp
+  "${SRC_SIMPLE_GET_PASS}"
+  davix_op.cpp
+  davix_taskqueue.cpp
+  davix_thread.cpp
+  davix_thread_pool.cpp
+  davix_config_parser.cpp
+)
+
+target_include_directories(davix_tool_lib PUBLIC
+  ${DAVIX_INTERNAL_INCLUDES}
+)
 
 
 ## davix cmd line
@@ -84,7 +82,6 @@ if (ENABLE_THIRD_PARTY_COPY)
     target_link_libraries(davix_cp_tool davix_copy davix_tool_lib)
     set_target_properties(davix_cp_tool PROPERTIES
                                 OUTPUT_NAME "davix-cp")
-    add_dependencies(davix_cp_tool davix_copy)
 
     install(TARGETS davix_cp_tool
             DESTINATION ${BIN_INSTALL_DIR}/)

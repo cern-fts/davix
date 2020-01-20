@@ -81,13 +81,12 @@ set(DAVIX_INTERNAL_INCLUDES
   ${LIBXML2_INCLUDE_DIR}
   ${PROJECT_SOURCE_DIR}/deps
   ${PROJECT_SOURCE_DIR}/src
+  ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 add_definitions(-DA_LIB_NAMESPACE=Davix)
 
 configure_file(davix_internal_config.in ${CMAKE_CURRENT_BINARY_DIR}/davix_internal_config.hpp @ONLY)
-
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_subdirectory(modules/copy)
 add_subdirectory(libs)
@@ -106,8 +105,8 @@ if(APPLE)
 endif()
 
 target_include_directories(libdavix PRIVATE ${DAVIX_INTERNAL_INCLUDES} )
-target_link_libraries(libdavix  libcurl ${HTTPLIB_PKG_LIBRARIES}
-                                ${CMAKE_THREAD_LIBS_INIT} ${SOCKET_PKG_LIBRARIES} ${UUID_LIBRARIES} z ${SECURE_TRANSPORT_LIBRARIES})
+target_link_libraries(libdavix  libcurl ${LIBSSL_PKG_LIBRARIES} ${LIBXML2_LIBRARIES}
+                                ${CMAKE_THREAD_LIBS_INIT} ${UUID_LIBRARIES} z ${SECURE_TRANSPORT_LIBRARIES})
 
 set_target_properties(libdavix PROPERTIES
                             VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}

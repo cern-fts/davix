@@ -41,6 +41,7 @@ IF (ENABLE_THIRD_PARTY_COPY)
     # Includes
     INCLUDE_DIRECTORIES (
         ${PROJECT_SOURCE_DIR}/src
+        ${PROJECT_BINARY_DIR}/src
         ${CMAKE_CURRENT_BINARY_DIR}
         ${GSOAP_INCLUDE_DIR}
     )

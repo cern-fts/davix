@@ -38,11 +38,10 @@ add_executable(davix-unit-tests
   utils.cpp
   xml-parser.cpp
 
-  ${SRC_HMACSHA1} ${src_files} ${src_alibxx}
+  ${SRC_HMACSHA1} ${src_files}
 )
 
 target_link_libraries(davix-unit-tests
-  alibxx_core
   davix_tool_lib
   libdavix
   gtest_main

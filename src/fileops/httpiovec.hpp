@@ -25,7 +25,7 @@
 #include <davix.hpp>
 #include <fileops/iobuffmap.hpp>
 #include <fileops/httpiochain.hpp>
-#include <IntervalTree.h>
+#include "libs/IntervalTree.h"
 
 namespace Davix{
 

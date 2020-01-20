@@ -20,7 +20,7 @@
  */
 
 #include <utils/stringutils.hpp>
-#include <alibxx/crypto/base64.hpp>
+#include "libs/alibxx/crypto/base64.hpp"
 #include "checksum_extractor.hpp"
 #include <ctype.h>
 #include <sstream>

@@ -86,7 +86,6 @@ find_package(Threads)
 # openssl
 find_package(OpenSSL)
 SET(LIBSSL_PKG_LIBRARIES "${OPENSSL_LIBRARIES}")
-SET(CRYPTO_PKG "")
 SET(LIBSSL_PKG_INCLUDE_DIRS "${OPENSSL_INCLUDE_DIR}")
 
 find_package(LibXml2)

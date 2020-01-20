@@ -35,11 +35,6 @@ Files: deps/libneon/doc deps/libneon/test
 Copyright: 1999-2008 Joe Orton <joe@manyfish.co.uk>
 License: GPL-2+
 
-Files: deps/strptime
-Copyright: 1996, 1997, 1998, 1999, 2000 Free Software Foundation, Inc.
-License: LGPL-2+
-Comment: Not used - removed in configure - part of glibc
-
 Files: test/pywebdav
 Copyright: 2009 Simon Pamies <s.pamies@banality.de>
            1999-2006 Christian Scholz <ruebe@aachen.heimat.de>

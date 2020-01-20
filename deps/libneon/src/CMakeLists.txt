@@ -15,3 +15,4 @@ set(src_ssl "ne_gnutls.c")
 endif(HAVE_GNUTLS)
 
 add_library(LibNeonObjects OBJECT ${src_neon} ${src_ssl})
+target_include_directories(LibNeonObjects PRIVATE ${LIBXML2_INCLUDE_DIR})

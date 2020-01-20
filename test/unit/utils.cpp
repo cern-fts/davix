@@ -1,8 +1,8 @@
 #include <davix.hpp>
 #include <utils/stringutils.hpp>
 #include <tools/davix_tool_util.hpp>
-#include <alibxx/crypto/base64.hpp>
-#include <alibxx/crypto/hmacsha.hpp>
+#include "libs/alibxx/crypto/base64.hpp"
+#include "libs/alibxx/crypto/hmacsha.hpp"
 #include <utils/davix_s3_utils.hpp>
 #include <gtest/gtest.h>
 #include <core/SessionPool.hpp>

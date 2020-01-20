@@ -26,7 +26,7 @@
 #include <mutex>
 #include <utils/davix_uri.hpp>
 #include <memory>
-#include <alibxx/containers/cache.hpp>
+#include <libs/alibxx/containers/cache.hpp>
 
 namespace Davix {
 

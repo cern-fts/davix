@@ -22,7 +22,7 @@
 #include <utils/davix_types.hpp>
 #include <davix.hpp>
 #include <davix_internal.hpp>
-#include <string_utils/stringutils.hpp>
+#include <utils/stringutils.hpp>
 #include "davix_tool_util.hpp"
 #include <utils/davix_logger_internal.hpp>
 #include <utils/davix_gcloud_utils.hpp>

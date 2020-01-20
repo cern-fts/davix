@@ -25,7 +25,7 @@
 #include <utils/davix_logger_internal.hpp>
 #include <status/davixstatusrequest.hpp>
 #include <datetime/datetime_utils.hpp>
-#include <string_utils/stringutils.hpp>
+#include <utils/stringutils.hpp>
 
 using namespace StrUtil;
 

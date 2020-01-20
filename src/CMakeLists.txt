@@ -76,10 +76,6 @@ set(DAVIX_SOURCES
   $<TARGET_OBJECTS:LibNeonObjects>
 )
 
-set(DAVIX_INTERNAL_INCLUDES
-  ${LIBXML2_INCLUDE_DIR}
-)
-
 add_definitions(-DA_LIB_NAMESPACE=Davix)
 include_directories("libs" ".")
 
@@ -105,7 +101,7 @@ endif()
 
 target_include_directories(libdavix PRIVATE ${DAVIX_INTERNAL_INCLUDES} )
 target_link_libraries(libdavix  libcurl ${HTTPLIB_PKG_LIBRARIES}
-                                ${CMAKE_THREAD_LIBS_INIT} ${SOCKET_PKG_LIBRARIES} ${UUID_LIBRARIES} z ${SECURE_TRANSPORT_LIBRARIES})
+                                ${CMAKE_THREAD_LIBS_INIT} ${SOCKET_PKG_LIBRARIES} ${UUID_LIBRARIES} z ${SECURE_TRANSPORT_LIBRARIES} LibXml2::LibXml2)
 
 set_target_properties(libdavix PROPERTIES
                             VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}
@@ -134,14 +130,12 @@ if(STATIC_LIBRARY)
 add_library(libdavix_static  STATIC ${DAVIX_SOURCES})
 set_target_properties(libdavix_static PROPERTIES
                             OUTPUT_NAME ${OUTPUT_NAME_DAVIX})
-target_link_libraries(libdavix_static PRIVATE libcurl ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} dl ${UUID_LIBRARIES} z ${LIBXML2_LIBRARIES} )
-target_include_directories(libdavix_static PRIVATE ${DAVIX_INTERNAL_INCLUDES} )
+target_link_libraries(libdavix_static PRIVATE libcurl ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} dl ${UUID_LIBRARIES} z LibXml2::LibXml2)
 
 add_library(libdavix STATIC ${DAVIX_SOURCES})
 set_target_properties(libdavix PROPERTIES
                             OUTPUT_NAME ${OUTPUT_NAME_DAVIX})
-target_link_libraries(libdavix PRIVATE libcurl ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} dl ${UUID_LIBRARIES} z ${LIBXML2_LIBRARIES} )
-target_include_directories(libdavix PRIVATE ${DAVIX_INTERNAL_INCLUDES} )
+target_link_libraries(libdavix PRIVATE libcurl ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} dl ${UUID_LIBRARIES} z LibXml2::LibXml2)
 
 install(TARGETS libdavix_static
              DESTINATION ${LIB_INSTALL_DIR} )

@@ -88,8 +88,17 @@ find_package(OpenSSL)
 SET(LIBSSL_PKG_LIBRARIES "${OPENSSL_LIBRARIES}")
 SET(LIBSSL_PKG_INCLUDE_DIRS "${OPENSSL_INCLUDE_DIR}")
 
+#-------------------------------------------------------------------------------
+# Set-up LibXml2 target, needed as dependency
+#-------------------------------------------------------------------------------
 find_package(LibXml2)
 set(LIBXML2_INCLUDE_DIRS ${LIBXML2_INCLUDE_DIR})
+
+if(LibXml2_FOUND AND NOT TARGET LibXml2::LibXml2)
+   add_library(LibXml2::LibXml2 UNKNOWN IMPORTED)
+   set_target_properties(LibXml2::LibXml2 PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${LIBXML2_INCLUDE_DIRS}")
+   set_property(TARGET LibXml2::LibXml2 APPEND PROPERTY IMPORTED_LOCATION "${LIBXML2_LIBRARY}")
+endif()
 
 #const
 set(HAVE_OPENSSL 1)

@@ -59,6 +59,7 @@ set(DAVIX_SOURCES
   utils/davix_logger_internal.hpp                        utils/davix_logger.cpp
                                                          utils/davix_misc_utils.cpp
   utils/davix_utils_internal.hpp                         utils/davix_s3_utils.cpp
+  utils/simple_get_pass.h                                utils/simple_get_pass.cpp
   utils/stringutils.hpp                                  utils/stringutils.cpp
 
                                                          utils/davixuri.cpp
@@ -78,6 +79,7 @@ set(DAVIX_SOURCES
 
 set(DAVIX_INTERNAL_INCLUDES
   ${LIBXML2_INCLUDE_DIR}
+  ${PROJECT_SOURCE_DIR}/deps
 )
 
 add_definitions(-DA_LIB_NAMESPACE=Davix)

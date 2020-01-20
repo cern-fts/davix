@@ -28,7 +28,7 @@
 #include <utils/davix_gcloud_utils.hpp>
 
 #include <ctype.h>
-#include <simple_getpass/simple_get_pass.h>
+#include "utils/simple_get_pass.h"
 
 #include <sys/ioctl.h>
 #include <unistd.h>

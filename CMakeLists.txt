@@ -119,8 +119,8 @@ if(EMBEDDED_LIBCURL)
   buildCurl()
 endif()
 
-include_directories( ${HTTPLIB_PKG_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/deps/libneon/src/ ${UUID_INCLUDE_DIRS} )
-include_directories( ${CMAKE_SOURCE_DIR}/include/davix )
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/deps/libneon/src/ ${UUID_INCLUDE_DIRS})
+include_directories(${CMAKE_SOURCE_DIR}/include/davix)
 
 add_subdirectory (src)
 add_subdirectory (doc)

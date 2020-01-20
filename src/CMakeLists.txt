@@ -32,7 +32,14 @@ set(DAVIX_SOURCES
   fileops/httpiovec.hpp                                  fileops/httpiovec.cpp
   fileops/iobuffmap.hpp                                  fileops/iobuffmap.cpp
   fileops/S3IO.hpp                                       fileops/S3IO.cpp
+
                                                          hooks/davix_hooks.cpp
+
+                                                         libs/alibxx/chrono/timepoint.cpp
+                                                         libs/alibxx/crypto/base64.cpp
+                                                         libs/alibxx/crypto/hmacsha.cpp
+                                                         libs/alibxx/str/format.cpp
+
   modules/modules_profiles.hpp                           modules/modules_profiles.cpp
   neon/neonrequest.hpp                                   neon/neonrequest.cpp
   neon/neonsession.hpp                                   neon/neonsession.cpp
@@ -65,6 +72,7 @@ set(DAVIX_SOURCES
   $<TARGET_OBJECTS:LibNeonObjects>
 )
 
+add_definitions(-DA_LIB_NAMESPACE=Davix)
 include_directories("libs" ".")
 
 configure_file(davix_internal_config.in ${CMAKE_CURRENT_BINARY_DIR}/davix_internal_config.hpp @ONLY)
@@ -96,7 +104,7 @@ if(APPLE)
   set(SECURE_TRANSPORT_LIBRARIES "-framework Security")
 endif()
 
-target_link_libraries(libdavix  libcurl alibxx_core ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES}
+target_link_libraries(libdavix  libcurl ${HTTPLIB_PKG_LIBRARIES} ${CRYPTO_PKG_LIBRARIES}
                                 ${CMAKE_THREAD_LIBS_INIT} ${SOCKET_PKG_LIBRARIES} ${UUID_LIBRARIES} z ${SECURE_TRANSPORT_LIBRARIES} )
 
 set_target_properties(libdavix PROPERTIES
@@ -123,13 +131,15 @@ endif(SHARED_LIBRARY)
 
 if(STATIC_LIBRARY)
 
-add_definitions(-DA_LIB_NAMESPACE=Davix)
-FILE(GLOB src_alibxx_static "libs/alibxx/*/*.cpp")
-add_library(libdavix_static  STATIC ${SRC_DAVIX_FULL} ${src_alibxx_static})
-
+add_library(libdavix_static  STATIC ${SRC_DAVIX_FULL})
 set_target_properties(libdavix_static PROPERTIES
                             OUTPUT_NAME ${OUTPUT_NAME_DAVIX})
+target_link_libraries(libdavix_static PRIVATE libcurl ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} dl)
 
+add_library(libdavix STATIC ${SRC_DAVIX_FULL})
+set_target_properties(libdavix PROPERTIES
+                            OUTPUT_NAME ${OUTPUT_NAME_DAVIX})
+target_link_libraries(libdavix PRIVATE libcurl ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} dl)
 
 install(TARGETS libdavix_static
              DESTINATION ${LIB_INSTALL_DIR} )

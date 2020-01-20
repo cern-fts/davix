@@ -25,7 +25,7 @@
 #include <ctime>
 #include <cstring>
 #include <davix_internal.hpp>
-#include <string_utils/stringutils.hpp>
+#include <utils/stringutils.hpp>
 #include <datetime/datetime_utils.hpp>
 #include <utils/davix_logger_internal.hpp>
 #include <utils/davix_utils_internal.hpp>

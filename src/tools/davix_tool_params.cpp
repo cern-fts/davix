@@ -24,7 +24,7 @@
 #include "davix_tool_util.hpp"
 #include "davix_config_parser.hpp"
 #include <getopt.h>
-#include <string_utils/stringutils.hpp>
+#include <utils/stringutils.hpp>
 #include <utils/davix_logger.hpp>
 
 namespace Davix{

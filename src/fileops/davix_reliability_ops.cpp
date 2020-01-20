@@ -23,7 +23,7 @@
 #include <davix_internal.hpp>
 #include "davix_reliability_ops.hpp"
 
-#include <string_utils/stringutils.hpp>
+#include <utils/stringutils.hpp>
 #include <utils/davix_logger_internal.hpp>
 #include <xml/metalinkparser.hpp>
 #include <alibxx/crypto/base64.hpp>

@@ -27,7 +27,7 @@
 #include <vector>
 
 #include <file/davix_file_info.hpp>
-#include <string_utils/stringutils.hpp>
+#include <utils/stringutils.hpp>
 
 
 namespace Davix {

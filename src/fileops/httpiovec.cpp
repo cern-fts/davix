@@ -22,7 +22,7 @@
 #include <davix_internal.hpp>
 #include "httpiovec.hpp"
 #include <utils/davix_logger_internal.hpp>
-#include <string_utils/stringutils.hpp>
+#include <utils/stringutils.hpp>
 #include <IntervalTree.h>
 
 #include <map>

@@ -25,7 +25,7 @@
 #include <libs/time_utils.h>
 #include <auth/davixx509cred_internal.hpp>
 #include <neon/neonsessionfactory.hpp>
-#include <string_utils/stringutils.hpp>
+#include <utils/stringutils.hpp>
 
 const char* davix_neon_key="davix_key";
 

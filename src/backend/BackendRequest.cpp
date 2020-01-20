@@ -25,7 +25,7 @@
 #include <utils/davix_azure_utils.hpp>
 #include <utils/davix_gcloud_utils.hpp>
 #include <utils/davix_logger_internal.hpp>
-#include <string_utils/stringutils.hpp>
+#include <utils/stringutils.hpp>
 #include <fileops/fileutils.hpp>
 #include <string>
 

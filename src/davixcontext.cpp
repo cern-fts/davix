@@ -22,7 +22,7 @@
 #include <davix_internal.hpp>
 #include <davixcontext.hpp>
 
-#include <string_utils/stringutils.hpp>
+#include <utils/stringutils.hpp>
 #include <utils/davix_uri.hpp>
 #include <modules/modules_profiles.hpp>
 #include <backend/SessionFactory.hpp>

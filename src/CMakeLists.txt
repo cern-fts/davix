@@ -80,14 +80,14 @@ set(DAVIX_SOURCES
 set(DAVIX_INTERNAL_INCLUDES
   ${LIBXML2_INCLUDE_DIR}
   ${PROJECT_SOURCE_DIR}/deps
+  ${PROJECT_SOURCE_DIR}/src
 )
 
 add_definitions(-DA_LIB_NAMESPACE=Davix)
-include_directories(".")
 
 configure_file(davix_internal_config.in ${CMAKE_CURRENT_BINARY_DIR}/davix_internal_config.hpp @ONLY)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_subdirectory(modules/copy)
 add_subdirectory(libs)

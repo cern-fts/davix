@@ -1,6 +1,7 @@
 # main file for src
 
 set(DAVIX_SOURCES
+
   auth/davix_openssl.cpp
   auth/davixauth.cpp
   auth/davixx509cred_internal.hpp                        auth/davixx509cred.cpp
@@ -94,14 +95,13 @@ if(ENABLE_TOOLS)
   add_subdirectory(tools)
 endif()
 
-if(SHARED_LIBRARY)
-add_library(libdavix  SHARED ${DAVIX_SOURCES} )
-
-
 set(SECURE_TRANSPORT_LIBRARIES "")
 if(APPLE)
   set(SECURE_TRANSPORT_LIBRARIES "-framework Security")
 endif()
+
+if(SHARED_LIBRARY)
+add_library(libdavix  SHARED ${DAVIX_SOURCES} )
 
 target_include_directories(libdavix PRIVATE ${DAVIX_INTERNAL_INCLUDES} )
 target_link_libraries(libdavix
@@ -149,6 +149,7 @@ target_link_libraries(libdavix_static
           dl ${UUID_LIBRARIES}
           z
           ${LIBXML2_LIBRARIES}
+          ${SECURE_TRANSPORT_LIBRARIES}
 )
 
 

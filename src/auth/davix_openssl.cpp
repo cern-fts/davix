@@ -62,7 +62,17 @@ void opensslErrorMapper(const std::string & msg, DavixError** err){
     std::ostringstream ss;
     ERR_error_string_n(e, buff_err, 255);
     ss << msg << " : " << buff_err;
-    DavixError::setupError(err, openssl_scope, c, ss.str());
+
+    std::string friendlyError = ss.str();
+    if(friendlyError.find(":bad decrypt") != std::string::npos) {
+        // Sometimes openssl will report PEM_R_BAD_BASE64_DECODE as error code,
+        // but actually show bad decrypt in the error message. :(
+        // This is a credential password issue, change status code so we
+        // can query the user for the key password
+        c = StatusCode::CredDecryptionError;
+    }
+
+    DavixError::setupError(err, openssl_scope, c, friendlyError);
 }
 
 static int SSL_pem_passwd_cb(char *buffer, int size, int rwflag, void *userdata){

@@ -184,10 +184,11 @@ rpms:
   script:
     - yum install -y python sssd-client sudo createrepo
     - for platform in cc7 slc6; do sudo -u stci -H packaging/repo-manager.py --action add --base /eos/project/s/storage-ci/www/davix --ref ${CI_COMMIT_REF_NAME} --packages ${platform}/RPMS/* ${platform}/SRPMS/* ; done
-    - sudo -u stci cp cc7/RPMS/* cc7/SRPMS/* /eos/project-d/d/dmc/www/repos/testing/el7/x86_64
-    - sudo -u stci packaging/update-repo.sh /eos/project-d/d/dmc/www/repos/testing/el7/x86_64
-    - sudo -u stci cp slc6/RPMS/* slc6/SRPMS/* /eos/project-d/d/dmc/www/repos/testing/el6/x86_64
-    - sudo -u stci packaging/update-repo.sh /eos/project-d/d/dmc/www/repos/testing/el6/x86_64
+    - echo "$DAVIXCI_PW" | kinit davixci
+    - cp cc7/RPMS/* cc7/SRPMS/* /eos/project-d/d/dmc/www/repos/testing/el7/x86_64
+    - packaging/update-repo.sh /eos/project-d/d/dmc/www/repos/testing/el7/x86_64
+    - cp slc6/RPMS/* slc6/SRPMS/* /eos/project-d/d/dmc/www/repos/testing/el6/x86_64
+    - packaging/update-repo.sh /eos/project-d/d/dmc/www/repos/testing/el6/x86_64
   tags:
     - docker-cc7
   retry: 2

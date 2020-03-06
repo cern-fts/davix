@@ -6,10 +6,9 @@
 */
 
 
-// define A_LIB_NAMESPACE to empty if not define
-// trigger compilation error if not defined properly
+// define A_LIB_NAMESPACE to Davix by default
 #ifndef A_LIB_NAMESPACE
-#error "A_LIB_NAMESPACE need to be defined"
+#define A_LIB_NAMESPACE Davix
 #endif
 
 

@@ -18,9 +18,6 @@ BuildRequires:                  cmake3
 BuildRequires:                  doxygen
 BuildRequires:                  libxml2-devel
 BuildRequires:                  openssl-devel
-BuildRequires:                  autoconf
-BuildRequires:                  automake
-BuildRequires:                  libtool
 %{?el6:BuildRequires: python-argparse}
 
 Requires: libuuid

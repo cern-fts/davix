@@ -1,7 +1,7 @@
 Source: davix
 Priority: optional
 Maintainer: Mattias Ellert <mattias.ellert@fysast.uu.se>
-Build-Depends: debhelper (>= 8.0.0), cmake, libxml2-dev, libssl-dev, gsoap, abi-compliance-checker, pkg-config, doxygen, zlib1g-dev, uuid-dev, libgsoap-dev, libtool, automake, autoconf
+Build-Depends: debhelper (>= 8.0.0), cmake, libxml2-dev, libssl-dev, gsoap, abi-compliance-checker, pkg-config, doxygen, zlib1g-dev, uuid-dev, libgsoap-dev
 Standards-Version: 3.9.6
 Section: net
 Homepage: http://dmc.web.cern.ch/projects/davix/home

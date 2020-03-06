@@ -170,7 +170,7 @@ const std::string & version(){
     return _version;
 }
 
-const std::string backendVersion() {
+const std::string backendRuntimeVersion() {
     curl_version_info_data *data = curl_version_info(CURLVERSION_NOW);
 
     std::ostringstream ss;
@@ -178,6 +178,16 @@ const std::string backendVersion() {
 
     return ss.str();
 }
+
+const std::string backendHeadersVersion() {
+    curl_version_info_data *data = curl_version_info(CURLVERSION_NOW);
+
+    std::ostringstream ss;
+    ss << LIBCURL_VERSION;
+
+    return ss.str();
+}
+
 
 const std::string & getLibPath(){
     return lib_path.path;

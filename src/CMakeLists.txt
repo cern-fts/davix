@@ -85,8 +85,6 @@ set(DAVIX_INTERNAL_INCLUDES
   ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-add_definitions(-DA_LIB_NAMESPACE=Davix)
-
 configure_file(davix_internal_config.in ${CMAKE_CURRENT_BINARY_DIR}/davix_internal_config.hpp @ONLY)
 
 add_subdirectory(modules/copy)

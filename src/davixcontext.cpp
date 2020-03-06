@@ -28,6 +28,9 @@
 #include <backend/SessionFactory.hpp>
 #include <davix_context_internal.hpp>
 #include <core/RedirectionResolver.hpp>
+
+#include <curl/curl.h>
+
 #include <set>
 #include <mutex>
 
@@ -167,7 +170,14 @@ const std::string & version(){
     return _version;
 }
 
+const std::string backendVersion() {
+    curl_version_info_data *data = curl_version_info(CURLVERSION_NOW);
 
+    std::ostringstream ss;
+    ss << data->version << " " << data->ssl_version;
+
+    return ss.str();
+}
 
 const std::string & getLibPath(){
     return lib_path.path;

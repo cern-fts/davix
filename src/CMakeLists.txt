@@ -96,7 +96,7 @@ endif()
 
 set(SECURE_TRANSPORT_LIBRARIES "")
 if(APPLE)
-  set(SECURE_TRANSPORT_LIBRARIES "-framework Security")
+  set(SECURE_TRANSPORT_LIBRARIES "-framework CoreFoundation -framework Security")
 endif()
 
 if(SHARED_LIBRARY)

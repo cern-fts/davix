@@ -155,6 +155,7 @@ static void option_abort(char** argv){
 
 static void display_version(){
     std::cout << "Version: " << version() << std::endl;
+    std::cout << "Runtime curl version: " << backendVersion() << std::endl;
     exit(0);
 }
 

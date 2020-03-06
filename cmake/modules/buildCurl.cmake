@@ -3,57 +3,24 @@ macro(buildCurl)
 
   set(SECURE_TRANSPORT_FLAGS "")
   if(APPLE)
-    set(SECURE_TRANSPORT_FLAGS "--with-secure-transport")
+    set(SECURE_TRANSPORT_FLAGS "-DCMAKE_USE_SECTRANSP=ON -DCMAKE_USE_OPENSSL=OFF")
   endif()
-
-  string(JOIN " "
-    DISABLE_CURL_FEATURES
-    "--disable-ftp"
-    "--disable-ldap"
-    "--disable-ldaps"
-    "--disable-rtsp"
-    "--disable-dict"
-    "--disable-telnet"
-    "--disable-tftp"
-    "--disable-pop3"
-    "--disable-imap"
-    "--disable-smb"
-    "--disable-smtp"
-    "--disable-gopher"
-    "--disable-sspi"
-    "--disable-ntlm-wb"
-    "--disable-netrc"
-
-    "--without-winssl"
-    "--without-schannel"
-    "--without-darwinssl"
-    "--without-amissl"
-    "--without-gnutls"
-    "--without-mbedtls"
-    "--without-wolfssl"
-    "--without-mesalink"
-    "--without-nss"
-    "--without-libpsl"
-    "--without-libmetalink"
-    "--without-librtmp"
-    "--without-winidn"
-
-    "--without-libidn2"
-  )
 
   ExternalProject_Add(BuildCurlBundled
       SOURCE_DIR "${CMAKE_SOURCE_DIR}/deps/curl"
-      PREFIX "${CMAKE_BINARY_DIR}/curl"
-      BUILD_IN_SOURCE 1
-      CONFIGURE_COMMAND bash -c "autoreconf -i && ./configure  --prefix=${CMAKE_CURRENT_BINARY_DIR}/curl ${DISABLE_CURL_FEATURES} ${SECURE_TRANSPORT_FLAGS} && ${CMAKE_SOURCE_DIR}/patch-curl-clock-gettime.sh"
-      BUILD_COMMAND ${MAKE}
+      BINARY_DIR "${CMAKE_BINARY_DIR}/deps/curl"
+      PREFIX "${CMAKE_BINARY_DIR}/deps/curl"
+      CONFIGURE_COMMAND bash -c "${CMAKE_COMMAND} -DHTTP_ONLY=ON -DBUILD_CURL_EXE=OFF -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_USE_LIBSSH2=OFF ${CMAKE_SOURCE_DIR}/deps/curl && ${CMAKE_SOURCE_DIR}/patch-curl-clock-gettime.sh"
+      BUILD_COMMAND make
+      INSTALL_COMMAND make DESTDIR=${CMAKE_BINARY_DIR}/deps/curl-install install
   )
 
   add_library(libcurl STATIC IMPORTED)
-  set_property(TARGET libcurl PROPERTY IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/curl/lib/libcurl.a)
+  set_property(TARGET libcurl PROPERTY IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/deps/curl-install/usr/local/lib/libcurl.a)
   add_dependencies(libcurl BuildCurlBundled)
 
   # Replace with the following when possible:
   # target_include_directories(libcurl INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/deps/curl/include)
   set_property(TARGET libcurl APPEND PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/deps/curl/include)
+
 endmacro()

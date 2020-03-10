@@ -163,7 +163,7 @@ docs:
   script:
     - yum install -y sssd-client sudo
     - automount
-    - echo "$DAVIXCI_PW" | kinit davixci
+    - cat "$DAVIXCI_PW" | kinit davixci
     - eosfusebind
     - SNAPSHOT=$(date +%s)
     - TARGET="/eos/project/d/davix/www/docs/${CI_COMMIT_REF_NAME}"
@@ -186,7 +186,7 @@ rpms:
   script:
     - yum install -y python sssd-client sudo createrepo
     - automount
-    - echo "$DAVIXCI_PW" | kinit davixci
+    - cat "$STCI_PASSWORD" | kinit davixci
     - eosfusebind
     - for platform in cc7 slc6; do packaging/repo-manager.py --action add --base /eos/project/s/storage-ci/www/davix --ref ${CI_COMMIT_REF_NAME} --packages ${platform}/RPMS/* ${platform}/SRPMS/* ; done
     - cp cc7/RPMS/* cc7/SRPMS/* /eos/project-d/dmc/www/repos/testing/el7/x86_64

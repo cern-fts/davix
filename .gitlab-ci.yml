@@ -157,19 +157,21 @@ fedora-30-test:
 
 docs:
   stage: publish
-  image: gitlab-registry.cern.ch/linuxsupport/cc7-base
+  image: gitlab-registry.cern.ch/eos/gitlab-eos/cc7:latest
   dependencies:
     - docs-generate
   script:
     - yum install -y sssd-client sudo
-    - chown -R stci docs
+    - automount
+    - echo "$DAVIXCI_PW" | kinit davixci
+    - eosfusebind
     - SNAPSHOT=$(date +%s)
     - TARGET="/eos/project/d/davix/www/docs/${CI_COMMIT_REF_NAME}"
     - STAGING_AREA="$TARGET-${SNAPSHOT}"
-    - sudo -u stci -H cp -r docs "$STAGING_AREA"
-    - sudo -u stci -H ci/replace-directory.sh "$STAGING_AREA" "$TARGET"
+    - cp -r docs "$STAGING_AREA"
+    - ci/replace-directory.sh "$STAGING_AREA" "$TARGET"
   tags:
-    - docker-cc7
+    - docker-privileged
   retry: 2
   only:
     - branches@dmc/davix
@@ -177,20 +179,22 @@ docs:
 
 rpms:
   stage: publish
-  image: gitlab-registry.cern.ch/linuxsupport/cc7-base
+  image: gitlab-registry.cern.ch/eos/gitlab-eos/cc7:latest
   dependencies:
     - cc7
     - slc6
   script:
     - yum install -y python sssd-client sudo createrepo
-    - for platform in cc7 slc6; do sudo -u stci -H packaging/repo-manager.py --action add --base /eos/project/s/storage-ci/www/davix --ref ${CI_COMMIT_REF_NAME} --packages ${platform}/RPMS/* ${platform}/SRPMS/* ; done
+    - automount
     - echo "$DAVIXCI_PW" | kinit davixci
+    - eosfusebind
+    - for platform in cc7 slc6; do packaging/repo-manager.py --action add --base /eos/project/s/storage-ci/www/davix --ref ${CI_COMMIT_REF_NAME} --packages ${platform}/RPMS/* ${platform}/SRPMS/* ; done
     - cp cc7/RPMS/* cc7/SRPMS/* /eos/project-d/dmc/www/repos/testing/el7/x86_64
     - packaging/update-repo.sh /eos/project-d/dmc/www/repos/testing/el7/x86_64
     - cp slc6/RPMS/* slc6/SRPMS/* /eos/project-d/dmc/www/repos/testing/el6/x86_64
     - packaging/update-repo.sh /eos/project-d/dmc/www/repos/testing/el6/x86_64
   tags:
-    - docker-cc7
+    - docker-privileged
   retry: 2
   only:
     - branches@dmc/davix

@@ -249,19 +249,19 @@ std::string DavixDelegation::delegate(Context & context, const std::vector<std::
     std::vector<std::string> errors;
 
     for(size_t i = 0; i < endpoints.size(); i++) {
+        DavixError *delegateError = NULL;
         DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_GRID, "Trying out delegation endpoint: {}", endpoints[i]);
 
-        std::string delegationId = DavixDelegation::delegate(context, endpoints[i], params, err);
-        if(!delegationId.empty() && !err) {
+        std::string delegationId = DavixDelegation::delegate(context, endpoints[i], params, &delegateError);
+        if(!delegationId.empty() && !delegateError) {
             // Success
             return delegationId;
         }
 
-        if(err && *err) {
-          errors.emplace_back( (*err)->getErrMsg());
+        if(delegateError) {
+            errors.emplace_back(delegateError->getErrMsg());
+            DavixError::clearError(&delegateError);
         }
-
-        DavixError::clearError(err);
     }
 
     // Error, all delegation endpoints are broken

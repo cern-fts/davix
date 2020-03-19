@@ -1,6 +1,6 @@
 # Davix
 
-[![build status](https://gitlab.cern.ch/dmc/davix/badges/devel/build.svg)](https://gitlab.cern.ch/dmc/davix/commits/devel)
+[![build status](https://gitlab.cern.ch/dmc/davix/badges/devel/pipeline.svg)](https://gitlab.cern.ch/dmc/davix/commits/devel)
 
 [Davix](http://dmc.web.cern.ch/projects/davix/home) aims to make the task of managing files over HTTP-based protocols simple. It is being developed by IT-ST at CERN, and while the project's purpose is its use on the [CERN grid](http://wlcg.web.cern.ch/), the functionality offered is generic.
 

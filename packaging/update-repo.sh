@@ -13,6 +13,10 @@ fi
 REPO="$1"
 createrepo -v "${REPO}" --update --workers 1
 
+if [[ $? != 0 ]]; then
+  exit $?
+fi
+
 # Force to access the file, or the size will be right, but the file empty
 cat "${REPO}/repodata/repomd.xml" > /dev/null
 # Stat the repomd.xml

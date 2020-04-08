@@ -374,9 +374,8 @@ int NeonRequest::negotiateRequest(DavixError** err){
                     return startRequest(err);
                 }
 
-                DavixError::setupError(err,davix_scope_http_request(), StatusCode::AuthenticationError,
-                  "Authentication error, reached maximum number of attempts");
-                return -2;
+                httpcodeToDavixError(code, davix_scope_http_request(), "", err);
+                return -1;
             case 501:
                  // cleanup redirection
                 _number_try++;

@@ -374,8 +374,9 @@ int NeonRequest::negotiateRequest(DavixError** err){
                     return startRequest(err);
                 }
 
-                httpcodeToDavixError(code, davix_scope_http_request(), "", err);
-                return 0;
+                DavixError::setupError(err,davix_scope_http_request(), StatusCode::AuthenticationError,
+                  "Authentication error, reached maximum number of attempts");
+                return -2;
             case 501:
                  // cleanup redirection
                 _number_try++;
@@ -385,18 +386,14 @@ int NeonRequest::negotiateRequest(DavixError** err){
                     return startRequest(err);
                 }
 
-                httpcodeToDavixError(code, davix_scope_http_request(), "", err);
-                return -1;
+                end_status = 0;
+                return 0;
             default:
             default_label:
                 if(code >= 400) {
                     httpcodeToDavixError(code, davix_scope_http_request(), "", err);
-
-                    if(code <= 499) return 0;
-                    return -1;
                 }
-                end_status = 0;
-                break;
+                return 0;
 
         }
         _number_try++;

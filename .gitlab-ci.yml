@@ -170,6 +170,7 @@ docs:
     - STAGING_AREA="$TARGET-${SNAPSHOT}"
     - cp -r docs "$STAGING_AREA"
     - ci/replace-directory.sh "$STAGING_AREA" "$TARGET"
+    - sleep 60
   tags:
     - docker-privileged
   retry: 2
@@ -193,6 +194,7 @@ rpms:
     - packaging/update-repo.sh /eos/project-d/dmc/www/repos/testing/el7/x86_64
     - cp slc6/RPMS/* slc6/SRPMS/* /eos/project-d/dmc/www/repos/testing/el6/x86_64
     - packaging/update-repo.sh /eos/project-d/dmc/www/repos/testing/el6/x86_64
+    - sleep 60
   tags:
     - docker-privileged
   retry: 2

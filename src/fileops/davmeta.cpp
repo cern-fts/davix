@@ -251,9 +251,8 @@ void getQuotaInfo(Context & c, const Uri & url, const RequestParams *p, QuotaInf
     req.addHeaderField("Depth","0");
     req.setRequestMethod("PROPFIND");
     req.setRequestBody(quota_stat);
-    req.executeRequest(&tmp_err);
 
-    if(!tmp_err) {
+    if(req.executeRequest(&tmp_err) == 0 && !tmp_err) {
         DavPropXMLParser parser;
         parser.parseChunk(&(req.getAnswerContentVec()[0]), req.getAnswerContentVec().size());
         std::deque<FileProperties> & props = parser.getProperties();
@@ -312,8 +311,7 @@ int internal_delete_resource(Context & c, const Uri & url, const RequestParams &
     DeleteRequest req(c, url, &tmp_err);
     req.setParameters(_params);
     if(!tmp_err){
-        req.executeRequest(&tmp_err);
-         if(req.getRequestCode() > 0) {
+         if( ( ret=req.executeRequest(&tmp_err)) == 0){
                 parse_creation_deletion_result(req.getRequestCode(), url, davix_scope_rm_str(), req.getAnswerContentVec());
          }
     }
@@ -336,9 +334,7 @@ int internal_make_collection(Context & c, const Uri & url, const RequestParams &
     if(tmp_err == NULL){
         req.setParameters(params);
         req.setRequestMethod("MKCOL");
-        req.executeRequest(&tmp_err);
-
-        if(req.getRequestCode() > 0) {
+        if( (ret = req.executeRequest(&tmp_err)) == 0){
                 parse_creation_deletion_result(req.getRequestCode(),  url, davix_scope_mkdir_str(), req.getAnswerContentVec());
         }
 
@@ -364,9 +360,8 @@ int internal_move(Context & c, const Uri & url, const RequestParams & params, co
         Uri uri(target_url);
         uri.httpizeProtocol();
         req.addHeaderField("Destination", uri.getString());
-        req.executeRequest(&tmp_err);
 
-        if(req.getRequestCode() > 0) {
+        if( (ret = req.executeRequest(&tmp_err)) == 0){
                 parse_creation_deletion_result(req.getRequestCode(),  url, davix_scope_mv_str(), req.getAnswerContentVec());
         }
 
@@ -391,9 +386,8 @@ int internal_checksum(Context & c, const Uri & url, const RequestParams *p, std:
         // add Digest file, support for other digest, extended format
         req.addHeaderField("Want-Digest", chk_algo);
         req.setParameters(params);
-        req.executeRequest(&tmp_err);
-
-        if(!tmp_err && (ret = davixRequestToFileStatus(&req, davix_scope_mkdir_str(), &tmp_err)) >=0){
+        if( (ret = req.executeRequest(&tmp_err)) == 0
+            && !tmp_err && (ret = davixRequestToFileStatus(&req, davix_scope_mkdir_str(), &tmp_err)) >=0){
 
             // try simple MD5 ( standard )
             if(compare_ncase(chk_algo, "MD5") == 0){
@@ -600,9 +594,7 @@ static void internal_s3_create_bucket_or_dir(Context & c, const Uri & url, const
     checkDavixError(&tmp_err);
 
     req.setParameters(params);
-    req.executeRequest(&tmp_err);
-
-    if(!httpcodeIsValid(req.getRequestCode())) {
+    if( req.executeRequest(&tmp_err) < 0){
         const int code = req.getRequestCode();
         httpcodeToDavixException(code, davix_scope_meta(), "bucket creation failure");
     }

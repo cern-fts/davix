@@ -376,17 +376,6 @@ int NeonRequest::negotiateRequest(DavixError** err){
 
                 httpcodeToDavixError(code, davix_scope_http_request(), "", err);
                 return -1;
-            case 501:
-                 // cleanup redirection
-                _number_try++;
-                if(_number_try <= auth_retry_limit && requestCleanup()){
-                    // recursive call, restart request
-                    endRequest(NULL);
-                    return startRequest(err);
-                }
-
-                end_status = 0;
-                return 0;
             default:
             default_label:
                 if(code >= 400) {
@@ -573,7 +562,13 @@ int NeonRequest::endRequest(DavixError** err){
       return -1;
     }
 
-    return _standalone_req->endRequest().toDavixError(err);
+    Status st = _standalone_req->endRequest();
+
+    if(!st.ok()) {
+        st.toDavixError(err);
+    }
+
+    return st.okAsInt();
 }
 
 //------------------------------------------------------------------------------

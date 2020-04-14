@@ -290,10 +290,10 @@ int NeonRequest::negotiateRequest(DavixError** err){
         Status st = _standalone_req->startRequest();
 
         if(!st.ok()) {
+            _number_try++;
             if(_number_try <= auth_retry_limit) {
                 DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_HTTP, "Connection problem, retry");
                 requestCleanup();
-                _number_try++;
                 return startRequest(err);
             }
 

@@ -59,9 +59,9 @@ slc6:
     paths:
     - "$CI_JOB_NAME"
 
-fedora-29:
+fedora-31:
   stage: build
-  image: fedora:29
+  image: fedora:31
   script:
     - ci/fedora/packages.sh
     - ci/common-rpm-build.sh
@@ -110,7 +110,7 @@ debian-jessie:
 
 docs-generate:
   stage: build
-  image: fedora:29
+  image: fedora:31
   script:
     - dnf install -y git python3-sphinx python3-pip gcc-c++ rpm-build dnf-plugins-core python2 python3-breathe make
     - packaging/make-docs.sh
@@ -137,13 +137,13 @@ slc6-test:
     - yum install -y slc6/RPMS/*.rpm
     - davix-unit-tests
 
-fedora-29-test:
+fedora-31-test:
   stage: test
-  image: fedora:29
+  image: fedora:31
   dependencies:
-    - fedora-29
+    - fedora-31
   script:
-    - dnf install -y fedora-29/RPMS/*.rpm
+    - dnf install -y fedora-31/RPMS/*.rpm
     - davix-unit-tests
 
 fedora-30-test:

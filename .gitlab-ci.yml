@@ -83,9 +83,9 @@ fedora-30:
     paths:
     - "$CI_JOB_NAME"
 
-ubuntu-disco:
+ubuntu-eoan:
   stage: build
-  image: ubuntu:disco
+  image: ubuntu:eoan
   script:
     - ci/debian/packages.sh
     - apt install -y python2

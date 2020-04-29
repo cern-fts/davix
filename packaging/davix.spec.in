@@ -138,6 +138,9 @@ make DESTDIR=%{buildroot} install
 %{_bindir}/davix-tester
 
 %changelog
+* Wed Apr 29 2020 Georgios Bitzes <georgios.bitzes at cern.ch> - 0.7.6-1
+ - davix 0.7.6 release, see RELEASE-NOTES.md for changes
+
 * Wed Aug 28 2019 Georgios Bitzes <georgios.bitzes at cern.ch> - 0.7.5-1
  - davix 0.7.5 release, see RELEASE-NOTES.md for changes
 

@@ -1,6 +1,6 @@
 # davix release history
 
-## Unreleased
+## 0.7.6 (2020-04-29)
 ### Bug fixes
 * Ensure multi-range simulation thread exceptions are propagated
 * Fix memory leak in S3 detect region function

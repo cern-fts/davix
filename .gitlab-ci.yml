@@ -191,7 +191,7 @@ rpms:
     - eosfusebind
     - for platform in cc7 slc6; do packaging/repo-manager.py --action add --base /eos/project/s/storage-ci/www/davix --ref ${CI_COMMIT_REF_NAME} --packages ${platform}/RPMS/* ${platform}/SRPMS/* ; done
     - |
-        if [[ "${CI_COMMIT_REF_NAME}" == "master" || "${CI_COMMIT_REF_NAME}" == "devel" ]];
+        if [[ "${CI_COMMIT_REF_NAME}" == "master" || "${CI_COMMIT_REF_NAME}" == "devel" ]]; then
           cp -n cc7/RPMS/* cc7/SRPMS/* /eos/project-d/dmc/www/repos/testing/el7/x86_64 || true;
           packaging/update-repo.sh /eos/project-d/dmc/www/repos/testing/el7/x86_64;
           cp -n slc6/RPMS/* slc6/SRPMS/* /eos/project-d/dmc/www/repos/testing/el6/x86_64 || true;

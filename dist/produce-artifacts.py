@@ -19,7 +19,7 @@ def parseargs():
     parser.add_argument('--koji', default="https://kojipkgs.fedoraproject.org/packages", help="The koji build repository to use")
     parser.add_argument('--git', default="https://github.com/cern-fts/davix", help="The git repository to use (can even be local)")
     parser.add_argument('--build', type=int, default=1, help="The build number to use")
-    parser.add_argument('--archs', type=str, nargs="+", default=["el6.x86_64", "el7.x86_64"])
+    parser.add_argument('--archs', type=str, nargs="+", default=["el6.x86_64", "el7.x86_64", "el8.x86_64"])
     parser.add_argument('--packages', type=str, nargs="+", default=["default", "devel", "libs", "doc.noarch"])
     args = parser.parse_args()
 

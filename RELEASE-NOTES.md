@@ -1,5 +1,18 @@
 # davix release history
 
+## Unreleased
+### Bug fixes
+* Ensure multi-range simulation thread exceptions are propagated
+* Fix memory leak in S3 detect region function
+* Recognize OpenSSL 'bad decrypt' error message as CredDecryptionError
+* Fix error handling for proxy delegation
+
+### Improvements
+* Add protection in case server sends an unreasonable number of stripes during TPC
+* Refactoring and improvements to davix-tester
+
+Many thanks to Petr Vokac for fixing error handling during proxy delegation.
+
 ## 0.7.5 (2019-08-28)
 ### Bug fixes
 * Enable use of dav:// and davs:// in third party copies.

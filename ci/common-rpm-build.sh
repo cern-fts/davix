@@ -7,6 +7,7 @@ cd build
 
 if which dnf; then
   dnf builddep -y SRPMS/*
+  dnf install epel-release
 else
   yum-builddep -y SRPMS/*
 fi

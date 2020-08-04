@@ -1,3 +1,4 @@
+%{!?_pkgdocdir: %global _pkgdocdir %{_docdir}/%{name}-%{version}}
 %global __cmake cmake3
 
 Name:				davix
@@ -23,9 +24,6 @@ Requires: libuuid
 
 # davix-copy dependencies
 BuildRequires:                  gsoap-devel
-
-# unit tests and abi check
-BuildRequires:                  abi-compliance-checker
 
 Requires:                       %{name}-libs%{?_isa} = %{version}-%{release}
 

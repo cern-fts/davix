@@ -6,8 +6,8 @@ git submodule update --init --recursive
 cd build
 
 if which dnf; then
-  dnf builddep -y SRPMS/*
   dnf install -y epel-release || true
+  dnf builddep -y SRPMS/*
 else
   yum-builddep -y SRPMS/*
 fi

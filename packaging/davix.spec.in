@@ -1,4 +1,3 @@
-%{!?_pkgdocdir: %global _pkgdocdir %{_docdir}/%{name}-%{version}}
 %global __cmake cmake3
 
 Name:				davix
@@ -94,8 +93,7 @@ make %{?_smp_mflags}
 make doc
 
 %install
-rm -rf %{buildroot}
-make DESTDIR=%{buildroot} install
+%cmake_install
 
 %post libs -p /sbin/ldconfig
 

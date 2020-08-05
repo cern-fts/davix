@@ -41,6 +41,7 @@ Davix provides an API and a set of command line tools.
 
 %package libs
 Summary:			Development files for %{name}
+Requires:                       gsoap
 
 %description libs
 Libraries for %{name}. Davix is a toolkit designed for file operations

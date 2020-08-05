@@ -147,7 +147,8 @@ centos8-test:
   dependencies:
     - centos8
   script:
-    - yum install -y centos8/RPMS/*.rpm
+    - rpm -qa | grep centos-release
+    - dnf install -y centos8/RPMS/*.rpm
     - davix-unit-tests
 
 slc6-test:

@@ -141,6 +141,15 @@ cc7-test:
     - yum install -y cc7/RPMS/*.rpm
     - davix-unit-tests
 
+centos8-test:
+  stage: test
+  image: gitlab-registry.cern.ch/linuxsupport/c8-base
+  dependencies:
+    - centos8
+  script:
+    - yum install -y centos8/RPMS/*.rpm
+    - davix-unit-tests
+
 slc6-test:
   stage: test
   image: gitlab-registry.cern.ch/linuxsupport/slc6-base

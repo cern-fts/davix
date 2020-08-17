@@ -148,6 +148,7 @@ centos8-test:
     - centos8
   script:
     - rpm -qa | grep centos-release
+    - dnf install -y epel-release
     - dnf install -y centos8/RPMS/*.rpm
     - davix-unit-tests
 

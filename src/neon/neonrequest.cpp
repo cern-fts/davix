@@ -56,7 +56,7 @@ void configureRequestParamsProto(const Uri &uri, RequestParams &params){
     }
 }
 
-void neon_generic_error_mapper(int ne_status, StatusCode::Code & code, std::string & str){
+void neon_generic_error_mapper(int ne_status, StatusCode::Code & code, std::string & str, const std::string &wwwAuth){
     switch(ne_status){
         case NE_OK:
             code = StatusCode::OK;
@@ -68,7 +68,7 @@ void neon_generic_error_mapper(int ne_status, StatusCode::Code & code, std::stri
              break;
         case NE_AUTH:
             code = StatusCode::AuthenticationError;
-            str=  "Authentification failed on server";
+            str = "Authentification failed on server";
             break;
         case NE_PROXYAUTH:
             code = StatusCode::AuthenticationError;
@@ -93,6 +93,12 @@ void neon_generic_error_mapper(int ne_status, StatusCode::Code & code, std::stri
         default:
             code= StatusCode::UnknowError;
             str= "Unknow Error from libneon";
+    }
+
+    if(!wwwAuth.empty()) {
+        str += "(WWW-Authenticate: ";
+        str += wwwAuth;
+        str += ")";
     }
 }
 
@@ -616,6 +622,9 @@ void NeonRequest::freeRequest(){
 void NeonRequest::createError(int ne_status, DavixError **err){
     StatusCode::Code code;
     std::string str;
+    std::string wwwAuth;
+    _standalone_req->getAnswerHeader("WWW-Authenticate", wwwAuth);
+
     switch(ne_status){
         case NE_ERROR:
             {
@@ -636,12 +645,12 @@ void NeonRequest::createError(int ne_status, DavixError **err){
                 str+= _current->getString();
                 break;
             }
-            neon_generic_error_mapper(ne_status, code, str);
+            neon_generic_error_mapper(ne_status, code, str, wwwAuth);
             }
             break;
 
         default:
-            neon_generic_error_mapper(ne_status, code, str);
+            neon_generic_error_mapper(ne_status, code, str, wwwAuth);
             break;
     }
     DavixError::setupError(err, davix_scope_http_request(), code, str);

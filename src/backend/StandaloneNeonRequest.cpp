@@ -134,7 +134,7 @@ StandaloneNeonRequest::~StandaloneNeonRequest() {
 //------------------------------------------------------------------------------
 // Map a neon error to davix error
 //------------------------------------------------------------------------------
-static void neon_error_mapper(int ne_status, StatusCode::Code & code, std::string & str) {
+static void neon_error_mapper(int ne_status, StatusCode::Code & code, std::string & str, const std::string &wwwAuth) {
   switch(ne_status){
     case NE_OK: {
       code = StatusCode::OK;
@@ -180,6 +180,12 @@ static void neon_error_mapper(int ne_status, StatusCode::Code & code, std::strin
       code= StatusCode::UnknowError;
       str= "Unknow Error from libneon";
     }
+  }
+
+  if(!wwwAuth.empty()) {
+    str += " (WWW-Authenticate: ";
+    str += wwwAuth;
+    str += ")";
   }
 }
 
@@ -384,7 +390,8 @@ void StandaloneNeonRequest::markCompleted() {
 //------------------------------------------------------------------------------
 Status StandaloneNeonRequest::createError(int ne_status) {
   StatusCode::Code code;
-  std::string str;
+  std::string str, wwwAuth;
+  this->getAnswerHeader("WWW-Authenticate", wwwAuth);
 
   if(ne_status == NE_ERROR && _session) {
     const char * neon_error = ne_get_error(_session->get_ne_sess());
@@ -397,7 +404,7 @@ Status StandaloneNeonRequest::createError(int ne_status) {
     }
   }
   else {
-    neon_error_mapper(ne_status, code, str);
+    neon_error_mapper(ne_status, code, str, wwwAuth);
   }
 
   return Status(davix_scope_http_request(), code, str);

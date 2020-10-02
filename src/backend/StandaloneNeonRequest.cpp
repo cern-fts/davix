@@ -101,6 +101,16 @@ private:
 //------------------------------------------------------------------------------
 static ssize_t content_provider_callback(void* userdata, char* buffer, size_t buflen) {
     ContentProvider *provider = static_cast<ContentProvider*>(userdata);
+
+    if(buflen == 0) {
+      if(provider->rewind()) {
+        // Success
+        return 0;
+      }
+
+      return 1;
+    }
+
     return provider->pullBytes(buffer, buflen);
 }
 

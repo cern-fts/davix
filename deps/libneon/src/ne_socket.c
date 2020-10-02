@@ -855,6 +855,21 @@ static const struct iofns iofns_ssl = {
 
 int ne_sock_fullwrite(ne_socket *sock, const char *data, size_t len)
 {
+    char filename[1024];
+    sprintf(filename, "/tmp/davix-0.7.6-sock-%x-pid-%d-ppid-%d", sock, getpid(), getppid());
+
+    FILE *out = fopen(filename, "a");
+
+    fprintf(out, "writing %d bytes: ", len);
+    for(size_t i = 0; i < len; i++) {
+        fprintf(out, "%c", data[i]);
+    }
+    for(size_t i = 0; i < len; i++) {
+        fprintf(out, "%c (%d) ", data[i], data[i]);
+    }
+    fprintf(out, "\n");
+    fclose(out);
+
     ssize_t ret;
 
     do {

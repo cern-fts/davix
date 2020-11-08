@@ -409,7 +409,7 @@ static ne_ssl_certificate *make_chain(STACK_OF(X509) *chain)
             NE_DEBUG(NE_DBG_SSL, "Cert #%d:", n);
             BIO *mem = BIO_new(BIO_s_mem());
             X509_print(mem, cert->subject);
-            BIO_puts(mem, ""); // force \0
+            BIO_write(mem, "", 1); // force \0
             char* cert_str= NULL;
             long  str_size = BIO_get_mem_data(mem, &cert_str);
             if(str_size > 0){

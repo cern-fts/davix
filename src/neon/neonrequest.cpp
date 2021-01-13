@@ -147,6 +147,10 @@ void NeonRequest::prepareUriParams() {
     // configure gcloud params if needed
     if(_params.getProtocol() == RequestProtocol::Gcloud)
         configureGcloudParams();
+
+    // configure swift params if needed
+    if(_params.getProtocol() == RequestProtocol::Swift)
+        configureSwiftParams();
 }
 
 //------------------------------------------------------------------------------

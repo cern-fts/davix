@@ -101,6 +101,8 @@ struct RequestParamsInternal{
         _aws_alternate(false),
         _azure_key(),
         _gcloud_creds(),
+        _swift_token(),
+        _swift_project_id(),
         ops_timeout(),
         connexion_timeout(),
         agent_string(default_agent),
@@ -149,6 +151,8 @@ struct RequestParamsInternal{
         _aws_alternate(param_private._aws_alternate),
         _azure_key(param_private._azure_key),
         _gcloud_creds(param_private._gcloud_creds),
+        _swift_token(param_private._swift_token),
+        _swift_project_id(param_private._swift_project_id),
         ops_timeout(),
         connexion_timeout(),
         agent_string(param_private.agent_string),
@@ -194,6 +198,8 @@ struct RequestParamsInternal{
     bool _aws_alternate;
     AzureSecretKey _azure_key;
     gcloud::Credentials _gcloud_creds;
+    SwiftToken _swift_token;
+    SwiftProjectID _swift_project_id;
 
     // timeout management
     struct timespec ops_timeout;
@@ -401,6 +407,22 @@ void RequestParams::setGcloudCredentials(const gcloud::Credentials &creds) {
 
 const gcloud::Credentials & RequestParams::getGcloudCredentials() const {
     return d_ptr->_gcloud_creds;
+}
+
+void RequestParams::setSwiftToken(const SwiftToken &token) {
+    d_ptr->_swift_token = token;
+}
+
+const SwiftToken & RequestParams::getSwiftToken() const {
+    return d_ptr->_swift_token;
+}
+
+void RequestParams::setSwiftProjectID(const SwiftProjectID &id) {
+    d_ptr->_swift_project_id = id;
+}
+
+const SwiftProjectID & RequestParams::getSwiftProjectID() const {
+    return d_ptr->_swift_project_id;
 }
 
 void RequestParams::setS3ListingMode(const S3ListingMode::S3ListingMode s3_listing_mode){

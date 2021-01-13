@@ -56,7 +56,9 @@ namespace RequestProtocol{
         // Use Microsoft Azure API
         Azure,
         // Use gcloud API
-        Gcloud
+        Gcloud,
+        // Use Swift
+        Swift
     };
 }
 
@@ -114,6 +116,16 @@ typedef std::string AwsToken;
 /// \brief string for Azure private key
 ///
 typedef std::string AzureSecretKey;
+
+///
+/// \brief string for Swift token
+///
+typedef std::string SwiftToken;
+
+///
+/// \brief string for Swift token
+///
+typedef std::string SwiftProjectID;
 
 #ifdef __DAVIX_HAS_STD_FUNCTION
 

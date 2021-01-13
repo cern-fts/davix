@@ -24,6 +24,7 @@
 #include <utils/davix_s3_utils.hpp>
 #include <utils/davix_azure_utils.hpp>
 #include <utils/davix_gcloud_utils.hpp>
+#include <utils/davix_swift_utils.hpp>
 #include <utils/davix_logger_internal.hpp>
 #include <utils/stringutils.hpp>
 #include <fileops/fileutils.hpp>
@@ -122,6 +123,15 @@ void BackendRequest::configureAzureParams() {
 void BackendRequest::configureGcloudParams() {
   Uri signed_url = gcloud::signURI(_params.getGcloudCredentials(), _request_type, *_current, _headers_field, DEFAULT_REQUEST_SIGNING_DURATION);
   _current.reset(new Uri(signed_url));
+}
+
+//------------------------------------------------------------------------------
+// Configure request for Gcloud.
+//------------------------------------------------------------------------------
+void BackendRequest::configureSwiftParams() {
+    _headers_field.emplace_back("X-Auth-Token", _params.getSwiftToken());
+    Uri signed_url = Swift::signURI(_params, _request_type, *_current, _headers_field, DEFAULT_REQUEST_SIGNING_DURATION);
+    _current.reset(new Uri(signed_url));
 }
 
 //------------------------------------------------------------------------------

@@ -76,7 +76,7 @@ set(DAVIX_SOURCES
 
   davixcontext.cpp
   $<TARGET_OBJECTS:LibNeonObjects>
-)
+        utils/davix_swift_utils.cpp)
 
 set(DAVIX_INTERNAL_INCLUDES
   ${OPENSSL_INCLUDE_DIR}

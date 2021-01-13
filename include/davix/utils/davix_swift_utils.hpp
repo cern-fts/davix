@@ -1,7 +1,7 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
  * Copyright (C) CERN 2013
- * Author: Adrien Devresse <adrien.devresse@cern.ch>
+ * Author: Shiting Long <s.long@fz-juelich.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,32 +19,19 @@
  *
 */
 
-#include "chain_factory.hpp"
+#ifndef DAVIX_DAVIX_SWIFT_UTILS_H
+#define DAVIX_DAVIX_SWIFT_UTILS_H
 
-#include "davmeta.hpp"
-#include "httpiovec.hpp"
-#include "davix_reliability_ops.hpp"
-#include "iobuffmap.hpp"
-#include "AzureIO.hpp"
-#include "S3IO.hpp"
+#include <params/davixrequestparams.hpp>
 
-namespace Davix{
+namespace Davix {
 
+namespace Swift {
 
-ChainFactory::ChainFactory(){}
+Uri signURI(const RequestParams & params, const std::string & method, const Uri & url, HeaderVec headers, const time_t expirationTime);
 
+} //Swift
 
-HttpIOChain& ChainFactory::instanceChain(const CreationFlags & flags, HttpIOChain & c){
-    HttpIOChain* elem;
-    elem= c.add(new MetalinkOps())->add(new AutoRetryOps())->add(new S3MetaOps())->add(new SwiftMetaOps())->add(new AzureMetaOps())->add(new HttpMetaOps());
+} //Davix
 
-    // add posix to the chain if needed
-    if(flags[CHAIN_POSIX] == true){
-        elem = elem->add(new HttpIOBuffer());
-    }
-
-    elem->add(new S3IO())->add(new AzureIO())->add(new HttpIO())->add(new HttpIOVecOps());
-    return c;
-}
-
-}
+#endif //DAVIX_DAVIX_SWIFT_UTILS_H

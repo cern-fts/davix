@@ -1,7 +1,7 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
  * Copyright (C) CERN 2013
- * Author: Adrien Devresse <adrien.devresse@cern.ch>
+ * Author: Shiting Long <s.long@fz-juelich.de>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,32 +19,33 @@
  *
 */
 
-#include "chain_factory.hpp"
+#include <utils/davix_swift_utils.hpp>
+#include <iomanip>
+#include <ctime>
+#include <cstring>
+#include <davix_internal.hpp>
+#include <utils/stringutils.hpp>
+#include "libs/datetime/datetime_utils.hpp"
+#include <utils/davix_logger_internal.hpp>
+#include <utils/davix_utils_internal.hpp>
+#include "libs/alibxx/crypto/base64.hpp"
+#include "libs/alibxx/crypto/hmacsha.hpp"
+#include <openssl/md5.h>
+#include <sys/mman.h>
 
-#include "davmeta.hpp"
-#include "httpiovec.hpp"
-#include "davix_reliability_ops.hpp"
-#include "iobuffmap.hpp"
-#include "AzureIO.hpp"
-#include "S3IO.hpp"
+namespace Davix {
 
-namespace Davix{
+namespace Swift {
 
+Uri signURI(const RequestParams & params, const std::string & method, const Uri & url, HeaderVec headers, const time_t expirationTime) {
+    Uri signed_url(url);
 
-ChainFactory::ChainFactory(){}
-
-
-HttpIOChain& ChainFactory::instanceChain(const CreationFlags & flags, HttpIOChain & c){
-    HttpIOChain* elem;
-    elem= c.add(new MetalinkOps())->add(new AutoRetryOps())->add(new S3MetaOps())->add(new SwiftMetaOps())->add(new AzureMetaOps())->add(new HttpMetaOps());
-
-    // add posix to the chain if needed
-    if(flags[CHAIN_POSIX] == true){
-        elem = elem->add(new HttpIOBuffer());
+    if(!params.getSwiftProjectID().empty()) {
+        signed_url.setPath("/v1/AUTH_" + params.getSwiftProjectID() + url.getPath());
     }
+    return signed_url;
+}
 
-    elem->add(new S3IO())->add(new AzureIO())->add(new HttpIO())->add(new HttpIOVecOps());
-    return c;
 }
 
 }

@@ -37,7 +37,7 @@ std::vector<std::string> split(const std::string str, const std::string delim) {
 }
 
 namespace Auth {
-enum Type {AWS, PROXY, AZURE, NONE, ILLEGAL};
+enum Type {AWS, PROXY, AZURE, SWIFT, NONE, ILLEGAL};
 Type fromString(const std::string &str) {
     if(str == "aws")
         return Auth::AWS;
@@ -45,6 +45,8 @@ Type fromString(const std::string &str) {
         return Auth::PROXY;
     if(str == "azure")
         return Auth::AZURE;
+    if(str == "swift")
+        return Auth::SWIFT;
     if(str == "none")
         return Auth::NONE;
 
@@ -62,7 +64,7 @@ static option::ArgStatus option_nonempty(const option::Option& option, bool msg)
 
 namespace Opt {
 enum  Type { UNKNOWN, HELP, AUTH, S3ACCESSKEY, S3SECRETKEY, S3REGION,
-                    AZUREKEY, S3ALTERNATE, CERT, URI, TRACE, COMMAND };
+                    AZUREKEY, S3ALTERNATE, CERT, URI, TRACE, COMMAND, OSTOKEN, OSPROJECTID};
 }
 
 bool verify_options_sane(option::Parser &parse, std::vector<option::Option> &options) {
@@ -103,6 +105,8 @@ std::vector<option::Option> parse_args(int argc, char** argv) {
         {Opt::URI, 0, "", "uri", option_nonempty, "--uri uri to test against"},
         {Opt::TRACE, 0, "", "trace", option_nonempty, "--trace debug scope"},
         {Opt::COMMAND, 0, "", "command", option_nonempty, "--command test to run"},
+        {Opt::OSTOKEN, 0, "", "ostoken", option_nonempty, "--ostoken Openstack token"},
+        {Opt::OSPROJECTID, 0, "", "osprojectid", option_nonempty, "--osprojectid Openstack project id"},
         {Opt::UNKNOWN, 0, "", "",option::Arg::None, "\nExamples:\n"
                                                "  tester --auth proxy --uri https://storage/davix-tests --command makeCollection" },
 
@@ -146,6 +150,14 @@ void authentication(const std::vector<option::Option> &opts, const Auth::Type &a
 
         params.setProtocol(RequestProtocol::Azure);
         params.setAzureKey(retrieve(opts, Opt::AZUREKEY));
+    }
+    else if(auth == Auth::SWIFT) {
+        ASSERT(opts[Opt::OSTOKEN] != NULL, "--ostoken is required when using swift");
+        ASSERT(opts[Opt::OSPROJECTID] != NULL, "--osprojectid is required when using swift");
+
+        params.setProtocol(RequestProtocol::Swift);
+        params.setSwiftToken(retrieve(opts, Opt::OSTOKEN));
+        params.setSwiftProjectID(retrieve(opts, Opt::OSPROJECTID));
     }
     else {
         ASSERT(false, "unknown authentication method");

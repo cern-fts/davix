@@ -115,6 +115,34 @@ private:
 
 };
 
+/// The HttpMetaOps handle all meta-data operations related to Swift
+class SwiftMetaOps : public HttpIOChain{
+public:
+    SwiftMetaOps();
+    virtual ~SwiftMetaOps();
+
+    //TODO: IMPLEMENT METAOPS BELOW
+
+    // Swift + HTTP checksum computation
+    //virtual void checksum(IOChainContext & iocontext, std::string & checksm, const std::string & chk_algo);
+
+    // move/rename resource
+    //virtual void move(IOChainContext & iocontext, const std::string & target_url);
+
+    // get statInfo
+    //virtual StatInfo & statInfo(IOChainContext & iocontext, StatInfo & st_info);
+
+    // make collection
+    virtual void makeCollection(IOChainContext & iocontext);
+
+    // listing
+    //virtual bool nextSubItem(IOChainContext &iocontext, std::string &entry_name, StatInfo &info);
+
+private:
+    std::unique_ptr<DirHandle> directoryItem;
+
+};
+
 
 /*
   retrieve a webdav propfind stat request to the given url

@@ -196,6 +196,29 @@ public:
     ///
     const Davix::gcloud::Credentials & getGcloudCredentials() const;
 
+    ///
+    /// \brief set the Swift token used for Swift authentication
+    /// \param token the OS token
+    ///
+    void setSwiftToken(const SwiftToken & token);
+
+    ///
+    /// \brief get the Swift used for Swift authentication
+    /// \return the OS token
+    ///
+    const SwiftToken & getSwiftToken() const;
+
+    ///
+    /// \brief set the Swift project id used for Swift authentication
+    /// \param the project id
+    ///
+    void setSwiftProjectID(const SwiftProjectID & id);
+
+    ///
+    /// \brief get the Swift project id used for Swift authentication
+    /// \return the project id
+    ///
+    const SwiftProjectID & getSwiftProjectID() const;
 
     /// set listing mode flag for S3 bucket
     void setS3ListingMode(const S3ListingMode::S3ListingMode s3_listing_mode);

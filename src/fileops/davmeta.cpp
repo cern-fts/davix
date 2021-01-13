@@ -1059,4 +1059,49 @@ bool AzureMetaOps::nextSubItem(IOChainContext &iocontext, std::string &entry_nam
     }
 }
 
+/////////////////////////
+/////////////////////////
+
+SwiftMetaOps::SwiftMetaOps() : HttpIOChain()
+{}
+
+SwiftMetaOps::~SwiftMetaOps(){}
+
+static bool is_swift_operation(IOChainContext & context){
+    return context._reqparams->getProtocol() == RequestProtocol::Swift;
+}
+
+static void internal_swift_create_bucket_or_dir(Context & c, const Uri & url, const RequestParams & params){
+    DavixError * tmp_err=NULL;
+
+    /* make sure path ends with a slash, otherwise swift
+       will just create a zero-length file */
+    Uri url2 = url;
+    if(url.getPath()[url.getPath().size()-1] != '/') {
+        url2.setPath(url.getPath() + "/");
+    }
+
+    PutRequest req(c, url2, &tmp_err);
+    req.addHeaderField("Content-Length", "0");
+    checkDavixError(&tmp_err);
+
+    req.setParameters(params);
+    if( req.executeRequest(&tmp_err) < 0){
+        const int code = req.getRequestCode();
+        httpcodeToDavixException(code, davix_scope_meta(), "bucket creation failure");
+    }
+
+    checkDavixError(&tmp_err);
+}
+
+void SwiftMetaOps::makeCollection(IOChainContext &iocontext) {
+    if(is_swift_operation(iocontext)){
+        internal_swift_create_bucket_or_dir(iocontext._context, iocontext._uri, iocontext._reqparams);
+    } else{
+        HttpIOChain::makeCollection(iocontext);
+    }
+}
+
+
+
 } // Davix

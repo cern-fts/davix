@@ -130,7 +130,7 @@ void BackendRequest::configureGcloudParams() {
 //------------------------------------------------------------------------------
 void BackendRequest::configureSwiftParams() {
     _headers_field.emplace_back("X-Auth-Token", _params.getSwiftToken());
-    Uri signed_url = Swift::signURI(_params, _request_type, *_current, _headers_field, DEFAULT_REQUEST_SIGNING_DURATION);
+    Uri signed_url = Swift::signURI(_params, *_current);
     _current.reset(new Uri(signed_url));
 }
 

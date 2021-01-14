@@ -28,7 +28,7 @@ namespace Davix {
 
 namespace Swift {
 
-Uri signURI(const RequestParams & params, const std::string & method, const Uri & url, HeaderVec headers, const time_t expirationTime);
+Uri signURI(const RequestParams & params, const Uri & url);
 
 } //Swift
 

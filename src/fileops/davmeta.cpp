@@ -556,6 +556,20 @@ bool HttpMetaOps::nextSubItem(IOChainContext &iocontext, std::string &entry_name
 /////////////////////////
 /////////////////////////
 
+SwiftMetaOps::SwiftMetaOps() : HttpIOChain()
+{}
+
+SwiftMetaOps::~SwiftMetaOps(){}
+
+static bool is_swift_operation(IOChainContext & context){
+    return context._reqparams->getProtocol() == RequestProtocol::Swift;
+}
+
+
+
+/////////////////////////
+/////////////////////////
+
 
 bool is_a_bucket(const Uri & u){
     const std::string & s = u.getPath();
@@ -663,7 +677,7 @@ void S3MetaOps::checksum(IOChainContext &iocontext, std::string &checksm, const 
 }
 
 void S3MetaOps::makeCollection(IOChainContext &iocontext){
-    if(is_s3_operation(iocontext)){
+    if(is_s3_operation(iocontext) || is_swift_operation(iocontext)){
         internal_s3_create_bucket_or_dir( iocontext._context, iocontext._uri, iocontext._reqparams);
     }else{
         HttpIOChain::makeCollection(iocontext);
@@ -1058,27 +1072,6 @@ bool AzureMetaOps::nextSubItem(IOChainContext &iocontext, std::string &entry_nam
         return HttpIOChain::nextSubItem(iocontext, entry_name, info);
     }
 }
-
-/////////////////////////
-/////////////////////////
-
-SwiftMetaOps::SwiftMetaOps() : HttpIOChain()
-{}
-
-SwiftMetaOps::~SwiftMetaOps(){}
-
-static bool is_swift_operation(IOChainContext & context){
-    return context._reqparams->getProtocol() == RequestProtocol::Swift;
-}
-
-void SwiftMetaOps::makeCollection(IOChainContext &iocontext) {
-    if(is_swift_operation(iocontext)){
-        internal_s3_create_bucket_or_dir(iocontext._context, iocontext._uri, iocontext._reqparams);
-    } else{
-        HttpIOChain::makeCollection(iocontext);
-    }
-}
-
 
 
 } // Davix

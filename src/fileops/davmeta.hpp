@@ -132,9 +132,6 @@ public:
     // get statInfo
     //virtual StatInfo & statInfo(IOChainContext & iocontext, StatInfo & st_info);
 
-    // make collection
-    virtual void makeCollection(IOChainContext & iocontext);
-
     // listing
     //virtual bool nextSubItem(IOChainContext &iocontext, std::string &entry_name, StatInfo &info);
 

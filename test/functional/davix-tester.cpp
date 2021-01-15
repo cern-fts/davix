@@ -156,8 +156,8 @@ void authentication(const std::vector<option::Option> &opts, const Auth::Type &a
         ASSERT(opts[Opt::OSPROJECTID] != NULL, "--osprojectid is required when using swift");
 
         params.setProtocol(RequestProtocol::Swift);
-        params.setSwiftToken(retrieve(opts, Opt::OSTOKEN));
-        params.setSwiftProjectID(retrieve(opts, Opt::OSPROJECTID));
+        params.setOSToken(retrieve(opts, Opt::OSTOKEN));
+        params.setOSProjectID(retrieve(opts, Opt::OSPROJECTID));
     }
     else {
         ASSERT(false, "unknown authentication method");

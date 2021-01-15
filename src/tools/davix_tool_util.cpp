@@ -123,6 +123,13 @@ int configureAuth(OptParams & opts){
         opts.params.setProtocol(RequestProtocol::Gcloud);
     }
 
+    // setup swift creds
+    if(opts.os_token.empty() == false && opts.os_project_id.empty() == false) {
+        opts.params.setOSToken(opts.os_token);
+        opts.params.setOSProjectID(opts.os_project_id);
+        opts.params.setProtocol(RequestProtocol::Swift);
+    }
+
     return 0;
 }
 
@@ -140,6 +147,12 @@ bool checkProtocolSanity(OptParams &opts, const std::string &url, DavixError **e
     if(!opts.aws_auth.first.empty()) {
         if(!startswith(url, "s3://") && !startswith(url, "s3s://") && !startswith(url, "http://") && !startswith(url, "https://")) {
             DavixError::setupError(err, scope_params, StatusCode::InvalidArgument, fmt::format(" S3 credentials cannot be used with the protocol given in this URL : {}", url));
+            return false;
+        }
+    }
+    if(!opts.os_token.empty()) {
+        if(!startswith(url, "swift://") && !startswith(url, "swifts://") && !startswith(url, "http://") && !startswith(url, "https://")) {
+            DavixError::setupError(err, scope_params, StatusCode::InvalidArgument, fmt::format(" Swift credentials cannot be used with the protocol given in this URL : {}", url));
             return false;
         }
     }

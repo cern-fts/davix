@@ -40,8 +40,8 @@ namespace Swift {
 Uri signURI(const RequestParams & params, const Uri & url) {
     Uri signed_url(url);
 
-    if(!params.getSwiftProjectID().empty()) {
-        signed_url.setPath("/v1/AUTH_" + params.getSwiftProjectID() + url.getPath());
+    if(!params.getOSProjectID().empty()) {
+        signed_url.setPath("/v1/AUTH_" + params.getOSProjectID() + url.getPath());
     }
     return signed_url;
 }

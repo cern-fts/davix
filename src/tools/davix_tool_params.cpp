@@ -63,6 +63,8 @@ const std::string scope_params = "Davix::Tools::Params";
 #define ACCEPTED_RETRY         1025
 #define ACCEPTED_RETRY_DELAY   1026
 #define GCLOUD_CRED_PATH       1027
+#define OS_TOKEN               1028
+#define OS_PROJECT_ID          1029
 
 // LONG OPTS
 
@@ -95,7 +97,9 @@ const std::string scope_params = "Davix::Tools::Params";
 {"azurekey", required_argument, 0, AZURE_KEY}, \
 {"s3alternate", no_argument, 0, S3_ALTERNATE}, \
 {"gcloud-creds", required_argument, 0, GCLOUD_CRED_PATH}, \
-{"insecure", no_argument, 0,  'k' }
+{"insecure", no_argument, 0,  'k' }, \
+{"ostoken", required_argument, 0, OS_TOKEN}, \
+{"osprojectid", required_argument, 0, OS_PROJECT_ID}
 
 #define REQUEST_LONG_OPTIONS \
 {"request",  required_argument, 0,  'X' }, \
@@ -138,6 +142,8 @@ OptParams::OptParams() :
     aws_region(),
     aws_token(),
     aws_alternate(false),
+    os_token(),
+    os_project_id(),
     pres_flag(0),
     shell_flag(0),
     has_input_file(false),
@@ -317,6 +323,14 @@ int parse_davix_options_generic(const std::string &opt_filter,
                 break;
             case GCLOUD_CRED_PATH:
                 p.gcloud_creds_path = SanitiseTildedPath(optarg).c_str();
+                break;
+            case OS_TOKEN:
+                p.os_token = optarg;
+                strncpy(optarg, "", strlen(optarg));
+                break;
+            case OS_PROJECT_ID:
+                p.os_project_id = optarg;
+                strncpy(optarg, "", strlen(optarg));
                 break;
             case 'l':
                 p.pres_flag |= LONG_LISTING_FLAG;
@@ -579,6 +593,8 @@ std::string get_common_options(){
             "\t                          A path-based URL contains the bucket name in the path, ie https://s3-someregion.amazonaws.com/mybucket/file\n"
             "\t--azurekey AZURE_KEY:     Azure authentication secret key\n"
             "\t--gcloud-creds PATH:      Path to gcloud json credentials\n"
+            "\t--ostoken TOKEN:          Swift authentication: Openstack token\n"
+            "\t--osprojectid:            Swift authentication: Openstack project ID\n"
             ;
 }
 

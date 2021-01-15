@@ -126,10 +126,10 @@ void BackendRequest::configureGcloudParams() {
 }
 
 //------------------------------------------------------------------------------
-// Configure request for Gcloud.
+// Configure request for Swift.
 //------------------------------------------------------------------------------
 void BackendRequest::configureSwiftParams() {
-    _headers_field.emplace_back("X-Auth-Token", _params.getSwiftToken());
+    _headers_field.emplace_back("X-Auth-Token", _params.getOSToken());
     Uri signed_url = Swift::signURI(_params, *_current);
     _current.reset(new Uri(signed_url));
 }

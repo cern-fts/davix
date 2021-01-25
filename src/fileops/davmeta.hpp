@@ -130,7 +130,7 @@ public:
     //virtual void move(IOChainContext & iocontext, const std::string & target_url);
 
     // get statInfo
-    //virtual StatInfo & statInfo(IOChainContext & iocontext, StatInfo & st_info);
+    virtual StatInfo & statInfo(IOChainContext & iocontext, StatInfo & st_info);
 
     // listing
     //virtual bool nextSubItem(IOChainContext &iocontext, std::string &entry_name, StatInfo &info);

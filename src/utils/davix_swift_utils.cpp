@@ -37,6 +37,26 @@ namespace Davix {
 
 namespace Swift {
 
+std::string extract_swift_path(const Uri & uri) {
+    const std::string path = uri.getPath();
+
+    std::size_t pos = path.find("/", 1);
+    if(pos == std::string::npos) {
+        return std::string("/");
+    }
+
+    return path.substr(pos, path.size());
+}
+
+std::string extract_swift_container(const Uri & uri) {
+    const std::string path = uri.getPath();
+    std::size_t pos = path.find("/", 1);
+    if(pos == std::string::npos) {
+        return path.substr(1, path.size()-1);
+    }
+    return path.substr(1, pos-1);
+}
+
 Uri signURI(const RequestParams & params, const Uri & url) {
     Uri signed_url(url);
 
@@ -44,6 +64,50 @@ Uri signURI(const RequestParams & params, const Uri & url) {
         signed_url.setPath("/v1/AUTH_" + params.getOSProjectID() + url.getPath());
     }
     return signed_url;
+}
+
+Uri swiftUriTransformer(const Uri & original_url, const RequestParams & params, const bool addDelimiter) {
+    std::string delimiter = "&delimiter=%2F";
+    std::string prefix = "?prefix=";
+
+    std::string protocol;
+
+    if(original_url.getString().compare(5,1,"s") == 0){
+        protocol = "swifts://";
+    }
+    else{
+        protocol = "swift://";
+    }
+
+    std::ostringstream ss;
+
+    ss << protocol << original_url.getHost();
+    if(original_url.getPort() > 0) {
+        ss << ":" << original_url.getPort();
+    }
+    ss << "/";
+
+    ss << extract_swift_container(original_url) << "/";
+
+    if(!original_url.getPath().empty()){    // there is something after '/', grab it
+        std::string tmp = extract_swift_path(original_url);
+
+        // if prefix doesn't end with '/', add one to handle query on folder
+        if(tmp.compare(tmp.size()-1,1,"/") != 0)
+            tmp += "/";
+
+        tmp.erase(0,1);
+        prefix +=  Uri::queryParamEscape(tmp);
+    }
+
+    ss << prefix;
+
+    // skip delimiter if where we want to list everything after a certain prefix,
+    // useful in cases like GET Collection
+    if(addDelimiter)
+        ss << delimiter;
+
+    return Uri(ss.str());
 }
 
 }

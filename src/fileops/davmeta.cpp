@@ -33,6 +33,7 @@
 #include <utils/davix_s3_utils.hpp>
 #include <utils/davix_azure_utils.hpp>
 #include <utils/davix_gcloud_utils.hpp>
+#include <utils/davix_swift_utils.hpp>
 #include <utils/checksum_extractor.hpp>
 
 #include <request/httprequest.hpp>
@@ -563,6 +564,83 @@ SwiftMetaOps::~SwiftMetaOps(){}
 
 static bool is_swift_operation(IOChainContext & context){
     return context._reqparams->getProtocol() == RequestProtocol::Swift;
+}
+
+static void swiftStatMapper(Context& context, const RequestParams* params, const Uri & uri, struct StatInfo& st_info) {
+    const std::string scope = "Davix::swiftStatMapper";
+    DavixError * tmp_err=NULL;
+    HeadRequest req(context, uri, &tmp_err);
+
+    // we need to modify it, hence copy
+    RequestParams p(params);
+
+    if(tmp_err == NULL) {
+        req.setParameters(p);
+        req.executeRequest(&tmp_err);
+        const int code = req.getRequestCode();
+
+        if(code == 404) {
+            DavixError::clearError(&tmp_err);
+            // try to "list" target resource and see if there is anything inside it, if there is, then it's a directory
+            Uri new_url = Swift::swiftUriTransformer(uri, p, true);
+
+            const int operation_timeout = p.getOperationTimeout()->tv_sec;
+            GetRequest http_req(context, new_url, &tmp_err);
+
+            http_req.setParameters(p);
+
+            http_req.beginRequest(&tmp_err);
+            checkDavixError(&tmp_err);
+
+            check_file_status(http_req, scope);
+
+            // check response text, if there is data, then it is a directory
+            char buffer[2048+1];
+            const dav_ssize_t ret = http_req.readSegment(buffer, 2048, &tmp_err);
+            checkDavixError(&tmp_err);
+            if(ret == 0){
+                throw DavixException(scope, StatusCode::IsNotADirectory, "Is not a Swift directory");
+            }
+            else if (ret < 0) {
+                throw DavixException(scope, StatusCode::UnknowError, "Unknown readSegment error");
+            }
+            checkDavixError(&tmp_err);
+
+            st_info.mode = 0755;
+            st_info.mode |= S_IFDIR;
+        }
+        else if(code == 200){
+            st_info.mode = 0755;
+
+            std::string swift_path = Swift::extract_swift_path(uri);
+            if(swift_path == "/") // is container
+                st_info.mode |= S_IFDIR;
+            else if(swift_path[swift_path.size()-1] == '/' && req.getAnswerSize() == 0) { // is a directory
+                st_info.mode |= S_IFDIR;
+            }
+            else {   // is file
+                st_info.mode |= S_IFREG;
+                const dav_ssize_t s = req.getAnswerSize();
+                st_info.size = std::max<dav_ssize_t>(0, s);
+                st_info.mtime = req.getLastModified();
+            }
+        }
+        else if(code == 500){
+            throw DavixException(scope, StatusCode::UnknowError, "Internal Server Error triggered while attempting to get S3 object's stats");
+        }
+    }
+    checkDavixError(&tmp_err);
+}
+
+StatInfo & SwiftMetaOps::statInfo(IOChainContext &iocontext, StatInfo &st_info) {
+    if(is_swift_operation(iocontext)){
+        swiftStatMapper(iocontext._context, iocontext._reqparams, iocontext._uri, st_info);
+        return st_info;
+    }
+    else{
+        StatInfo & ref = HttpIOChain::statInfo(iocontext, st_info);
+        return ref;
+    }
 }
 
 

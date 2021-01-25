@@ -30,6 +30,12 @@ namespace Swift {
 
 Uri signURI(const RequestParams & params, const Uri & url);
 
+Uri swiftUriTransformer(const Uri & original_url, const RequestParams & params, const bool addDelimiter);
+
+std::string extract_swift_path(const Uri & uri);
+
+std::string extract_swift_container(const Uri & uri);
+
 } //Swift
 
 } //Davix

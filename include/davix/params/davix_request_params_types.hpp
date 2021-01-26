@@ -86,6 +86,15 @@ namespace S3ListingMode{
     };
 }
 
+namespace SwiftListingMode{
+    enum SwiftListingMode{
+        // Full hierarchical listing (depth is 1)
+        Hierarchical,
+        // Semi-hierarchical listing (depth is infinity)
+        SemiHierarchical
+    };
+}
+
 namespace CopyMode{
     enum CopyMode{
         // source push to destination

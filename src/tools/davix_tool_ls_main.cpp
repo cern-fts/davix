@@ -43,7 +43,8 @@ std::string  get_base_listing_options(){
            "\t-r NUMBER_OF_THREADS      List directories's content recursively using multiple threads\n"
            "\t--no-cap:                 Disable size cap on task queue for pending listing operations\n"
            "\t--s3-listing:             S3 bucket listing mode - flat, semi or hierarchical(default)\n"
-           "\t--s3-maxkeys:             Maximum number of entries returns by S3 list bucket request. default: 10000\n";
+           "\t--s3-maxkeys:             Maximum number of entries returns by S3 list bucket request. default: 10000\n"
+           "\t--swift-listing:          Swift listing mode - semi or hierarchical(default)\n";
 }
 
 static std::string help_msg(const std::string & cmd_path){
@@ -241,6 +242,11 @@ int main(int argc, char** argv){
                   // unfortunately s3 defaults max-keys to 1000 and doesn't provide a way to disable the cap, set to large number
                   opts.params.setS3MaxKey(999999999);
 
+                  retcode = listing(opts, fstream, &tmp_err);
+              }
+              else if(opts.params.getRecursiveMode() && (opts.vec_arg[0].compare(0, 5, "swift")==0)) {
+                  // don't need to use -r switch for Swift, just set listing mode to SemiHierarchical and do a normal listing
+                  opts.params.setSwiftListingMode(SwiftListingMode::SemiHierarchical);
                   retcode = listing(opts, fstream, &tmp_err);
               }
               else if(opts.params.getRecursiveMode()){    // dav recursive listing

@@ -90,6 +90,7 @@ struct RequestParamsInternal{
         _recursive_mode(false),
         _s3_listing_mode(S3ListingMode::Hierarchical),
         _s3_max_key_entries(10000),
+        _swift_listing_mode(SwiftListingMode::Hierarchical),
         _ca_path(),
         _x509_data(),
         _idlogpass(),
@@ -140,6 +141,7 @@ struct RequestParamsInternal{
         _recursive_mode(param_private._recursive_mode),
         _s3_listing_mode(param_private._s3_listing_mode),
         _s3_max_key_entries(param_private._s3_max_key_entries),
+        _swift_listing_mode(param_private._swift_listing_mode),
         _ca_path(param_private._ca_path),
         _x509_data(param_private._x509_data),
         _idlogpass(param_private._idlogpass),
@@ -179,6 +181,9 @@ struct RequestParamsInternal{
 
     // s3 bucket listing mode
     S3ListingMode::S3ListingMode _s3_listing_mode;
+
+    // swift listing mode
+    SwiftListingMode::SwiftListingMode _swift_listing_mode;
 
     // Max number of keys returned by a S3 list bucket request
     unsigned long _s3_max_key_entries;
@@ -431,6 +436,14 @@ void RequestParams::setS3ListingMode(const S3ListingMode::S3ListingMode s3_listi
 
 S3ListingMode::S3ListingMode RequestParams::getS3ListingMode() const{
     return d_ptr->_s3_listing_mode;
+}
+
+void RequestParams::setSwiftListingMode(const SwiftListingMode::SwiftListingMode swift_listing_mode){
+    d_ptr->_swift_listing_mode = swift_listing_mode;
+}
+
+SwiftListingMode::SwiftListingMode RequestParams::getSwiftListingMode() const{
+    return d_ptr->_swift_listing_mode;
 }
 
 void RequestParams::setS3MaxKey(const unsigned long s3_max_key_entries){

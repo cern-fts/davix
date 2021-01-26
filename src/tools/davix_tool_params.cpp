@@ -65,6 +65,7 @@ const std::string scope_params = "Davix::Tools::Params";
 #define GCLOUD_CRED_PATH       1027
 #define OS_TOKEN               1028
 #define OS_PROJECT_ID          1029
+#define SWIFT_LISTING_MODE     1030
 
 // LONG OPTS
 
@@ -110,7 +111,8 @@ const std::string scope_params = "Davix::Tools::Params";
 {"s3-listing", required_argument, 0,  S3_LISTING_MODE }, \
 {"s3-maxkeys", required_argument, 0,  S3_MAX_KEYS }, \
 {"no-cap", required_argument, 0, DISABLE_LISTING_CAP}, \
-{"long-list", no_argument, 0,  'l' }
+{"long-list", no_argument, 0,  'l' }, \
+{"swift-listing", required_argument, 0, SWIFT_LISTING_MODE}
 
 #define GET_LONG_OPTIONS \
 {"accepted-retry", required_argument, 0, ACCEPTED_RETRY}, \
@@ -274,6 +276,14 @@ int parse_davix_options_generic(const std::string &opt_filter,
             case S3_MAX_KEYS:
                 p.params.setS3MaxKey(atoi(optarg));
                 break;
+            case SWIFT_LISTING_MODE:
+                {
+                    if(std::string(optarg).compare("hierarchical")==0)
+                        p.params.setSwiftListingMode(SwiftListingMode::Hierarchical);
+                    else if(std::string(optarg).compare("semi")==0)
+                        p.params.setSwiftListingMode(SwiftListingMode::SemiHierarchical);
+                    break;
+                }
             case CAPATH_OPT:
                 p.params.addCertificateAuthorityPath(optarg);
                 break;

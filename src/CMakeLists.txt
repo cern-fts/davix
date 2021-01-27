@@ -74,6 +74,7 @@ set(DAVIX_SOURCES
   xml/s3deleteparser.hpp                                 xml/s3deleteparser.cpp
   xml/S3MultiPartInitiationParser.hpp                    xml/S3MultiPartInitiationParser.cpp
   xml/s3propparser.hpp                                   xml/s3propparser.cpp
+  xml/swiftpropparser.hpp                                xml/swiftpropparser.cpp
 
   davixcontext.cpp
   $<TARGET_OBJECTS:LibNeonObjects>

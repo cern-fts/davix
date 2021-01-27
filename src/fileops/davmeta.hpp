@@ -133,7 +133,7 @@ public:
     virtual StatInfo & statInfo(IOChainContext & iocontext, StatInfo & st_info);
 
     // listing
-    //virtual bool nextSubItem(IOChainContext &iocontext, std::string &entry_name, StatInfo &info);
+    virtual bool nextSubItem(IOChainContext &iocontext, std::string &entry_name, StatInfo &info);
 
 private:
     std::unique_ptr<DirHandle> directoryItem;

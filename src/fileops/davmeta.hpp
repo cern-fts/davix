@@ -115,7 +115,7 @@ private:
 
 };
 
-/// The HttpMetaOps handle all meta-data operations related to Swift
+/// Handle all meta-data operations related to Swift
 class SwiftMetaOps : public HttpIOChain{
 public:
     SwiftMetaOps();

@@ -215,7 +215,7 @@ protected:
   void configureGcloudParams();
 
   //----------------------------------------------------------------------------
-  // Configure request for Gcloud.
+  // Configure request for Swift.
   //----------------------------------------------------------------------------
   void configureSwiftParams();
 

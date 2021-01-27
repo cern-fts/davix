@@ -60,6 +60,7 @@ set(DAVIX_SOURCES
   utils/davix_logger_internal.hpp                        utils/davix_logger.cpp
                                                          utils/davix_misc_utils.cpp
   utils/davix_utils_internal.hpp                         utils/davix_s3_utils.cpp
+                                                         utils/davix_swift_utils.cpp
   utils/simple_get_pass.h                                utils/simple_get_pass.cpp
   utils/stringutils.hpp                                  utils/stringutils.cpp
 
@@ -76,7 +77,7 @@ set(DAVIX_SOURCES
 
   davixcontext.cpp
   $<TARGET_OBJECTS:LibNeonObjects>
-        utils/davix_swift_utils.cpp)
+)
 
 set(DAVIX_INTERNAL_INCLUDES
   ${OPENSSL_INCLUDE_DIR}

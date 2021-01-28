@@ -595,8 +595,8 @@ static void swiftStatMapper(Context& context, const RequestParams* params, const
             check_file_status(http_req, scope);
 
             // check response text, if there is data, then it is a directory
-            char buffer[2048+1];
-            const dav_ssize_t ret = http_req.readSegment(buffer, 2048, &tmp_err);
+            char buffer[256+1];
+            const dav_ssize_t ret = http_req.readSegment(buffer, 256, &tmp_err);
             checkDavixError(&tmp_err);
             if(ret == 0){
                 throw DavixException(scope, StatusCode::IsNotADirectory, "Is not a Swift directory");

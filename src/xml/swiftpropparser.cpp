@@ -122,7 +122,7 @@ SwiftPropParser::SwiftPropParser() : d_ptr(new Internal())
 SwiftPropParser::SwiftPropParser(std::string prefix) : d_ptr(new Internal())
 {
     if(prefix[prefix.size() - 1] != '/') {
-        d_ptr->prefix_to_remove = prefix + "/";
+        d_ptr->prefix_to_remove = prefix.erase(0,1) + "/";
     }
     else {
         d_ptr->prefix_to_remove = prefix;

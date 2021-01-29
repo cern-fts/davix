@@ -651,37 +651,7 @@ bool is_a_container(Uri u) {
     return false;
 }
 
-bool swift_get_next_property(std::unique_ptr<DirHandle> & handle, std::string & name_entry, StatInfo & info){
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, " -> swift_get_next_property");
-    const size_t read_size = 2048;
-
-
-    HttpRequest& req = *(handle->request); // setup env again
-    XMLPropParser& parser = *(handle->parser);
-
-    size_t prop_size = parser.getProperties().size();
-    ssize_t s_resu = read_size;
-
-    while( prop_size == 0
-           && s_resu > 0){ // execute request only if no property are available
-
-        // continue the parsing until one more result
-        s_resu = incremental_listdir_parsing(&req, &parser, read_size, "Swift::listing");
-        prop_size = parser.getProperties().size();
-    }
-
-
-    if(prop_size == 0){
-        return false; // end of the request, end of the story
-    }
-
-    FileProperties & front = parser.getProperties().front();
-    name_entry.swap(front.filename);
-    info = front.info;
-    parser.getProperties().pop_front(); // clean the current element
-    return true;
-}
-
+bool s3_get_next_property(std::unique_ptr<DirHandle> & handle, std::string & name_entry, StatInfo & info);
 
 void swift_start_listing_query(std::unique_ptr<DirHandle> & handle, Context & context, const RequestParams* params, const Uri & url, const std::string & body){
     (void) body;
@@ -740,7 +710,7 @@ bool swift_directory_listing(std::unique_ptr<DirHandle> & handle, Context & cont
     if(handle.get() == NULL){
         swift_start_listing_query(handle, context, params, uri, body);
     }
-    return swift_get_next_property(handle, name_entry, info);
+    return s3_get_next_property(handle, name_entry, info);
 }
 
 

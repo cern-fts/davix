@@ -663,7 +663,7 @@ void swift_start_listing_query(std::unique_ptr<DirHandle> & handle, Context & co
         Uri new_url = Swift::swiftUriTransformer(url, params, true);
         handle.reset(new DirHandle(new GetRequest(context, new_url, &tmp_err), new SwiftPropParser(Swift::extract_swift_path(url))));
     }
-    else if(params->getS3ListingMode() == S3ListingMode::SemiHierarchical){
+    else if(params->getSwiftListingMode() == SwiftListingMode::SemiHierarchical){
         Uri new_url = Swift::swiftUriTransformer(url, params, false);
         handle.reset(new DirHandle(new GetRequest(context, new_url, &tmp_err), new SwiftPropParser(Swift::extract_swift_path(url))));
     }

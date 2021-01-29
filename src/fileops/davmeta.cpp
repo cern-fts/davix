@@ -626,7 +626,7 @@ static void swiftStatMapper(Context& context, const RequestParams* params, const
             }
         }
         else if(code == 500){
-            throw DavixException(scope, StatusCode::UnknowError, "Internal Server Error triggered while attempting to get S3 object's stats");
+            throw DavixException(scope, StatusCode::UnknowError, "Internal Server Error triggered while attempting to get Swift object's stats");
         }
     }
     checkDavixError(&tmp_err);

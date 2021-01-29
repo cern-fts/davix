@@ -691,12 +691,12 @@ void swift_start_listing_query(std::unique_ptr<DirHandle> & handle, Context & co
     check_file_status(http_req, davix_scope_directory_listing_str());
 
     size_t prop_size = 0;
-    do{ // first entry -> bucket information
+    do{ // first entry -> container information
         s_resu = incremental_listdir_parsing(&http_req, &parser, 2048, davix_scope_directory_listing_str());
 
         prop_size = parser.getProperties().size();
         if(s_resu < 2048 && prop_size <1){ // verify request status : if req done + no data -> error
-            throw DavixException(davix_scope_directory_listing_str(), StatusCode::ParsingError, "Invalid server response, not a S3 listing");
+            throw DavixException(davix_scope_directory_listing_str(), StatusCode::ParsingError, "Invalid server response, not a Swift listing");
         }
         if(timestamp_timeout < time(NULL)){
             throw DavixException(davix_scope_directory_listing_str(), StatusCode::OperationTimeout, "Operation timeout triggered while directory listing");

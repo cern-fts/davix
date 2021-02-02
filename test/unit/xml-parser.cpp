@@ -10,6 +10,7 @@
 #include <xml/metalinkparser.hpp>
 #include <xml/s3propparser.hpp>
 #include <xml/S3MultiPartInitiationParser.hpp>
+#include <xml/swiftpropparser.hpp>
 #include <status/davixstatusrequest.hpp>
 #include <string.h>
 #include <xml/davix_ptree.hpp>
@@ -338,6 +339,8 @@ const std::string s3_multipart_initiation_response = "<?xml version=\"1.0\" enco
 "   <UploadId>EXAMPLEJZ6e0YupT2h66iePQCc9IEbYbDUy4RTpMeoSMLPRp8Z5o1u8feSRonpvnWsKKG35tI2LB9VDPiCgTy.Gq2VxQLYjrue4Nq.NBdqI-</UploadId>"
 "</InitiateMultipartUploadResult>  ";
 
+const std::string swift_xml_response = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><container name=\"backups\"><subdir name=\"photos/animals/\"><name>photos/animals/</name></subdir><object><name>photos/me.jpg</name><hash>b249a153f8f38b51e92916bbc6ea57ad</hash><bytes>2906</bytes><content_type>image/jpeg</content_type><last_modified>2015-12-03T17:31:28.187370</last_modified></object><subdir name=\"photos/plants/\"><name>photos/plants/</name></subdir></container>";
+
 TEST(XmlParserInstance, createParser){
 
     ASSERT_NO_THROW({
@@ -600,4 +603,24 @@ TEST(XmlMultiPartUploadInitiationResponse, BasicSanity) {
     int ret = parser.parseChunk(s3_multipart_initiation_response);
     ASSERT_EQ(ret, 0);
     ASSERT_EQ(parser.getUploadId(), "EXAMPLEJZ6e0YupT2h66iePQCc9IEbYbDUy4RTpMeoSMLPRp8Z5o1u8feSRonpvnWsKKG35tI2LB9VDPiCgTy.Gq2VxQLYjrue4Nq.NBdqI-");
+}
+
+TEST(XmlSwiftParsing, TestListingDir) {
+    using namespace Davix;
+
+    davix_set_log_level(DAVIX_LOG_ALL);
+    SwiftPropParser parser;
+
+    int ret = parser.parseChunk(swift_xml_response);
+    ASSERT_EQ(ret, 0);
+
+    ASSERT_EQ(3, parser.getProperties().size());
+
+    // verify name
+    ASSERT_EQ(std::string("photos/animals/"), parser.getProperties().at(0).filename);
+    ASSERT_EQ(std::string("photos/me.jpg"), parser.getProperties().at(1).filename);
+    ASSERT_EQ(std::string("photos/plants/"), parser.getProperties().at(2).filename);
+
+    // verify size
+    ASSERT_EQ(2906, parser.getProperties().at(1).info.size);
 }

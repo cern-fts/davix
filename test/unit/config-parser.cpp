@@ -123,4 +123,16 @@ TEST(ConfigParser, T1) {
   ASSERT_TRUE(davix_config_apply("null", contents, uri, params));
   ASSERT_EQ(params.aws_auth.second, "correctkey");
   ASSERT_EQ(params.aws_auth.first, "commonkey");
+
+  // match for both host and path + swift credentials
+  contents  =
+  "machine somehost\n"
+  "    ostoken commontoken\n"
+  "    path /someotherpath\n"
+  "        osprojectid id\n"
+  "    path /somepath\n"
+  "        osprojectid correctid\n";
+  ASSERT_TRUE(davix_config_apply("null", contents, uri, params));
+  ASSERT_EQ(params.os_token, "commontoken");
+  ASSERT_EQ(params.os_project_id, "correctid");
 }

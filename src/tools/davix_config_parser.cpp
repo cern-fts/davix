@@ -132,6 +132,12 @@ static void store_option(const std::string &first, const std::string &second, Da
   else if(first == "azurekey") {
     store_if_empty(params.azure_key, second);
   }
+  else if(first == "ostoken") {
+      store_if_empty(params.os_token, second);
+  }
+  else if(first == "osprojectid") {
+      store_if_empty(params.os_project_id, second);
+  }
 }
 
 namespace Davix {

@@ -4,6 +4,7 @@
 #include "libs/alibxx/crypto/base64.hpp"
 #include "libs/alibxx/crypto/hmacsha.hpp"
 #include <utils/davix_s3_utils.hpp>
+#include <utils/davix_swift_utils.hpp>
 #include <gtest/gtest.h>
 #include <core/SessionPool.hpp>
 #include <curl/HeaderlineParser.hpp>
@@ -192,6 +193,15 @@ TEST(testAuthS3, ReqToTokenWithHeaders){
     Uri resu("http://firwen-bucket.s3.amazonaws.com/testfile1234?AWSAccessKeyId=AKIAIOSFODNN7EXAMPLE&Signature=8DnY%2F3Te1GOcC01S6BGNHZErJMo%3d&Expires=1415835686&x-amz-meta-fed-acl=adevress%20%3a%20rwx%2c%20furano%20%3a%20rwx");
     std::cout << u << "\n" << resu << std::endl;
     ASSERT_TRUE(StrUtil::compare_ncase(resu.getString(), u.getString()) ==0);
+}
+
+TEST(testAuthSwift, signUri){
+    RequestParams params;
+    Uri url("https://hostname.com/containersth2873/objectfile1234");
+    params.setOSProjectID("21e698ff1238438fabc72e5cf9d59165");
+
+    Uri u = Swift::signURI(params, url);
+    ASSERT_EQ(u.getString(), "https://hostname.com/v1/AUTH_21e698ff1238438fabc72e5cf9d59165/containersth2873/objectfile1234");
 }
 
 TEST(CanonicalizedResourceQueryParams, BasicSanity) {

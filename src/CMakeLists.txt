@@ -33,6 +33,7 @@ set(DAVIX_SOURCES
   fileops/httpiovec.hpp                                  fileops/httpiovec.cpp
   fileops/iobuffmap.hpp                                  fileops/iobuffmap.cpp
   fileops/S3IO.hpp                                       fileops/S3IO.cpp
+  fileops/SwiftIO.hpp                                    fileops/SwiftIO.cpp
 
                                                          hooks/davix_hooks.cpp
 
@@ -78,7 +79,7 @@ set(DAVIX_SOURCES
 
   davixcontext.cpp
   $<TARGET_OBJECTS:LibNeonObjects>
-        fileops/SwiftIO.hpp fileops/SwiftIO.cpp)
+)
 
 set(DAVIX_INTERNAL_INCLUDES
   ${OPENSSL_INCLUDE_DIR}

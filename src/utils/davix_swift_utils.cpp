@@ -1,7 +1,7 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
- * Copyright (C) CERN 2013
- * Author: Shiting Long <s.long@fz-juelich.de>
+ * Copyright (C) CERN 2021
+ * Author: Shiting Long <s.long@fz-juelich.de> (Forschungszentrum Juelich)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public

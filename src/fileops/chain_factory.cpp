@@ -27,6 +27,7 @@
 #include "iobuffmap.hpp"
 #include "AzureIO.hpp"
 #include "S3IO.hpp"
+#include "SwiftIO.hpp"
 
 namespace Davix{
 
@@ -43,7 +44,7 @@ HttpIOChain& ChainFactory::instanceChain(const CreationFlags & flags, HttpIOChai
         elem = elem->add(new HttpIOBuffer());
     }
 
-    elem->add(new S3IO())->add(new AzureIO())->add(new HttpIO())->add(new HttpIOVecOps());
+    elem->add(new S3IO())->add(new SwiftIO())->add(new AzureIO())->add(new HttpIO())->add(new HttpIOVecOps());
     return c;
 }
 

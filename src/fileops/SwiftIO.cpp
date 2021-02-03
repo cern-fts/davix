@@ -40,11 +40,7 @@ static bool should_use_swift_multipart(IOChainContext & context, dav_size_t size
 
     if (!is_swift) return false;
 
-    return size > (1024 * 2); // 512 MB
-}
-
-static std::string extract_swift_object_path(Uri url) {
-    return url.getPath();
+    return size > (1024 * 1024 * 512); // 512 MB
 }
 
 SwiftIO::SwiftIO() {
@@ -117,24 +113,26 @@ void SwiftIO::commitChunks(IOChainContext & iocontext, const std::vector<Prop> &
 
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "committing {} chunks", props.size());
 
-    std::ostringstream payload;
-    payload << "[";
+    std::ostringstream manifest;
+    manifest << "[";
     for(size_t i = 1; i <= props.size(); i++) {
-        payload << "{";
-        payload << "\"path\":\"" << extract_swift_object_path(url) << "/" << i << "\"}";
+        manifest << "{";
+        manifest << "\"path\":\"" << url.getPath() << "/" << i << "\",";
+        manifest << "\"etag\":\"" << props[i - 1].first << "\",";
+        manifest << "\"size_bytes\":" << props[i - 1].second << "}";
         if(i != props.size()) {
-            payload << ',';
+            manifest << ',';
         }
     }
-    payload << "]";
-    //std::cout << payload.str() << std::endl;
+    manifest << "]";
+    //std::cout << manifest.str() << std::endl;
 
     DavixError * tmp_err=NULL;
     url.addQueryParam("multipart-manifest", "put");
     PutRequest req(iocontext._context, url, &tmp_err);
     req.addHeaderField("Content-Type", "application/json");
     req.setParameters(iocontext._reqparams);
-    req.setRequestBody(payload.str());
+    req.setRequestBody(manifest.str());
     req.executeRequest(&tmp_err);
 
     if(!tmp_err && httpcodeIsValid(req.getRequestCode()) == false){
@@ -152,7 +150,7 @@ dav_ssize_t SwiftIO::writeFromProvider(IOChainContext & iocontext, ContentProvid
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Initiating large file upload towards {} to upload file with size {}", iocontext._uri, provider.getSize());
 
     size_t remaining = provider.getSize();
-    const dav_size_t MAX_CHUNK_SIZE = 1024 * 1; // 256 MB
+    const dav_size_t MAX_CHUNK_SIZE = 1024 * 1024 * 256; // 256 MB
 
     std::vector<char> buffer;
     buffer.resize(std::min(MAX_CHUNK_SIZE, (dav_size_t) provider.getSize()) + 10);

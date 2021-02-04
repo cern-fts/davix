@@ -115,7 +115,7 @@ static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::stri
         if((strcmp(de->d_name, ".")) && (strcmp(de->d_name, ".."))){    // ignore "." and ".." entries
             if(stat(((src_path+de->d_name).c_str()), &st) == 0){    // check if entry is file or directory
                 if(S_ISDIR(st.st_mode)){    // is directory
-                    if(opts.params.getProtocol() != RequestProtocol::AwsS3){    // if protocol is S3, don't need make collection (not heirarchical)
+                    if(opts.params.getProtocol() != RequestProtocol::AwsS3){    // if protocol is S3, don't need make collection (not hierarchical)
                         ret = tryMakeCollection(c, opts, Uri::join(dst_path, de->d_name));
                         if(ret <0)
                             return ret;
@@ -168,7 +168,7 @@ static int prePutCheck(Tool::OptParams & opts, DavixError** err){
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CORE, "Creating threadpool");
         DavixThreadPool tp(&tq, opts.threadpool_size);
 
-        if(opts.params.getProtocol() != RequestProtocol::AwsS3){    // if protocol is S3, don't need make collection (not heirarchical)
+        if(opts.params.getProtocol() != RequestProtocol::AwsS3 || opts.params.getProtocol() != RequestProtocol::Swift){    // if protocol is S3 or Swift, don't need make collection (not hierarchical)
             ret = tryMakeCollection(c, opts, opts.vec_arg[1]);
             if(ret <0)
                 return ret;

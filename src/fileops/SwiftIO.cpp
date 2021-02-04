@@ -40,6 +40,11 @@ static bool should_use_swift_multipart(IOChainContext & context, dav_size_t size
 
     if (!is_swift) return false;
 
+    if(context._uri.fragmentParamExists("forceMultiPart")) {
+
+        return true;
+    }
+
     return size > (1024 * 1024 * 512); // 512 MB
 }
 
@@ -113,6 +118,7 @@ void SwiftIO::commitChunks(IOChainContext & iocontext, const std::vector<Prop> &
 
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "committing {} chunks", props.size());
 
+    // generate a multipart manifest in json
     std::ostringstream manifest;
     manifest << "[";
     for(size_t i = 1; i <= props.size(); i++) {

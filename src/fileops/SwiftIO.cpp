@@ -113,6 +113,69 @@ std::string SwiftIO::writeChunk(IOChainContext &iocontext, const char *buff, dav
     return etag;
 }
 
+void SwiftIO::commitInlineChunks(IOChainContext & iocontext, const std::vector<Prop> &props, const size_t MaxManifestSegments){
+    Uri url(iocontext._uri);
+
+    size_t iterNum = 0;
+    size_t remaining = props.size();
+    size_t propBegin = 1;
+    size_t propEnd = MaxManifestSegments;
+    std::string lastEtag;
+    std::string path = url.getPath();
+
+    while(remaining > 0){
+        // generate a multipart manifest in json
+        std::ostringstream manifest;
+        manifest << "[";
+        if(iterNum > 0){
+            manifest << "{";
+            manifest << "\"path\":\"" << path << "-" << iterNum - 1 << "\",";
+            manifest << "\"etag\":" << lastEtag << "},";
+        }
+        for(size_t i = propBegin; i <= propEnd; i++) {
+            manifest << "{";
+            manifest << "\"path\":\"" << path << "/" << i << "\",";
+            manifest << "\"etag\":\"" << props[i - 1].first << "\",";
+            manifest << "\"size_bytes\":" << props[i - 1].second << "}";
+            if(i != propEnd) {
+                manifest << ',';
+            }
+        }
+        manifest << "]";
+
+        remaining -= propEnd - propBegin + 1;
+        propBegin = propEnd + 1;
+        propEnd = std::min(propEnd + MaxManifestSegments - 1, propEnd + remaining);
+
+        // upload the manifest
+        DavixError * tmp_err=NULL;
+        if(remaining > 0) {
+            url.setPath(path + "-" + std::to_string(iterNum));
+        } else{
+            url.setPath(path);
+        }
+        url.addQueryParam("multipart-manifest", "put");
+        PutRequest req(iocontext._context, url, &tmp_err);
+        req.addHeaderField("Content-Type", "application/json");
+        req.setParameters(iocontext._reqparams);
+        req.setRequestBody(manifest.str());
+        req.executeRequest(&tmp_err);
+
+        if(!tmp_err && httpcodeIsValid(req.getRequestCode()) == false){
+            httpcodeToDavixError(req.getRequestCode(), davix_scope_io_buff(),
+                                 "write error: ", &tmp_err);
+        }
+
+        if(!req.getAnswerHeader("Etag", lastEtag)) { // store the etag of the last manifest file
+            DavixError::setupError(&tmp_err, "Swift::MultiPart", StatusCode::InvalidServerResponse, "Unable to retrieve chunk Etag, necessary when committing chunks");
+        }
+        checkDavixError(&tmp_err);
+
+        manifest.clear();
+        iterNum++;
+    }
+}
+
 void SwiftIO::commitChunks(IOChainContext & iocontext, const std::vector<Prop> &props) {
     Uri url(iocontext._uri);
 
@@ -131,8 +194,8 @@ void SwiftIO::commitChunks(IOChainContext & iocontext, const std::vector<Prop> &
         }
     }
     manifest << "]";
-    //std::cout << manifest.str() << std::endl;
 
+    // upload the manifest
     DavixError * tmp_err=NULL;
     url.addQueryParam("multipart-manifest", "put");
     PutRequest req(iocontext._context, url, &tmp_err);
@@ -157,6 +220,7 @@ dav_ssize_t SwiftIO::writeFromProvider(IOChainContext & iocontext, ContentProvid
 
     size_t remaining = provider.getSize();
     const dav_size_t MAX_CHUNK_SIZE = 1024 * 1024 * 256; // 256 MB
+    const size_t MAX_MANIFEST_SEGMENTS = 1000;
 
     std::vector<char> buffer;
     buffer.resize(std::min(MAX_CHUNK_SIZE, (dav_size_t) provider.getSize()) + 10);
@@ -176,7 +240,11 @@ dav_ssize_t SwiftIO::writeFromProvider(IOChainContext & iocontext, ContentProvid
         props.emplace_back(writeChunk(iocontext, buffer.data(), bytesRead, partNumber), bytesRead);
     }
 
-    commitChunks(iocontext, props);
+    if(props.size() > MAX_MANIFEST_SEGMENTS){ // if segment number is larger than max_manifest_segments (by default 1000), use inline segments
+        commitInlineChunks(iocontext, props, MAX_MANIFEST_SEGMENTS);
+    } else{
+        commitChunks(iocontext, props);
+    }
 }
 
 }

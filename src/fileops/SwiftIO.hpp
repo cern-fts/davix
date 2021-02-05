@@ -36,25 +36,17 @@ public:
     // write from content provider
     virtual dav_ssize_t writeFromProvider(IOChainContext & iocontext, ContentProvider &provider);
 
-    //void performUgrS3MultiPart(IOChainContext & iocontext, const std::string &posturl, const std::string &pluginId, ContentProvider &provider, DavixError **err);
-
 private:
 
-    // Returns uploadId
-    //std::string initiateMultipart(IOChainContext & iocontext);
-    //std::string initiateMultipart(IOChainContext & iocontext, const Uri &url);
-
-    //DynafedUris retrieveDynafedUris(IOChainContext & iocontext, const std::string &uploadId, const std::string &pluginId, size_t nchunks);
-
-    // Given the upload id, write the given chunk. Return object ETag,
+    // Write the given chunk. Return object properties (etag + size_bytes),
     // necessary to commit upload.
     std::string writeChunk(IOChainContext & iocontext, const char* buff, dav_size_t size, int partNumber);
-    //std::string writeChunk(IOChainContext & iocontext, const char* buff, dav_size_t size, const Uri &uri, int partNumber);
 
 
-    // Given upload id and last chunk, commit chunks
+    // Given the properties (etag + size_bytes) of the segments, commit chunks
     void commitChunks(IOChainContext & iocontext, const std::vector<Prop> &props);
-    //void commitChunks(IOChainContext & iocontext,  const Uri &uri, const std::vector<std::string> &etags);
+    // Commit chunks in a inline manner if the number of segments has exceeded the limit defined by max_manifest_segments
+    void commitInlineChunks(IOChainContext & iocontext, const std::vector<Prop> &props, const size_t MaxManifestSegments);
 };
 
 }

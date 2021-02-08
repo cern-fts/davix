@@ -97,9 +97,9 @@ fedora-30:
     paths:
     - "$CI_JOB_NAME"
 
-ubuntu-eoan:
+ubuntu-focal:
   stage: build
-  image: ubuntu:eoan
+  image: ubuntu:focal
   script:
     - ci/debian/packages.sh
     - apt install -y python2

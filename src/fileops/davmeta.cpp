@@ -657,7 +657,6 @@ void swift_start_listing_query(std::unique_ptr<DirHandle> & handle, Context & co
     (void) body;
     dav_ssize_t s_resu;
     DavixError* tmp_err=NULL;
-    bool listing_buckets;
 
     if(params->getSwiftListingMode() == SwiftListingMode::Hierarchical){
         Uri new_url = Swift::swiftUriTransformer(url, params, true);

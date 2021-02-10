@@ -79,7 +79,7 @@ struct SwiftPropParser::Internal {
         }
 
         // processing a Subdir? Add new dir
-        if( StrUtil::compare_ncase("subdir", elem) ==0){
+        if( StrUtil::compare_ncase("subdir", elem) == 0 && !property.filename.empty()){
             DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "push new common prefix {}", current.c_str());
             property.info.mode =  0755 | S_IFDIR;
             property.info.mode &= ~(S_IFREG);
@@ -88,14 +88,14 @@ struct SwiftPropParser::Internal {
         }
 
         // object has ended? push new entry
-        if( StrUtil::compare_ncase("object", elem) ==0){
+        if( StrUtil::compare_ncase("object", elem) == 0){
             DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "push new element {}", elem.c_str());
             property.info.mode = 0755;
             props.push_back(property);
             property.clear();
         }
 
-        if( StrUtil::compare_ncase("bytes", elem) ==0){
+        if( StrUtil::compare_ncase("bytes", elem) == 0){
             try{
                 dav_size_t size = toType<dav_size_t, std::string>()(current);
                 DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "element size {}", size);
@@ -105,7 +105,7 @@ struct SwiftPropParser::Internal {
             }
         }
 
-        if( StrUtil::compare_ncase("last_modified", elem) ==0){
+        if( StrUtil::compare_ncase("last_modified", elem) == 0){
             try{
                 time_t mtime = S3::s3TimeConverter(current);
                 DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "element LastModified {}", current);
@@ -117,7 +117,7 @@ struct SwiftPropParser::Internal {
         }
 
         // listing containers? push new entry
-        if( StrUtil::compare_ncase("container", elem) ==0 && !property.filename.empty()){
+        if( StrUtil::compare_ncase("container", elem) == 0 && !property.filename.empty()){
             DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "push new element {}", elem.c_str());
             property.info.mode =  0755 | S_IFDIR;
             property.info.mode &= ~(S_IFREG);

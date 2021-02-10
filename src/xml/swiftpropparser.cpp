@@ -59,6 +59,11 @@ struct SwiftPropParser::Internal {
             property.clear();
         }
 
+        // if a new container, clear entry
+        if(StrUtil::compare_ncase("container", elem) == 0) {
+            property.clear();
+        }
+
         return 1;
     }
 
@@ -79,6 +84,7 @@ struct SwiftPropParser::Internal {
             property.info.mode =  0755 | S_IFDIR;
             property.info.mode &= ~(S_IFREG);
             props.push_back(property);
+            property.clear();
         }
 
         // object has ended? push new entry
@@ -86,6 +92,7 @@ struct SwiftPropParser::Internal {
             DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "push new element {}", elem.c_str());
             property.info.mode = 0755;
             props.push_back(property);
+            property.clear();
         }
 
         if( StrUtil::compare_ncase("bytes", elem) ==0){
@@ -107,6 +114,14 @@ struct SwiftPropParser::Internal {
             }catch(...){
                 DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "Unable to parse element LastModified");
             }
+        }
+
+        // listing containers? push new entry
+        if( StrUtil::compare_ncase("container", elem) ==0 && !property.filename.empty()){
+            DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "push new element {}", elem.c_str());
+            property.info.mode =  0755 | S_IFDIR;
+            property.info.mode &= ~(S_IFREG);
+            props.push_back(property);
         }
 
         return 0;

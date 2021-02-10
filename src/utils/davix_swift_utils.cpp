@@ -87,7 +87,10 @@ Uri swiftUriTransformer(const Uri & original_url, const RequestParams & params, 
     }
     ss << "/";
 
-    ss << extract_swift_container(original_url) << "/";
+    std::string container = extract_swift_container(original_url);
+    if(container.size() != 0){
+        ss << extract_swift_container(original_url) << "/";
+    }
 
     if(!original_url.getPath().empty()){    // there is something after '/', grab it
         std::string tmp = extract_swift_path(original_url);

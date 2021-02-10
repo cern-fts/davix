@@ -366,6 +366,10 @@ void countfiles(TestcaseHandler &handler, const RequestParams &params, const Uri
         int i = 0;
 
         do {
+            // workaround for Swift, discard the first entry which is the directory created before
+            if(params.getProtocol() == RequestProtocol::Swift && i == 0){
+                it.next();
+            }
             i++;
         } while(it.next());
 
@@ -390,6 +394,10 @@ void listing(TestcaseHandler &handler, const RequestParams &params, const Uri ur
 
         int i = 0;
         do {
+            // workaround for Swift, discard the first entry which is the directory created before
+            if(params.getProtocol() == RequestProtocol::Swift && i == 0){
+                it.next();
+            }
             i++;
             std::string name = it.name();
 

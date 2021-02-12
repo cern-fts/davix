@@ -123,9 +123,6 @@ public:
 
     //TODO: IMPLEMENT METAOPS BELOW
 
-    // Swift + HTTP checksum computation
-    //virtual void checksum(IOChainContext & iocontext, std::string & checksm, const std::string & chk_algo);
-
     // move/rename resource
     //virtual void move(IOChainContext & iocontext, const std::string & target_url);
 

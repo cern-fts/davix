@@ -436,6 +436,22 @@ void listing(TestcaseHandler &handler, const RequestParams &params, const Uri ur
     }
 }
 
+void checksum(TestcaseHandler &handler, const RequestParams &params, const Uri uri, const std::string chk_algo) {
+    handler.setName(SSTR("Get checksum of file: " << uri.getString()));
+
+    try {
+        Context context;
+        DavFile file(context, params, uri);
+
+        std::string chk;
+        DavixError* err = NULL;
+        file.checksum(&params, chk, chk_algo, &err);
+        handler.pass(SSTR("File " << chk_algo << " checksum is " << chk));
+    } catch (const DavixException &exc) {
+        handler.fail(SSTR("Exception: " << exc.what()));
+    }
+}
+
 /* upload a file and move it around */
 void putMoveDelete(TestcaseHandler &handler, const RequestParams &params, const Uri uri) {
     handler.setName(SSTR("Put-move-delete on " << uri.getString()));
@@ -635,6 +651,10 @@ bool run(int argc, char** argv) {
         assert_args(cmd, 1);
         populate(handler, params, uri, atoi(cmd[1].c_str()));
     }
+    else if(cmd[0] == "checksum") {
+        assert_args(cmd, 1);
+        checksum(handler, params, uri, cmd[1].c_str());
+    }
     else if(cmd[0] == "remove") {
         assert_args(cmd, 0);
         ASSERT(cmd.size() == 1, "Wrong number of arguments to remove");
@@ -740,6 +760,20 @@ bool run(int argc, char** argv) {
         statdir(handler.makeChild(), params, uri);
         listing(handler.makeChild(), params, uri, 5);
         preadvec_all(handler.makeChild(), params, uri);
+        depopulate(handler.makeChild(), params, uri, 5);
+    }
+    else if(cmd[0] == "fulltest-swift") {
+        assert_args(cmd, 0);
+
+        handler.setName(SSTR("Full-test Swift on " << uri.getString()));
+
+        makeCollection(handler.makeChild(), params, uri);
+        populate(handler.makeChild(), params, uri, 5);
+        listing(handler.makeChild(), params, uri, 5);
+        preadvec_all(handler.makeChild(), params, uri);
+        movefile(handler.makeChild(), params, uri);
+        depopulate(handler.makeChild(), params, uri, 3);
+        countfiles(handler.makeChild(), params, uri, 2);
         depopulate(handler.makeChild(), params, uri, 5);
     }
     else {

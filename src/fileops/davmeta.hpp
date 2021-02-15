@@ -121,10 +121,8 @@ public:
     SwiftMetaOps();
     virtual ~SwiftMetaOps();
 
-    //TODO: IMPLEMENT METAOPS BELOW
-
     // move/rename resource
-    //virtual void move(IOChainContext & iocontext, const std::string & target_url);
+    virtual void move(IOChainContext & iocontext, const std::string & target_url);
 
     // get statInfo
     virtual StatInfo & statInfo(IOChainContext & iocontext, StatInfo & st_info);

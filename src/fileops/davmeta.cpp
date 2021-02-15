@@ -723,7 +723,56 @@ bool SwiftMetaOps::nextSubItem(IOChainContext &iocontext, std::string &entry_nam
 
 }
 
+void SwiftMetaOps::move(IOChainContext & iocontext, const std::string & target_url) {
+    const std::string scope = "Davix::SwiftMetaOps::move";
+    if(!is_swift_operation(iocontext)) {
+        return HttpIOChain::move(iocontext, target_url);
+    }
 
+    Context context = iocontext._context;
+    RequestParams params = iocontext._reqparams;
+    Uri uri(iocontext._uri);
+    Uri target(target_url);
+
+    // verify both are using the same swift provider/server, reuse s3 utils
+    std::string p1 = S3::extract_s3_provider(uri);
+    std::string p2 = S3::extract_s3_provider(target);
+
+    if(p1 != p2) {
+        throw DavixException(scope, StatusCode::OperationNonSupported,
+                             "It looks that the two URLs are not using the same Swift provider. Unable to perform the move operation.");
+    }
+
+    std::string source_container = Swift::extract_swift_container(uri);
+    std::string source_path = Swift::extract_swift_path(uri);
+
+    DavixError *tmp_err = NULL;
+    PutRequest req(context, target, &tmp_err);
+    checkDavixError(&tmp_err);
+    req.setParameters(iocontext._reqparams);
+    req.addHeaderField("X-Copy-From", "/" + source_container + source_path);
+
+    req.executeRequest(&tmp_err);
+    checkDavixError(&tmp_err);
+
+    // if copying was successful, delete the source file
+    if(req.getRequestCode() == 201) {
+
+        DeleteRequest req(context, uri, &tmp_err);
+        checkDavixError(&tmp_err);
+
+        RequestParams p(iocontext._reqparams);
+        req.setParameters(p);
+
+        req.executeRequest(&tmp_err);
+        checkDavixError(&tmp_err);
+    }
+    else {
+        std::stringstream str;
+        str << "Received code " << req.getRequestCode() << " when trying to copy file - will not perform deletion";
+        throw DavixException(scope, StatusCode::UnknowError, str.str());
+    }
+}
 
 /////////////////////////
 /////////////////////////

@@ -60,11 +60,11 @@ std::string extract_swift_container(const Uri & uri) {
 Uri signURI(const RequestParams & params, const Uri & url) {
     Uri signed_url(url);
 
-    if(!params.getOSProjectID().empty()) {
-        signed_url.setPath("/v1/AUTH_" + params.getOSProjectID() + url.getPath());
-    }
-    else if (!params.getSwiftAccount().empty()) {
+    if(!params.getSwiftAccount().empty()) {
         signed_url.setPath("/v1/" + params.getSwiftAccount() + url.getPath());
+    }
+    else if (!params.getOSProjectID().empty()) {
+        signed_url.setPath("/v1/AUTH_" + params.getOSProjectID() + url.getPath());
     }
     return signed_url;
 }

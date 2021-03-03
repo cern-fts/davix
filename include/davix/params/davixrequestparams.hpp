@@ -220,6 +220,18 @@ public:
     ///
     const OSProjectID & getOSProjectID() const;
 
+    ///
+    /// \brief set the Swift account used for Swift authentication
+    /// \param the Swift account
+    ///
+    void setSwiftAccount(const SwiftAccount & account);
+
+    ///
+    /// \brief get the Swift account used for Swift authentication
+    /// \return the Swift account
+    ///
+    const SwiftAccount & getSwiftAccount() const;
+
     /// set listing mode flag for S3 bucket
     void setS3ListingMode(const S3ListingMode::S3ListingMode s3_listing_mode);
 

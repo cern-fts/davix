@@ -64,7 +64,7 @@ static option::ArgStatus option_nonempty(const option::Option& option, bool msg)
 
 namespace Opt {
 enum  Type { UNKNOWN, HELP, AUTH, S3ACCESSKEY, S3SECRETKEY, S3REGION,
-                    AZUREKEY, S3ALTERNATE, CERT, URI, TRACE, COMMAND, OSTOKEN, OSPROJECTID};
+                    AZUREKEY, S3ALTERNATE, CERT, URI, TRACE, COMMAND, OSTOKEN, OSPROJECTID, SWIFTACCOUNT};
 }
 
 bool verify_options_sane(option::Parser &parse, std::vector<option::Option> &options) {
@@ -107,6 +107,7 @@ std::vector<option::Option> parse_args(int argc, char** argv) {
         {Opt::COMMAND, 0, "", "command", option_nonempty, "--command test to run"},
         {Opt::OSTOKEN, 0, "", "ostoken", option_nonempty, "--ostoken Openstack token"},
         {Opt::OSPROJECTID, 0, "", "osprojectid", option_nonempty, "--osprojectid Openstack project id"},
+        {Opt::SWIFTACCOUNT, 0, "", "swiftaccount", option_nonempty, "--swiftaccount Swift Account"},
         {Opt::UNKNOWN, 0, "", "",option::Arg::None, "\nExamples:\n"
                                                "  tester --auth proxy --uri https://storage/davix-tests --command makeCollection" },
 
@@ -153,11 +154,15 @@ void authentication(const std::vector<option::Option> &opts, const Auth::Type &a
     }
     else if(auth == Auth::SWIFT) {
         ASSERT(opts[Opt::OSTOKEN] != NULL, "--ostoken is required when using swift");
-        ASSERT(opts[Opt::OSPROJECTID] != NULL, "--osprojectid is required when using swift");
+        if(opts[Opt::OSPROJECTID] == NULL && opts[Opt::SWIFTACCOUNT] == NULL) {
+            std::cout << "--osprojectid or --swiftaccount is required when using swift" << std::endl;
+            std::abort();
+        }
 
         params.setProtocol(RequestProtocol::Swift);
         params.setOSToken(retrieve(opts, Opt::OSTOKEN));
         params.setOSProjectID(retrieve(opts, Opt::OSPROJECTID));
+        params.setSwiftAccount(retrieve(opts, Opt::SWIFTACCOUNT));
     }
     else {
         ASSERT(false, "unknown authentication method");

@@ -66,6 +66,7 @@ const std::string scope_params = "Davix::Tools::Params";
 #define OS_TOKEN               1028
 #define OS_PROJECT_ID          1029
 #define SWIFT_LISTING_MODE     1030
+#define SWIFT_ACCOUNT          1031
 
 // LONG OPTS
 
@@ -100,7 +101,8 @@ const std::string scope_params = "Davix::Tools::Params";
 {"gcloud-creds", required_argument, 0, GCLOUD_CRED_PATH}, \
 {"insecure", no_argument, 0,  'k' }, \
 {"ostoken", required_argument, 0, OS_TOKEN}, \
-{"osprojectid", required_argument, 0, OS_PROJECT_ID}
+{"osprojectid", required_argument, 0, OS_PROJECT_ID}, \
+{"swiftaccount", required_argument, 0, SWIFT_ACCOUNT}
 
 #define REQUEST_LONG_OPTIONS \
 {"request",  required_argument, 0,  'X' }, \
@@ -146,6 +148,7 @@ OptParams::OptParams() :
     aws_alternate(false),
     os_token(),
     os_project_id(),
+    swift_account(),
     pres_flag(0),
     shell_flag(0),
     has_input_file(false),
@@ -340,6 +343,10 @@ int parse_davix_options_generic(const std::string &opt_filter,
                 break;
             case OS_PROJECT_ID:
                 p.os_project_id = optarg;
+                strncpy(optarg, "", strlen(optarg));
+                break;
+            case SWIFT_ACCOUNT:
+                p.swift_account = optarg;
                 strncpy(optarg, "", strlen(optarg));
                 break;
             case 'l':
@@ -605,6 +612,7 @@ std::string get_common_options(){
             "\t--gcloud-creds PATH:      Path to gcloud json credentials\n"
             "\t--ostoken TOKEN:          Swift authentication: Openstack token\n"
             "\t--osprojectid:            Swift authentication: Openstack project ID\n"
+            "\t--swiftaccount:           Alternative Swift authentication: Swift account\n"
             ;
 }
 

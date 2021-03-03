@@ -136,6 +136,11 @@ typedef std::string OSToken;
 ///
 typedef std::string OSProjectID;
 
+///
+/// \brief string for Swift Account
+///
+typedef  std::string SwiftAccount;
+
 #ifdef __DAVIX_HAS_STD_FUNCTION
 
     ///

@@ -104,6 +104,7 @@ struct RequestParamsInternal{
         _gcloud_creds(),
         _os_token(),
         _os_project_id(),
+        _swift_account(),
         ops_timeout(),
         connexion_timeout(),
         agent_string(default_agent),
@@ -155,6 +156,7 @@ struct RequestParamsInternal{
         _gcloud_creds(param_private._gcloud_creds),
         _os_token(param_private._os_token),
         _os_project_id(param_private._os_project_id),
+        _swift_account(param_private._swift_account),
         ops_timeout(),
         connexion_timeout(),
         agent_string(param_private.agent_string),
@@ -205,6 +207,7 @@ struct RequestParamsInternal{
     gcloud::Credentials _gcloud_creds;
     OSToken _os_token;
     OSProjectID _os_project_id;
+    SwiftAccount _swift_account;
 
     // timeout management
     struct timespec ops_timeout;
@@ -428,6 +431,14 @@ void RequestParams::setOSProjectID(const OSProjectID &id) {
 
 const OSProjectID & RequestParams::getOSProjectID() const {
     return d_ptr->_os_project_id;
+}
+
+void RequestParams::setSwiftAccount(const SwiftAccount &account) {
+    d_ptr->_swift_account = account;
+}
+
+const SwiftAccount & RequestParams::getSwiftAccount() const {
+    return d_ptr->_swift_account;
 }
 
 void RequestParams::setS3ListingMode(const S3ListingMode::S3ListingMode s3_listing_mode){

@@ -124,9 +124,10 @@ int configureAuth(OptParams & opts){
     }
 
     // setup swift creds
-    if(opts.os_token.empty() == false && opts.os_project_id.empty() == false) {
+    if(opts.os_token.empty() == false && (opts.os_project_id.empty() == false || opts.swift_account.empty() == false)) {
         opts.params.setOSToken(opts.os_token);
         opts.params.setOSProjectID(opts.os_project_id);
+        opts.params.setSwiftAccount(opts.swift_account);
         opts.params.setProtocol(RequestProtocol::Swift);
     }
 

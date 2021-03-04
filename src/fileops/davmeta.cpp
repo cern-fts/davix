@@ -695,7 +695,7 @@ void swift_start_listing_query(std::unique_ptr<DirHandle> & handle, Context & co
 
         prop_size = parser.getProperties().size();
         if(s_resu < 2048 && prop_size <1){ // verify request status : if req done + no data -> error
-            throw DavixException(davix_scope_directory_listing_str(), StatusCode::ParsingError, "Invalid server response, not a Swift listing");
+            throw DavixException(davix_scope_directory_listing_str(), StatusCode::ParsingError, "Invalid server response, not a Swift listing or the directory is empty");
         }
         if(timestamp_timeout < time(NULL)){
             throw DavixException(davix_scope_directory_listing_str(), StatusCode::OperationTimeout, "Operation timeout triggered while directory listing");

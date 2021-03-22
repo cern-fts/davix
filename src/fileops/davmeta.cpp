@@ -584,7 +584,6 @@ static void swiftStatMapper(Context& context, const RequestParams* params, const
             // try to "list" target resource and see if there is anything inside it, if there is, then it's a directory
             Uri new_url = Swift::swiftUriTransformer(uri, p, true);
 
-            const int operation_timeout = p.getOperationTimeout()->tv_sec;
             GetRequest http_req(context, new_url, &tmp_err);
 
             http_req.setParameters(p);

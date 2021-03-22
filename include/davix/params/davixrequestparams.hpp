@@ -226,10 +226,10 @@ public:
     /// get listing mode flag for S3 bucket
     S3ListingMode::S3ListingMode getS3ListingMode() const;
 
-    /// set listing mode flag for S3 bucket
+    /// set listing mode flag for Swift
     void setSwiftListingMode(const SwiftListingMode::SwiftListingMode swift_listing_mode);
 
-    /// get listing mode flag for S3 bucket
+    /// get listing mode flag for Swift
     SwiftListingMode::SwiftListingMode getSwiftListingMode() const;
 
     /// set maximum number of key entries return by S3 list object request

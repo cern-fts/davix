@@ -72,7 +72,10 @@ Uri swiftUriTransformer(const Uri & original_url, const RequestParams & params, 
 
     std::string protocol;
 
-    if(original_url.getString().compare(5,1,"s") == 0){
+    const std::string url_string = original_url.getString();
+    std::size_t pos = url_string.find(':');
+
+    if(url_string.compare(pos-1,1,"s") == 0){
         protocol = "swifts://";
     }
     else{

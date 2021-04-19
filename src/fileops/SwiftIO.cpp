@@ -117,13 +117,13 @@ void SwiftIO::commitInlineChunks(IOChainContext & iocontext, const std::vector<P
     Uri url(iocontext._uri);
 
     size_t iterNum = 0;
-    size_t remaining = props.size();
     size_t propBegin = 1;
     size_t propEnd = MaxManifestSegments;
+
     std::string lastEtag;
     std::string path = url.getPath();
 
-    while(remaining > 0){
+    while(propBegin <= propEnd){
         // generate a multipart manifest in json
         std::ostringstream manifest;
         manifest << "[";
@@ -143,13 +143,12 @@ void SwiftIO::commitInlineChunks(IOChainContext & iocontext, const std::vector<P
         }
         manifest << "]";
 
-        remaining -= propEnd - propBegin + 1;
         propBegin = propEnd + 1;
-        propEnd = std::min(propEnd + MaxManifestSegments - 1, propEnd + remaining);
+        propEnd = std::min(propEnd + MaxManifestSegments - 1, props.size());
 
         // upload the manifest
         DavixError * tmp_err=NULL;
-        if(remaining > 0) {
+        if(propBegin <= propEnd) {
             url.setPath(path + "-" + std::to_string(iterNum));
         } else{
             url.setPath(path);

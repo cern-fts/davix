@@ -62,6 +62,7 @@ const char* SCOPE_GRID =    "grid";
 const char* SCOPE_SOCKET =  "socket";
 const char* SCOPE_LOCKS =   "locks";
 const char* SCOPE_S3 =      "s3";
+const char* SCOPE_SENSITIVE = "sensitive";
 const char* SCOPE_ALL =     "all";
 
 
@@ -79,6 +80,7 @@ const std::string davix_log_scope[] = {
     SCOPE_SOCKET,
     SCOPE_LOCKS,
     SCOPE_S3,
+    SCOPE_SENSITIVE,
     SCOPE_ALL
 };
 
@@ -149,7 +151,10 @@ void setLogScope(const std::string &scope){
                     case 12:
                         mask |= DAVIX_LOG_S3;
                         break;
-                    case 13:
+                  case 13:
+                        mask |= DAVIX_LOG_SENSITIVE;
+                        break;
+                  case 14:
                         mask |= DAVIX_LOG_SCOPE_ALL;
                         break;
                     default:

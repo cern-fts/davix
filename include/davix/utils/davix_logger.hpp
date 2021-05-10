@@ -52,6 +52,7 @@ namespace Davix{
 #define DAVIX_LOG_LOCKS      (1<<10)
 #define DAVIX_LOG_HTTP       (1<<11)
 #define DAVIX_LOG_S3         (1<<12)
+#define DAVIX_LOG_SENSITIVE  (1<<13)
 #define DAVIX_LOG_SCOPE_NEON (1<<29)
 #define DAVIX_LOG_SCOPE_ALL        (~(0) ^ DAVIX_LOG_BODY)
 
@@ -69,6 +70,7 @@ extern const char* SCOPE_CORE;      // Config and misc info
 extern const char* SCOPE_GRID;      // Misc info from 3rd parties
 extern const char* SCOPE_SOCKET;    // Socket info
 extern const char* SCOPE_LOCKS;     // WebDAV locking info
+extern const char* SCOPE_SENSITIVE; // Sensitive information
 extern const char* SCOPE_ALL;       // All of the above
 
 
@@ -97,7 +99,7 @@ int getLogScope();
 /// \brief setLogScope
 ///
 ///  define davix scope mask.
-///  Only the componnents covered by the mask will be available via the logging
+///  Only the components covered by the mask will be available via the logging
 void setLogScope(int mask);
 ///
 /// \brief setLogScope
@@ -124,7 +126,7 @@ DAVIX_C_DECL_BEGIN
 
 
 /// set the davix log mask
-/// everything that is not coverred by the mask is dropped
+/// everything that is not covered by the mask is dropped
 extern DAVIX_EXPORT void davix_set_log_level(int log_mask);
 
 /// get current log mask
@@ -149,4 +151,4 @@ extern DAVIX_EXPORT void davix_set_log_handler( void (*fhandler)(void* userdata,
 
 DAVIX_C_DECL_END
 
-#endif // DAVIX_LOGGER_H
+#endif // DAVIX_LOGGER_HPP

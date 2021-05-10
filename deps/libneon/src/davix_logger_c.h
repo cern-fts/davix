@@ -44,11 +44,13 @@
 #define DAVIX_LOG_SOCKET     (1<<9)
 #define DAVIX_LOG_LOCKS      (1<<10)
 #define DAVIX_LOG_HTTP       (1<<11)
+#define DAVIX_LOG_S3         (1<<12)
+#define DAVIX_LOG_SENSITIVE  (1<<13)
 #define DAVIX_LOG_SCOPE_NEON (1<<29)
 #define DAVIX_LOG_SCOPE_ALL        (~(0) ^ DAVIX_LOG_BODY)
 
 /* set the davix log mask */
-/* everything that is not coverred by the mask is dropped */
+/* everything that is not covered by the mask is dropped */
 void davix_set_log_level(int log_mask);
 
 /* get current log mask */

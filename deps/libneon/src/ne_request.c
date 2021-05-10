@@ -882,7 +882,7 @@ static void dump_request(const char *request)
 	/* Display everything mode */
         NE_DEBUG(NE_DBG_HTTP, "%s", hdr_debug);
     } else if (davix_get_log_scope() & NE_DBG_HTTP) {
-	/* Blank out the Authorization paramaters */
+	/* Blank out the Authorization parameters */
 	char *reqdebug = ne_strdup(hdr_debug), *pnt = reqdebug;
 	while ((pnt = strstr(pnt, "Authorization: ")) != NULL) {
 	    for (pnt += 15; *pnt != '\r' && *pnt != '\0'; pnt++) {

@@ -86,7 +86,7 @@ int ne_has_support(int feature);
 #define NE_DBG_HTTP (DAVIX_LOG_HEADER ) /* HTTP request/response handling */
 #define NE_DBG_XML (DAVIX_LOG_XML ) /* XML parser */
 #define NE_DBG_HTTPAUTH (DAVIX_LOG_SSL ) /* HTTP authentication (hiding credentials) */
-#define NE_DBG_HTTPPLAIN (DAVIX_LOG_SSL ) /* plaintext HTTP authentication */
+#define NE_DBG_HTTPPLAIN (DAVIX_LOG_SENSITIVE ) /* plaintext HTTP authentication */
 #define NE_DBG_LOCKS (DAVIX_LOG_LOCKS ) /* WebDAV locking */
 #define NE_DBG_XMLPARSE (DAVIX_LOG_XML ) /* low-level XML parser */
 #define NE_DBG_HTTPBODY (DAVIX_LOG_BODY ) /* HTTP response body blocks */

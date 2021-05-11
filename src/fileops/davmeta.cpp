@@ -625,6 +625,13 @@ static void swiftStatMapper(Context& context, const RequestParams* params, const
                 st_info.mtime = req.getLastModified();
             }
         }
+        else if(code == 204){ // Normal response of a HEAD request to a container is 204
+            st_info.mode = 0755;
+
+            std::string swift_path = Swift::extract_swift_path(uri);
+            if(swift_path == "/") // is container
+                st_info.mode |= S_IFDIR;
+        }
         else if(code == 500){
             throw DavixException(scope, StatusCode::UnknowError, "Internal Server Error triggered while attempting to get Swift object's stats");
         }

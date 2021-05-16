@@ -29,9 +29,16 @@
 namespace Davix {
 
 //------------------------------------------------------------------------------
+// Check if session caching is disabled from environment variables
+//------------------------------------------------------------------------------
+static bool isSessionCachingDisabled(){
+  return ( getenv("DAVIX_DISABLE_SESSION_CACHING") != NULL);
+}
+
+//------------------------------------------------------------------------------
 // Constructor
 //------------------------------------------------------------------------------
-CurlSessionFactory::CurlSessionFactory() {}
+CurlSessionFactory::CurlSessionFactory() : _session_caching(!isSessionCachingDisabled()) {}
 
 //------------------------------------------------------------------------------
 // Destructor
@@ -59,13 +66,6 @@ std::unique_ptr<CurlSession> CurlSessionFactory::provideCurlSession(const Uri &u
   handle = makeNewHandle(uri, params);
   out.reset(new CurlSession(*this, handle, uri, params, st));
   return out;
-}
-
-//------------------------------------------------------------------------------
-// Check if session caching is disabled from environment variables
-//------------------------------------------------------------------------------
-static bool isSessionCachingDisabled(){
-  return ( getenv("DAVIX_DISABLE_SESSION_CACHING") != NULL);
 }
 
 //------------------------------------------------------------------------------

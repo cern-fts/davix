@@ -39,13 +39,20 @@ NeonHandle::~NeonHandle() {
     }
 }
 
+//------------------------------------------------------------------------------
+// Check if session caching is disabled from environment variables
+//------------------------------------------------------------------------------
+static bool isSessionCachingDisabled(){
+  return ( getenv("DAVIX_DISABLE_SESSION_CACHING") != NULL);
+}
+
 static std::once_flag neon_once;
 
 static void init_neon(){
     ne_sock_init();
 }
 
-NEONSessionFactory::NEONSessionFactory() {
+NEONSessionFactory::NEONSessionFactory() : _session_caching(!isSessionCachingDisabled()) {
     std::call_once(neon_once, &init_neon);
     DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CORE, "HTTP/SSL Session caching {}", (_session_caching?"ENABLED":"DISABLED"));
 }
@@ -125,13 +132,6 @@ NeonHandlePtr NEONSessionFactory::create_recycled_session(const RequestParams & 
 
 std::string create_map_keys_from_URL(const std::string & protocol, const std::string &host, unsigned int port){
     return SSTR(protocol << host << ":" << port);
-}
-
-//------------------------------------------------------------------------------
-// Check if session caching is disabled from environment variables
-//------------------------------------------------------------------------------
-static bool isSessionCachingDisabled(){
-  return ( getenv("DAVIX_DISABLE_SESSION_CACHING") != NULL);
 }
 
 //------------------------------------------------------------------------------

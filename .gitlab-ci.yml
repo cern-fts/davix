@@ -209,16 +209,19 @@ rpms:
   image: gitlab-registry.cern.ch/eos/gitlab-eos/cc7:latest
   dependencies:
     - cc7
+    - centos8
   script:
     - yum install -y python sssd-client sudo createrepo
     - automount
     - cat "$STCI_PASSWORD" | kinit stci
     - eosfusebind
-    - for platform in cc7; do packaging/repo-manager.py --action add --base /eos/project/s/storage-ci/www/davix --ref ${CI_COMMIT_REF_NAME} --packages ${platform}/RPMS/* ${platform}/SRPMS/* ; done
+    - for platform in cc7 centos8; do packaging/repo-manager.py --action add --base /eos/project/s/storage-ci/www/davix --ref ${CI_COMMIT_REF_NAME} --packages ${platform}/RPMS/* ${platform}/SRPMS/* ; done
     - |
         if [[ "${CI_COMMIT_REF_NAME}" == "master" || "${CI_COMMIT_REF_NAME}" == "devel" ]]; then
           cp -n cc7/RPMS/* cc7/SRPMS/* /eos/project-d/dmc/www/repos/testing/el7/x86_64 || true;
+          cp -n centos8/RPMS/* centos8/SRPMS/* /eos/project-d/dmc/www/repos/testing/el8/x86_64 || true;
           packaging/update-repo.sh /eos/project-d/dmc/www/repos/testing/el7/x86_64;
+          packaging/update-repo.sh /eos/project-d/dmc/www/repos/testing/el8/x86_64;
         fi
     - sleep 60
   tags:

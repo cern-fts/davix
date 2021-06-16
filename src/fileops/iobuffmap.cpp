@@ -166,7 +166,7 @@ dav_ssize_t HttpIO::readFull(IOChainContext & iocontext, std::vector<char> & buf
     }
 
     checkDavixError(&tmp_err);
-    return (ret>0)?total:-1;
+    return (ret>=0)?total:-1;
 }
 
 

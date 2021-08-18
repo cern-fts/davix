@@ -22,6 +22,7 @@
 #include "BackendRequest.hpp"
 #include <core/ContentProvider.hpp>
 #include <utils/davix_s3_utils.hpp>
+#include <utils/davix_cs3_utils.hpp>
 #include <utils/davix_azure_utils.hpp>
 #include <utils/davix_gcloud_utils.hpp>
 #include <utils/davix_swift_utils.hpp>
@@ -133,6 +134,58 @@ void BackendRequest::configureSwiftParams() {
     Uri signed_url = Swift::signURI(_params, *_current);
     _current.reset(new Uri(signed_url));
 }
+
+  //------------------------------------------------------------------------------
+  // Configure request for Reva.
+  //------------------------------------------------------------------------------
+  void BackendRequest::configureRevaParams() 
+  {
+    std::string uri = getOriginalUri()->getString();
+
+    if (_request_type != "COPY") {
+      std::string token = _params.getRevaToken(uri);
+      if (token != ""){
+      _headers_field.emplace_back("X-Access-Token", token);
+      }
+    }
+    else {
+      reva::CredentialMap cmap;
+      _params.getRevaCredentialMap(cmap);
+
+      //In pull mode : Dst-> Active Endpooint and Src-> Passive Endpoint
+      //IN push mode : Dst-> Passive Endpoint and Src->Active Endpoint
+      std::string active_token, passive_token;
+
+      //In pull mode original uri = destination uri
+      if(_params.getCopyMode() == Davix::CopyMode::Pull){
+          for (reva::CredentialMap::iterator itr = cmap.begin(); itr != cmap.end(); ++itr) {
+            if(itr->second.isDst){
+              active_token = itr->second.token;
+            }
+            else{
+              passive_token = itr->second.token;
+            }
+          }
+        }
+
+      //In push mode original uri = src uri
+      else if(_params.getCopyMode() == Davix::CopyMode::Push){
+          for (reva::CredentialMap::iterator itr = cmap.begin(); itr != cmap.end(); ++itr) {
+            if(itr->second.isDst){
+              passive_token = itr->second.token;
+            }
+            else{
+              active_token = itr->second.token;
+            }
+          }
+        }
+
+      _headers_field.emplace_back("X-Access-Token", active_token);
+      _headers_field.emplace_back("TransferHeaderX-Access-Token", passive_token);
+
+    }
+  }
+
 
 //------------------------------------------------------------------------------
 // Set-up deadline, but only if uninitialized

@@ -224,6 +224,10 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
         destination.replace(0, 3, "http");
     }
 
+    if(destination.compare(0, 3, "cs3") == 0){
+        destination.replace(0, 3, "http");
+    }
+
     // Perform COPY hopping through redirections
     HttpRequest* request = NULL;
     do {
@@ -326,7 +330,6 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
                                    msg.str());
         }
     }
-
     if(shouldCancel(error)) {
         return;
     }
@@ -352,9 +355,6 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
 
     delete request;
 }
-
-
-
 void DavixCopyInternal::monitorPerformanceMarkers(Davix::HttpRequest *request,
         Davix::DavixError **error)
 {

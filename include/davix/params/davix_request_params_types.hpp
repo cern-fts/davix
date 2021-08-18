@@ -58,7 +58,9 @@ namespace RequestProtocol{
         // Use gcloud API
         Gcloud,
         // Use Swift API
-        Swift
+        Swift,
+        // Use CS3 API
+        CS3
     };
 }
 
@@ -120,6 +122,11 @@ typedef std::string AwsRegion;
 /// \brief string for Amazon security token
 ///
 typedef std::string AwsToken;
+
+///
+/// \brief string for Reva security token
+///
+typedef std::string RevaToken;
 
 ///
 /// \brief string for Azure private key

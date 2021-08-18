@@ -24,6 +24,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
 #include "davix_request_params_types.hpp"
 #include "../auth/davixauth.hpp"
@@ -45,6 +46,12 @@ namespace Davix {
 
 namespace gcloud {
     class Credentials;
+}
+
+namespace reva {
+    class Credentials; 
+    struct Credential;
+    typedef std::map<std::string, Credential> CredentialMap;
 }
 
 struct RequestParamsInternal;
@@ -159,6 +166,31 @@ public:
     /// \return the security token
     ///
     const AwsToken & getAwsToken() const;
+
+    ///
+    /// \brief define the Reva Credentials
+    /// \param credentials credential map of type reva::Credential
+    ///
+    void setRevaCredentials(Davix::reva::Credentials & credentials);
+
+    ///
+    /// \brief get Reva Token
+    /// \return reva token of type std::string
+    ///
+    const RevaToken getRevaToken(std::string uri) const;
+
+    ///
+    /// \brief  get Reva Credentials
+    /// \return credential map of type std::map<std::string, Credential> CredentialMap
+    /// \n      Credential consists of a RevaToken and a write_access/isDst flag 
+    ///
+    const Davix::reva::Credentials  & getRevaCredentials() const;
+
+    ///
+    /// \brief get Reva Credentials
+    /// \return credentials type reva::Credential
+    ///
+    void getRevaCredentialMap(Davix::reva::CredentialMap & cmap);
 
     ///
     /// \brief set whether we're using an S3 path-based url

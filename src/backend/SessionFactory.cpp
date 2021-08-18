@@ -78,7 +78,8 @@ std::string SessionFactory::httpizeProtocol(const std::string &protocol) {
        proto.compare(0,2, "s3") == 0   ||
        proto.compare(0,3, "dav") == 0  ||
        proto.compare(0, 6, "gcloud") == 0 ||
-       proto.compare(0, 5, "swift") == 0){
+       proto.compare(0, 5, "swift") == 0 ||
+       proto.compare(0, 3, "cs3") == 0){
 
         proto.assign("http");
 

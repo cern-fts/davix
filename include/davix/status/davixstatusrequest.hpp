@@ -155,6 +155,9 @@ enum Code {
     /// Insufficient storage
     InsufficientStorage = 0x27,
 
+    /// Environment Variable Missing
+    EnvVarNotSet = 0x28,
+
     /// Undefined error
     UnknowError = 0x100
 

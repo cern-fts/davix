@@ -330,6 +330,7 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
                                    msg.str());
         }
     }
+
     if(shouldCancel(error)) {
         return;
     }
@@ -355,6 +356,9 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
 
     delete request;
 }
+
+
+
 void DavixCopyInternal::monitorPerformanceMarkers(Davix::HttpRequest *request,
         Davix::DavixError **error)
 {

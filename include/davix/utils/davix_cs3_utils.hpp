@@ -9,7 +9,7 @@ namespace reva {
 
 struct Credential {
     RevaToken token;
-    bool isDst;
+    bool token_write_access;
 };
 
 typedef std::map<std::string, Credential> CredentialMap;
@@ -26,7 +26,7 @@ public:
   Credentials();
 
   bool isEmpty() const;
-  RevaToken getToken(std::string uri) const;
+  RevaToken getToken(std::string uri) const&;
   void getCredentialMap(CredentialMap &cmap) const;
   void addCredentials(std::string uri, std::string token, bool token_write_access);
 
@@ -49,7 +49,7 @@ private:
 class DAVIX_EXPORT CredentialProvider{
 public:
     CredentialProvider(){};
-    void updateCredentials(Credentials &creds, std::string uri, bool token_write_access);
+    static void updateCredentials(Credentials &creds, std::string uri, bool token_write_access);
 };
 
 

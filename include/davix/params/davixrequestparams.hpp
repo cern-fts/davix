@@ -177,12 +177,12 @@ public:
     /// \brief get Reva Token
     /// \return reva token of type std::string
     ///
-    const RevaToken getRevaToken(std::string uri) const;
+    const RevaToken getRevaToken(std::string uri) const&;
 
     ///
     /// \brief  get Reva Credentials
     /// \return credential map of type std::map<std::string, Credential> CredentialMap
-    /// \n      Credential consists of a RevaToken and a write_access/isDst flag 
+    /// \n      Credential consists of a RevaToken and a write_access flag
     ///
     const Davix::reva::Credentials  & getRevaCredentials() const;
 

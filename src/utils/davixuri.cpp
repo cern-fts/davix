@@ -236,7 +236,7 @@ void Uri::httpizeProtocol() {
     if(d_ptr->proto == "s3" || d_ptr->proto == "dav" || d_ptr->proto == "gcloud" || d_ptr->proto == "swift" || d_ptr->proto == "cs3") {
         setProtocol("http");
     }
-    if(d_ptr->proto == "s3s" || d_ptr->proto == "davs" || d_ptr->proto == "gclouds" || d_ptr->proto == "swifts") {
+    if(d_ptr->proto == "s3s" || d_ptr->proto == "davs" || d_ptr->proto == "gclouds" || d_ptr->proto == "swifts" || d_ptr->proto == "cs3s") {
         setProtocol("https");
     }
 }

@@ -47,7 +47,7 @@ bool Credentials::isEmpty() const {
   return credMap->empty();
 }
 
-RevaToken Credentials::getToken(std::string uri) const{
+RevaToken Credentials::getToken(std::string uri) const&{
     std::string tkn = "";
     if(credMap->find(uri) != credMap->end()){
         tkn = (*credMap)[uri].token;
@@ -57,7 +57,7 @@ RevaToken Credentials::getToken(std::string uri) const{
 
 void Credentials::getCredentialMap(CredentialMap & cmap) const {
      for (CredentialMap::iterator itr = credMap->begin(); itr != credMap->end(); ++itr) {
-       Credential c {itr->second.token, itr->second.isDst};
+       Credential c {itr->second.token, itr->second.token_write_access};
        cmap.insert(std::pair<std::string, Credential>(itr->first,c));
      }
 }
@@ -65,8 +65,8 @@ void Credentials::getCredentialMap(CredentialMap & cmap) const {
 void Credentials::addCredentials(std::string uri, std::string token, bool token_write_access){
     
     if(credMap->find(uri) == credMap->end()){
-        struct Credential cred {token, token_write_access};
-        credMap->insert(std::pair<std::string, Credential>(uri, cred));
+        Credential cred {token, token_write_access};
+        credMap->emplace(uri, cred);
     }
 }
 

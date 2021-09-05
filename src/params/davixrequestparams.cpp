@@ -404,7 +404,7 @@ void RequestParams::getRevaCredentialMap(reva::CredentialMap & cmap) {
         d_ptr->_reva_creds.getCredentialMap(cmap);
 }
 
-const RevaToken RequestParams::getRevaToken(std::string uri) const {
+const RevaToken RequestParams::getRevaToken(std::string uri) const& {
         return d_ptr->_reva_creds.getToken(uri);
 }
 

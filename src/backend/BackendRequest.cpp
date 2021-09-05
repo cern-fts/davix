@@ -152,14 +152,14 @@ void BackendRequest::configureSwiftParams() {
       reva::CredentialMap cmap;
       _params.getRevaCredentialMap(cmap);
 
-      //In pull mode : Dst-> Active Endpooint and Src-> Passive Endpoint
-      //IN push mode : Dst-> Passive Endpoint and Src->Active Endpoint
+      //In pull mode : Dst = Active Endpoint and Src = Passive Endpoint
+      //In push mode : Dst = Passive Endpoint and Src = Active Endpoint
       std::string active_token, passive_token;
 
       //In pull mode original uri = destination uri
       if(_params.getCopyMode() == Davix::CopyMode::Pull){
           for (reva::CredentialMap::iterator itr = cmap.begin(); itr != cmap.end(); ++itr) {
-            if(itr->second.isDst){
+            if(itr->second.token_write_access){
               active_token = itr->second.token;
             }
             else{
@@ -171,7 +171,7 @@ void BackendRequest::configureSwiftParams() {
       //In push mode original uri = src uri
       else if(_params.getCopyMode() == Davix::CopyMode::Push){
           for (reva::CredentialMap::iterator itr = cmap.begin(); itr != cmap.end(); ++itr) {
-            if(itr->second.isDst){
+            if(itr->second.token_write_access){
               passive_token = itr->second.token;
             }
             else{

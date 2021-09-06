@@ -49,7 +49,7 @@ private:
 class DAVIX_EXPORT CredentialProvider{
 public:
     CredentialProvider(){};
-    static void updateCredentials(Credentials &creds, std::string uri, bool token_write_access);
+    void updateCredentials(Credentials &creds, std::string uri, bool token_write_access);
 };
 
 

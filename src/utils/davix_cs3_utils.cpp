@@ -58,7 +58,7 @@ RevaToken Credentials::getToken(std::string uri) const&{
 void Credentials::getCredentialMap(CredentialMap & cmap) const {
      for (CredentialMap::iterator itr = credMap->begin(); itr != credMap->end(); ++itr) {
        Credential c {itr->second.token, itr->second.token_write_access};
-       cmap.insert(std::pair<std::string, Credential>(itr->first,c));
+       cmap.emplace(itr->first,c);
      }
 }
 

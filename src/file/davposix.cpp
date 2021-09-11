@@ -21,7 +21,6 @@
 
 #include <utils/davix_logger_internal.hpp>
 
-#include <core/ContentProvider.hpp>
 #include <status/davixstatusrequest.hpp>
 #include <fileops/chain_factory.hpp>
 #include <xml/davpropxmlparser.hpp>
@@ -548,8 +547,9 @@ ssize_t DavPosix::write(DAVIX_FD* fd, const void* buf, size_t count, Davix::Davi
 
     TRY_DAVIX{
         if( davix_check_rw_fd(fd, &tmp_err) ==0){
-            BufferContentProvider provider( (const char*) buf, count);
-            ret = (ssize_t) fd->io_handler.writeFromProvider(fd->io_context, provider);
+            // BufferContentProvider provider( (const char*) buf, count);
+            // ret = (ssize_t) fd->io_handler.writeFromProvider(fd->io_context, provider);
+            ret = (ssize_t) fd->io_handler.write(fd->io_context, buf, (dav_size_t) count);
         }
     }CATCH_DAVIX(&tmp_err)
 

@@ -89,6 +89,9 @@ public:
     virtual void prefetchInfo(IOChainContext & iocontext, off_t offset, dav_size_t size_read, advise_t adv);
 
     //
+    virtual dav_ssize_t write(IOChainContext & iocontext, const void* buf, dav_size_t count);
+
+    //
     virtual dav_off_t lseek(IOChainContext & iocontext, dav_off_t offset, int flags);
 
     //

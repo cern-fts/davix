@@ -485,4 +485,37 @@ dav_off_t HttpIOBuffer::lseek(IOChainContext & iocontext, dav_off_t offset, int 
     return _pos;
 }
 
+
+dav_ssize_t HttpIOBuffer::write(IOChainContext & iocontext, const void *buf, dav_size_t count){
+    (void) iocontext;
+    std::lock_guard<std::recursive_mutex> l(_rwlock);
+    dav_ssize_t ret =-1;
+    dav_size_t write_len = count;
+
+    if(!_opened) {
+        throw DavixException(davix_scope_io_buff(), StatusCode::SystemError, "Impossible to write, descriptor has not been opened");
+    }
+
+    if(_local.get() == NULL) {
+        throw DavixException(davix_scope_io_buff(), StatusCode::SystemError, "Impossible to write, no buffer. (file was opened only for reading?)");
+    }
+
+    do{
+        ret = pwrite(_local->_fd, buf, static_cast<size_t>(count), _pos);
+
+        if (ret == -1 && errno == EINTR) {
+            continue;
+        } else if (ret < 0) {
+            throw DavixException(davix_scope_io_buff(),
+                                   StatusCode::SystemError, std::string("Impossible to write to fd").append(strerror(errno)));
+        } else {
+            _pos += ret;
+            write_len -= ret;
+        }
+    }while(write_len >0);
+
+    return (count - write_len);
+}
+
+
 } // namespace Davix

@@ -56,6 +56,34 @@ static std::string chopNewline(const std::string &line) {
   return line;
 }
 
+static std::string filterAuthorizationHeader(const std::string& line) {
+  size_t pos = line.find("Authorization: ");
+
+  if (pos == std::string::npos) {
+    return line;
+  }
+
+  std::string filtered(line);
+  for (size_t i = pos + 15 ; i < filtered.length(); i++) {
+    filtered[i] = 'x';
+  }
+  return filtered;
+}
+
+static void logHeaderLines(const std::vector<std::string>& lines, char arrow) {
+  for (size_t i = 0; i < lines.size(); i++) {
+    std::string line = chopNewline(lines[i]);
+
+    if (!line.empty()) {
+      if (!(::Davix::getLogScope() & DAVIX_LOG_SENSITIVE)) {
+        line = filterAuthorizationHeader(line);
+      }
+
+      DAVIX_SLOG(DAVIX_LOG_WARNING, DAVIX_LOG_HEADER,"{} {}", arrow, line);
+    }
+  }
+}
+
 //------------------------------------------------------------------------------
 // Debug callback
 //------------------------------------------------------------------------------
@@ -74,14 +102,7 @@ int debug_callback(CURL *handle, curl_infotype type, char *data, size_t size, vo
 
       if(::Davix::getLogScope() & DAVIX_LOG_HEADER) {
         std::vector<std::string> lines = split(std::string(data, size), "\r\n");
-        for(size_t i = 0; i < lines.size(); i++) {
-          std::string chopped = chopNewline(lines[i]);
-
-          if(!chopped.empty()) {
-            DAVIX_SLOG(DAVIX_LOG_WARNING, DAVIX_LOG_HEADER, "> {}", chopped);
-          }
-
-        }
+        logHeaderLines(lines, '<');
       }
 
       break;
@@ -96,13 +117,7 @@ int debug_callback(CURL *handle, curl_infotype type, char *data, size_t size, vo
 
       if(::Davix::getLogScope() & DAVIX_LOG_HEADER) {
         std::vector<std::string> lines = split(std::string(data, size), "\r\n");
-        for(size_t i = 0; i < lines.size(); i++) {
-          std::string chopped = chopNewline(lines[i]);
-
-          if(!chopped.empty()) {
-            DAVIX_SLOG(DAVIX_LOG_WARNING, DAVIX_LOG_HEADER, "< {}", chopped);
-          }
-        }
+        logHeaderLines(lines, '>');
       }
 
       break;

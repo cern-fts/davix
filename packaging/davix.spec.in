@@ -76,8 +76,7 @@ Documentation and examples for %{name}. Davix is a toolkit designed
 for file operations with Http based protocols (WebDav, Amazon S3, ...).
 
 %clean
-rm -rf %{buildroot}
-make clean
+%cmake3_build --target clean
 
 %prep
 %setup -q
@@ -86,21 +85,23 @@ rm -rf test/pywebdav/
 
 %build
 
-%cmake \
--DDOC_INSTALL_DIR=%{_pkgdocdir} \
--DENABLE_THIRD_PARTY_COPY=TRUE \
--DENABLE_HTML_DOCS=TRUE \
-.
-make %{?_smp_mflags}
-make doc
+%cmake3 \
+  -DDOC_INSTALL_DIR=%{_pkgdocdir} \
+  -DENABLE_THIRD_PARTY_COPY=TRUE \
+  -DENABLE_HTML_DOCS=TRUE \
+  .
+%cmake3_build
+%cmake3_build --target doc
 
 %install
-rm -rf %{buildroot}
-make DESTDIR=%{buildroot} install
+%cmake3_install
 
+%if 0%{?rhel} == 7
 %post libs -p /sbin/ldconfig
-
 %postun libs -p /sbin/ldconfig
+%else
+%ldconfig_scriptlets libs
+%endif
 
 %files
 %{_bindir}/davix-cp

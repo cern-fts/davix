@@ -180,8 +180,6 @@ const std::string backendRuntimeVersion() {
 }
 
 const std::string backendHeadersVersion() {
-    curl_version_info_data *data = curl_version_info(CURLVERSION_NOW);
-
     std::ostringstream ss;
     ss << LIBCURL_VERSION;
 

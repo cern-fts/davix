@@ -232,7 +232,7 @@ rpms-dmc:
     - |
         for platform in cc7 centos8 fedora-33 fedora-34 fedora-rawhide ; do
           dist=${DISTMAP[${platform}]};
-          cp -n ${platform}/RPMS/* ${platform}/SRPMS/* /eos/project-d/dmc/www/repos/testing/${dist}/x86_64 || true;
+          cp -nv ${platform}/RPMS/* ${platform}/SRPMS/* /eos/project-d/dmc/www/repos/testing/${dist}/x86_64 || true;
           packaging/update-repo.sh /eos/project-d/dmc/www/repos/testing/${dist}/x86_64;
         done
     - sleep 30

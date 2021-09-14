@@ -206,13 +206,6 @@ rpms:
     - cat "$STCI_PASSWORD" | kinit stci
     - eosfusebind
     - for platform in cc7 centos8; do packaging/repo-manager.py --action add --base /eos/project/s/storage-ci/www/davix --ref ${CI_COMMIT_REF_NAME} --packages ${platform}/RPMS/* ${platform}/SRPMS/* ; done
-    - |
-        if [[ "${CI_COMMIT_REF_NAME}" == "master" || "${CI_COMMIT_REF_NAME}" == "devel" ]]; then
-          cp -n cc7/RPMS/* cc7/SRPMS/* /eos/project-d/dmc/www/repos/testing/el7/x86_64 || true;
-          cp -n centos8/RPMS/* centos8/SRPMS/* /eos/project-d/dmc/www/repos/testing/el8/x86_64 || true;
-          packaging/update-repo.sh /eos/project-d/dmc/www/repos/testing/el7/x86_64;
-          packaging/update-repo.sh /eos/project-d/dmc/www/repos/testing/el8/x86_64;
-        fi
     - sleep 60
   tags:
     - docker-privileged
@@ -220,3 +213,32 @@ rpms:
   only:
     - branches@dmc/davix
     - tags@dmc/davix
+
+rpms-dmc:
+  stage: publish
+  image: gitlab-registry.cern.ch/eos/gitlab-eos/cc7:latest
+  dependencies:
+    - cc7
+    - centos8
+    - fedora-33
+    - fedora-34
+    - fedora-rawhide
+  script:
+    - yum install -y python sssd-client sudo createrepo
+    - automount
+    - cat "$STCI_PASSWORD" | kinit stci
+    - eosfusebind
+    - declare -A DISTMAP=( [cc7]=el7 [centos8]=el8 [fedora-33]=fc33 [fedora-34]=fc34 [fedora-rawhide]=fc-rawhide )
+    - |
+        for platform in cc7 centos8 fedora-33 fedora-34 fedora-rawhide ; do
+          dist=${DISTMAP[${platform}]};
+          cp -n ${platform}/RPMS/* ${platform}/SRPMS/* /eos/project-d/dmc/www/repos/testing/${dist}/x86_64 || true;
+          packaging/update-repo.sh /eos/project-d/dmc/www/repos/testing/${dist}/x86_64;
+        done
+    - sleep 30
+  tags:
+    - docker-privileged
+  retry: 2
+  only:
+    - master@dmc/davix
+    - devel@dmc/davix

@@ -82,11 +82,15 @@ bool ChecksumExtractor::extractChecksum(const std::string &headerLine,
 
       if(StrUtil::compare_ncase(desiredChecksum, "UNIXcksum") == 0 ||
          StrUtil::compare_ncase(desiredChecksum, "CRC32c") == 0    ||
-         StrUtil::compare_ncase(desiredChecksum, "ADLER32") == 0   ||
          StrUtil::compare_ncase(desiredChecksum, "UNIXsum") == 0
         ) {
           // Nope, just extract the value.
           return true;
+      }
+
+      if(StrUtil::compare_ncase(desiredChecksum, "ADLER32") == 0) {
+        checksum.insert(checksum.begin(),  8 - checksum.length(), '0'); // DMC-1245: Add leading 0 to Adler32
+        return true;
       }
 
       if(StrUtil::compare_ncase(desiredChecksum, "md5") == 0) {

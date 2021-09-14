@@ -21,9 +21,9 @@ TEST(ChecksumExtractor, BasicSanity) {
   ASSERT_TRUE(ChecksumExtractor::extractChecksum(v1, "sha", output));
   ASSERT_EQ(output, "cbda22bcb41ab0151b438589aa4637e2");
 
-  v1.emplace_back("Digest", "ADLER32=03da0195");
+  v1.emplace_back("Digest", "ADLER32=9600001");
   ASSERT_TRUE(ChecksumExtractor::extractChecksum(v1, "adler32", output));
-  ASSERT_EQ(output, "03da0195");
+  ASSERT_EQ(output, "09600001");
 
   v1.emplace_back("Digest", "CRC32C=03da0195");
   ASSERT_TRUE(ChecksumExtractor::extractChecksum(v1, "crc32c", output));

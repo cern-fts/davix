@@ -1,5 +1,34 @@
 # davix release history
 
+## 0.8.0 (2021-09-17)
+### Epic
+* [DMC-1267] - Davix with libcurl backend
+* Huge refactoring to accommodate both libneon and libcurl backends, as well as improved testing
+
+Many thanks to Georgios Bitzes for the great work. 
+
+### Bug fixes
+* [DMC-1209] - Davix Redirection Cache causes Segfault when encountering relative path
+* [DMC-1243] - Davix hangs if url starts with 'https' is used with S3/Swift credentials in command
+* [davix/pull/70] - Fix return value of HttpIO::readFull (Thanks to Max Orok)
+* [davix/pull/66] - Initialize session factory members (Thanks to Petr Vokac)
+* [davix/pull/54] - Really add '\0' after printed X.509 data (Thanks to Petr Vokac)
+
+### New Features
+* [DMC-1221] - Introduce a filter to avoid exposing sensitive information (such as bearer tokens) in Davix debug output
+* [DMC-1238] - Add SWIFT support in Davix
+* [DMC-1268] - Add CS3API support in Davix
+
+Many thanks to Shiting Long for the Swift support.  
+Many thanks to Rahul Chauhan for the CS3API support.
+
+### Tasks
+* [DMC-1250] - Packages for Centos8
+* [DMC-1264] - Packages for Fedora >= 33
+
+### Improvements
+* [DMC-1245] - Add leading 0 to Adler32 checksum format in Davix
+
 ## 0.7.6 (2020-04-29)
 ### Bug fixes
 * Ensure multi-range simulation thread exceptions are propagated
@@ -49,7 +78,7 @@ Many thanks to Petr Vokac for fixing error handling during proxy delegation.
 * [DMC-1140] - Fix parsing of the Digest to be complaint to RFC 3230
 
 ### Improvements
-* Some refactoring, and splitting of redirection caching logic into its own separate class.
+* Some refactoring and splitting of redirection caching logic into its own separate class.
 
 
 ## 0.7.1 (2018-10-24)

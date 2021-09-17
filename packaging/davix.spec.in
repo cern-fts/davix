@@ -137,6 +137,9 @@ rm -rf test/pywebdav/
 %{_bindir}/davix-tester
 
 %changelog
+* Fri Sep 17 2021 Mihai Patrascoiu <mihai.patrascoiu at cern.ch> - 0.8.0-1
+ - davix 0.8.0 release, see RELEASE-NOTES.md for changes
+
 * Wed Apr 29 2020 Georgios Bitzes <georgios.bitzes at cern.ch> - 0.7.6-1
  - davix 0.7.6 release, see RELEASE-NOTES.md for changes
 
@@ -212,10 +215,8 @@ rm -rf test/pywebdav/
 * Mon Oct 28 2013 Adrien Devresse <adevress at cern.ch> - 0.2.7-3
  - New update of davix, see RELEASE-NOTES for details
 
-
 * Tue Sep 03 2013 Adrien Devresse <adevress at cern.ch> - 0.2.6-1
  - Release 0.2.6 of davix, see RELEASE-NOTES for details
-
 
 * Wed Jun 05 2013 Adrien Devresse <adevress at cern.ch> - 0.2.2-2
  - Initial EPEL release

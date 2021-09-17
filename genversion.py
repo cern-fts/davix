@@ -47,10 +47,10 @@ class SoftwareVersion:
     def toString(self):
         ret = "{0}.{1}".format(self.major, self.minor)
 
-        if self.patch or self.miniPatch:
+        if self.patch is not None:
             ret += ".{0}".format(self.patch)
 
-        if self.miniPatch:
+        if self.miniPatch is not None:
             ret += ".{0}".format(self.miniPatch)
 
         return ret

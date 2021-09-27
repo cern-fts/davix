@@ -146,7 +146,7 @@ static int populateTaskQueue(Context& c, const Tool::OptParams & opts, std::stri
 
     if(tmp_err){
         Tool::errorPrint(&tmp_err);
-        cerr << endl << "Error occured during listing  " << dirQueue.front().first << " Number of entries processed in current directory: " << entry_counter << ". Continuing..."<< endl;
+        cerr << endl << "Error occurred during listing  " << dirQueue.front().first << " Number of entries processed in current directory: " << entry_counter << ". Continuing..."<< endl;
         cerr << endl << "Last successful entry is " << last_success_entry << endl;
     }
 

@@ -68,9 +68,9 @@ int XMLSAXParser::parseChunk(const char *partial_string, dav_size_t length){
         if(ret > 0){
             ret =-1;
             const char* ne_parser_err = ne_xml_get_error(_ne_parser);
-            throw Davix::DavixException(davix_scope_xml_parser(), StatusCode::WebDavPropertiesParsingError, "XML Parsing Error: " + std::string((ne_parser_err)?ne_parser_err:"Unknow ne error"));
+            throw Davix::DavixException(davix_scope_xml_parser(), StatusCode::WebDavPropertiesParsingError, "XML Parsing Error: " + std::string((ne_parser_err)?ne_parser_err:"Unknown ne error"));
         }
-        throw Davix::DavixException(davix_scope_xml_parser(), StatusCode::WebDavPropertiesParsingError, "Unknow XML parsing error ");
+        throw Davix::DavixException(davix_scope_xml_parser(), StatusCode::WebDavPropertiesParsingError, "Unknown XML parsing error ");
     }
     return ret;
 }

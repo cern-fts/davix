@@ -95,7 +95,10 @@ enum Code {
     AlreadyRunning = 0x00d,
 
     /// Authentication Error
-    AuthenticationError= 0x00e,
+    AuthenticationError = 0x00e,
+
+    /// Misspelled - kept for backward compatibility
+    AuthentificationError = AuthenticationError,
 
     /// Wrong Login and/or Password
     LoginPasswordError = 0x00f,
@@ -159,8 +162,10 @@ enum Code {
     EnvVarNotSet = 0x28,
 
     /// Undefined error
-    UnknowError = 0x100
+    UnknownError = 0x100,
 
+    /// Misspelled - kept for backward compatibility
+    UnknowError = UnknownError
 
 };
 
@@ -338,7 +343,7 @@ void checkDavixError(DavixError** err);
     }catch(std::exception & e){ \
         DavixError::setupError(err, " ", StatusCode::SystemError, std::string("System Error ").append(e.what())); \
     }catch(...){ \
-        DavixError::setupError(err, " ", StatusCode::UnknowError, std::string("Unknow Error .... report this")); \
+        DavixError::setupError(err, " ", StatusCode::UnknownError, std::string("Unknown Error .... report this")); \
     }
 
 
@@ -388,9 +393,6 @@ DAVIX_EXPORT void errno_to_davix_exception(int errno_code, const std::string & s
 // Warning: Deprecated symbols, do not use anymore
 // /////////////////////////////////////////////////
 // Deprecated, do not use, API compability only
-namespace StatusCode{
-const Code AuthentificationError = AuthenticationError;
-}
 
 typedef enum StatusCode::Code davix_status_t;
 

@@ -405,7 +405,7 @@ int ListOp::executeOp(){
 
     if(tmp_err){
         Tool::errorPrint(&tmp_err);
-        std::cerr << std::endl << "Error occured during listing  " << _target_url << " Number of entries processed in current directory: " << entry_counter << ". Continuing..."<< std::endl;
+        std::cerr << std::endl << "Error occurred during listing  " << _target_url << " Number of entries processed in current directory: " << entry_counter << ". Continuing..."<< std::endl;
         std::cerr << std::endl << "Last successful entry is " << last_success_entry << std::endl;
     }
 
@@ -507,7 +507,7 @@ int ListppOp::executeOp(){
 
     if(tmp_err){
         Tool::errorPrint(&tmp_err);
-        std::cerr << std::endl << "Error occured during listing  " << dirQueue.front().first << " Number of entries processed in current directory: " << entry_counter << ". Continuing..."<< std::endl;
+        std::cerr << std::endl << "Error occurred during listing  " << dirQueue.front().first << " Number of entries processed in current directory: " << entry_counter << ". Continuing..."<< std::endl;
         std::cerr << std::endl << "Last successful entry is " << last_success_entry << std::endl;
     }
 

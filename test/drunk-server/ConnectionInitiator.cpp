@@ -82,7 +82,7 @@ ConnectionInitiator::ConnectionInitiator(const std::string &hostname, int port) 
     return;
   }
 
-  // clear any transient errors which might have occured while trying to connect
+  // clear any transient errors which might have occurred while trying to connect
   localerrno = 0;
 
   // make socket non-blocking

@@ -61,7 +61,7 @@ private:
 #ifdef __DAVIX_HAS_STD_FUNCTION
 
 ///
-/// std::function for advanced authentification with client cert X509
+/// std::function for advanced authentication with client cert X509
 ///
 /// @param info : Session info, contains information about server requesting the certificate
 /// @param cert : Client side credential to provide
@@ -72,7 +72,7 @@ typedef std::function<int  (const SessionInfo & info, X509Credential& cert)> aut
 
 
 ///
-/// callback for advanced authentification with client cert X509
+/// callback for advanced authentication with client cert X509
 /// @param userdata : user defined data
 /// @param info : Session info, contains information about server requesting the certificate
 /// @param cert : Client side credential to provide
@@ -82,7 +82,7 @@ typedef int (*authCallbackClientCertX509)(void* userdata, const SessionInfo & in
 
 
 ///
-/// callback for advanced authentification with client cert X509
+/// callback for advanced authentication with client cert X509
 /// @param userdata : user defined data
 /// @param info : Session info, contains information about server requesting the certificate
 /// @param login : login to use

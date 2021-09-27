@@ -280,7 +280,7 @@ public:
       @param buffer buffer to fill
       @param count maximum number of bytes to read
       @param err Davix Error report
-      @return the size of data or a negative value if an error occured
+      @return the size of data or a negative value if an error occurred
 
       @snippet example_code_snippets.cpp read
      */
@@ -297,7 +297,7 @@ public:
       @param count maximum number of bytes to read
       @param offset  offset to use
       @param err Davix Error report
-      @return the size of data or a negative value if an error occured
+      @return the size of data or a negative value if an error occurred
 
       @snippet example_code_snippets.cpp pread
      */
@@ -318,7 +318,7 @@ public:
       @param count maximum number of bytes to write
       @param offset  offset to use
       @param err Davix Error report
-      @return the size of data written or a negative value if an error occured
+      @return the size of data written or a negative value if an error occurred
 
       @snippet example_code_snippets.cpp pwrite
      */
@@ -363,7 +363,7 @@ public:
       @param buf buffer with the write content
       @param count number of bytes to write
       @param err Davix Error report
-      @return the size of the written data or a negative value if an error occured
+      @return the size of the written data or a negative value if an error occurred
 
       @snippet example_code_snippets.cpp write
      */

@@ -82,7 +82,7 @@ public:
   bool ok() const;
 
   //----------------------------------------------------------------------------
-  // Ensure no davix error occured
+  // Ensure no davix error occurred
   //----------------------------------------------------------------------------
   bool checkDavixError(Davix::DavixError **err);
 

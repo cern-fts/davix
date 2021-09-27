@@ -161,7 +161,7 @@ int davix_get_metalink_url( Context & c, const Uri & uri,
       if (tmp_err)
         throw DavixException(davix_scope_meta(), tmp_err->getStatus(), tmp_err->getErrMsg());
       else
-        throw DavixException(davix_scope_meta(), Davix::StatusCode::UnknowError, "Unknown error");
+        throw DavixException(davix_scope_meta(), Davix::StatusCode::UnknownError, "Unknown error");
     }
 
     HeaderVec headers;
@@ -319,7 +319,7 @@ ReturnType autoRetryExecutor(HttpIOChain & chain, IOChainContext & io_context, E
             }
         }catch(...){
             DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_CHAIN, "Operation failure: Unknown Error");
-            throw DavixException(davix_scope_io_buff(), StatusCode::UnknowError, fmt::format("Unrecoverable error from IOChain on {}", u));
+            throw DavixException(davix_scope_io_buff(), StatusCode::UnknownError, fmt::format("Unrecoverable error from IOChain on {}", u));
         }
         ++retry;
         sleep(retry_delay);

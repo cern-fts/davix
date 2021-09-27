@@ -11,7 +11,7 @@ TEST(DateTimeTest, testConvert){
     res= parse_iso8601date(buff);
     ASSERT_EQ(t,res);
 
-    res = parse_iso8601date("unknow invalid time");
+    res = parse_iso8601date("unknown invalid time");
     ASSERT_EQ(-1, res);
 }
 

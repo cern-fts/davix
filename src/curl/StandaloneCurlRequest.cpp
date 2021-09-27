@@ -262,7 +262,7 @@ static Status curlCodeToStatus(CURLcode code) {
       return Status(davix_scope_http_request(), StatusCode::OperationTimeout, ss.str());
     }
     default: {
-      return Status(davix_scope_http_request(), StatusCode::UnknowError, ss.str());
+      return Status(davix_scope_http_request(), StatusCode::UnknownError, ss.str());
     }
   }
 }

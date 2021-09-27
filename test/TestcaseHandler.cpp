@@ -195,7 +195,7 @@ TestcaseHandler& TestcaseHandler::makeChild() {
 }
 
 //------------------------------------------------------------------------------
-// Ensure no davix error occured
+// Ensure no davix error occurred
 //------------------------------------------------------------------------------
 bool TestcaseHandler::checkDavixError(Davix::DavixError **err) {
   if(err && *err) {

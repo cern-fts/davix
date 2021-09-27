@@ -137,7 +137,7 @@ private:
     void configureHeaders();
     void cancelSessionReuse();
 
-    // negociate the request : authentification, redirection, name resolution
+    // negociate the request : authentication, redirection, name resolution
     int negotiateRequest(DavixError** err);
 
     // redirection logic

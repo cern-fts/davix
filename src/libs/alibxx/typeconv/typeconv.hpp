@@ -34,14 +34,14 @@ inline void check_overflow_integral(Integral val, int errcode){
     if( (val == std::numeric_limits<Integral>::min() || val ==std::numeric_limits<Integral>::max())
          && ( errcode == ERANGE || errcode == EINVAL)){
          errno =0;
-         throw TypeConvException("Overflow during type converstion from string to integral value");
+         throw TypeConvException("Overflow during type conversion from string to integral value");
     }
 }
 
 inline void check_strto_error(char * end_str, const std::string & str){
     if( str.size() ==0 || *end_str != '\0'){
          errno =0;
-         throw TypeConvException("Invalid type converstion from string to integral value");
+         throw TypeConvException("Invalid type conversion from string to integral value");
     }
 }
 
@@ -53,7 +53,7 @@ template<typename T, typename S>
 struct toType{
     T operator()(const S & val){
             (void) val;
-            throw TypeConvException("Invalid type converstion: no specialization");
+            throw TypeConvException("Invalid type conversion: no specialization");
     }
 
 };
@@ -152,7 +152,7 @@ struct toType<std::string, S>{
         ss.str("");
         ss << val;
         if(ss.fail()){
-            throw TypeConvException("Invalid type converstion from string to ");
+            throw TypeConvException("Invalid type conversion from string to ");
         }
         return ret.str();
     }

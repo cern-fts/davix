@@ -197,7 +197,7 @@ dav_ssize_t incremental_listdir_parsing(HttpRequest* req, XMLPropParser * parser
         buffer[ret]= '\0';
         parser->parseChunk(buffer, ret);
     }else{
-        throw DavixException(scope, StatusCode::UnknowError, "Unknow readSegment error");
+        throw DavixException(scope, StatusCode::UnknownError, "Unknown readSegment error");
     }
 
     return ret;
@@ -602,7 +602,7 @@ static void swiftStatMapper(Context& context, const RequestParams* params, const
                 throw DavixException(scope, StatusCode::FileNotFound, "Not a file or directory");
             }
             else if (ret < 0) {
-                throw DavixException(scope, StatusCode::UnknowError, "Unknown readSegment error");
+                throw DavixException(scope, StatusCode::UnknownError, "Unknown readSegment error");
             }
             checkDavixError(&tmp_err);
 
@@ -633,7 +633,7 @@ static void swiftStatMapper(Context& context, const RequestParams* params, const
                 st_info.mode |= S_IFDIR;
         }
         else if(code == 500){
-            throw DavixException(scope, StatusCode::UnknowError, "Internal Server Error triggered while attempting to get Swift object's stats");
+            throw DavixException(scope, StatusCode::UnknownError, "Internal Server Error triggered while attempting to get Swift object's stats");
         }
     }
     checkDavixError(&tmp_err);
@@ -777,7 +777,7 @@ void SwiftMetaOps::move(IOChainContext & iocontext, const std::string & target_u
     else {
         std::stringstream str;
         str << "Received code " << req.getRequestCode() << " when trying to copy file - will not perform deletion";
-        throw DavixException(scope, StatusCode::UnknowError, str.str());
+        throw DavixException(scope, StatusCode::UnknownError, str.str());
     }
 }
 
@@ -881,7 +881,7 @@ void S3MetaOps::move(IOChainContext & iocontext, const std::string & target_url)
     else {
         std::stringstream str;
         str << "Received code " << req.getRequestCode() << " when trying to copy file - will not perform deletion";
-        throw DavixException(scope, StatusCode::UnknowError, str.str());
+        throw DavixException(scope, StatusCode::UnknownError, str.str());
     }
 }
 
@@ -978,7 +978,7 @@ void s3StatMapper(Context& context, const RequestParams* params, const Uri & uri
             }
         }
         else if(code == 500)
-            throw DavixException(scope, StatusCode::UnknowError, "Internal Server Error triggered while attempting to get S3 object's stats");
+            throw DavixException(scope, StatusCode::UnknownError, "Internal Server Error triggered while attempting to get S3 object's stats");
     }
     checkDavixError(&tmp_err);
 }

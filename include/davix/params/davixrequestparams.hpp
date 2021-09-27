@@ -63,7 +63,7 @@ struct RequestParamsInternal;
 /// @brief Main container for Davix request options
 ///
 /// RequestParams hold the davix request options :
-/// authentification parameters, timeouts, user-agents,...
+/// authentication parameters, timeouts, user-agents,...
 /// A Requestparams object can be shared between several Request
 class DAVIX_EXPORT RequestParams
 {

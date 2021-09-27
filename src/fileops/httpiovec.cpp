@@ -64,7 +64,7 @@ void HttpIoVecSetupErrorMultiPartTooLong(DavixError** err){
 }
 
 void HttpIoVecSetupErrorMultiPartBoundary(const std::string & boundary, DavixError** err){
-    DavixError::setupError(err, HttpIoVec_scope(), StatusCode::InvalidServerResponse, std::string("Invalid boundary for multipart http reponse :").append(boundary));
+    DavixError::setupError(err, HttpIoVec_scope(), StatusCode::InvalidServerResponse, std::string("Invalid boundary for multipart http response :").append(boundary));
 }
 
 void HttpIoVecSetupErrorMultiPartSize( DavixError** err, dav_off_t req_offset, dav_size_t req_size, dav_off_t ans_offset, dav_size_t ans_size){

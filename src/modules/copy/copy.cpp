@@ -326,7 +326,7 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
         else if (responseStatus >= 300) {
             std::ostringstream msg;
             msg << "Could not COPY. Unknown error code: " << responseStatus;
-            DavixError::setupError(error, COPY_SCOPE, StatusCode::UnknowError,
+            DavixError::setupError(error, COPY_SCOPE, StatusCode::UnknownError,
                                    msg.str());
         }
     }
@@ -441,7 +441,7 @@ void DavixCopyInternal::monitorPerformanceMarkers(Davix::HttpRequest *request,
     }
 
     if(!clearOutcome && !(*error)) {
-        Davix::DavixError::setupError(error, COPY_SCOPE, StatusCode::UnknowError,
+        Davix::DavixError::setupError(error, COPY_SCOPE, StatusCode::UnknownError,
             std::string("Connection terminated abruptly; Status of TPC request unknown"));
     }
 }

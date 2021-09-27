@@ -49,7 +49,7 @@ int main(int argc, char** argv){
 
 
 
-    std::cout << "authentification callback has been called " << n_call << std::endl;
+    std::cout << "authentication callback has been called " << n_call << std::endl;
 
     return 0;
 }

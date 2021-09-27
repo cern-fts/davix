@@ -78,7 +78,7 @@ void NEONSession::authNeonCliCertMapper(void *userdata, ne_session *sess,
         TRY_DAVIX{
             params->getClientCertFunctionX509()(infos, cert);
             if(cert.hasCert() == false){
-                throw DavixException(davix_scope_x509cred(), StatusCode::AuthentificationError,
+                throw DavixException(davix_scope_x509cred(), StatusCode::AuthenticationError,
                                      "No valid credential given ");
             }
             ne_ssl_set_clicert(req->_sess->session, X509CredentialExtra::extract_ne_ssl_clicert(cert));
@@ -95,7 +95,7 @@ int NEONSession::provide_login_passwd_fn(void *userdata, const char *realm, int 
     int ret =-1;
 
 
-    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "Try to get auth/password authentification from client");
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "Try to get auth/password authentication from client");
 
      if(attempt > n_max_auth ){
          DavixError::setupError(&(req->_last_error), davix_scope_http_request(), StatusCode::LoginPasswordError,
@@ -225,7 +225,7 @@ void configureSession(NeonHandlePtr &_sess, const Uri & _u, const RequestParams 
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "disable login/password authentication");
     }
 
-    // if authentification for cli cert by callback
+    // if authentication for cli cert by callback
     if( params.getClientCertFunctionX509()){
         DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "enable client cert authentication by callback ");
         ne_ssl_provide_clicert(_sess->session, cred_callback, cred_userdata);

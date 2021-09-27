@@ -353,7 +353,7 @@ const authFunctionClientCertX509 & RequestParams::getClientCertFunctionX509() co
     return x509->_x509_fun;
 }
 
-/// return the current client side callback for authentification with the current user data
+/// return the current client side callback for authentication with the current user data
 std::pair<authCallbackClientCertX509,void*> RequestParams::getClientCertCallbackX509() const{
     X509Data* x509 = X509Data::instance(d_ptr->_x509_data);
     return x509->_pair;
@@ -367,7 +367,7 @@ void RequestParams::setClientLoginPasswordCallback(authCallbackLoginPasswordBasi
     d_ptr->_call_loginpswwd_userdata = userdata;
 }
 
-/// return the current client side callback for authentification with the current user data
+/// return the current client side callback for authentication with the current user data
 std::pair<authCallbackLoginPasswordBasic,void*> RequestParams::getClientLoginPasswordCallback() const{
     return std::pair<authCallbackLoginPasswordBasic,void*>(d_ptr->_call_loginpswwd, d_ptr->_call_loginpswwd_userdata);
 }

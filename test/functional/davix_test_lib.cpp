@@ -24,7 +24,7 @@ int mycred_auth_callback_x509(void* userdata, const SessionInfo & info, X509Cred
     int ret = cred->loadFromFileP12( path, "", &tmp_err);
 
     if(ret != 0){
-        fprintf(stderr, " FATAL authentification Error : %s", tmp_err->getErrMsg().c_str());
+        fprintf(stderr, " FATAL authentication Error : %s", tmp_err->getErrMsg().c_str());
         DavixError::propagateError(err, tmp_err);
     }
     return ret;

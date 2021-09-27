@@ -368,8 +368,8 @@ void httpcodeToDavixError(int code, const std::string &scope, const std::string 
         case 401:           /* Unauthorized */
         case 402:           /* Payment Required */
         case 407:           /* Proxy Authentication Required */
-            dav_code = StatusCode::AuthentificationError;
-            str_msg = "Authentification Error";
+            dav_code = StatusCode::AuthenticationError;
+            str_msg = "Authentication Error";
             break;
         case 303:           /* See Other */
         case 404:           /* Not Found */
@@ -439,7 +439,7 @@ void httpcodeToDavixError(int code, const std::string &scope, const std::string 
         case 503:           /* Service Unavailable */
         case 505:           /* HTTP Version Not Supported */
         default:
-            dav_code = StatusCode::UnknowError;
+            dav_code = StatusCode::UnknownError;
             std::ostringstream ss;
             ss << "Unexpected server error: " << code;
             str_msg = ss.str().c_str();

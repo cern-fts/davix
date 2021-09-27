@@ -45,7 +45,7 @@ void opensslErrorMapper(const std::string & msg, DavixError** err){
     char buff_err[255] ={0};
     e= ERR_get_error();
     if(e == 0){
-        DavixError::setupError(err, openssl_scope, StatusCode::UnknowError, "No Error reported by OpenSSL");
+        DavixError::setupError(err, openssl_scope, StatusCode::UnknownError, "No Error reported by OpenSSL");
         return;
     }
 
@@ -105,7 +105,7 @@ ne_ssl_client_cert *SSL_X509_Pem_Read(const std::string & pkeyfile_str, const st
 
 
     if( pkeyfile ==NULL || credfile ==NULL || ((in = BIO_new(BIO_s_file())) == NULL)){
-        DavixError::setupError(err, openssl_scope, StatusCode::UnknowError, "init error");
+        DavixError::setupError(err, openssl_scope, StatusCode::UnknownError, "init error");
         return NULL;
     }
 

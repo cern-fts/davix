@@ -148,47 +148,47 @@ static void neon_error_mapper(int ne_status, StatusCode::Code & code, std::strin
   switch(ne_status){
     case NE_OK: {
       code = StatusCode::OK;
-      str= "Status Ok";
+      str = "Status Ok";
       break;
     }
     case NE_LOOKUP: {
       code = StatusCode::NameResolutionFailure;
-      str= "Domain name resolution failed";
+      str = "Domain name resolution failed";
       break;
     }
     case NE_AUTH: {
       code = StatusCode::AuthenticationError;
-      str=  "Authentification failed on server";
+      str = "Authentication failed on server";
       break;
     }
     case NE_PROXYAUTH: {
       code = StatusCode::AuthenticationError;
-      str=  "Authentification failed on proxy";
+      str = "Authentication failed on proxy";
       break;
     }
     case NE_CONNECT: {
       code = StatusCode::ConnectionProblem;
-      str= "Could not connect to server";
+      str = "Could not connect to server";
       break;
     }
     case NE_TIMEOUT: {
       code = StatusCode::ConnectionTimeout;
-      str= "Connection timed out";
+      str = "Connection timed out";
       break;
     }
     case NE_FAILED: {
       code = StatusCode::SessionCreationError;
-      str=  "The precondition failed";
+      str = "The precondition failed";
       break;
     }
     case NE_RETRY: {
       code = StatusCode::RedirectionNeeded;
-      str= "Retry Request";
+      str = "Retry Request";
       break;
     }
     default: {
-      code= StatusCode::UnknowError;
-      str= "Unknow Error from libneon";
+      code = StatusCode::UnknownError;
+      str = "Unknown Error from libneon";
     }
   }
 

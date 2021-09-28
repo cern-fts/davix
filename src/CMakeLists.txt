@@ -108,7 +108,7 @@ add_library(libdavix  SHARED ${DAVIX_SOURCES} )
 
 target_include_directories(libdavix PRIVATE ${DAVIX_INTERNAL_INCLUDES} )
 target_link_libraries(libdavix
-  PRIVATE libcurl
+  PRIVATE ${libcurl}
   PUBLIC ${LIBSSL_PKG_LIBRARIES}
          ${LIBXML2_LIBRARIES}
          ${CMAKE_THREAD_LIBS_INIT}
@@ -146,7 +146,7 @@ set_target_properties(libdavix_static PROPERTIES
 target_include_directories(libdavix_static PRIVATE ${DAVIX_INTERNAL_INCLUDES} )
 
 target_link_libraries(libdavix_static
-  PRIVATE libcurl
+  PRIVATE ${libcurl}
   PUBLIC  ${OPENSSL_LIBRARIES}
           ${CMAKE_THREAD_LIBS_INIT}
           dl ${UUID_LIBRARIES}

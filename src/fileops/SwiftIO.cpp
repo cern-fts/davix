@@ -244,6 +244,7 @@ dav_ssize_t SwiftIO::writeFromProvider(IOChainContext & iocontext, ContentProvid
     } else{
         commitChunks(iocontext, props);
     }
+    return provider.getSize();
 }
 
 }

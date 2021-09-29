@@ -213,9 +213,10 @@ dav_ssize_t S3IO::writeFromProvider(IOChainContext & iocontext, ContentProvider 
 
     partNumber++;
     etags.emplace_back(writeChunk(iocontext, buffer.data(), bytesRead, uploadId, partNumber));
-   }
+  }
 
-   commitChunks(iocontext, uploadId, etags);
+  commitChunks(iocontext, uploadId, etags);
+  return provider.getSize();
 }
 
 DynafedUris S3IO::retrieveDynafedUris(IOChainContext & iocontext, const std::string &uploadId, const std::string &pluginId, size_t nchunks) {

@@ -609,7 +609,7 @@ void StandaloneCurlRequest::doNotReuseSession() {
 // Has the underlying session been used before?
 //------------------------------------------------------------------------------
 bool StandaloneCurlRequest::isRecycledSession() const {
-
+  return false;
 }
 
 //------------------------------------------------------------------------------
@@ -641,7 +641,7 @@ std::string StandaloneCurlRequest::getSessionError() const {
 // Block until all response headers have been received
 //------------------------------------------------------------------------------
 Status StandaloneCurlRequest::readResponseHeaders() {
-
+  return Status();
 }
 
 //------------------------------------------------------------------------------

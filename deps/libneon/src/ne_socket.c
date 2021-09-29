@@ -2008,6 +2008,8 @@ int ne_sock_sessid(ne_socket *sock, unsigned char *buf, size_t *buflen)
     }
 #else
     SSL_SESSION *sess;
+    const unsigned char *idbuf;
+    unsigned int idlen;
 
     if (!sock->ssl) {
         return -1;
@@ -2015,20 +2017,18 @@ int ne_sock_sessid(ne_socket *sock, unsigned char *buf, size_t *buflen)
 
     sess = SSL_get0_session(sock->ssl);
 
+    idbuf = SSL_SESSION_get_id(sess, &idlen);
     if (!buf) {
-        SSL_SESSION_get_id(sess, buflen);
+        *buflen = idlen;
         return 0;
     }
 
-    unsigned int session_id_length;
-    const unsigned char* session_id = SSL_SESSION_get_id(sess, &session_id_length);
-
-    if (*buflen < session_id_length) {
+    if (*buflen < idlen) {
         return -1;
     }
 
-    *buflen = session_id_length;
-    memcpy(buf, session_id, *buflen);
+    *buflen = idlen;
+    memcpy(buf, idbuf, idlen);
     return 0;
 #endif
 #else

@@ -43,6 +43,7 @@ target_link_libraries(davix-unit-tests
   davix_tool_lib
   libdavix
   gtest_main
+  gtest
   ${CMAKE_THREAD_LIBS_INIT}
   ${LIBSSL_PKG_LIBRARIES}
 )

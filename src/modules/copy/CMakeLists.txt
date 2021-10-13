@@ -63,11 +63,12 @@ IF (ENABLE_THIRD_PARTY_COPY)
 
     TARGET_LINK_LIBRARIES(davix_copy libdavix
                                      ${GSOAP_SSL_PKG_LIBRARIES}
-                                     z)
+                                     ${LIBSSL_PKG_LIBRARIES})
 
     SET_TARGET_PROPERTIES(davix_copy PROPERTIES
                             VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}
                             SOVERSION ${VERSION_MAJOR}
+                            LINK_INTERFACE_LIBRARIES ""
                             CLEAN_DIRECT_OUTPUT 1
                             OUTPUT_NAME "davix_copy")
 

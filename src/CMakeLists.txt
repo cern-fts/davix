@@ -112,6 +112,7 @@ target_link_libraries(libdavix
   PUBLIC ${LIBSSL_PKG_LIBRARIES}
          ${LIBXML2_LIBRARIES}
          ${CMAKE_THREAD_LIBS_INIT}
+         ${CMAKE_DL_LIBS}
          ${UUID_LIBRARIES}
          z
          ${SECURE_TRANSPORT_LIBRARIES}
@@ -120,6 +121,7 @@ target_link_libraries(libdavix
 set_target_properties(libdavix PROPERTIES
                             VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}
                             SOVERSION ${VERSION_MAJOR}
+                            LINK_INTERFACE_LIBRARIES ""
                             CLEAN_DIRECT_OUTPUT 1
                             OUTPUT_NAME ${OUTPUT_NAME_DAVIX})
 
@@ -147,11 +149,12 @@ target_include_directories(libdavix_static PRIVATE ${DAVIX_INTERNAL_INCLUDES} )
 
 target_link_libraries(libdavix_static
   PRIVATE ${libcurl}
-  PUBLIC  ${OPENSSL_LIBRARIES}
-          ${CMAKE_THREAD_LIBS_INIT}
-          dl ${UUID_LIBRARIES}
-          z
+  PUBLIC  ${LIBSSL_PKG_LIBRARIES}
           ${LIBXML2_LIBRARIES}
+          ${CMAKE_THREAD_LIBS_INIT}
+          ${CMAKE_DL_LIBS}
+          ${UUID_LIBRARIES}
+          z
           ${SECURE_TRANSPORT_LIBRARIES}
 )
 

@@ -60,6 +60,7 @@ include(CMakeGeneratePkgConfig REQUIRED)
 include(MacroAddDoxygen REQUIRED)
 include(CMakeCXX11Support REQUIRED)
 include(PortabilityGNUCheck REQUIRED)
+include(CTest)
 
 
 

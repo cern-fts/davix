@@ -291,3 +291,23 @@ TEST(UriTests, ips) {
     ASSERT_EQ(u.getPort(), 0);
     ASSERT_EQ(u.getHost(), "[2001:1458:301:a8ae::100:23]");
 }
+
+TEST(UriTests, password_special_characters) {
+    Davix::Uri u("https://username:password@host.ch/data/file");
+    ASSERT_EQ(u.getStatus(), StatusCode::OK);
+    ASSERT_EQ(u.getString(), "https://username:password@host.ch/data/file");
+    ASSERT_EQ(u.getUserInfo(), "username:password");
+
+    u = Davix::Uri("https://username:p\\@ssword@host.ch/data/file");
+    ASSERT_EQ(u.getStatus(), StatusCode::OK);
+    ASSERT_EQ(u.getString(), "https://username:p\\@ssword@host.ch/data/file");
+    ASSERT_EQ(u.getUserInfo(), "username:p%40ssword");
+
+    u = Davix::Uri("https://username:p\\ssw0rd\\:@host.ch/data/file");
+    ASSERT_EQ(u.getStatus(), StatusCode::OK);
+    ASSERT_EQ(u.getString(), "https://username:p\\ssw0rd\\:@host.ch/data/file");
+    ASSERT_EQ(u.getUserInfo(), "username:p\\ssw0rd%3A");
+
+    u = Davix::Uri("https://username:p\\@ssword\\@host.ch/data/file");
+    ASSERT_EQ(u.getStatus(), StatusCode::UriParsingError);
+}

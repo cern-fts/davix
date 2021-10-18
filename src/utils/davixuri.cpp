@@ -19,6 +19,8 @@
  *
 */
 
+#include <iomanip>
+
 #include <davix_internal.hpp>
 #include <utils/davix_uri.hpp>
 
@@ -35,6 +37,7 @@ int davix_uri_parse(const std::string & uri_str, UriPrivate & res);
 int davix_uri_cmp(const UriPrivate &u1, const UriPrivate &u2);
 std::string davix_path_escape(const std::string & str, bool escapeSlashes);
 std::string davix_path_unescape(const std::string & str);
+std::string davix_userinfo_backslash_escape(const std::string & str);
 
 struct UriPrivate{
     UriPrivate() :
@@ -531,6 +534,7 @@ int davix_uri_parse(const std::string & uri_str, UriPrivate & res)
 
     if (s[0] == '/' && s[1] == '/') {
         const char *pa;
+        bool escape_userinfo = false;
 
         /* => s = "//" authority path-abempty (from expansion of
          * either heir-part of relative-part)  */
@@ -544,12 +548,25 @@ int davix_uri_parse(const std::string & uri_str, UriPrivate & res)
         /* => pa = path-abempty */
 
         p = s;
-        while (p < pa && uri_lookup(*p) & URI_USERINFO)
+        while (p < pa &&
+              ((uri_lookup(*p) & URI_USERINFO) || (*p == '\\'))) {
+            if (*p == '\\') { /* Dealing with "\" */
+              /* Look-up next character for possible escaping */
+              if (p + 1 < pa && uri_lookup(*(p+1)) & URI_GENDELIM) {
+                  escape_userinfo = true;
+                  p++;
+              }
+            }
             p++;
+        }
 
         if (*p == '@') {
             res.userinfo.assign(s, p-s);
             s = p + 1;
+
+            if (escape_userinfo) {
+                res.userinfo = davix_userinfo_backslash_escape(res.userinfo);
+            }
         }
         /* => s = host */
 
@@ -721,6 +738,35 @@ std::string davix_path_escape(const std::string & str, bool escapeSlashes)
 }
 
 #undef path_escape_ch
+
+std::string davix_userinfo_backslash_escape(const std::string & str)
+{
+    std::ostringstream oss;
+    oss << std::uppercase << std::hex;
+
+    for (size_t i = 0; i < str.size(); i++) {
+        char p = str.at(i);
+        bool skip = false;
+
+        if (i + 1 < str.size() && p == '\\') {
+            char q = str.at(i + 1);
+            if (uri_lookup(q) & URI_GENDELIM) {
+                oss << "%" << std::setw(2) << std::setfill('0')
+                    << static_cast<int>(q);
+                skip = true;
+                i++;
+            }
+        }
+
+        if (!skip) {
+          oss << p;
+        }
+    }
+
+    return oss.str();
+}
+
+
 
 std::ostream& operator<< (std::ostream& stream, const Davix::Uri & _u){
     stream << _u.getString();

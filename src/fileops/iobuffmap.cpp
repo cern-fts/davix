@@ -178,6 +178,17 @@ dav_ssize_t HttpIO::pread(IOChainContext & iocontext, void *buf, dav_size_t coun
         return 0;
 
     HttpRequest req(iocontext._context, iocontext._uri, &tmp_err);
+
+    // Check Partial Content support via response header
+    // (EOS supports Partial Content but returns 200 instead of 206)
+    auto _supports_partial_content = [&req](dav_off_t offset, dav_size_t count) -> bool {
+        std::string header;
+        std::ostringstream oss;
+        oss << "bytes " << offset << "-" << ((count > 0) ? std::to_string(offset + count - 1) : "");
+        req.getAnswerHeader("Content-Range", header);
+        return (header.find(oss.str()) != std::string::npos);
+    };
+
     if(tmp_err == NULL){
         RequestParams params(iocontext._reqparams);
         req.setParameters(params);
@@ -187,7 +198,9 @@ dav_ssize_t HttpIO::pread(IOChainContext & iocontext, void *buf, dav_size_t coun
                 ret = 0; // end of file
                 DavixError::clearError(&tmp_err);
             }else{
-                if(req.getRequestCode() == 206 ){ // partial request supported, just read !
+                // partial request supported, just read !
+                if (req.getRequestCode() == 206 ||
+                    (req.getRequestCode() == 200 && _supports_partial_content(offset, count))) {
                     ret = read_segment_request(&req, buf, count, &tmp_err);
 
                     // clean remaining content

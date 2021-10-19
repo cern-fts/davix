@@ -43,6 +43,7 @@ namespace Davix {
 class SessionInfoInternal;
 class DavixCopyInternal;
 class NEONSession;
+class StandaloneCurlRequest;
 
 ///  @class SessionInfo
 ///  @brief server related info
@@ -54,6 +55,7 @@ private:
     SessionInfo();
     SessionInfoInternal* data;
     friend class NEONSession;
+    friend class StandaloneCurlRequest;
     friend class DavixDelegation;
 };
 

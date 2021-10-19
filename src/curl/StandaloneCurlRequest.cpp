@@ -360,7 +360,20 @@ Status StandaloneCurlRequest::startRequest() {
   //----------------------------------------------------------------------------
   // Set up client certificate
   //----------------------------------------------------------------------------
-  const X509Credential& clientCert = _params.getClientCertX509();
+  X509Credential clientCert = _params.getClientCertX509();
+  auto x509callback = _params.getClientCertCallbackX509();
+
+  if (x509callback.first) {
+    DavixError* err = NULL;
+    SessionInfo info;
+
+    x509callback.first(x509callback.second, info, &clientCert, &err);
+
+    if (err) {
+      DAVIX_SLOG(DAVIX_LOG_WARNING, DAVIX_LOG_HTTP, "Failed to load certificate via callback: {}", err->getErrMsg());
+      return Status(davix_scope_http_request(), err->getStatus(), "Failed to load certificate");
+    }
+  }
 
   std::string userCertificate;
   std::string userKey;

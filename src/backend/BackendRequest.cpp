@@ -135,56 +135,56 @@ void BackendRequest::configureSwiftParams() {
     _current.reset(new Uri(signed_url));
 }
 
-  //------------------------------------------------------------------------------
-  // Configure request for Reva.
-  //------------------------------------------------------------------------------
-  void BackendRequest::configureRevaParams() 
-  {
-    std::string uri = getOriginalUri()->getString();
+//------------------------------------------------------------------------------
+// Configure request for Reva.
+//------------------------------------------------------------------------------
+void BackendRequest::configureRevaParams()
+{
+  std::string uri = getOriginalUri()->getString();
 
-    if (_request_type != "COPY") {
-      std::string token = _params.getRevaToken(uri);
-      if (token != ""){
+  if (_request_type != "COPY") {
+    std::string token = _params.getRevaToken(uri);
+    if (token != ""){
       _headers_field.emplace_back("X-Access-Token", token);
-      }
-    }
-    else {
-      reva::CredentialMap cmap;
-      _params.getRevaCredentialMap(cmap);
-
-      //In pull mode : Dst = Active Endpoint and Src = Passive Endpoint
-      //In push mode : Dst = Passive Endpoint and Src = Active Endpoint
-      std::string active_token, passive_token;
-
-      //In pull mode original uri = destination uri
-      if(_params.getCopyMode() == Davix::CopyMode::Pull){
-          for (reva::CredentialMap::iterator itr = cmap.begin(); itr != cmap.end(); ++itr) {
-            if(itr->second.token_write_access){
-              active_token = itr->second.token;
-            }
-            else{
-              passive_token = itr->second.token;
-            }
-          }
-        }
-
-      //In push mode original uri = src uri
-      else if(_params.getCopyMode() == Davix::CopyMode::Push){
-          for (reva::CredentialMap::iterator itr = cmap.begin(); itr != cmap.end(); ++itr) {
-            if(itr->second.token_write_access){
-              passive_token = itr->second.token;
-            }
-            else{
-              active_token = itr->second.token;
-            }
-          }
-        }
-
-      _headers_field.emplace_back("X-Access-Token", active_token);
-      _headers_field.emplace_back("TransferHeaderX-Access-Token", passive_token);
-
     }
   }
+  else {
+    reva::CredentialMap cmap;
+    _params.getRevaCredentialMap(cmap);
+
+    //In pull mode : Dst = Active Endpoint and Src = Passive Endpoint
+    //In push mode : Dst = Passive Endpoint and Src = Active Endpoint
+    std::string active_token, passive_token;
+
+    //In pull mode original uri = destination uri
+    if(_params.getCopyMode() == Davix::CopyMode::Pull){
+      for (reva::CredentialMap::iterator itr = cmap.begin(); itr != cmap.end(); ++itr) {
+        if(itr->second.token_write_access){
+          active_token = itr->second.token;
+        }
+        else{
+          passive_token = itr->second.token;
+        }
+      }
+    }
+
+    //In push mode original uri = src uri
+    else if(_params.getCopyMode() == Davix::CopyMode::Push){
+      for (reva::CredentialMap::iterator itr = cmap.begin(); itr != cmap.end(); ++itr) {
+        if(itr->second.token_write_access){
+          passive_token = itr->second.token;
+        }
+        else{
+          active_token = itr->second.token;
+        }
+      }
+    }
+
+    _headers_field.emplace_back("X-Access-Token", active_token);
+    _headers_field.emplace_back("TransferHeaderX-Access-Token", passive_token);
+
+  }
+}
 
 
 //------------------------------------------------------------------------------

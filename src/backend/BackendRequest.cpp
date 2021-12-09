@@ -145,7 +145,7 @@ void BackendRequest::configureRevaParams()
   if (_request_type != "COPY") {
     std::string token = _params.getRevaToken(uri);
     if (token != ""){
-      _headers_field.emplace_back("X-Access-Token", token);
+      _headers_field.emplace_back("Authorization", "Bearer " + token);
     }
   }
   else {
@@ -180,8 +180,8 @@ void BackendRequest::configureRevaParams()
       }
     }
 
-    _headers_field.emplace_back("X-Access-Token", active_token);
-    _headers_field.emplace_back("TransferHeaderX-Access-Token", passive_token);
+    _headers_field.emplace_back("Authorization", "Bearer " + active_token);
+    _headers_field.emplace_back("TransferHeaderAuthorization", passive_token);
 
   }
 }

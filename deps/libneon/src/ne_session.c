@@ -592,6 +592,30 @@ int ne__ssl_match_hostname(const char *cn, size_t cnlen, const char *hostname)
     NE_DEBUG(NE_DBG_SSL, "ssl: Match common name '%s' against '%s'",
              cn, hostname);
 
+    /* Host might be an IPv6 address. E.g.: [2001:0db8:85a3::100]
+     * Must remove the enclosing brackets to match the CN. */
+    size_t hlen = strlen(hostname);
+
+    if (hlen > 0 && hostname[0] == '[' && hostname[hlen - 1] == ']') {
+        char *hostname_ipv6;
+        ne_inet_addr *ia;
+        int match;
+
+        hostname_ipv6 = strdup(hostname + 1);
+        hostname_ipv6[hlen - 2] = '\0';
+        match = 0;
+
+        if ((ia = ne_iaddr_parse(hostname_ipv6, ne_iaddr_ipv6))) {
+            match = (cnlen == hlen - 2) && !ne_strcasecmp(cn, hostname_ipv6);
+            ne_iaddr_free(ia);
+            free(hostname_ipv6);
+        }
+
+        if (match) {
+            return 1;
+        }
+    }
+
     if (strncmp(cn, "*.", 2) == 0 && cnlen > 2
         && (dot = strchr(hostname, '.')) != NULL) {
         ne_inet_addr *ia;
@@ -601,7 +625,7 @@ int ne__ssl_match_hostname(const char *cn, size_t cnlen, const char *hostname)
          * be match 8.1.1.1).  draft-saintandre-tls-server-id-check
          * will require some more significant changes to cert ID
          * verification which will probably obviate this check, but
-         * this is a desirable policy tightening in the mean time. */
+         * this is a desirable policy tightening in the meantime. */
         ia = ne_iaddr_parse(hostname, ne_iaddr_ipv4);
         if (ia == NULL)
             ia = ne_iaddr_parse(hostname, ne_iaddr_ipv6);
@@ -613,8 +637,8 @@ int ne__ssl_match_hostname(const char *cn, size_t cnlen, const char *hostname)
             return 0;
         }
 
-	hostname = dot + 1;
-	cn += 2;
+        hostname = dot + 1;
+        cn += 2;
         cnlen -= 2;
     }
 

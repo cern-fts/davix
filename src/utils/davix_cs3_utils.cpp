@@ -62,7 +62,7 @@ void Credentials::getCredentialMap(CredentialMap & cmap) const {
      }
 }
 
-void Credentials::addCredentials(std::string uri, std::string token, bool token_write_access){
+void Credentials::addCredentials(std::string uri, std::string token, bool token_write_access) {
     
     if(credMap->find(uri) == credMap->end()){
         Credential cred {token, token_write_access};
@@ -71,45 +71,18 @@ void Credentials::addCredentials(std::string uri, std::string token, bool token_
 }
 
 
-// Helper function
-// To convert char* to string safely
-std::string getEnvStr(std::string var){
-  char* val = getenv(var.c_str());
-  return val == NULL ?   std::string() : std::string(val);
-}
-
 //
 // Credential Provider
 //
 
-void CredentialProvider::updateCredentials(Credentials &creds, std::string uri, bool token_write_access){
-    
+void CredentialProvider::updateCredentials(Credentials &creds, std::string uri, bool token_write_access) {
     //Assuming urls with +3rd prefix have been deprecated
-
-    std::string src_url, dst_url, token;
-
-    src_url = getEnvStr("SRC_URL");
-    dst_url = getEnvStr("DST_URL");
-
-    // Src and Dst env var need to be set as env var for the time being
-    // This will be removed in the future 
-  
-    if (src_url == "" || dst_url == ""){
-      throw DavixException(std::string("davix::reva"), StatusCode::EnvVarNotSet, "Source or Destination variable is not set");
+    char* token = getenv("REVA_TOKEN");
+    if(token == NULL) {
+        throw DavixException(std::string("davix::reva"), StatusCode::EnvVarNotSet, "REVA_TOKEN variable is not set");
     }
 
-    // If any required token is not set we get an empty string 
-    // When this happens copy fails with Authentication error
-
-    if(uri.compare(dst_url) <= 0 ){
-      token = getEnvStr("REVA_DST_TOKEN");
-    }
-    else if (uri.compare(src_url) <= 0 ){
-      token = getEnvStr("REVA_SRC_TOKEN");
-    }
-
-   creds.addCredentials(uri, token, token_write_access);
-    
+    creds.addCredentials(uri, std::string(token), token_write_access);
 }
 
 } //reva

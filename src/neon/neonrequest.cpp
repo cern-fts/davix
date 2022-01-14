@@ -153,9 +153,6 @@ void NeonRequest::prepareUriParams() {
     // configure swift params if needed
     if(_params.getProtocol() == RequestProtocol::Swift)
         configureSwiftParams();
-
-    if(_params.getProtocol() == RequestProtocol::CS3)
-        configureRevaParams();
 }
 
 //------------------------------------------------------------------------------

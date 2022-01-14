@@ -25,7 +25,6 @@
 #include <params/davixrequestparams.hpp>
 #include <libs/time_utils.h>
 #include <utils/davix_gcloud_utils.hpp>
-#include <utils/davix_cs3_utils.hpp>
 
 
 
@@ -100,7 +99,6 @@ struct RequestParamsInternal{
         _aws_cred(),
         _aws_region(),
         _aws_token(),
-        _reva_creds(),
         _aws_alternate(false),
         _azure_key(),
         _gcloud_creds(),
@@ -153,7 +151,6 @@ struct RequestParamsInternal{
         _aws_cred(param_private._aws_cred),
         _aws_region(param_private._aws_region),
         _aws_token(param_private._aws_token),
-        _reva_creds(param_private._reva_creds),
         _aws_alternate(param_private._aws_alternate),
         _azure_key(param_private._azure_key),
         _gcloud_creds(param_private._gcloud_creds),
@@ -205,7 +202,6 @@ struct RequestParamsInternal{
     std::pair<AwsSecretKey, AwsAccessKey> _aws_cred;
     AwsRegion _aws_region;
     AwsToken _aws_token;
-    reva::Credentials _reva_creds;
     bool _aws_alternate;
     AzureSecretKey _azure_key;
     gcloud::Credentials _gcloud_creds;
@@ -395,21 +391,6 @@ void RequestParams::setAwsToken(const AwsToken &token) {
 
 const AwsToken & RequestParams::getAwsToken() const {
     return d_ptr->_aws_token;
-}
-
-void RequestParams::setRevaCredentials(reva::Credentials &credentials) {
-        d_ptr->_reva_creds = credentials;
-}
-void RequestParams::getRevaCredentialMap(reva::CredentialMap & cmap) {
-        d_ptr->_reva_creds.getCredentialMap(cmap);
-}
-
-const RevaToken RequestParams::getRevaToken(std::string uri) const& {
-        return d_ptr->_reva_creds.getToken(uri);
-}
-
-const reva::Credentials & RequestParams::getRevaCredentials() const {
-        return d_ptr->_reva_creds;
 }
 
 void RequestParams::setAwsAlternate(const bool &alternate) {

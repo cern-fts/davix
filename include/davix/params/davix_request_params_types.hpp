@@ -124,11 +124,6 @@ typedef std::string AwsRegion;
 typedef std::string AwsToken;
 
 ///
-/// \brief string for Reva security token
-///
-typedef std::string RevaToken;
-
-///
 /// \brief string for Azure private key
 ///
 typedef std::string AzureSecretKey;

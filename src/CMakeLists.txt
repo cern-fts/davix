@@ -60,7 +60,6 @@ set(DAVIX_SOURCES
                                                          utils/davix_gcloud_utils.cpp
   utils/davix_logger_internal.hpp                        utils/davix_logger.cpp
                                                          utils/davix_misc_utils.cpp
-                                                         utils/davix_cs3_utils.cpp                                                       
   utils/davix_utils_internal.hpp                         utils/davix_s3_utils.cpp
                                                          utils/davix_swift_utils.cpp
   utils/simple_get_pass.h                                utils/simple_get_pass.cpp

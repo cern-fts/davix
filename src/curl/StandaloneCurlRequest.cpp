@@ -305,7 +305,6 @@ Status StandaloneCurlRequest::startRequest() {
   // Set request verb, target URL
   //----------------------------------------------------------------------------
   CURL* handle = _session->getHandle()->handle;
-  CURLM* mhandle = _session->getHandle()->mhandle;
 
   Uri uriCopy(_uri);
   uriCopy.httpizeProtocol();

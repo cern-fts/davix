@@ -113,7 +113,7 @@ std::unique_ptr<DrunkServer::Connection> DrunkServer::accept(int timeoutSeconds)
       int clientFd = _overflowFds.front();
       std::unique_ptr<Connection> conn = std::unique_ptr<Connection>(new Connection(clientFd));
       _overflowFds.pop_front();
-      return std::move(conn);
+      return conn;
     }
 
     _cv.wait_until(lock, deadline);

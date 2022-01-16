@@ -164,7 +164,7 @@ int dav_stat_mapper_http_get(Context& context, const RequestParams* params, cons
                 memset(&st_info, 0, sizeof(struct StatInfo));
                 std::string rnge;
                 req.getAnswerHeader("Content-Range", rnge);
-                int pos = rnge.find_first_of("/");
+                std::string::size_type pos = rnge.find_first_of("/");
                 if (pos == std::string::npos) {
                     throw DavixException(davix_scope_meta(), StatusCode::ParsingError, "Content-Range not parsable");
                 }

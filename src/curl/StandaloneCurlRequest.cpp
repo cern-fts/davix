@@ -450,7 +450,7 @@ Status StandaloneCurlRequest::startRequest() {
 Status StandaloneCurlRequest::checkErrors() {
   CURLMsg *msg;
   int msgs_left = 0;
-  while(msg = curl_multi_info_read(_session->getHandle()->mhandle, &msgs_left)) {
+  while((msg = curl_multi_info_read(_session->getHandle()->mhandle, &msgs_left))) {
     if(msg->msg == CURLMSG_DONE && msg->data.result != CURLE_OK) {
       sessionError = curlCodeToStatus(msg->data.result);
       return sessionError;

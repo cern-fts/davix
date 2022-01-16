@@ -22,9 +22,6 @@
 #define A_LIB_NAMESPACE Davix
 #endif
 
-namespace A_LIB_NAMESPACE {
-
-
 #if _SECURE_SCL
 # include <iterator>
 #endif
@@ -96,6 +93,8 @@ namespace A_LIB_NAMESPACE {
 #define FMT_DISALLOW_COPY_AND_ASSIGN(TypeName) \
   TypeName(const TypeName&); \
   void operator=(const TypeName&)
+
+namespace A_LIB_NAMESPACE {
 
 namespace fmt {
 

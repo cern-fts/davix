@@ -113,7 +113,7 @@ int GRSTx509MakeProxyCert(char **proxychain, FILE *debugfp,
                   X509v3_KU_KEY_AGREEMENT,
                   0 };
   int i, ncerts, any_rfc_proxies = 0;
-  long serial = 1234, ptrlen;
+  long ptrlen;
   EVP_PKEY *pkey, *CApkey;
   const EVP_MD *digest;
   X509 **certs = NULL;

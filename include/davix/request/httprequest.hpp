@@ -318,7 +318,7 @@ public:
 
     ///
     /// get all the headers associated with this answer
-    /// @param value : vector of headers
+    /// @param vec_headers : vector of headers
     /// @return true if this header exist or false if it does not
     ///
     /// @snippet example_code_snippets.cpp HttpRequest::getAnswerHeaders

@@ -414,7 +414,7 @@ public:
       @param len size of the next chunk to read
       @param advise type of pattern for I/O : sequential, random
     */
-    void fadvise(DAVIX_FD* fd, dav_off_t offset, dav_size_t len, advise_t advice);
+    void fadvise(DAVIX_FD* fd, dav_off_t offset, dav_size_t len, advise_t advise);
 
 private:
     DAVIX_DIR* internal_opendirpp(const RequestParams* params,  const char * scope, const std::string & body, const std::string & url, DavixError** err);

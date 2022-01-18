@@ -23,7 +23,7 @@
 #define REQUEST_PARAMS_TYPES_HPP
 
 /**
-  @file request_params_types.hpp
+  @file davix_request_params_types.hpp
   @author Devresse Adrien
 
   @brief types for request parameters

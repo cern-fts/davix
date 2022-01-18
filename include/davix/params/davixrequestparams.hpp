@@ -218,7 +218,7 @@ public:
 
     ///
     /// \brief set the secret key for Azure authentication
-    /// \param key the secret key
+    /// \param creds the secret key
     ///
     void setGcloudCredentials(const Davix::gcloud::Credentials & creds);
 
@@ -242,7 +242,7 @@ public:
 
     ///
     /// \brief set the OS project id used for Swift authentication
-    /// \param the project id
+    /// \param id the project id
     ///
     void setOSProjectID(const OSProjectID & id);
 
@@ -254,7 +254,7 @@ public:
 
     ///
     /// \brief set the Swift account used for Swift authentication
-    /// \param the Swift account
+    /// \param account the Swift account
     ///
     void setSwiftAccount(const SwiftAccount & account);
 
@@ -451,7 +451,7 @@ public:
 
     /// set the number of retries that davix should perform in case
     /// it receives 202-Accepted on a GET request
-    /// @param num_tries the number of retries
+    /// @param num_retries the number of retries
     void setAcceptedRetry(int num_retries);
 
     /// get the delay in seconds between retries that davix should

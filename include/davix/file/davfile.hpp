@@ -314,8 +314,7 @@ public:
     ///  @brief execute a file meta-data query
     ///
     ///  @param params Davix request Parameters
-    ///  @param st stat struct
-    ///  @param err Davix error report
+    ///  @param info stat struct
     ///  @return 0 if success, or -1 if error occures
     ///
     ///  @snippet example_code_snippets.cpp statInfo

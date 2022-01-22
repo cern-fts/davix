@@ -57,4 +57,5 @@ make DESTDIR="${TARBALL_DIR}" install
 find "${TARBALL_DIR}" -type f -regex ".*\(1\|3\)$" -exec gzip {} \;
 popd
 
-tar -pcvzf "${FILENAME}.tar.gz" "${TARBALL_DIR}"
+tar -pczf "${FILENAME}.tar.gz" "${TARBALL_DIR}"
+printf "Wrote: %s.tar.gz\n" "${FILENAME}"

@@ -33,6 +33,18 @@ cmake-tarball:
     - mkdir build && cd build
     - cmake3 ..
 
+binary-tarball:
+  stage: build
+  image: gitlab-registry.cern.ch/linuxsupport/cc7-base
+  script:
+    - ci/fedora/packages.sh
+    - packaging/make-binary-dist.sh
+    - tree binary-tarball/ --filelimit 10
+  when: manual
+  artifacts:
+    paths:
+      - davix-*.tar.gz
+
 cc7:
   stage: build
   image: gitlab-registry.cern.ch/linuxsupport/cc7-base

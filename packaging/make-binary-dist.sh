@@ -46,7 +46,7 @@ fi
 
 rm -rf build/ binary-tarball/
 mkdir build/ binary-tarball/
-TARBALL_DIR=""${PWD}/binary-tarball/""
+TARBALL_DIR="${PWD}/binary-tarball/"
 
 pushd build/
 cmake3 ../ -DCMAKE_INSTALL_PREFIX="/" -DCMAKE_BUILD_TYPE=Release -DENABLE_THIRD_PARTY_COPY=True \

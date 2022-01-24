@@ -31,6 +31,7 @@ printf "====================\n"
 # Install all build dependencies
 #-------------------------------------------------------------------------------
 
+rm -rf build/ binary-tarball/
 git submodule update --recursive --init
 ./packaging/make-srpm.sh
 
@@ -44,7 +45,7 @@ fi
 # Compile davix and create binary tarball
 #-------------------------------------------------------------------------------
 
-rm -rf build/ binary-tarball/
+rm -rf build/
 mkdir build/ binary-tarball/
 TARBALL_DIR="${PWD}/binary-tarball/"
 

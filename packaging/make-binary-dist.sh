@@ -56,9 +56,10 @@ printf "====================\n"
 # Install all build dependencies
 #-------------------------------------------------------------------------------
 
+git submodule update --recursive --init
+
 if [ "$build_dependencies" = true ]; then
   rm -rf build/ binary-tarball/
-  git submodule update --recursive --init
   ./packaging/make-srpm.sh
 
   if [[ -f /usr/bin/dnf ]]; then

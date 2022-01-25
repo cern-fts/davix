@@ -12,6 +12,31 @@ set -e
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
+# Handle command line arguments
+#-------------------------------------------------------------------------------
+
+function usage {
+  filename=$(basename "$0")
+  echo "usage: $filename [ --skip-dependencies ]"
+  echo "       skip-dependencies  -- skip the SRPM building and package dependencies installation"
+  echo ""
+
+  exit 1
+}
+
+build_dependencies=true
+
+if [ "$#" -gt 1 ]; then
+  usage
+elif [ "$#" -eq 1 ]; then
+  if [ "$1" != "--skip-dependencies" ]; then
+    usage
+  fi
+
+  build_dependencies=false
+fi
+
+#-------------------------------------------------------------------------------
 # Generate variables for binary distribution
 #-------------------------------------------------------------------------------
 
@@ -31,21 +56,23 @@ printf "====================\n"
 # Install all build dependencies
 #-------------------------------------------------------------------------------
 
-rm -rf build/ binary-tarball/
-git submodule update --recursive --init
-./packaging/make-srpm.sh
+if [ "$build_dependencies" = true ]; then
+  rm -rf build/ binary-tarball/
+  git submodule update --recursive --init
+  ./packaging/make-srpm.sh
 
-if [[ -f /usr/bin/dnf ]]; then
-  dnf builddep -y build/SRPMS/davix-*.src.rpm
-else
-  yum-builddep -y build/SRPMS/davix-*.src.rpm
+  if [[ -f /usr/bin/dnf ]]; then
+    dnf builddep -y build/SRPMS/davix-*.src.rpm
+  else
+    yum-builddep -y build/SRPMS/davix-*.src.rpm
+  fi
 fi
 
 #-------------------------------------------------------------------------------
 # Compile davix and create binary tarball
 #-------------------------------------------------------------------------------
 
-rm -rf build/
+rm -rf build/ binary-tarball/
 mkdir build/ binary-tarball/
 TARBALL_DIR="${PWD}/binary-tarball/"
 

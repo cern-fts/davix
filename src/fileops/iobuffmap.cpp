@@ -364,8 +364,21 @@ bool HttpIOBuffer::open(IOChainContext & iocontext, int flags){
             _file_exist = false;
             _opened = true;
             _local.reset(createLocalBuffer());
-        }else{
-            throw e;
+        } else if (e.code() == StatusCode::PermissionRefused
+                && (flags == O_RDONLY)) {
+          std::string errmsg = e.what();
+
+          // Some servers don't support HEAD request
+          // When HTTP 405 is returned, move on to GET request
+          if (errmsg.rfind("HTTP 405", 0) == 0) {
+            _file_size = 0;
+            _file_exist = true;
+            _opened = true;
+          }
+        }
+
+        if (!_opened) {
+          throw e;
         }
     }
 

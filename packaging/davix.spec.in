@@ -117,6 +117,9 @@ ln -s %{python2_sitelib}/sphinx_rtd_theme doc/sphinx/_themes
 
 %build
 %cmake3 \
+%if 0%{?fedora} || 0%{?rhel} >= 9
+  -DEMBEDDED_LIBCURL=FALSE \
+%endif
   -DDOC_INSTALL_DIR=%{_pkgdocdir} \
   -DENABLE_THIRD_PARTY_COPY=TRUE \
   -DENABLE_HTML_DOCS=TRUE

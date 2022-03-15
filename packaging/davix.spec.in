@@ -1,13 +1,14 @@
 %undefine __cmake_in_source_build
 %undefine __cmake3_in_source_build
 
-Name:				  davix
-Version:			@VERSION_FULL@
-Release:			1%{?dist}
-Summary:			Toolkit for HTTP-based file management
-License:			LGPLv2+
-URL:				  https://dmc-docs.web.cern.ch/dmc-docs/davix.html
-Source0:			https://github.com/cern-fts/davix/releases/download/R_0_8_0/davix-0.8.0.tar.gz
+Name:         davix
+Version:      @VERSION_FULL@
+Release:      1%{?dist}
+Summary:      Toolkit for HTTP-based file management
+License:      LGPLv2+
+URL:          https://dmc-docs.web.cern.ch/dmc-docs/davix.html
+#Source0:     https://github.com/cern-fts/davix/releases/download/R_0_8_0/davix-0.8.0.tar.gz
+Source0:      %{name}-%{version}.tar.gz
 
 BuildRequires:      gcc-c++
 BuildRequires:      python2
@@ -61,8 +62,8 @@ Libraries for %{name}. Davix is a toolkit designed for file operations
 with HTTP based protocols (WebDav, Amazon S3, ...).
 
 %package devel
-Summary:			Development files for %{name}
-Requires:			%{name}-libs%{?_isa} = %{version}-%{release}
+Summary:       Development files for %{name}
+Requires:      %{name}-libs%{?_isa} = %{version}-%{release}
 
 %description devel
 Development files for %{name}. Davix is a toolkit designed for file operations
@@ -72,7 +73,7 @@ with HTTP based protocols (WebDav, Amazon S3, ...).
 Summary:      Test suite for %{name}
 Requires:     %{name}-libs%{?_isa} = %{version}-%{release}
 %if 0%{?rhel} == 7
-Provides:			bundled(gtest) = 1.7.0
+Provides:     bundled(gtest) = 1.7.0
 %endif
 
 %description tests
@@ -80,7 +81,7 @@ Test suite for %{name}. Davix is a toolkit designed for file operations
 with HTTP based protocols (WebDav, Amazon S3, ...).
 
 %package doc
-Summary:			Documentation for %{name}
+Summary:      Documentation for %{name}
 BuildArch:    noarch
 
 %description doc

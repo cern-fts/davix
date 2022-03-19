@@ -150,8 +150,8 @@ docs-generate:
 cc7-test:
   stage: test
   image: gitlab-registry.cern.ch/linuxsupport/cc7-base
-  dependencies:
-    - cc7
+  needs:
+    - job: cc7
   script:
     - yum install -y cc7/RPMS/*.rpm
     - davix-unit-tests
@@ -159,8 +159,8 @@ cc7-test:
 centos8-test:
   stage: test
   image: gitlab-registry.cern.ch/linuxsupport/c8-base
-  dependencies:
-    - centos8
+  needs:
+    - job: centos8
   script:
     - dnf install -y epel-release
     - dnf install -y centos8/RPMS/*.rpm
@@ -169,8 +169,8 @@ centos8-test:
 fedora-34-test:
   stage: test
   image: fedora:34
-  dependencies:
-    - fedora-34
+  needs:
+    - job: fedora-34
   script:
     - dnf install -y fedora-34/RPMS/*.rpm
     - davix-unit-tests
@@ -178,8 +178,8 @@ fedora-34-test:
 fedora-35-test:
   stage: test
   image: fedora:35
-  dependencies:
-    - fedora-35
+  needs:
+    - job: fedora-35
   script:
     - dnf install -y fedora-35/RPMS/*.rpm
     - davix-unit-tests

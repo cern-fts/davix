@@ -69,5 +69,15 @@ The official repository is the one on [GitHub](https://github.com/cern-fts/davix
 * Please don't commit directly on GitLab.
 * After a commit, GitLab will mirror the changes automatically, and run CI. Treat Gitlab as if it were ie a Jenkins CI instance.
 
+The project uses a simplified [GitFlow](https://nvie.com/posts/a-successful-git-branching-model/) branching approach.
+The main branch is the `devel` branch, with `master` being reserved only for tagged released.
+
+Feature branches are developed separately and merged into the `devel` branch.
+When preparing a release, either `devel` is merged directly into `master`
+or a release branch is created. Hotfix branches start from `master`, have a very
+targeted objective before being merged back into `master` and should be employed 
+only in case of necessity. Changes done on release and hotfix branches 
+must be merged back into `devel`.
+
 ## Contact
 Suggestions and patches are more than welcome. You can send an email to the [davix-devel](mailto:davix-devel@cern.ch) CERN mailing list, or contact directly the [current maintainer](mailto:georgios.bitzes@cern.ch).

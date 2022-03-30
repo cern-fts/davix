@@ -46,9 +46,13 @@ struct DAVIX_EXPORT PerformanceMarker
     PerformanceMarker();
 };
 
+enum IPtype {undefined=0, IPv4=4, IPv6=6};
+
 struct DAVIX_EXPORT PerformanceData
 {
     time_t begin, latest;
+
+    enum IPtype ipflag;
 
     std::vector<PerformanceMarker> markers;
 

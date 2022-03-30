@@ -5,6 +5,7 @@
 * [DMC-1259] - Gfal2-python pread(offset, count): Partial Content request not working against EOS storage
 * [DMC-1279] - Davix with libcurl backend does not load certificate via callback functions
 * [DMC-1291] - Davix fails to parse IPv6-format hostname during certificate verification
+* [davix/issues/71] - davix-get failing auth with DAVIX_USE_LIBCURL
 * [davix/issues/92] - Update CMake FindPackage Python to allow Python3 on macOS
 
 ### Changes

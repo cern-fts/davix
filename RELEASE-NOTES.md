@@ -1,5 +1,25 @@
 # davix release history
 
+## 0.8.1 (2022-03-22)
+### Bug fixes
+* [DMC-1259] - Gfal2-python pread(offset, count): Partial Content request not working against EOS storage
+* [DMC-1279] - Davix with libcurl backend does not load certificate via callback functions
+* [DMC-1291] - Davix fails to parse IPv6-format hostname during certificate verification
+* [davix/issues/92] - Update CMake FindPackage Python to allow Python3 on macOS
+
+### Changes
+* [davix/pull/83] - Remove reva-specific credentials management
+
+### Improvements
+* [DMC-1025] - Allow HEAD-free open through posix API
+* [DMC-1308] - Move Data Management Clients to Fedora 34 & 35
+* [DMC-1313] - Provide Debian Stretch build for Davix
+* [davix/issues/91] - Document the project Git branching model
+* Many improvements fixing compiler warnings and building for Fedora platforms (Thanks to Mattias Ellert)
+
+### Requests
+* [DMC-1292] - Binary tarballs for davix
+
 ## 0.8.0 (2021-09-17)
 ### Epic
 * [DMC-1267] - Davix with libcurl backend

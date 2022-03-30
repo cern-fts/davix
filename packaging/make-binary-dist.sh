@@ -83,8 +83,8 @@ cmake3 ../ -DCMAKE_INSTALL_PREFIX="/" -DCMAKE_BUILD_TYPE=Release -DENABLE_THIRD_
 make
 make doc
 make DESTDIR="${TARBALL_DIR}" install
-find "${TARBALL_DIR}" -type f -regex ".*\(1\|3\)$" -exec gzip {} \;
+find "${TARBALL_DIR}" -path "*/man/*" -type f -regex ".*\(1\|3\)$" -exec gzip {} \;
 popd
 
-tar -pczf "${FILENAME}.tar.gz" "${TARBALL_DIR}"
+tar -pczf "${FILENAME}.tar.gz" -C "${TARBALL_DIR}" .
 printf "Wrote: %s.tar.gz\n" "${FILENAME}"

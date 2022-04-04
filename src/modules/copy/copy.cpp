@@ -357,7 +357,7 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
     delete request;
 }
 
-/* Pasrde string to determine IPv type */
+/* Pasrse string to determine IPv type */
 enum IPtype getIPv_type(char *text) {
     IPtype type=undefined; 
     int start=0;

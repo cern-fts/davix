@@ -364,10 +364,16 @@ enum IPtype getIPv_type(char *text) {
     int lbkt=0, rbkt=0, per=0;
 	int i=0;
 
-	while (isspace(text[start])) //skip any initial whitespaces at the beginning
+	while (text[start] && isspace(text[start])) //skip any initial whitespaces at the beginning
         start++;
 
-    for (i=start; ;i++) {
+	if (!text[start])
+		return(undefined);
+	if (!(strncasecmp("tcp:", text+start, 4) || 
+		  strncasecmp("udp:", text+start, 4))) //Check format validity
+		return(undefined);
+
+    for (i=start;text[i];i++) {
         if (isspace(text[i]))
             break;
         else if (text[i] == '[')
@@ -379,9 +385,9 @@ enum IPtype getIPv_type(char *text) {
     }
 
     /* 
-       Test for IPv4 or IPv6 address. IPv6 type contains square brackets. IPv4 contains 3 periods. 
-	   Note that IPv4-mapped IPv6 addresses are of the format [::ffff.<IPv4 address>] 
-    */
+     *  Test for IPv4 or IPv6 address. IPv6 type contains square brackets. IPv4 contains 3 periods. 
+	 *  Note that IPv4-mapped IPv6 addresses are of the format [::ffff.<IPv4 address>] 
+     */
 	if (lbkt && rbkt)
         type = IPv6;
     else if (per == 3)
@@ -438,7 +444,7 @@ void DavixCopyInternal::monitorPerformanceMarkers(Davix::HttpRequest *request,
         else if (strncasecmp("RemoteConnections:", p, 18) == 0)
         {
             // Parse to determine  IPv4 or IPv6
-            performance.ipflag = getIPv_type(p + 19);
+            performance.ipflag = getIPv_type(p + 18);
             DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_GRID, "Got ipflag: {}", performance.ipflag);
             
         }

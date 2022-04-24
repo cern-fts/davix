@@ -69,6 +69,7 @@ IF (ENABLE_THIRD_PARTY_COPY)
                             VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}
                             SOVERSION ${VERSION_MAJOR}
                             LINK_INTERFACE_LIBRARIES ""
+                            INTERFACE_LINK_LIBRARIES ""
                             CLEAN_DIRECT_OUTPUT 1
                             OUTPUT_NAME "davix_copy")
 

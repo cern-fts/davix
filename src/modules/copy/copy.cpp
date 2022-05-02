@@ -320,7 +320,7 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
         }
         else if (responseStatus == 400) {
             std::string err_msg(request->getAnswerContentVec().begin(), request->getAnswerContentVec().end());
-        	DavixError::setupError(error, COPY_SCOPE, StatusCode::InvalidArgument,
+            DavixError::setupError(error, COPY_SCOPE, StatusCode::InvalidArgument,
                                    fmt::format("Could not COPY. The server rejected the request: {}", err_msg));
         }
         else if (responseStatus >= 300) {
@@ -362,16 +362,17 @@ enum IPtype getIPv_type(char *text) {
     IPtype type=undefined; 
     int start=0;
     int lbkt=0, rbkt=0, per=0;
-	int i=0;
+    int i=0;
 
-	while (text[start] && isspace(text[start])) //skip any initial whitespaces at the beginning
+    while (text[start] && isspace(text[start])) //skip any initial whitespaces at the beginning
         start++;
 
-	if (!text[start])
-		return(undefined);
-	if (!(strncasecmp("tcp:", text+start, 4) || 
-		  strncasecmp("udp:", text+start, 4))) //Check format validity
-		return(undefined);
+    if (!text[start])
+        return(undefined);
+
+    if (!(strncasecmp("tcp:", text+start, 4) || 
+          strncasecmp("udp:", text+start, 4))) //Check format validity
+        return(undefined);
 
     for (i=start;text[i];i++) {
         if (isspace(text[i]))
@@ -381,14 +382,14 @@ enum IPtype getIPv_type(char *text) {
         else if (text[i] == ']')
             rbkt++;
         else if (text[i] == '.')
-			per++;
+            per++;
     }
 
     /* 
      *  Test for IPv4 or IPv6 address. IPv6 type contains square brackets. IPv4 contains 3 periods. 
-	 *  Note that IPv4-mapped IPv6 addresses are of the format [::ffff.<IPv4 address>] 
+     *  Note that IPv4-mapped IPv6 addresses are of the format [::ffff.<IPv4 address>] 
      */
-	if (lbkt && rbkt)
+    if (lbkt && rbkt)
         type = IPv6;
     else if (per == 3)
         type = IPv4;

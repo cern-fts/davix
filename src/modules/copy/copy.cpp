@@ -477,7 +477,7 @@ void DavixCopyInternal::monitorPerformanceMarkers(Davix::HttpRequest *request,
         {
             clearOutcome = true;
             Davix::DavixError::setupError(error, COPY_SCOPE, StatusCode::RemoteError,
-                    std::string("Transfer failed: ") + p);
+                    std::string("Transfer ") + p);
             break;
         }
         else if(line_len> 0)

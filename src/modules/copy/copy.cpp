@@ -195,13 +195,10 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
     // if destination is s3 endpoint, change prefix to http(s) and pre-sign the request as a PUT
     if(destination.compare(0,2,"s3") == 0){
         destination.replace(0, 2, "http");
-        time_t expiration_time = time(NULL) +3600;
         Davix::HeaderVec vec;
         Uri tmp;
-        if (parameters->getCopyMode() == CopyMode::Pull)
-            tmp = Davix::S3::tokenizeRequest(requestParams, "GET", destination, vec, expiration_time);
-        else
-            tmp = Davix::S3::tokenizeRequest(requestParams, "PUT", destination, vec, expiration_time);
+        std::string method = (parameters->getCopyMode() == CopyMode::Pull) ? "GET" : "PUT";
+        tmp = Davix::S3::signURI(requestParams, method, destination, vec, 3600);
         destination = tmp.getString();
         suppressFinalHead = true;
     }

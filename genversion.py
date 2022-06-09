@@ -36,13 +36,15 @@ def makeVersionTriplet(fragments):
     raise Exception("Invalid length of version fragments: {0}".format(fragments))
 
 class SoftwareVersion:
-    def __init__(self, major, minor, patch, miniPatch=None):
+    def __init__(self, major, minor, patch, miniPatch=None, release=None):
         self.major = major
         self.minor = minor
         self.patch = patch
         self.miniPatch = miniPatch
+        self.release = release
 
         if self.patch == None: assert self.miniPatch == None
+        if self.miniPatch != None: assert self.release == None
 
     def toString(self):
         ret = "{0}.{1}".format(self.major, self.minor)
@@ -52,6 +54,9 @@ class SoftwareVersion:
 
         if self.miniPatch is not None:
             ret += ".{0}".format(self.miniPatch)
+
+        if self.release is not None:
+            ret += "-{0}".format(self.release)
 
         return ret
 
@@ -68,7 +73,7 @@ class GitDescribe:
         if self.dirty:
             parts = parts[0:len(parts)-len("-dirty")]
 
-        # Trim any preceeding "v" or "R" in the version, if any
+        # Trim any preceding "v" or "R" in the version, if any
         parts = removePrefix(parts, "v")
         parts = removePrefix(parts, "R_")
 
@@ -88,6 +93,14 @@ class GitDescribe:
             self.numberOfCommits = int(tmp[-1])
             parts = parts[0:(len(parts) - len(tmp[-1]) - 1)]
 
+        # Do we have a release version? (e.g.: R_0_8_x-2)
+        # Set release version only for tags (no commit hash present)
+        self.release = None
+        tmp = parts.split("-")
+        if len(tmp) == 2:
+            self.release = int(tmp[-1]) if not self.commitHash else None
+            parts = parts[0:(len(parts) - len(tmp[-1]) - 1)]
+
         # Are we using "_", ".", or "-" as delimiter?
         self.versionFragments = None
         for delim in ["_", ".", "-"]:
@@ -96,7 +109,7 @@ class GitDescribe:
                 break
 
         if not self.versionFragments:
-            raise Exception("Unable to parse vresion fragments of {0}".format(self.description))
+            raise Exception("Unable to parse version fragments of {0}".format(self.description))
 
         if len(self.versionFragments) != 2 and len(self.versionFragments) != 3:
             raise Exception("Unable to understand version fragments ({0}) of {1}".format(self.versionFragments, self.description))
@@ -110,7 +123,8 @@ class GitDescribe:
           self.versionTriplet[0],
           self.versionTriplet[1],
           self.versionTriplet[2],
-          self.miniPatch
+          self.miniPatch,
+          self.release
         )
 
     def buildMiniPatch(self):

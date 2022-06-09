@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 ################################################################################
 ## Script to generate version numbers from git tags.                          ##
@@ -20,7 +20,10 @@
 ## along with this program.  If not, see <http://www.gnu.org/licenses/>.      ##
 ################################################################################
 
-import os, subprocess, sys, argparse
+import os
+import subprocess
+import sys
+import argparse
 
 def removePrefix(s, prefix):
     if s.startswith(prefix):

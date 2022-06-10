@@ -38,6 +38,20 @@ cmake-from-tarball:
     - mkdir build/ && cd build/
     - cmake3 ../
 
+source-tarball:
+  stage: build
+  image: gitlab-registry.cern.ch/linuxsupport/cc7-base
+  script:
+    - yum install -y git python3
+    - packaging/make-dist.sh
+  artifacts:
+    paths:
+      - build/davix-*.tar.gz
+  rules:
+    - if: '$CI_COMMIT_TAG != null'
+    - if: '$CI_COMMIT_TAG == null'
+      when: manual
+
 binary-tarball:
   stage: build
   image: gitlab-registry.cern.ch/linuxsupport/cc7-base
@@ -45,10 +59,13 @@ binary-tarball:
     - ci/fedora/packages.sh
     - packaging/make-binary-dist.sh
     - tree binary-tarball/ --filelimit 10
-  when: manual
   artifacts:
     paths:
       - davix-*.tar.gz
+  rules:
+    - if: '$CI_COMMIT_TAG != null'
+    - if: '$CI_COMMIT_TAG == null'
+      when: manual
 
 cc7:
   image: gitlab-registry.cern.ch/linuxsupport/cc7-base

@@ -37,12 +37,13 @@ cp -r packaging/debian "${BUILD_ARENA}/davix-${VERSION_FULL}"
 # releases, the changelog has been updated already by the release script.
 #-------------------------------------------------------------------------------
 MINIPATCH=$(./genversion.py --template-string "@VERSION_MINIPATCH@")
+RELEASE=$(./genversion.py --template-string "@VERSION_RELEASE@")
 
 if [[ ! -z "$MINIPATCH" ]]; then
   pushd "${BUILD_ARENA}/davix-${VERSION_FULL}/debian"
 
   CURRENT_DATE=$(date -R)
-  echo "davix (${VERSION_FULL}-1) unstable; urgency=low"           >> patched-changelog
+  echo "davix (${VERSION_FULL}-${RELEASE}) unstable; urgency=low"  >> patched-changelog
   echo ""                                                          >> patched-changelog
   echo "  * CI build, update to version ${VERSION_FULL}"           >> patched-changelog
   echo ""                                                          >> patched-changelog

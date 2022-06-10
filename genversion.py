@@ -44,10 +44,12 @@ class SoftwareVersion:
         self.minor = minor
         self.patch = patch
         self.miniPatch = miniPatch
-        self.release = release
+        self.release = 1
+
+        if self.miniPatch is None and release:
+            self.release = release
 
         if self.patch == None: assert self.miniPatch == None
-        if self.miniPatch != None: assert self.release == None
 
     def toString(self):
         ret = "{0}.{1}".format(self.major, self.minor)
@@ -57,9 +59,6 @@ class SoftwareVersion:
 
         if self.miniPatch is not None:
             ret += ".{0}".format(self.miniPatch)
-
-        if self.release is not None:
-            ret += "-{0}".format(self.release)
 
         return ret
 
@@ -86,7 +85,7 @@ class GitDescribe:
         potentialHash = parts.split("-")
         if potentialHash and potentialHash[-1].startswith("g"):
             self.commitHash = potentialHash[-1][1:]
-            parts = parts[0:(len(parts) - len(self.commitHash) - 2 )]
+            parts = parts[0:(len(parts) - len(self.commitHash) - 2)]
 
         # Is there a number of commits since tag? Can only exist if hash has been
         # found already.
@@ -97,11 +96,11 @@ class GitDescribe:
             parts = parts[0:(len(parts) - len(tmp[-1]) - 1)]
 
         # Do we have a release version? (e.g.: R_0_8_x-2)
-        # Set release version only for tags (no commit hash present)
+        # Note: release version is taken into account only for tags (no commit hash present)
         self.release = None
         tmp = parts.split("-")
         if len(tmp) == 2:
-            self.release = int(tmp[-1]) if not self.commitHash else None
+            self.release = int(tmp[-1])
             parts = parts[0:(len(parts) - len(tmp[-1]) - 1)]
 
         # Are we using "_", ".", or "-" as delimiter?
@@ -258,6 +257,7 @@ def main():
       ["@VERSION_MINOR@", softwareVersion.minor],
       ["@VERSION_PATCH@", softwareVersion.patch],
       ["@VERSION_MINIPATCH@", softwareVersion.miniPatch],
+      ["@VERSION_RELEASE@", softwareVersion.release],
       ["@VERSION_FULL@", softwareVersion.toString()]
     ]
 

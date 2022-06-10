@@ -134,6 +134,6 @@ printf "2. Push the newly created commit and the tag: git push --atomic origin d
 printf "3. Mark this version on JIRA as released\n"
 printf "4. Create a release announcement on https://github.com/cern-fts/davix/releases\n"
 printf "5. Publish correct source and binary tarball to the Github Release page\n"
-printf "5a. Source and binary tarballs are built in the CI"
+printf "5a. Source and binary tarballs are built in the CI\n"
 printf "6. When ready, push the package to DMC production and EPEL repositories\n"
 printf "\nRelease Guide available on https://cern.ch/dmc-docs\n"

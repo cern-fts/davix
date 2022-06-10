@@ -1,6 +1,6 @@
 # davix release history
 
-## UNRELEASED
+## 0.8.2 (2022-06-10)
 ### New Features
 * [DMC-1310] - Parse IP stack performance markers in Davix HTTP-TPC
 * [DMC-1320] - Compute S3v4 URI signatures for HTTP TPC calls

@@ -1,5 +1,19 @@
 # davix release history
 
+## UNRELEASED
+### New Features
+* [DMC-1310] - Parse IP stack performance markers in Davix HTTP-TPC
+* [DMC-1320] - Compute S3v4 URI signatures for HTTP TPC calls
+
+### Issues
+* [davix/issues/97] - Address copyrighted song lyrics in codebase
+* [root-project/root/issues/9072] - HTTP basic authentication and Davix
+
+### Improvements
+* [DMC-1318] - Better HTTP Copy error message in Davix
+* [davix/pull/95] - Fix CMake warning
+* Improve build and release scripts to also accept tags containing release number
+
 ## 0.8.1 (2022-03-22)
 ### Bug fixes
 * [DMC-1259] - Gfal2-python pread(offset, count): Partial Content request not working against EOS storage

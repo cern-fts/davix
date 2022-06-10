@@ -23,35 +23,20 @@ stages:
 # Build jobs
 #--------------------------
 
-cmake-no-git:
+cmake-from-tarball:
   stage: build
   image: gitlab-registry.cern.ch/linuxsupport/cc7-base
   script:
     - ci/fedora/packages.sh
-    - yum install -y git rpm-build gcc-c++
     - git submodule update --init --recursive
-    - ./packaging/make-srpm.sh
-    - yum-builddep -y build/SRPMS/*
-    - rm -rf .git build
-    - mkdir build
-    - cd build
-    - cmake3 ..
-
-cmake-tarball:
-  stage: build
-  image: gitlab-registry.cern.ch/linuxsupport/cc7-base
-  script:
-    - ci/fedora/packages.sh
-    - yum install -y git rpm-build gcc-c++
-    - git submodule update --init --recursive
-    - ./packaging/make-srpm.sh
+    - packaging/make-srpm.sh
     - yum-builddep -y build/SRPMS/*
     - packaging/make-dist.sh
-    - cd build
+    - cd build/
     - tar xf davix-*.tar.gz
     - cd davix-*/
-    - mkdir build && cd build
-    - cmake3 ..
+    - mkdir build/ && cd build/
+    - cmake3 ../
 
 binary-tarball:
   stage: build

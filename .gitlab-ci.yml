@@ -76,6 +76,10 @@ centos8:
   image: gitlab-registry.cern.ch/linuxsupport/c8-base
   <<: *build-fedora-template_definition
 
+cs9:
+  image: gitlab-registry.cern.ch/linuxsupport/cs9-base
+  <<: *build-fedora-template_definition
+
 fedora-34:
   image: fedora:34
   <<: *build-fedora-template_definition
@@ -151,6 +155,16 @@ centos8-test:
     - dnf install -y centos8/RPMS/*.rpm
     - davix-unit-tests
 
+cs9-test:
+  stage: test
+  image: gitlab-registry.cern.ch/linuxsupport/cs9-base
+  needs:
+    - job: cs9
+  script:
+    - dnf install -y epel-release
+    - dnf install -y cs9/RPMS/*.rpm
+    - davix-unit-tests
+
 fedora-34-test:
   stage: test
   image: fedora:34
@@ -202,12 +216,13 @@ rpms:
   dependencies:
     - cc7
     - centos8
+    - cs9
   script:
     - yum install -y python sssd-client sudo createrepo
     - automount
     - cat "$STCI_PASSWORD" | kinit stci
     - eosfusebind
-    - for platform in cc7 centos8; do packaging/repo-manager.py --action add --base /eos/project/s/storage-ci/www/davix --ref ${CI_COMMIT_REF_NAME} --packages ${platform}/RPMS/* ${platform}/SRPMS/* ; done
+    - for platform in cc7 centos8 cs9; do packaging/repo-manager.py --action add --base /eos/project/s/storage-ci/www/davix --ref ${CI_COMMIT_REF_NAME} --packages ${platform}/RPMS/* ${platform}/SRPMS/* ; done
     - sleep 60
   tags:
     - docker-privileged
@@ -222,6 +237,7 @@ rpms-dmc:
   dependencies:
     - cc7
     - centos8
+    - cs9
     - fedora-34
     - fedora-35
     - fedora-rawhide
@@ -230,10 +246,10 @@ rpms-dmc:
     - automount
     - cat "$STCI_PASSWORD" | kinit stci
     - eosfusebind
-    - declare -A DISTMAP=( [cc7]=el7 [centos8]=el8 [fedora-34]=fc34 [fedora-35]=fc35 [fedora-rawhide]=fc-rawhide )
+    - declare -A DISTMAP=( [cc7]=el7 [centos8]=el8 [cs9]=el9 [fedora-34]=fc34 [fedora-35]=fc35 [fedora-rawhide]=fc-rawhide )
     - if [[ -z $CI_COMMIT_TAG ]]; then BUILD="testing" ; else BUILD="rc" ; fi
     - |
-        for platform in cc7 centos8 fedora-34 fedora-35 fedora-rawhide ; do
+        for platform in cc7 centos8 cs9 fedora-34 fedora-35 fedora-rawhide ; do
           dist=${DISTMAP[${platform}]};
           cp -nv ${platform}/RPMS/* ${platform}/SRPMS/* /eos/project-d/dmc/www/repos/${BUILD}/${dist}/x86_64 || true;
           packaging/update-repo.sh /eos/project-d/dmc/www/repos/${BUILD}/${dist}/x86_64;

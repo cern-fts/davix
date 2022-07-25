@@ -12,4 +12,4 @@ else
   yum-builddep -y SRPMS/*
 fi
 
-rpmbuild --rebuild --with server --define "_build_name_fmt %%{NAME}-%%{VERSION}-%%{RELEASE}.%%{ARCH}.rpm" SRPMS/*
+rpmbuild --rebuild --define "_build_name_fmt %%{NAME}-%%{VERSION}-%%{RELEASE}.%%{ARCH}.rpm" SRPMS/*

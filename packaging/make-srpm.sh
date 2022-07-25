@@ -12,4 +12,4 @@ TARBALL="davix-${VERSION_FULL}.tar.gz"
 BUILD_DIR="$PWD"/build
 
 pushd build
-rpmbuild --define "_source_filedigest_algorithm md5" --define "_binary_filedigest_algorithm md5" -ts "${TARBALL}" --define "_topdir ${PWD}" --with server
+rpmbuild --define "_source_filedigest_algorithm md5" --define "_binary_filedigest_algorithm md5" -ts "${TARBALL}" --define "_topdir ${PWD}"

@@ -11,10 +11,11 @@ URL:          https://dmc-docs.web.cern.ch/dmc-docs/davix.html
 Source0:      %{name}-%{version}.tar.gz
 
 BuildRequires:      gcc-c++
-BuildRequires:      python2
 %if 0%{?rhel} == 7
+BuildRequires:      python2
 BuildRequires:      cmake3
 %else
+BuildRequires:      python3
 BuildRequires:      cmake
 %endif
 # main lib dependencies

@@ -238,8 +238,8 @@ rpms-dmc:
     - cc7
     - centos8
     - cs9
-    - fedora-34
     - fedora-35
+    - fedora-36
     - fedora-rawhide
   script:
     - yum install -y python sssd-client sudo createrepo

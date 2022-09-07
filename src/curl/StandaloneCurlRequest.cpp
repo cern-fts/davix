@@ -622,7 +622,17 @@ Status StandaloneCurlRequest::obtainRedirectedLocation(Uri &out) {
 
   for(auto it = _response_headers.begin(); it != _response_headers.end(); it++) {
     if(strcasecmp("location", it->first.c_str()) == 0) {
-      out = Uri(it->second);
+      auto location = it->second;
+      // Dealing with relative location [DMC-1209]
+      if (!location.empty() && location[0] == '/') {
+        out = Uri::fromRelativePath(_uri, location);
+      } else {
+        out = Uri(location);
+      }
+      if (out.getStatus() != StatusCode::OK) {
+        return Status(davix_scope_http_request(), out.getStatus(),
+                      fmt::format("Failed to parse redirect location: {}", out.getString()));
+      }
       return Status();
     }
   }

@@ -481,7 +481,17 @@ Status StandaloneNeonRequest::obtainRedirectedLocation(Uri &out) {
   const char* name = NULL, *value = NULL;
   while( (handle = ne_response_header_iterate(_neon_req, handle, &name, &value)) != NULL) {
     if(strcasecmp("location", name) == 0) {
-      out = Uri(value);
+      std::string location(value);
+      // Dealing with relative location [DMC-1209]
+      if (!location.empty() && location[0] == '/') {
+        out = Uri::fromRelativePath(_uri, location);
+      } else {
+        out = Uri(location);
+      }
+      if (out.getStatus() != StatusCode::OK) {
+        return Status(davix_scope_http_request(), out.getStatus(),
+                      fmt::format("Failed to parse redirect location: {}", out.getString()));
+      }
       return Status();
     }
   }

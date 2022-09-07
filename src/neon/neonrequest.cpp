@@ -444,11 +444,6 @@ int NeonRequest::redirectRequest(DavixError **err) {
         return -1;
     }
 
-    // Fill in host details in case location is relative [DMC-1209]
-    if (location.getProtocol().empty() && location.getHost().empty()) {
-      location = Uri::fromRelativePath(*(_current.get()), location.getString());
-    }
-
     // setup new path & session target
     std::shared_ptr<Uri> old_uri = _current;
     _current= std::shared_ptr<Uri>(new Uri(location));

@@ -46,14 +46,17 @@ public:
     }
 
     virtual ~NeonSessionWrapper() {
-        if(_sess->get_ne_sess() != NULL){
+        if(_sess && _sess->get_ne_sess() != NULL){
             ne_unhook_pre_send(_sess->get_ne_sess(), NeonSessionWrapper::runHookPreSend, (void*) this);
             ne_unhook_post_headers(_sess->get_ne_sess(), NeonSessionWrapper::runHookPreReceive, (void*) this);
         }
     }
 
     ne_session* get_ne_sess() {
-        return _sess->get_ne_sess();
+        if (_sess) {
+            return _sess->get_ne_sess();
+        }
+        return {};
     }
 
     bool isRecycledSession() const {
@@ -61,7 +64,9 @@ public:
     }
 
     void do_not_reuse_this_session() {
-        _sess->do_not_reuse_this_session();
+        if(_sess) {
+            _sess->do_not_reuse_this_session();
+        }
     }
 
 private:

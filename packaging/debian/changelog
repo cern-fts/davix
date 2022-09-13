@@ -1,3 +1,9 @@
+davix (0.8.3-1) unstable; urgency=low
+
+  * Update to version 0.8.3
+
+ -- Joao Lopes <batistal at cern.ch>  Tue, 13 Sep 2022 12:00:00 +0200
+
 davix (0.8.2-1) unstable; urgency=low
 
   * Update to version 0.8.2

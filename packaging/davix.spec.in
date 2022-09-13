@@ -177,6 +177,9 @@ rm %{buildroot}%{_pkgdocdir}/LICENSE
 %license LICENSE
 
 %changelog
+* Tue Sep 13 2022 Joao Lopes <batistal at cern.ch> - 0.8.3-1
+ - davix 0.8.3 release, see RELEASE-NOTES.md for changes
+
 * Fri Jun 10 2022 Mihai Patrascoiu <mihai.patrascoiu at cern.ch> - 0.8.2-1
  - davix 0.8.2 release, see RELEASE-NOTES.md for changes
 

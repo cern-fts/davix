@@ -1,5 +1,14 @@
 # davix release history
 
+## 0.8.3 (2022-09-13)
+### Bug fixes
+* [DMC-1345] - Segfault when encountering invalid redirection URL
+* [DMC-1346] - Segfault because of empty NeonSession object
+
+### Tasks
+* [DMC-1327] - DMC packages for Centos Stream 9
+* [DMC-1336] - Data Management Clients for Fedora 36
+
 ## 0.8.2 (2022-06-10)
 ### New Features
 * [DMC-1310] - Parse IP stack performance markers in Davix HTTP-TPC

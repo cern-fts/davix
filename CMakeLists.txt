@@ -126,6 +126,8 @@ endif()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/deps/libneon/src/ ${UUID_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/include/davix)
 
+include(CTest)
+
 add_subdirectory (src)
 add_subdirectory (doc)
 

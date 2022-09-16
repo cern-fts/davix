@@ -30,3 +30,5 @@ target_link_libraries(davix-slow-unit-tests
   ${CMAKE_THREAD_LIBS_INIT}
   ${LIBSSL_PKG_LIBRARIES}
 )
+
+add_test(slow-unit-tests davix-slow-unit-tests)

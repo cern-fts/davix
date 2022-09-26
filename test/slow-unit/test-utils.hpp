@@ -33,7 +33,7 @@
 #define SSTR(message) static_cast<std::ostringstream&>(std::ostringstream().flush() << message).str()
 
 inline std::string getCurlUserAgent() {
-  return SSTR("User-Agent: " << Davix::RequestParams().getUserAgent() << " libcurl/7.69.0-DEV\r\n");
+  return SSTR("User-Agent: " << Davix::RequestParams().getUserAgent() << " libcurl/" << Davix::getCurlVersion());
 }
 
 inline std::string getDefaultUserAgent() {

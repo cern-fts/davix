@@ -270,7 +270,7 @@ static Status curlCodeToStatus(CURLcode code) {
 //------------------------------------------------------------------------------
 // Get curl version as string
 //------------------------------------------------------------------------------
-static std::string getCurlVersion() {
+std::string getCurlVersion() {
   curl_version_info_data* ver = curl_version_info(CURLVERSION_NOW);
   return ver->version;
 }

@@ -7,8 +7,19 @@
 
 using namespace Davix;
 
-bool makeTemporaryFile(const std::string &path, const std::string &contents) {
-  FILE *out = fopen(path.c_str(), "w");
+// file must be pathname ending with at least six trailing 'X'
+bool makeTemporaryFile(char* file, const std::string &contents) {
+  int fd = mkstemp(file);
+
+  if (fd < 0) {
+      return false;
+  }
+
+  FILE *out = fdopen(fd, "w");
+
+  if (!out) {
+    return false;
+  }
 
   bool ok = true;
   if(::fwrite(contents.c_str(), sizeof(char), contents.size(), out) != contents.size()) {
@@ -24,9 +35,9 @@ bool makeTemporaryFile(const std::string &path, const std::string &contents) {
 
 
 TEST(ContentProvider, Fd) {
-  ASSERT_TRUE(makeTemporaryFile("/tmp/davix-tests-tmp-file", "123456789"));
-
-  int fd = ::open("/tmp/davix-tests-tmp-file", O_RDONLY);
+  char filename[1024] = "/tmp/davix-tests-tmp-file-XXXXXX";
+  ASSERT_TRUE(makeTemporaryFile(filename, "123456789"));
+  int fd = ::open(filename, O_RDONLY);
 
   FdContentProvider provider(fd);
 
@@ -91,9 +102,9 @@ TEST(ContentProvider, Fd) {
 }
 
 TEST(ContentProvider, FdWithOffset) {
-  ASSERT_TRUE(makeTemporaryFile("/tmp/davix-tests-tmp-file", "123456789"));
-
-  int fd = ::open("/tmp/davix-tests-tmp-file", O_RDONLY);
+  char filename[1024] = "/tmp/davix-tests-tmp-file-XXXXXX";
+  ASSERT_TRUE(makeTemporaryFile(filename, "123456789"));
+  int fd = ::open(filename, O_RDONLY);
 
   FdContentProvider provider(fd, 2);
   ASSERT_TRUE(provider.ok());
@@ -135,8 +146,9 @@ TEST(ContentProvider, FdWithOffset) {
 }
 
 TEST(ContentProvider, FdWithMaxlen) {
-  ASSERT_TRUE(makeTemporaryFile("/tmp/davix-tests-tmp-file", "123456789"));
-  int fd = ::open("/tmp/davix-tests-tmp-file", O_RDONLY);
+  char filename[1024] = "/tmp/davix-tests-tmp-file-XXXXXX";
+  ASSERT_TRUE(makeTemporaryFile(filename, "123456789"));
+  int fd = ::open(filename, O_RDONLY);
 
   FdContentProvider provider(fd, 0, 5);
   ASSERT_TRUE(provider.ok());
@@ -166,8 +178,9 @@ TEST(ContentProvider, FdWithMaxlen) {
 }
 
 TEST(ContentProvider, FdWithOffsetAndMaxlen) {
-  ASSERT_TRUE(makeTemporaryFile("/tmp/davix-tests-tmp-file", "123456789"));
-  int fd = ::open("/tmp/davix-tests-tmp-file", O_RDONLY);
+  char filename[1024] = "/tmp/davix-tests-tmp-file-XXXXXX";
+  ASSERT_TRUE(makeTemporaryFile(filename, "123456789"));
+  int fd = ::open(filename, O_RDONLY);
 
   FdContentProvider provider(fd, 2, 5);
   ASSERT_TRUE(provider.ok());
@@ -197,8 +210,9 @@ TEST(ContentProvider, FdWithOffsetAndMaxlen) {
 }
 
 TEST(ContentProvider, FdExcessiveLen) {
-  ASSERT_TRUE(makeTemporaryFile("/tmp/davix-tests-tmp-file", "123456789"));
-  int fd = ::open("/tmp/davix-tests-tmp-file", O_RDONLY);
+  char filename[1024] = "/tmp/davix-tests-tmp-file-XXXXXX";
+  ASSERT_TRUE(makeTemporaryFile(filename, "123456789"));
+  int fd = ::open(filename, O_RDONLY);
 
   FdContentProvider provider(fd, 1, 10000);
 

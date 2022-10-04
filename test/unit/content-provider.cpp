@@ -99,6 +99,9 @@ TEST(ContentProvider, Fd) {
     ASSERT_FALSE(provider.rewind());
     ASSERT_EQ(provider.pullBytes(buffer, 3), -9);
   }
+
+  // remove test file
+  ASSERT_EQ(remove(filename),0);
 }
 
 TEST(ContentProvider, FdWithOffset) {
@@ -143,6 +146,7 @@ TEST(ContentProvider, FdWithOffset) {
   ASSERT_EQ(provider.getError(), "Invalid offset (9) given, fd contains only 9 bytes");
 
   ASSERT_EQ(::close(fd), 0);
+  ASSERT_EQ(remove(filename),0);
 }
 
 TEST(ContentProvider, FdWithMaxlen) {
@@ -175,6 +179,7 @@ TEST(ContentProvider, FdWithMaxlen) {
   ASSERT_EQ(provider.pullBytes(buffer, 1), 0);
 
   ASSERT_EQ(::close(fd), 0);
+  ASSERT_EQ(remove(filename),0);
 }
 
 TEST(ContentProvider, FdWithOffsetAndMaxlen) {
@@ -207,6 +212,7 @@ TEST(ContentProvider, FdWithOffsetAndMaxlen) {
   ASSERT_EQ(provider.pullBytes(buffer, 1), 0);
 
   ASSERT_EQ(::close(fd), 0);
+  ASSERT_EQ(remove(filename),0);
 }
 
 TEST(ContentProvider, FdExcessiveLen) {
@@ -237,6 +243,7 @@ TEST(ContentProvider, FdExcessiveLen) {
   ASSERT_EQ(provider.pullBytes(buffer, 1), 0);
 
   ASSERT_EQ(::close(fd), 0);
+  ASSERT_EQ(remove(filename),0);
 }
 
 TEST(ContentProvider, Buffer) {

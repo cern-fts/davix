@@ -1,5 +1,5 @@
 <version>
-    @VERSION_STRING@
+    @VERSION_FULL@
 </version>
 
 <headers>

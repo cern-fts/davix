@@ -44,15 +44,23 @@ public:
     void setPerformanceCallback(DavixCopy::PerformanceCallback callback, void *udata);
     void setCancellationCallback(DavixCopy::CancellationCallback callback, void *udata);
 
+    std::string getTransferSourceHost() const;
+    std::string getTransferDestinationHost() const;
+
 protected:
     Davix::Context &context;
     const Davix::RequestParams *parameters;
+
     DavixCopy::PerformanceCallback perfCallback;
     void *perfCallbackUdata;
 
     DavixCopy::CancellationCallback cancCallback;
     void *cancCallbackUdata;
 
+    std::string sourceHost;
+    std::string destinationHost;
+
+    void setTransferHost(const std::string& transferHost, bool activeParty);
     void monitorPerformanceMarkers(Davix::HttpRequest *request, Davix::DavixError **error);
 
 private:
@@ -61,9 +69,6 @@ private:
 
     bool shouldCancel();
     bool shouldCancel(Davix::DavixError **error);
-
-
 };
-
 
 #endif //DAVIX_COPY_INTERNAL_HPP

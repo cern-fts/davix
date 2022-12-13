@@ -120,6 +120,52 @@ void DavixCopy::setCancellationCallback(CancellationCallback callback, void *uda
 }
 
 
+std::string DavixCopy::getTransferSourceHost() const
+{
+    return d_ptr->getTransferSourceHost();
+}
+
+std::string DavixCopy::getTransferDestinationHost() const
+{
+    return d_ptr->getTransferDestinationHost();
+}
+
+
+std::string DavixCopyInternal::getTransferSourceHost() const
+{
+    return sourceHost;
+}
+
+std::string DavixCopyInternal::getTransferDestinationHost() const
+{
+    return destinationHost;
+}
+
+void DavixCopyInternal::setTransferHost(const std::string& transferHost, bool activeParty) {
+    if (activeParty) {
+        if (parameters->getCopyMode() == CopyMode::Push) {
+            if (sourceHost.empty()) {
+                sourceHost = transferHost;
+            }
+        } else if (parameters->getCopyMode() == CopyMode::Pull) {
+            if (destinationHost.empty()) {
+                destinationHost = transferHost;
+            }
+        }
+    } else {
+        if (parameters->getCopyMode() == CopyMode::Push) {
+            if (destinationHost.empty()) {
+                destinationHost = transferHost;
+            }
+        } else if (parameters->getCopyMode() == CopyMode::Pull) {
+            if (sourceHost.empty()) {
+                sourceHost = transferHost;
+            }
+        }
+    }
+}
+
+
 void DavixCopyInternal::setPerformanceCallback(DavixCopy::PerformanceCallback callback,
         void *udata)
 {
@@ -339,7 +385,7 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
         return;
 
     // Finished hopping
-    std::string finalSource = nextSrc;
+    setTransferHost(Uri(nextSrc).getHost(), true);
 
     // Just wait for it to finish
     monitorPerformanceMarkers(request, error);
@@ -356,44 +402,85 @@ void DavixCopyInternal::copy(const Uri &src, const Uri &dst,
     delete request;
 }
 
-/* Pasrse string to determine IPv type */
-enum IPtype getIPv_type(char *text) {
-    IPtype type=undefined; 
-    int start=0;
-    int lbkt=0, rbkt=0, per=0;
-    int i=0;
+// Parse "RemoteConnections" line and extract IP string
+// Example: tcp:[fff:aaa:192:168::100:e]:443 --> [fff:aaa:192:168::100:e]
+// Example: udp:192.168.1.100:8443 --> 192.168.1.100
+std::string getIPString(char *text) {
+    int idx = 0;
 
-    while (text[start] && isspace(text[start])) //skip any initial whitespaces at the beginning
-        start++;
+    // Skip any initial whitespaces
+    while (text[idx] && isspace(text[idx])) {
+        idx++;
+    }
 
-    if (!text[start])
-        return(undefined);
+    if (!text[idx]) {
+        return "";
+    }
 
-    if (!(strncasecmp("tcp:", text+start, 4) || 
-          strncasecmp("udp:", text+start, 4))) //Check format validity
-        return(undefined);
+    if ((strncasecmp("tcp:", text + idx, 4) != 0) &&
+        (strncasecmp("udp:", text + idx, 4) != 0)) {
+        return "";
+    }
 
-    for (i=start;text[i];i++) {
-        if (isspace(text[i]))
-            break;
-        else if (text[i] == '[')
+    if (!text[idx + 4]) {
+        return "";
+    }
+
+    std::string ipstring = text + idx + 4;
+    size_t endpos;
+
+    if (ipstring.back() == '\n') {
+        ipstring.pop_back();
+    }
+
+    // Trim string to only the IP notation
+    if (ipstring.front() == '[') {
+        // Dealing with IPv6 scenario
+        endpos = ipstring.find(']');
+
+        if (endpos == std::string::npos) {
+            return "";
+        }
+
+        endpos += 1;
+    } else {
+        endpos = ipstring.find(':');
+
+        if (endpos == std::string::npos) {
+            endpos = ipstring.size();
+        }
+    }
+
+    ipstring = ipstring.substr(0, endpos);
+    return ipstring;
+}
+
+// Parse string to determine IP version
+enum IPtype getIPType(char *text) {
+    int lbkt = 0, rbkt = 0, per = 0;
+    std::string ipstring = getIPString(text);
+
+    for (const char& c: ipstring) {
+        if (c == '[') {
             lbkt++;
-        else if (text[i] == ']')
+        } else if (c == ']') {
             rbkt++;
-        else if (text[i] == '.')
+        } else if (c == '.') {
             per++;
+        }
     }
 
     /* 
      *  Test for IPv4 or IPv6 address. IPv6 type contains square brackets. IPv4 contains 3 periods. 
      *  Note that IPv4-mapped IPv6 addresses are of the format [::ffff.<IPv4 address>] 
      */
-    if (lbkt && rbkt)
-        type = IPv6;
-    else if (per == 3)
-        type = IPv4;
+    if (lbkt && rbkt) {
+        return IPtype::IPv6;
+    } else if (per == 3) {
+        return IPtype::IPv4;
+    }
 
-    return(type);
+    return IPtype::undefined;
 }
 
 void logPerfmarker(const std::list<std::string>& lines)
@@ -457,10 +544,10 @@ void DavixCopyInternal::monitorPerformanceMarkers(Davix::HttpRequest *request,
         }
         else if (strncasecmp("RemoteConnections:", p, 18) == 0)
         {
-            // Parse to determine  IPv4 or IPv6
-            performance.ipflag = getIPv_type(p + 18);
-            DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_GRID, "Got ipflag: {}", performance.ipflag);
-            
+            std::string ipstring = getIPString(p + 18);
+            setTransferHost(ipstring, false);
+            performance.ipflag = getIPType(p + 18);
+            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_GRID, "Got IP: {} (ipver={})", ipstring, performance.ipflag);
         }
         else if (strncasecmp("End", p, 3) == 0)
         {

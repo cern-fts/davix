@@ -87,6 +87,9 @@ public:
     void setPerformanceCallback(PerformanceCallback callback, void *udata);
     void setCancellationCallback(CancellationCallback callback, void *udata);
 
+    std::string getTransferSourceHost() const;
+    std::string getTransferDestinationHost() const;
+
 private:
     class DavixCopyInternal *d_ptr;
 

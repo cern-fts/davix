@@ -52,6 +52,7 @@ source-tarball:
     - if: '$CI_COMMIT_TAG != null'
     - if: '$CI_COMMIT_TAG == null'
       when: manual
+      allow_failure: true
 
 binary-tarball:
   stage: build
@@ -67,6 +68,7 @@ binary-tarball:
     - if: '$CI_COMMIT_TAG != null'
     - if: '$CI_COMMIT_TAG == null'
       when: manual
+      allow_failure: true
 
 cc7:
   image: gitlab-registry.cern.ch/linuxsupport/cc7-base

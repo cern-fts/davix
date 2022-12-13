@@ -24,6 +24,8 @@
 #include <davix.hpp>
 #include <sstream>
 #include <unistd.h>
+#include <list>
+#include <iterator>
 #include "copy_internal.hpp"
 #include "delegation/delegation.hpp"
 #include <utils/davix_logger_internal.hpp>
@@ -394,6 +396,12 @@ enum IPtype getIPv_type(char *text) {
     return(type);
 }
 
+void logPerfmarker(const std::list<std::string>& lines)
+{
+    std::ostringstream out;
+    std::copy(lines.begin(), lines.end(),std::ostream_iterator<std::string>(out, "\n"));
+    DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_GRID, "PerformanceMarker:\n{}", out.str());
+}
 
 void DavixCopyInternal::monitorPerformanceMarkers(Davix::HttpRequest *request,
         Davix::DavixError **error)
@@ -404,6 +412,7 @@ void DavixCopyInternal::monitorPerformanceMarkers(Davix::HttpRequest *request,
 
     PerformanceMarker holder;
     PerformanceData performance;
+    std::list<std::string> perfmarkerLines;
     time_t lastPerfCallback = time(NULL);
     bool clearOutcome = false;
 
@@ -411,8 +420,15 @@ void DavixCopyInternal::monitorPerformanceMarkers(Davix::HttpRequest *request,
     {
         buffer[line_len] = '\0';
 
-        if (line_len > 0)
-            DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_GRID, "Received: {}", buffer);
+        // Skip trailing whitespaces and newlines
+        p = buffer + line_len - 1;
+        while (p > buffer && isspace(*p))
+            --p;
+        *(p + 1) = '\0';
+
+        if (line_len > 0) {
+            perfmarkerLines.emplace_back(buffer);
+        }
 
         // Skip heading whitespaces
         p = buffer;
@@ -456,11 +472,14 @@ void DavixCopyInternal::monitorPerformanceMarkers(Davix::HttpRequest *request,
                     this->perfCallback(performance, this->perfCallbackUdata);
                 lastPerfCallback = now;
             }
+            logPerfmarker(perfmarkerLines);
+            perfmarkerLines.clear();
         }
         else if (strncasecmp("success", p, 7) == 0)
         {
             clearOutcome = true;
             request->discardBody(&daverr);
+            logPerfmarker(perfmarkerLines);
             break;
         }
         else if (strncasecmp("aborted", p, 7) == 0)
@@ -468,6 +487,7 @@ void DavixCopyInternal::monitorPerformanceMarkers(Davix::HttpRequest *request,
             clearOutcome = true;
             Davix::DavixError::setupError(error, COPY_SCOPE, StatusCode::Canceled,
                     "Transfer aborted in the remote end");
+            logPerfmarker(perfmarkerLines);
             break;
         }
         else if (strncasecmp("failed", p, 6) == 0 || strncasecmp("failure", p, 7) == 0)
@@ -475,11 +495,12 @@ void DavixCopyInternal::monitorPerformanceMarkers(Davix::HttpRequest *request,
             clearOutcome = true;
             Davix::DavixError::setupError(error, COPY_SCOPE, StatusCode::RemoteError,
                     std::string("Transfer ") + p);
+            logPerfmarker(perfmarkerLines);
             break;
         }
-        else if(line_len> 0)
+        else if (line_len > 0)
         {
-            DAVIX_SLOG(DAVIX_LOG_WARNING, DAVIX_LOG_GRID, "Unknown performance marker, ignoring: {}", buffer);
+            DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_GRID, "Unknown performance marker, ignoring: {}", buffer);
         }
     }
 

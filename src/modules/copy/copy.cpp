@@ -421,7 +421,7 @@ void DavixCopyInternal::monitorPerformanceMarkers(Davix::HttpRequest *request,
 
         if (strncasecmp("Perf Marker", p, 11) == 0)
         {
-            memset(&holder, 0, sizeof(holder));
+            holder = PerformanceMarker();
         }
         else if (strncasecmp("Timestamp:", p, 10) == 0)
         {

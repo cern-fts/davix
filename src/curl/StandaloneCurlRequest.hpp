@@ -88,6 +88,11 @@ public:
   virtual dav_ssize_t readBlock(char* buffer, dav_size_t max_size, Status& st);
 
   //----------------------------------------------------------------------------
+  // Discard the response content.
+  //----------------------------------------------------------------------------
+  virtual Status discardResponse();
+
+  //----------------------------------------------------------------------------
   // Check request state
   //----------------------------------------------------------------------------
   virtual RequestState getState() const;

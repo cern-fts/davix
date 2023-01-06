@@ -556,6 +556,22 @@ dav_ssize_t StandaloneCurlRequest::readBlock(char* buffer, dav_size_t max_size, 
   return _response_buffer.consume(buffer, max_size);
 }
 
+//----------------------------------------------------------------------------
+// Discard the response content.
+//----------------------------------------------------------------------------
+Status StandaloneCurlRequest::discardResponse() {
+  dav_size_t chunk_size = DAVIX_BLOCK_SIZE;
+  std::vector<char> buffer(chunk_size);
+  dav_ssize_t len;
+  Status st;
+
+  do {
+    len = readBlock(&buffer[0], DAVIX_BLOCK_SIZE, st);
+  } while (len > 0);
+
+  return st;
+}
+
 //------------------------------------------------------------------------------
 // Finish an already started request.
 //------------------------------------------------------------------------------

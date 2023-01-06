@@ -287,8 +287,7 @@ Status StandaloneNeonRequest::startRequest() {
 // Finish an already started request.
 //------------------------------------------------------------------------------
 Status StandaloneNeonRequest::endRequest() {
-  markCompleted();
-  return Status();
+  return markCompleted();
 }
 
 //------------------------------------------------------------------------------
@@ -341,6 +340,22 @@ dav_ssize_t StandaloneNeonRequest::readBlock(char* buffer, dav_size_t max_size, 
   return _last_read;
 }
 
+//----------------------------------------------------------------------------
+// Discard the response content.
+//----------------------------------------------------------------------------
+Status StandaloneNeonRequest::discardResponse() {
+  dav_size_t chunk_size = DAVIX_BLOCK_SIZE;
+  std::vector<char> buffer(chunk_size);
+  dav_ssize_t len;
+  Status st;
+
+  do {
+    len = readBlock(&buffer[0], DAVIX_BLOCK_SIZE, st);
+  } while (len > 0);
+
+  return st;
+}
+
 //------------------------------------------------------------------------------
 // Check request state
 //------------------------------------------------------------------------------
@@ -381,22 +396,29 @@ size_t StandaloneNeonRequest::getAnswerHeaders( HeaderVec & vec_headers) const {
 //------------------------------------------------------------------------------
 // Mark request as completed, release any resources
 //------------------------------------------------------------------------------
-void StandaloneNeonRequest::markCompleted() {
+Status StandaloneNeonRequest::markCompleted() {
   if(_state == RequestState::kFinished) {
-    return;
+    return Status();
   }
 
   _state = RequestState::kFinished;
 
   if(_neon_req) {
     if(_last_read == 0) {
-      ne_end_request(_neon_req);
+      int ret = ne_end_request(_neon_req);
+
+      if (ret == NE_RETRY) {
+        return Status(davix_scope_http_request(), StatusCode::RedirectionNeeded,
+                      "(NEON) Passed post_send hooks. Retry needed.");
+      }
     }
     else {
       ne_abort_request(_neon_req);
       _session->do_not_reuse_this_session();
     }
   }
+
+  return Status();
 }
 
 //------------------------------------------------------------------------------

@@ -137,14 +137,18 @@ private:
     void configureHeaders();
     void cancelSessionReuse();
 
-    // negociate the request : authentication, redirection, name resolution
+    // negotiate the request : authentication, redirection, name resolution
     int negotiateRequest(DavixError** err);
 
     // redirection logic
     int redirectRequest(DavixError** err);
 
-    // redirecttion caching cleaning function
+    // redirection caching cleaning function
     bool requestCleanup();
+
+    // discard the response content while giving a chance
+    // for the underlying library hooks to run
+    StatusCode::Code discardResponseWithHooks();
 
     void freeRequest();
 

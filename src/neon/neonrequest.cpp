@@ -377,7 +377,10 @@ int NeonRequest::negotiateRequest(DavixError** err){
                 break;
             case 401: // authentication requested, do retry
             case 403:
-                clearAnswerContent();
+                if (discardResponseWithHooks() == StatusCode::RedirectionNeeded) {
+                    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_HTTP, "(post_send hooks) {} code -> request again ", code);
+                    return startRequest(err);
+                }
 
                 _number_try++;
                 if (_number_try <= auth_retry_limit && requestCleanup()){
@@ -406,6 +409,25 @@ int NeonRequest::negotiateRequest(DavixError** err){
     }
 
     return 0;
+}
+
+// Discard the response content.
+// This function gives a chance to the underlying library to run the various "post_send" hooks.
+// If a retry is identified, the function returns true, otherwise false
+StatusCode::Code NeonRequest::discardResponseWithHooks() {
+    Status discardStatus = _standalone_req->discardResponse();
+    clearAnswerContent();
+
+    if (discardStatus.ok()) {
+        DavixError* tmp_err = NULL;
+        endRequest(&tmp_err);
+
+        if (tmp_err) {
+           return tmp_err->getStatus();
+        }
+    }
+
+    return StatusCode::OK;
 }
 
 

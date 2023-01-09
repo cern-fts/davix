@@ -83,7 +83,8 @@ int ne_has_support(int feature);
 /* Debugging masks. */
 /* Map to DAVIX logging masks. */
 #define NE_DBG_SOCKET (DAVIX_LOG_SOCKET ) /* raw socket */
-#define NE_DBG_HTTP (DAVIX_LOG_HEADER ) /* HTTP request/response handling */
+#define NE_DBG_HDR (DAVIX_LOG_HEADER ) /* HTTP headers */
+#define NE_DBG_HTTP (DAVIX_LOG_HTTP ) /* HTTP request/response handling */
 #define NE_DBG_XML (DAVIX_LOG_XML ) /* XML parser */
 #define NE_DBG_HTTPAUTH (DAVIX_LOG_SSL ) /* HTTP authentication (hiding credentials) */
 #define NE_DBG_HTTPPLAIN (DAVIX_LOG_SENSITIVE ) /* plaintext HTTP authentication */

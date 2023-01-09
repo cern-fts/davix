@@ -132,12 +132,18 @@ int ne_version_match(int major, int minor)
         || (NE_VERSION_MAJOR == 0 && NE_VERSION_MINOR != minor);
 }
 
+/// Davix logging function for libneon messages
+/// The Header messages are propagated with "VERBOSE" level
+/// The rest of the messages are propagated with "TRACE" level
 void ne_davix_logger(int scope, const char *msg, ...)
 {
-    if( (davix_get_log_level() >= DAVIX_LOG_DEBUG) && (davix_get_log_scope() & scope) ) {
+    int filter_level = (scope == DAVIX_LOG_HEADER) ? DAVIX_LOG_VERBOSE : DAVIX_LOG_DEBUG;
+    int propagate_level = (scope == DAVIX_LOG_HEADER) ? DAVIX_LOG_VERBOSE : DAVIX_LOG_TRACE;
+
+    if ((davix_get_log_level() >= filter_level) && (davix_get_log_scope() & scope)) {
         va_list va;
         va_start(va, msg);
-        davix_vlogger2(scope, DAVIX_LOG_TRACE, msg, va);
+        davix_vlogger2(scope, propagate_level, msg, va);
         va_end(va);
     }
 }

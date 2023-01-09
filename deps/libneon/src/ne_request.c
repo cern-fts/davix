@@ -880,8 +880,8 @@ static void dump_request(const char *request)
 
     if (davix_get_log_scope() & NE_DBG_HTTPPLAIN) {
 	/* Display everything mode */
-        NE_DEBUG(NE_DBG_HTTP, "%s", hdr_debug);
-    } else if (davix_get_log_scope() & NE_DBG_HTTP) {
+        NE_DEBUG(NE_DBG_HDR, "%s", hdr_debug);
+    } else if (davix_get_log_scope() & NE_DBG_HDR) {
 	/* Blank out the Authorization parameters */
 	char *reqdebug = ne_strdup(hdr_debug), *pnt = reqdebug;
 	while ((pnt = strstr(pnt, "Authorization: ")) != NULL) {
@@ -889,7 +889,7 @@ static void dump_request(const char *request)
 		*pnt = 'x';
 	    }
 	}
-    NE_DEBUG(NE_DBG_HTTP, "%s",reqdebug);
+    NE_DEBUG(NE_DBG_HDR, "%s",reqdebug);
 
 	ne_free(reqdebug);
     }
@@ -925,7 +925,7 @@ static int read_status_line(ne_request *req, ne_status *status, int retry)
     }
 
     strip_eol(buffer, &ret);
-    NE_DEBUG(NE_DBG_HTTP, "< %s", buffer);
+    NE_DEBUG(NE_DBG_HDR, "< %s", buffer);
 
     if (status->reason_phrase) ne_free(status->reason_phrase);
     memset(status, 0, sizeof *status);
@@ -1039,7 +1039,7 @@ static int read_message_header(ne_request *req, char *buf, size_t buflen)
 	return aborted(req, _("Error reading response headers"), n);
 
     strip_eol(buf, &n);
-    NE_DEBUG(NE_DBG_HTTP, "< %s", buf);
+    NE_DEBUG(NE_DBG_HDR, "< %s", buf);
 
     if (n == 0) {
     NE_DEBUG(NE_DBG_CORE, "End of headers.");
@@ -1215,7 +1215,7 @@ int ne_begin_request(ne_request *req)
 
     /* Build the request string, and send it */
     data = build_request(req);
-    if(davix_get_log_scope() & NE_DBG_HTTP){
+    if(davix_get_log_scope() & NE_DBG_HDR){
         dump_request(data->data);
     }
     ret = send_request(req, data);

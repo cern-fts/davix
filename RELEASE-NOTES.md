@@ -1,5 +1,23 @@
 # davix release history
 
+## 0.8.4 (2023-02-02)
+### New Features
+* [DMC-1358] - Provide involved transfer hosts via the Copy API
+* [davix/issues/101] - Introspect redirections for HTTP TPC xfers
+
+### Improvements
+* [DMC-1361] - Improve Davix header logs propagation via logging callback function
+* [davix/pull/99] - Re-enable test to be run with CTest (or make test / ninja test)
+
+### Issues
+* [davix/issues/98] - Infinite loop in davix slow unit tests when using external libcurl
+* [davix/issues/100] - Unit tests fail when run by more than one user on the same machine
+* [davix/issues/102] - CVE-2022-32221 in bundled curl library
+* [davix/pull/103] - Don't downgrade the C++ version (bugzilla#2163827)
+
+### Tasks
+* [DMC-1358] - Data Management Clients for Fedora 37
+
 ## 0.8.3 (2022-09-13)
 ### Bug fixes
 * [DMC-1345] - Segfault when encountering invalid redirection URL

@@ -16,7 +16,7 @@
 * [davix/pull/103] - Don't downgrade the C++ version (bugzilla#2163827)
 
 ### Tasks
-* [DMC-1358] - Data Management Clients for Fedora 37
+* [DMC-1359] - Data Management Clients for Fedora 37
 
 ## 0.8.3 (2022-09-13)
 ### Bug fixes

@@ -90,14 +90,14 @@ TEST(ContentProvider, Fd) {
   // .. but the fd closes..
   ASSERT_EQ(close(fd), 0);
 
-  ASSERT_EQ(provider.pullBytes(buffer, 3), -9);
-  ASSERT_EQ(provider.getErrc(), 9);
+  ASSERT_EQ(provider.pullBytes(buffer, 3), -EBADF);
+  ASSERT_EQ(provider.getErrc(), EBADF);
   ASSERT_EQ(provider.getError(), "Bad file descriptor");
 
   for(size_t i = 0; i < 10; i++) {
     ASSERT_FALSE(provider.ok());
     ASSERT_FALSE(provider.rewind());
-    ASSERT_EQ(provider.pullBytes(buffer, 3), -9);
+    ASSERT_EQ(provider.pullBytes(buffer, 3), -EBADF);
   }
 
   // remove test file

@@ -110,12 +110,11 @@ ubuntu-focal:
     paths:
     - "$CI_JOB_NAME"
 
-debian-stretch:
+debian-buster:
   stage: build
-  image: debian:stretch
+  image: debian:buster
   script:
     - ci/debian/packages.sh
-    - ci/debian/stretch-cmake-upgrade.sh
     - packaging/make-deb.sh
     - mkdir ${CI_JOB_NAME}
     - cp -r build/debian-build-arena/*.{deb,dsc} ${CI_JOB_NAME}

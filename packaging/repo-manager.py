@@ -1,7 +1,13 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Author: Georgios Bitzes <georgios.bitzes@cern.ch>
 
-import os, subprocess, sys, inspect, argparse, re, shutil, errno
+import argparse
+import errno
+import os
+import re
+import shutil
+import subprocess
+import sys
 
 DRY_RUN = False
 NO_CREATE_REPO = False
@@ -122,14 +128,15 @@ class Repository(object):
             raise ValueError("Cannot mix packages of different platforms in the same invocation: {0}".format(list(platforms)))
 
         archs = set([x.arch for x in packages])
-        archs.remove(None)
+        archs.discard(None)
         if len(archs) != 1:
             raise ValueError("Cannot mix packages of different architectures in the same invocation: {0}".format(list(archs)))
 
         tag = is_tag(ref)
 
         base = "{0}/{1}".format(self.base, ref)
-        if tag: base = "{0}/tag".format(self.base)
+        if tag:
+            base = "{0}/tag".format(self.base)
         base += "/" + list(platforms)[0]
 
         reposToCreate = set()

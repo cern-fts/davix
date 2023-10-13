@@ -197,7 +197,7 @@ docs:
     - automount
     - cat "$DAVIXCI_PW" | kinit davixci
     - SNAPSHOT=$(date +%s)
-    - TARGET="/eos/project/d/davix/www/docs/${CI_COMMIT_REF_NAME}"
+    - TARGET="/eos/project-d/davix/www/docs/${CI_COMMIT_REF_NAME}"
     - STAGING_AREA="$TARGET-${SNAPSHOT}"
     - cp -r docs "$STAGING_AREA"
     - ci/replace-directory.sh "$STAGING_AREA" "$TARGET"
@@ -218,7 +218,7 @@ rpms:
   script:
     - automount
     - cat "$STCI_PASSWORD" | kinit stci
-    - for platform in cc7 alma8 alma9; do packaging/repo-manager.py --action add --base /eos/project/s/storage-ci/www/davix --ref ${CI_COMMIT_REF_NAME} --packages ${platform}/RPMS/* ${platform}/SRPMS/* ; done
+    - for platform in cc7 alma8 alma9; do packaging/repo-manager.py --action add --base /eos/project-s/storage-ci/www/davix --ref ${CI_COMMIT_REF_NAME} --packages ${platform}/RPMS/* ${platform}/SRPMS/* ; done
   tags:
     - docker-privileged-xl
   retry: 2

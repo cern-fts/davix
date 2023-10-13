@@ -10,7 +10,7 @@ macro(buildCurl)
       SOURCE_DIR "${CMAKE_SOURCE_DIR}/deps/curl"
       BINARY_DIR "${CMAKE_BINARY_DIR}/deps/curl"
       PREFIX "${CMAKE_BINARY_DIR}/deps/curl"
-      PATCH_COMMAND bash -c "(test -f .git && git checkout -q lib/setopt.c || true) && set -x && git apply ${CMAKE_SOURCE_DIR}/curl-CVE-2022-32221.patch"
+      PATCH_COMMAND bash -c "(test -f .git && git checkout -q lib/setopt.c lib/socks.c tests/data/Makefile.inc || true) && set -x && git apply ${CMAKE_SOURCE_DIR}/curl-CVE-2022-32221.patch ${CMAKE_SOURCE_DIR}/curl-CVE-2023-38545_7.69.0.patch"
       CONFIGURE_COMMAND bash -c "${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX=/usr/ -DCMAKE_INSTALL_LIBDIR=lib -DHTTP_ONLY=ON -DBUILD_CURL_EXE=OFF -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_USE_LIBSSH2=OFF ${SECURE_TRANSPORT_FLAGS} ${CMAKE_SOURCE_DIR}/deps/curl && ${CMAKE_SOURCE_DIR}/patch-curl-clock-gettime.sh"
       BUILD_COMMAND make
       INSTALL_COMMAND make DESTDIR=${CMAKE_BINARY_DIR}/deps/curl-install install

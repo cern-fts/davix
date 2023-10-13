@@ -190,22 +190,19 @@ fedora-38-test:
 
 docs:
   stage: publish
-  image: gitlab-registry.cern.ch/eos/gitlab-eos/cc7:latest
+  image: gitlab-registry.cern.ch/eos/gitlab-eos/alma9:latest
   dependencies:
     - docs-generate
   script:
-    - yum install -y sssd-client sudo
     - automount
     - cat "$DAVIXCI_PW" | kinit davixci
-    - eosfusebind
     - SNAPSHOT=$(date +%s)
     - TARGET="/eos/project/d/davix/www/docs/${CI_COMMIT_REF_NAME}"
     - STAGING_AREA="$TARGET-${SNAPSHOT}"
     - cp -r docs "$STAGING_AREA"
     - ci/replace-directory.sh "$STAGING_AREA" "$TARGET"
-    - sleep 60
   tags:
-    - docker-privileged
+    - docker-privileged-xl
   retry: 2
   only:
     - branches@dmc/davix
@@ -213,20 +210,17 @@ docs:
 
 rpms:
   stage: publish
-  image: gitlab-registry.cern.ch/eos/gitlab-eos/cc7:latest
+  image: gitlab-registry.cern.ch/eos/gitlab-eos/alma9:latest
   dependencies:
     - cc7
     - alma8
     - alma9
   script:
-    - yum install -y python sssd-client sudo createrepo
     - automount
     - cat "$STCI_PASSWORD" | kinit stci
-    - eosfusebind
     - for platform in cc7 alma8 alma9; do packaging/repo-manager.py --action add --base /eos/project/s/storage-ci/www/davix --ref ${CI_COMMIT_REF_NAME} --packages ${platform}/RPMS/* ${platform}/SRPMS/* ; done
-    - sleep 60
   tags:
-    - docker-privileged
+    - docker-privileged-xl
   retry: 2
   only:
     - branches@dmc/davix
@@ -234,7 +228,7 @@ rpms:
 
 rpms-dmc:
   stage: publish
-  image: gitlab-registry.cern.ch/eos/gitlab-eos/cc7:latest
+  image: gitlab-registry.cern.ch/eos/gitlab-eos/alma9:latest
   dependencies:
     - cc7
     - alma8
@@ -243,10 +237,8 @@ rpms-dmc:
     - fedora-38
     - fedora-rawhide
   script:
-    - yum install -y python sssd-client sudo createrepo
     - automount
     - cat "$STCI_PASSWORD" | kinit stci
-    - eosfusebind
     - declare -A DISTMAP=( [cc7]=el7 [alma8]=el8 [alma9]=el9 [fedora-37]=fc37 [fedora-38]=fc38 [fedora-rawhide]=fc-rawhide )
     - if [[ -z $CI_COMMIT_TAG ]]; then BUILD="testing" ; else BUILD="rc" ; fi
     - |
@@ -255,9 +247,8 @@ rpms-dmc:
           cp -nv ${platform}/RPMS/* ${platform}/SRPMS/* /eos/project-d/dmc/www/repos/${BUILD}/${dist}/x86_64 || true;
           packaging/update-repo.sh /eos/project-d/dmc/www/repos/${BUILD}/${dist}/x86_64;
         done
-    - sleep 30
   tags:
-    - docker-privileged
+    - docker-privileged-xl
   retry: 2
   only:
     - master@dmc/davix

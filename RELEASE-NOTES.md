@@ -1,5 +1,17 @@
 # davix release history
 
+## 0.8.5 (2023-10-20)
+### Issues
+* [davix/issues/107] - CVE-2023-38545 in bundled curl library
+
+### Improvements
+* [davix/pull/106] - Add git mailmap file
+
+### Tasks
+* [DMC-1379] - Move DMC projects to Alma8 and Alma9
+* [DMC-1387] - Data Management Clients for Fedora 38
+* [DMC-1388] - Provide Debian Buster build for Davix
+
 ## 0.8.4 (2023-02-02)
 ### New Features
 * [DMC-1358] - Provide involved transfer hosts via the Copy API

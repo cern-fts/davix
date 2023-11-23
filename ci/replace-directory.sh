@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -ex
 
 STAGING_AREA="$1"
 TARGET="$2"

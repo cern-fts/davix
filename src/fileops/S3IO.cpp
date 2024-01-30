@@ -36,12 +36,14 @@ static bool is_s3_operation(IOChainContext & context){
   return false;
 }
 
+extern bool ForceMP;
+
 static bool should_use_s3_multipart(IOChainContext & context, dav_size_t size) {
   bool is_s3 = is_s3_operation(context);
 
   if(!is_s3) return false;
 
-  if(context._uri.fragmentParamExists("forceMultiPart")) {
+  if(ForceMP || context._uri.fragmentParamExists("forceMultiPart")) {
 
     return true;
   }
@@ -184,6 +186,13 @@ static dav_size_t fillBufferWithProviderData(std::vector<char> &buffer, const da
 
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, "Retrieved {} bytes from data provider", written);
     return written;
+}
+
+// write from a buffer
+void S3IO::writeFromBuffer(IOChainContext& iocontext, const char* buff,
+                           dav_size_t size, const std::string& uploadId,
+                           std::vector<std::string>& etags, int partNumber) {
+  etags.emplace_back(writeChunk(iocontext, buff, size, uploadId, partNumber));
 }
 
 // write from content provider

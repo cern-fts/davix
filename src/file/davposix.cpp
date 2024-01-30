@@ -21,6 +21,7 @@
 
 #include <utils/davix_logger_internal.hpp>
 
+#include <core/ContentProvider.hpp>
 #include <status/davixstatusrequest.hpp>
 #include <fileops/chain_factory.hpp>
 #include <xml/davpropxmlparser.hpp>
@@ -46,7 +47,24 @@ static IOChainContext  getIOContext( Context & context, const Uri & uri, const R
         return IOChainContext(context, uri, params);
 }
 
-}
+size_t getPartSize() {static const int dfltPSIZE = 32*1024*1024;
+                      const char *mpVal = getenv("DAVIX_PARTSIZE");
+                      size_t pSize = dfltPSIZE;
+
+                      if (mpVal) 
+                         {char *endp;
+                          long mpSZ = strtol(mpVal, &endp, 10);
+                          if (*endp == 0 && mpSZ >= 10 && mpSZ <= 500)
+                          pSize = (size_t)mpSZ*1024*1024; 
+                         }
+                      return pSize;
+                     }
+
+size_t PartSize = getPartSize();
+
+bool   ForceMP  = getenv("DAVIX_FORCEMP") != 0;
+
+} // namespace Davix
 
 // static const std::string simple_listing("<propfind xmlns=\"DAV:\"><prop><resourcetype><collection/></resourcetype></prop></propfind>");
 //
@@ -99,9 +117,46 @@ private:
    Davix_dir_handle & operator=(const Davix_dir_handle & );
 };
 
+/******************************************************************************/
+/*                         C l a s s   P a r k l e t                          */
+/******************************************************************************/
+
+struct Davix_fd;
+
+class Davix_Parklet
+{
+public:
+
+ssize_t Consume(const char* iBuf, size_t iCount);
+
+void    Flush();
+
+        Davix_Parklet(Davix_fd* fd)
+                     : myFD(*fd), myBuff(0), mySize(0), myOffs(0), myLeft(0),
+                       partNum(1) {}
+
+       ~Davix_Parklet() {if (myBuff) delete[] myBuff;}
+
+private:
+
+Davix_fd&   myFD;
+std::string uploadid;
+char*       myBuff;
+size_t      mySize;
+size_t      myOffs;
+size_t      myLeft;
+int         partNum;
+std::vector<std::string> etags;
+};
+  
+/******************************************************************************/
+/*                       S t r u c t   D a v i x _ f d                        */
+/******************************************************************************/
+  
 struct Davix_fd{
     Davix_fd(Davix::Context & context, const Davix::Uri & uri, const Davix::RequestParams * params) : _uri(uri), _params(params),
-        io_handler(), io_context(Davix::getIOContext(context, _uri, &_params)){
+        io_handler(), io_context(Davix::getIOContext(context, _uri, &_params)),
+        Parklet(this) {
         Davix::getIOChain(io_handler);
     }
     virtual ~Davix_fd(){
@@ -116,7 +171,75 @@ struct Davix_fd{
     Davix::RequestParams _params;
     Davix::HttpIOChain io_handler;
     Davix::IOChainContext io_context;
+    Davix_Parklet         Parklet;
 };
+
+/******************************************************************************/
+/*                D a v i x _ P a r k l e t : : C o n s u m e                 */
+/******************************************************************************/
+  
+ssize_t Davix_Parklet::Consume(const char* iBuf, size_t iCount)
+{
+   ssize_t ret = iCount;
+
+// Make sure we have initialized. We don't allocate a buffer until needed.
+//
+   if (myBuff == 0)
+      {myBuff = new char[Davix::PartSize];
+       mySize = myLeft = Davix::PartSize;
+       uploadid = myFD.io_handler.initiateMultipart(myFD.io_context);
+      }
+
+// If we have already placed something in the buffer we must continue to fill it.
+// We do try to optimize by using the caller's buffer if possible.
+//
+   while(iCount)
+        {if (myOffs || iCount < mySize)
+            {size_t mvSize = (myLeft <= iCount ? myLeft : iCount);
+             memcpy(myBuff+myOffs, iBuf, mvSize);
+             myOffs += mvSize;
+             myLeft -= mvSize;
+             iBuf   += mvSize;
+             iCount -= mvSize;
+             if (myLeft == 0)
+                {myFD.io_handler.writeFromBuffer(myFD.io_context,
+                                                 myBuff, mySize,
+                                                 uploadid, etags, partNum);
+                 partNum++; // The next part number!
+                 myOffs = 0;
+                 myLeft = mySize;
+                 }
+            } else {
+             myFD.io_handler.writeFromBuffer(myFD.io_context,
+                                             myBuff, mySize,
+                                             uploadid, etags, partNum);
+             partNum++; // The next part number!
+             iBuf   += mySize;
+             iCount -= mySize;
+            } 
+        }
+
+// All done
+//
+   return ret;
+}
+
+/******************************************************************************/
+/*                  D a v i x _ P a r k l e t : : F l u s h                   */
+/******************************************************************************/
+  
+void Davix_Parklet::Flush()
+{
+// If we have a partially filled buffer then write it out now.
+//
+   if (myOffs) myFD.io_handler.writeFromBuffer(myFD.io_context,
+                                               myBuff, mySize,
+                                               uploadid, etags, partNum);
+
+// Commit the upload
+//
+   myFD.io_handler.commitChunks(myFD.io_context, uploadid, etags);
+}
 
 
 namespace Davix {
@@ -541,6 +664,7 @@ dav_ssize_t DavPosix::preadVec(DAVIX_FD* fd, const DavIOVecInput * input_vec,
 }
 
 ssize_t DavPosix::write(DAVIX_FD* fd, const void* buf, size_t count, Davix::DavixError** err){
+    static bool isProxy = getenv("XRDCL_PROXY") != 0;
     DAVIX_SCOPE_TRACE(DAVIX_LOG_POSIX, fun_write);
     ssize_t ret =-1;
     DavixError* tmp_err=NULL;
@@ -549,7 +673,8 @@ ssize_t DavPosix::write(DAVIX_FD* fd, const void* buf, size_t count, Davix::Davi
         if( davix_check_rw_fd(fd, &tmp_err) ==0){
             // BufferContentProvider provider( (const char*) buf, count);
             // ret = (ssize_t) fd->io_handler.writeFromProvider(fd->io_context, provider);
-            ret = (ssize_t) fd->io_handler.write(fd->io_context, buf, (dav_size_t) count);
+            if (isProxy) ret = fd->Parklet.Consume((const char*) buf, count);
+               else ret = (ssize_t) fd->io_handler.write(fd->io_context, buf, (dav_size_t) count);
         }
     }CATCH_DAVIX(&tmp_err)
 

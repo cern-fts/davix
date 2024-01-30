@@ -28,11 +28,13 @@
 
 #ifdef HAVE_ATOMIC
 #include <atomic>
-static std::atomic<int> internal_log_level(0);
+//static std::atomic<int> internal_log_level(0);
+static std::atomic<int> internal_log_level(DAVIX_LOG_TRACE);
 static std::atomic<int> internal_log_scope(DAVIX_LOG_SCOPE_ALL);
 #else
 #warning "Setting / getting davix loglevel is not thread-safe!"
-int internal_log_level = 0;
+//int internal_log_level = 0;
+int internal_log_level = DAVIX_LOG_TRACE;
 int internal_log_scope = DAVIX_LOG_SCOPE_ALL;
 #endif
 

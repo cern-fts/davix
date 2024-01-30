@@ -108,7 +108,8 @@ bool CompatibilityHacks::dynafedAssistedS3Upload(const BackendRequest& originati
 
   // Don't engage if size to upload is less than the specified threshold.
   // Override with 'forceMultiPart' fragment param.
-  if(provider.getSize() < s3SizeThreshold && !uri.fragmentParamExists("forceMultiPart")) {
+  if((uint64_t)provider.getSize() < s3SizeThreshold &&
+     !uri.fragmentParamExists("forceMultiPart")) {
     return false;
   }
 

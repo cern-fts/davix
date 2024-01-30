@@ -188,6 +188,8 @@ ssize_t FdContentProvider::pullBytes(char* target, size_t requestedBytes) {
 
   while(true) {
     ssize_t retval = ::read(_fd, target, requestedBytes);
+    std::cerr<<"Read: FD="<<_fd <<" bytes="<<requestedBytes<<" rc="<<retval<<
+    std::endl;
 
     if(retval >= 0) {
       // No errors
@@ -202,6 +204,7 @@ ssize_t FdContentProvider::pullBytes(char* target, size_t requestedBytes) {
       // Error
       _errc = errno;
       _errMsg = strerror(_errc);
+      if (_errc == EFAULT) abort(); 
       return - _errc;
     }
   }

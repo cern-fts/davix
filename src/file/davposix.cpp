@@ -121,6 +121,27 @@ private:
 /*                         C l a s s   P a r k l e t                          */
 /******************************************************************************/
 
+// The Davix_Parklet class implements an in-memory buffer that is used for
+// multi-part uploads (a.k.a. chunked streaming). This avoids the need to create
+// a local file that is then transferred to the destination upon close;
+// drastically reducing disk resource utilization while dramatically improving 
+// the transfer rate by avoiding the latency introduced by intermediate file
+// creation. The default buffer size which is equal to the chunk size is 32MB.
+// The size can be changed by setting the envar DAVIX_PARTSIZE to the desired
+// value in megabytes (e.g. a value of 50 is converted to 50 megabytes). Invalid
+// values are ignored. The valid range if from 10 to 500, inclusive. Once set
+// it cannot be changed until the library is reloaded.
+
+// Multi-part uploads offer distinct advantages when the size of the incomming  
+// data is not known. This is usually the case for streaming servers and not
+// basic file uploads encountered in user applications (i.e. we obviously know 
+// the upload size when the source is a file). This update is meant to solve
+// the streaming server problem and avoid creating intermediate files, thus
+// simplifying streaming server configuration and performance. Hence, multi-
+// part uploads are disabled unless we are told that the execution context is
+// an actual server, indicated by the envar XRDCL_PROXY setting not equal to 0.
+// The main use case here is an XRootD proxy server.
+
 struct Davix_fd;
 
 class Davix_Parklet
@@ -664,7 +685,13 @@ dav_ssize_t DavPosix::preadVec(DAVIX_FD* fd, const DavIOVecInput * input_vec,
 }
 
 ssize_t DavPosix::write(DAVIX_FD* fd, const void* buf, size_t count, Davix::DavixError** err){
+
+// The envar XRDCL_PROXY indicates that the caller is actually a proxy server.
+// For proxy servers we use multipart upload (a.k.a. chunked streaming) to avoid
+// consuming excessive intermediate disk space for data buffering.
+//
     static bool isProxy = getenv("XRDCL_PROXY") != 0;
+
     DAVIX_SCOPE_TRACE(DAVIX_LOG_POSIX, fun_write);
     ssize_t ret =-1;
     DavixError* tmp_err=NULL;

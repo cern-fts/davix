@@ -16,7 +16,7 @@ if [ -f lib/curl_config.h ]; then
 
   if [ $? -ne 0 ]; then
     grep "HAVE_CLOCK_GETTIME" lib/curl_config.h
-    sed -i 's|^#define HAVE_CLOCK_GETTIME_MONOTONIC 1|// #define HAVE_CLOCK_GETTIME_MONOTONIC 1|g' lib/curl_config.h
+    sed -i "" 's|^#define HAVE_CLOCK_GETTIME_MONOTONIC 1|// #define HAVE_CLOCK_GETTIME_MONOTONIC 1|g' lib/curl_config.h
     grep "HAVE_CLOCK_GETTIME" lib/curl_config.h
   fi
 

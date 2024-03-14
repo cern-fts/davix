@@ -688,9 +688,11 @@ ssize_t DavPosix::write(DAVIX_FD* fd, const void* buf, size_t count, Davix::Davi
 
 // The envar XRDCL_PROXY indicates that the caller is actually a proxy server.
 // For proxy servers we use multipart upload (a.k.a. chunked streaming) to avoid
-// consuming excessive intermediate disk space for data buffering.
+// consuming excessive intermediate disk space for data buffering. Note that
+// multipart uploads are enabled when isProxy is true because XRDCL_PROXY is
+// defined in the environment.
 //
-    static bool isProxy = getenv("XRDCL_PROXY") != 0;
+    static bool isProxy = getenv("XRDCL_PROXY") != 0; // Enable multipart upload?
 
     DAVIX_SCOPE_TRACE(DAVIX_LOG_POSIX, fun_write);
     ssize_t ret =-1;

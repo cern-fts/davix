@@ -38,6 +38,7 @@ PerformanceMarker::PerformanceMarker():
 
 PerformanceData::PerformanceData():
     begin(0), latest(0),
+    ipflag(IPtype::undefined),
     markers()
 {
     // Nothing

@@ -144,7 +144,8 @@ void authentication(const std::vector<option::Option> &opts, const Auth::Type &a
         if(opts[Opt::S3ALTERNATE]) params.setAwsAlternate(true);
     }
     else if(auth == Auth::PROXY) {
-        configure_grid_env("proxy", params);
+        char pxy[] = "proxy";
+        configure_grid_env(pxy, params);
     }
     else if(auth == Auth::AZURE) {
         ASSERT(opts[Opt::AZUREKEY] != NULL, "--azurekey is required when using Azure");
@@ -621,7 +622,7 @@ void detectwebdav(TestcaseHandler &handler, const RequestParams &params, const U
 
 void assert_args(const std::vector<std::string> &cmd, int nargs) {
     ASSERT(cmd.size() != 0, "assert_args called with empty command!");
-    ASSERT(cmd.size() == nargs+1, "Wrong number of arguments to " << cmd[0] << ": " << cmd.size()-1 << ", expected: " << nargs);
+    ASSERT((int)cmd.size() == nargs+1, "Wrong number of arguments to " << cmd[0] << ": " << cmd.size()-1 << ", expected: " << nargs);
 }
 
 bool run(int argc, char** argv) {

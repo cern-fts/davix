@@ -145,8 +145,10 @@
 
 #if( SIZEOF_INT == SIZEOF_OFF_T )
 #   define NE_FMT_OFF_T "d"
-#else
+#elif( SIZEOF_LONG == SIZEOF_OFF_T )
 #   define NE_FMT_OFF_T "ld"
+#else
+#   define NE_FMT_OFF_T "lld"
 #endif
 
 

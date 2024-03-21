@@ -71,51 +71,55 @@ struct DirHandle{
 };
 
 /**
-  execute a propfind/stat request on a given HTTP request handle
-  return a vector with the content of the request if success
-*/
-std::vector<char> req_webdav_propfind(HttpRequest* req, DavixError** err){
-    int ret =-1;
-    std::vector<char> res;
-
-    req->addHeaderField("Depth","0");
+ * Helper function to execute a PROPFIND/stat request on a given HTTP request handle.
+ * Returns a string with the HTTP response.
+ */
+std::string req_webdav_propfind(HttpRequest* req, DavixError** err) {
+    req->addHeaderField("Depth", "0");
     req->setRequestMethod("PROPFIND");
 
-    if( (ret = req->executeRequest(err)) ==0){
-        res.swap(req->getAnswerContentVec());
+    if (req->executeRequest(err) == 0) {
+        auto content = req->getAnswerContent();
+
+        if (content != NULL) {
+            return {content};
+        }
     }
 
-    return res;
+    return {};
 }
 
 
 int dav_stat_mapper_webdav(Context &context, const RequestParams* params, const Uri & url, struct StatInfo& st_info){
-    int ret =-1;
-
     DavPropXMLParser parser;
-    DavixError * tmp_err=NULL;
+    DavixError* tmp_err = NULL;
     HttpRequest req(context, url, &tmp_err);
+    int ret = -1;
 
     if( tmp_err == NULL){
         req.setParameters(params);
 
-        TRY_DAVIX{
-            std::vector<char> body = req_webdav_propfind(&req, &tmp_err);
-            if(!tmp_err){
-               parser.parseChunk(&(body[0]), body.size());
+        TRY_DAVIX {
+            std::string response = req_webdav_propfind(&req, &tmp_err);
 
-                std::deque<FileProperties> & props = parser.getProperties();
-                if( props.size() < 1){
-                    throw DavixException(davix_scope_stat_str(), Davix::StatusCode::WebDavPropertiesParsingError, "Parsing Error : properties number < 1");
-                }else{
+            if (!tmp_err) {
+                parser.parseChunk(response);
+                std::deque<FileProperties>& props = parser.getProperties();
+
+                if (props.size() < 1) {
+                    throw DavixException(davix_scope_stat_str(), Davix::StatusCode::WebDavPropertiesParsingError, "Parsing Error: properties number < 1");
+                } else {
                     st_info = props.front().info;
-                    ret =0;
+                    ret = 0;
                 }
             }
-        }CATCH_DAVIX(&tmp_err)
-        if(tmp_err != NULL)
+        } CATCH_DAVIX(&tmp_err)
+
+        if (tmp_err != NULL) {
             ret = -1;
+        }
     }
+
     checkDavixError(&tmp_err);
     return ret;
 }
@@ -254,13 +258,16 @@ void getQuotaInfo(Context & c, const Uri & url, const RequestParams *p, QuotaInf
     req.setRequestMethod("PROPFIND");
     req.setRequestBody(quota_stat);
 
-    if(req.executeRequest(&tmp_err) == 0 && !tmp_err) {
+    if (req.executeRequest(&tmp_err) == 0 && !tmp_err) {
         DavPropXMLParser parser;
-        parser.parseChunk(&(req.getAnswerContentVec()[0]), req.getAnswerContentVec().size());
+        auto content = req.getAnswerContent();
+        std::string response = (content != NULL) ? content : "";
+        parser.parseChunk(response);
         std::deque<FileProperties> & props = parser.getProperties();
-        if( props.size() < 1){
-            throw DavixException(davix_scope_stat_str(), Davix::StatusCode::WebDavPropertiesParsingError, "Parsing Error : properties number < 1");
-        }else{
+
+        if (props.size() < 1) {
+            throw DavixException(davix_scope_stat_str(), Davix::StatusCode::WebDavPropertiesParsingError, "Parsing Error: properties number < 1");
+        } else {
             QuotaInfoHandler::setdptr(info, props.front().quota);
         }
     }
@@ -269,36 +276,39 @@ void getQuotaInfo(Context & c, const Uri & url, const RequestParams *p, QuotaInf
 }
 
 void parse_creation_deletion_result(int code, const Uri & u, const std::string & scope, const std::vector<char> & body){
-    switch(code){
+    switch(code) {
         case 200:
         case 201:
         case 202:
-        case 204:{
-                return;
+        case 204: {
+            return;
         }
-        case 207:{
-            // parse webdav
+        case 207: {
+            // Parse WebDAV
             DavDeleteXMLParser parser;
-            parser.parseChunk(&(body[0]), body.size());
-            if( parser.getProperties().size() > 0){
-                for(unsigned int i=0; i < parser.getProperties().size(); ++i){
+            std::string response = (!body.empty()) ? body.data() : "";
+            parser.parseChunk(response);
+
+            if (parser.getProperties().size() > 0) {
+                for (unsigned int i = 0; i < parser.getProperties().size(); ++i) {
                    const int sub_code = parser.getProperties().at(i).req_status;
                    std::ostringstream ss;
-
                    ss << "occurred during deletion request for " << parser.getProperties().at(i).filename;
 
-                   if(httpcodeIsValid(sub_code) == false){
+                   if (httpcodeIsValid(sub_code) == false) {
                        httpcodeToDavixException(sub_code, scope, ss.str());
                    }
                 }
 
                return;
             }
+
             // if no properties, properties were filtered because invalid
             httpcodeToDavixException(404, scope);
             break;
         }
     }
+
     std::ostringstream ss;
     ss << " with url " << u.getString();
     httpcodeToDavixException(code, scope, ss.str());

@@ -136,18 +136,7 @@ private:
 };
 
 
-/*
-  retrieve a webdav propfind stat request to the given url
-    @param req : http request where to executethe query
-    @return vector of characters of the query content
-  */
-std::vector<char> req_webdav_propfind(HttpRequest* req, DavixError** err);
-
-
-
 } // Davix
-
-
 
 
 #endif // DAVMETA_HPP

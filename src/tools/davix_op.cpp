@@ -246,7 +246,7 @@ int DeleteOp::executeOp(){
         }
     }
     else{
-        // cases other than s3, not implenmented for now. WebDAV delete collection already works without the -r switch
+        // Cases other than S3 not implemented for now. WebDAV delete collection already works without the -r switch
         return -1;
     }
 
@@ -254,26 +254,29 @@ int DeleteOp::executeOp(){
 }
 
 void DeleteOp::parse_deletion_result(int code, const Uri & u, const std::string & scope, const std::vector<char> & body){
-    switch(code){
-        case 200:{
+    switch(code) {
+        case 200: {
             // if s3 && scope was davix_scope_rm_str() && batch delete, parse body
             S3DeleteParser parser;
-            parser.parseChunk(&(body[0]), body.size());
+            std::string response = (!body.empty()) ? body.data() : "";
+            parser.parseChunk(response);
 
             // check if any of the delete request entry is flagged as error, if so, just print them for now
-            if( parser.getDeleteStatus().size() > 0){
-                for(unsigned int i=0; i < parser.getDeleteStatus().size(); ++i){
-                    if(parser.getDeleteStatus().at(i).error){
+            if (parser.getDeleteStatus().size() > 0) {
+                for (unsigned int i = 0; i < parser.getDeleteStatus().size(); ++i) {
+                    if (parser.getDeleteStatus().at(i).error) {
                         std::ostringstream ss;
                         ss << "Error: " << parser.getDeleteStatus().at(i).error_code <<
                             " -> " << parser.getDeleteStatus().at(i).message <<
-                            " encountered while atempting to delete " <<
+                            " encountered while attempting to delete " <<
                             parser.getDeleteStatus().at(i).filename;
 
                         std::cerr << std::endl << ss.str() << std::endl;
                     }
+
                     return;
                 }
+
                 // if no properties, status were filtered because invalid
                 httpcodeToDavixException(404, scope);
                 return;
@@ -281,32 +284,35 @@ void DeleteOp::parse_deletion_result(int code, const Uri & u, const std::string 
         }
         case 201:
         case 202:
-        case 204:{
+        case 204: {
                 return;
         }
-        case 207:{
-            // parse webdav
+        case 207: {
+            // Parse WebDAV
             DavDeleteXMLParser parser;
-            parser.parseChunk(&(body[0]), body.size());
-            if( parser.getProperties().size() > 0){
-                for(unsigned int i=0; i < parser.getProperties().size(); ++i){
+            std::string response = (!body.empty()) ? body.data() : "";
+            parser.parseChunk(response);
+
+            if (parser.getProperties().size() > 0) {
+                for (unsigned int i = 0; i < parser.getProperties().size(); ++i) {
                    const int sub_code = parser.getProperties().at(i).req_status;
                    std::ostringstream ss;
-
                    ss << "occurred during deletion request for " << parser.getProperties().at(i).filename;
 
-                   if(httpcodeIsValid(sub_code) == false){
+                   if (httpcodeIsValid(sub_code) == false) {
                        httpcodeToDavixException(sub_code, scope, ss.str());
                    }
                 }
 
                return;
             }
+
             // if no properties, properties were filtered because invalid
             httpcodeToDavixException(404, scope);
             break;
         }
     }
+
     std::ostringstream ss;
     ss << " with url " << u.getString();
     httpcodeToDavixException(code, scope, ss.str());

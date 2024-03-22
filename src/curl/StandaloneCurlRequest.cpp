@@ -64,9 +64,22 @@ static std::string filterAuthorizationHeader(const std::string& line) {
   }
 
   std::string filtered(line);
-  for (size_t i = pos + 15 ; i < filtered.length(); i++) {
+  bool formatted = false;
+
+  if (getenv("DAVIX_FORMAT_BEARER_TOKEN") != NULL) {
+    std::string content = line.substr(15);
+
+    // Print "Authorization: Bearer abcdefg...tuvwxyz"
+    if ((content.find("Bearer ") == 0) && (content.size() > 100)) {
+      filtered = "Authorization: Bearer " + content.substr(7, 7) + "..." + content.substr(content.size() - 7);
+      formatted = true;
+    }
+  }
+
+  for (size_t i = pos + 15 ; i < filtered.length() && !formatted; i++) {
     filtered[i] = 'x';
   }
+
   return filtered;
 }
 
@@ -226,7 +239,7 @@ size_t StandaloneCurlRequest::getAnswerHeaders(std::vector<std::pair<std::string
 }
 
 //------------------------------------------------------------------------------
-// Traslate curl code into status
+// Translate curl code into status
 //------------------------------------------------------------------------------
 static Status curlCodeToStatus(CURLcode code) {
   std::ostringstream ss;

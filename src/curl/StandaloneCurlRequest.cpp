@@ -199,16 +199,16 @@ StandaloneCurlRequest::~StandaloneCurlRequest() {
 // Get a specific response header
 //------------------------------------------------------------------------------
 bool StandaloneCurlRequest::getAnswerHeader(const std::string &header_name, std::string &value) const {
-  auto _tolower = [](const std::string& str) -> std::string {
+  auto transform_to_lower = [](const std::string& str) -> std::string {
     std::string lower(str);
     std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
     return lower;
   };
 
-  auto header_lower = _tolower(header_name);
+  auto header_lower = transform_to_lower(header_name);
 
   for (const auto& it: _response_headers) {
-    if (header_lower == _tolower(it.first)) {
+    if (header_lower == transform_to_lower(it.first)) {
       value = it.second;
       return true;
     }

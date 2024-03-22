@@ -1,5 +1,19 @@
 # davix release history
 
+## 0.8.6 (unreleased)
+### Bug fixes
+* [DMC-1394] - Davix header parsing is case-sensitive for libcurl backend
+* [DMC-1401] - libxml 2.12.0 breaks Gfal2/Davix listing
+* [DMC-1407] - Incorrect IPv4 reported for HTTP-TPC transfers that don't send "RemoteConnections" marker
+* [davix/issues/112] - [FreeBSD] Davix build fails on FreeBSD
+* [davix/pull/113] - Use sed in a more POSIX compliant way
+* [davix/issues/115] - Davix "master" branch fails to compile on macOS (caused by DMC-1394)
+
+### Improvements
+* [DMC-1376] - Long Authorization header xxxx token string print in Davix
+* [davix/pull/105] - Do not hardcode error numbers
+* [davix/pull/110] - Support the NVHPC compiler
+
 ## 0.8.5 (2023-10-20)
 ### Issues
 * [davix/issues/107] - CVE-2023-38545 in bundled curl library

@@ -67,7 +67,7 @@ static std::string filterAuthorizationHeader(const std::string& line) {
   bool formatted = false;
 
   if (getenv("DAVIX_FORMAT_BEARER_TOKEN") != NULL) {
-    std::string content = line.substr(15);
+    std::string content = line.substr(pos + 15);
 
     // Print "Authorization: Bearer abcdefg...tuvwxyz"
     if ((content.find("Bearer ") == 0) && (content.size() > 100)) {

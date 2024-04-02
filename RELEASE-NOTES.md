@@ -1,6 +1,6 @@
 # davix release history
 
-## 0.8.6 (unreleased)
+## 0.8.6 (2024-04-02)
 ### Bug fixes
 * [DMC-1394] - Davix header parsing is case-sensitive for libcurl backend
 * [DMC-1401] - libxml 2.12.0 breaks Gfal2/Davix listing

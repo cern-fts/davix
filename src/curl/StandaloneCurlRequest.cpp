@@ -24,6 +24,7 @@
 #include "CurlSession.hpp"
 #include "HeaderlineParser.hpp"
 #include <utils/davix_logger_internal.hpp>
+#include <utils/stringutils.hpp>
 #include <core/ContentProvider.hpp>
 #include <curl/curl.h>
 #include <auth/davixx509cred_internal.hpp>
@@ -57,7 +58,7 @@ static std::string chopNewline(const std::string &line) {
 }
 
 static std::string filterAuthorizationHeader(const std::string& line) {
-  size_t pos = line.find("Authorization: ");
+  size_t pos = StrUtil::findInsensitive(line, "Authorization: ");
 
   if (pos == std::string::npos) {
     return line;

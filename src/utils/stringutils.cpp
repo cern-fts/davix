@@ -30,6 +30,22 @@ std::string stringReplace(std::string str, const std::string & search, const std
     return str;
 }
 
+size_t findInsensitive(const std::string& str, const std::string& search) {
+    auto it = std::search(
+        str.begin(), str.end(),
+        search.begin(), search.end(),
+        [](unsigned char c1, unsigned c2) {
+            return std::tolower(c1) == std::tolower(c2);
+        }
+    );
+
+    if (it == str.end()) {
+        return std::string::npos;
+    }
+
+    return std::distance(str.begin(), it);
+}
+
 int compare_ncase(const std::string & str1, const std::string & str2){
     return strcasecmp(str1.c_str(), str2.c_str());
 }
@@ -41,7 +57,7 @@ int compare_ncase(const std::string &str1, const std::string &str2, size_t max){
 
 
 int compare_ncase(const std::string & str1, off_t offset, size_t size, const char* cstr2){
-     return strncasecmp(str1.c_str(), cstr2+ offset, size);
+    return strncasecmp(str1.c_str(), cstr2+ offset, size);
 }
 
 

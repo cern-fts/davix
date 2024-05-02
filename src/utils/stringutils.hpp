@@ -86,6 +86,9 @@ inline std::string & remove(std::string & str, char c){
 
 std::string stringReplace(std::string str, const std::string & search, const std::string & replace);
 
+// Case-insensitive find
+size_t findInsensitive(const std::string& str, const std::string& search);
+
 ///////////////////////////
 /// compare utils
 //////////////////////

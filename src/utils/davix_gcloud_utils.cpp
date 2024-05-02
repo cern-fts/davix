@@ -23,7 +23,7 @@
 #include <libs/alibxx/crypto/hmacsha.hpp>
 #include <libs/alibxx/crypto/base64.hpp>
 #include <fstream>
-#include <libs/rapidjson/document.h>
+#include <rapidjson/document.h>
 #include <sstream>
 
 #define SSTR(message) static_cast<std::ostringstream&>(std::ostringstream().flush() << message).str()

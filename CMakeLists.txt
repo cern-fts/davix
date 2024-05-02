@@ -97,6 +97,13 @@ set(NE_HAVE_SSL 1)
 
 add_subdirectory(deps)
 
+find_package(RapidJSON QUIET)
+if(${RapidJSON_FOUND})
+  set(RAPIDJSON_INCLUDE_DIRS ${RapidJSON_INCLUDE_DIRS})
+else()
+  message(STATUS "Using bundled RapidJSON")
+  set(RAPIDJSON_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src/libs)
+endif()
 
 #libuuid
 if(NOT APPLE)

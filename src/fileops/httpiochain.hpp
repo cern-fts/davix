@@ -38,6 +38,14 @@ class ContentProvider;
     }while(0)
 
 
+#define CHAIN_FORWARD_VOID(X) \
+        do{ \
+        if(_next.get() != NULL){ \
+            _next->X; return; \
+        } \
+        throw DavixException(davix_scope_io_buff(), StatusCode::OperationNonSupported, "I/O operation not supported"); \
+    }while(0)
+
 // stores state for readToFd operations - necessary, so as not to write the same
 // data again to an fd after a retry / metalink recovery.
 struct FdHandler {
@@ -138,7 +146,7 @@ public:
     virtual dav_ssize_t readToFd(IOChainContext & iocontext, int fd, dav_size_t size);
 
     virtual dav_ssize_t preadVec(IOChainContext & iocontext, const DavIOVecInput * input_vec,
-                              DavIOVecOuput * output_vec,
+                             DavIOVecOuput * output_vec,
                               const dav_size_t count_vec);
 
     // reset file position and status
@@ -159,6 +167,24 @@ public:
 
     // write provided contents
     virtual dav_ssize_t writeFromProvider(IOChainContext & iocontext, ContentProvider &provider);
+
+    // S3-type operations needed for streaming writes especially when the size
+    // is unknown (common case).
+
+    // Returns uploadId
+    virtual std::string initiateMultipart(IOChainContext& iocontext);
+
+    // Given the upload id and part#, write the given buffer and add the
+    // object id to the etags vector.
+    virtual void writeFromBuffer(IOChainContext&  iocontext, const char* buff,
+                                 dav_size_t size, const std::string& uploadId,
+                                 std::vector<std::string>& etags,
+                                 int partNumber);
+
+    // Given upload id and list of object tags, commit chunks
+    virtual void commitChunks(IOChainContext& iocontext,
+                              const std::string &uploadId,
+                              const std::vector<std::string> &etags);
 
 protected:
     std::unique_ptr<HttpIOChain> _next;

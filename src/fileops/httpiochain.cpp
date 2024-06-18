@@ -131,9 +131,26 @@ dav_ssize_t HttpIOChain::write(IOChainContext & iocontext, const void *buf, dav_
     CHAIN_FORWARD(write(iocontext, buf, count));
 }
 
+void HttpIOChain::writeFromBuffer(IOChainContext&  iocontext, const char* buff,
+                                  dav_size_t size, const std::string& uploadId,
+                                  std::vector<std::string>& etags,
+                                  int partNumber) {
+    CHAIN_FORWARD_VOID(writeFromBuffer(iocontext, buff, size, uploadId,
+                       etags, partNumber));
+}
+
 dav_ssize_t HttpIOChain::writeFromProvider(IOChainContext & iocontext, ContentProvider &provider) {
     CHAIN_FORWARD(writeFromProvider(iocontext, provider));
 }
 
+std::string HttpIOChain::initiateMultipart(IOChainContext& iocontext) {
+     CHAIN_FORWARD(initiateMultipart(iocontext));
+}
+
+void HttpIOChain::commitChunks(IOChainContext& iocontext,
+                               const std::string &uploadId,
+                               const std::vector<std::string> &etags) {
+     CHAIN_FORWARD_VOID(commitChunks(iocontext, uploadId, etags));
+}
 
 } // Davix

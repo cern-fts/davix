@@ -26,13 +26,34 @@
 #include <utils/davix_logger.hpp>
 #include <utils/stringutils.hpp>
 
+// This bit of code allows one to set the debug level via an envar when
+// the Davix library is being used via a plugin.
+//
+namespace
+{
+int getTraceValue()
+{
+   const char *dbg = getenv("DAVIX_DEBUG");
+   if (dbg)
+      {char dbgval = tolower(*dbg);
+       if (dbgval == 'c') return DAVIX_LOG_CRITICAL;
+       if (dbgval == 'w') return DAVIX_LOG_WARNING;
+       if (dbgval == 'v') return DAVIX_LOG_VERBOSE;
+       if (dbgval == 'd') return DAVIX_LOG_DEBUG;
+       if (dbgval == 't') return DAVIX_LOG_TRACE;
+       if (dbgval == 'a') return DAVIX_LOG_ALL;
+      }
+   return 0;
+}
+}
+
 #ifdef HAVE_ATOMIC
 #include <atomic>
-static std::atomic<int> internal_log_level(0);
+static std::atomic<int> internal_log_level(getTraceValue());
 static std::atomic<int> internal_log_scope(DAVIX_LOG_SCOPE_ALL);
 #else
 #warning "Setting / getting davix loglevel is not thread-safe!"
-int internal_log_level = 0;
+int internal_log_level = getTraceValue();
 int internal_log_scope = DAVIX_LOG_SCOPE_ALL;
 #endif
 

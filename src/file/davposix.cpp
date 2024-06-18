@@ -63,8 +63,6 @@ size_t getPartSize() {static const int dfltPSIZE = 32*1024*1024;
 
 size_t PartSize = getPartSize();
 
-bool   ForceMP  = getenv("DAVIX_FORCEMP") != 0;
-
 } // namespace Davix
 
 // static const std::string simple_listing("<propfind xmlns=\"DAV:\"><prop><resourcetype><collection/></resourcetype></prop></propfind>");

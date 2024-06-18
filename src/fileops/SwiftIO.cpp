@@ -35,14 +35,12 @@ static bool is_swift_operation(IOChainContext & context){
     return false;
 }
 
-extern bool ForceMP;
-
 static bool should_use_swift_multipart(IOChainContext & context, dav_size_t size) {
     bool is_swift = is_swift_operation(context);
 
     if (!is_swift) return false;
 
-    if(ForceMP || context._uri.fragmentParamExists("forceMultiPart")) {
+    if(context._uri.fragmentParamExists("forceMultiPart")) {
 
         return true;
     }

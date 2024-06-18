@@ -36,14 +36,12 @@ static bool is_s3_operation(IOChainContext & context){
   return false;
 }
 
-extern bool ForceMP;
-
 static bool should_use_s3_multipart(IOChainContext & context, dav_size_t size) {
   bool is_s3 = is_s3_operation(context);
 
   if(!is_s3) return false;
 
-  if(ForceMP || context._uri.fragmentParamExists("forceMultiPart")) {
+  if(context._uri.fragmentParamExists("forceMultiPart")) {
 
     return true;
   }

@@ -19,8 +19,10 @@
  *
 */
 
+#include <iostream>
 #include <utils/davix_logger_internal.hpp>
 
+#include <core/ContentProvider.hpp>
 #include <status/davixstatusrequest.hpp>
 #include <fileops/chain_factory.hpp>
 #include <xml/davpropxmlparser.hpp>
@@ -46,7 +48,24 @@ static IOChainContext  getIOContext( Context & context, const Uri & uri, const R
         return IOChainContext(context, uri, params);
 }
 
-}
+size_t getPartSize() {static const int dfltPSIZE = 32*1024*1024;
+                      const char *mpVal = getenv("DAVIX_PARTSIZE");
+                      size_t pSize = dfltPSIZE;
+
+                      if (mpVal) 
+                         {char *endp;
+                          long mpSZ = strtol(mpVal, &endp, 10);
+                          if (*endp == 0 && mpSZ >= 10 && mpSZ <= 500)
+                          pSize = (size_t)mpSZ*1024*1024; 
+                         }
+                      return pSize;
+                     }
+
+size_t PartSize = getPartSize();
+
+bool   ForceMP  = getenv("DAVIX_FORCEMP") != 0;
+
+} // namespace Davix
 
 // static const std::string simple_listing("<propfind xmlns=\"DAV:\"><prop><resourcetype><collection/></resourcetype></prop></propfind>");
 //
@@ -99,24 +118,178 @@ private:
    Davix_dir_handle & operator=(const Davix_dir_handle & );
 };
 
+/******************************************************************************/
+/*                         C l a s s   P a r k l e t                          */
+/******************************************************************************/
+
+// The Davix_Parklet class implements an in-memory buffer that is used for
+// multi-part uploads (a.k.a. chunked streaming). This avoids the need to create
+// a local file that is then transferred to the destination upon close;
+// drastically reducing disk resource utilization while dramatically improving 
+// the transfer rate by avoiding the latency introduced by intermediate file
+// creation. The default buffer size which is equal to the chunk size is 32 MiB.
+// The size can be changed by setting the envar DAVIX_PARTSIZE to the desired
+// value in megabytes (e.g. a value of 50 is converted to 50 MiB). Invalid
+// values are ignored. The valid range if from 10 to 500, inclusive. Once set
+// it cannot be changed until the library is reloaded.
+
+// Multi-part uploads offer distinct advantages when the size of the incomming  
+// data is not known. This is usually the case for streaming servers and not
+// basic file uploads encountered in user applications (i.e. we obviously know 
+// the upload size when the source is a file). This update is meant to solve
+// the streaming server problem and avoid creating intermediate files, thus
+// simplifying streaming server configuration and performance. Hence, multi-
+// part uploads are disabled unless envar DAVPOSIX_MPUPLOAD is set.
+
+struct Davix_fd;
+
+class Davix_Parklet
+{
+public:
+
+bool   Active() {return myBuff != 0;}
+
+ssize_t Consume(const char* iBuf, size_t iCount);
+
+void    Flush();
+
+        Davix_Parklet(Davix_fd* fd)
+                     : myFD(*fd), myBuff(0), mySize(0), myOffs(0), myLeft(0),
+                       partNum(1) {}
+
+       ~Davix_Parklet() {if (myBuff) delete[] myBuff;}
+
+private:
+
+Davix_fd&   myFD;
+std::string uploadid;
+char*       myBuff;
+size_t      mySize;
+size_t      myOffs;
+size_t      myLeft;
+int         partNum;
+std::vector<std::string> etags;
+};
+  
+/******************************************************************************/
+/*                       S t r u c t   D a v i x _ f d                        */
+/******************************************************************************/
+  
 struct Davix_fd{
     Davix_fd(Davix::Context & context, const Davix::Uri & uri, const Davix::RequestParams * params) : _uri(uri), _params(params),
-        io_handler(), io_context(Davix::getIOContext(context, _uri, &_params)){
+        io_handler(), io_context(Davix::getIOContext(context, _uri, &_params)),
+        Parklet(this) {
         Davix::getIOChain(io_handler);
     }
     virtual ~Davix_fd(){
-        try{
-            io_handler.resetIO(io_context);
-        }catch(Davix::DavixException & e){
-            DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_POSIX, "Error when closed file descriptor, possibly file corrupted {}", e.what());
-        }
+        if (!Parklet.Active())
+           try{
+               io_handler.resetIO(io_context);
+           }catch(Davix::DavixException & e){
+               DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_POSIX,
+               "Error when closed file descriptor, possibly file corrupted {}",
+               e.what());
+           }
     }
 
     Davix::Uri _uri;
     Davix::RequestParams _params;
     Davix::HttpIOChain io_handler;
     Davix::IOChainContext io_context;
+    Davix_Parklet         Parklet;
 };
+
+/******************************************************************************/
+/*                D a v i x _ P a r k l e t : : C o n s u m e                 */
+/******************************************************************************/
+  
+ssize_t Davix_Parklet::Consume(const char* iBuf, size_t iCount)
+{
+   ssize_t ret = iCount;
+
+// Make sure we have initialized. We don't allocate a buffer until needed.
+//
+   if (myBuff == 0)
+      {myBuff = new char[Davix::PartSize];
+       mySize = myLeft = Davix::PartSize;
+
+       DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_POSIX,
+                  "Parklet: Initiating multipart!");
+
+       uploadid = myFD.io_handler.initiateMultipart(myFD.io_context);
+
+       DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_POSIX, "Parklet: Multipart size: "
+                  "{} id: {}", std::to_string(mySize), uploadid);
+      }
+
+// If we have already placed something in the buffer we must continue to fill it.
+// We do try to optimize by using the caller's buffer if possible.
+//
+   while(iCount)
+        {if (myOffs || iCount < mySize)
+            {size_t mvSize = (myLeft <= iCount ? myLeft : iCount);
+             memcpy(myBuff+myOffs, iBuf, mvSize);
+             myOffs += mvSize;
+             myLeft -= mvSize;
+             iBuf   += mvSize;
+             iCount -= mvSize;
+             if (myLeft == 0)
+                {myFD.io_handler.writeFromBuffer(myFD.io_context,
+                                                 myBuff, mySize,
+                                                 uploadid, etags, partNum);
+                 DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_POSIX, "Parklet: "
+                            "Buff upload {} part {} tag {}", 
+                             std::to_string(mySize), std::to_string(partNum),
+                             etags[partNum-1]);
+                 partNum++; // The next part number!
+                 myOffs = 0;
+                 myLeft = mySize;
+                 }
+            } else {
+             myFD.io_handler.writeFromBuffer(myFD.io_context,
+                                             iBuf, mySize,
+                                             uploadid, etags, partNum);
+             DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_POSIX, "Parklet: "
+                        "Drct upload {} part {} tag {}", 
+                        std::to_string(mySize), std::to_string(partNum),
+                        etags[partNum-1]);
+             partNum++; // The next part number!
+             iBuf   += mySize;
+             iCount -= mySize;
+            } 
+        }
+
+// All done, return the expected number of bytes.
+//
+   return ret;
+}
+
+/******************************************************************************/
+/*                  D a v i x _ P a r k l e t : : F l u s h                   */
+/******************************************************************************/
+  
+void Davix_Parklet::Flush()
+{
+   size_t bytes = mySize - myLeft;
+
+// If we have a partially filled buffer then write it out now.
+//
+   if (bytes) {myFD.io_handler.writeFromBuffer(myFD.io_context,
+                                               myBuff, bytes,
+                                               uploadid, etags, partNum);
+               DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_POSIX, "Parklet: "
+                          "Last upload {} part {} tag {}", 
+                          std::to_string(bytes), std::to_string(partNum),
+                          etags[partNum-1]);
+              }
+
+// Commit the upload
+//
+   DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_POSIX, "Parklet: Commit {} part(s) "
+              "upload {}", std::to_string(etags.size()), uploadid);
+
+   myFD.io_handler.commitChunks(myFD.io_context, uploadid, etags);
+}
 
 
 namespace Davix {
@@ -541,7 +714,17 @@ dav_ssize_t DavPosix::preadVec(DAVIX_FD* fd, const DavIOVecInput * input_vec,
 }
 
 ssize_t DavPosix::write(DAVIX_FD* fd, const void* buf, size_t count, Davix::DavixError** err){
+
+// By default, POSIX writes create an intermediate file that is uploaded when
+// closed. When envar DAVPOSIX_MPUPLOAD is set, a multi-part upload is used with 
+// a default chunk size of 32 MiB. The chunk size  can be changed by setting the
+// via envar DAVIX_PARTSIZE (see getPartSize() in this file). This envar is
+// typically set by S3 proxy servers using the POSIX API.
+
+    static bool useMPUpload = getenv("DAVPOSIX_MPUPLOAD") != 0; 
+
     DAVIX_SCOPE_TRACE(DAVIX_LOG_POSIX, fun_write);
+
     ssize_t ret =-1;
     DavixError* tmp_err=NULL;
 
@@ -549,7 +732,9 @@ ssize_t DavPosix::write(DAVIX_FD* fd, const void* buf, size_t count, Davix::Davi
         if( davix_check_rw_fd(fd, &tmp_err) ==0){
             // BufferContentProvider provider( (const char*) buf, count);
             // ret = (ssize_t) fd->io_handler.writeFromProvider(fd->io_context, provider);
-            ret = (ssize_t) fd->io_handler.write(fd->io_context, buf, (dav_size_t) count);
+            if (useMPUpload) ret = fd->Parklet.Consume((const char*) buf, count);
+               else ret = (ssize_t) fd->io_handler.write(fd->io_context, buf,
+                                                         (dav_size_t) count);
         }
     }CATCH_DAVIX(&tmp_err)
 
@@ -585,7 +770,7 @@ dav_off_t DavPosix::lseek64(DAVIX_FD *fd, dav_off_t offset, int flags, DavixErro
 int DavPosix::close(DAVIX_FD* fd, Davix::DavixError** err){
     TRY_DAVIX{
         if(fd){
-            fd->io_handler.resetIO(fd->io_context);
+            if (fd->Parklet.Active()) fd->Parklet.Flush();
             delete fd;
             fd = NULL;
         }

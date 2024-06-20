@@ -138,8 +138,8 @@ public:
     virtual dav_ssize_t readToFd(IOChainContext & iocontext, int fd, dav_size_t size);
 
     virtual dav_ssize_t preadVec(IOChainContext & iocontext, const DavIOVecInput * input_vec,
-                             DavIOVecOuput * output_vec,
-                              const dav_size_t count_vec);
+                                 DavIOVecOuput * output_vec,
+                                 const dav_size_t count_vec);
 
     // reset file position and status
     virtual void resetIO(IOChainContext & iocontext);

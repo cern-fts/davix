@@ -40,18 +40,19 @@ public:
   virtual dav_ssize_t writeFromProvider(IOChainContext & iocontext, ContentProvider &provider);
 
   // Returns uploadId
-  virtual std::string initiateMultipart(IOChainContext & iocontext);
+  virtual std::string initiateMultipart(IOChainContext & iocontext) override;
 
   // Given the upload id and part#, write the given buffer and add the
   // object id to the etags vector.
-  virtual void writeFromBuffer(IOChainContext&  iocontext, const char* buff,
+  virtual bool writeFromBuffer(IOChainContext&  iocontext, const char* buff,
                                dav_size_t size, const std::string& uploadId,
-                               std::vector<std::string>& etags, int partNumber);
+                               std::vector<std::string>& etags, int partNumber)
+                               override;
 
   // Given upload id and last chunk, commit chunks
-  virtual void commitChunks(IOChainContext& iocontext,
+  virtual bool commitChunks(IOChainContext& iocontext,
                             const std::string& uploadId,
-                            const std::vector<std::string>& etags);
+                            const std::vector<std::string>& etags) override;
 
   void performUgrS3MultiPart(IOChainContext & iocontext, const std::string &posturl, const std::string &pluginId, ContentProvider &provider, DavixError **err);
 

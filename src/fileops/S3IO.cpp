@@ -127,11 +127,12 @@ std::string S3IO::writeChunk(IOChainContext & iocontext, const char* buff, dav_s
   return etag;
 }
 
-void S3IO::commitChunks(IOChainContext & iocontext,  const std::string &uploadId, const std::vector<std::string> &etags) {
+bool S3IO::commitChunks(IOChainContext & iocontext,  const std::string &uploadId, const std::vector<std::string> &etags) {
   Uri url(iocontext._uri);
   url.addQueryParam("uploadId", uploadId);
 
-  return commitChunks(iocontext, url, etags);
+  commitChunks(iocontext, url, etags);
+  return true;
 }
 
 void S3IO::commitChunks(IOChainContext & iocontext,  const Uri &url, const std::vector<std::string> &etags) {
@@ -189,10 +190,11 @@ static dav_size_t fillBufferWithProviderData(std::vector<char> &buffer, const da
 }
 
 // write from a buffer
-void S3IO::writeFromBuffer(IOChainContext& iocontext, const char* buff,
+bool S3IO::writeFromBuffer(IOChainContext& iocontext, const char* buff,
                            dav_size_t size, const std::string& uploadId,
                            std::vector<std::string>& etags, int partNumber) {
   etags.emplace_back(writeChunk(iocontext, buff, size, uploadId, partNumber));
+  return true;
 }
 
 // write from content provider

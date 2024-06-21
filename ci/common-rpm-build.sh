@@ -7,6 +7,7 @@ cd build
 
 if which dnf; then
   dnf install -y epel-release || true
+  dnf install -y dnf5-plugins || true # Fedora rawhide (FC41)
   dnf builddep -y SRPMS/*
 else
   yum-builddep -y SRPMS/*

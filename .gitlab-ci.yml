@@ -25,7 +25,7 @@ stages:
 
 cmake-from-tarball:
   stage: build
-  image: gitlab-registry.cern.ch/linuxsupport/cc7-base
+  image: gitlab-registry.cern.ch/linuxsupport/alma9-base
   script:
     - ci/fedora/packages.sh
     - git submodule update --init --recursive

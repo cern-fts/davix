@@ -30,13 +30,14 @@ cmake-from-tarball:
     - ci/fedora/packages.sh
     - git submodule update --init --recursive
     - packaging/make-srpm.sh
-    - yum-builddep -y build/SRPMS/*
+    - dnf install -y epel-release
+    - dnf builddep -y build/SRPMS/*
     - packaging/make-dist.sh
     - cd build/
     - tar xf davix-*.tar.gz
     - cd davix-*/
     - mkdir build/ && cd build/
-    - cmake3 ../
+    - cmake ../
 
 source-tarball:
   stage: build

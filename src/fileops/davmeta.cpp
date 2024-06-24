@@ -1009,7 +1009,7 @@ StatInfo & S3MetaOps::statInfo(IOChainContext & iocontext, StatInfo & st_info){
 
 bool s3_get_next_property(std::unique_ptr<DirHandle> & handle, std::string & name_entry, StatInfo & info){
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_CHAIN, " -> s3_get_next_property");
-    const size_t read_size = 2048;
+    const size_t read_size = 2048*1024;
 
 
     HttpRequest& req = *(handle->request); // setup env again
@@ -1054,6 +1054,13 @@ void s3_start_listing_query(std::unique_ptr<DirHandle> & handle, Context & conte
     }
     else if(params->getS3ListingMode() == S3ListingMode::Hierarchical){
         Uri new_url = S3::s3UriTransformer(url, params, true);
+        if (handle.get() != NULL) {
+            XMLPropParser & parser = *(handle->parser);
+            std::string nextmarker = parser.getNextMarker();
+            if (nextmarker != "") {
+                new_url.addQueryParam("marker", nextmarker);
+            }
+        }
         handle.reset(new DirHandle(new GetRequest(context, new_url, &tmp_err), new S3PropParser(params->getS3ListingMode(), S3::extract_s3_path(url, params->getAwsAlternate()))));
     }
     else if(params->getS3ListingMode() == S3ListingMode::SemiHierarchical){
@@ -1087,10 +1094,10 @@ void s3_start_listing_query(std::unique_ptr<DirHandle> & handle, Context & conte
 
     size_t prop_size = 0;
     do{ // first entry -> bucket information
-       s_resu = incremental_listdir_parsing(&http_req, &parser, 2048, davix_scope_directory_listing_str());
+       s_resu = incremental_listdir_parsing(&http_req, &parser, 2048*1024, davix_scope_directory_listing_str());
 
        prop_size = parser.getProperties().size();
-       if(s_resu < 2048 && prop_size <1){ // verify request status : if req done + no data -> error
+       if(s_resu < 2048*1024 && prop_size <1){ // verify request status : if req done + no data -> error
            throw DavixException(davix_scope_directory_listing_str(), StatusCode::ParsingError, "Invalid server response, not a S3 listing");
        }
        if(timestamp_timeout < time(NULL)){
@@ -1114,6 +1121,10 @@ void s3_start_listing_query(std::unique_ptr<DirHandle> & handle, Context & conte
 
 bool s3_directory_listing(std::unique_ptr<DirHandle> & handle, Context & context, const RequestParams* params, const Uri & uri, const std::string & body, std::string & name_entry, StatInfo & info){
     if(handle.get() == NULL){
+        s3_start_listing_query(handle, context, params, uri, body);
+    }
+    XMLPropParser& parser = *(handle->parser);
+    if (parser.getProperties().size() == 0 && parser.getNextMarker() != "") {
         s3_start_listing_query(handle, context, params, uri, body);
     }
     return s3_get_next_property(handle, name_entry, info);

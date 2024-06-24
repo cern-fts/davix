@@ -1,5 +1,19 @@
 # davix release history
 
+## 0.8.7 (2024-06-24)
+### Bug fixes
+* [DMC-1410] - Davix does not hide lower-case Authorization headers for HTTP/2
+* [davix/issues/120] - Out of Date RapidJSON dependency causing compile failure
+
+### Improvements
+* [davix/pull/114] - Support 64-bit off_t on 32-bit systems (LFS)
+* [davix/pull/119] - Use system rapidjson, fall back to bundled
+* [davix/pull/123] - Implement multipart streaming for DavPosix::write()
+* [davix/pull/124] - Fix s3 dirlisting to follow the istruncated/nextmarker
+
+### Tasks
+* [DMC-1413] - Data Management Clients for Fedora 39 and Fedora 40
+
 ## 0.8.6 (2024-04-02)
 ### Bug fixes
 * [DMC-1394] - Davix header parsing is case-sensitive for libcurl backend

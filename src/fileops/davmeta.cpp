@@ -1120,12 +1120,13 @@ void s3_start_listing_query(std::unique_ptr<DirHandle> & handle, Context & conte
 
 
 bool s3_directory_listing(std::unique_ptr<DirHandle> & handle, Context & context, const RequestParams* params, const Uri & uri, const std::string & body, std::string & name_entry, StatInfo & info){
-    if(handle.get() == NULL){
+    if (handle.get() == NULL){
         s3_start_listing_query(handle, context, params, uri, body);
-    }
-    XMLPropParser& parser = *(handle->parser);
-    if (parser.getProperties().size() == 0 && parser.getNextMarker() != "") {
-        s3_start_listing_query(handle, context, params, uri, body);
+    } else {
+        XMLPropParser& parser = *(handle->parser);
+        if (parser.getProperties().empty() && !parser.getNextMarker().empty()) {
+            s3_start_listing_query(handle, context, params, uri, body);
+        }
     }
     return s3_get_next_property(handle, name_entry, info);
 }

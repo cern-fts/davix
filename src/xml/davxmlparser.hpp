@@ -103,7 +103,7 @@ public:
     virtual ~ElementsParser(){}
 
     virtual std::deque<FileProperties> & getProperties()=0;
-    virtual std::string getNextMarker() { return "";};
+    virtual std::string getNextMarker() { return ""; };
 
 };
 

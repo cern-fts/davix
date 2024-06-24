@@ -200,12 +200,7 @@ struct S3PropParser::Internal{
 
         // IsTruncated
         if( (_s3_listing_mode == S3ListingMode::Hierarchical) && (StrUtil::compare_ncase(istruncated_prop, elem) ==0)){
-            if (current == "True" || current == "true") {
-                istruncated = true;
-            }
-            else {
-                istruncated = false;
-            }
+            istruncated = (current == "True" || current == "true");
         }
 
         // NextMarker
@@ -276,7 +271,7 @@ std::deque<FileProperties> & S3PropParser::getProperties(){
 }
 
 std::string S3PropParser::getNextMarker() {
-    return (d_ptr->istruncated? d_ptr->nextmarker : "");
+    return (d_ptr->istruncated ? d_ptr->nextmarker : "");
 }
 
 

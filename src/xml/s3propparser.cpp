@@ -37,6 +37,8 @@ const std::string prefix_prop = "Prefix";
 const std::string com_prefix_prop = "CommonPrefixes";
 const std::string listbucketresult_prop = "ListBucketResult";
 const std::string last_modified_prop = "LastModified";
+const std::string istruncated_prop = "IsTruncated";
+const std::string nextmarker_prop = "NextMarker";
 
 struct S3PropParser::Internal{
     std::string current;
@@ -49,6 +51,9 @@ struct S3PropParser::Internal{
 
     FileProperties property;
     S3ListingMode::S3ListingMode _s3_listing_mode;
+
+    bool istruncated = false;
+    std::string nextmarker = "";
 
     int start_elem(const std::string &elem){
         // new tag, clean content;
@@ -111,6 +116,9 @@ struct S3PropParser::Internal{
                 property.info.mode &= ~(S_IFREG);
                 props.push_back(property);
                 prop_count++;
+                if (istruncated) {
+                    nextmarker = current;
+                }
             }
         }
 
@@ -190,6 +198,21 @@ struct S3PropParser::Internal{
             throw DavixException(davix_scope_directory_listing_str(), StatusCode::IsNotADirectory, "Not a S3 directory");
         }
 
+        // IsTruncated
+        if( (_s3_listing_mode == S3ListingMode::Hierarchical) && (StrUtil::compare_ncase(istruncated_prop, elem) ==0)){
+            if (current == "True" || current == "true") {
+                istruncated = true;
+            }
+            else {
+                istruncated = false;
+            }
+        }
+
+        // NextMarker
+        if( (_s3_listing_mode == S3ListingMode::Hierarchical) && (StrUtil::compare_ncase(nextmarker_prop, elem) ==0)){
+            nextmarker = current;
+        }
+
         // reduce stack size
         if(stack_status.size() > 0)
             stack_status.pop();
@@ -250,6 +273,10 @@ int S3PropParser::parserEndElemCb(int state, const char *nspace, const char *nam
 
 std::deque<FileProperties> & S3PropParser::getProperties(){
     return d_ptr->props;
+}
+
+std::string S3PropParser::getNextMarker() {
+    return (d_ptr->istruncated? d_ptr->nextmarker : "");
 }
 
 

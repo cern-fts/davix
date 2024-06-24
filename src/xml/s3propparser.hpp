@@ -41,6 +41,7 @@ public:
     virtual ~S3PropParser();
 
     virtual std::deque<FileProperties> & getProperties();
+    virtual std::string getNextMarker();
 
 
 protected:

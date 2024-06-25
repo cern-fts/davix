@@ -197,7 +197,6 @@ docs:
   script:
     - automount
     - cat "$DAVIXCI_PW" | kinit davixci
-    - eosfusebind -g
     - SNAPSHOT=$(date +%s)
     - TARGET="/eos/project-d/davix/www/docs/${CI_COMMIT_REF_NAME}"
     - STAGING_AREA="$TARGET-${SNAPSHOT}"

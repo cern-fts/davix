@@ -130,7 +130,9 @@ StandaloneNeonRequest::StandaloneNeonRequest(NEONSessionFactory &sessionFactory,
 : _session_factory(sessionFactory), _reuse_session(reuseSession), _bound_hooks(boundHooks),
   _uri(uri), _verb(verb), _params(params), _state(RequestState::kNotStarted),
   _headers(headers), _req_flag(reqFlag), _content_provider(contentProvider),
-  _deadline(deadline), _neon_req(NULL), _total_read_size(0), _last_read(-1) {}
+  _deadline(deadline), _neon_req(NULL), _total_read_size(0), _last_read(-1) {
+  name = "Neon";
+}
 
 //------------------------------------------------------------------------------
 // Destructor

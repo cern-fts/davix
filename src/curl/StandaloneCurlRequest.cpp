@@ -200,7 +200,9 @@ StandaloneCurlRequest::StandaloneCurlRequest(CurlSessionFactory &sessionFactory,
 : _session_factory(sessionFactory), _reuse_session(reuseSession), _bound_hooks(boundHooks),
   _uri(uri), _verb(verb), _params(params), _headers(headers), _req_flag(reqFlag),
   _content_provider(contentProvider), _deadline(deadline), _state(RequestState::kNotStarted),
-  _chunklist(NULL), _received_headers(false) {}
+  _chunklist(NULL), _received_headers(false) {
+  name = "curl";
+}
 
 //------------------------------------------------------------------------------
 // Destructor

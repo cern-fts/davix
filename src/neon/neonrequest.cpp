@@ -629,7 +629,7 @@ void NeonRequest::createError(int ne_status, DavixError **err){
     switch(ne_status){
         case NE_ERROR:
             {
-             str = std::string("(Neon): ").append(_standalone_req->getSessionError());
+             str = "(" + _standalone_req->getName() + "): " + _standalone_req->getSessionError();
              if (str.find("SSL handshake failed") == std::string::npos)
                  code = StatusCode::ConnectionProblem;
              else

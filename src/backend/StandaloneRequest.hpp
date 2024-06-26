@@ -106,6 +106,17 @@ public:
   // Get session error, if available
   //----------------------------------------------------------------------------
   virtual std::string getSessionError() const = 0;
+
+  //----------------------------------------------------------------------------
+  // Get the standalone request type name
+  //----------------------------------------------------------------------------
+  virtual inline std::string getName() const {
+    return name;
+  };
+
+protected:
+  /// Standalone request type name
+  std::string name;
 };
 
 }

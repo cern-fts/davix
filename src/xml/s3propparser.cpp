@@ -110,15 +110,15 @@ struct S3PropParser::Internal{
             prefix = current;
             if(inside_com_prefix){  // all keys would have been processed by now, just common prefixes left, use as DIRs
                 DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "push new common prefix {}", current.c_str());
+                if (istruncated) {
+                    nextmarker = current;
+                }
                 current = current.erase(current.size()-1,1);
                 property.filename = current.erase(0, prefix_to_remove.size());
                 property.info.mode =  0755 | S_IFDIR;
                 property.info.mode &= ~(S_IFREG);
                 props.push_back(property);
                 prop_count++;
-                if (istruncated) {
-                    nextmarker = current;
-                }
             }
         }
 

@@ -41,9 +41,9 @@ cmake-from-tarball:
 
 source-tarball:
   stage: build
-  image: gitlab-registry.cern.ch/linuxsupport/cc7-base
+  image: gitlab-registry.cern.ch/linuxsupport/alma9-base
   script:
-    - yum install -y git python3
+    - dnf install -y git python3
     - packaging/make-dist.sh
     - mv -v build/davix-*.tar.gz .
   artifacts:
@@ -57,7 +57,7 @@ source-tarball:
 
 binary-tarball:
   stage: build
-  image: gitlab-registry.cern.ch/linuxsupport/cc7-base
+  image: gitlab-registry.cern.ch/linuxsupport/alma9-base
   script:
     - ci/fedora/packages.sh
     - packaging/make-binary-dist.sh
@@ -70,10 +70,6 @@ binary-tarball:
     - if: '$CI_COMMIT_TAG == null'
       when: manual
       allow_failure: true
-
-cc7:
-  image: gitlab-registry.cern.ch/linuxsupport/cc7-base
-  <<: *build-fedora-template_definition
 
 alma8:
   image: gitlab-registry.cern.ch/linuxsupport/alma8-base
@@ -137,15 +133,6 @@ docs-generate:
 #--------------------------
 # Test jobs
 #--------------------------
-
-cc7-test:
-  stage: test
-  image: gitlab-registry.cern.ch/linuxsupport/cc7-base
-  needs:
-    - job: cc7
-  script:
-    - yum install -y cc7/RPMS/*.rpm
-    - davix-unit-tests
 
 alma8-test:
   stage: test
@@ -213,13 +200,12 @@ rpms:
   stage: publish
   image: gitlab-registry.cern.ch/eos/gitlab-eos/alma9:latest
   dependencies:
-    - cc7
     - alma8
     - alma9
   script:
     - automount
     - cat "$STCI_PASSWORD" | kinit stci
-    - for platform in cc7 alma8 alma9; do packaging/repo-manager.py --action add --base /eos/project-s/storage-ci/www/davix --ref ${CI_COMMIT_REF_NAME} --packages ${platform}/RPMS/* ${platform}/SRPMS/* ; done
+    - for platform in alma8 alma9; do packaging/repo-manager.py --action add --base /eos/project-s/storage-ci/www/davix --ref ${CI_COMMIT_REF_NAME} --packages ${platform}/RPMS/* ${platform}/SRPMS/* ; done
   tags:
     - docker-privileged-xl
   retry: 2
@@ -231,7 +217,6 @@ rpms-dmc:
   stage: publish
   image: gitlab-registry.cern.ch/eos/gitlab-eos/alma9:latest
   dependencies:
-    - cc7
     - alma8
     - alma9
     - fedora-39
@@ -240,10 +225,10 @@ rpms-dmc:
   script:
     - automount
     - cat "$STCI_PASSWORD" | kinit stci
-    - declare -A DISTMAP=( [cc7]=el7 [alma8]=el8 [alma9]=el9 [fedora-39]=fc39 [fedora-40]=fc40 [fedora-rawhide]=fc-rawhide )
+    - declare -A DISTMAP=( [alma8]=el8 [alma9]=el9 [fedora-39]=fc39 [fedora-40]=fc40 [fedora-rawhide]=fc-rawhide )
     - if [[ -z $CI_COMMIT_TAG ]]; then BUILD="testing" ; else BUILD="rc" ; fi
     - |
-        for platform in cc7 alma8 alma9 fedora-39 fedora-40 fedora-rawhide ; do
+        for platform in alma8 alma9 fedora-39 fedora-40 fedora-rawhide ; do
           dist=${DISTMAP[${platform}]};
           cp -nv ${platform}/RPMS/* ${platform}/SRPMS/* /eos/project-d/dmc/www/repos/${BUILD}/${dist}/x86_64 || true;
           packaging/update-repo.sh /eos/project-d/dmc/www/repos/${BUILD}/${dist}/x86_64;

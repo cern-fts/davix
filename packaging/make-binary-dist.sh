@@ -61,12 +61,7 @@ git submodule update --recursive --init
 if [ "$build_dependencies" = true ]; then
   rm -rf build/ binary-tarball/
   ./packaging/make-srpm.sh
-
-  if [[ -f /usr/bin/dnf ]]; then
-    dnf builddep -y build/SRPMS/davix-*.src.rpm
-  else
-    yum-builddep -y build/SRPMS/davix-*.src.rpm
-  fi
+  dnf builddep -y build/SRPMS/davix-*.src.rpm
 fi
 
 #-------------------------------------------------------------------------------

@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 set -e
 
-if [[ -f /usr/bin/dnf ]]; then
-  dnf install -y dnf-plugins-core cmake cmake3 git rpm-build make which python3 tree
-else
-  yum install -y yum-utils        cmake cmake3 git rpm-build make which python3 tree epel-rpm-macros
+# Ensure "epel-release" package is installed
+if ! rpm -q --quiet epel-release ; then
+  dnf install -y epel-release || true
 fi
+
+# Fedora rawhide (FC41)
+dnf install -y dnf5-plugins || true
+
+dnf install -y dnf-plugins-core git rpm-build tree which \
+               python3 cmake make gcc gcc-c++

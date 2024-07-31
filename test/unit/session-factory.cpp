@@ -5,16 +5,15 @@
 
 using namespace Davix;
 
-TEST(testRedirectCache, testCacheSimple){
+TEST(testRedirectCache, testCacheSimple) {
     davix_set_log_level(DAVIX_LOG_ALL);
 
-
-    std::shared_ptr<Uri> dest(new Uri("http://sffsdfsd.com/dsffds/fsdfsdsdf"));
-    std::shared_ptr<Uri> dest2(new Uri("http://sffsdfsd.com/dsffds/fsdfsdsdf"));
+    std::shared_ptr<Uri> dest(new Uri("https://sffsdfsd.com/dsffds/fsdfsdsdf"));
+    std::shared_ptr<Uri> dest2(new Uri("https://sffsdfsd.com/dsffds/fsdfsdsdf"));
     Uri u("http://higgs.boson/is/watchingus");
 
     Uri u_sec("https://higgs.boson/is/watchingus");
-    Uri u_port("http://higgs.boson:8668/is/watchingus");
+    Uri u_port("https://higgs.boson:8668/is/watchingus");
 
     RedirectionResolver f(true);
     f.addRedirection("GET", u, dest);
@@ -33,17 +32,14 @@ TEST(testRedirectCache, testCacheSimple){
     ASSERT_TRUE(f.redirectionResolve("GET", u_port) == dest2);
 }
 
-
-
-TEST(testRedirectCache, testCacheChainRedirection){
+TEST(testRedirectCache, testCacheChainRedirection) {
     davix_set_log_level(DAVIX_LOG_ALL);
 
     Uri u("http://higgs.boson/is/watchingus");
-
-    std::shared_ptr<Uri> url1(new Uri("http://sffsdfsd.com/dsffds/fsdfsdsdf"));
-    std::shared_ptr<Uri> url2(new Uri("http://server2.com/dsffds/sfdfdsfsdfdsfdsfds"));
-    std::shared_ptr<Uri> url3(new Uri("http://server2.com:8080/dsffds/sfdfdsfsdfdsfdsfds"));
-    std::shared_ptr<Uri> url4(new Uri("http://server3.com/dsffds/fsdaaaaa"));
+    std::shared_ptr<Uri> url1(new Uri("https://sffsdfsd.com/dsffds/fsdfsdsdf"));
+    std::shared_ptr<Uri> url2(new Uri("https://server2.com/dsffds/sfdfdsfsdfdsfdsfds"));
+    std::shared_ptr<Uri> url3(new Uri("https://server2.com:8080/dsffds/sfdfdsfsdfdsfdsfds"));
+    std::shared_ptr<Uri> url4(new Uri("https://server3.com/dsffds/fsdaaaaa"));
 
     RedirectionResolver f(true);
     f.addRedirection("GET", u, url1);
@@ -60,14 +56,12 @@ TEST(testRedirectCache, testCacheChainRedirection){
     ASSERT_TRUE(f.redirectionResolve("GET", *url4).get() == NULL);
 }
 
-
-TEST(testRedirectCache, test_GET_HEAD){
+TEST(testRedirectCache, test_GET_HEAD) {
     davix_set_log_level(DAVIX_LOG_ALL);
 
-    Uri u("http://higgs.boson/is/watchingus");
-
-    std::shared_ptr<Uri> url1(new Uri("http://sffsdfsd.com/dsffds/fsdfsdsdf"));
-    std::shared_ptr<Uri> url2(new Uri("http://server2.com/dsffds/sfdfdsfsdfdsfdsfds"));
+    Uri u("https://higgs.boson/is/watchingus");
+    std::shared_ptr<Uri> url1(new Uri("https://sffsdfsd.com/dsffds/fsdfsdsdf"));
+    std::shared_ptr<Uri> url2(new Uri("https://server2.com/dsffds/sfdfdsfsdfdsfdsfds"));
 
     RedirectionResolver f(true);
     f.addRedirection("GET", u, url1);
@@ -87,4 +81,32 @@ TEST(testRedirectCache, test_GET_HEAD){
 
     ASSERT_TRUE(f.redirectionResolve("GET", u) == url1);
     ASSERT_TRUE(f.redirectionResolve("HEAD", u) == url1);
+}
+
+TEST(testRedirectCache, noRedirectLoop) {
+    davix_set_log_level(DAVIX_LOG_ALL);
+
+    std::shared_ptr<Uri> start(new Uri("https://redirection.start/file"));
+    std::shared_ptr<Uri> middle(new Uri("https://redirection.middle/file"));
+    std::shared_ptr<Uri> end(new Uri("https://redirection.end/loop"));
+
+    RedirectionResolver f(true);
+    f.addRedirection("GET", *start, middle);
+    f.addRedirection("GET", *middle, start);
+    ASSERT_TRUE(*(f.redirectionResolve("GET", *start)) == *middle);
+    ASSERT_TRUE(*(f.redirectionResolve("GET", *middle)) == *start);
+
+    // Cleaning one item from a loop deletes the full loop
+    f.redirectionClean("GET", *middle);
+    ASSERT_TRUE(f.redirectionResolve("GET", *start) == NULL);
+
+    f.addRedirection("GET", *start, middle);
+    f.addRedirection("GET", *middle, end);
+    f.addRedirection("GET", *end, start);
+    ASSERT_TRUE(*(f.redirectionResolve("GET", *start)) == *end);
+    ASSERT_TRUE(*(f.redirectionResolve("GET", *middle)) == *start);
+    ASSERT_TRUE(*(f.redirectionResolve("GET", *end)) == *middle);
+
+    f.redirectionClean("GET", *end);
+    ASSERT_TRUE(f.redirectionResolve("GET", *start) == NULL);
 }

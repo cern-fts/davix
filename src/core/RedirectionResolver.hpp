@@ -23,6 +23,7 @@
 #define DAVIX_CORE_REDIRECTION_RESOLVER_HPP
 
 #include <map>
+#include <set>
 #include <mutex>
 #include <utils/davix_uri.hpp>
 #include <memory>
@@ -48,10 +49,16 @@ public:
   void redirectionClean(const Uri & origin);
 
 private:
+  using redirectionKey = std::pair<std::string, std::string>;
+
+  ///< Boolean guarding the redirection cache
   bool active;
 
-  // redirection pool
-  Davix::Cache<std::pair<std::string, std::string>, Uri> redirCache;
+  ///< Redirection pool
+  Davix::Cache<redirectionKey, Uri> redirCache;
+
+  // resolve a full redirection chain (with redirection loop protection in-place)
+  std::shared_ptr<Uri> redirectionResolve(const std::string& method, const Uri& origin, std::set<redirectionKey>& visited);
 
   // resolve a single redirection chunk
   std::shared_ptr<Uri> resolveSingle(const std::string & method, const Uri & origin);

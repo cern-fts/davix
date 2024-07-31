@@ -31,7 +31,7 @@ static const std::pair<std::string, std::string> makeKey(const std::string & met
     if(mymethod == "HEAD")
         mymethod = "GET";
 
-    return std::make_pair(origin.getString(), mymethod);
+    return {origin.getString(), mymethod};
 }
 
 RedirectionResolver::RedirectionResolver(bool act) : active(act), redirCache(256) {
@@ -50,13 +50,29 @@ void RedirectionResolver::addRedirection(const std::string & method, const Uri &
 
 // try to find cached redirection, resolve a full chain
 std::shared_ptr<Uri> RedirectionResolver::redirectionResolve(const std::string & method, const Uri & origin) {
-  std::shared_ptr<Uri> res = resolveSingle(method, origin);
-  if(res.get() != NULL) {
-    std::shared_ptr<Uri> res_rec = redirectionResolve(method, *res);
-    if(res_rec.get() != NULL) {
-      return res_rec;
+  std::set<redirectionKey> visited;
+  return redirectionResolve(method, origin, visited);
+}
+
+// private function of redirectionResolve (contains set of visited URIs to avoid redirection loop)
+std::shared_ptr<Uri> RedirectionResolver::redirectionResolve(const std::string& method, const Uri& origin, std::set<redirectionKey>& visited) {
+  auto res = resolveSingle(method, origin);
+
+  if (res != nullptr) {
+    // Identified a loop, stop at the element before the resolved redirection
+    if (visited.find(makeKey(method, *res)) != visited.end()) {
+      return std::make_shared<Uri>(origin);
+    } else {
+      // We haven't seen this resolved redirection before
+      visited.insert(makeKey(method, origin));
+      auto res_rec = redirectionResolve(method, *res, visited);
+
+      if (res_rec != nullptr) {
+        return res_rec;
+      }
     }
   }
+
   return res;
 }
 

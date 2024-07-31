@@ -14,8 +14,6 @@ export CFLAGS CXXFLAGS LDFLAGS
 override_dh_auto_configure:
 	# Remove bundled stuff
 	rm -rf test/pywebdav
-	# Debian's gtest is not precompiled - link source
-	ln -fs /usr/src/gtest test/unit/gtest
 	dh_auto_configure -- -DLIB_SUFFIX="" \
 		-DENABLE_THIRD_PARTY_COPY=TRUE -DENABLE_HTML_DOCS=TRUE
 
@@ -25,10 +23,6 @@ override_dh_auto_build:
 override_dh_install:
 	rm debian/tmp/usr/share/doc/davix/LICENSE
 	dh_install --fail-missing
-
-override_dh_auto_clean:
-	rm -f test/unit/gtest
-	dh_auto_clean
 
 override_dh_auto_test:
 	dh_auto_test -- ARGS+="-V -T Test"

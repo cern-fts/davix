@@ -62,7 +62,6 @@ include(CMakeCXX11Support REQUIRED)
 include(PortabilityGNUCheck REQUIRED)
 
 
-
 set(OUTPUT_NAME_DAVIX "davix")
 
 # components

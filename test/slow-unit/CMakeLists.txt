@@ -3,9 +3,6 @@
 #-------------------------------------------------------------------------------
 set(BUILD_SHARED_LIBS OFF)
 
-set(GTEST "${CMAKE_SOURCE_DIR}/deps/googletest/googletest/")
-set(GTEST_BINARY_DIR "${CMAKE_BINARY_DIR}/deps/googletest/googletest/")
-
 add_executable(davix-slow-unit-tests
   ../drunk-server/ConnectionInitiator.cpp
   ../drunk-server/DrunkServer.cpp
@@ -19,14 +16,14 @@ add_executable(davix-slow-unit-tests
 target_include_directories(davix-slow-unit-tests PRIVATE
   ${PROJECT_SOURCE_DIR}/src
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${GTEST}/include
+  ${GTEST_INCLUDE_DIRS}
 )
 
 target_link_libraries(davix-slow-unit-tests
   davix_tool_lib
   libdavix
-  gtest_main
-  gtest
+  GTest::GTest
+  GTest::Main
   ${CMAKE_THREAD_LIBS_INIT}
   ${LIBSSL_PKG_LIBRARIES}
 )

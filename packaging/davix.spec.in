@@ -11,16 +11,11 @@ URL:          https://dmc-docs.web.cern.ch/dmc-docs/davix.html
 Source0:      %{name}-%{version}.tar.gz
 
 BuildRequires:      gcc-c++
-%if 0%{?rhel} == 7
-BuildRequires:      python2
-BuildRequires:      cmake3
-%else
 BuildRequires:      python3
 BuildRequires:      cmake
-%endif
 # main lib dependencies
 %if 0%{?fedora} || 0%{?rhel} >= 9
-# use bundled curl version on EPEL 7/8
+# use bundled curl version on EPEL 8
 BuildRequires:      curl-devel
 %endif
 BuildRequires:      libxml2-devel
@@ -31,19 +26,11 @@ BuildRequires:      zlib-devel
 BuildRequires:      gsoap-devel
 BuildRequires:      libuuid-devel
 # unit tests
-%if 0%{?rhel} != 7
-# use bundled googletest version on EPEL 7
 BuildRequires:      gtest-devel
-%endif
 # documentation
 BuildRequires:      doxygen
-%if 0%{?rhel} == 7
-BuildRequires:      python2-sphinx
-BuildRequires:      python2-sphinx_rtd_theme
-%else
 BuildRequires:      python3-sphinx
 BuildRequires:      python3-sphinx_rtd_theme
-%endif
 
 Requires:     %{name}-libs%{?_isa} = %{version}-%{release}
 
@@ -73,9 +60,6 @@ with HTTP based protocols (WebDav, Amazon S3, ...).
 %package tests
 Summary:      Test suite for %{name}
 Requires:     %{name}-libs%{?_isa} = %{version}-%{release}
-%if 0%{?rhel} == 7
-Provides:     bundled(gtest) = 1.7.0
-%endif
 
 %description tests
 Test suite for %{name}. Davix is a toolkit designed for file operations
@@ -97,24 +81,14 @@ for file operations with HTTP based protocols (WebDav, Amazon S3, ...).
 
 # Remove bundled stuff
 %if 0%{?fedora} || 0%{?rhel} >= 9
-# remove bundled curl version outside EPEL 7/8
+# remove bundled curl version outside EPEL 8
 rm -rf deps/curl
-%endif
-%if 0%{?rhel} != 7
-# remove bundled googletest version outside EPEL 7
-rm -rf deps/googletest/googlemock
-rm -rf deps/googletest/googletest/*
-touch deps/googletest/googletest/CMakeLists.txt
 %endif
 rm -rf src/libs/rapidjson
 rm -rf test/pywebdav
 rm -rf doc/sphinx/_themes/sphinx_rtd_theme
 # Symlink to system rapidjson
 ln -s /usr/include/rapidjson src/libs/rapidjson
-%if 0%{?rhel} == 7
-# Symlink sphinx_rtd_theme on EPEL 7
-ln -s %{python2_sitelib}/sphinx_rtd_theme doc/sphinx/_themes
-%endif
 
 %build
 %cmake3 \

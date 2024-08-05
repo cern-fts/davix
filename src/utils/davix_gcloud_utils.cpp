@@ -139,8 +139,9 @@ Credentials CredentialProvider::fromFile(const std::string &path) {
   std::stringstream buffer;
 
   try {
-    std::ifstream t(path);
-    buffer << t.rdbuf();
+    std::ifstream tmp(path);
+    tmp.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    buffer << tmp.rdbuf();
   }
   catch(...) {
     throw DavixException(std::string("davix::gcloud"), StatusCode::FileNotFound, SSTR("Could not read gcloud credentials at '" << path << "'"));

@@ -1,7 +1,8 @@
 /*
  * This File is part of Davix, The IO library for HTTP based protocols
  * Copyright (C) CERN 2018
- * Author: Georgios Bitzes <georgios.bitzes@cern.ch>
+ * Authors: Georgios Bitzes <georgios.bitzes@cern.ch>
+ *          Mario Lassnig <mario.lassnig@cern.ch>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,6 +24,7 @@
 #include <libs/alibxx/crypto/hmacsha.hpp>
 #include <libs/alibxx/crypto/base64.hpp>
 #include <fstream>
+#include <iomanip>
 #include <rapidjson/document.h>
 #include <sstream>
 
@@ -150,48 +152,104 @@ Credentials CredentialProvider::fromFile(const std::string &path) {
   return fromJSONString(buffer.str());
 }
 
-std::string getStringToSign(const std::string &verb, const Uri &url, const HeaderVec &headers, const time_t expirationTime) {
-  std::ostringstream ss;
-
-  // Reference: https://cloud.google.com/storage/docs/access-control/create-signed-urls-program
-  // a. Add HTTP verb
-  ss << verb << "\n";
-
-  // b. MD5 digest value - empty
-  ss << "\n";
-
-  // c. Content-Type - empty
-  ss << "\n";
-
-  // d. Expiration
-  ss << expirationTime << "\n";
-
-  // Resource
-  ss << url.getPath();
-
-  return ss.str();
+Uri signURIFixedTimeout(const Credentials& creds,
+			const std::string &verb,
+			const Uri &url,
+			const HeaderVec &headers,
+			const time_t signDuration) {
+  return signURI(creds, verb, url, headers, signDuration);
 }
 
-Uri signURI(const Credentials& creds, const std::string &verb, const Uri &url, const HeaderVec &headers, const time_t signDuration) {
-  return signURIFixedTimeout(creds, verb, url, headers, time(NULL) + signDuration);
-}
+Uri signURI(const Credentials& creds,
+	    const std::string &verb,
+	    const Uri &url,
+	    const HeaderVec &headers,
+	    const time_t expirationTime) {
 
-Uri signURIFixedTimeout(const Credentials& creds, const std::string &verb, const Uri &url, const HeaderVec &headers, const time_t expirationTime) {
   // Reference: https://cloud.google.com/storage/docs/access-control/create-signed-urls-program
-  // Construct string to sign..
-  std::string stringToSign = getStringToSign(verb, url, headers, expirationTime);
 
-  // Calculate signature..
-  std::string binarySignature = rsasha256(creds.getPrivateKey(), stringToSign);
+  // Step 1: Build canonical request
+  std::ostringstream cr;
+  time_t currentTime = std::time(nullptr);
 
-  // Base64 encode signature..
-  std::string signature = Base64::base64_encode( (unsigned char*) binarySignature.c_str(), binarySignature.size());
+  // As of 2024-08, verbs accepted by Google are DELETE, GET, HEAD, POST, PUT
+  // No further check here for validity of verbs in case Google changes their mind
+  cr << verb << '\n';
 
+  // Relative path without hostname
+  cr << url.getPath() << '\n';
+
+  // Mandatory parameters
+  // 1: Two possible algorithms, GOOG4-HMAC-SHA256 and GOOG4-RSA-SHA256. We can force the RSA
+  cr << "X-Goog-Algorithm=GOOG4-RSA-SHA256&";
+  // 2: Extract and correctly encode the credential with automatic timed scoping of the request
+  cr << "X-Goog-Credential=" << Uri::queryParamEscape(creds.getClientEmail())
+                             << "%2F"
+                             << std::put_time(std::gmtime(&currentTime), "%Y%m%d")
+                             << Uri::queryParamEscape("/auto/storage/goog4_request") << "&";
+  // 3: Timestamp for good measure
+  cr << "X-Goog-Date=" << std::put_time(std::gmtime(&currentTime), "%Y%m%dT%H%M%SZ") << "&";
+  // 4: Duration in seconds for request to get accepted
+  cr << "X-Goog-Expires=" << expirationTime << "&";
+  // 5: We only have one signed header, the hostname of the loadbalancer
+  cr << "X-Goog-SignedHeaders=host" << '\n';
+  // 6: Put the host header here
+  cr << "host:" << url.getHost() << '\n';
+
+  // For some reason an extra blank line needs to be here
+  cr << '\n';
+
+  // Signed header, again for whatever reason
+  cr << "host" << '\n';
+
+  // Allow all content in the payload
+  cr << "UNSIGNED-PAYLOAD";
+
+  // Step 2: Hash the canonical request and convert into hex
+  std::ostringstream cr_hash, cr_hash_hexify;
+  cr_hash << sha256(cr.str());
+  for (unsigned char c : cr_hash.str()) {
+      cr_hash_hexify << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(c);
+  }
+
+  // Step 3: Construct the string to sign
+  std::ostringstream ss, ss_time;
+  ss << "GOOG4-RSA-SHA256" << '\n';
+  ss_time << std::put_time(std::gmtime(&currentTime), "%Y%m%dT%H%M%SZ");
+  ss << ss_time.str() << '\n';
+  ss << ss_time.str().substr(0, 8) + "/auto/storage/goog4_request" << '\n';
+  ss << cr_hash_hexify.str();
+
+  // Step 4: Sign the string and convert into hex
+  std::string binarySignature = rsasha256(creds.getPrivateKey(), ss.str());
+  std::ostringstream finalHex;
+  for (unsigned char c : binarySignature) {
+      finalHex << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(c);
+  }
+
+  // Step 5: Signed URL must have the same set of query parameters as the original canonical request
+  //         But be careful with parameter escaping
   Uri signedUrl(url);
-  signedUrl.addQueryParam("GoogleAccessId", creds.getClientEmail());
-  signedUrl.addQueryParam("Expires", SSTR(expirationTime));
-  signedUrl.addQueryParam("Signature", signature);
 
+  // Same fixed algorithm type and credential
+  signedUrl.addQueryParam("X-Goog-Algorithm", "GOOG4-RSA-SHA256");
+  std::ostringstream googCred;
+  googCred << creds.getClientEmail() << "/" << std::put_time(std::gmtime(&currentTime), "%Y%m%d") << "/auto/storage/goog4_request";
+  signedUrl.addQueryParam("X-Goog-Credential", googCred.str());
+
+  // Same timestamp and duration
+  std::ostringstream googDate;
+  googDate << std::put_time(std::gmtime(&currentTime), "%Y%m%dT%H%M%SZ");
+  signedUrl.addQueryParam("X-Goog-Date", googDate.str());
+  signedUrl.addQueryParam("X-Goog-Expires", std::to_string(expirationTime));
+
+  // Signed headers again
+  signedUrl.addQueryParam("X-Goog-SignedHeaders", "host");
+
+  // And finally the actual signature
+  signedUrl.addQueryParam("X-Goog-Signature", finalHex.str());
+
+  // Step 6: Done
   return signedUrl;
 }
 

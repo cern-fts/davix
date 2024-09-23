@@ -20,13 +20,16 @@
  *
 */
 
-#include <utils/davix_gcloud_utils.hpp>
-#include <libs/alibxx/crypto/hmacsha.hpp>
-#include <libs/alibxx/crypto/base64.hpp>
 #include <fstream>
 #include <iomanip>
-#include <rapidjson/document.h>
 #include <sstream>
+#include <rapidjson/document.h>
+#include <libs/alibxx/crypto/hmacsha.hpp>
+#include <libs/alibxx/crypto/base64.hpp>
+
+#include <utils/davix_gcloud_utils.hpp>
+#include <utils/davix_logger_internal.hpp>
+#include <utils/stringutils.hpp>
 
 #define SSTR(message) static_cast<std::ostringstream&>(std::ostringstream().flush() << message).str()
 
@@ -212,6 +215,8 @@ Uri signURI(const Credentials& creds,
       cr_hash_hexify << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(c);
   }
 
+  DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_S3, "Canonical request: {}", StrUtil::stringReplace(cr.str(), "\n", "\\n"));
+
   // Step 3: Construct the string to sign
   std::ostringstream ss, ss_time;
   ss << "GOOG4-RSA-SHA256" << '\n';
@@ -219,6 +224,8 @@ Uri signURI(const Credentials& creds,
   ss << ss_time.str() << '\n';
   ss << ss_time.str().substr(0, 8) + "/auto/storage/goog4_request" << '\n';
   ss << cr_hash_hexify.str();
+
+  DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_S3, "String to sign: {}", StrUtil::stringReplace(ss.str(), "\n", "\\n"));
 
   // Step 4: Sign the string and convert into hex
   std::string binarySignature = rsasha256(creds.getPrivateKey(), ss.str());

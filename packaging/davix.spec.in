@@ -20,7 +20,6 @@ BuildRequires:      curl-devel
 %endif
 BuildRequires:      libxml2-devel
 BuildRequires:      openssl-devel
-BuildRequires:      rapidjson-devel
 BuildRequires:      zlib-devel
 # davix-copy dependencies
 BuildRequires:      gsoap-devel
@@ -84,11 +83,8 @@ for file operations with HTTP based protocols (WebDav, Amazon S3, ...).
 # remove bundled curl version outside EPEL 8
 rm -rf deps/curl
 %endif
-rm -rf src/libs/rapidjson
 rm -rf test/pywebdav
 rm -rf doc/sphinx/_themes/sphinx_rtd_theme
-# Symlink to system rapidjson
-ln -s /usr/include/rapidjson src/libs/rapidjson
 
 %build
 %cmake3 \

@@ -96,13 +96,9 @@ set(NE_HAVE_SSL 1)
 
 add_subdirectory(deps)
 
-find_package(RapidJSON QUIET)
-if(${RapidJSON_FOUND})
-  set(RAPIDJSON_INCLUDE_DIRS ${RapidJSON_INCLUDE_DIRS})
-else()
-  message(STATUS "Using bundled RapidJSON")
-  set(RAPIDJSON_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src/libs)
-endif()
+# RapidJson bundled library
+message(STATUS "Using bundled RapidJSON")
+set(RAPIDJSON_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src/libs)
 
 #libuuid
 if(NOT APPLE)
@@ -113,7 +109,6 @@ endif()
 add_definitions( -D_GNU_SOURCE)              # GNU source, import LFS, etc...
 add_definitions( -D__DAVIX_INSIDE__)         # protection flag
 add_definitions( -D__STDC_LIMIT_MACROS )     # C99 limit macros
-
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_FLAG_ENABLE}")
 

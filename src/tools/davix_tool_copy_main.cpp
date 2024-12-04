@@ -22,7 +22,6 @@
 #include <davix.hpp>
 #include <tools/davix_tool_params.hpp>
 #include <tools/davix_tool_util.hpp>
-#include <cstdio>
 
 
 using namespace Davix;
@@ -55,22 +54,43 @@ static std::string help_msg(const std::string & cmd_path){
 }
 
 
-int main(int argc, char** argv){
-    int retcode=-1;
+int main(int argc, char** argv) {
+    DavixError* tmp_err = NULL;
     Tool::OptParams opts;
-    DavixError* tmp_err=NULL;
+    int retcode;
+
     opts.help_msg = help_msg(argv[0]);
 
-    if( (retcode= Tool::parse_davix_copy_options(argc, argv, opts, &tmp_err)) ==0){
-        Context c;
-        if( (retcode = Tool::configureAuth(opts)) == 0){
+    if ((retcode = parse_davix_copy_options(argc, argv, opts, &tmp_err)) == 0) {
+        if (opts.vec_arg.size() != 2) {
+            DavixError::setupError(&tmp_err, scope_main, StatusCode::InvalidArgument, "Copy command must contain exactly one <src> and <dst> URL!");
+        }
+
+        if (!tmp_err) {
+            Uri src(opts.vec_arg[0]);
+
+            if (src.getStatus() != StatusCode::OK) {
+                DavixError::setupError(&tmp_err, scope_main, src.getStatus(), "Source \"" + opts.vec_arg[0] + "\" not a valid URL!");
+            } else {
+                Uri dst(opts.vec_arg[1]);
+
+                if (dst.getStatus() != StatusCode::OK) {
+                    DavixError::setupError(&tmp_err, scope_main, dst.getStatus(), "Destination \"" + opts.vec_arg[1] + "\" not a valid URL!");
+                }
+            }
+        }
+
+        if (!tmp_err && (retcode = configureAuth(opts)) == 0) {
+            Context c;
             configureContext(c, opts);
             DavixCopy copy(c, &opts.params);
             copy.setPerformanceCallback(performanceCallback, NULL);
-            copy.copy(opts.vec_arg[0], opts.vec_arg[1],
-                    1, &tmp_err);
-            if(tmp_err) retcode = -1;
+            copy.copy(opts.vec_arg[0], opts.vec_arg[1], 1, &tmp_err);
         }
+    }
+
+    if (tmp_err) {
+        retcode = -1;
     }
 
     Tool::errorPrint(&tmp_err);

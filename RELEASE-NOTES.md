@@ -1,5 +1,27 @@
 # davix release history
 
+## Unreleased
+### Bug fixes
+* [DMC-1418] - Davix redirection cache stuck in redirect loops
+* [davix/issues/120] - Out of Date RapidJSON dependency causing compile failure
+* [davix/issues/126] - Crash on badly formed davix-cp command
+* [davix/pull/129] - Remove non-compiling assignment operator
+* [davix/issues/130] - compiler error in rapidjson/document.h
+* [davix/issues/131] - Segmentation fault with long Authorization header
+
+### Task
+* [DMC-1413] - Data Management Clients for Fedora 39 and Fedora 40
+* [DMC-1414] - Stop building Data Management Clients for CC7
+* [DMC-1422] - Update signature mechanism for Google Cloud to V4
+* [DMC-1427] - Davix should always use the bundled RapidJson library
+* [davix/pull/128] - Update Google Cloud signature mechanism to V4
+
+### Improvements
+* [DMC-1411] - Davix error messages should print backend library used
+* [DMC-1419] - Remove bundled "googletest" from Davix
+* [DMC-1420] - Improve error handling when failing to read GCloud credential file
+* [davix/issues/125] - Allow forcing of bundled rapidjson
+
 ## 0.8.7 (2024-06-24)
 ### Bug fixes
 * [DMC-1410] - Davix does not hide lower-case Authorization headers for HTTP/2

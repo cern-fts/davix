@@ -57,7 +57,7 @@ int internal_log_level = getTraceValue();
 int internal_log_scope = DAVIX_LOG_SCOPE_ALL;
 #endif
 
-const int BUFFER_SIZE =4096;
+const int BUFFER_SIZE = 8192;
 const char* prefix = "DAVIX";
 
 static void (*_fhandler)(void* userdata, int mgs_level, const char* msg) = NULL;

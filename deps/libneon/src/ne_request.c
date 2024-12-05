@@ -861,14 +861,17 @@ static ne_buffer *build_request(ne_request *req)
 
 static void dump_request(const char *request)
 {
-    char hdr_tmp[MAX_HEADER_LEN];
-    char hdr_debug[MAX_HEADER_LEN];
+    char* hdr_tmp = strdup(request);
+    int lines = 0;
 
-    memset(hdr_tmp, '\0', sizeof(hdr_tmp));
-    memset(hdr_debug, '\0', sizeof(hdr_debug));
+    // Count how many times "\n" appears in the request
+    for (char* pos = hdr_tmp; *pos; lines += (*pos == '\n'), pos++);
 
-    strcat(hdr_tmp, "> ");
-    strcat(hdr_tmp, request);
+    int hdr_debug_size = strlen(request) + 3 * lines + 1;
+    char* hdr_debug = malloc(hdr_debug_size);
+    memset(hdr_debug, '\0', hdr_debug_size);
+    strcat(hdr_debug, "> ");
+
     char* token = strtok(hdr_tmp, "\n");
     while (token) {
         strcat(hdr_debug, token);
@@ -876,7 +879,7 @@ static void dump_request(const char *request)
         token = strtok(NULL, "\n");
     }
 
-    hdr_debug[strlen(hdr_debug)-2] = '\0';
+    hdr_debug[strlen(hdr_debug) - 2] = '\0';
 
     if (davix_get_log_scope() & NE_DBG_HTTPPLAIN) {
 	/* Display everything mode */
@@ -890,9 +893,11 @@ static void dump_request(const char *request)
 	    }
 	}
     NE_DEBUG(NE_DBG_HDR, "%s",reqdebug);
-
 	ne_free(reqdebug);
     }
+
+    ne_free(hdr_debug);
+    ne_free(hdr_tmp);
 }
 
 #else

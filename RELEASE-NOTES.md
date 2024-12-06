@@ -13,7 +13,7 @@
 * [DMC-1413] - Data Management Clients for Fedora 39 and Fedora 40
 * [DMC-1414] - Stop building Data Management Clients for CC7
 * [DMC-1422] - Update signature mechanism for Google Cloud to V4
-* [DMC-1427] - Davix should always use the bundled RapidJson library
+* [DMC-1427] - Davix should prefer the bundled RapidJson library (configurable, default on)
 * [davix/pull/128] - Update Google Cloud signature mechanism to V4
 
 ### Improvements

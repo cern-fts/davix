@@ -329,7 +329,104 @@ const char metalink_item_generic[]= " "
         "  </metalink>";
 
 
-const std::string s3_xml_response = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><ListBucketResult xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\"><Name>a-random-random-bucket</Name><Prefix></Prefix><Marker></Marker><MaxKeys>1000</MaxKeys><IsTruncated>false</IsTruncated><Contents><Key>h1big.root</Key><LastModified>2014-09-19T14:27:33.000Z</LastModified><ETag>&quot;bf5b1efa7fe677965bf3ecd41e20be2a&quot;</ETag><Size>280408881</Size><StorageClass>STANDARD</StorageClass><Owner><ID>mhellmic</ID><DisplayName>Martin Hellmich</DisplayName></Owner></Contents><Contents><Key>services</Key><LastModified>2014-10-03T14:58:12.000Z</LastModified><ETag>&quot;3e73cc5c77799fd3e7a02c62474107bb&quot;</ETag><Size>\t   19558   \t</Size><StorageClass>STANDARD</StorageClass><Owner><ID>mhellmic</ID><DisplayName>Martin Hellmich</DisplayName></Owner></Contents></ListBucketResult>";
+const std::string s3_xml_response = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+"<ListBucketResult xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\">"
+"   <Name>a-random-random-bucket</Name>"
+"   <Prefix></Prefix>"
+"   <Marker></Marker>"
+"   <MaxKeys>1000</MaxKeys>"
+"   <IsTruncated>false</IsTruncated>"
+"   <Contents>"
+"       <Key>h1big.root</Key>"
+"       <LastModified>2014-09-19T14:27:33.000Z</LastModified>"
+"       <ETag>&quot;bf5b1efa7fe677965bf3ecd41e20be2a&quot;</ETag>"
+"       <Size>280408881</Size>"
+"       <StorageClass>STANDARD</StorageClass>"
+"       <Owner>"
+"           <ID>mhellmic</ID>"
+"           <DisplayName>Martin Hellmich</DisplayName>"
+"       </Owner>"
+"   </Contents>"
+"   <Contents>"
+"       <Key>services</Key>"
+"       <LastModified>2014-10-03T14:58:12.000Z</LastModified>"
+"       <ETag>&quot;3e73cc5c77799fd3e7a02c62474107bb&quot;</ETag>"
+"       <Size>\t   19558   \t</Size>"
+"       <StorageClass>STANDARD</StorageClass>"
+"       <Owner>"
+"           <ID>mhellmic</ID>"
+"           <DisplayName>Martin Hellmich</DisplayName>"
+"       </Owner>"
+"   </Contents>"
+"</ListBucketResult>";
+
+const std::string s3_xml_response_truncated = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+"<ListBucketResult xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\">"
+"   <Name>a-random-bucket</Name>"
+"   <Prefix>dir/</Prefix>"
+"   <Marker></Marker>"
+"   <NextMarker>dir/a.02</NextMarker>"
+"   <MaxKeys>2</MaxKeys>"
+"   <Delimiter>/</Delimiter>"
+"   <IsTruncated>true</IsTruncated>"
+"   <Contents>"
+"       <Key>dir/a.01</Key>"
+"       <LastModified>2024-12-22T02:47:18.437Z</LastModified>"
+"       <ETag>&#34;c89b1ec23c7087bc00b87f3bfbef055a&#34;</ETag>"
+"       <Size>1150</Size>"
+"       <Owner>"
+"           <ID>02d6176db174dc93cb1b899f7c6078f08654445fe8cf1b6ce98d8855f66bdbf4</ID>"
+"           <DisplayName>minio</DisplayName>"
+"       </Owner>"
+"       <StorageClass>STANDARD</StorageClass>"
+"   </Contents>"
+"   <Contents>"
+"       <Key>dir/a.02</Key>"
+"       <LastModified>2024-12-22T02:47:19.581Z</LastModified>"
+"       <ETag>&#34;c89b1ec23c7087bc00b87f3bfbef055a&#34;</ETag>"
+"       <Size>1150</Size>"
+"       <Owner>"
+"           <ID>02d6176db174dc93cb1b899f7c6078f08654445fe8cf1b6ce98d8855f66bdbf4</ID>"
+"           <DisplayName>minio</DisplayName>"
+"       </Owner>"
+"       <StorageClass>STANDARD</StorageClass>"
+"   </Contents>"
+"</ListBucketResult>";
+
+const std::string s3_xml_response_truncated_no_nextmarker = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+"<ListBucketResult xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\">"
+"   <Name>a-random-bucket</Name>"
+"   <Prefix>dir/</Prefix>"
+"   <Marker></Marker>"
+"   <MaxKeys>3</MaxKeys>"
+"   <Delimiter>/</Delimiter>"
+"   <IsTruncated>true</IsTruncated>"
+"   <Contents>"
+"       <Key>dir/a.01</Key>"
+"       <LastModified>2024-12-22T02:47:18.437Z</LastModified>"
+"       <ETag>&#34;c89b1ec23c7087bc00b87f3bfbef055a&#34;</ETag>"
+"       <Size>1150</Size>"
+"       <Owner>"
+"           <ID>02d6176db174dc93cb1b899f7c6078f08654445fe8cf1b6ce98d8855f66bdbf4</ID>"
+"           <DisplayName>minio</DisplayName>"
+"       </Owner>"
+"       <StorageClass>STANDARD</StorageClass>"
+"   </Contents>"
+"   <Contents>"
+"       <Key>dir/a.02</Key>"
+"       <LastModified>2024-12-22T02:47:19.581Z</LastModified>"
+"       <ETag>&#34;c89b1ec23c7087bc00b87f3bfbef055a&#34;</ETag>"
+"       <Size>1150</Size>"
+"       <Owner>"
+"           <ID>02d6176db174dc93cb1b899f7c6078f08654445fe8cf1b6ce98d8855f66bdbf4</ID>"
+"           <DisplayName>minio</DisplayName>"
+"       </Owner>"
+"       <StorageClass>STANDARD</StorageClass>"
+"   </Contents>"
+"   <CommonPrefixes>"
+"       <Prefix>dir/subdir/</Prefix>"
+"   </CommonPrefixes>"
+"</ListBucketResult>";
 
 const std::string s3_multipart_initiation_response = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 "<InitiateMultipartUploadResult"
@@ -580,7 +677,7 @@ TEST(XmlS3parsing, TestListingBucket){
     S3PropParser parser;
 
     int ret = parser.parseChunk(s3_xml_response);
-    ASSERT_EQ(ret, 0);
+    ASSERT_EQ(0, ret);
 
     ASSERT_EQ(3, parser.getProperties().size());
 
@@ -592,6 +689,44 @@ TEST(XmlS3parsing, TestListingBucket){
     // verify size
     ASSERT_EQ(280408881, parser.getProperties().at(1).info.size);
     ASSERT_EQ(19558, parser.getProperties().at(2).info.size);
+
+    // verify empty NextMarker
+    ASSERT_TRUE(parser.getNextMarker().empty());
+}
+
+TEST(XmlS3parsing, TestListingTruncated) {
+    using namespace Davix;
+    S3PropParser parser;
+
+    int ret = parser.parseChunk(s3_xml_response_truncated);
+    ASSERT_EQ(0, ret);
+    ASSERT_EQ(3, parser.getProperties().size());
+
+    // verify name
+    ASSERT_EQ(std::string("a-random-bucket"), parser.getProperties().at(0).filename);
+    ASSERT_EQ(std::string("dir/a.01"), parser.getProperties().at(1).filename);
+    ASSERT_EQ(std::string("dir/a.02"), parser.getProperties().at(2).filename);
+
+    // verify NextMarker
+    ASSERT_EQ(std::string("dir/a.02"), parser.getNextMarker());
+}
+
+TEST(XmlS3parsing, TestListingTruncatedNoNextMarker) {
+    using namespace Davix;
+    S3PropParser parser;
+
+    int ret = parser.parseChunk(s3_xml_response_truncated_no_nextmarker);
+    ASSERT_EQ(0, ret);
+    ASSERT_EQ(4, parser.getProperties().size());
+
+    // verify name
+    ASSERT_EQ(std::string("a-random-bucket"), parser.getProperties().at(0).filename);
+    ASSERT_EQ(std::string("dir/a.01"), parser.getProperties().at(1).filename);
+    ASSERT_EQ(std::string("dir/a.02"), parser.getProperties().at(2).filename);
+    ASSERT_EQ(std::string("dir/subdir"), parser.getProperties().at(3).filename);
+
+    // verify NextMarker
+    ASSERT_EQ(std::string("dir/subdir/"), parser.getNextMarker());
 }
 
 TEST(XmlMultiPartUploadInitiationResponse, BasicSanity) {

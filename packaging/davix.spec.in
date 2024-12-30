@@ -19,6 +19,7 @@ BuildRequires:      curl-devel
 %endif
 BuildRequires:      libxml2-devel
 BuildRequires:      openssl-devel
+BuildRequires:      json-devel
 BuildRequires:      zlib-devel
 # davix-copy dependencies
 BuildRequires:      gsoap-devel

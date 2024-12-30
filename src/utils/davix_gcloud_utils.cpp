@@ -23,9 +23,8 @@
 #include <fstream>
 #include <iomanip>
 #include <sstream>
-#include <rapidjson/document.h>
+#include <nlohmann/json.hpp>
 #include <libs/alibxx/crypto/hmacsha.hpp>
-#include <libs/alibxx/crypto/base64.hpp>
 
 #include <utils/davix_gcloud_utils.hpp>
 #include <utils/davix_logger_internal.hpp>
@@ -119,23 +118,26 @@ std::string Credentials::getClientEmail() const {
 CredentialProvider::CredentialProvider() {}
 
 Credentials CredentialProvider::fromJSONString(const std::string &str) {
+  using json = nlohmann::json;
   Credentials creds;
+  json document;
 
-  rapidjson::Document document;
-  if(document.Parse(str.c_str()).HasParseError()) {
-    throw DavixException(std::string("davix::gcloud"), StatusCode::ParsingError, "Error during JSON parsing");
+  try {
+    document = json::parse(str);
+  } catch (const json::parse_error& e) {
+    throw DavixException(std::string("davix::gcloud"), StatusCode::ParsingError, SSTR("Error during JSON parsing: " << e.what()));
   }
 
-  if(!document.HasMember("private_key")) {
-    throw DavixException(std::string("davix::gcloud"), StatusCode::ParsingError, "Error during JSON parsing: Could not find private_key");
+  if (!document.contains("private_key")) {
+    throw DavixException(std::string("davix::gcloud"), StatusCode::ParsingError, "Error during JSON parsing: Could not find \"private_key\"");
   }
 
-  if(!document.HasMember("client_email")) {
-    throw DavixException(std::string("davix::gcloud"), StatusCode::ParsingError, "Error during JSON parsing: Could not find client_email");
+  if (!document.contains("client_email")) {
+    throw DavixException(std::string("davix::gcloud"), StatusCode::ParsingError, "Error during JSON parsing: Could not find \"client_email\"");
   }
 
-  creds.setPrivateKey(document["private_key"].GetString());
-  creds.setClientEmail(document["client_email"].GetString());
+  creds.setPrivateKey(document["private_key"].get<std::string>());
+  creds.setClientEmail(document["client_email"].get<std::string>());
 
   return creds;
 }

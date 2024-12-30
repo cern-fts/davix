@@ -68,7 +68,6 @@ set(OUTPUT_NAME_DAVIX "davix")
 option(ENABLE_TOOLS "enable or disable tools " TRUE)
 option(ENABLE_HTML_DOCS "enable or disable generation of HTML documentation" FALSE)
 option(EMBEDDED_LIBCURL "Use embedded libcurl" TRUE)
-option(EMBEDDED_RAPIDJSON "Use embedded RapidJson" TRUE)
 option(LIBCURL_BACKEND_BY_DEFAULT "Use libcurl by default" FALSE)
 
 # features
@@ -97,14 +96,8 @@ set(NE_HAVE_SSL 1)
 
 add_subdirectory(deps)
 
-# RapidJson library
-if(EMBEDDED_RAPIDJSON)
-  message(STATUS "Using bundled RapidJSON")
-  set(RAPIDJSON_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/src/libs)
-else()
-  find_package(RapidJSON REQUIRED)
-  set(RAPIDJSON_INCLUDE_DIRS ${RapidJSON_INCLUDE_DIRS})
-endif()
+# nlohmann/json library
+find_package(nlohmann_json REQUIRED)
 
 #libuuid
 if(NOT APPLE)

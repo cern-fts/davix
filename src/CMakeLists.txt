@@ -84,7 +84,6 @@ set(DAVIX_SOURCES
 set(DAVIX_INTERNAL_INCLUDES
   ${OPENSSL_INCLUDE_DIR}
   ${LIBXML2_INCLUDE_DIR}
-  ${RAPIDJSON_INCLUDE_DIRS}
   ${PROJECT_SOURCE_DIR}/deps
   ${PROJECT_SOURCE_DIR}/src
   ${CMAKE_CURRENT_BINARY_DIR}
@@ -104,9 +103,9 @@ if(APPLE)
 endif()
 
 if(SHARED_LIBRARY)
-add_library(libdavix  SHARED ${DAVIX_SOURCES} )
+add_library(libdavix SHARED ${DAVIX_SOURCES})
 
-target_include_directories(libdavix PRIVATE ${DAVIX_INTERNAL_INCLUDES} )
+target_include_directories(libdavix PRIVATE ${DAVIX_INTERNAL_INCLUDES})
 target_link_libraries(libdavix
   PRIVATE ${libcurl}
   PUBLIC ${LIBSSL_PKG_LIBRARIES}
@@ -114,8 +113,9 @@ target_link_libraries(libdavix
          ${CMAKE_THREAD_LIBS_INIT}
          ${CMAKE_DL_LIBS}
          ${UUID_LIBRARIES}
-         z
          ${SECURE_TRANSPORT_LIBRARIES}
+         nlohmann_json::nlohmann_json
+         z
 )
 
 set_target_properties(libdavix PROPERTIES
@@ -140,25 +140,24 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/davix.pc
 endif(SHARED_LIBRARY)
 
 
-
 if(STATIC_LIBRARY)
 
 add_library(libdavix_static  STATIC ${DAVIX_SOURCES})
 set_target_properties(libdavix_static PROPERTIES
                             OUTPUT_NAME ${OUTPUT_NAME_DAVIX})
-target_include_directories(libdavix_static PRIVATE ${DAVIX_INTERNAL_INCLUDES} )
+target_include_directories(libdavix_static PRIVATE ${DAVIX_INTERNAL_INCLUDES})
 
 target_link_libraries(libdavix_static
   PRIVATE ${libcurl}
-  PUBLIC  ${LIBSSL_PKG_LIBRARIES}
-          ${LIBXML2_LIBRARIES}
-          ${CMAKE_THREAD_LIBS_INIT}
-          ${CMAKE_DL_LIBS}
-          ${UUID_LIBRARIES}
-          z
-          ${SECURE_TRANSPORT_LIBRARIES}
+  PUBLIC ${LIBSSL_PKG_LIBRARIES}
+         ${LIBXML2_LIBRARIES}
+         ${CMAKE_THREAD_LIBS_INIT}
+         ${CMAKE_DL_LIBS}
+         ${UUID_LIBRARIES}
+         ${SECURE_TRANSPORT_LIBRARIES}
+         nlohmann_json::nlohmann_json
+         z
 )
-
 
 add_library(libdavix ALIAS libdavix_static)
 

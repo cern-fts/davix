@@ -53,7 +53,8 @@ struct S3PropParser::Internal{
     S3ListingMode::S3ListingMode _s3_listing_mode;
 
     bool istruncated = false;
-    std::string nextmarker = "";
+    std::string nextmarker;
+    std::string nextmarker_last_key;
 
     int start_elem(const std::string &elem){
         // new tag, clean content;
@@ -110,20 +111,21 @@ struct S3PropParser::Internal{
             prefix = current;
             if(inside_com_prefix){  // all keys would have been processed by now, just common prefixes left, use as DIRs
                 DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_XML, "push new common prefix {}", current.c_str());
+                // Save key for "truncated reply with missing NextMarker" scenario
+                nextmarker_last_key = current;
                 current = current.erase(current.size()-1,1);
                 property.filename = current.erase(0, prefix_to_remove.size());
                 property.info.mode =  0755 | S_IFDIR;
                 property.info.mode &= ~(S_IFREG);
                 props.push_back(property);
                 prop_count++;
-                if (istruncated) {
-                    nextmarker = current;
-                }
             }
         }
 
         // new name new fileprop
         if( StrUtil::compare_ncase(name_prop, elem) ==0){
+            // Save key for "truncated reply with missing NextMarker" scenario
+            nextmarker_last_key = current;
 
             if(_s3_listing_mode == S3ListingMode::Flat) {  // flat mode
                 property.filename = current.erase(0,prefix.size());
@@ -271,7 +273,15 @@ std::deque<FileProperties> & S3PropParser::getProperties(){
 }
 
 std::string S3PropParser::getNextMarker() {
-    return (d_ptr->istruncated ? d_ptr->nextmarker : "");
+    if (d_ptr->istruncated) {
+        if (!d_ptr->nextmarker.empty()) {
+            return d_ptr->nextmarker;
+        }
+
+        return d_ptr->nextmarker_last_key;
+    }
+
+    return "";
 }
 
 

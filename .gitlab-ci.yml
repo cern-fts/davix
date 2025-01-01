@@ -79,12 +79,12 @@ alma9:
   image: gitlab-registry.cern.ch/linuxsupport/alma9-base
   <<: *build-fedora-template_definition
 
-fedora-39:
-  image: fedora:39
-  <<: *build-fedora-template_definition
-
 fedora-40:
   image: fedora:40
+  <<: *build-fedora-template_definition
+
+fedora-41:
+  image: fedora:41
   <<: *build-fedora-template_definition
 
 fedora-rawhide:
@@ -154,15 +154,6 @@ alma9-test:
     - dnf install -y alma9/RPMS/*.rpm
     - davix-unit-tests
 
-fedora-39-test:
-  stage: test
-  image: fedora:39
-  needs:
-    - job: fedora-39
-  script:
-    - dnf install -y fedora-39/RPMS/*.rpm
-    - davix-unit-tests
-
 fedora-40-test:
   stage: test
   image: fedora:40
@@ -170,6 +161,15 @@ fedora-40-test:
     - job: fedora-40
   script:
     - dnf install -y fedora-40/RPMS/*.rpm
+    - davix-unit-tests
+
+fedora-41-test:
+  stage: test
+  image: fedora:41
+  needs:
+    - job: fedora-41
+  script:
+    - dnf install -y fedora-41/RPMS/*.rpm
     - davix-unit-tests
 
 #--------------------------
@@ -219,16 +219,16 @@ rpms-dmc:
   dependencies:
     - alma8
     - alma9
-    - fedora-39
     - fedora-40
+    - fedora-41
     - fedora-rawhide
   script:
     - automount
     - cat "$STCI_PASSWORD" | kinit stci
-    - declare -A DISTMAP=( [alma8]=el8 [alma9]=el9 [fedora-39]=fc39 [fedora-40]=fc40 [fedora-rawhide]=fc-rawhide )
+    - declare -A DISTMAP=( [alma8]=el8 [alma9]=el9 [fedora-40]=fc40 [fedora-41]=fc41 [fedora-rawhide]=fc-rawhide )
     - if [[ -z $CI_COMMIT_TAG ]]; then BUILD="testing" ; else BUILD="rc" ; fi
     - |
-        for platform in alma8 alma9 fedora-39 fedora-40 fedora-rawhide ; do
+        for platform in alma8 alma9 fedora-40 fedora-41 fedora-rawhide ; do
           dist=${DISTMAP[${platform}]};
           cp -nv ${platform}/RPMS/* ${platform}/SRPMS/* /eos/project-d/dmc/www/repos/${BUILD}/${dist}/x86_64 || true;
           packaging/update-repo.sh /eos/project-d/dmc/www/repos/${BUILD}/${dist}/x86_64;

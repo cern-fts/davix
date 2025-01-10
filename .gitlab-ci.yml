@@ -121,9 +121,9 @@ debian-buster:
 
 docs-generate:
   stage: build
-  image: fedora:34
+  image: gitlab-registry.cern.ch/linuxsupport/alma9-base
   script:
-    - dnf install -y git python3-sphinx python3-pip gcc-c++ rpm-build dnf-plugins-core python2 python3-breathe make
+    - dnf install -y git python3-sphinx python3-pip gcc-c++ rpm-build dnf-plugins-core python3-breathe make
     - packaging/make-docs.sh
     - mv build/doc/build/html docs
   artifacts:

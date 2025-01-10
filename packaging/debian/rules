@@ -15,7 +15,7 @@ override_dh_auto_configure:
 	# Remove bundled stuff
 	rm -rf test/pywebdav
 	dh_auto_configure -- -DLIB_SUFFIX="" \
-		-DENABLE_THIRD_PARTY_COPY=TRUE -DENABLE_HTML_DOCS=TRUE
+		-DENABLE_THIRD_PARTY_COPY=TRUE -DEMBEDDED_LIBCURL=FALSE -DENABLE_HTML_DOCS=TRUE
 
 override_dh_auto_build:
 	dh_auto_build -- all doc

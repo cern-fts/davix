@@ -92,12 +92,11 @@ fedora-rawhide:
   <<: *build-fedora-template_definition
   allow_failure: true
 
-ubuntu-focal:
+ubuntu-jammy:
   stage: build
-  image: registry.cern.ch/docker.io/library/ubuntu:focal
+  image: registry.cern.ch/docker.io/library/ubuntu:jammy
   script:
     - ci/debian/packages.sh
-    - apt install -y python2
     - packaging/make-deb.sh
     - mkdir ${CI_JOB_NAME}
     - cp -r build/debian-build-arena/*.{deb,ddeb,dsc} ${CI_JOB_NAME}

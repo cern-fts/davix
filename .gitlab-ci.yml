@@ -123,7 +123,7 @@ docs-generate:
   stage: build
   image: gitlab-registry.cern.ch/linuxsupport/alma9-base
   script:
-    - dnf install -y git python3-sphinx python3-pip gcc-c++ rpm-build dnf-plugins-core python3-breathe make
+    - ci/fedora/packages.sh --with-docs
     - packaging/make-docs.sh
     - mv build/doc/build/html docs
   artifacts:

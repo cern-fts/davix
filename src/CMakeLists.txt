@@ -64,6 +64,7 @@ set(DAVIX_SOURCES
                                                          utils/davix_swift_utils.cpp
   utils/simple_get_pass.h                                utils/simple_get_pass.cpp
   utils/stringutils.hpp                                  utils/stringutils.cpp
+  utils/davix_env_variables.hpp                          utils/davix_env_variables.cpp
 
                                                          utils/davixuri.cpp
   xml/azurepropparser.hpp                                xml/azurepropparser.cpp

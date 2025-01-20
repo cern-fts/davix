@@ -25,7 +25,7 @@
 #include <davix_internal.hpp>
 #include "neonsessionfactory.hpp"
 #include <backend/SessionFactory.hpp>
-
+#include <utils/davix_env_variables.hpp>
 #include <utils/davix_logger_internal.hpp>
 
 #define SSTR(message) static_cast<std::ostringstream&>(std::ostringstream().flush() << message).str()
@@ -42,8 +42,8 @@ NeonHandle::~NeonHandle() {
 //------------------------------------------------------------------------------
 // Check if session caching is disabled from environment variables
 //------------------------------------------------------------------------------
-static bool isSessionCachingDisabled(){
-  return ( getenv("DAVIX_DISABLE_SESSION_CACHING") != NULL);
+static bool isSessionCachingDisabled() {
+    return EnvUtils::getDisableSessionCachingFlag();
 }
 
 static std::once_flag neon_once;

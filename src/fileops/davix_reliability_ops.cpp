@@ -25,6 +25,7 @@
 
 #include <utils/stringutils.hpp>
 #include <utils/davix_logger_internal.hpp>
+#include <utils/davix_env_variables.hpp>
 #include <xml/metalinkparser.hpp>
 #include "libs/alibxx/crypto/base64.hpp"
 
@@ -51,7 +52,7 @@ void propagateNonRecoverableExceptions(DavixException & e){
 }
 
 void metalink_check(){
-    metalink_support_disabled = (getenv("DAVIX_DISABLE_METALINK") != NULL);
+    metalink_support_disabled = EnvUtils::getDisableMetalinkFlag();
 }
 
 static bool isMetalinkDisabled(const RequestParams* params){

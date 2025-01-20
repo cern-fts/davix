@@ -26,10 +26,9 @@
 #include <utils/davix_types.hpp>
 #include <request/httprequest.hpp>
 #include <utils/davix_logger_internal.hpp>
+#include <utils/davix_env_variables.hpp>
 #include <fileops/httpiovec.hpp>
 #include <fileops/davmeta.hpp>
-#include <system_utils/env_utils.hpp>
-
 
 #include <sstream>
 #include <string>
@@ -38,10 +37,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
-
-
-
-
 
 
 namespace Davix {
@@ -324,11 +319,11 @@ HttpIOBuffer::~HttpIOBuffer(){
 }
 
 IOBufferLocalFile* createLocalBuffer(){
-    std::string staging = EnvUtils::getEnv("DAVIX_STAGING_AREA", "/tmp");
-    staging += "/.davix_tmp_file_XXXXXX";
+    std::string staging_area = EnvUtils::getStagingAreaValue();
+    staging_area += "/.davix_tmp_file_XXXXXX";
 
     char buffer[1024];
-    strncpy(buffer, staging.c_str(), 1023);
+    strncpy(buffer, staging_area.c_str(), 1023);
 
     int fd;
     if( (fd = mkstemp(buffer)) < 0){

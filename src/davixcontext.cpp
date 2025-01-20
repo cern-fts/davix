@@ -24,6 +24,7 @@
 
 #include <utils/stringutils.hpp>
 #include <utils/davix_uri.hpp>
+#include <utils/davix_env_variables.hpp>
 #include <modules/modules_profiles.hpp>
 #include <backend/SessionFactory.hpp>
 #include <davix_context_internal.hpp>
@@ -43,7 +44,7 @@ static LibPath lib_path;
 
 
 static bool redirCachingDisabled(){
-    return ( getenv("DAVIX_DISABLE_REDIRECT_CACHING") != NULL);
+    return EnvUtils::getDisableRedirectCachingFlag();
 }
 
 ///  Implementation f the core logic in davix

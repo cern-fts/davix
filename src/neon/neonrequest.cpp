@@ -34,6 +34,7 @@
 #include <fileops/S3IO.hpp>
 #include <core/RedirectionResolver.hpp>
 #include <utils/CompatibilityHacks.hpp>
+#include <utils/davix_env_variables.hpp>
 #include <backend/SessionFactory.hpp>
 #include <curl/StandaloneCurlRequest.hpp>
 
@@ -185,32 +186,10 @@ void NeonRequest::configureHeaders() {
 }
 
 //------------------------------------------------------------------------------
-// Should we use libcurl?
-//------------------------------------------------------------------------------
-static bool useLibcurl() {
-    const char *opt = getenv("DAVIX_USE_LIBCURL");
-    if(opt) {
-        if(opt[0] == '1' || opt[0] == 'Y' || opt[0] == 'y') {
-            return true;
-        }
-
-        if(opt[0] == '0' || opt[0] == 'N' || opt[0] == 'n') {
-            return false;
-        }
-    }
-
-#ifdef LIBCURL_BACKEND_BY_DEFAULT
-        return true;
-#else
-        return false;
-#endif
-}
-
-//------------------------------------------------------------------------------
 // Initialize standalone request
 //------------------------------------------------------------------------------
 void NeonRequest::initStandaloneRequest() {
-    if(useLibcurl()) {
+    if (EnvUtils::getUseLibCurlFlag()) {
         CurlSessionFactory& factory = ContextExplorer::SessionFactoryFromContext(getContext()).getCurl();
         _standalone_req.reset(new StandaloneCurlRequest(
             factory,
@@ -224,8 +203,7 @@ void NeonRequest::initStandaloneRequest() {
             _content_provider,
             _deadline
         ));
-    }
-    else {
+    } else {
         NEONSessionFactory& factory = ContextExplorer::SessionFactoryFromContext(getContext()).getNeon();
         _standalone_req.reset(new StandaloneNeonRequest(
             factory,

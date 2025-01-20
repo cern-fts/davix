@@ -24,7 +24,7 @@
 
 #include <davixcontext.hpp>
 #include <utils/davix_logger_internal.hpp>
-#include <system_utils/env_utils.hpp>
+#include <utils/davix_env_variables.hpp>
 
 namespace Davix{
 
@@ -40,12 +40,12 @@ GridEnv createGridEnv(){
     DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CORE, "Enable GRID profile for DAVIX");
 
     GridEnv env;
-    env.ca_path = EnvUtils::getEnv("X509_CERT_DIR", "/etc/grid-security/certificates/");
+    env.ca_path = EnvUtils::getX509CertDirValue();
     DAVIX_SLOG(DAVIX_LOG_TRACE, DAVIX_LOG_CORE, "Adding CA path {} to valid CA path list", env.ca_path);
 
-    std::string proxy = EnvUtils::getEnv("X509_USER_PROXY", std::string());
-    std::string key = EnvUtils::getEnv("X509_USER_KEY", std::string());
-    std::string cert = EnvUtils::getEnv("X509_USER_CERT", std::string());
+    std::string proxy = EnvUtils::getX509UserProxyValue();
+    std::string cert = EnvUtils::getX509UserCertValue();
+    std::string key = EnvUtils::getX509UserKeyValue();
 
     std::string standard_location = fmt::format("/tmp/x509up_u{}", geteuid());
 

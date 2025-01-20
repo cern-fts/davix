@@ -58,7 +58,7 @@ include(DefineInstallationPaths REQUIRED)
 include(ReleaseDebugAutoFlags REQUIRED)
 include(CMakeGeneratePkgConfig REQUIRED)
 include(MacroAddDoxygen REQUIRED)
-include(CMakeCXX11Support REQUIRED)
+include(CMakeCXX17Support REQUIRED)
 include(PortabilityGNUCheck REQUIRED)
 
 

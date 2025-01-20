@@ -22,6 +22,8 @@
 #include "CurlSessionFactory.hpp"
 #include "CurlSession.hpp"
 #include <backend/SessionFactory.hpp>
+#include <utils/davix_env_variables.hpp>
+
 #include <curl/curl.h>
 
 #define DBG(message) std::cerr << __FILE__ << ":" << __LINE__ << " -- " << #message << " = " << message << std::endl;
@@ -31,8 +33,8 @@ namespace Davix {
 //------------------------------------------------------------------------------
 // Check if session caching is disabled from environment variables
 //------------------------------------------------------------------------------
-static bool isSessionCachingDisabled(){
-  return ( getenv("DAVIX_DISABLE_SESSION_CACHING") != NULL);
+static bool isSessionCachingDisabled() {
+  return EnvUtils::getDisableSessionCachingFlag();
 }
 
 //------------------------------------------------------------------------------

@@ -26,6 +26,7 @@
 #include <status/davixstatusrequest.hpp>
 #include <fileops/chain_factory.hpp>
 #include <xml/davpropxmlparser.hpp>
+#include <utils/davix_env_variables.hpp>
 #include <utils/stringutils.hpp>
 #include <file/davposix.hpp>
 
@@ -48,18 +49,16 @@ static IOChainContext  getIOContext( Context & context, const Uri & uri, const R
         return IOChainContext(context, uri, params);
 }
 
-size_t getPartSize() {static const int dfltPSIZE = 32*1024*1024;
-                      const char *mpVal = getenv("DAVIX_PARTSIZE");
-                      size_t pSize = dfltPSIZE;
+size_t getPartSize() {
+    static const int dfltPSIZE = 32 * 1024 * 1024;
+    long envPSIZE = EnvUtils::getPartSizeValue();
 
-                      if (mpVal) 
-                         {char *endp;
-                          long mpSZ = strtol(mpVal, &endp, 10);
-                          if (*endp == 0 && mpSZ >= 10 && mpSZ <= 500)
-                          pSize = (size_t)mpSZ*1024*1024; 
-                         }
-                      return pSize;
-                     }
+    if (envPSIZE >= 10 && envPSIZE <= 500) {
+        return static_cast<size_t>(envPSIZE) * 1024 * 1024;
+    }
+
+  return dfltPSIZE;
+ }
 
 size_t PartSize = getPartSize();
 
@@ -719,8 +718,7 @@ ssize_t DavPosix::write(DAVIX_FD* fd, const void* buf, size_t count, Davix::Davi
 // via envar DAVIX_PARTSIZE (see getPartSize() in this file). This envar is
 // typically set by S3 proxy servers using the POSIX API.
 
-    static bool useMPUpload = getenv("DAVPOSIX_MPUPLOAD") != 0; 
-
+    static bool useMPUpload = EnvUtils::getMPUploadFlag();
     DAVIX_SCOPE_TRACE(DAVIX_LOG_POSIX, fun_write);
 
     ssize_t ret =-1;

@@ -24,6 +24,7 @@
 #include "CurlSession.hpp"
 #include "HeaderlineParser.hpp"
 #include <utils/davix_logger_internal.hpp>
+#include <utils/davix_env_variables.hpp>
 #include <utils/stringutils.hpp>
 #include <core/ContentProvider.hpp>
 #include <curl/curl.h>
@@ -67,7 +68,7 @@ static std::string filterAuthorizationHeader(const std::string& line) {
   std::string filtered(line);
   bool formatted = false;
 
-  if (getenv("DAVIX_FORMAT_BEARER_TOKEN") != NULL) {
+  if (EnvUtils::getFormatBearerTokenFlag()) {
     std::string content = line.substr(pos + 15);
 
     // Format into "<header>: Bearer abcdefg...tuvwxyz"

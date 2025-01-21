@@ -1,5 +1,4 @@
 %undefine __cmake_in_source_build
-%undefine __cmake3_in_source_build
 
 Name:         davix
 Version:      @VERSION_FULL@
@@ -7,7 +6,7 @@ Release:      @VERSION_RELEASE@%{?dist}
 Summary:      Toolkit for HTTP-based file management
 License:      LGPLv2+
 URL:          https://dmc-docs.web.cern.ch/dmc-docs/davix.html
-#Source0:     https://github.com/cern-fts/davix/releases/download/R_0_8_6/davix-0.8.6.tar.gz
+#Source0:     https://github.com/cern-fts/davix/releases/download/R_0_8_8/davix-0.8.8.tar.gz
 Source0:      %{name}-%{version}.tar.gz
 
 BuildRequires:      gcc-c++
@@ -49,8 +48,8 @@ Libraries for %{name}. Davix is a toolkit designed for file operations
 with HTTP based protocols (WebDav, Amazon S3, ...).
 
 %package devel
-Summary:       Development files for %{name}
-Requires:      %{name}-libs%{?_isa} = %{version}-%{release}
+Summary:      Development files for %{name}
+Requires:     %{name}-libs%{?_isa} = %{version}-%{release}
 
 %description devel
 Development files for %{name}. Davix is a toolkit designed for file operations
@@ -73,7 +72,7 @@ Documentation and examples for %{name}. Davix is a toolkit designed
 for file operations with HTTP based protocols (WebDav, Amazon S3, ...).
 
 %clean
-%cmake3_build --target clean
+%cmake_build --target clean
 
 %prep
 %setup -q
@@ -87,22 +86,22 @@ rm -rf test/pywebdav
 rm -rf doc/sphinx/_themes/sphinx_rtd_theme
 
 %build
-%cmake3 \
+%cmake \
 %if 0%{?fedora} || 0%{?rhel} >= 9
   -DEMBEDDED_LIBCURL=FALSE \
 %endif
   -DDOC_INSTALL_DIR=%{_pkgdocdir} \
   -DENABLE_THIRD_PARTY_COPY=TRUE \
   -DENABLE_HTML_DOCS=TRUE
-%cmake3_build
-%cmake3_build --target doc
+%cmake_build
+%cmake_build --target doc
 ( cd %{_vpath_builddir}/doc ; \
   sphinx-build -q -b html ../../doc/sphinx build/html ; \
   rm -f build/html/.buildinfo ; \
   rm -rf build/html/.doctrees )
 
 %install
-%cmake3_install
+%cmake_install
 rm %{buildroot}%{_pkgdocdir}/LICENSE
 
 %ldconfig_scriptlets libs
@@ -139,8 +138,8 @@ rm %{buildroot}%{_pkgdocdir}/LICENSE
 %doc %{_mandir}/man3/libdavix.3*
 
 %files tests
-%{_bindir}/davix-unit-tests
 %{_bindir}/davix-tester
+%{_bindir}/davix-unit-tests
 
 %files doc
 %doc %{_pkgdocdir}/html
@@ -148,25 +147,25 @@ rm %{buildroot}%{_pkgdocdir}/LICENSE
 
 %changelog
 * Tue Jan 21 2025 Mihai Patrascoiu <mihai.patrascoiu at cern.ch> - 0.8.8-1
- - davix 0.8.8 release, see RELEASE-NOTES.md for changes
+- davix 0.8.8 release, see RELEASE-NOTES.md for changes
 
 * Mon Jun 24 2024 Mihai Patrascoiu <mihai.patrascoiu at cern.ch> - 0.8.7-1
- - davix 0.8.7 release, see RELEASE-NOTES.md for changes
+- davix 0.8.7 release, see RELEASE-NOTES.md for changes
 
 * Tue Apr 02 2024 Mihai Patrascoiu <mihai.patrascoiu at cern.ch> - 0.8.6-1
- - davix 0.8.6 release, see RELEASE-NOTES.md for changes
+- davix 0.8.6 release, see RELEASE-NOTES.md for changes
 
 * Fri Oct 20 2023 Mihai Patrascoiu <mihai.patrascoiu at cern.ch> - 0.8.5-1
- - davix 0.8.5 release, see RELEASE-NOTES.md for changes
+- davix 0.8.5 release, see RELEASE-NOTES.md for changes
 
 * Thu Feb 02 2023 Mihai Patrascoiu <mihai.patrascoiu at cern.ch> - 0.8.4-1
- - davix 0.8.4 release, see RELEASE-NOTES.md for changes
+- davix 0.8.4 release, see RELEASE-NOTES.md for changes
 
 * Tue Sep 13 2022 Joao Lopes <batistal at cern.ch> - 0.8.3-1
- - davix 0.8.3 release, see RELEASE-NOTES.md for changes
+- davix 0.8.3 release, see RELEASE-NOTES.md for changes
 
 * Fri Jun 10 2022 Mihai Patrascoiu <mihai.patrascoiu at cern.ch> - 0.8.2-1
- - davix 0.8.2 release, see RELEASE-NOTES.md for changes
+- davix 0.8.2 release, see RELEASE-NOTES.md for changes
 
 * Wed Mar 30 2022 Mihai Patrascoiu <mihai.patrascoiu at cern.ch> - 0.8.1-1
 - davix 0.8.1 release, see RELEASE-NOTES.md for changes

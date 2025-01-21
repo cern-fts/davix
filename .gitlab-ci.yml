@@ -186,9 +186,9 @@ docs:
     - cat "$DAVIXCI_PW" | kinit davixci
     - SNAPSHOT=$(date +%s)
     - TARGET="/eos/project-d/davix/www/docs/${CI_COMMIT_REF_NAME}"
-    - STAGING_AREA="$TARGET-${SNAPSHOT}"
-    - cp -r docs "$STAGING_AREA"
-    - ci/replace-directory.sh "$STAGING_AREA" "$TARGET"
+    - STAGING_AREA="${TARGET}-${SNAPSHOT}"
+    - cp -r "docs/" "${STAGING_AREA}"
+    - ci/replace-directory.sh "${STAGING_AREA}" "${TARGET}" "${SNAPSHOT}"
   tags:
     - docker-privileged-xl
   retry: 2

@@ -80,21 +80,21 @@ alma9:
   <<: *build-fedora-template_definition
 
 fedora-40:
-  image: fedora:40
+  image: registry.cern.ch/docker.io/library/fedora:40
   <<: *build-fedora-template_definition
 
 fedora-41:
-  image: fedora:41
+  image: registry.cern.ch/docker.io/library/fedora:41
   <<: *build-fedora-template_definition
 
 fedora-rawhide:
-  image: fedora:rawhide
+  image: registry.cern.ch/docker.io/library/fedora:rawhide
   <<: *build-fedora-template_definition
   allow_failure: true
 
 ubuntu-focal:
   stage: build
-  image: ubuntu:focal
+  image: registry.cern.ch/docker.io/library/ubuntu:focal
   script:
     - ci/debian/packages.sh
     - apt install -y python2
@@ -109,7 +109,7 @@ ubuntu-focal:
 
 debian-buster:
   stage: build
-  image: debian:buster
+  image: registry.cern.ch/docker.io/library/debian:buster
   script:
     - ci/debian/packages.sh
     - packaging/make-deb.sh
@@ -156,7 +156,7 @@ alma9-test:
 
 fedora-40-test:
   stage: test
-  image: fedora:40
+  image: registry.cern.ch/docker.io/library/fedora:40
   needs:
     - job: fedora-40
   script:
@@ -165,7 +165,7 @@ fedora-40-test:
 
 fedora-41-test:
   stage: test
-  image: fedora:41
+  image: registry.cern.ch/docker.io/library/fedora:41
   needs:
     - job: fedora-41
   script:

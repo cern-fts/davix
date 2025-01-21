@@ -1,5 +1,14 @@
 # davix release history
 
+## Unreleased
+### Task
+* [DMC-1429] - Debian Bullseye build for Davix
+* [DMC-1430] - Ubuntu Jammy build for Davix
+* [DMC-1431] - Drop the embedded libcurl build
+
+### Improvements
+* [DMC-1432] - Upgrade Davix compiler support to C++17
+
 ## 0.8.9 (2025-01-31)
 ### Bug fixes
 * [DMC-1435] - Davix PerformanceMarkers are not propagated upwards for short HTTP-TPC transfers

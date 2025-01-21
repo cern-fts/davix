@@ -1,16 +1,16 @@
 # davix release history
 
-## Unreleased
+## 0.8.8 (2025-01-21)
 ### Bug fixes
 * [DMC-1418] - Davix redirection cache stuck in redirect loops
 * [davix/issues/120] - Out of Date RapidJSON dependency causing compile failure
+* [davix/issues/122] - S3 listing ignores "IsTruncated = true" property
 * [davix/issues/126] - Crash on badly formed davix-cp command
 * [davix/pull/129] - Remove non-compiling assignment operator
 * [davix/issues/130] - compiler error in rapidjson/document.h
 * [davix/issues/131] - Segmentation fault with long Authorization header
 
 ### Task
-* [DMC-1413] - Data Management Clients for Fedora 39 and Fedora 40
 * [DMC-1414] - Stop building Data Management Clients for CC7
 * [DMC-1422] - Update signature mechanism for Google Cloud to V4
 * [DMC-1427] - Davix should prefer the bundled RapidJson library (configurable, default on)

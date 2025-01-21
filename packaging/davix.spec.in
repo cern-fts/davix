@@ -147,6 +147,9 @@ rm %{buildroot}%{_pkgdocdir}/LICENSE
 %license LICENSE
 
 %changelog
+* Tue Jan 21 2025 Mihai Patrascoiu <mihai.patrascoiu at cern.ch> - 0.8.8-1
+ - davix 0.8.8 release, see RELEASE-NOTES.md for changes
+
 * Mon Jun 24 2024 Mihai Patrascoiu <mihai.patrascoiu at cern.ch> - 0.8.7-1
  - davix 0.8.7 release, see RELEASE-NOTES.md for changes
 

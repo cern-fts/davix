@@ -1,5 +1,14 @@
 # davix release history
 
+## Unreleased
+### Task
+* [DMC-1429] - Debian Bullseye build for Davix
+* [DMC-1430] - Ubuntu Jammy build for Davix
+* [DMC-1431] - Drop the embedded libcurl build
+
+### Improvements
+* [DMC-1432] - Upgrade Davix compiler support to C++17
+
 ## 0.8.10 (2025-02-13)
 ### Bug fixes
 * [davix/issues/137] - Davix 0.8.8 is not thread safe

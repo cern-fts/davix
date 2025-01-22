@@ -85,6 +85,6 @@ endif ( "${GSOAP_VERSION}"  VERSION_LESS "2.7.6")
 # all listed variables are TRUE
 # -----------------------------------------------------
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(gsoap DEFAULT_MSG GSOAP_LIBRARIES
+find_package_handle_standard_args(gSOAP DEFAULT_MSG GSOAP_LIBRARIES
     GSOAP_INCLUDE_DIR GSOAP_WSDL2H GSOAP_SOAPCPP2)
 mark_as_advanced(GSOAP_INCLUDE_DIR GSOAP_LIBRARIES GSOAP_WSDL2H GSOAP_SOAPCPP2)

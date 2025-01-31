@@ -1,5 +1,15 @@
 # davix release history
 
+## 0.8.9 (2025-01-31)
+### Bug fixes
+* [DMC-1435] - Davix PerformanceMarkers are not propagated upwards for short HTTP-TPC transfers
+
+### Tasks
+* [DMC-1428] - Data Management Clients for Fedora 41
+
+### Improvements
+* [DMC-1433] - CI: Use pull-through cache for Fedora, Ubuntu and Debian images
+
 ## 0.8.8 (2025-01-21)
 ### Bug fixes
 * [DMC-1418] - Davix redirection cache stuck in redirect loops
@@ -10,7 +20,7 @@
 * [davix/issues/130] - compiler error in rapidjson/document.h
 * [davix/issues/131] - Segmentation fault with long Authorization header
 
-### Task
+### Tasks
 * [DMC-1414] - Stop building Data Management Clients for CC7
 * [DMC-1422] - Update signature mechanism for Google Cloud to V4
 * [DMC-1427] - Davix should prefer the bundled RapidJson library (configurable, default on)

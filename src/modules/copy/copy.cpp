@@ -500,7 +500,7 @@ void DavixCopyInternal::monitorPerformanceMarkers(Davix::HttpRequest *request,
     PerformanceMarker holder;
     PerformanceData performance;
     std::list<std::string> perfmarkerLines;
-    time_t lastPerfCallback = time(NULL);
+    time_t lastPerfCallback = 0;
     bool clearOutcome = false;
 
     while ((line_len = request->readLine(buffer, sizeof(buffer), &daverr)) > 0 && !daverr && !shouldCancel())

@@ -861,25 +861,16 @@ static ne_buffer *build_request(ne_request *req)
 
 static void dump_request(const char *request)
 {
-    char* hdr_tmp = strdup(request);
-    int lines = 0;
+    ne_buffer *hdr_dbg_buf = ne_buffer_create();
+    char *hdr_tmp = ne_strdup(request);
+    char* token_saveptr = hdr_tmp;
+    char* token;
 
-    // Count how many times "\n" appears in the request
-    for (char* pos = hdr_tmp; *pos; lines += (*pos == '\n'), pos++);
-
-    int hdr_debug_size = strlen(request) + 3 * lines + 1;
-    char* hdr_debug = malloc(hdr_debug_size);
-    memset(hdr_debug, '\0', hdr_debug_size);
-    strcat(hdr_debug, "> ");
-
-    char* token = strtok(hdr_tmp, "\n");
-    while (token) {
-        strcat(hdr_debug, token);
-        strcat(hdr_debug, "\n> ");
-        token = strtok(NULL, "\n");
+    while ((token = strtok_r(token_saveptr, "\n", &token_saveptr)) != NULL) {
+        ne_buffer_concat(hdr_dbg_buf, "> ", token, "\n", NULL);
     }
 
-    hdr_debug[strlen(hdr_debug) - 2] = '\0';
+    char *hdr_debug = ne_buffer_finish(hdr_dbg_buf);
 
     if (davix_get_log_scope() & NE_DBG_HTTPPLAIN) {
 	/* Display everything mode */

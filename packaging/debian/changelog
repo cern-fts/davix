@@ -1,3 +1,9 @@
+davix (0.8.10-1) unstable; urgency=low
+
+  * Update to version 0.8.10
+
+ -- Mihai Patrascoiu <mihai.patrascoiu at cern.ch>  Thu, 13 Feb 2025 10:00:00 +0100
+
 davix (0.8.9-1) unstable; urgency=low
 
   * Update to version 0.8.9

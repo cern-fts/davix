@@ -1,5 +1,9 @@
 # davix release history
 
+## 0.8.10 (2025-02-13)
+### Bug fixes
+* [davix/issues/137] - Davix 0.8.8 is not thread safe
+
 ## 0.8.9 (2025-01-31)
 ### Bug fixes
 * [DMC-1435] - Davix PerformanceMarkers are not propagated upwards for short HTTP-TPC transfers

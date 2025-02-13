@@ -88,7 +88,7 @@ fedora-41:
   <<: *build-fedora-template_definition
 
 fedora-rawhide:
-  image: registry.cern.ch/docker.io/library/fedora:rawhide
+  image: registry.fedoraproject.org/fedora:rawhide
   <<: *build-fedora-template_definition
   allow_failure: true
 

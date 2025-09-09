@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 3.16...4.1)
 
 IF (ENABLE_THIRD_PARTY_COPY)
     INCLUDE     (CheckLibraryExists)

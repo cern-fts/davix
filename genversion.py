@@ -24,6 +24,9 @@ import os
 import subprocess
 import sys
 import argparse
+import re
+
+release_pattern = re.compile("^(rc)?\d+$")
 
 def removePrefix(s, prefix):
     if s.startswith(prefix):
@@ -100,8 +103,11 @@ class GitDescribe:
         self.release = None
         tmp = parts.split("-")
         if len(tmp) == 2:
-            self.release = int(tmp[-1])
-            parts = parts[0:(len(parts) - len(tmp[-1]) - 1)]
+            if release_pattern.match(tmp[-1]):
+                self.release = tmp[-1]
+                parts = parts[0:(len(parts) - len(tmp[-1]) - 1)]
+            else:
+                raise Exception(f"Release pattern must match: (rc)<number> ! (current: {tmp[-1]})")
 
         # Are we using "_", ".", or "-" as delimiter?
         self.versionFragments = None

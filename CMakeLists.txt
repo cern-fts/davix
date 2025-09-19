@@ -67,7 +67,6 @@ set(OUTPUT_NAME_DAVIX "davix")
 # components
 option(ENABLE_TOOLS "enable or disable tools " TRUE)
 option(ENABLE_HTML_DOCS "enable or disable generation of HTML documentation" FALSE)
-option(EMBEDDED_LIBCURL "Use embedded libcurl" TRUE)
 option(LIBCURL_BACKEND_BY_DEFAULT "Use libcurl by default" FALSE)
 
 # features
@@ -111,17 +110,9 @@ add_definitions( -D__STDC_LIMIT_MACROS )     # C99 limit macros
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_FLAG_ENABLE}")
 
-#-------------------------------------------------------------------------------
-# Are we using system, or embedded libcurl?
-#-------------------------------------------------------------------------------
-if(EMBEDDED_LIBCURL)
-  include(buildCurl REQUIRED)
-  buildCurl()
-  set(libcurl libcurl)
-else()
-  find_package(CURL REQUIRED)
-  set(libcurl CURL::libcurl)
-endif()
+# libcurl
+find_package(CURL REQUIRED)
+set(libcurl CURL::libcurl)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/deps/libneon/src/ ${UUID_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/include/davix)

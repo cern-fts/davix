@@ -71,10 +71,6 @@ binary-tarball:
       when: manual
       allow_failure: true
 
-alma8:
-  image: gitlab-registry.cern.ch/linuxsupport/alma8-base
-  <<: *build-fedora-template_definition
-
 alma9:
   image: gitlab-registry.cern.ch/linuxsupport/alma9-base
   <<: *build-fedora-template_definition
@@ -133,16 +129,6 @@ docs-generate:
 # Test jobs
 #--------------------------
 
-alma8-test:
-  stage: test
-  image: gitlab-registry.cern.ch/linuxsupport/alma8-base
-  needs:
-    - job: alma8
-  script:
-    - dnf install -y epel-release
-    - dnf install -y alma8/RPMS/*.rpm
-    - davix-unit-tests
-
 alma9-test:
   stage: test
   image: gitlab-registry.cern.ch/linuxsupport/alma9-base
@@ -199,12 +185,11 @@ rpms:
   stage: publish
   image: gitlab-registry.cern.ch/eos/gitlab-eos/alma9:latest
   dependencies:
-    - alma8
     - alma9
   script:
     - automount
     - cat "$STCI_PASSWORD" | kinit stci
-    - for platform in alma8 alma9; do packaging/repo-manager.py --action add --base /eos/project-s/storage-ci/www/davix --ref ${CI_COMMIT_REF_NAME} --packages ${platform}/RPMS/* ${platform}/SRPMS/* ; done
+    - packaging/repo-manager.py --action add --base /eos/project-s/storage-ci/www/davix --ref ${CI_COMMIT_REF_NAME} --packages alma9/RPMS/* alma9/SRPMS/*
   tags:
     - docker-privileged-xl
   retry: 2
@@ -216,7 +201,6 @@ rpms-dmc:
   stage: publish
   image: gitlab-registry.cern.ch/eos/gitlab-eos/alma9:latest
   dependencies:
-    - alma8
     - alma9
     - fedora-40
     - fedora-41
@@ -224,10 +208,10 @@ rpms-dmc:
   script:
     - automount
     - cat "$STCI_PASSWORD" | kinit stci
-    - declare -A DISTMAP=( [alma8]=el8 [alma9]=el9 [fedora-40]=fc40 [fedora-41]=fc41 [fedora-rawhide]=fc-rawhide )
+    - declare -A DISTMAP=( [alma9]=el9 [fedora-40]=fc40 [fedora-41]=fc41 [fedora-rawhide]=fc-rawhide )
     - if [[ -z $CI_COMMIT_TAG ]]; then BUILD="testing" ; else BUILD="rc" ; fi
     - |
-        for platform in alma8 alma9 fedora-40 fedora-41 fedora-rawhide ; do
+        for platform in alma9 fedora-40 fedora-41 fedora-rawhide ; do
           dist=${DISTMAP[${platform}]};
           cp -nv ${platform}/RPMS/* ${platform}/SRPMS/* /eos/project-d/dmc/www/repos/${BUILD}/${dist}/x86_64 || true;
           packaging/update-repo.sh /eos/project-d/dmc/www/repos/${BUILD}/${dist}/x86_64;

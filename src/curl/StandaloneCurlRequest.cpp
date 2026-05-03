@@ -422,7 +422,7 @@ Status StandaloneCurlRequest::startRequest() {
     }
   }
 
-  _chunklist = curl_slist_append(_chunklist, SSTR("User-Agent: " << Davix::RequestParams().getUserAgent() << " libcurl/" << getCurlVersion()).c_str());
+  _chunklist = curl_slist_append(_chunklist, SSTR("User-Agent: " << _params.getUserAgent() << " libcurl/" << getCurlVersion()).c_str());
 
   curl_easy_setopt(handle, CURLOPT_HTTPHEADER, _chunklist);
 

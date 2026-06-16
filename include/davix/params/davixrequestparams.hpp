@@ -174,6 +174,21 @@ public:
     const bool & getAwsAlternate() const;
 
     ///
+    /// \brief enable SigV4 header signing for S3 v4 requests
+    /// \param header_mode if true, use Authorization header; if false (default), use presigned URLs
+    ///
+    /// Only affects requests where AwsRegion is set. With AwsRegion empty (v2 fallback),
+    /// header signing is always used regardless of this setting.
+    ///
+    void setAwsSigV4HeaderMode(const bool & header_mode);
+    
+    ///
+    /// \brief get whether SigV4 header signing is enabled for v4 requests
+    /// \return true if header mode is enabled, false otherwise
+    ///
+    const bool & getAwsSigV4HeaderMode() const;
+
+    ///
     /// \brief set the secret key for Azure authentication
     /// \param key the secret key
     ///

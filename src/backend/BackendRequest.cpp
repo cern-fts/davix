@@ -97,15 +97,23 @@ RequestParams& BackendRequest::getParameters() {
 // Configure request for S3.
 //------------------------------------------------------------------------------
 void BackendRequest::configureS3params() {
-  // strange workaround to get S3 compatibility on gcloud to work
   if(_params.getAwsRegion().empty()) {
+    // v2 — always uses header signing.
+    HeaderVec vec = _headers_field;
+    S3::signRequest(_params, _request_type, *_current, vec);
+    vec.swap(_headers_field);
+  }
+  else if(_params.getAwsSigV4HeaderMode()) {
+    // v4 — opt-in header signing.
     HeaderVec vec = _headers_field;
     S3::signRequest(_params, _request_type, *_current, vec);
     vec.swap(_headers_field);
   }
   else {
-    Uri signed_url = S3::signURI(_params, _request_type, *_current, _headers_field, DEFAULT_REQUEST_SIGNING_DURATION);
-    _current= std::shared_ptr<Uri>(new Uri(signed_url));
+    // v4 — default presigned-URL signing.
+    Uri signed_url = S3::signURI(_params, _request_type, *_current,
+                                 _headers_field, DEFAULT_REQUEST_SIGNING_DURATION);
+    _current = std::shared_ptr<Uri>(new Uri(signed_url));
   }
 }
 

@@ -275,3 +275,140 @@ TEST(HeaderlineParser, BasicSanity) {
     ASSERT_EQ(parser.getKey(), "aaa");
     ASSERT_EQ(parser.getValue(), "bbb");
 }
+
+// GOLDEN VECTOR — exact-match against AWS's published "GET Object" example.
+//
+// Source: AWS S3 Developer Guide, "Signature Calculations for the Authorization
+// Header: Transferring Payload in a Single Chunk (AWS Signature Version 4)",
+// Example: GET Object. Inputs and expected outputs are copied verbatim from
+// that page. The expected signature is AWS's, not ours: if this test fails,
+// fix the signer, never edit the expected value.
+//
+//   GET https://examplebucket.s3.amazonaws.com/test.txt
+//   Range: bytes=0-9
+//   x-amz-date: 20130524T000000Z   (pinned via the date seam)
+//   region us-east-1, empty payload (x-amz-content-sha256 = SHA256(""))
+//   SignedHeaders = host;range;x-amz-content-sha256;x-amz-date
+TEST(testAuthS3, ReqToSignV4GoldenVector){
+    RequestParams params;
+    Uri url("https://examplebucket.s3.amazonaws.com/test.txt");
+    ASSERT_EQ(url.getPath(), "/test.txt") << "path is: [" << url.getPath() << "]";
+    params.setAwsAuthorizationKeys(
+        "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+        "AKIAIOSFODNN7EXAMPLE");
+    params.setAwsRegion("us-east-1");
+
+    HeaderVec vec;
+    // Pin the date (test seam) and supply Range exactly as the AWS example does.
+    vec.push_back(HeaderLine("x-amz-date", "20130524T000000Z"));
+    vec.push_back(HeaderLine("Range", "bytes=0-9"));
+
+    S3::signRequest(params, "GET", url, vec);
+
+    std::string auth;
+    for(const auto& h : vec) {
+        if(StrUtil::compare_ncase(h.first, "Authorization") == 0) auth = h.second;
+    }
+    ASSERT_FALSE(auth.empty()) << "no Authorization header produced";
+
+    // Structural: exact SignedHeaders set & order, and credential scope.
+    ASSERT_NE(auth.find("SignedHeaders=host;range;x-amz-content-sha256;x-amz-date"),
+              std::string::npos) << "Authorization was: " << auth;
+    ASSERT_NE(auth.find("Credential=AKIAIOSFODNN7EXAMPLE/20130524/us-east-1/s3/aws4_request"),
+              std::string::npos) << "Authorization was: " << auth;
+
+    // EXACT signature from AWS's published GET Object example.
+    const std::string AWS_EXPECTED_SIGNATURE =
+        "Signature=f0e8bdb87c964420e857bd35b5d6ed310bd44f0170aba48dd91039c6036bdb41";
+    ASSERT_NE(auth.find(AWS_EXPECTED_SIGNATURE), std::string::npos)
+        << "Signature mismatch — signer is wrong, do not edit the expected value.\n"
+        << "Authorization was: " << auth;
+
+    // Full Authorization header AWS publishes for this example (belt-and-suspenders).
+    const std::string AWS_EXPECTED_AUTH =
+        "AWS4-HMAC-SHA256 "
+        "Credential=AKIAIOSFODNN7EXAMPLE/20130524/us-east-1/s3/aws4_request, "
+        "SignedHeaders=host;range;x-amz-content-sha256;x-amz-date, "
+        "Signature=f0e8bdb87c964420e857bd35b5d6ed310bd44f0170aba48dd91039c6036bdb41";
+    ASSERT_EQ(auth, AWS_EXPECTED_AUTH)
+        << "Full Authorization header does not match AWS's published value.";
+}
+
+// Determinism: same pinned inputs -> identical signature on repeated calls.
+// (Catches accidental nondeterminism in canonicalization.)
+TEST(testAuthS3, ReqToSignV4Deterministic){
+    auto sign_once = [](){
+        RequestParams params;
+        Uri url("https://examplebucket.s3.amazonaws.com/test.txt");
+        params.setAwsAuthorizationKeys(
+            "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY", "AKIAIOSFODNN7EXAMPLE");
+        params.setAwsRegion("us-east-1");
+        HeaderVec vec;
+        vec.push_back(HeaderLine("x-amz-date", "20130524T000000Z"));
+        S3::signRequest(params, "GET", url, vec);
+        for(const auto& h : vec)
+            if(StrUtil::compare_ncase(h.first, "Authorization") == 0) return h.second;
+        return std::string();
+    };
+    ASSERT_EQ(sign_once(), sign_once());
+}
+
+// A caller-supplied x-amz-date / x-amz-content-sha256
+// must not appear twice in SignedHeaders.
+TEST(testAuthS3, ReqToSignV4NoDuplicateSignedHeaders){
+    RequestParams params;
+    Uri url("https://examplebucket.s3.amazonaws.com/test.txt");
+    params.setAwsAuthorizationKeys(
+        "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY", "AKIAIOSFODNN7EXAMPLE");
+    params.setAwsRegion("us-east-1");
+
+    HeaderVec vec;
+    vec.push_back(HeaderLine("x-amz-date", "20130524T000000Z"));
+    vec.push_back(HeaderLine("x-amz-content-sha256",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"));
+
+    S3::signRequest(params, "GET", url, vec);
+
+    std::string auth;
+    for(const auto& h : vec)
+        if(StrUtil::compare_ncase(h.first, "Authorization") == 0) auth = h.second;
+
+    // "x-amz-date" / "x-amz-content-sha256" must appear exactly once in SignedHeaders.
+    const std::string sh_key = "SignedHeaders=";
+    auto sh_pos = auth.find(sh_key);
+    ASSERT_NE(sh_pos, std::string::npos);
+    auto sh_end = auth.find(',', sh_pos);
+    const std::string signed_list = auth.substr(sh_pos, sh_end - sh_pos);
+
+    auto count_occurrences = [&](const std::string& needle){
+        size_t n = 0, p = 0;
+        while((p = signed_list.find(needle, p)) != std::string::npos){ ++n; p += needle.size(); }
+        return n;
+    };
+    ASSERT_EQ(count_occurrences("x-amz-date"), 1u);
+    ASSERT_EQ(count_occurrences("x-amz-content-sha256"), 1u);
+}
+
+// Verb behaviour: bodyless verbs sign the empty-SHA256; PUT signs
+// UNSIGNED-PAYLOAD. Assert the x-amz-content-sha256 header reflects this.
+TEST(testAuthS3, ReqToSignV4PayloadHashByVerb){
+    auto content_sha = [](const std::string& verb){
+        RequestParams params;
+        Uri url("https://examplebucket.s3.amazonaws.com/test.txt");
+        params.setAwsAuthorizationKeys(
+            "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY", "AKIAIOSFODNN7EXAMPLE");
+        params.setAwsRegion("us-east-1");
+        HeaderVec vec;
+        vec.push_back(HeaderLine("x-amz-date", "20130524T000000Z"));
+        S3::signRequest(params, verb, url, vec);
+        for(const auto& h : vec)
+            if(StrUtil::compare_ncase(h.first, "x-amz-content-sha256") == 0) return h.second;
+        return std::string();
+    };
+    const std::string EMPTY_SHA256 =
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
+    ASSERT_EQ(content_sha("GET"), EMPTY_SHA256);
+    ASSERT_EQ(content_sha("HEAD"), EMPTY_SHA256);
+    ASSERT_EQ(content_sha("DELETE"), EMPTY_SHA256);
+    ASSERT_EQ(content_sha("PUT"), std::string("UNSIGNED-PAYLOAD"));
+}

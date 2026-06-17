@@ -118,7 +118,11 @@ int GRSTx509MakeProxyCert(char **proxychain, FILE *debugfp,
   const EVP_MD *digest;
   X509 **certs = NULL;
   X509_REQ *req;
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
   const X509_NAME *name, *CAsubject;
+#else
+  X509_NAME *name, *CAsubject;
+#endif
   X509_NAME *newsubject;
   X509_NAME_ENTRY *ent;
   ASN1_OBJECT *pci_obj = NULL, *kyu_obj;

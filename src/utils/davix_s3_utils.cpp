@@ -33,6 +33,7 @@
 #include "libs/alibxx/crypto/hmacsha.hpp"
 #include <openssl/md5.h>
 #include <sys/mman.h>
+#include <fstream>
 
 template <typename T>
 static inline std::string SSTR(const T& v)
@@ -73,14 +74,12 @@ std::string getAwsAuthorizationField(const std::string & stringToSign, const std
 }
 
 std::string getAwsSignaturev4(const std::string & stringToSign, const std::string & private_key,
-                           const std::string & region, const std::string & service) {
-    const std::string date = current_time("%Y%m%d");
+                              const std::string & region, const std::string & service,
+                              const std::string & date) {
     const std::string kDate = hmac_sha256("AWS4" + private_key, date);
     const std::string kRegion = hmac_sha256(kDate, region);
     const std::string kService = hmac_sha256(kRegion, service);
-
-    const std::string c = "aws4_request";
-    const std::string kSigning = hmac_sha256(kService, c);
+    const std::string kSigning = hmac_sha256(kService, "aws4_request");
     return hexEncode(hmac_sha256(kSigning, stringToSign));
 }
 
@@ -247,12 +246,13 @@ void signRequestv2(const RequestParams & params, const std::string & method, con
 
 
 // Sign an S3 request by modifying the headers, not the URI
-void signRequest(const RequestParams & params, const std::string & method, const Uri & url, HeaderVec & headers){
+void signRequest(const RequestParams & params, const std::string & method,
+                 const Uri & url, HeaderVec & headers){
     if(params.getAwsRegion().empty()) {
         signRequestv2(params, method, url, headers);
     }
     else {
-        throw std::runtime_error("v4 header signing not yet implemented");
+        signRequestv4(params, method, url, headers);
     }
 }
 
@@ -371,7 +371,7 @@ Uri signURIv4(const RequestParams & params, const std::string & method, const Ur
     Uri signedUrl = url;
 
     std::string signature = getAwsSignaturev4(stringToSign.str(), params.getAwsAutorizationKeys().first,
-                                              params.getAwsRegion(), "s3");
+                                              params.getAwsRegion(), "s3", current_time("%Y%m%d"));
 
     DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_S3, "Signature: {}", signature);
     signedUrl.addQueryParam("X-Amz-Signature", signature);
@@ -385,6 +385,164 @@ Uri signURIv4(const RequestParams & params, const std::string & method, const Ur
     DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_S3, "Signed URL: {}", signedUrl);
     return signedUrl;
 }
+
+
+void signRequestv4(const RequestParams & params, const std::string & method,
+                   const Uri & url, HeaderVec & headers) {
+    // references
+    // https://docs.aws.amazon.com/AmazonS3/latest/developerguide/sigv4-auth-using-authorization-header.html
+    // https://docs.aws.amazon.com/AmazonS3/latest/developerguide/sig-v4-header-based-auth.html
+    // http://docs.aws.amazon.com/general/latest/gr/sigv4-create-canonical-request.html
+    DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_S3,
+               "Using S3 v4 signature authentication (header mode)");
+
+    // timestamps — respect a caller-supplied x-amz-date (test seam); otherwise
+    // generate. datestamp is derived from whichever amzdate we end up using.
+    std::string amzdate;
+    for(const auto & h : headers) {
+        if(StrUtil::compare_ncase(h.first, "x-amz-date") == 0) {
+            amzdate = h.second;
+            break;
+        }
+    }
+    if(amzdate.empty()) {
+        amzdate = current_time("%Y%m%dT%H%M%SZ");
+        headers.push_back(HeaderLine("x-amz-date", amzdate));
+    }
+    // x-amz-date is YYYYMMDDTHHMMSSZ (16 chars); datestamp is the YYYYMMDD prefix.
+    if(amzdate.size() < 16) {
+        throw DavixException(std::string("S3::signRequestv4"), StatusCode::InvalidArgument,
+                             "Malformed x-amz-date: " + amzdate);
+    }
+    const std::string datestamp = amzdate.substr(0, 8);
+
+    // payload hash: for bodyless verbs sign SHA256("") rather than the
+    // "UNSIGNED-PAYLOAD" literal — strict gateways (Copernicus gateway) 403 on a
+    // signed UNSIGNED-PAYLOAD against an empty body. SHA256("") = e3b0c442...
+    //
+    // NOTE: streaming/multipart uploads (STREAMING-AWS4-HMAC-SHA256-PAYLOAD) are
+    // not implemented; PUT/POST use UNSIGNED-PAYLOAD.
+    static const std::string EMPTY_SHA256 =
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
+
+    const bool bodyless =
+        (method == "GET" || method == "HEAD" || method == "DELETE");
+    const std::string payload_hash =
+        bodyless ? EMPTY_SHA256 : std::string("UNSIGNED-PAYLOAD");
+
+    // add content-sha256 only if not already present (dedup)
+    bool has_content_sha = false;
+    for(const auto & h : headers) {
+        if(StrUtil::compare_ncase(h.first, "x-amz-content-sha256") == 0) {
+            has_content_sha = true;
+            break;
+        }
+    }
+    if(!has_content_sha) {
+        headers.push_back(HeaderLine("x-amz-content-sha256", payload_hash));
+    }
+    if(params.getAwsToken().size() != 0) {
+        headers.push_back(HeaderLine("x-amz-security-token", params.getAwsToken()));
+    }
+
+    // host (omit default port)
+    bool defaultPort = (url.getPort() == 0)
+        || (url.getPort() == 80  && (url.getProtocol() == "http"  || url.getProtocol() == "s3"))
+        || (url.getPort() == 443 && (url.getProtocol() == "https" || url.getProtocol() == "s3s"));
+    std::string host = url.getHost();
+    if(!defaultPort) host += SSTR(":" << url.getPort());
+
+    // canonical headers: getAmzCanonHeaders_vec returns the x-amz-* headers
+    // (original-case) but NOT host or x-amz-date, so add those explicitly.
+    // Also add any signed non-amz headers the caller set (e.g. Range). The dedup
+    // below makes these explicit pushes safe even if a header is also present in
+    // the vector returned by getAmzCanonHeaders_vec.
+    HeaderVec can_headers = getAmzCanonHeaders_vec(headers);
+    can_headers.push_back(HeaderLine("host", host));
+    can_headers.push_back(HeaderLine("x-amz-date", amzdate));
+
+    // include "range" if supplied (AWS example signs host;range;...sha256;date)
+    for(const auto & h : headers) {
+        if(StrUtil::compare_ncase(h.first, "range") == 0) {
+            can_headers.push_back(HeaderLine("range", h.second));
+        }
+    }
+
+    // lowercase keys, then sort, then dedup by key
+    for(auto & h : can_headers) h.first = StrUtil::toLower(h.first);
+    std::sort(can_headers.begin(), can_headers.end());
+    // Dedup by header key (keeps first value). NOTE: we do not combine duplicate
+    // signed headers into a comma-separated value as AWS canonicalization allows;
+    // davix does not emit duplicate signed headers in practice.
+    can_headers.erase(
+        std::unique(can_headers.begin(), can_headers.end(),
+                    [](const HeaderLine & a, const HeaderLine & b){
+                        return a.first == b.first;
+                    }),
+        can_headers.end());
+
+    std::ostringstream can_headers_str, signed_headers_str;
+    for(auto it = can_headers.begin(); it != can_headers.end(); ++it) {
+        can_headers_str << it->first << ":" << StrUtil::trim(it->second) << "\n";
+        signed_headers_str << it->first;
+        if(it + 1 != can_headers.end()) signed_headers_str << ";";
+    }
+
+    // canonical query string: getQueryVec() returns decoded values; pass them
+    // through unescaped to match signURIv4 (do not double-encode).
+    ParamVec can_query_params;
+    const ParamVec existing_params = url.getQueryVec();
+    for(const auto & p : existing_params) {
+        can_query_params.push_back(ParamLine(p.first, p.second));
+    }
+    std::sort(can_query_params.begin(), can_query_params.end());
+
+    std::ostringstream can_query_str;
+    for(auto it = can_query_params.begin(); it != can_query_params.end(); ++it) {
+        can_query_str << it->first << "=" << it->second;
+        if(it + 1 != can_query_params.end()) can_query_str << "&";
+    }
+
+    // canonical request
+    std::ostringstream canonical_request;
+    canonical_request << method << "\n"
+                      << url.getPath() << "\n"
+                      << can_query_str.str() << "\n"
+                      << can_headers_str.str() << "\n"
+                      << signed_headers_str.str() << "\n"
+                      << payload_hash;
+
+    DAVIX_SLOG(DAVIX_LOG_DEBUG, DAVIX_LOG_S3,
+               "Canonical request (header mode) length: {}",
+               canonical_request.str().size());
+
+    // string to sign
+    const std::string can_req_hash = hexEncode(sha256(canonical_request.str().c_str()));
+    std::ostringstream string_to_sign;
+    string_to_sign << "AWS4-HMAC-SHA256" << "\n"
+                   << amzdate << "\n"
+                   << datestamp << "/" << params.getAwsRegion() << "/s3/aws4_request" << "\n"
+                   << can_req_hash;
+
+    // signature
+    const std::string signature = getAwsSignaturev4(string_to_sign.str(), params.getAwsAutorizationKeys().first,
+                                                    params.getAwsRegion(), "s3", datestamp);
+
+    DAVIX_SLOG(DAVIX_LOG_VERBOSE, DAVIX_LOG_S3, "Signature: {}", signature);
+
+    // Authorization header
+    std::ostringstream auth;
+    auth << "AWS4-HMAC-SHA256 "
+         << "Credential=" << params.getAwsAutorizationKeys().second
+                          << "/" << datestamp
+                          << "/" << params.getAwsRegion()
+                          << "/s3/aws4_request, "
+         << "SignedHeaders=" << signed_headers_str.str() << ", "
+         << "Signature=" << signature;
+
+    headers.push_back(HeaderLine("Authorization", auth.str()));
+}
+
 
 // return a signed s3 URI, does not modify the headers
 Uri signURI(const RequestParams & params, const std::string & method, const Uri & url, HeaderVec headers, const time_t expirationTime) {

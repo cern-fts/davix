@@ -33,6 +33,10 @@ Uri signURI(const RequestParams & params, const std::string & method, const Uri 
 
 void signRequest(const RequestParams & params, const std::string & method, const Uri & url, HeaderVec & headers);
 
+// Sign an S3 v4 request in Authorization-header form (does not modify the URI).
+// Respects a caller-provided x-amz-date so signing can be tested deterministically.
+void signRequestv4(const RequestParams & params, const std::string & method, const Uri & url, HeaderVec & headers);
+
 Uri tokenizeRequest(const RequestParams & params, const std::string & method, const Uri & url, HeaderVec & headers, time_t expirationTime);
 
 Uri s3UriTransformer(const Uri & original_url, const RequestParams & params, const bool addDelimiter);

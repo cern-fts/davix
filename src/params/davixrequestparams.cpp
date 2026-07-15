@@ -100,6 +100,7 @@ struct RequestParamsInternal{
         _aws_region(),
         _aws_token(),
         _aws_alternate(false),
+        _aws_sigv4_header_mode(false),
         _azure_key(),
         _gcloud_creds(),
         _os_token(),
@@ -152,6 +153,7 @@ struct RequestParamsInternal{
         _aws_region(param_private._aws_region),
         _aws_token(param_private._aws_token),
         _aws_alternate(param_private._aws_alternate),
+        _aws_sigv4_header_mode(param_private._aws_sigv4_header_mode),
         _azure_key(param_private._azure_key),
         _gcloud_creds(param_private._gcloud_creds),
         _os_token(param_private._os_token),
@@ -203,6 +205,7 @@ struct RequestParamsInternal{
     AwsRegion _aws_region;
     AwsToken _aws_token;
     bool _aws_alternate;
+    bool _aws_sigv4_header_mode;
     AzureSecretKey _azure_key;
     gcloud::Credentials _gcloud_creds;
     OSToken _os_token;
@@ -399,6 +402,14 @@ void RequestParams::setAwsAlternate(const bool &alternate) {
 
 const bool & RequestParams::getAwsAlternate() const {
     return d_ptr->_aws_alternate;
+}
+
+void RequestParams::setAwsSigV4HeaderMode(const bool & header_mode) {
+    d_ptr->_aws_sigv4_header_mode = header_mode;
+}
+
+const bool & RequestParams::getAwsSigV4HeaderMode() const {
+    return d_ptr->_aws_sigv4_header_mode;
 }
 
 void RequestParams::setAzureKey(const AzureSecretKey &key) {

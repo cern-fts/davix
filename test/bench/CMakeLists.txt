@@ -7,7 +7,7 @@ LIST(APPEND src_davix_bench "davix_bench.cpp" "chunk_queue.cpp")
 #include_directories(/usr/include/davix)
 
 add_executable(davix-bench ${src_davix_bench})
-target_link_libraries(davix-bench libdavix ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(davix-bench libdavix Threads::Threads)
 
 function(test_read url opt input)
     add_test(test_bench_read_${url} davix-bench ${opt} ${url} ${input})

@@ -24,7 +24,7 @@ target_link_libraries(davix-slow-unit-tests
   libdavix
   GTest::GTest
   GTest::Main
-  ${CMAKE_THREAD_LIBS_INIT}
+  Threads::Threads
   ${LIBSSL_PKG_LIBRARIES}
 )
 

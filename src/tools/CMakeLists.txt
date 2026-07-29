@@ -28,7 +28,7 @@ set_target_properties(davix_tool PROPERTIES
 ## davix ls cmd line
 add_executable(davix_ls_tool davix_tool_ls_main.cpp)
 
-target_link_libraries(davix_ls_tool davix_tool_lib libdavix ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(davix_ls_tool davix_tool_lib libdavix Threads::Threads)
 set_target_properties(davix_ls_tool PROPERTIES
                                 OUTPUT_NAME "davix-ls")
 
@@ -36,14 +36,14 @@ set_target_properties(davix_ls_tool PROPERTIES
 ## davix get cmd line
 add_executable(davix_get_tool davix_tool_get_main.cpp)
 
-target_link_libraries(davix_get_tool davix_tool_lib libdavix pthread ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(davix_get_tool davix_tool_lib libdavix pthread Threads::Threads)
 set_target_properties(davix_get_tool PROPERTIES
                                 OUTPUT_NAME "davix-get")
 
 ## davix put cmd line
 add_executable(davix_put_tool davix_tool_put_main.cpp)
 
-target_link_libraries(davix_put_tool davix_tool_lib libdavix pthread ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(davix_put_tool davix_tool_lib libdavix pthread Threads::Threads)
 set_target_properties(davix_put_tool PROPERTIES
                                 OUTPUT_NAME "davix-put")
 
@@ -58,7 +58,7 @@ set_target_properties(davix_mkdir_tool PROPERTIES
 ## davix rm cmd line
 add_executable(davix_rm_tool davix_tool_rm_main.cpp)
 
-target_link_libraries(davix_rm_tool davix_tool_lib libdavix ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(davix_rm_tool davix_tool_lib libdavix Threads::Threads)
 set_target_properties(davix_rm_tool PROPERTIES
                                 OUTPUT_NAME "davix-rm")
 

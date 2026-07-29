@@ -111,7 +111,7 @@ target_link_libraries(libdavix
   PRIVATE ${libcurl}
   PUBLIC ${LIBSSL_PKG_LIBRARIES}
          ${LIBXML2_LIBRARIES}
-         ${CMAKE_THREAD_LIBS_INIT}
+         Threads::Threads
          ${CMAKE_DL_LIBS}
          ${UUID_LIBRARIES}
          ${SECURE_TRANSPORT_LIBRARIES}
@@ -152,7 +152,7 @@ target_link_libraries(libdavix_static
   PRIVATE ${libcurl}
   PUBLIC ${LIBSSL_PKG_LIBRARIES}
          ${LIBXML2_LIBRARIES}
-         ${CMAKE_THREAD_LIBS_INIT}
+         Threads::Threads
          ${CMAKE_DL_LIBS}
          ${UUID_LIBRARIES}
          ${SECURE_TRANSPORT_LIBRARIES}

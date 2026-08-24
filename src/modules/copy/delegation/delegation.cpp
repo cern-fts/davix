@@ -50,7 +50,7 @@ SOAP_NMAC struct Namespace namespaces[] =
 };
 
 // Timestamp from ASN1 representation
-static int get_timestamp_from_asn1(ASN1_TIME* asn1)
+static long long get_timestamp_from_asn1(ASN1_TIME* asn1)
 {
     char* data = (char*) ASN1_STRING_data(asn1);
     size_t len = strlen(data);
@@ -88,7 +88,7 @@ static int get_timestamp_from_asn1(ASN1_TIME* asn1)
 }
 
 // Remaining lifetime from the given certificate
-static int get_cert_remaining_life(const std::string& cert)
+static long long get_cert_remaining_life(const std::string& cert)
 {
     FILE* f = fopen(cert.c_str(), "r");
     if (f == NULL)
@@ -99,7 +99,7 @@ static int get_cert_remaining_life(const std::string& cert)
         return 0;
 
     ASN1_TIME* expiration = X509_get_notAfter(x509_cert);
-    int expiration_timestamp = get_timestamp_from_asn1(expiration);
+    long long expiration_timestamp = get_timestamp_from_asn1(expiration);
     X509_free(x509_cert);
 
     return (expiration_timestamp - time(NULL)) / 60;
@@ -145,8 +145,8 @@ bool DavixDelegation::get_credentials(const Davix::RequestParams& params,
 		capath = capathList[0];
 
 	// Delegation lifetime (in minutes!)
-	int cert_remaining_life = get_cert_remaining_life(ucert);
-	int delegation_max_life = 12 * 60; // 12 hours
+	long long cert_remaining_life = get_cert_remaining_life(ucert);
+	long long delegation_max_life = 12 * 60; // 12 hours
 
 	// Delegated proxy lifetime should be shorter than the current lifetime!
 	*lifetime = std::min(cert_remaining_life, delegation_max_life) - 1;

@@ -75,12 +75,12 @@ alma9:
   image: gitlab-registry.cern.ch/linuxsupport/alma9-base
   <<: *build-fedora-template_definition
 
-fedora-40:
-  image: registry.cern.ch/docker.io/library/fedora:40
+fedora-43:
+  image: registry.cern.ch/docker.io/library/fedora:43
   <<: *build-fedora-template_definition
 
-fedora-41:
-  image: registry.cern.ch/docker.io/library/fedora:41
+fedora-44:
+  image: registry.cern.ch/docker.io/library/fedora:44
   <<: *build-fedora-template_definition
 
 fedora-rawhide:
@@ -139,22 +139,22 @@ alma9-test:
     - dnf install -y alma9/RPMS/*.rpm
     - davix-unit-tests
 
-fedora-40-test:
+fedora-43-test:
   stage: test
-  image: registry.cern.ch/docker.io/library/fedora:40
+  image: registry.cern.ch/docker.io/library/fedora:43
   needs:
-    - job: fedora-40
+    - job: fedora-43
   script:
-    - dnf install -y fedora-40/RPMS/*.rpm
+    - dnf install -y fedora-43/RPMS/*.rpm
     - davix-unit-tests
 
-fedora-41-test:
+fedora-44-test:
   stage: test
-  image: registry.cern.ch/docker.io/library/fedora:41
+  image: registry.cern.ch/docker.io/library/fedora:44
   needs:
-    - job: fedora-41
+    - job: fedora-44
   script:
-    - dnf install -y fedora-41/RPMS/*.rpm
+    - dnf install -y fedora-44/RPMS/*.rpm
     - davix-unit-tests
 
 #--------------------------
@@ -202,16 +202,16 @@ rpms-dmc:
   image: gitlab-registry.cern.ch/eos/gitlab-eos/alma9:latest
   dependencies:
     - alma9
-    - fedora-40
-    - fedora-41
+    - fedora-43
+    - fedora-44
     - fedora-rawhide
   script:
     - automount
     - cat "$STCI_PASSWORD" | kinit stci
-    - declare -A DISTMAP=( [alma9]=el9 [fedora-40]=fc40 [fedora-41]=fc41 [fedora-rawhide]=fc-rawhide )
+    - declare -A DISTMAP=( [alma9]=el9 [fedora-43]=fc43 [fedora-44]=fc44 [fedora-rawhide]=fc-rawhide )
     - if [[ -z $CI_COMMIT_TAG ]]; then BUILD="testing" ; else BUILD="rc" ; fi
     - |
-        for platform in alma9 fedora-40 fedora-41 fedora-rawhide ; do
+        for platform in alma9 fedora-43 fedora-44 fedora-rawhide ; do
           dist=${DISTMAP[${platform}]};
           cp -nv ${platform}/RPMS/* ${platform}/SRPMS/* /eos/project-d/dmc/www/repos/${BUILD}/${dist}/x86_64 || true;
           packaging/update-repo.sh /eos/project-d/dmc/www/repos/${BUILD}/${dist}/x86_64;

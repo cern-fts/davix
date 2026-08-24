@@ -1,13 +1,24 @@
 # davix release history
 
-## Unreleased
+## 0.9.0 (2026-08-24)
+### Bug fixes
+* [davix/issues/132] - Tests fail to compile because of missing C++14 compile flags
+* [davix/issues/139] - Davix fails to build with cmake 4.0.0
+* [davix/pull/141] - Update CMake minimum requirement and supported versions
+* [davix/issues/145] - Memory leak in Davix post-0.8.10
+
 ### Task
+* [DMC-1426] - Remove dependency on RapidJSON from the Davix codebase
 * [DMC-1429] - Debian Bullseye build for Davix
 * [DMC-1430] - Ubuntu Jammy build for Davix
 * [DMC-1431] - Drop the embedded libcurl build
+* [DMC-1440] - Drop Alma8 build for Davix
+* [DMC-1443] - Davix clients for Fedora 43 and Fedora 44
 
 ### Improvements
+* [DMC-1373] - Davix should always interpret environment variable flags by value
 * [DMC-1432] - Upgrade Davix compiler support to C++17
+* [davix/pull/140] - Move a buffer from stack to heap (helps environments with restricted stack size)
 
 ## 0.8.10 (2025-02-13)
 ### Bug fixes

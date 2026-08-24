@@ -6,7 +6,7 @@ Release:      @VERSION_RELEASE@%{?dist}
 Summary:      Toolkit for HTTP-based file management
 License:      LGPLv2+
 URL:          https://dmc-docs.web.cern.ch/dmc-docs/davix.html
-#Source0:     https://github.com/cern-fts/davix/releases/download/R_0_8_10/davix-0.8.10.tar.gz
+#Source0:     https://github.com/cern-fts/davix/releases/download/R_0_8_11/davix-0.8.11.tar.gz
 Source0:      %{name}-%{version}.tar.gz
 
 BuildRequires:      gcc-c++
@@ -147,6 +147,9 @@ rm %{buildroot}%{_pkgdocdir}/LICENSE
 %license LICENSE
 
 %changelog
+* Fri Sep 19 2025 Mihai Patrascoiu <mihai.patrascoiu at cern.ch> - 0.8.11-1
+- davix 0.8.11 release, see RELEASE-NOTES.md for changes
+
 * Thu Feb 13 2025 Mihai Patrascoiu <mihai.patrascoiu at cern.ch> - 0.8.10-1
 - davix 0.8.10 release, see RELEASE-NOTES.md for changes
 

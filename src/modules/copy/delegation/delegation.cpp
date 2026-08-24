@@ -52,7 +52,7 @@ SOAP_NMAC struct Namespace namespaces[] =
 // Timestamp from ASN1 representation
 static int get_timestamp_from_asn1(ASN1_TIME* asn1)
 {
-    char* data = (char*) ASN1_STRING_data(asn1);
+    char* data = (char*) ASN1_STRING_get0_data(asn1);
     size_t len = strlen(data);
     struct tm time_tm;
     char zone = 0;

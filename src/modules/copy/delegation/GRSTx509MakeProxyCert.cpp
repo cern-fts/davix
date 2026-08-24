@@ -118,7 +118,12 @@ int GRSTx509MakeProxyCert(char **proxychain, FILE *debugfp,
   const EVP_MD *digest;
   X509 **certs = NULL;
   X509_REQ *req;
-  X509_NAME *name, *CAsubject, *newsubject;
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+  const X509_NAME *name, *CAsubject;
+#else
+  X509_NAME *name, *CAsubject;
+#endif
+  X509_NAME *newsubject;
   X509_NAME_ENTRY *ent;
   ASN1_OBJECT *pci_obj = NULL, *kyu_obj;
   ASN1_OCTET_STRING *pci_oct, *kyu_oct;
@@ -306,16 +311,16 @@ int GRSTx509MakeProxyCert(char **proxychain, FILE *debugfp,
   pci_obj = OBJ_txt2obj(GRST_PROXYCERTINFO_OID, 0);
 
   notAfter =
-     GRSTasn1TimeToTimeT(ASN1_STRING_data(X509_get_notAfter(certs[0])), 0);
+     GRSTasn1TimeToTimeT(ASN1_STRING_get0_data(X509_get_notAfter(certs[0])), 0);
 
   for (i=1; i < ncerts; ++i)
      {
        if (notAfter >
-           GRSTasn1TimeToTimeT(ASN1_STRING_data(X509_get_notAfter(certs[i])),
+           GRSTasn1TimeToTimeT(ASN1_STRING_get0_data(X509_get_notAfter(certs[i])),
                                0))
          {
            notAfter =
-            GRSTasn1TimeToTimeT(ASN1_STRING_data(X509_get_notAfter(certs[i])),
+            GRSTasn1TimeToTimeT(ASN1_STRING_get0_data(X509_get_notAfter(certs[i])),
                                 0);
 
            ASN1_UTCTIME_set(X509_get_notAfter(certs[0]), notAfter);

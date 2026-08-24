@@ -101,7 +101,7 @@ ne_ssl_client_cert *SSL_X509_Pem_Read(const std::string & pkeyfile_str, const st
     ne_ssl_client_cert *cc=NULL;
     int len, errcode;
     const char * pkeyfile = pkeyfile_str.c_str(), *credfile = credfile_str.c_str(), *password = password_str.c_str();
-    unsigned char* name;
+    const unsigned char* name;
 
 
     if( pkeyfile ==NULL || credfile ==NULL || ((in = BIO_new(BIO_s_file())) == NULL)){

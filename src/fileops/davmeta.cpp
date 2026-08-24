@@ -194,18 +194,16 @@ int dav_stat_mapper_http_get(Context& context, const RequestParams* params, cons
 dav_ssize_t incremental_listdir_parsing(HttpRequest* req, XMLPropParser * parser, dav_size_t s_buff, const std::string & scope){
     DavixError* tmp_err=NULL;
 
-    char* buffer;
-    buffer = (char*)malloc(s_buff+1);
-    const dav_ssize_t ret = req->readSegment(buffer, s_buff, &tmp_err);
+    std::vector<char> buffer(s_buff+1);
+    const dav_ssize_t ret = req->readSegment(buffer.data(), s_buff, &tmp_err);
     checkDavixError(&tmp_err);
     if(ret >= 0){
         buffer[ret]= '\0';
-        parser->parseChunk(buffer, ret);
+        parser->parseChunk(buffer.data(), ret);
     }else{
         throw DavixException(scope, StatusCode::UnknownError, "Unknown readSegment error");
     }
 
-    free(buffer);
     return ret;
 }
 

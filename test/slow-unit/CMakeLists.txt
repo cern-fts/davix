@@ -10,6 +10,7 @@ add_executable(davix-slow-unit-tests
   ../drunk-server/LineReader.cpp
 
   drunk-server.cpp
+  webdav-propfind.cpp
   standalone-request.cpp
 )
 

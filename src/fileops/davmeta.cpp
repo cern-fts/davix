@@ -59,7 +59,17 @@ static const std::string quota_stat("<?xml version=\"1.0\" encoding=\"utf-8\" ?>
                                       "<D:quota-used-bytes/><D:quota-available-bytes/>"
                                       "</D:prop>"
                                       "</D:propfind>");
+static void addXmlContentType(HttpRequest &request, const RequestParams *params) {
+    if (params != nullptr) {
+        for (const HeaderLine &header : params->getHeaders()) {
+            if (StrUtil::compare_ncase(header.first, "Content-Type") == 0) {
+                return;
+            }
+        }
+    }
 
+    request.addHeaderField("Content-Type", "application/xml");
+}
 struct DirHandle{
 
     DirHandle(HttpRequest* req, XMLPropParser * p): request(req), parser(p){}
@@ -256,6 +266,7 @@ void getQuotaInfo(Context & c, const Uri & url, const RequestParams *p, QuotaInf
     req.setParameters(*p);
     req.addHeaderField("Depth","0");
     req.setRequestMethod("PROPFIND");
+    addXmlContentType(req, p);
     req.setRequestBody(quota_stat);
 
     if (req.executeRequest(&tmp_err) == 0 && !tmp_err) {
@@ -489,10 +500,11 @@ void webdav_start_listing_query(std::unique_ptr<DirHandle> & handle, Context & c
     XMLPropParser & parser = *(handle->parser);
 
     http_req.addHeaderField("Depth","1");
+
     http_req.setParameters(params);
+    addXmlContentType(http_req, params);
     // setup the handle for simple listing only
     http_req.setRequestBody(body);
-
     http_req.beginRequest(&tmp_err);
     checkDavixError(&tmp_err);
 
